@@ -30,7 +30,7 @@ public class Shares extends Model {
 		fireObjectRemovedEvent(share);
 	}
 	
-	public List<Share> getShares() {
+	public List<Share> getSharesList() {
 		return shares;
 	}
 	
@@ -48,6 +48,14 @@ public class Shares extends Model {
 		}
 	
 		return new Shares(clone, getParent());
+	}
+	
+	@Override
+	public String toString()
+	{
+		int size = shares.size();
+		
+		return super.toString() + (size > 0 ? " (" + shares.size() + ")" : "");
 	}
 	
 	@Override

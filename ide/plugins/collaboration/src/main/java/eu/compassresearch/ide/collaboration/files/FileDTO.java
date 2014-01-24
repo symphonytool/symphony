@@ -4,7 +4,8 @@ import java.io.Serializable;
 
 import eu.compassresearch.ide.collaboration.datamodel.File;
 
-public class FileSet implements Serializable 
+//TODO add visibility
+public class FileDTO implements Serializable 
 {
 	private static final long serialVersionUID = 1205778148091363586L;
 	
@@ -15,7 +16,7 @@ public class FileSet implements Serializable
 	private String fileContent;
 	private long timstamp;
 	
-	public FileSet(File file, String content)
+	public FileDTO(File file, String content)
 	{
 		this.fileName = file.getName();
 		this.fileHash = file.getHash();
@@ -53,5 +54,11 @@ public class FileSet implements Serializable
 	public String getFilePath()
 	{
 		return filePath;
+	}
+	
+	@Override
+	public String toString()
+	{
+		return getFileName();
 	}
 }

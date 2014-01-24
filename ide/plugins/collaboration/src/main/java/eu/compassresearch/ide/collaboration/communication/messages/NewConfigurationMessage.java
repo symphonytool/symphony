@@ -1,11 +1,12 @@
 package eu.compassresearch.ide.collaboration.communication.messages;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.ecf.core.identity.ID;
 
 import eu.compassresearch.ide.collaboration.datamodel.Configuration;
-import eu.compassresearch.ide.collaboration.files.FileSet;
+import eu.compassresearch.ide.collaboration.files.FileDTO;
 
 public class NewConfigurationMessage extends BaseMessage
 {
@@ -14,10 +15,10 @@ public class NewConfigurationMessage extends BaseMessage
 	private String signedBy;
 	private long timeStamp;
 	private String parentConfigUniqueID;
-	private List<FileSet> fileSets;
+	private List<FileDTO> fileDTOs;
 
 	public NewConfigurationMessage(ID sender, 
-			String projectID, Configuration config, List<FileSet> fileSets)
+			String projectID, Configuration config, List<FileDTO> dtos)
 	{
 		super(sender, projectID);
 
@@ -30,7 +31,13 @@ public class NewConfigurationMessage extends BaseMessage
 			this.parentConfigUniqueID = parentConfiguration.getUniqueID();
 		}
 		
-		this.fileSets = fileSets;
+		this.fileDTOs = dtos;
+	}
+
+	public NewConfigurationMessage(ID sender, String projectID,
+			Configuration config)
+	{
+		this(sender, projectID, config, new ArrayList<FileDTO>());
 	}
 
 	public String getConfigurationUniqueID()
@@ -53,8 +60,22 @@ public class NewConfigurationMessage extends BaseMessage
 		return parentConfigUniqueID;
 	}
 
-	public List<FileSet> getFileSets()
+	public List<FileDTO> getFileSets()
 	{
-		return fileSets;
+		return fileDTOs;
+	}
+
+	public void addFiles(List<FileDTO> files)
+	{
+		if(files == null)
+			return;
+		
+		fileDTOs.addAll(files);
+	}
+	
+	@Override
+	public String toString()
+	{
+		return fileDTOs.toString();
 	}
 }

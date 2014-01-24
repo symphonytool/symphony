@@ -24,6 +24,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
 import eu.compassresearch.ide.collaboration.Activator;
+import eu.compassresearch.ide.collaboration.CollaborationPluginUtils;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationProject;
 import eu.compassresearch.ide.collaboration.datamodel.File;
 import eu.compassresearch.ide.collaboration.notifications.Notification;
@@ -35,6 +36,7 @@ public class FileHandler
 	private static final String defaultFileNameExtension = ".dat";
 	private static final String defaultCollaborationFolderName = ".Collaboration";
 
+	
 	public static IFile loadFileFromCollaborationDir(File file,
 			CollaborationProject collaborationProject) throws CoreException,
 			IOException
@@ -102,7 +104,7 @@ public class FileHandler
 		return newFile;
 	}
 
-	public static boolean saveFilesToCollaborationDir(List<FileSet> list,
+	public static boolean saveFilesToCollaborationDir(List<FileDTO> list,
 			CollaborationProject collaborationProject) throws CoreException
 	{
 		// find project
@@ -113,7 +115,7 @@ public class FileHandler
 
 		// save files
 		IFolder collabProjectFolder = getCollaborationDirectory(project);
-		for (FileSet fs : list)
+		for (FileDTO fs : list)
 		{
 			IFile newFile = collabProjectFolder.getFile(fs.getFileHashName());
 
@@ -318,5 +320,26 @@ public class FileHandler
 		{
 			formatter.close();
 		}
+	}
+	
+	//Will retrieve a file from the collaboration dir. If file is not already stored, it will 
+	//copy it from the workspace to the collaboration dir before returning it. 
+	public static String persistFileAndRetrieveContents(File file) throws CoreException, IOException
+	{
+		CollaborationProject collaborationProject = file.getCollaborationProject();
+		
+		IFile iFile;
+		//if file is not already stored, copy it from the workspace to the collaboration dir, before retrieving it. 
+		if (!file.isStored())
+		{
+			iFile = FileHandler.copyFileToCollaborationDir(file, collaborationProject);
+			file.setAsStored();
+		} else
+		{
+			iFile = FileHandler.loadFileFromCollaborationDir(file, collaborationProject);
+		}
+
+		//return file contents
+		return CollaborationPluginUtils.convertStreamToString(iFile.getContents());
 	}
 }

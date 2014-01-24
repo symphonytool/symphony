@@ -19,6 +19,12 @@
             	style="push"
             tooltip="Adds the file to the collaboration project">
 			</command>
+			<command
+            	commandId="eu.compassresearch.ide.collaboration.ui.AddFileToCollaborationWithLimitedVisibility"
+            	label="Include file in collaboration project (with limited visibility)"
+            	style="push"
+            tooltip="Adds the file to the collaboration project, with the file only being visible to selected collaborators">
+			</command>
 			<visibleWhen>
 		 		<or>
       				<with variable="selection">
@@ -76,6 +82,7 @@
 			name="Symphony"/>
 	  <view
          name="Collaborative Modelling"
+         category="eu.compassresearch.ide.ui.category"
          icon="icons/icon_collaboration.gif"
          class="eu.compassresearch.ide.collaboration.ui.view.CollaborationView"
          id="eu.compassresearch.ide.collaboration.ui.view.CollaborationView">
@@ -101,12 +108,13 @@
          id="eu.compassresearch.ide.collaboration.ui.NewCollaborationProject"
          name="Add new collaboration project">
 		</command>
-</extension>
-
-<extension point="org.eclipse.ui.commands">
 		<command
          id="eu.compassresearch.ide.collaboration.ui.AddFileToCollaboration"
-         name="Add file to collaboration project">
+         name="Include file in collaboration project">
+		</command>
+				<command
+         id="eu.compassresearch.ide.collaboration.ui.AddFileToCollaborationWithLimitedVisibility"
+         name="Include file in collaboration project (with limited visibility)">
 		</command>
 </extension>
 
@@ -116,13 +124,15 @@
 	 class ="eu.compassresearch.ide.collaboration.ui.commands.NewCollaborationProjectHandler"
      commandId="eu.compassresearch.ide.collaboration.ui.NewCollaborationProject">
 	</handler>
-</extension>
-
-<extension point="org.eclipse.ui.handlers">
 	<handler
 	 class ="eu.compassresearch.ide.collaboration.ui.commands.AddFileToCollaborationHandler"
      commandId="eu.compassresearch.ide.collaboration.ui.AddFileToCollaboration">
 	</handler>
+	<handler
+	 class ="eu.compassresearch.ide.collaboration.ui.commands.AddFileToCollaborationLimitedVisibilityHandler"
+     commandId="eu.compassresearch.ide.collaboration.ui.AddFileToCollaborationWithLimitedVisibility">
+	</handler>
 </extension>
+
 
 </plugin>

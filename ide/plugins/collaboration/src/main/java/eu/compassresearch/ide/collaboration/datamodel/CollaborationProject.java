@@ -142,7 +142,7 @@ public class CollaborationProject extends Model
 			return newestConfiguration.getFileStatus(fileStatus);
 		}
 	}
-
+	
 	@Override
 	public CollaborationProject getCollaborationProject()
 	{
@@ -152,5 +152,10 @@ public class CollaborationProject extends Model
 	public Configuration getConfiguration(String configurationUniqueID)
 	{
 		return configurations.getConfigurationFromId(configurationUniqueID);
+	}
+
+	public Configuration getNewestConfiguration()
+	{
+		return configurations.getNewestConfiguration();
 	}
 }

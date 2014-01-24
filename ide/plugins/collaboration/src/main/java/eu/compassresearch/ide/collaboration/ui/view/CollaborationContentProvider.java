@@ -66,20 +66,20 @@ public class CollaborationContentProvider implements ITreeContentProvider, IDelt
 			Object[] both = new Object[]{collabPrj.getConfigurations(),collabPrj.getCollaboratorGroup()};
 			return both;
 		} else if(parentElement instanceof Configurations) {
-			Configurations contracts = (Configurations)parentElement;
-			return contracts.getConfigurations().toArray();
+			Configurations configuration = (Configurations)parentElement;
+			return configuration.getConfigurations().toArray();
 		} else if(parentElement instanceof Configuration) {
 			Configuration contract = (Configuration)parentElement;
 			return new Object[]{contract.getFiles()};
 		} else if(parentElement instanceof Shares) {
 			Shares shares = (Shares)parentElement;
-			return shares.getShares().toArray();
+			return shares.getSharesList().toArray();
 		} else if(parentElement instanceof Files) {
-			Files versions = (Files)parentElement;
-			return versions.getFilesList().toArray();
+			Files files = (Files)parentElement;
+			return files.getFilesList().toArray();
 		} else if(parentElement instanceof File) {
-			File version = (File)parentElement;
-			return version.getShares().getShares().toArray();
+			File file = (File)parentElement;
+			return new Object[]{file.getShares()};
 		} 
 		else if(parentElement instanceof CollaborationGroup) {
 			CollaborationGroup collabGroup = (CollaborationGroup)parentElement;

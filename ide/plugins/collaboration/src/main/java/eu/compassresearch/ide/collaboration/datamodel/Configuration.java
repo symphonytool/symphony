@@ -24,6 +24,7 @@ public class Configuration extends Model {
 	private Configuration parentConfiguration;
 	private CollaborationState collabState;
 	private String configurationSignature;
+	private boolean hasLimitedVisibility;
 
 	public Configuration(Model parent){
 		super("Unnamed Configuration", parent);
@@ -34,6 +35,7 @@ public class Configuration extends Model {
 		Date d = new Date();
 		timestamp_ux_epoch = d.getTime();
 		this.name =  uniqueID.substring(0, 8) + " - " + new Date(timestamp_ux_epoch);
+		hasLimitedVisibility = false;
 	}
 	
 	public Configuration(String configurationUniqueID, long timeStamp,
@@ -45,10 +47,9 @@ public class Configuration extends Model {
 		timestamp_ux_epoch = timeStamp;
 		configurationSignature = signedBy;
 		collabState = CollaborationState.RECEIVED;
+		hasLimitedVisibility = false;
 		this.name =  uniqueID.substring(0, 8) + " - " + new Date(timestamp_ux_epoch);
-		
 		files = new Files(this);
-		
 		parentConfiguration = oldConfiguration;
 	}
 	
@@ -168,6 +169,16 @@ public class Configuration extends Model {
 	{
 		return configurationSignature;
 	}
+	
+	public boolean hasLimitedVisibility()
+	{		
+		return hasLimitedVisibility;
+	}
+	
+	public void setLimitedVisibility()
+	{		
+		hasLimitedVisibility = true;
+	}
 
 	public void setConfigurationShared()
 	{
@@ -195,7 +206,7 @@ public class Configuration extends Model {
 
 	public FileStatus getFileStatus(FileStatus fileStatus)
 	{
-		return files.getFileStatus(fileStatus);
+		return files.retrieveFileStatus(fileStatus);
 	}
 
 	public File getFile(String filename)

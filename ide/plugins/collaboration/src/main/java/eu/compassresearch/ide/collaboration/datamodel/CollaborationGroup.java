@@ -81,4 +81,12 @@ public class CollaborationGroup extends Model {
 	{
 		return getParent().getCollaborationProject();
 	}
+	
+	@Override
+	public String toString()
+	{
+		int size = collaborators.size();
+		
+		return super.toString() + (size > 0 ? " (" + collaborators.size() + ")" : "");
+	}
 }

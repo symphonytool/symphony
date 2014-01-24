@@ -58,7 +58,7 @@ public class Files extends Model {
 		return new Files(clone, newParent);
 	}
 	
-	public FileStatus getFileStatus(FileStatus forFile) 
+	public FileStatus retrieveFileStatus(FileStatus forFile) 
 	{
 		String fileName = forFile.getFileName();
 		if(files.containsKey(fileName)){

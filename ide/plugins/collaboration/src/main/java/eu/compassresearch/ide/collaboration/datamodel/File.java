@@ -1,6 +1,8 @@
 package eu.compassresearch.ide.collaboration.datamodel;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import eu.compassresearch.ide.collaboration.files.FileUpdate;
 
@@ -56,8 +58,16 @@ public class File extends Model
 
 	public void addShare(Share share)
 	{
+		Configuration config = (Configuration) getParent();
+		config.setLimitedVisibility();
+		
 		shares.addShare(share);
 		fireObjectUpdatedEvent(share);
+	}
+	
+	public void addShare(String name)
+	{
+		addShare(new Share(name, this));
 	}
 
 	protected void removeShare(Share share)
@@ -94,6 +104,20 @@ public class File extends Model
 	public CollaborationProject getCollaborationProject(){
 		
 		return getParent().getCollaborationProject();
+	}
+	
+	public List<String> getVisibilityList()
+	{
+		List<String> collaboratorsList = new ArrayList<String>();
+		for (Share share : getShares().getSharesList())
+		{
+			collaboratorsList .add(share.getName());
+		}
+		return collaboratorsList;
+	}
+
+	public boolean isVisibilityLimited(){
+		return shares.size() > 0;
 	}
 	
 	@Override

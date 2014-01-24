@@ -35,8 +35,7 @@ public class NewCollaborationProjectDialog extends TitleAreaDialog
 	private String project;
 	java.util.List<CollaborationProject> collabProjects;
 
-	public NewCollaborationProjectDialog(Shell parentShell,
-			java.util.List<CollaborationProject> collabProjects)
+	public NewCollaborationProjectDialog(java.util.List<CollaborationProject> collabProjects, Shell parentShell)
 	{
 		super(parentShell);
 		this.collabProjects = collabProjects;
@@ -138,7 +137,8 @@ public class NewCollaborationProjectDialog extends TitleAreaDialog
 				break;
 			}
 
-			if (project.getProjectWorkspaceName().equals(listProject.getSelection()[0]))
+			String[] selection = listProject.getSelection();
+			if (selection.length > 0 && project.getProjectWorkspaceName().equals(selection[0]))
 			{
 				setErrorMessage(Notification.Collab_Dialog_NEW_COLLAB_ERROR_COLLABORATION_ALREADY_ATTACHED
 						+ " "  + project.getTitle());

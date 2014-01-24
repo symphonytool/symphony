@@ -13,7 +13,6 @@ import org.eclipse.ecf.core.identity.ID;
 import org.eclipse.ecf.core.util.ECFException;
 import org.eclipse.ecf.datashare.IChannelContainerAdapter;
 import org.eclipse.ecf.presence.IPresence;
-import org.eclipse.ecf.presence.IPresence.Mode;
 import org.eclipse.ecf.presence.IPresence.Type;
 import org.eclipse.ecf.presence.IPresenceListener;
 import org.eclipse.ecf.presence.roster.IRoster;
@@ -22,7 +21,6 @@ import org.eclipse.ecf.presence.roster.IRosterGroup;
 import org.eclipse.ecf.presence.roster.IRosterItem;
 import org.eclipse.ecf.sync.SerializationException;
 
-import eu.compassresearch.ide.collaboration.Activator;
 import eu.compassresearch.ide.collaboration.communication.handlers.CollaborationRequestHandler;
 import eu.compassresearch.ide.collaboration.communication.handlers.CollaborationStatusMessageHandler;
 import eu.compassresearch.ide.collaboration.communication.handlers.ConfigurationStatusMessageHandler;
@@ -30,7 +28,6 @@ import eu.compassresearch.ide.collaboration.communication.handlers.NewConfigurat
 import eu.compassresearch.ide.collaboration.communication.messages.BaseMessage;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationGroup;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationProject;
-import eu.compassresearch.ide.collaboration.datamodel.Configuration;
 import eu.compassresearch.ide.collaboration.datamodel.User;
 
 public class ConnectionManager implements IPresenceListener
@@ -51,13 +48,12 @@ public class ConnectionManager implements IPresenceListener
 	{
 		synchronized (connectedUser)
 		{
-
+			// TODO update list when presence changes
 		}
 	}
 
 	private boolean addUser(ID user)
 	{
-
 		synchronized (availableCollaboratorsLock)
 		{
 			if (availableCollaborators == null
@@ -72,26 +68,37 @@ public class ConnectionManager implements IPresenceListener
 		}
 	}
 
+	// Send to all users, that have accepted to be part of the collaboration.
 	public void send(BaseMessage messageToSend, CollaborationProject project)
 			throws SerializationException
 	{
-		synchronized (availableCollaboratorsLock)
+
+		CollaborationGroup collaboratorGroup = project.getCollaboratorGroup();
+		List<User> collaborators = collaboratorGroup.getCollaborators();
+
+		for (User collaborator : collaborators)
 		{
-			Map<String, ID> receivers = getAvailableCollaborators();
-
-			byte[] serializedData = messageToSend.serialize();
-
-			CollaborationGroup collaboratorGroup = project.getCollaboratorGroup();
-			List<User> collaborators = collaboratorGroup.getCollaborators();
-
-			for (User collaborator : collaborators)
-			{
-				ID collaboratorId = receivers.get(collaborator.getName());
-				sendTo(collaboratorId, serializedData);
-			}
+			sendTo(collaborator, messageToSend);
 		}
 	}
 
+	public void sendTo(User user, BaseMessage messageToSend)
+			throws SerializationException
+	{
+		if (user.hasJoinedGroup())
+		{
+			Map<String, ID> receivers = getAvailableCollaborators();
+			ID collaboratorId;
+			synchronized (availableCollaboratorsLock)
+			{
+				collaboratorId = receivers.get(user.getName());
+			}
+			
+			sendTo(collaboratorId, messageToSend);
+		}
+	}
+
+	// Send to a specific user.
 	public void sendTo(ID receiverID, BaseMessage messageToSend)
 			throws SerializationException
 	{
@@ -101,6 +108,7 @@ public class ConnectionManager implements IPresenceListener
 		}
 	}
 
+	// Send to a specific user
 	public void sendTo(ID receiverID, byte[] serializedData)
 	{
 		if (receiverID != null)

@@ -4,8 +4,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.crypto.spec.OAEPParameterSpec;
 
@@ -15,6 +18,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.ecf.core.user.IUser;
+import org.eclipse.ecf.sync.SerializationException;
 
 import eu.compassresearch.ide.collaboration.Activator;
 import eu.compassresearch.ide.collaboration.CollaborationPluginUtils;
@@ -24,7 +28,7 @@ import eu.compassresearch.ide.collaboration.communication.messages.Configuration
 import eu.compassresearch.ide.collaboration.communication.messages.NewConfigurationMessage;
 import eu.compassresearch.ide.collaboration.files.FileComparison;
 import eu.compassresearch.ide.collaboration.files.FileHandler;
-import eu.compassresearch.ide.collaboration.files.FileSet;
+import eu.compassresearch.ide.collaboration.files.FileDTO;
 import eu.compassresearch.ide.collaboration.files.FileStatus;
 import eu.compassresearch.ide.collaboration.files.FileStatus.FileState;
 import eu.compassresearch.ide.collaboration.files.FileUpdate;
@@ -74,13 +78,39 @@ public class CollaborationDataModelManager
 		return datamodel.getCollaborationProjectFromID(id);
 	}
 
+	public FileStatus addFileWithLimitedVisibility(IFile file,
+			List<String> collaboratorNames)
+	{
+
+		// handle file normally
+		FileStatus fileStatus = handleFile(file);
+
+		// now limit scope of file
+		if (fileStatus.getState() == FileState.ADDED)
+		{
+			String projectName = file.getProject().getName();
+			CollaborationProject collaborationProject = getCollaborationProject(projectName);
+
+			Configuration newestConfiguration = collaborationProject.getNewestConfiguration();
+			File addedFile = newestConfiguration.getFile(file.getName());
+
+			for (String name : collaboratorNames)
+			{
+				addedFile.addShare(name);
+			}
+		}
+
+		return fileStatus;
+	}
+
 	public FileStatus handleFile(IFile file)
 	{
+		// create initial filestatus with file hash
 		FileStatus fileStatus = createFileStatus(file);
 
+		// find project
 		String projectName = file.getProject().getName();
 		CollaborationProject collaborationProject = getCollaborationProject(projectName);
-
 		if (collaborationProject == null)
 		{
 			ResourcesPlugin.getPlugin().getLog().log(new Status(Status.ERROR, Activator.PLUGIN_ID, 0, Notification.Collab_File_ERROR_NO_SUCH_PROJECT
@@ -91,11 +121,13 @@ public class CollaborationDataModelManager
 
 		fileStatus = collaborationProject.getFileStatus(fileStatus);
 
+		// new or changed file
 		if (fileStatus.getState() != FileState.UNCHANGED)
 		{
 			Configurations configurations = collaborationProject.getConfigurations();
 			Configuration newestConfiguration = configurations.getNewestConfiguration();
 
+			// new configuration if none exists or if it is not open
 			if (newestConfiguration == null || newestConfiguration.isShared()
 					|| newestConfiguration.isReceived())
 			{
@@ -111,11 +143,10 @@ public class CollaborationDataModelManager
 
 			try
 			{
-				if (fileStatus.getState() == FileState.ADDED)
+				if (fileStatus.getState() == FileState.ADDED) // if the file is new, add it to the tree
 				{
 					collaborationProject.addNewFile(file);
-
-				} else if (fileStatus.getState() == FileState.CHANGED)
+				} else if (fileStatus.getState() == FileState.CHANGED) // else update its state and hash
 				{
 					FileUpdate fileUdate = new FileUpdate(fileStatus.getFileName(), fileStatus.getHash());
 					collaborationProject.updateFile(fileUdate);
@@ -181,43 +212,136 @@ public class CollaborationDataModelManager
 	public void signAndShareConfiguration(Configuration config)
 			throws CoreException
 	{
-		CollaborationProject collaborationProject = config.getCollaborationProject();
+		if (config.hasLimitedVisibility())
+		{
+			shareWithLimitedVisibility(config);
+		} else
+		{
+			shareWithAll(config);
+		}
 
-		List<File> files = config.getFiles().getFilesList();
-		List<FileSet> fileSets = new ArrayList<FileSet>();
-		IFile iFile;
-		String content;
+		// TODO rework set signed
+		ConnectionManager connectionManager = Activator.getDefault().getConnectionManager();
+		config.setSignedBy(connectionManager.getConnectedUser().getName());
+		config.setConfigurationShared();
+	}
+
+	private void shareWithAll(Configuration config) throws SerializationException
+	{
+		CollaborationProject collaborationProject = config.getCollaborationProject();
+		ConnectionManager connectionManager = Activator.getDefault().getConnectionManager();
+
+		List<FileDTO> filesToSend = new ArrayList<FileDTO>();
+
+		List<File> filesInConfiguration = config.getFiles().getFilesList();
+		// run over files in configuration to create the DTOs needed for sending
+		for (File file : filesInConfiguration)
+		{
+			FileDTO fileDTO = createFileDTO(file);
+			filesToSend.add(fileDTO);
+		}
+
+		// there is no limitation on visibility so to send all
+		NewConfigurationMessage newConfigurationMessage = new NewConfigurationMessage(connectionManager.getConnectedUser(), collaborationProject.getUniqueID(), config, filesToSend);
+		//connectionManager.send(newConfigurationMessage, collaborationProject);
+	}
+
+	private void shareWithLimitedVisibility(Configuration config) throws SerializationException
+	{
+		CollaborationProject collaborationProject = config.getCollaborationProject();
+		ConnectionManager connectionManager = Activator.getDefault().getConnectionManager();
+
+		List<FileDTO> filesToAll = new ArrayList<FileDTO>();
+		Map<String, List<FileDTO>> filesToSpecificCollaborators = new HashMap<String, List<FileDTO>>();
+		List<FileDTO> changedFiles = new ArrayList<FileDTO>();
+		Map<User, NewConfigurationMessage> configurationsToSend = new HashMap<User, NewConfigurationMessage>();
+
+		boolean sendToAll = false; // has a file changed that needs to be send to all?
+		List<File> filesInConfiguration = config.getFiles().getFilesList();
+		// run over files in configuration to figure out what has changed, and what has a limited visibility
+		for (File file : filesInConfiguration)
+		{
+			FileDTO fileDTO = createFileDTO(file);
+
+			// find the files that has changed
+			if (file.isNewFile() || file.isUpdatedFile())
+			{
+				changedFiles.add(fileDTO);
+			}
+
+			// some files are only to be send to certain collaborators, so divide
+			if (file.isVisibilityLimited())
+			{
+				for (String collaborator : file.getVisibilityList())
+				{
+					if (!filesToSpecificCollaborators.containsKey(collaborator))
+					{
+						filesToSpecificCollaborators.put(collaborator, new ArrayList<FileDTO>());
+					}
+					//for each collaborator add the DTO
+					filesToSpecificCollaborators.get(collaborator).add(fileDTO);
+				}
+			} else
+			{
+				// if files with no limitation on visibility has changed, we need to send these files to all.
+				if (file.isNewFile() || file.isUpdatedFile())
+				{
+					sendToAll = true;
+				}
+				filesToAll.add(fileDTO);
+			}
+		}
+
+		List<User> collaborators = collaborationProject.getCollaboratorGroup().getCollaborators();
+		// figure out what to send to who
+		for (User user : collaborators)
+		{
+			NewConfigurationMessage newConfigurationMessage = new NewConfigurationMessage(connectionManager.getConnectedUser(), collaborationProject.getUniqueID(), config);
+			List<FileDTO> filesToCollaborator = filesToSpecificCollaborators.get(user.getName());
+
+			if (sendToAll)
+			{
+				// a file with no limitation on visibility has also changed, so we need to send to all
+				newConfigurationMessage.addFiles(filesToAll);
+				newConfigurationMessage.addFiles(filesToCollaborator);
+			} else
+			{
+				// has any files specific for this collaborator been changed
+				List<FileDTO> intersect = new ArrayList<FileDTO>(changedFiles);
+				intersect.retainAll(filesToCollaborator);
+
+				// only send if there are any changes
+				if (!intersect.isEmpty())
+				{
+					newConfigurationMessage.addFiles(filesToAll);
+					newConfigurationMessage.addFiles(filesToCollaborator);
+				}
+			}
+
+			// store our configuration. TODO or just send
+			configurationsToSend.put(user, newConfigurationMessage);
+			//connectionManager.sendTo(user, newConfigurationMessage);
+		}
+
+		System.out.println("0");
+		// 
+	}
+
+	private FileDTO createFileDTO(File file)
+	{
+		// create DTO for sending the file info and content 
+		String content = "";
 		try
 		{
-			for (File file : files)
-			{
-				if (!file.isStored())
-				{
-					iFile = FileHandler.copyFileToCollaborationDir(file, collaborationProject);
-					file.setAsStored();
-				} else
-				{
-					iFile = FileHandler.loadFileFromCollaborationDir(file, collaborationProject);
-				}
-
-				content = CollaborationPluginUtils.convertStreamToString(iFile.getContents());
-				fileSets.add(new FileSet(file, content));
-			}
-		} catch (IOException e)
+			content = FileHandler.persistFileAndRetrieveContents(file);
+		} catch (IOException | CoreException e)
 		{
 			e.printStackTrace();
 			Notification.logError(e.toString(), e);
 		}
+		FileDTO fileDTO = new FileDTO(file, content);
 
-		ConnectionManager connectionManager = Activator.getDefault().getConnectionManager();
-
-		// TODO rework set signed
-		config.setSignedBy(connectionManager.getConnectedUser().getName());
-
-		NewConfigurationMessage newConfigurationMessage = new NewConfigurationMessage(connectionManager.getConnectedUser(), collaborationProject.getUniqueID(), config, fileSets);
-		connectionManager.send(newConfigurationMessage, collaborationProject);
-
-		config.setConfigurationShared();
+		return fileDTO;
 	}
 
 	public ConfigurationComparison compareConfigurationWithPrev(
@@ -249,26 +373,13 @@ public class CollaborationDataModelManager
 		removedFiles.removeAll(targetFilesList);
 		configComparison.addRemovedFiles(removedFiles);
 
-		// find added files
-		ArrayList<File> addedFiles = new ArrayList<File>(targetFilesList);
-		addedFiles.removeAll(compareTofilesList);
-		configComparison.addAddedFiles(addedFiles);
-		
-		// intersection
-		targetFilesList.retainAll(compareTofilesList);
-
-		// check if existing files have changed
-		for (File fileToCheck : targetFilesList)
+		for (File file : targetFilesList)
 		{
-			File fileToCompareWith = compareTo.getFile(fileToCheck.getName());
-			if(fileToCheck.isIdentical(fileToCompareWith)) {
-				configComparison.addUnchangedFile(fileToCheck);
-			} else
-			{
-				configComparison.addChangedFile(fileToCheck);
-			}
+			FileStatus fileStatus = new FileStatus(file.getName(), file.getHash());
+			fileStatus = compareTofiles.retrieveFileStatus(fileStatus);
+			configComparison.addFileStatus(fileStatus);
 		}
-		
+
 		return configComparison;
 	}
 

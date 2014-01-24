@@ -62,7 +62,7 @@ public class CollaborationDialogs
 	
 	public NewCollaborationProjectDialog getCollaborationProjectDialog(List<CollaborationProject> collabProjects)
 	{
-		NewCollaborationProjectDialog collabReqDia = new NewCollaborationProjectDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), collabProjects);
+		NewCollaborationProjectDialog collabReqDia = new NewCollaborationProjectDialog(collabProjects, PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell());
 		collabReqDia.create();
 		
 		return collabReqDia;
@@ -71,6 +71,12 @@ public class CollaborationDialogs
 	public CollaborationRequestDialog getCollaborationRequestDialog(String projectTitle, String receiverName){
 		return new CollaborationRequestDialog(projectTitle, receiverName, null);
 	}
+	
+
+	public AddFileLimitedVisibilityDialog getAddFileLimitedVisibilityDialog(String fileName,  CollaborationProject collaborationProject)
+	{
+		return new AddFileLimitedVisibilityDialog(fileName, collaborationProject, PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell());
+	} 
 	
 	public static IWorkbenchWindow getWorkbench()
 	{
@@ -102,5 +108,6 @@ public class CollaborationDialogs
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	} 
+	}
+
 }

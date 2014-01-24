@@ -11,7 +11,7 @@ import eu.compassresearch.ide.collaboration.datamodel.CollaborationProject;
 import eu.compassresearch.ide.collaboration.datamodel.Configuration;
 import eu.compassresearch.ide.collaboration.datamodel.Configurations;
 import eu.compassresearch.ide.collaboration.files.FileHandler;
-import eu.compassresearch.ide.collaboration.files.FileSet;
+import eu.compassresearch.ide.collaboration.files.FileDTO;
 import eu.compassresearch.ide.collaboration.notifications.Notification;
 import eu.compassresearch.ide.collaboration.ui.menu.CollaborationDialogs;
 
@@ -62,7 +62,7 @@ public class NewConfigurationMessageHandler extends
 				Configuration newestConfiguration = configurations.getNewestConfiguration();
 				Configuration receivedConfiguration = new Configuration(msg.getConfigurationUniqueID(), msg.getTimeStamp(), msg.getSignedBy(), newestConfiguration, configurations);
 				configurations.addConfiguration(receivedConfiguration);
-				for (FileSet fs : msg.getFileSets())
+				for (FileDTO fs : msg.getFileSets())
 				{
 					receivedConfiguration.addNewFile(fs.getFileName(), fs.getFileHash(), fs.getTimestamp(), fs.getFilePath());
 				}
