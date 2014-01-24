@@ -1,0 +1,40 @@
+channels 
+inc 
+read : int
+
+
+class Counter = 
+begin
+	
+	state
+		protected c : int := 0
+		
+	operations
+	
+		public inc : () ==> ()
+		inc() == c := c + 1
+		
+		
+		public getCount : () ==> int
+		getCount() == return c
+	
+end
+
+
+process CounterProcess = 
+begin
+	state
+	c : Counter
+	
+	actions
+	
+	INC = 	 (c.inc() ; inc -> Skip)
+			[] 
+		 	 (dcl x : int@ x := c.getCount(); read.x -> Skip)
+		 	 
+	Main = ; i in seq [1,2,3,4,5] @ INC
+	--Main = INC;INC;INC;INC;INC 
+	@ c := new Counter();Main 	 
+end
+
+process test = CounterProcess [| {|inc,read|} |] begin @ read.0 -> inc -> read.1 -> inc -> read.2 -> Skip  end
