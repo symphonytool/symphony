@@ -350,7 +350,8 @@ public class NewMCVisitor extends
 		//String cml_file = "src/test/resources/action-prefix-stop.cml";
 		
 		//String cml_file = "src/test/resources/simpler-register.cml";
-		String cml_file = "src/test/resources/Dphils.cml";
+		//String cml_file = "src/test/resources/Dphils.cml";
+		String cml_file = "src/test/resources/BeoAVDeviceDiscovery-final-version-model-checker.cml";
 		//String cml_file = "src/test/resources/action-prefix-skip.cml";
 		//System.out.println("Testing on " + cml_file);
 		PSource source1 = Utilities.makeSourceFromFile(cml_file);
@@ -366,7 +367,7 @@ public class NewMCVisitor extends
 		*/
 		
 		NewMCVisitor visitor1 = new NewMCVisitor(source1);
-		String mainProcessName = "Dphils";
+		String mainProcessName = "Test_TurnOnProduct";
 		//String mainProcessName = "RegisterProc";
 		
 		String formulaCode = visitor1.generateFormulaScript(source1.getParagraphs(),Utilities.DEADLOCK_PROPERTY,mainProcessName);
