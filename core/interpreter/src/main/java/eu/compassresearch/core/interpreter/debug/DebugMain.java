@@ -40,6 +40,8 @@ public class DebugMain
 {
 
 	static InterpreterFactory factory = new VanillaInterpreterFactory();
+	static CoSimulationServer server = null;
+	static CoSimulationClient client = null;
 
 	/**
 	 * @param args
@@ -215,8 +217,31 @@ public class DebugMain
 			e.printStackTrace(Console.err);
 		} finally
 		{
-			// debugger.close();
+			shutdownCoSimulation();
 		}
+	}
+
+	private static void shutdownCoSimulation() throws InterruptedException
+	{
+		if (server != null)
+		{
+			server.close();
+		}
+
+		if (client != null)
+		{
+			Console.out.println("Waiting for client to recieve disconnect instructions...");
+			client.join();
+			try
+			{
+				Console.out.println("Client instructed to disconnect so disconnecting now");
+				client.disconnect();
+			} catch (Exception e)
+			{
+				// don't care
+			}
+		}
+
 	}
 
 	private static void configureCoSimulation(JSONObject jargs)
@@ -261,7 +286,6 @@ public class DebugMain
 
 		// configure
 		Console.out.println("Starting co-simulation with " + host + ":" + port);
-		CoSimulationServer server = null;
 
 		switch (mode)
 		{
@@ -277,7 +301,7 @@ public class DebugMain
 			}
 			case CoSimClient:
 			{
-				CoSimulationClient client = new CoSimulationClient(host, port);
+				client = new CoSimulationClient(host, port);
 				client.connect();
 				client.start();
 
