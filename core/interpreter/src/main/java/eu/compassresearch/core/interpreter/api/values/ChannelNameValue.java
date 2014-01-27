@@ -147,7 +147,7 @@ public class ChannelNameValue extends Value
 		// Combine all the constraint as a MultiConstraint
 		for (int i = 0; i < constraints.size(); i++)
 		{
-			meetConstraints.add(new MultiConstraint(this.constraints.get(i), other.constraints.get(i)));
+			meetConstraints.add(MultiConstraint.combine(this.constraints.get(i), other.constraints.get(i)));
 		}
 
 		return new ChannelNameValue(this.channel, meetValues, meetConstraints);
