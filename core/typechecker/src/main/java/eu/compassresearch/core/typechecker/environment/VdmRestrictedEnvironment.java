@@ -38,17 +38,18 @@ public class VdmRestrictedEnvironment extends Environment
 			AUntypedDefinition.class, AValueDefinition.class,
 			AAssignmentDefinition.class, AInstanceVariableDefinition.class,
 			SClassDefinition.class, AClassInvariantDefinition.class,
-			AEqualsDefinition.class, SFunctionDefinition.class,SOperationDefinition.class,
-			AExternalDefinition.class, AImportedDefinition.class,
-			AInheritedDefinition.class, ALocalDefinition.class,
-			AMultiBindListDefinition.class, AMutexSyncDefinition.class,
-			ANamedTraceDefinition.class, APerSyncDefinition.class,
-			ARenamedDefinition.class, AStateDefinition.class,
-			AThreadDefinition.class };
+			AEqualsDefinition.class, SFunctionDefinition.class,
+			SOperationDefinition.class, AExternalDefinition.class,
+			AImportedDefinition.class, AInheritedDefinition.class,
+			ALocalDefinition.class, AMultiBindListDefinition.class,
+			AMutexSyncDefinition.class, ANamedTraceDefinition.class,
+			APerSyncDefinition.class, ARenamedDefinition.class,
+			AStateDefinition.class, AThreadDefinition.class };
 
-	public VdmRestrictedEnvironment(ITypeCheckerAssistantFactory af, Environment outer)
+	public VdmRestrictedEnvironment(ITypeCheckerAssistantFactory af,
+			Environment outer)
 	{
-		super(af,  outer);
+		super(af, outer);
 	}
 
 	public static boolean isVdm(PDefinition def)
@@ -140,8 +141,8 @@ public class VdmRestrictedEnvironment extends Environment
 	@Override
 	public void unusedCheck()
 	{
-		 outer.unusedCheck();
-		
+		outer.unusedCheck();
+
 	}
 
 	@Override

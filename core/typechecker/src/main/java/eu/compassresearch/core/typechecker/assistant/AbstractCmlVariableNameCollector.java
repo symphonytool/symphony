@@ -115,7 +115,6 @@ public class AbstractCmlVariableNameCollector extends VariableNameCollector
 		implements ICMLAnswer<LexNameList>
 {
 
-
 	public AbstractCmlVariableNameCollector(ITypeCheckerAssistantFactory af)
 	{
 		super(af);

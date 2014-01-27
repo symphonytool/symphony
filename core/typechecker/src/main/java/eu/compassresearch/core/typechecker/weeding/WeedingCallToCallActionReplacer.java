@@ -6,7 +6,6 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.definitions.SClassDefinition;
 import org.overture.ast.intf.lex.ILexNameToken;
-import eu.compassresearch.ast.statements.AActionStm;
 import org.overture.ast.statements.ACallStm;
 import org.overture.typechecker.FlatEnvironment;
 
@@ -15,6 +14,7 @@ import eu.compassresearch.ast.analysis.DepthFirstAnalysisCMLAdaptor;
 import eu.compassresearch.ast.definitions.AActionClassDefinition;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.process.AActionProcess;
+import eu.compassresearch.ast.statements.AActionStm;
 import eu.compassresearch.core.typechecker.CmlTypeCheckerAssistantFactory;
 import eu.compassresearch.core.typechecker.DefinitionList;
 
@@ -24,7 +24,6 @@ import eu.compassresearch.core.typechecker.DefinitionList;
 public class WeedingCallToCallActionReplacer extends
 		DepthFirstAnalysisCMLAdaptor
 {
-
 
 	public static void apply(DefinitionList sourceForest)
 	{

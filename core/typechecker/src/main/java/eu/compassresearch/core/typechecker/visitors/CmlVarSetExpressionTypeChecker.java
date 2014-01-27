@@ -25,7 +25,6 @@ import org.overture.typechecker.FlatCheckedEnvironment;
 import org.overture.typechecker.TypeCheckInfo;
 import org.overture.typechecker.TypeCheckerErrors;
 import org.overture.typechecker.TypeComparator;
-import org.overture.typechecker.assistant.type.PTypeAssistantTC;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.definitions.AChannelDefinition;
@@ -193,7 +192,7 @@ public class CmlVarSetExpressionTypeChecker extends
 						PType expType = pExp.apply(THIS, question);
 						PType pt = prodTypes.get(i++);
 
-						if (!TypeComparator.isSubType(expType, pt))
+						if (!TypeComparator.isSubType(expType, pt, question.assistantFactory))
 						{
 							issueHandler.addTypeError(id, TypeErrorMessages.INCOMPATIBLE_TYPE, pt
 									+ "", expType + "");
@@ -205,7 +204,7 @@ public class CmlVarSetExpressionTypeChecker extends
 			defs.add(def);
 		}
 
-		PType result = TypeCheckerUtil.setType(node, types);
+		PType result = TypeCheckerUtil.setType(question.assistantFactory, node, types);
 		result.setDefinitions(new LinkedList<PDefinition>(defs));
 		return result;
 	}
@@ -250,7 +249,7 @@ public class CmlVarSetExpressionTypeChecker extends
 
 		if (predicate != null)
 		{
-			if (!PTypeAssistantTC.isType(predicate.apply(THIS, question), ABooleanBasicType.class))
+			if (!question.assistantFactory.createPTypeAssistant().isType(predicate.apply(THIS, question), ABooleanBasicType.class))
 			{
 				TypeCheckerErrors.report(3159, "Predicate is not boolean", predicate.getLocation(), predicate);
 			}
@@ -287,7 +286,7 @@ public class CmlVarSetExpressionTypeChecker extends
 			types.add(idDef.getType());
 		}
 
-		PType result = TypeCheckerUtil.setType(node, types);
+		PType result = TypeCheckerUtil.setType(question.assistantFactory, node, types);
 		result.getDefinitions().addAll(defs);
 		return result;
 
@@ -395,7 +394,7 @@ public class CmlVarSetExpressionTypeChecker extends
 
 		if (predicate != null)
 		{
-			if (!PTypeAssistantTC.isType(predicate.apply(THIS, question), ABooleanBasicType.class))
+			if (!question.assistantFactory.createPTypeAssistant().isType(predicate.apply(THIS, question), ABooleanBasicType.class))
 			{
 				TypeCheckerErrors.report(3159, "Predicate is not boolean", predicate.getLocation(), predicate);
 			}
@@ -442,7 +441,7 @@ public class CmlVarSetExpressionTypeChecker extends
 
 		PType rightType = right.apply(this, question);
 
-		node.setType(TypeCheckerUtil.generateUnionType(node.getLocation(), leftType, rightType));
+		node.setType(TypeCheckerUtil.generateUnionType(question.assistantFactory, node.getLocation(), leftType, rightType));
 
 		node.getType().getDefinitions().addAll(leftType.getDefinitions());
 		node.getType().getDefinitions().addAll(rightType.getDefinitions());

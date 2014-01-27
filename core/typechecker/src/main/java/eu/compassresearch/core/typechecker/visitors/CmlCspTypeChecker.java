@@ -202,8 +202,8 @@ public class CmlCspTypeChecker extends
 	public PType caseAProcessDefinition(AProcessDefinition node,
 			TypeCheckInfo question) throws AnalysisException
 	{
-		
-		if(!node.getLocalState().isEmpty())
+
+		if (!node.getLocalState().isEmpty())
 		{
 			for (PParametrisation par : node.getLocalState())
 			{
@@ -306,7 +306,7 @@ public class CmlCspTypeChecker extends
 			TypeCheckInfo question) throws AnalysisException
 	{
 
-		if(!node.getDeclarations().isEmpty())
+		if (!node.getDeclarations().isEmpty())
 		{
 			for (PParametrisation par : node.getDeclarations())
 			{
@@ -319,7 +319,7 @@ public class CmlCspTypeChecker extends
 				}
 			}
 		}
-		
+
 		Environment env = PParametrisationAssistant.updateEnvironment(question.env, node.getDeclarations());
 		return node.getAction().apply(actionChecker, question.newInfo(env));
 
@@ -366,9 +366,12 @@ public class CmlCspTypeChecker extends
 
 			ILexNameToken name = null;
 			if (id instanceof CmlLexNameToken)
+			{
 				name = (CmlLexNameToken) id;
-			else
+			} else
+			{
 				name = new CmlLexNameToken("", id.getName(), id.getLocation());
+			}
 
 			ASetType expressionSetType = (ASetType) expressionType;
 			ALocalDefinition localDef = AstFactory.newALocalDefinition(id.getLocation(), name, node.getNameScope(), expressionSetType.getSetof());
@@ -378,9 +381,12 @@ public class CmlCspTypeChecker extends
 		{
 			ILexNameToken name = null;
 			if (id instanceof CmlLexNameToken)
+			{
 				name = (CmlLexNameToken) id;
-			else
+			} else
+			{
 				name = new CmlLexNameToken("", id.getName(), id.getLocation());
+			}
 
 			ASeq1SeqType expressionSeqType = (ASeq1SeqType) expressionType;
 			ALocalDefinition localDef = AstFactory.newALocalDefinition(id.getLocation(), name, node.getNameScope(), expressionSeqType.getSeqof());

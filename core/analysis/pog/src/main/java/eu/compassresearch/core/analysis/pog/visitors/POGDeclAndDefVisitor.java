@@ -56,13 +56,15 @@ public class POGDeclAndDefVisitor extends
 	final private QuestionAnswerAdaptor<IPOContextStack, CmlProofObligationList> parentPOG;
 	final private PogParamDefinitionVisitor<IPOContextStack, CmlProofObligationList> overtureVisitor;
 	final private MakerNameContexts nameVisitor;
+	final CmlPogAssistantFactory assistantFactory;
 
 	public POGDeclAndDefVisitor(
-			QuestionAnswerAdaptor<IPOContextStack, CmlProofObligationList> parent)
+			QuestionAnswerAdaptor<IPOContextStack, CmlProofObligationList> parent, CmlPogAssistantFactory assistantFactory)
 	{
 		this.parentPOG = parent;
-		this.overtureVisitor = new PogParamDefinitionVisitor<IPOContextStack, CmlProofObligationList>(this, this);
+		this.overtureVisitor = new PogParamDefinitionVisitor<IPOContextStack, CmlProofObligationList>(this, this,assistantFactory);
 		this.nameVisitor = new MakerNameContexts();
+		this.assistantFactory = assistantFactory;
 
 	}
 
@@ -285,7 +287,7 @@ public class POGDeclAndDefVisitor extends
 		// Taken from Overture - Needed?
 		if (pids.hasDuplicates())
 		{
-			pol.add(new CmlParameterPatternObligation(node, question));
+			pol.add(new CmlParameterPatternObligation(assistantFactory,node, question));
 		}
 
 		// if implicit operation has a precondition, dispatch for PO checking
@@ -351,7 +353,7 @@ public class POGDeclAndDefVisitor extends
 
 		if (pids.hasDuplicates())
 		{
-			pol.add(new CmlParameterPatternObligation(node, question));
+			pol.add(new CmlParameterPatternObligation(assistantFactory,node, question));
 		}
 
 		// if operation has a precondition, dispatch for PO checking
@@ -377,9 +379,9 @@ public class POGDeclAndDefVisitor extends
 		}
 
 		if (!node.getIsConstructor()
-				&& !TypeComparator.isSubType(node.getActualResult(), ((AOperationType) node.getType()).getResult()))
+				&& !TypeComparator.isSubType(node.getActualResult(), ((AOperationType) node.getType()).getResult(),assistantFactory))
 		{
-			CmlSubTypeObligation sto = CmlSubTypeObligation.newInstance(node, node.getActualResult(), question);
+			CmlSubTypeObligation sto = CmlSubTypeObligation.newInstance(node, node.getActualResult(), question,assistantFactory);
 			if (sto != null)
 			{
 				pol.add(sto);
@@ -408,9 +410,9 @@ public class POGDeclAndDefVisitor extends
 
 		obligations.addAll(expression.apply(parentPOG, question));
 
-		if (!TypeComparator.isSubType(question.checkType(expression, expType), type))
+		if (!TypeComparator.isSubType(question.checkType(expression, expType), type,assistantFactory))
 		{
-			SubTypeObligation sto = SubTypeObligation.newInstance(expression, type, expType, question);
+			SubTypeObligation sto = SubTypeObligation.newInstance(expression, type, expType, question,assistantFactory);
 			if (sto != null)
 			{
 				obligations.add(sto);

@@ -131,7 +131,7 @@ public class CmlProcessTypeChecker extends
 			types.add(iNode.apply(THIS, question));
 		}
 
-		return TypeCheckerUtil.generateUnionType(location, types);
+		return TypeCheckerUtil.generateUnionType(question.assistantFactory, location, types);
 	}
 
 	@Override
@@ -449,7 +449,7 @@ public class CmlProcessTypeChecker extends
 
 		PType timeExpType = timeExp.apply(THIS, question);
 
-		if (!TypeComparator.isSubType(timeExpType, new ANatNumericBasicType()))
+		if (!TypeComparator.isSubType(timeExpType, new ANatNumericBasicType(), question.assistantFactory))
 		{
 			issueHandler.addTypeError(timeExp, TypeErrorMessages.TIME_UNIT_EXPRESSION_MUST_BE_NAT, node
 					+ "", timeExpType + "");
@@ -538,7 +538,7 @@ public class CmlProcessTypeChecker extends
 		PType rightType = right.apply(THIS, question);
 
 		PType expType = node.getTimeExpression().apply(THIS, question);
-		if (!TypeComparator.isSubType(expType, new ANatNumericBasicType()))
+		if (!TypeComparator.isSubType(expType, new ANatNumericBasicType(), question.assistantFactory))
 		{
 			issueHandler.addTypeError(node.getTimeExpression(), TypeErrorMessages.TIME_UNIT_EXPRESSION_MUST_BE_NAT, node.getTimeExpression()
 					+ "");

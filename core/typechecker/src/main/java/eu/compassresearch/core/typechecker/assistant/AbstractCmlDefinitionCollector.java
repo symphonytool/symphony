@@ -116,7 +116,6 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 		implements ICMLAnswer<List<PDefinition>>
 {
 
-
 	public AbstractCmlDefinitionCollector(ITypeCheckerAssistantFactory af)
 	{
 		super(af);

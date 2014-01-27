@@ -12,8 +12,7 @@ import org.overture.ast.types.AVoidType;
 import org.overture.ast.types.PType;
 import org.overture.ast.util.PTypeSet;
 import org.overture.typechecker.Environment;
-import org.overture.typechecker.assistant.statement.ABlockSimpleBlockStmAssistantTC;
-import org.overture.typechecker.assistant.type.PTypeAssistantTC;
+import org.overture.typechecker.assistant.ITypeCheckerAssistantFactory;
 
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
@@ -50,10 +49,11 @@ public class TypeCheckerUtil
 	 * @param types
 	 * @return
 	 */
-	public static PType setType(PAction node, PType... types)
+	public static PType setType(ITypeCheckerAssistantFactory af, PAction node,
+			PType... types)
 	{
 
-		node.setType(generateUnionType(node.getLocation(), types));
+		node.setType(generateUnionType(af, node.getLocation(), types));
 		return node.getType();
 
 	}
@@ -92,9 +92,10 @@ public class TypeCheckerUtil
 	 * @param types
 	 * @return
 	 */
-	public static PType setType(PAction node, List<PType> types)
+	public static PType setType(ITypeCheckerAssistantFactory af, PAction node,
+			List<PType> types)
 	{
-		node.setType(generateUnionType(node.getLocation(), types.toArray(new PType[] {})));
+		node.setType(generateUnionType(af, node.getLocation(), types.toArray(new PType[] {})));
 		return node.getType();
 
 	}
@@ -106,9 +107,10 @@ public class TypeCheckerUtil
 	 * @param types
 	 * @return
 	 */
-	public static PType setType(PDefinition node, List<PType> types)
+	public static PType setType(ITypeCheckerAssistantFactory af,
+			PDefinition node, List<PType> types)
 	{
-		node.setType(generateUnionType(node.getLocation(), types.toArray(new PType[] {})));
+		node.setType(generateUnionType(af, node.getLocation(), types.toArray(new PType[] {})));
 		return node.getType();
 	}
 
@@ -119,10 +121,11 @@ public class TypeCheckerUtil
 	 * @param types
 	 * @return
 	 */
-	public static PType setType(PVarsetExpression node, List<PType> types)
+	public static PType setType(ITypeCheckerAssistantFactory af,
+			PVarsetExpression node, List<PType> types)
 	{
 
-		node.setType(generateUnionType(node.getLocation(), types.toArray(new PType[] {})));
+		node.setType(generateUnionType(af, node.getLocation(), types.toArray(new PType[] {})));
 		return node.getType();
 	}
 
@@ -133,10 +136,11 @@ public class TypeCheckerUtil
 	 * @param types
 	 * @return
 	 */
-	public static PType setType(PDefinition node, PType... types)
+	public static PType setType(ITypeCheckerAssistantFactory af,
+			PDefinition node, PType... types)
 	{
 
-		node.setType(generateUnionType(node.getLocation(), types));
+		node.setType(generateUnionType(af, node.getLocation(), types));
 		return node.getType();
 
 	}
@@ -148,10 +152,10 @@ public class TypeCheckerUtil
 	 * @param types
 	 * @return
 	 */
-	public static PType generateUnionType(ILexLocation location,
-			List<PType> types)
+	public static PType generateUnionType(ITypeCheckerAssistantFactory af,
+			ILexLocation location, List<PType> types)
 	{
-		return generateUnionType(location, types.toArray(new PType[] {}));
+		return generateUnionType(af, location, types.toArray(new PType[] {}));
 	}
 
 	/**
@@ -161,7 +165,8 @@ public class TypeCheckerUtil
 	 * @param types
 	 * @return
 	 */
-	public static PType generateUnionType(ILexLocation location, PType... types)
+	public static PType generateUnionType(ITypeCheckerAssistantFactory af,
+			ILexLocation location, PType... types)
 	{
 		PTypeSet rtypes = new PTypeSet();
 		PType last = null;
@@ -184,12 +189,12 @@ public class TypeCheckerUtil
 
 				for (PType t : ust.getTypes())
 				{
-					ABlockSimpleBlockStmAssistantTC.addOne(rtypes, t);
+					af.createABlockSimpleBlockStmAssistant().addOne(rtypes, t);
 
 				}
 			} else
 			{
-				ABlockSimpleBlockStmAssistantTC.addOne(rtypes, stype);
+				af.createABlockSimpleBlockStmAssistant().addOne(rtypes, stype);
 
 			}
 		}
@@ -199,12 +204,12 @@ public class TypeCheckerUtil
 		// return type, as the block may return nothing.
 
 		if (last != null
-				&& (PTypeAssistantTC.isType(last, AVoidType.class) || PTypeAssistantTC.isUnknown(last)))
+				&& (af.createPTypeAssistant().isType(last, AVoidType.class) || af.createPTypeAssistant().isUnknown(last)))
 		{
 			rtypes.add(AstFactory.newAVoidType(location));
 		}
 
-		return (rtypes.isEmpty() ? AstFactory.newAVoidType(location)
-				: rtypes.getType(location));
+		return rtypes.isEmpty() ? AstFactory.newAVoidType(location)
+				: rtypes.getType(location);
 	}
 }

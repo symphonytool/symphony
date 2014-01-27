@@ -53,7 +53,6 @@ public class WeedingUnresolvedPathReplacement extends
 		{
 		}
 	}
-	
 
 	public static void apply(List<SClassDefinition> globalClasses, INode node)
 	{
@@ -115,24 +114,24 @@ public class WeedingUnresolvedPathReplacement extends
 					id = itr.next();
 				} else
 				{
-					if(node.parent().parent() instanceof ACallObjectStm)
+					if (node.parent().parent() instanceof ACallObjectStm)
 					{
-						//this should have been a CallStatement with the correct full name
+						// this should have been a CallStatement with the correct full name
 						ACallObjectStm co = (ACallObjectStm) node.parent().parent();
-						
+
 						ILexNameToken name = new CmlLexNameToken(module, co.getFieldname().getName(), id.getLocation(), false, true);
-						
+
 						ACallStm call = AstFactory.newACallStm(name, co.getArgs());
-						
+
 						for (PExp a : call.getArgs())
 						{
 							a.parent(call);
 						}
-						
+
 						co.parent().replaceChild(co, call);
 						call.apply(this);
 						return;
-						
+
 					}
 					assert false : "Missing identifier for static reference";
 					return;

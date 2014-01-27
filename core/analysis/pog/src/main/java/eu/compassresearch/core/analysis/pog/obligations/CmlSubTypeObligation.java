@@ -9,6 +9,7 @@ import org.overture.ast.types.AOperationType;
 import org.overture.ast.types.PType;
 import org.overture.pog.obligation.SubTypeObligation;
 import org.overture.pog.pub.IPOContextStack;
+import org.overture.pog.pub.IPogAssistantFactory;
 
 public class CmlSubTypeObligation extends SubTypeObligation
 {
@@ -29,15 +30,16 @@ public class CmlSubTypeObligation extends SubTypeObligation
 	 *            The actual type
 	 * @param ctxt
 	 *            Context Information
+	 * @param af 
 	 * @return
 	 */
 	public static CmlSubTypeObligation newInstance(
 			AExplicitOperationDefinition def, PType actualResult,
-			IPOContextStack ctxt)
+			IPOContextStack ctxt, IPogAssistantFactory af)
 	{
 		AVariableExp result = AstFactory.newAVariableExp(new LexNameToken(def.getName().getModule(), "RESULT", def.getLocation()));
 
-		CmlSubTypeObligation sto = new CmlSubTypeObligation(def, result, actualResult, ctxt);
+		CmlSubTypeObligation sto = new CmlSubTypeObligation(def, result, actualResult, ctxt,af);
 		if (sto.getValueTree() != null)
 		{
 			return sto;
@@ -48,9 +50,9 @@ public class CmlSubTypeObligation extends SubTypeObligation
 
 
 	private CmlSubTypeObligation(AExplicitOperationDefinition def,
-			PExp resultexp, PType actualResult, IPOContextStack ctxt)
+			PExp resultexp, PType actualResult, IPOContextStack ctxt, IPogAssistantFactory af)
 	{
-		super(def, def.getLocation(), resultexp, ((AOperationType) def.getType()).getResult().clone(), actualResult.clone(), ctxt);
+		super(def, def.getLocation(), resultexp, ((AOperationType) def.getType()).getResult().clone(), actualResult.clone(), ctxt,af);
 	}
 
 }
