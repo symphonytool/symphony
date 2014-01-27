@@ -314,9 +314,9 @@ public class GraphBuilder {
 					State target = transition.getTargetState();
 					
 					if(!visitedStates.contains(target)){
-						//if(!toVisit.contains(target)){
+						if(!toVisit.contains(target)){
 							toVisit.addLast(target);
-						//}
+						}
 					}
 					if(!visitedTransitions.contains(transition)){
 						visitedTransitions.add(transition);
@@ -372,7 +372,8 @@ public class GraphBuilder {
 		}
 		
 		if(pathStates.size() == 0){
-			realFinalState.setFillCollor(Utilities.DEADLOCK_STATE_COLOUR);
+			if(realFinalState != null) //TODO
+				realFinalState.setFillCollor(Utilities.DEADLOCK_STATE_COLOUR);
 			pathStates.add(realFinalState);
 		} else{
 			State deadlock = this.getDeadlockState(targetStates, singlePath);

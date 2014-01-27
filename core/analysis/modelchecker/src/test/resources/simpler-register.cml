@@ -1,6 +1,6 @@
 --The original value for MAX is 255. De to performance questions we use 8
 values
-    MAX : nat = 2
+    MAX : nat = 4
     
 functions
    oflow : int*int -> bool
