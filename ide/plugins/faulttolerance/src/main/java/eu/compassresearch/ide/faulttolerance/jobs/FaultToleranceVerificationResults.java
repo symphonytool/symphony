@@ -9,6 +9,8 @@ import org.eclipse.core.runtime.jobs.ILock;
 import org.eclipse.core.runtime.jobs.Job;
 import org.overture.ast.intf.lex.ILexLocation;
 
+import eu.compassresearch.ide.core.resources.ICmlProject;
+import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
 import eu.compassresearch.ide.faulttolerance.UnableToRunFaultToleranceVerificationException;
 
 /**
@@ -30,6 +32,8 @@ public class FaultToleranceVerificationResults {
 	private IResource resource;
 	private ILexLocation location;
 	private IContainer outputContainer;
+	private ICmlSourceUnit cmlSourceUnit;
+	private ICmlProject cmlProject;
 
 	private UnableToRunFaultToleranceVerificationException exception;
 
@@ -159,6 +163,22 @@ public class FaultToleranceVerificationResults {
 
 	public void setOutputContainer(IContainer outputContainer) {
 		this.outputContainer = outputContainer;
+	}
+
+	public ICmlSourceUnit getCmlSourceUnit() {
+		return cmlSourceUnit;
+	}
+
+	public void setCmlSourceUnit(ICmlSourceUnit cmlSourceUnit) {
+		this.cmlSourceUnit = cmlSourceUnit;
+	}
+
+	public ICmlProject getCmlProject() {
+		return cmlProject;
+	}
+
+	public void setCmlProject(ICmlProject cmlProject) {
+		this.cmlProject = cmlProject;
 	}
 
 }

@@ -3,13 +3,13 @@
  */
 package eu.compassresearch.ide.faulttolerance.jobs;
 
-import java.util.Random;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 
 import eu.compassresearch.ide.faulttolerance.Message;
+import eu.compassresearch.ide.faulttolerance.modelchecker.ModelCheckerCaller;
+import eu.compassresearch.ide.faulttolerance.modelchecker.ModelCheckingResult;
 
 /**
  * @author Andr&eacute; Didier (<a href=
@@ -59,12 +59,16 @@ public class LimitedFaultToleranceVerificationJob extends FaultToleranceVerifica
 
 	@Override
 	protected void performFaultToleranceCall(ModelCheckingResult mcResults,
+			ModelCheckerCaller caller,
 			FaultToleranceVerificationResults ftResults, IProgressMonitor monitor)
 			throws InterruptedException {
 		try {
-			Thread.sleep(5000);
-			Random r = new Random(System.currentTimeMillis());
-			mcResults.setSuccess(r.nextInt(100) > 10);
+			String specName = Message.NO_FAULTS_PROCESS_NAME.format(ftResults
+					.getProcessName());
+			String implName = Message.LAZY_PROCESS_NAME.format(ftResults
+					.getProcessName());
+			mcResults.setCmlSourceUnit(ftResults.getCmlSourceUnit());
+			caller.verifyFailuresDivergences(specName, implName, mcResults);
 		} finally {
 			monitor.worked(1);
 		}

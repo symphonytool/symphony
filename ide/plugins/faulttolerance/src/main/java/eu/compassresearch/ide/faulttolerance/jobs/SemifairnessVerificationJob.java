@@ -3,11 +3,12 @@
  */
 package eu.compassresearch.ide.faulttolerance.jobs;
 
-import java.util.Random;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 
+import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
 import eu.compassresearch.ide.faulttolerance.Message;
+import eu.compassresearch.ide.faulttolerance.modelchecker.ModelCheckerCaller;
+import eu.compassresearch.ide.faulttolerance.modelchecker.ModelCheckingResult;
 
 /**
  * @author Andr&eacute; Didier (<a href=
@@ -16,17 +17,20 @@ import eu.compassresearch.ide.faulttolerance.Message;
  * 
  */
 public class SemifairnessVerificationJob extends ModelCheckingJob {
-	public SemifairnessVerificationJob(String processName) {
+	public SemifairnessVerificationJob(String processName,
+			ICmlSourceUnit cmlSourceUnit) {
 		super(Message.SEMIFAIRNESS_JOB, processName, 1);
+		getModelCheckingResult().setCmlSourceUnit(cmlSourceUnit);
 	}
 
 	@Override
 	protected void performModelCheckingCall(ModelCheckingResult result,
-			IProgressMonitor monitor) throws InterruptedException {
+			ModelCheckerCaller caller, IProgressMonitor monitor)
+			throws InterruptedException {
 		try {
-			Thread.sleep(4000);
-			Random r = new Random(System.currentTimeMillis());
-			result.setSuccess(r.nextInt(100) > 20);
+			String processName = Message.SEMIFAIRNESS_PROCESS_NAME
+					.format(result.getProcessName());
+			caller.verifyDivergenceFreedom(processName, result);
 		} finally {
 			monitor.worked(1);
 		}

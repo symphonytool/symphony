@@ -9,6 +9,8 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 
 import eu.compassresearch.ide.faulttolerance.Message;
+import eu.compassresearch.ide.faulttolerance.modelchecker.ModelCheckerCaller;
+import eu.compassresearch.ide.faulttolerance.modelchecker.ModelCheckingResult;
 
 /**
  * @author Andr&eacute; Didier (<a href=
@@ -20,12 +22,15 @@ public abstract class ModelCheckingJob extends Job {
 
 	private final int totalUnitsOfWork;
 	private final ModelCheckingResult modelCheckingResult;
+	private final ModelCheckerCaller caller;
 
 	public ModelCheckingJob(Message jobNameMessage, String processName,
 			int totalUnitsOfWork) {
 		super(jobNameMessage.format(processName));
 		this.totalUnitsOfWork = totalUnitsOfWork;
 		this.modelCheckingResult = new ModelCheckingResult();
+		this.modelCheckingResult.setProcessName(processName);
+		this.caller = new ModelCheckerCaller();
 	}
 
 	@Override
@@ -34,7 +39,7 @@ public abstract class ModelCheckingJob extends Job {
 			monitor.beginTask(
 					Message.STARTING_MODEL_CHECKING.format(getName()),
 					totalUnitsOfWork);
-			performModelCheckingCall(modelCheckingResult, monitor);
+			performModelCheckingCall(modelCheckingResult, caller, monitor);
 			return Status.OK_STATUS;
 		} catch (InterruptedException e) {
 			return Status.CANCEL_STATUS;
@@ -44,7 +49,8 @@ public abstract class ModelCheckingJob extends Job {
 	}
 
 	protected abstract void performModelCheckingCall(
-			ModelCheckingResult results, IProgressMonitor monitor)
+			ModelCheckingResult results, ModelCheckerCaller caller,
+			IProgressMonitor monitor)
 			throws InterruptedException;
 
 	public ModelCheckingResult getModelCheckingResult() {

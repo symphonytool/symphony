@@ -44,14 +44,15 @@ public class FaultToleranceVerificationHandler extends SelectProcessHandler {
 	}
 
 	@Override
-	protected void doOnSelectedProcess(ICmlSourceUnit su, PDefinition processDefinition,
-			Shell shell) {
+	protected void doOnSelectedProcess(ICmlSourceUnit su,
+			PDefinition processDefinition, Shell shell) {
 		FaultToleranceVerificationResults results = new FaultToleranceVerificationResults();
 		results.setLocation(processDefinition.getLocation());
 		results.setResource(su.getFile());
 		results.setProcessName(processDefinition.getName().getFullName());
 		results.setOutputContainer(su.getProject().getModelBuildPath()
 				.getOutput());
+		results.setCmlProject(su.getProject());
 
 		/*
 		 * InputDialog id = new InputDialog(shell,

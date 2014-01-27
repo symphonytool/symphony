@@ -13,6 +13,8 @@ import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 
 import eu.compassresearch.ide.faulttolerance.Message;
 import eu.compassresearch.ide.faulttolerance.UnableToRunFaultToleranceVerificationException;
+import eu.compassresearch.ide.faulttolerance.modelchecker.ModelCheckerCaller;
+import eu.compassresearch.ide.faulttolerance.modelchecker.ModelCheckingResult;
 
 /**
  * @author Andr&eacute; Didier (<a href=
@@ -101,11 +103,13 @@ public abstract class FaultToleranceVerificationJob extends ModelCheckingJob {
 
 	@Override
 	protected final void performModelCheckingCall(ModelCheckingResult results,
+			ModelCheckerCaller caller,
 			IProgressMonitor monitor) throws InterruptedException {
 		checkPreRequisites(monitor);
 
 		if (faultToleranceResults.isPreRequisitesOk()) {
-			performFaultToleranceCall(results, faultToleranceResults, monitor);
+			performFaultToleranceCall(results, caller, faultToleranceResults,
+					monitor);
 		} else {
 			performPrerequisitesNotMet(faultToleranceResults, monitor);
 		}
@@ -117,7 +121,7 @@ public abstract class FaultToleranceVerificationJob extends ModelCheckingJob {
 			IProgressMonitor monitor);
 
 	protected abstract void performFaultToleranceCall(
-			ModelCheckingResult mcResults,
+			ModelCheckingResult mcResults, ModelCheckerCaller caller,
 			FaultToleranceVerificationResults ftResults,
 			IProgressMonitor monitor) throws InterruptedException;
 
@@ -148,9 +152,11 @@ public abstract class FaultToleranceVerificationJob extends ModelCheckingJob {
 			group.beginTask(Message.CHECKING_PREREQUISITES.format(), 3);
 
 			DivergenceFreeVerificationJob dfj = new DivergenceFreeVerificationJob(
-					faultToleranceResults.getProcessName());
+					faultToleranceResults.getProcessName(),
+					faultToleranceResults.getCmlSourceUnit());
 			SemifairnessVerificationJob sj = new SemifairnessVerificationJob(
-					faultToleranceResults.getProcessName());
+					faultToleranceResults.getProcessName(),
+					faultToleranceResults.getCmlSourceUnit());
 
 			dfj.setProgressGroup(group, dfj.getTotalUnitsOfWork());
 			sj.setProgressGroup(group, sj.getTotalUnitsOfWork());
