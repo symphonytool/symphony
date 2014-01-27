@@ -1,4 +1,4 @@
-package eu.compassresearch.core.interpreter.cosim;
+package eu.compassresearch.core.interpreter.cosim.external;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -10,6 +10,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.Vector;
 import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.TimeUnit;
 
 import org.overture.ast.analysis.AnalysisException;
 
@@ -19,6 +20,9 @@ import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.transitions.ObservableTransition;
+import eu.compassresearch.core.interpreter.cosim.DelegatedCmlBehaviour;
+import eu.compassresearch.core.interpreter.cosim.IProcessDelegate;
+import eu.compassresearch.core.interpreter.cosim.MessageManager;
 import eu.compassresearch.core.interpreter.cosim.communication.DisconnectMessage;
 import eu.compassresearch.core.interpreter.cosim.communication.ExecuteMessage;
 import eu.compassresearch.core.interpreter.cosim.communication.FinishedReplyMessage;
@@ -26,6 +30,7 @@ import eu.compassresearch.core.interpreter.cosim.communication.FinishedRequestMe
 import eu.compassresearch.core.interpreter.cosim.communication.InspectMessage;
 import eu.compassresearch.core.interpreter.cosim.communication.InspectionReplyMessage;
 import eu.compassresearch.core.interpreter.cosim.communication.ProvidesImplementationMessage;
+import eu.compassresearch.core.interpreter.cosim.communication.Utils;
 import eu.compassresearch.core.interpreter.debug.messaging.Message;
 
 /**
@@ -33,7 +38,7 @@ import eu.compassresearch.core.interpreter.debug.messaging.Message;
  * 
  * @author kel
  */
-public class CoSimulationClient extends Thread
+public class ExternalCoSimulationClient extends Thread
 {
 	private Socket socket;
 
@@ -50,13 +55,15 @@ public class CoSimulationClient extends Thread
 	 */
 	private SynchronousQueue<CmlTransition> availableTransitions = new SynchronousQueue<CmlTransition>();
 
+	private Boolean executionPending = false;
+
 	CmlTransitionSet transitions = null;
 
-	private CoSimCmlInterpreter interpreter;
+	private IProcessDelegate subsystem = null;
 
 	private String host;
 
-	public CoSimulationClient(String host, int port)
+	public ExternalCoSimulationClient(String host, int port)
 	{
 		this.host = host;
 		this.port = port;
@@ -124,8 +131,12 @@ public class CoSimulationClient extends Thread
 
 			try
 			{
-				transitions = interpreter.inspect();
-			} catch (AnalysisException e)
+				while (executionPending)
+				{
+					Utils.milliPause(10);
+				}
+				transitions = subsystem.inspect();
+			} catch (Exception e)
 			{
 				throw new InterpreterRuntimeException("Interpreter inspection failed in co-simulation client", e);
 			}
@@ -137,30 +148,55 @@ public class CoSimulationClient extends Thread
 			comm.send(new InspectionReplyMessage(inspectMessage.getProcess(), transitions));
 		} else if (message instanceof ExecuteMessage)
 		{
-			ExecuteMessage executeMessage = (ExecuteMessage) message;
-			availableTransitions.add(remapTransitionIds((ObservableTransition) executeMessage.getTransition()));
+			final ExecuteMessage executeMessage = (ExecuteMessage) message;
+			synchronized (executionPending)
+			{
+				executionPending = true;
+				try
+				{
+					availableTransitions.put(remapTransitionIds((ObservableTransition) executeMessage.getTransition()));
+				} catch (InterruptedException e)
+				{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+
 		} else if (message instanceof FinishedRequestMessage)
 		{
 			FinishedRequestMessage finishedRequest = (FinishedRequestMessage) message;
-			comm.send(new FinishedReplyMessage(finishedRequest.getProcess(), interpreter.getTopLevelProcess().finished()));
+			try
+			{
+				comm.send(new FinishedReplyMessage(finishedRequest.getProcess(), subsystem.isFinished()));
+			} catch (Exception e)
+			{
+				// ignore
+			}
 		} else if (message instanceof DisconnectMessage)
 		{
 			this.connected = false;
-			interpreter.stop();
 			return;
 		}
 
 	}
 
+	public void executionCompleted()
+	{
+		synchronized (executionPending)
+		{
+			executionPending = false;
+		}
+	}
+
 	private static CmlTransition remapTransitionIds(CmlTransition transition)
 	{
-			try
-			{
-				DelegatedCmlBehaviour.setTransitionId(transition, transition.getRawTransitionId());
-			} catch (IllegalAccessException e)
-			{
-				throw new InterpreterRuntimeException(e);
-			}
+		try
+		{
+			DelegatedCmlBehaviour.setTransitionId(transition, transition.getRawTransitionId());
+		} catch (IllegalAccessException e)
+		{
+			throw new InterpreterRuntimeException(e);
+		}
 
 		return transition;
 	}
@@ -181,8 +217,7 @@ public class CoSimulationClient extends Thread
 		die();
 	}
 
-	public CmlTransition getExecutableTransition()
-			throws InterruptedException
+	public CmlTransition getExecutableTransition() throws InterruptedException
 	{
 		CmlTransition tmp = this.availableTransitions.take();
 		if (transitions != null)
@@ -194,32 +229,31 @@ public class CoSimulationClient extends Thread
 				list.addAll(t.getEventSources());
 			}
 
-				SortedSet<CmlBehaviour> eventSources = new TreeSet<CmlBehaviour>();
+			SortedSet<CmlBehaviour> eventSources = new TreeSet<CmlBehaviour>();
 
-				for (CmlBehaviour source : list)
+			for (CmlBehaviour source : list)
+			{
+				if (tmp.getHashedEventSources().contains(source.hashCode()))
 				{
-					if (tmp.getHashedEventSources().contains(source.hashCode()))
-					{
-						eventSources.add(source);
-					}
+					eventSources.add(source);
 				}
+			}
 
-				try
-				{
-					DelegatedCmlBehaviour.setEventSources(tmp, eventSources);
-				} catch (IllegalAccessException e)
-				{
-					throw new InterpreterRuntimeException(e);
-				}
+			try
+			{
+				DelegatedCmlBehaviour.setEventSources(tmp, eventSources);
+			} catch (IllegalAccessException e)
+			{
+				throw new InterpreterRuntimeException(e);
+			}
 
 			return tmp;
 		}
 		return null;
 	}
 
-	public void setInterpreter(CoSimCmlInterpreter interpreter)
+	public void setSubSystem(IProcessDelegate subsystem)
 	{
-		this.interpreter = interpreter;
+		this.subsystem = subsystem;
 	}
-
 }

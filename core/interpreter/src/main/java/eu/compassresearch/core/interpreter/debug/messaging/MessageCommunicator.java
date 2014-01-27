@@ -4,6 +4,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonGenerator.Feature;
@@ -52,6 +55,9 @@ public class MessageCommunicator
 	}
 
 	private static ObjectMapper mapper = null;
+	
+	final static Logger logger = LoggerFactory.getLogger(MessageCommunicator.class);
+	
 
 	protected static ObjectMapper mapperInstance()
 	{
@@ -121,7 +127,8 @@ public class MessageCommunicator
 	public static void sendMessage(OutputStream outStream, Message message)
 			throws IOException
 	{
-		System.out.println("Sending..." + message);
+//		System.out.println("Sending..." + message);
+		logger.debug("Sending..." + message);
 		MessageContainer messageContainer = new MessageContainer(message);
 		mapperInstance().writeValue(outStream, messageContainer);
 		outStream.write(System.lineSeparator().getBytes());
@@ -144,10 +151,16 @@ public class MessageCommunicator
 	{
 		MessageContainer message = null;
 		String strMessage = requestReader.readLine();
-		// System.out.println("Read RAW:\n\t" + strMessage);
+		logger.debug("Read RAW");
+		logger.trace(strMessage);
 		if (strMessage != null)
 		{
+			try{
 			message = mapperInstance().readValue(strMessage, MessageContainer.class);
+			}catch(Exception e)
+			{
+				e.printStackTrace();
+			}
 		}
 
 		return message;
@@ -165,10 +178,16 @@ public class MessageCommunicator
 	{
 		MessageContainer message = null;
 		String strMessage = requestReader.readLine();
-		// System.out.println("Read RAW:\n\t" + strMessage);
+		logger.debug("Read RAW");
+		logger.trace( strMessage);
 		if (strMessage != null)
 		{
+			try{
 			message = mapperInstance().readValue(strMessage, MessageContainer.class);
+			}catch(Exception e)
+			{
+				e.printStackTrace();
+			}
 		} else
 		{
 			message = connectionClosedMessage;

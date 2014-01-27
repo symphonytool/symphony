@@ -9,7 +9,7 @@ import org.overture.ast.node.INode;
 import eu.compassresearch.ast.lex.CmlLexNameToken;
 import eu.compassresearch.core.interpreter.utility.LocationExtractor;
 
-class NamespaceUtility
+public class NamespaceUtility
 {
 	private static ILexNameToken namesetName = new CmlLexNameToken("|NAMESET|", "writable_names", new LexLocation());
 

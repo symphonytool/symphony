@@ -1,10 +1,13 @@
 package eu.compassresearch.core.interpreter;
 
 import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
 
+import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.transitions.AbstractSilentTransition;
@@ -21,7 +24,7 @@ import eu.compassresearch.core.interpreter.cosim.communication.Utils;
  */
 public class CoSimCmlInterpreter extends VanillaCmlInterpreter
 {
-
+private Thread executionThread = null;
 	private CoSimulationClient client;
 
 	boolean runningInternalExecution = false;
@@ -50,6 +53,8 @@ public class CoSimCmlInterpreter extends VanillaCmlInterpreter
 	@Override
 	public CmlTransition resolveChoice(CmlTransitionSet availableEvents)
 	{
+		executionThread = Thread.currentThread();
+		
 		CmlTransitionSet transitions = null;
 
 		// let this simulator execute all non-observable
@@ -60,9 +65,15 @@ public class CoSimCmlInterpreter extends VanillaCmlInterpreter
 			// no silent transitions are available to we must sync with the coordinator
 			try
 			{
-				transitions = client.getAvaliableTransitions();
+				SortedSet<CmlTransition> set = new TreeSet<CmlTransition>();
+				set.add(client.getExecutableTransition());
+				transitions =new CmlTransitionSet(set);
 			} catch (InterruptedException e)
 			{
+				if(getState()==CmlInterpreterState.FINISHED)
+				{
+					return null;
+				}
 				throw new InterpreterRuntimeException("Unable to get avaliable transitions from client", e);
 			}
 		}
@@ -119,5 +130,14 @@ public class CoSimCmlInterpreter extends VanillaCmlInterpreter
 		this.runningInternalExecution = true;
 		super.executeBehaviour(behaviour);
 		this.runningInternalExecution = false;
+	}
+	
+	public void stop()
+	{
+		setNewState(CmlInterpreterState.FINISHED);
+		if(executionThread!=null)
+		{
+			executionThread.interrupt();
+		}
 	}
 }

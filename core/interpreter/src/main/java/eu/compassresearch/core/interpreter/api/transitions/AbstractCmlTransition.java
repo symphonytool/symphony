@@ -64,9 +64,13 @@ abstract class AbstractCmlTransition implements CmlTransition
 	public AbstractCmlTransition(CmlBehaviour eventSource)
 	{
 		this.eventSources = new TreeSet<CmlBehaviour>();
-		this.eventSources.add(eventSource);
 		this.hashedEventSources = new TreeSet<Integer>();
-		this.hashedEventSources.add(eventSource.hashCode());
+
+		if (eventSource != null)
+		{
+			this.eventSources.add(eventSource);
+			this.hashedEventSources.add(eventSource.hashCode());
+		}
 	}
 
 	public AbstractCmlTransition(SortedSet<CmlBehaviour> eventSources)

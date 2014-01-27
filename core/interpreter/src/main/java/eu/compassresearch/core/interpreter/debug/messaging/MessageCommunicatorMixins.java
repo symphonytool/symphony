@@ -57,6 +57,8 @@ public class MessageCommunicatorMixins
 
 		@JsonIgnore
 		List<PType> typeQualifier;
+//		@JsonIgnore
+//		ILexLocation location;
 	}
 
 	// IDE
@@ -103,6 +105,9 @@ public class MessageCommunicatorMixins
 		IntegerValueMixIn(@JsonProperty("longVal") long value)
 		{
 		}
+		
+		@JsonIgnore
+		 double value;
 	}
 
 	static abstract class TokenValueMixIn
@@ -144,14 +149,18 @@ public class MessageCommunicatorMixins
 		}
 	}
 
+
 	private static Map<Class<?>, String[]> ignore = new HashMap<Class<?>, String[]>();
 
 	static
 	{
-		ignore.put(PType.class, new String[] { "_definitions" });
+		ignore.put(PType.class, new String[] { "_definitions","_location","_resolved" });
 		ignore.put(CmlTransitionSet.class, new String[] { "silentEvents" });
 		ignore.put(CMLChannelValue.class, new String[] { "selectObservers" });
-		ignore.put(LatticeTopValue.class, new String[] { "type" });
+//		ignore.put(AChannelType.class, new String[] { "_location","_definitions" });
+		
+		ignore.put(CmlLexNameToken.class, new String[] { "location" ,"old","explicit","hashcode"});
+//		ignore.put(LatticeTopValue.class, new String[] { "type" });//Commented this, not sure which case that made us add ignore for it
 	}
 
 	public static void setup(SetupContext ctxt)

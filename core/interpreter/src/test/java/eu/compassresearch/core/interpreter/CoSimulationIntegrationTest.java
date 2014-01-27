@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.ServerSocket;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -25,11 +26,41 @@ public class CoSimulationIntegrationTest
 	Set<ConsoleWatcher> watched = new HashSet<ConsoleWatcher>();
 
 	Set<Process> processes = new HashSet<Process>();
+	
+	Integer port=null;
 
 	@Before
 	public void setUp()
 	{
 		processes = new HashSet<Process>();
+		port = findAvailablePort(7000, 9000);
+	}
+	
+	public static int findAvailablePort(int fromPort, int toPort) {
+		if (fromPort > toPort) {
+			throw new IllegalArgumentException(
+					"startPortShouldBeLessThanOrEqualToEndPort");
+		}
+
+		int port = fromPort;
+		ServerSocket socket = null;
+		while (port <= toPort) {
+			try {
+				socket = new ServerSocket(port);
+				return port;
+			} catch (IOException e) {
+				++port;
+			} finally {
+				if (socket != null)
+					try {
+						socket.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+			}
+		}
+
+		return -1;
 	}
 
 	public Process setUpCoordinator(String file, String mainProcess,
@@ -37,7 +68,7 @@ public class CoSimulationIntegrationTest
 	{
 		Process process = startSecondJVM(CMLJ.class, new String[] { "-process",
 				mainProcess, "-delegatedprocessed", delegatedProcesses,
-				"-mode", "server", "-cosimport", "8088", "-simulate",
+				"-mode", "server", "-cosimport", port.toString(), "-simulate",
 				file.replace('/', File.separatorChar) });
 		ConsoleWatcher watch = new ConsoleWatcher("coordinator");
 		this.watched.add(watch);
@@ -51,7 +82,7 @@ public class CoSimulationIntegrationTest
 	{
 
 		Process process = startSecondJVM(CMLJ.class, new String[] { "-process",
-				mainProcess, "-mode", "client", "-cosimport", "8088",
+				mainProcess, "-mode", "client", "-cosimport", port.toString(),
 				"-simulate", file.replace('/', File.separatorChar) });
 		String name = "client:" + mainProcess;
 		ConsoleWatcher watch = new ConsoleWatcher(name);
