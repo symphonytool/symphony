@@ -136,17 +136,17 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		this.thmStringVisitor = thmStringVisitor;
 	}
 
-//	public String caseACompBinaryExp(ACompBinaryExp ex, ThmVarsContext vars) throws AnalysisException{
-//		return "(" + ex.getLeft().apply(thmStringVisitor, vars) + ThmExprUtil.comp +  ex.getRight().apply(thmStringVisitor, vars) + ")";
-//	}
+	public String caseACompBinaryExp(ACompBinaryExp ex, ThmVarsContext vars) throws AnalysisException{
+		return "(" + ex.getLeft().apply(thmStringVisitor, vars) + ThmExprUtil.comp +  ex.getRight().apply(thmStringVisitor, vars) + ")";
+	}
 
-//	public String caseADomainResByBinaryExp(ADomainResByBinaryExp ex, ThmVarsContext vars) throws AnalysisException{
-//		return "(" + ex.getLeft().apply(thmStringVisitor, vars) + ThmExprUtil.domainResBy +  ex.getRight().apply(thmStringVisitor, vars)+ ")";
-//	}
-//
-//	public String caseADomainResToBinaryExp(ADomainResToBinaryExp ex, ThmVarsContext vars) throws AnalysisException{
-//		return "(" + ex.getLeft().apply(thmStringVisitor, vars) + ThmExprUtil.domainResTo +  ex.getRight().apply(thmStringVisitor, vars)+ ")";
-//	}
+	public String caseADomainResByBinaryExp(ADomainResByBinaryExp ex, ThmVarsContext vars) throws AnalysisException{
+		return "(" + ex.getLeft().apply(thmStringVisitor, vars) + ThmExprUtil.domainResBy +  ex.getRight().apply(thmStringVisitor, vars)+ ")";
+	}
+
+	public String caseADomainResToBinaryExp(ADomainResToBinaryExp ex, ThmVarsContext vars) throws AnalysisException{
+		return "(" + ex.getLeft().apply(thmStringVisitor, vars) + ThmExprUtil.domainResTo +  ex.getRight().apply(thmStringVisitor, vars)+ ")";
+	}
 
 	public String caseAEqualsBinaryExp(AEqualsBinaryExp ex, ThmVarsContext vars) throws AnalysisException{
 		return "(" + ex.getLeft().apply(thmStringVisitor, vars) + ThmExprUtil.equals +  ex.getRight().apply(thmStringVisitor, vars)+ ")";
@@ -156,9 +156,9 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		return "(" + ex.getLeft().apply(thmStringVisitor, vars) + ThmExprUtil.inSet +  ex.getRight().apply(thmStringVisitor, vars)+ ")";
 	}
 
-//	public String caseAMapUnionBinaryExp(AMapUnionBinaryExp ex, ThmVarsContext vars) throws AnalysisException{
-//		return "(" + ex.getLeft().apply(thmStringVisitor, vars) + ThmExprUtil.mapUnion +  ex.getRight().apply(thmStringVisitor, vars)+ ")";
-//	}
+	public String caseAMapUnionBinaryExp(AMapUnionBinaryExp ex, ThmVarsContext vars) throws AnalysisException{
+		return "(" + ex.getLeft().apply(thmStringVisitor, vars) + ThmExprUtil.mapUnion +  ex.getRight().apply(thmStringVisitor, vars)+ ")";
+	}
 
 	public String caseANotEqualBinaryExp(ANotEqualBinaryExp ex, ThmVarsContext vars) throws AnalysisException{
 		return "(" + ex.getLeft().apply(thmStringVisitor, vars) + ThmExprUtil.notEqual +  ex.getRight().apply(thmStringVisitor, vars)+ ")";
@@ -184,9 +184,9 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 //		return "(" + ex.getLeft().apply(thmStringVisitor, vars) + ThmExprUtil.rangeResTo +  ex.getRight().apply(thmStringVisitor, vars)+ ")";
 //	}
 
-//	public String caseASeqConcatBinaryExp(ASeqConcatBinaryExp ex, ThmVarsContext vars) throws AnalysisException{
-//		return "(" + ex.getLeft().apply(thmStringVisitor, vars) + ThmExprUtil.seqConcat +  ex.getRight().apply(thmStringVisitor, vars)+ ")";
-//	}
+	public String caseASeqConcatBinaryExp(ASeqConcatBinaryExp ex, ThmVarsContext vars) throws AnalysisException{
+		return "(" + ex.getLeft().apply(thmStringVisitor, vars) + ThmExprUtil.seqConcat +  ex.getRight().apply(thmStringVisitor, vars)+ ")";
+	}
 
 	public String caseASetDifferenceBinaryExp(ASetDifferenceBinaryExp ex, ThmVarsContext vars) throws AnalysisException{
 		return "(" + ex.getLeft().apply(thmStringVisitor, vars) + ThmExprUtil.setDifference +  ex.getRight().apply(thmStringVisitor, vars)+ ")";
@@ -256,9 +256,9 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		return "("+ ThmExprUtil.mapDomain + "(" + ex.getExp().apply(thmStringVisitor, vars)+ "))";
 	}
 
-//	public String caseAMapInverseUnaryExp(AMapInverseUnaryExp ex, ThmVarsContext vars) throws AnalysisException{
-//		return "("+ ThmExprUtil.mapInverse + "(" + ex.getExp().apply(thmStringVisitor, vars)+ "))";
-//	}
+	public String caseAMapInverseUnaryExp(AMapInverseUnaryExp ex, ThmVarsContext vars) throws AnalysisException{
+		return "("+ ThmExprUtil.mapInverse + "(" + ex.getExp().apply(thmStringVisitor, vars)+ "))";
+	}
 
 	public String caseAMapRangeUnaryExp(AMapRangeUnaryExp ex, ThmVarsContext vars) throws AnalysisException{
 		return "("+ ThmExprUtil.mapRange + "(" + ex.getExp().apply(thmStringVisitor, vars)+ "))";
@@ -552,9 +552,9 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		return "let " + sb + " in " + ex.getExpression().apply(thmStringVisitor, vars);
 	}
 
-//	public String caseAMapletExp(AMapletExp ex, ThmVarsContext vars) throws AnalysisException{		
-//		return ex.getLeft().apply(thmStringVisitor, vars) + " |-> " + ex.getRight().apply(thmStringVisitor, vars);
-//	}
+	public String caseAMapletExp(AMapletExp ex, ThmVarsContext vars) throws AnalysisException{		
+		return ex.getLeft().apply(thmStringVisitor, vars) + " |-> " + ex.getRight().apply(thmStringVisitor, vars);
+	}
 
 	public String caseAMkBasicExp(AMkBasicExp ex, ThmVarsContext vars) throws AnalysisException{
 		
@@ -722,77 +722,6 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		return ThmExprUtil.notHandled;
 	}	
 	
-
-	
-
-//	else if(ex instanceof ADefExp){
-//		ADefExp i = (ADefExp) ex;
-//		return "expr not yet handled";
-//	}
-//	else if(ex instanceof AFuncInstatiationExp){
-//		AFuncInstatiationExp i = (AFuncInstatiationExp) ex;
-//		return "expr not yet handled";
-//	}
-//	else if(ex instanceof AHistoryExp){
-//		AHistoryExp i = (AHistoryExp) ex;
-//		return "expr not yet handled";
-//	}
-//	else if(ex instanceof ANarrowExp){
-//		ANarrowExp i = (ANarrowExp) ex;
-//		return "expr not yet handled";
-//	}
-//	else if(ex instanceof AStateInitExp){
-//		AStateInitExp i = (AStateInitExp) ex;
-//		return "expr not yet handled";
-//	}
-//	else if(ex instanceof AIsExp){
-//		AIsExp i = (AIsExp) ex;
-//		return "expr not yet handled";
-//	}
-//	else if(ex instanceof AIsOfBaseClassExp){
-//		AIsOfBaseClassExp i = (AIsOfBaseClassExp) ex;
-//		return "expr not yet handled";
-//	}
-//	else if(ex instanceof AIsOfClassExp){
-//		AIsOfClassExp i = (AIsOfClassExp) ex;
-//		return "expr not yet handled";
-//	}
-//	else if(ex instanceof ALetBeStExp){
-//		ALetBeStExp i = (ALetBeStExp) ex;
-//		return "expr not yet handled";
-//	}
-//	else if(ex instanceof AMuExp){
-//		AMuExp i = (AMuExp) ex;
-//		return "expr not yet handled";
-//	}
-//	else if(ex instanceof ASameBaseClassExp){
-//		ASameBaseClassExp i = (ASameBaseClassExp) ex;
-//		return "expr not yet handled";
-//	}
-//	else if(ex instanceof ASameClassExp){
-//		ASameClassExp i = (ASameClassExp) ex;
-//		return "expr not yet handled";
-//	}
-//	else if(ex instanceof ASelfExp){
-//		ASelfExp i = (ASelfExp) ex;
-//		return "expr not yet handled";
-//	}
-//	else if(ex instanceof ASubclassResponsibilityExp){
-//		ASubclassResponsibilityExp i = (ASubclassResponsibilityExp) ex;
-//		return "expr not yet handled";
-//	}
-//	else if(ex instanceof AThreadIdExp){
-//		AThreadIdExp i = (AThreadIdExp) ex;
-//		return "expr not yet handled";
-//	}
-//	else if(ex instanceof ATimeExp){
-//		ATimeExp i = (ATimeExp) ex;
-//		return "expr not yet handled";
-//	}
-//	else if(ex instanceof ANewExp){
-//		ANewExp i = (ANewExp) ex;
-//		return "expr not yet handled";
-//	}
 
 
 
@@ -1096,6 +1025,78 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		return left + " union " + right;	
 	}
 		
+
+
+//	else if(ex instanceof ADefExp){
+//		ADefExp i = (ADefExp) ex;
+//		return "expr not yet handled";
+//	}
+//	else if(ex instanceof AFuncInstatiationExp){
+//		AFuncInstatiationExp i = (AFuncInstatiationExp) ex;
+//		return "expr not yet handled";
+//	}
+//	else if(ex instanceof AHistoryExp){
+//		AHistoryExp i = (AHistoryExp) ex;
+//		return "expr not yet handled";
+//	}
+//	else if(ex instanceof ANarrowExp){
+//		ANarrowExp i = (ANarrowExp) ex;
+//		return "expr not yet handled";
+//	}
+//	else if(ex instanceof AStateInitExp){
+//		AStateInitExp i = (AStateInitExp) ex;
+//		return "expr not yet handled";
+//	}
+//	else if(ex instanceof AIsExp){
+//		AIsExp i = (AIsExp) ex;
+//		return "expr not yet handled";
+//	}
+//	else if(ex instanceof AIsOfBaseClassExp){
+//		AIsOfBaseClassExp i = (AIsOfBaseClassExp) ex;
+//		return "expr not yet handled";
+//	}
+//	else if(ex instanceof AIsOfClassExp){
+//		AIsOfClassExp i = (AIsOfClassExp) ex;
+//		return "expr not yet handled";
+//	}
+//	else if(ex instanceof ALetBeStExp){
+//		ALetBeStExp i = (ALetBeStExp) ex;
+//		return "expr not yet handled";
+//	}
+//	else if(ex instanceof AMuExp){
+//		AMuExp i = (AMuExp) ex;
+//		return "expr not yet handled";
+//	}
+//	else if(ex instanceof ASameBaseClassExp){
+//		ASameBaseClassExp i = (ASameBaseClassExp) ex;
+//		return "expr not yet handled";
+//	}
+//	else if(ex instanceof ASameClassExp){
+//		ASameClassExp i = (ASameClassExp) ex;
+//		return "expr not yet handled";
+//	}
+//	else if(ex instanceof ASelfExp){
+//		ASelfExp i = (ASelfExp) ex;
+//		return "expr not yet handled";
+//	}
+//	else if(ex instanceof ASubclassResponsibilityExp){
+//		ASubclassResponsibilityExp i = (ASubclassResponsibilityExp) ex;
+//		return "expr not yet handled";
+//	}
+//	else if(ex instanceof AThreadIdExp){
+//		AThreadIdExp i = (AThreadIdExp) ex;
+//		return "expr not yet handled";
+//	}
+//	else if(ex instanceof ATimeExp){
+//		ATimeExp i = (ATimeExp) ex;
+//		return "expr not yet handled";
+//	}
+//	else if(ex instanceof ANewExp){
+//		ANewExp i = (ANewExp) ex;
+//		return "expr not yet handled";
+//	}
+
+	
 	public String defaultPVarsetExpression(PVarsetExpression node, ThmVarsContext bvars)
 			throws AnalysisException {		
 		return "(*Expression not handled*)";

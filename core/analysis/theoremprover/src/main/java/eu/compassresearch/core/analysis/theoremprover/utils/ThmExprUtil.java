@@ -14,7 +14,7 @@ public class ThmExprUtil {
 	public static String domainResTo = " <: ";
 	public static String equals = " = ";
 	public static String inSet = " in @set ";
-	public static String mapUnion= " munion ";
+	public static String mapUnion= " ++ ";
 	public static String notEqual = " <> ";
 	public static String notInSet= " not in @set ";
 	public static String plusPlus= " ++ ";
