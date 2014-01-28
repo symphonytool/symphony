@@ -19,7 +19,6 @@ import eu.compassresearch.ide.collaboration.Activator;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationDataModelManager;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationProject;
 import eu.compassresearch.ide.collaboration.files.FileStatus;
-import eu.compassresearch.ide.collaboration.files.FileStatus.FileState;
 import eu.compassresearch.ide.collaboration.notifications.Notification;
 import eu.compassresearch.ide.collaboration.ui.menu.AddFileLimitedVisibilityDialog;
 import eu.compassresearch.ide.collaboration.ui.menu.CollaborationDialogs;
@@ -45,6 +44,11 @@ public class AddFileToCollaborationLimitedVisibilityHandler extends
 			String projectName = file.getProject().getName();
 			CollaborationProject collaborationProject = dataModelManager.getCollaborationProject(projectName);
 			
+			if(collaborationProject == null) {
+				CollaborationDialogs.getInstance().displayNotificationPopup(file.getName(), "File is in a project (" + projectName +")\nthat has no collaboration project attached");
+				return null;
+			}
+			
 			AddFileLimitedVisibilityDialog addFileDialog = CollaborationDialogs.getInstance().getAddFileLimitedVisibilityDialog(file.getName(), collaborationProject);
 			 
 			if(addFileDialog.open() == Window.OK) {
@@ -54,13 +58,8 @@ public class AddFileToCollaborationLimitedVisibilityHandler extends
 				//add file to collaboration
 				FileStatus fileStatus = dataModelManager.addFileWithLimitedVisibility(file, selectedCollaborators);
 				
-				if (fileStatus.getState() == FileState.ADDED)
-				{
-					CollaborationDialogs.getInstance().displayNotificationPopup("", "File added to collaboration");
-				} else if (fileStatus.getState() == FileState.UNCHANGED)
-				{
-					CollaborationDialogs.getInstance().displayNotificationPopup("", "File already part of collaboration");
-				}
+				// display dialog to user with the status of the file addition.
+				CollaborationDialogs.displayFileState(fileStatus, file);
 			}
 		} else {
 			ResourcesPlugin.getPlugin().getLog().log(new Status(IStatus.ERROR, Activator.PLUGIN_ID, 0, Notification.Collab_File_NO_FILE_FROM_SELECTION

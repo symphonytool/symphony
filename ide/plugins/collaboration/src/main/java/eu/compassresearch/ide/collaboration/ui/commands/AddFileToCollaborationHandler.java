@@ -15,7 +15,6 @@ import org.eclipse.ui.handlers.HandlerUtil;
 import eu.compassresearch.ide.collaboration.Activator;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationDataModelManager;
 import eu.compassresearch.ide.collaboration.files.FileStatus;
-import eu.compassresearch.ide.collaboration.files.FileStatus.FileState;
 import eu.compassresearch.ide.collaboration.notifications.Notification;
 import eu.compassresearch.ide.collaboration.ui.menu.CollaborationDialogs;
 
@@ -36,16 +35,11 @@ public class AddFileToCollaborationHandler extends AbstractHandler
 			Object obj = ssel.getFirstElement();
 			IFile file = (IFile) Platform.getAdapterManager().getAdapter(obj, IFile.class);
 
-			//let modelManager handle the file file
+			// let modelManager handle the file file
 			FileStatus fileStatus = dataModelManager.handleFile(file);
 
-			if (fileStatus.getState() == FileState.ADDED)
-			{
-				CollaborationDialogs.getInstance().displayNotificationPopup("", "File added to collaboration");
-			} else if (fileStatus.getState() == FileState.UNCHANGED)
-			{
-				CollaborationDialogs.getInstance().displayNotificationPopup("", "File already part of collaboration");
-			}
+			// display dialog to user with the status of the file addition.
+			CollaborationDialogs.displayFileState(fileStatus, file);
 		} else
 		{
 			ResourcesPlugin.getPlugin().getLog().log(new Status(IStatus.ERROR, Activator.PLUGIN_ID, 0, Notification.Collab_File_NO_FILE_FROM_SELECTION

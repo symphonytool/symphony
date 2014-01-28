@@ -113,8 +113,6 @@ public class CollaborationDataModelManager
 		CollaborationProject collaborationProject = getCollaborationProject(projectName);
 		if (collaborationProject == null)
 		{
-			ResourcesPlugin.getPlugin().getLog().log(new Status(Status.ERROR, Activator.PLUGIN_ID, 0, Notification.Collab_File_ERROR_NO_SUCH_PROJECT
-					+ projectName, null));
 			fileStatus.setState(FileState.ERROR);
 			return fileStatus;
 		}
