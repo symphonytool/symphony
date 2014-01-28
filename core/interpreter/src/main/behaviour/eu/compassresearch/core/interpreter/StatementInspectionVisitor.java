@@ -12,6 +12,8 @@ import org.overture.ast.statements.AAtomicStm;
 import org.overture.ast.statements.ABlockSimpleBlockStm;
 import org.overture.ast.statements.ACallObjectStm;
 import org.overture.ast.statements.ACallStm;
+import org.overture.ast.statements.ACaseAlternativeStm;
+import org.overture.ast.statements.ACasesStm;
 import org.overture.ast.statements.AElseIfStm;
 import org.overture.ast.statements.AForPatternBindStm;
 import org.overture.ast.statements.AIfStm;
@@ -62,6 +64,52 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 			throws AnalysisException
 	{
 		throw new CmlInterpreterException(node, InterpretationErrorMessages.CASE_NOT_IMPLEMENTED.customizeMessage(node.getClass().getSimpleName()));
+	}
+	
+	@Override
+	public Inspection caseACasesStm(ACasesStm node, final Context question)
+			throws AnalysisException
+	{
+		
+		Value val = node.getExp().apply(this.cmlExpressionVisitor, question);
+		INode dstTmpNode = null;
+		Context tmpEvalContext = null;
+		
+		for (ACaseAlternativeStm c : node.getCases())
+		{
+			try{
+				tmpEvalContext = CmlContextFactory.newContext(node.getLocation(), "case alternative", question);
+				//this thows an exception if the pattern does not match
+				tmpEvalContext.putList(PPatternAssistantInterpreter.getNamedValues(c.getPattern(), val, question));
+				//if we get here we found the case
+				dstTmpNode = c.getResult();
+				break;
+			}
+			catch (PatternMatchException e)
+			{
+				// CasesStatement tries the others
+			}
+		}
+
+		if (dstTmpNode == null && node.getOthers() != null)
+		{
+			tmpEvalContext = question; 
+			dstTmpNode = node.getOthers();
+		}
+		
+		final INode dstNode = dstTmpNode;
+		final Context evalContext = tmpEvalContext;
+		
+		
+		return newInspection(createTauTransitionWithoutTime(dstNode),  new CmlCalculationStep(){
+
+			@Override
+			public Pair<INode, Context> execute(CmlTransition selectedTransition)
+					throws AnalysisException
+			{
+				return new Pair<INode, Context>(dstNode, evalContext);
+			}			
+		});
 	}
 
 	@Override
@@ -150,9 +198,6 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 	public Inspection caseACallStm(final ACallStm node, final Context question)
 			throws AnalysisException
 	{
-
-		// if (!owner.hasChildren())
-		// {
 
 		return newInspection(createTauTransitionWithoutTime(node), new CmlCalculationStep()
 		{
@@ -376,11 +421,8 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 			final Context question) throws AnalysisException
 	{
 		final INode skipNode = CmlAstFactory.newASkipAction(node.getLocation());
-		// FIXME according to the semantics this should be performed instantly so time is not
-		// allowed to pass
 		return newInspection(createTauTransitionWithoutTime(skipNode), new CmlCalculationStep()
 		{
-
 			@Override
 			public Pair<INode, Context> execute(CmlTransition selectedTransition)
 					throws AnalysisException
