@@ -24,13 +24,9 @@ public class ConfigurationStatusMessageHandler extends
 		{
 			public void run()
 			{
-		
 				CollaborationDataModelManager modelMgm = Activator.getDefault().getDataModelManager();
-
 				modelMgm.updateConfigurationStatus(statusMsg.getConfigurationId(), statusMsg.getStatus(), statusMsg.getProjectID());
-				
 			}
 		});
-		
 	}
 }

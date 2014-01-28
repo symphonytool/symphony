@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.ecf.core.identity.ID;
+
 public class CollaborationGroup extends Model {
 
 	private static final long serialVersionUID = 1083165101733581295L;
@@ -16,8 +18,8 @@ public class CollaborationGroup extends Model {
 		collaborators = new HashMap<String, User>();
 	}
 	
-	public void addCollaborator(String username, boolean joined) {
-		User user = new User(username, this);
+	public void addCollaborator(ID userId, boolean joined) {
+		User user = new User(userId, this);
 		
 		if(joined) {
 			user.acceptedToJoinGroup(true);

@@ -1,16 +1,14 @@
 package eu.compassresearch.ide.collaboration.communication.handlers;
 
+import org.eclipse.ecf.core.identity.ID;
+import org.eclipse.ecf.sync.SerializationException;
 import org.eclipse.swt.widgets.Display;
 
 import eu.compassresearch.ide.collaboration.Activator;
 import eu.compassresearch.ide.collaboration.communication.MessageProcessor;
 import eu.compassresearch.ide.collaboration.communication.messages.CollaborationStatusMessage;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationDataModelManager;
-import eu.compassresearch.ide.collaboration.datamodel.CollaborationDataModelRoot;
-import eu.compassresearch.ide.collaboration.datamodel.CollaborationGroup;
-import eu.compassresearch.ide.collaboration.datamodel.User;
 import eu.compassresearch.ide.collaboration.ui.menu.CollaborationDialogs;
-import eu.compassresearch.ide.collaboration.ui.view.CollaborationView;
 
 public class CollaborationStatusMessageHandler extends BaseMessageHandler<CollaborationStatusMessage>
 {
@@ -27,29 +25,25 @@ public class CollaborationStatusMessageHandler extends BaseMessageHandler<Collab
 		{
 			public void run()
 			{
-				final CollaborationStatusMessage collabRequest = (CollaborationStatusMessage) msg;
-				final CollaborationView collabview = CollaborationDialogs.getCollaborationView();
-				
 				CollaborationDataModelManager modelMgm = Activator.getDefault().getDataModelManager();
-				CollaborationDataModelRoot root = modelMgm.getDataModel();
-				collabview.getSelectedEntry();
+				ID senderID = msg.getSenderID();
 				
-				CollaborationGroup collabGrp = (CollaborationGroup) root.getCollaborationProjects().get(0).getCollaboratorGroup();
-				
-				String userName = collabRequest.getSenderID().getName();	
-				User usr = collabGrp.getUser(userName);
-				
-				String notification;
-				
-				if(collabRequest.isJoining()){
-					usr.acceptedToJoinGroup(true);
-					notification = "Joined Collaboration";
-				} else{
-					usr.acceptedToJoinGroup(false);
-					notification = "Declined collaboration"; 
+				try
+				{
+					modelMgm.collaboratorJoining(senderID, msg.isJoining(), msg.getProjectID(), true);
+				} catch (SerializationException e)
+				{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
 				
-				CollaborationDialogs.getInstance().displayNotificationPopup(usr.getName(), notification);
+				String notification;
+				if(msg.isJoining()){
+					notification = "Joined Collaboration";
+				} else{
+					notification = "Declined collaboration"; 
+				}
+				CollaborationDialogs.getInstance().displayNotificationPopup(senderID.getName(), notification);
 			}
 		});		
 	}

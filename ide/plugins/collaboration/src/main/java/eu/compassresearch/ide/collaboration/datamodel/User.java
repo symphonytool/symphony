@@ -1,14 +1,19 @@
 package eu.compassresearch.ide.collaboration.datamodel;
 
+import org.eclipse.ecf.core.identity.ID;
+
 public class User extends Model {
 	
 	private static final long serialVersionUID = 5634470790158709661L;
 	
 	private boolean hasJoinedGroup;
 	private boolean hasDeclinedGroup;
+	private ID userID;
 	
-	public User(String name, Model parent) {
-		super(name, parent);
+	public User(ID userID, Model parent) {
+		super(userID.getName(), parent);
+		
+		this.userID = userID;
 	}
 	
 	public void accept(IModelVisitor visitor, Object passAlongArgument) {
@@ -46,5 +51,10 @@ public class User extends Model {
 	public boolean hasDeclinedGroup()
 	{
 		return hasDeclinedGroup;
+	}
+
+	public ID getUserID()
+	{
+		return userID;
 	}
 }

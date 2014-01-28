@@ -3,6 +3,7 @@ package eu.compassresearch.ide.collaboration.ui.menu;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.ecf.core.IContainer;
+import org.eclipse.ecf.core.identity.ID;
 import org.eclipse.ecf.core.user.IUser;
 import org.eclipse.ecf.presence.roster.IRoster;
 import org.eclipse.ecf.presence.roster.IRosterEntry;
@@ -52,25 +53,27 @@ public class AddCollaboratorRosterMenuHandler extends AbstractRosterMenuHandler
 			}
 			//get users
 			IUser receiver = rosterEntry.getUser();
+			String userName = receiver.getID().getName();
 			
 			//get selected project
 			Model selected = CollaborationDialogs.getCollaborationView().getSelectedEntry();
 			CollaborationGroup group = (CollaborationGroup) selected;
 			CollaborationProject project = (CollaborationProject) group.getParent();
 			
-			if(group.hasCollaborator(receiver.getName()))
+			if(group.hasCollaborator(userName))
 			{
 				CollaborationDialogs.displayErrorDialog("Error adding collaborator.", Notification.Collab_Dialog_COLLAB_REQUEST_ALREADY_ADDED);
 				return null;
 			} 
 			
 			//show dialog with message being send to collaborator
-			CollaborationRequestDialog collabReqDia =CollaborationDialogs.getInstance().getCollaborationRequestDialog(project.getTitle(), receiver.getName()); 
+			CollaborationRequestDialog collabReqDia =CollaborationDialogs.getInstance().getCollaborationRequestDialog(project.getTitle(), userName); 
 			
 			if(collabReqDia.open() == Window.OK){
 				
 				//TODO move to collab manager
 				ConnectionManager connectionManager = Activator.getDefault().getConnectionManager();
+				ID connectedUser = connectionManager.getConnectedUser();
 				CollaborationRequest msg = new CollaborationRequest(connectionManager.getConnectedUser(), project.getUniqueID(), project.getTitle(), collabReqDia.getDescription());
 				
 				try
@@ -83,7 +86,12 @@ public class AddCollaboratorRosterMenuHandler extends AbstractRosterMenuHandler
 				}
 			
 				//update user
-				group.addCollaborator(receiver.getName(), false);				
+				group.addCollaborator(receiver.getID(), false);	
+				
+				//we are inviting others, so we should be part of the collaboration ourself
+				if(!group.hasCollaborator(connectedUser.getName())){
+					group.addCollaborator(connectedUser, true);
+				}
 			}
 		}
 		return null;

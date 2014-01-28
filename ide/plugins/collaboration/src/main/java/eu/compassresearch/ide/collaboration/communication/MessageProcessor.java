@@ -57,7 +57,9 @@ public class MessageProcessor extends AbstractShare
 
 	public synchronized void dispose()
 	{
-		super.dispose();
+		if(!isDisposed()){
+			super.dispose();
+		}
 	}
 	
 	@Override

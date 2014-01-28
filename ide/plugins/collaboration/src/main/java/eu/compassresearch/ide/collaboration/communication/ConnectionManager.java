@@ -13,6 +13,7 @@ import org.eclipse.ecf.core.identity.ID;
 import org.eclipse.ecf.core.util.ECFException;
 import org.eclipse.ecf.datashare.IChannelContainerAdapter;
 import org.eclipse.ecf.presence.IPresence;
+import org.eclipse.ecf.presence.IPresence.Mode;
 import org.eclipse.ecf.presence.IPresence.Type;
 import org.eclipse.ecf.presence.IPresenceListener;
 import org.eclipse.ecf.presence.roster.IRoster;
@@ -21,6 +22,7 @@ import org.eclipse.ecf.presence.roster.IRosterGroup;
 import org.eclipse.ecf.presence.roster.IRosterItem;
 import org.eclipse.ecf.sync.SerializationException;
 
+import eu.compassresearch.ide.collaboration.communication.handlers.CollaborationGroupUpdateMessageHandler;
 import eu.compassresearch.ide.collaboration.communication.handlers.CollaborationRequestHandler;
 import eu.compassresearch.ide.collaboration.communication.handlers.CollaborationStatusMessageHandler;
 import eu.compassresearch.ide.collaboration.communication.handlers.ConfigurationStatusMessageHandler;
@@ -46,9 +48,25 @@ public class ConnectionManager implements IPresenceListener
 	@Override
 	public void handlePresence(ID fromID, IPresence presence)
 	{
-		synchronized (connectedUser)
-		{
-			// TODO update list when presence changes
+			String status = presence.getStatus();
+			Mode mode = presence.getMode();
+			Type type = presence.getType();
+			
+			if(type == Type.AVAILABLE) {
+				addUser(fromID);
+			} else {
+				removeUser(fromID);
+			}
+	}
+
+	private void removeUser(ID user)
+	{
+		synchronized (availableCollaboratorsLock){
+			if (availableCollaborators != null
+					|| availableCollaborators.containsKey(user))
+			{
+				availableCollaborators.remove(user);
+			} 
 		}
 	}
 
@@ -108,10 +126,11 @@ public class ConnectionManager implements IPresenceListener
 		}
 	}
 
-	// Send to a specific user
-	public void sendTo(ID receiverID, byte[] serializedData)
+	// Send to a specific ID
+	private void sendTo(ID receiverID, byte[] serializedData)
 	{
-		if (receiverID != null)
+		//there needs to be a receiver, and don't send to self. 
+		if (receiverID != null && receiverID != connectedUser)
 		{
 			messageProcessor.sendMessage(receiverID, serializedData);
 		}
@@ -159,6 +178,7 @@ public class ConnectionManager implements IPresenceListener
 		messageProcessor.addMessageHandler(new NewConfigurationMessageHandler(messageProcessor));
 		messageProcessor.addMessageHandler(new ConfigurationStatusMessageHandler(messageProcessor));
 		messageProcessor.addMessageHandler(new CollaborationStatusMessageHandler(messageProcessor));
+		messageProcessor.addMessageHandler(new CollaborationGroupUpdateMessageHandler(messageProcessor));
 	}
 
 	public boolean isConnectionInitialized()

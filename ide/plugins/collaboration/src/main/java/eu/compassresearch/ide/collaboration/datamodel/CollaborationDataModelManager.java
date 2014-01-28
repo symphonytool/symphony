@@ -2,33 +2,28 @@ package eu.compassresearch.ide.collaboration.datamodel;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-
-import javax.crypto.spec.OAEPParameterSpec;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.ecf.core.user.IUser;
+import org.eclipse.ecf.core.identity.ID;
 import org.eclipse.ecf.sync.SerializationException;
 
 import eu.compassresearch.ide.collaboration.Activator;
 import eu.compassresearch.ide.collaboration.CollaborationPluginUtils;
 import eu.compassresearch.ide.collaboration.communication.ConnectionManager;
+import eu.compassresearch.ide.collaboration.communication.messages.CollaborationGroupUpdateMessage;
 import eu.compassresearch.ide.collaboration.communication.messages.ConfigurationStatusMessage;
 import eu.compassresearch.ide.collaboration.communication.messages.ConfigurationStatusMessage.NegotiationStatus;
 import eu.compassresearch.ide.collaboration.communication.messages.NewConfigurationMessage;
 import eu.compassresearch.ide.collaboration.files.FileComparison;
-import eu.compassresearch.ide.collaboration.files.FileHandler;
 import eu.compassresearch.ide.collaboration.files.FileDTO;
+import eu.compassresearch.ide.collaboration.files.FileHandler;
 import eu.compassresearch.ide.collaboration.files.FileStatus;
 import eu.compassresearch.ide.collaboration.files.FileStatus.FileState;
 import eu.compassresearch.ide.collaboration.files.FileUpdate;
@@ -52,6 +47,12 @@ public class CollaborationDataModelManager
 			String description)
 	{
 		datamodel.addCollaborationProject(project, title, description);
+	}
+	
+	public void addReceivedCollaborationProject(String project, String title,
+			String description, String collabProjectId)
+	{
+		datamodel.addCollaborationProject(project, title, description, collabProjectId);
 	}
 
 	public List<CollaborationProject> getExistingProjects()
@@ -81,7 +82,6 @@ public class CollaborationDataModelManager
 	public FileStatus addFileWithLimitedVisibility(IFile file,
 			List<String> collaboratorNames)
 	{
-
 		// handle file normally
 		FileStatus fileStatus = handleFile(file);
 
@@ -226,7 +226,8 @@ public class CollaborationDataModelManager
 		config.setConfigurationShared();
 	}
 
-	private void shareWithAll(Configuration config) throws SerializationException
+	private void shareWithAll(Configuration config)
+			throws SerializationException
 	{
 		CollaborationProject collaborationProject = config.getCollaborationProject();
 		ConnectionManager connectionManager = Activator.getDefault().getConnectionManager();
@@ -243,10 +244,11 @@ public class CollaborationDataModelManager
 
 		// there is no limitation on visibility so to send all
 		NewConfigurationMessage newConfigurationMessage = new NewConfigurationMessage(connectionManager.getConnectedUser(), collaborationProject.getUniqueID(), config, filesToSend);
-		//connectionManager.send(newConfigurationMessage, collaborationProject);
+		connectionManager.send(newConfigurationMessage, collaborationProject);
 	}
 
-	private void shareWithLimitedVisibility(Configuration config) throws SerializationException
+	private void shareWithLimitedVisibility(Configuration config)
+			throws SerializationException
 	{
 		CollaborationProject collaborationProject = config.getCollaborationProject();
 		ConnectionManager connectionManager = Activator.getDefault().getConnectionManager();
@@ -278,7 +280,7 @@ public class CollaborationDataModelManager
 					{
 						filesToSpecificCollaborators.put(collaborator, new ArrayList<FileDTO>());
 					}
-					//for each collaborator add the DTO
+					// for each collaborator add the DTO
 					filesToSpecificCollaborators.get(collaborator).add(fileDTO);
 				}
 			} else
@@ -320,16 +322,16 @@ public class CollaborationDataModelManager
 
 			// store our configuration. TODO or just send
 			configurationsToSend.put(user, newConfigurationMessage);
-			//connectionManager.sendTo(user, newConfigurationMessage);
+			connectionManager.sendTo(user, newConfigurationMessage);
 		}
 
 		System.out.println("0");
-		// 
+		//
 	}
 
 	private FileDTO createFileDTO(File file)
 	{
-		// create DTO for sending the file info and content 
+		// create DTO for sending the file info and content
 		String content = "";
 		try
 		{
@@ -461,5 +463,59 @@ public class CollaborationDataModelManager
 		CollaborationProject collaborationProject = getCollaborationProjectFromID(projectId);
 		Configuration configuration = collaborationProject.getConfiguration(configurationId);
 		configuration.setStatus(negotiationStatus);
+	}
+
+	public void collaboratorJoining(ID senderID, boolean joining, String projectID, boolean notifyCollaborators) throws SerializationException
+	{
+		CollaborationProject collaborationProject = getCollaborationProjectFromID(projectID);
+		CollaborationGroup collaboratorGroup = collaborationProject.getCollaboratorGroup();
+		
+		String userName = senderID.getName();	
+		User usr = collaboratorGroup.getUser(userName);
+		
+		if(joining){
+			usr.acceptedToJoinGroup(true);
+		} else{
+			usr.acceptedToJoinGroup(false);
+		}
+		
+		if(notifyCollaborators){
+			ConnectionManager connectionManager = Activator.getDefault().getConnectionManager();
+			
+			//send updated collaborator list to everyone
+			List<User> collaborators = collaborationProject.getCollaboratorGroup().getCollaborators();
+			
+			List<ID> collaboratorIds = new ArrayList<>();
+			for (User user : collaborators)
+			{
+				//collaborators are only shared if they have agreed to join the group
+				if(user.hasJoinedGroup()) {
+					collaboratorIds.add(user.getUserID());
+				}
+			}
+			
+			CollaborationGroupUpdateMessage collabGroupUpdateMsg = new CollaborationGroupUpdateMessage(connectionManager.getConnectedUser(), collaborationProject.getUniqueID(), collaboratorIds);
+			connectionManager.send(collabGroupUpdateMsg, collaborationProject);
+		}
+	}
+
+	public void updateCollaborationGroup(List<ID> collaborationGroupMembers,
+			String projectID)
+	{
+		CollaborationProject collaborationProject = getCollaborationProjectFromID(projectID);
+		if(collaborationProject == null){
+			ResourcesPlugin.getPlugin().getLog().log(new Status(Status.ERROR, Activator.PLUGIN_ID, 0, Notification.Collab_File_ERROR_NO_SUCH_PROJECT
+					+ projectID, null));
+			return;
+		}
+		
+		CollaborationGroup collaboratorGroup = collaborationProject.getCollaboratorGroup();
+		
+		for (ID id : collaborationGroupMembers)
+		{
+			if(!collaboratorGroup.hasCollaborator(id.getName())){
+				collaboratorGroup.addCollaborator(id, true);
+			}
+		}
 	}
 }
