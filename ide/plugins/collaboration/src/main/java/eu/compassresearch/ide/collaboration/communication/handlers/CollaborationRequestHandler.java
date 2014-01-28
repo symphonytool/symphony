@@ -11,8 +11,9 @@ import eu.compassresearch.ide.collaboration.communication.messages.Collaboration
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationDataModelManager;
 import eu.compassresearch.ide.collaboration.ui.menu.CollaborationRequestedDialog;
 
-public class CollaborationRequestHandler extends BaseMessageHandler<CollaborationRequest>
-{		
+public class CollaborationRequestHandler extends
+		BaseMessageHandler<CollaborationRequest>
+{
 	public CollaborationRequestHandler()
 	{
 		super(CollaborationRequest.class);
@@ -24,24 +25,25 @@ public class CollaborationRequestHandler extends BaseMessageHandler<Collaboratio
 		final ConnectionManager connectionManager = Activator.getDefault().getConnectionManager();
 		final String collabProjectId = msg.getProjectID();
 		final ID sender = connectionManager.getConnectedUser();
-		
+		final CollaborationDataModelManager modelMgm = Activator.getDefault().getDataModelManager();
+
 		Display.getDefault().asyncExec(new Runnable()
 		{
 			public void run()
 			{
-				CollaborationRequestedDialog collabRequestedDialog = new CollaborationRequestedDialog(sender.getName(), msg.getTitle(), msg.getMessage(), null);
+				CollaborationRequestedDialog collabRequestedDialog = new CollaborationRequestedDialog(sender.getName(), msg.getTitle(), msg.getMessage(), modelMgm.getExistingProjects(), null);
 				collabRequestedDialog.create();
-				boolean join = collabRequestedDialog.open() == Window.OK; 
-				
-				if(join) {
-					CollaborationDataModelManager modelMgm = Activator.getDefault().getDataModelManager();
+				boolean join = collabRequestedDialog.open() == Window.OK;
+
+				if (join)
+				{
 					modelMgm.addReceivedCollaborationProject(collabRequestedDialog.getProject(), msg.getTitle(), msg.getMessage(), collabProjectId);
 				}
-				
-				//send reply
+
+				// send reply
 				CollaborationStatusMessage statusMsg = new CollaborationStatusMessage(sender, msg.getProjectID(), join);
 				connectionManager.sendTo(msg.getSenderID(), statusMsg);
-			}	
-		});	
+			}
+		});
 	}
 }

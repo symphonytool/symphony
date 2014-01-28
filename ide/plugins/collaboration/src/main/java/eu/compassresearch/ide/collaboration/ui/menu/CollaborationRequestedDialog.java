@@ -17,6 +17,8 @@ import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
 
 import eu.compassresearch.ide.collaboration.CollaborationPluginUtils;
+import eu.compassresearch.ide.collaboration.datamodel.CollaborationProject;
+import eu.compassresearch.ide.collaboration.notifications.Notification;
 
 public class CollaborationRequestedDialog extends TitleAreaDialog
 {
@@ -27,13 +29,17 @@ public class CollaborationRequestedDialog extends TitleAreaDialog
 	private String sender;
 	private String title;
 	private String message;
+	
+	java.util.List<CollaborationProject> collabProjects;
+	
 
-	public CollaborationRequestedDialog(String sender, String title, String message, Shell parentShell)
+	public CollaborationRequestedDialog(String sender, String title, String message, java.util.List<CollaborationProject> collabProjects, Shell parentShell)
 	{
 		super(parentShell);
 		this.sender = sender;
 		this.title = title;
 		this.message = message;
+		this.collabProjects = collabProjects;
 		
 		this.setHelpAvailable(false);
 	}
@@ -47,8 +53,6 @@ public class CollaborationRequestedDialog extends TitleAreaDialog
 		String msg = "Collaboration request received from: " +  sender + ". \n\n Join Collaboration group?";
 		
 		setMessage(msg, IMessageProvider.NONE);
-		
-		
 	}
 
 	@Override
@@ -102,8 +106,26 @@ public class CollaborationRequestedDialog extends TitleAreaDialog
 	{
 		Button okButton = getButton(IDialogConstants.OK_ID);
 
-		if(listProject.getSelectionCount() != 0){
+		String[] selection = listProject.getSelection();
+		boolean configurationExists = false;
+		
+		for (CollaborationProject project : collabProjects)
+		{
+			if (selection.length > 0 && project.getProjectWorkspaceName().equals(selection[0]))
+			{
+				setErrorMessage(Notification.Collab_Dialog_NEW_COLLAB_ERROR_COLLABORATION_ALREADY_ATTACHED
+						+ " "  + project.getTitle());
+				configurationExists = true;
+				break;
+				
+			}
+		}
+		
+		if(listProject.getSelectionCount() != 0 && !configurationExists){
 				okButton.setEnabled(true);
+				setErrorMessage(null);
+		} else {
+			okButton.setEnabled(false);
 		}
 	}
 

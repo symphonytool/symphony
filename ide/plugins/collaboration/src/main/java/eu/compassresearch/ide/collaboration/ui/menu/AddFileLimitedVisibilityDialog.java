@@ -2,6 +2,7 @@ package eu.compassresearch.ide.collaboration.ui.menu;
 
 import java.util.Arrays;
 
+import org.eclipse.ecf.core.identity.ID;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
@@ -17,6 +18,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
 
+import eu.compassresearch.ide.collaboration.Activator;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationGroup;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationProject;
 import eu.compassresearch.ide.collaboration.datamodel.User;
@@ -80,6 +82,10 @@ public class AddFileLimitedVisibilityDialog extends TitleAreaDialog
 		{
 			listCollaborators.add(user.getName());	
 		}
+		
+		//no need to allow the addition of visibility to ourself
+		ID connectedUser = Activator.getDefault().getConnectionManager().getConnectedUser();
+		listCollaborators.remove(connectedUser.getName());
 		
 		listCollaborators.addSelectionListener(new SelectionAdapter()
 		{

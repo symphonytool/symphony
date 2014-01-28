@@ -65,7 +65,7 @@ public class ConnectionManager implements IPresenceListener
 		synchronized (availableCollaboratorsLock)
 		{
 			if (availableCollaborators != null
-					|| availableCollaborators.containsKey(user))
+					&& availableCollaborators.containsKey(user))
 			{
 				availableCollaborators.remove(user);
 			}
