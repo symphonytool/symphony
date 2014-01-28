@@ -68,7 +68,7 @@ public class FullFaultToleranceVerificationJob extends
 			String implName = Message.LAZY_PROCESS_NAME.format(ftResults
 					.getProcessName());
 			mcResults.setCmlSourceUnit(ftResults.getCmlSourceUnit());
-			caller.verifyFailuresDivergences(specName, implName, mcResults);
+			// caller.runFormula();
 		} finally {
 			monitor.worked(1);
 		}

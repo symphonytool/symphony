@@ -16,6 +16,10 @@ public class ModelCheckingResult {
 	private ICmlSourceUnit cmlSourceUnit;
 	private String processName;
 
+	private String formulaScriptAbsolutePath;
+
+	private Exception exception;
+
 	public boolean isSuccess() {
 		return success;
 	}
@@ -38,6 +42,22 @@ public class ModelCheckingResult {
 
 	public void setProcessName(String processName) {
 		this.processName = processName;
+	}
+
+	public Exception getException() {
+		return exception;
+	}
+
+	public void setException(Exception exception) {
+		this.exception = exception;
+	}
+
+	public String getFormulaScriptAbsolutePath() {
+		return formulaScriptAbsolutePath;
+	}
+
+	public void setFormulaScriptAbsolutePath(String formulaScriptAbsolutePath) {
+		this.formulaScriptAbsolutePath = formulaScriptAbsolutePath;
 	}
 
 }

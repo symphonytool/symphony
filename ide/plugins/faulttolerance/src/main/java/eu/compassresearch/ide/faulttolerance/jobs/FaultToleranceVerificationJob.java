@@ -103,8 +103,8 @@ public abstract class FaultToleranceVerificationJob extends ModelCheckingJob {
 
 	@Override
 	protected final void performModelCheckingCall(ModelCheckingResult results,
-			ModelCheckerCaller caller,
-			IProgressMonitor monitor) throws InterruptedException {
+			ModelCheckerCaller caller, IProgressMonitor monitor)
+			throws InterruptedException {
 		checkPreRequisites(monitor);
 
 		if (faultToleranceResults.isPreRequisitesOk()) {
@@ -153,10 +153,12 @@ public abstract class FaultToleranceVerificationJob extends ModelCheckingJob {
 
 			DivergenceFreeVerificationJob dfj = new DivergenceFreeVerificationJob(
 					faultToleranceResults.getProcessName(),
-					faultToleranceResults.getCmlSourceUnit());
+					faultToleranceResults.getCmlSourceUnit(),
+					faultToleranceResults.getFolder());
 			SemifairnessVerificationJob sj = new SemifairnessVerificationJob(
 					faultToleranceResults.getProcessName(),
-					faultToleranceResults.getCmlSourceUnit());
+					faultToleranceResults.getCmlSourceUnit(),
+					faultToleranceResults.getFolder());
 
 			dfj.setProgressGroup(group, dfj.getTotalUnitsOfWork());
 			sj.setProgressGroup(group, sj.getTotalUnitsOfWork());
@@ -209,14 +211,17 @@ public abstract class FaultToleranceVerificationJob extends ModelCheckingJob {
 	private boolean manageFiles() throws InterruptedException {
 		FilesManagementJob fmj = new FilesManagementJob(
 				faultToleranceResults.getProcessName(),
+				faultToleranceResults.getCmlSourceUnit(),
 				faultToleranceResults.getOutputContainer());
 
 		fmj.addJobChangeListener(new JobChangeAdapter() {
 			@Override
 			public void done(IJobChangeEvent event) {
-				UnableToRunFaultToleranceVerificationException e = ((FilesManagementJob) event
-						.getJob()).getException();
+				FilesManagementJob job = (FilesManagementJob) event.getJob();
+				UnableToRunFaultToleranceVerificationException e = job
+						.getException();
 				faultToleranceResults.setException(e);
+				faultToleranceResults.setFolder(job.getFolder());
 			}
 		});
 

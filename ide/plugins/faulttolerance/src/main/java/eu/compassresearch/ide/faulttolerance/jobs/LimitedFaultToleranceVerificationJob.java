@@ -65,10 +65,10 @@ public class LimitedFaultToleranceVerificationJob extends FaultToleranceVerifica
 		try {
 			String specName = Message.NO_FAULTS_PROCESS_NAME.format(ftResults
 					.getProcessName());
-			String implName = Message.LAZY_PROCESS_NAME.format(ftResults
+			String implName = Message.LAZY_LIMIT_PROCESS_NAME.format(ftResults
 					.getProcessName());
 			mcResults.setCmlSourceUnit(ftResults.getCmlSourceUnit());
-			caller.verifyFailuresDivergences(specName, implName, mcResults);
+			// caller.runFormula();
 		} finally {
 			monitor.worked(1);
 		}

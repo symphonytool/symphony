@@ -4,6 +4,7 @@
 package eu.compassresearch.ide.faulttolerance.jobs;
 
 import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.jobs.ILock;
 import org.eclipse.core.runtime.jobs.Job;
@@ -34,6 +35,7 @@ public class FaultToleranceVerificationResults {
 	private IContainer outputContainer;
 	private ICmlSourceUnit cmlSourceUnit;
 	private ICmlProject cmlProject;
+	private IFolder folder;
 
 	private UnableToRunFaultToleranceVerificationException exception;
 
@@ -179,6 +181,14 @@ public class FaultToleranceVerificationResults {
 
 	public void setCmlProject(ICmlProject cmlProject) {
 		this.cmlProject = cmlProject;
+	}
+
+	public IFolder getFolder() {
+		return folder;
+	}
+
+	public void setFolder(IFolder folder) {
+		this.folder = folder;
 	}
 
 }

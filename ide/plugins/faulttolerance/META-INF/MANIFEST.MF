@@ -32,5 +32,6 @@ Export-Package: eu.compassresearch.ide.faulttolerance
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Eclipse-BuddyPolicy: registered
-Bundle-ClassPath: .
+Bundle-ClassPath: .,
+ jars/modelchecker.jar
 Bundle-Localization: l10n/plugin

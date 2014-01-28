@@ -3,6 +3,7 @@
  */
 package eu.compassresearch.ide.faulttolerance.jobs;
 
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
@@ -18,9 +19,13 @@ import eu.compassresearch.ide.faulttolerance.modelchecker.ModelCheckingResult;
  */
 public class SemifairnessVerificationJob extends ModelCheckingJob {
 	public SemifairnessVerificationJob(String processName,
-			ICmlSourceUnit cmlSourceUnit) {
+			ICmlSourceUnit cmlSourceUnit, IFolder folder) {
 		super(Message.SEMIFAIRNESS_JOB, processName, 1);
 		getModelCheckingResult().setCmlSourceUnit(cmlSourceUnit);
+		getModelCheckingResult().setFormulaScriptAbsolutePath(
+				String.format("%s/%s", folder.getFullPath(),
+						Message.SEMIFAIRNESS_FORMULA_SCRIPT_FILE_NAME
+								.format(processName)));
 	}
 
 	@Override
@@ -28,9 +33,7 @@ public class SemifairnessVerificationJob extends ModelCheckingJob {
 			ModelCheckerCaller caller, IProgressMonitor monitor)
 			throws InterruptedException {
 		try {
-			String processName = Message.SEMIFAIRNESS_PROCESS_NAME
-					.format(result.getProcessName());
-			caller.verifyDivergenceFreedom(processName, result);
+			caller.runFormula(result);
 		} finally {
 			monitor.worked(1);
 		}
