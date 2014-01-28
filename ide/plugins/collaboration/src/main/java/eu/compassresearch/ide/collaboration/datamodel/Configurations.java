@@ -108,7 +108,6 @@ public class Configurations extends Model
 
 	public void addFile(FileStatus fileStatus) throws CoreException
 	{
-		//TODO change away from IFile and move hash calc
 		if (configurations.isEmpty())
 		{
 			addNewConfiguration();

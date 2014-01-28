@@ -35,7 +35,7 @@ public class AddFileToCollaborationHandler extends AbstractHandler
 			Object obj = ssel.getFirstElement();
 			IFile file = (IFile) Platform.getAdapterManager().getAdapter(obj, IFile.class);
 
-			// let modelManager handle the file file
+			// let modelManager handle the file
 			FileStatus fileStatus = dataModelManager.handleFile(file);
 
 			// display dialog to user with the status of the file addition.
