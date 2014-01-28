@@ -31,6 +31,7 @@ import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.ACallAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.ADivAction;
+import eu.compassresearch.ast.actions.AEndDeadlineAction;
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
 import eu.compassresearch.ast.actions.AGeneralisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AGuardedAction;
@@ -44,6 +45,7 @@ import eu.compassresearch.ast.actions.AReferenceAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASignalCommunicationParameter;
 import eu.compassresearch.ast.actions.ASkipAction;
+import eu.compassresearch.ast.actions.AStartDeadlineAction;
 import eu.compassresearch.ast.actions.AStmAction;
 import eu.compassresearch.ast.actions.AStopAction;
 import eu.compassresearch.ast.actions.ATimedInterruptAction;
@@ -175,47 +177,6 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 			throw new CmlInterpreterException(node, InterpretationErrorMessages.FATAL_ERROR.customizeMessage());
 		}
 	}
-
-	// /**
-	// * This deals both with calls but also parametrised action reference, since the typechecker does not replace this
-	// * node yet FIXME This might be changed! if the typechecker replaces the call node with a action reference node
-	// */
-	// @Override
-	// public Inspection caseACallStm(final ACallStm node, final Context question)
-	// throws AnalysisException
-	// {
-	//
-	// if (!owner.hasChildren())
-	// {
-	// final Value value = lookupName(node.getName(), question);
-	// if (value instanceof CmlOperationValue)
-	// return node.apply(statementInspectionVisitor, question);
-	// else if (value instanceof ActionValue)
-	// {
-	// // first find the action value in the context
-	// final ActionValue actionVal = (ActionValue) value;
-	//
-	// return newInspection(createTauTransitionWithoutTime(actionVal.getActionDefinition().getAction(), null), new
-	// AbstractCalculationStep(owner, visitorAccess)
-	// {
-	//
-	// @Override
-	// public Pair<INode, Context> execute(
-	// CmlTransition selectedTransition)
-	// throws AnalysisException
-	// {
-	//
-	// return caseReferenceAction(node.getLocation(), node.getArgs(), actionVal, question);
-	// }
-	// });
-	//
-	// } else
-	// throw new CmlInterpreterException(node, InterpretationErrorMessages.FATAL_ERROR.customizeMessage());
-	// } else
-	// {
-	// return node.apply(statementInspectionVisitor, question);
-	// }
-	// }
 
 	/**
 	 * Synchronization and Communication D23.2 7.5.2 This transition can either be Simple prefix : a -> A
@@ -753,12 +714,27 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 		return newInspection(new CmlTransitionSet(new TimedTransition(owner)), null);
 	}
 
-	/**
+	/*
 	 * Timed actions
 	 * 
-	 * @throws AnalysisException
-	 * @throws ValueException
 	 */
+
+	/**
+	 * see {@link CommonInspectionVisitor#caseStartDeadline(INode, INode, PExp, Context) }
+	 */
+	@Override
+	public Inspection caseAStartDeadlineAction(final AStartDeadlineAction node,
+			final Context question) throws AnalysisException
+	{
+		return caseStartDeadline(node, node.getLeft(), node.getExpression(), question);
+	}
+	
+	@Override
+	public Inspection caseAEndDeadlineAction(AEndDeadlineAction node,
+			Context question) throws AnalysisException
+	{
+		return caseEndDeadline(node, node.getLeft(), node.getExpression(), question);
+	}
 
 	@Override
 	public Inspection caseATimeoutAction(final ATimeoutAction node,

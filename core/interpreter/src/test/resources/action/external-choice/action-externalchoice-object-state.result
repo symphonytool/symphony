@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testResult>
+  <exception/>
+  <interpreterState>FINISHED</interpreterState>
+  <trace>
+    <events>read\.0,inc,read\.1,inc,read\.2</events>
+  </trace>
+</testResult>

@@ -9,6 +9,7 @@ import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.AStopAction;
 import eu.compassresearch.ast.process.AAlphabetisedParallelismProcess;
 import eu.compassresearch.ast.process.AAlphabetisedParallelismReplicatedProcess;
+import eu.compassresearch.ast.process.AEndDeadlineProcess;
 import eu.compassresearch.ast.process.AExternalChoiceProcess;
 import eu.compassresearch.ast.process.AExternalChoiceReplicatedProcess;
 import eu.compassresearch.ast.process.AGeneralisedParallelismProcess;
@@ -21,6 +22,7 @@ import eu.compassresearch.ast.process.AInternalChoiceReplicatedProcess;
 import eu.compassresearch.ast.process.AInterruptProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionReplicatedProcess;
+import eu.compassresearch.ast.process.AStartDeadlineProcess;
 import eu.compassresearch.ast.process.ATimedInterruptProcess;
 import eu.compassresearch.ast.process.ATimeoutProcess;
 import eu.compassresearch.ast.process.AUntimedTimeoutProcess;
@@ -98,12 +100,28 @@ class ProcessSetupVisitor extends CommonSetupVisitor
 		setLeftChild(node.getLeft(), question);
 		return new Pair<INode, Context>(node, question);
 	}
+	
+	@Override
+	public Pair<INode, Context> caseAStartDeadlineProcess(
+			AStartDeadlineProcess node, Context question)
+			throws AnalysisException
+	{
+		return setupTimedOperator(node, node.getLeft(), NamespaceUtility.getStartsByTimeName(), question);
+	}
+	
+	@Override
+	public Pair<INode, Context> caseAEndDeadlineProcess(
+			AEndDeadlineProcess node, Context question)
+			throws AnalysisException
+	{
+		return setupTimedOperator(node, node.getLeft(), NamespaceUtility.getEndsByTimeName(), question);
+	}
 
 	@Override
 	public Pair<INode, Context> caseATimeoutProcess(ATimeoutProcess node,
 			Context question) throws AnalysisException
 	{
-		return caseATimeout(node, node.getLeft(), question);
+		return setupTimedOperator(node, node.getLeft(), NamespaceUtility.getStartTimeName(), question);
 	}
 
 	/*

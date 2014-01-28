@@ -15,12 +15,14 @@ import org.overture.interpreter.runtime.ValueException;
 import org.overture.interpreter.values.IntegerValue;
 import org.overture.interpreter.values.NameValuePair;
 import org.overture.interpreter.values.NameValuePairList;
+import org.overture.interpreter.values.NaturalValue;
 import org.overture.interpreter.values.SetValue;
 import org.overture.interpreter.values.TupleValue;
 import org.overture.interpreter.values.Value;
 import org.overture.interpreter.values.ValueList;
 
 import eu.compassresearch.ast.CmlAstFactory;
+import eu.compassresearch.ast.actions.AStartDeadlineAction;
 import eu.compassresearch.ast.actions.SReplicatedAction;
 import eu.compassresearch.ast.analysis.DepthFirstAnalysisCMLAdaptor;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
@@ -123,18 +125,62 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 		return new Pair<INode, Context>(node, question);
 	}
 
-	protected Pair<INode, Context> caseATimeout(INode node, INode leftNode,
+	
+	protected Pair<INode, Context> setupTimedOperator(INode node, INode leftNode, ILexNameToken startTimeValueName,
 			Context question) throws AnalysisException
 	{
 
-		Context context = CmlContextFactory.newContext(LocationExtractor.extractLocation(node), "Timeout context", question);
-		context.putNew(new NameValuePair(NamespaceUtility.getStartTimeName(), new IntegerValue(owner.getCurrentTime())));
+		Context context = CmlContextFactory.newContext(LocationExtractor.extractLocation(node), node.getClass().getName() + " context", question);
+		try
+		{
+			context.putNew(new NameValuePair(startTimeValueName, new NaturalValue(owner.getCurrentTime())));
+		} catch (Exception e)
+		{
+			throw new ValueException(0, e.getMessage(), question);
+		}
 
 		// We setup the child nodes
 		setLeftChild(leftNode, question);
 		return new Pair<INode, Context>(node, context);
 
 	}
+	
+	
+//	protected Pair<INode, Context> caseATimeout(INode node, INode leftNode,
+//			Context question) throws AnalysisException
+//	{
+//
+//		Context context = CmlContextFactory.newContext(LocationExtractor.extractLocation(node), "Timeout context", question);
+//		try
+//		{
+//			context.putNew(new NameValuePair(NamespaceUtility.getStartTimeName(), new IntegerValue(owner.getCurrentTime())));
+//		} catch (Exception e)
+//		{
+//			throw new ValueException(0, e.getMessage(), question);
+//		}
+//		// We setup the child nodes
+//		setLeftChild(leftNode, question);
+//		return new Pair<INode, Context>(node, context);
+//
+//	}
+	
+//	@Override
+//	public Pair<INode, Context> caseAStartDeadlineAction(
+//			AStartDeadlineAction node, Context question)
+//			throws AnalysisException
+//	{
+//		Context context = CmlContextFactory.newContext(LocationExtractor.extractLocation(node), "Timeout context", question);
+//		try
+//		{
+//			context.putNew(new NameValuePair(NamespaceUtility.getStartsByTimeName(), new NaturalValue(owner.getCurrentTime())));
+//			
+//		} catch (Exception e)
+//		{
+//			throw new ValueException(0, e.getMessage(), question);
+//		}
+//		setLeftChild(node.getLeft(), question);
+//		return new Pair<INode, Context>(node, context);
+//	}
 
 	/*
 	 * Non public replication helper methods -- Start

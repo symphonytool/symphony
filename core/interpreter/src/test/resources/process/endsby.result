@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testResult>
+  <exception/>
+  <interpreterState>FINISHED</interpreterState>
+  <trace>
+    <events>a,b</events>
+    <timedTrace>((tock,){4}tock|(tock,){0,3}a,(tock,)*b)</timedTrace>
+  </trace>
+</testResult>
