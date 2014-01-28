@@ -1,5 +1,8 @@
 package eu.compassresearch.ide.collaboration.communication.handlers;
 
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.ecf.core.identity.ID;
 import org.eclipse.ecf.core.util.ECFException;
 import org.eclipse.jface.window.Window;
@@ -49,8 +52,7 @@ public class CollaborationRequestHandler extends BaseMessageHandler<Collaboratio
 					
 				} catch (ECFException e)
 				{
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					ResourcesPlugin.getPlugin().getLog().log(new Status(IStatus.ERROR, Activator.PLUGIN_ID, 0, e.getMessage(), e));
 				}
 			}	
 		});	

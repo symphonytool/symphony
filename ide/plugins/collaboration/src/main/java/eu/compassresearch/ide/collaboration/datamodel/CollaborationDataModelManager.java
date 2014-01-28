@@ -12,12 +12,14 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.ecf.core.identity.ID;
+import org.eclipse.ecf.core.user.IUser;
 import org.eclipse.ecf.sync.SerializationException;
 
 import eu.compassresearch.ide.collaboration.Activator;
 import eu.compassresearch.ide.collaboration.CollaborationPluginUtils;
 import eu.compassresearch.ide.collaboration.communication.ConnectionManager;
 import eu.compassresearch.ide.collaboration.communication.messages.CollaborationGroupUpdateMessage;
+import eu.compassresearch.ide.collaboration.communication.messages.CollaborationRequest;
 import eu.compassresearch.ide.collaboration.communication.messages.ConfigurationStatusMessage;
 import eu.compassresearch.ide.collaboration.communication.messages.ConfigurationStatusMessage.NegotiationStatus;
 import eu.compassresearch.ide.collaboration.communication.messages.NewConfigurationMessage;
@@ -318,13 +320,10 @@ public class CollaborationDataModelManager
 				}
 			}
 
-			// store our configuration. TODO or just send
+			// store our configuration. 
 			configurationsToSend.put(user, newConfigurationMessage);
 			connectionManager.sendTo(user, newConfigurationMessage);
 		}
-
-		System.out.println("0");
-		//
 	}
 
 	private FileDTO createFileDTO(File file)
@@ -515,5 +514,24 @@ public class CollaborationDataModelManager
 				collaboratorGroup.addCollaborator(id, true);
 			}
 		}
+	}
+
+	public void addNewCollaborator(IUser receiver, CollaborationGroup group,
+			CollaborationProject project, String description) throws SerializationException
+	{
+			ConnectionManager connectionManager = Activator.getDefault().getConnectionManager();
+			ID connectedUser = connectionManager.getConnectedUser();
+			
+			//build reply
+			CollaborationRequest msg = new CollaborationRequest(connectionManager.getConnectedUser(), project.getUniqueID(), project.getTitle(), description);
+			connectionManager.sendTo(receiver.getID(), msg);
+			
+			//add collaborator locally, currently as not joined. 
+			group.addCollaborator(receiver.getID(), false);	
+			
+			//we are inviting others, so we should be part of the collaboration ourself.  
+			if(!group.hasCollaborator(connectedUser.getName())){
+				group.addCollaborator(connectedUser, true);
+			}
 	}
 }

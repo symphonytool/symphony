@@ -74,7 +74,6 @@
 //							fileContents = CollaborationPluginUtils.convertStreamToString(file.getContents());
 //						} catch (CoreException e)
 //						{
-//							// TODO Auto-generated catch block
 //							e.printStackTrace();
 //						}
 //						filename = file.getName();
@@ -111,12 +110,10 @@
 ////			
 ////			} catch (CoreException e)
 ////			{
-////				// TODO Auto-generated catch block
 ////				e.printStackTrace();
 ////			}
 ////			} catch (SerializationException e)
 ////			{
-////				// TODO Auto-generated catch block
 ////				e.printStackTrace();
 //			
 //		}

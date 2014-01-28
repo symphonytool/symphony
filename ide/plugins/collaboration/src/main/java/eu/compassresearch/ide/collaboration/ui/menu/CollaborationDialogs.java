@@ -3,6 +3,7 @@ package eu.compassresearch.ide.collaboration.ui.menu;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -123,7 +124,7 @@ public class CollaborationDialogs
 			page.showView("eu.compassresearch.ide.collaboration.ui.view.CollaborationView");
 		} catch (PartInitException e)
 		{
-			// TODO Auto-generated catch block
+			ResourcesPlugin.getPlugin().getLog().log(new Status(IStatus.ERROR, Activator.PLUGIN_ID, 0, e.getMessage(), e));
 			e.printStackTrace();
 		}
 	}

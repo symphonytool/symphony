@@ -1,6 +1,9 @@
 package eu.compassresearch.ide.collaboration.communication.handlers;
 
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.swt.widgets.Display;
 
 import eu.compassresearch.ide.collaboration.Activator;
@@ -49,7 +52,7 @@ public class NewConfigurationMessageHandler extends
 
 		} catch (CoreException e)
 		{
-			// TODO Auto-generated catch block
+			ResourcesPlugin.getPlugin().getLog().log(new Status(IStatus.ERROR, Activator.PLUGIN_ID, 0, e.getMessage(), e));
 			e.printStackTrace();
 		}
 
