@@ -3,13 +3,13 @@
  */
 package eu.compassresearch.ide.faulttolerance.jobs;
 
-import java.util.Random;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 
+import eu.compassresearch.core.analysis.modelchecker.api.FormulaIntegrator;
+import eu.compassresearch.core.analysis.modelchecker.api.FormulaResult;
 import eu.compassresearch.ide.faulttolerance.Message;
 
 /**
@@ -21,10 +21,13 @@ import eu.compassresearch.ide.faulttolerance.Message;
 public final class ModelCheckingJob extends Job {
 
 	private final String processName;
+	private final String absolutePath;
 
-	public ModelCheckingJob(Message jobNameMessage, String processName) {
+	public ModelCheckingJob(Message jobNameMessage, String processName,
+			String absolutePath) {
 		super(jobNameMessage.format(processName));
 		this.processName = processName;
+		this.absolutePath = absolutePath;
 	}
 
 	@Override
@@ -45,13 +48,9 @@ public final class ModelCheckingJob extends Job {
 
 	private void performModelCheckingCall(ModelCheckingResult result,
 			IProgressMonitor monitor) throws InterruptedException {
-		Random r = new Random();
-		for (int i = 0; i < 10; i++) {
-			Thread.sleep(r.nextInt(100) * 10);
-			monitor.worked(10);
-		}
-		result.setSuccess(r.nextInt(10) > 2);
-		// TODO call formula with absoluteFilePath
+		FormulaResult formulaResult = FormulaIntegrator.getInstance().analyse(
+				absolutePath);
+		monitor.worked(100);
 	}
 
 }

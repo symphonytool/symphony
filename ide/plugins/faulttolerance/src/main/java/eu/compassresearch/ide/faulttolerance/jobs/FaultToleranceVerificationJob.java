@@ -36,6 +36,12 @@ public class FaultToleranceVerificationJob extends Job {
 		}
 	}
 
+	private String getAbsolutePath(Message fileNameMessage) {
+		return String.format("%s/%s", faultToleranceResults.getFolder()
+				.getLocationURI(), fileNameMessage.format(faultToleranceResults
+				.getProcessName()));
+	}
+
 	private void verifyPreRequisites(final IProgressMonitor monitor)
 			throws InterruptedException {
 
@@ -44,19 +50,23 @@ public class FaultToleranceVerificationJob extends Job {
 
 			ModelCheckingJob dfj = new ModelCheckingJob(
 					Message.DIVERGENCE_FREE_JOB,
-					faultToleranceResults.getProcessName());
+					faultToleranceResults.getProcessName(),
+					getAbsolutePath(Message.DIVERGENCE_FREEDOM_FORMULA_SCRIPT_FILE_NAME));
 
 			ModelCheckingJob sj = new ModelCheckingJob(
 					Message.SEMIFAIRNESS_JOB,
-					faultToleranceResults.getProcessName());
+					faultToleranceResults.getProcessName(),
+					getAbsolutePath(Message.SEMIFAIRNESS_FORMULA_SCRIPT_FILE_NAME));
 
 			dfj.addJobChangeListener(new JobChangeAdapter() {
 				@Override
 				public void done(IJobChangeEvent event) {
-					ModelCheckingStatus status = ((ModelCheckingStatus) event
-							.getResult());
-					faultToleranceResults.setDivergenceFree(status.getResults()
-							.isSuccess());
+					if (event.getResult() instanceof ModelCheckingStatus) {
+						ModelCheckingStatus status = ((ModelCheckingStatus) event
+								.getResult());
+						faultToleranceResults.setDivergenceFree(status
+								.getResults().isSuccess());
+					}
 					monitor.worked(1);
 				}
 			});
@@ -131,10 +141,12 @@ public class FaultToleranceVerificationJob extends Job {
 	private void runFaultToleranceVerification(final IProgressMonitor monitor) {
 		final ModelCheckingJob fftj = new ModelCheckingJob(
 				Message.FULL_FAULT_TOLERANCE_JOB,
-				faultToleranceResults.getProcessName());
+				faultToleranceResults.getProcessName(),
+				getAbsolutePath(Message.FULL_FAULT_TOLERANCE_FORMULA_SCRIPT_FILE_NAME));
 		final ModelCheckingJob lftj = new ModelCheckingJob(
 				Message.LIMITED_FAULT_TOLERANCE_JOB,
-				faultToleranceResults.getProcessName());
+				faultToleranceResults.getProcessName(),
+				getAbsolutePath(Message.LIMITED_FAULT_TOLERANCE_FORMULA_SCRIPT_FILE_NAME));
 
 		fftj.addJobChangeListener(new JobChangeAdapter() {
 			@Override
