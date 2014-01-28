@@ -136,7 +136,10 @@
     trans(iS,tau,State(st,Chaos)) :- iS is State(st,seqC(Chaos,Q)).
 
     State(st_,seqC(P_,Q)),
-    trans(iS,ev,State(st_,seqC(P_,Q))) :- iS is State(st,seqC(P,Q)),trans(State(st,P),ev,State(st_,P_)).
+    trans(iS,ev,State(st_,seqC(P_,Q))) :- iS is State(st,seqC(P,Q)),trans(State(st,P),ev,State(st_,P_)), ev != tock.
+
+	State(st_,seqC(P_,Q)),
+	trans(iS,tock,State(st_,seqC(P_,Q))) :- iS is State(st,seqC(P,Q)),trans(State(st,P),tock,State(st_,P_)), P != P_.
 
 	//Sequence timed
     //trans(iS,tock,iS) :- iS is State(st,seqC(P,Q)), P != Skip. 
