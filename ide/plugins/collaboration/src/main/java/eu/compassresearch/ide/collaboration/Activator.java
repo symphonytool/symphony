@@ -9,7 +9,7 @@ import org.osgi.util.tracker.ServiceTracker;
 
 import eu.compassresearch.ide.collaboration.communication.ConnectionManager;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationDataModelManager;
-import eu.compassresearch.ide.collaboration.files.FileChangeManager;
+import eu.compassresearch.ide.collaboration.files.FileChangeListener;
 
 public class Activator extends AbstractUIPlugin
 {
@@ -22,7 +22,7 @@ public class Activator extends AbstractUIPlugin
 	private ServiceTracker containerManagerTracker;
 	
 	private CollaborationDataModelManager dataModelManager;
-	private FileChangeManager fileChangeManager;
+	private FileChangeListener fileChangeManager;
 	private ConnectionManager connectionManager;
 	
 	public Activator() {
@@ -39,7 +39,7 @@ public class Activator extends AbstractUIPlugin
 		dataModelManager.loadModel();
 		
 		//track changes in workspace
-		fileChangeManager = new FileChangeManager();
+		fileChangeManager = new FileChangeListener();
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		workspace.addResourceChangeListener(fileChangeManager);
 		

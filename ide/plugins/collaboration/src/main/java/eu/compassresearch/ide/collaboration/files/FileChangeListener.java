@@ -13,11 +13,11 @@ import org.eclipse.core.runtime.CoreException;
 import eu.compassresearch.ide.collaboration.Activator;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationDataModelManager;
 
-public class FileChangeManager implements IResourceChangeListener
+public class FileChangeListener implements IResourceChangeListener
 {
 	private CollaborationDataModelManager modelMgm;
 
-	public FileChangeManager()
+	public FileChangeListener()
 	{
 		modelMgm = Activator.getDefault().getDataModelManager();
 	}
