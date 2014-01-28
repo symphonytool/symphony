@@ -23,7 +23,7 @@
  <extension
       point="org.eclipse.ui.commands">
    <command
-         defaultHandler="eu.compassresearch.ide.theoremprover.commands.DischargePosHandler"
+         defaultHandler="eu.compassresearch.ide.theoremprover.commands.GenPosHandler"
          id="eu.compassresearch.ide.theoremprover.dischargepos"
          name="DischargePOs">
          <commandParameter

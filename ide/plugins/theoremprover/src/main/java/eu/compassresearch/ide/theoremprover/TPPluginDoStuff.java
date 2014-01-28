@@ -1,5 +1,9 @@
 package eu.compassresearch.ide.theoremprover;
 
+import isabelle.Document;
+import isabelle.Session;
+import isabelle.eclipse.core.IsabelleCore;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.text.DateFormat;
@@ -39,6 +43,7 @@ import eu.compassresearch.ide.core.resources.ICmlModel;
 import eu.compassresearch.ide.core.resources.ICmlProject;
 import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
 import eu.compassresearch.ide.core.unsupported.UnsupportedElementInfo;
+import eu.compassresearch.ide.theoremprover.utils.TheoryLoader;
 import eu.compassresearch.ide.ui.utility.CmlProjectUtil;
 
 public class TPPluginDoStuff {
@@ -257,7 +262,7 @@ public class TPPluginDoStuff {
 	 * PLACEHOLDER FOR NOW - SHOULD TIE IN WITH COMMAND, FUNCTIONALITY NEEDS
 	 * INTERTWINING WITH TP STUFF BETTER, TOO.
 	 */
-	public void dischargePos(ICmlProject cmlProj) {
+	public void generatePOs(ICmlProject cmlProj) {
 		try {
 			// Check there are no type errors.
 			if (!CmlProjectUtil.typeCheck(this.window.getShell(), cmlProj)) {
@@ -348,6 +353,13 @@ public class TPPluginDoStuff {
 				String thyFileName = fileName + ".thy";
 				IFile thyFile = pogFolder.getFile(thyFileName);
 				translateCmltoThy(model, thyFile, thyFileName);
+				
+			// we know we have a session because we checked for it outside
+				Session sess = IsabelleCore.isabelle().session().get();
+				
+				// submit the file to isabelle
+				String dirName = modelBk.getRawLocation().toOSString();
+				TheoryLoader.addTheory(fileName, dirName, sess, thyFile);
 
 				// Create empty thy file which imports generated file
 				IFile pogThyFile = pogFolder.getFile(fileName + "_PO.thy");
