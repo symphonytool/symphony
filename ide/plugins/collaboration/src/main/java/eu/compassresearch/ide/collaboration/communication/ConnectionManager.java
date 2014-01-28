@@ -26,10 +26,12 @@ import eu.compassresearch.ide.collaboration.communication.handlers.Collaboration
 import eu.compassresearch.ide.collaboration.communication.handlers.CollaborationStatusMessageHandler;
 import eu.compassresearch.ide.collaboration.communication.handlers.ConfigurationStatusMessageHandler;
 import eu.compassresearch.ide.collaboration.communication.handlers.NewConfigurationMessageHandler;
+import eu.compassresearch.ide.collaboration.communication.handlers.NotificationMessageHandler;
 import eu.compassresearch.ide.collaboration.communication.messages.BaseMessage;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationGroup;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationProject;
 import eu.compassresearch.ide.collaboration.datamodel.User;
+import eu.compassresearch.ide.collaboration.notifications.Notification;
 
 public class ConnectionManager implements IPresenceListener
 {
@@ -88,7 +90,6 @@ public class ConnectionManager implements IPresenceListener
 
 	// Send to all users, that have accepted to be part of the collaboration.
 	public void send(BaseMessage messageToSend, CollaborationProject project)
-			throws SerializationException
 	{
 
 		CollaborationGroup collaboratorGroup = project.getCollaboratorGroup();
@@ -101,7 +102,6 @@ public class ConnectionManager implements IPresenceListener
 	}
 
 	public void sendTo(User user, BaseMessage messageToSend)
-			throws SerializationException
 	{
 		if (user.hasJoinedGroup())
 		{
@@ -118,11 +118,17 @@ public class ConnectionManager implements IPresenceListener
 
 	// Send to a specific user.
 	public void sendTo(ID receiverID, BaseMessage messageToSend)
-			throws SerializationException
 	{
 		if (messageToSend != null)
 		{
-			sendTo(receiverID, messageToSend.serialize());
+			try
+			{
+				sendTo(receiverID, messageToSend.serialize());
+			} catch (SerializationException e)
+			{
+				Notification.logError(e.getMessage(), e);
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -179,6 +185,7 @@ public class ConnectionManager implements IPresenceListener
 		messageProcessor.addMessageHandler(new ConfigurationStatusMessageHandler(messageProcessor));
 		messageProcessor.addMessageHandler(new CollaborationStatusMessageHandler(messageProcessor));
 		messageProcessor.addMessageHandler(new CollaborationGroupUpdateMessageHandler(messageProcessor));
+		messageProcessor.addMessageHandler(new NotificationMessageHandler(messageProcessor));
 	}
 
 	public boolean isConnectionInitialized()
@@ -210,9 +217,12 @@ public class ConnectionManager implements IPresenceListener
 			List<ID> usersFromRoster = getUsersFromRoster();
 			availableCollaborators = new HashMap<String, ID>();
 
-			for (ID id : usersFromRoster)
+			if (usersFromRoster != null)
 			{
-				availableCollaborators.put(id.getName(), id);
+				for (ID id : usersFromRoster)
+				{
+					availableCollaborators.put(id.getName(), id);
+				}
 			}
 		}
 
@@ -231,7 +241,7 @@ public class ConnectionManager implements IPresenceListener
 
 		synchronized (items)
 		{
-			for (IRosterItem item: items)
+			for (IRosterItem item : items)
 			{
 				addRosterEntry(item, newUsers);
 			}

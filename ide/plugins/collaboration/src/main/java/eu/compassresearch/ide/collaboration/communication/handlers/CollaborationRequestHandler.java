@@ -1,10 +1,6 @@
 package eu.compassresearch.ide.collaboration.communication.handlers;
 
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.ecf.core.identity.ID;
-import org.eclipse.ecf.core.util.ECFException;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Display;
 
@@ -35,25 +31,18 @@ public class CollaborationRequestHandler extends BaseMessageHandler<Collaboratio
 		{
 			public void run()
 			{
-				try
-				{
-					CollaborationRequestedDialog collabRequestedDialog = new CollaborationRequestedDialog(sender.getName(), msg.getTitle(), msg.getMessage(), null);
-					collabRequestedDialog.create();
-					boolean join = collabRequestedDialog.open() == Window.OK; 
-					
-					if(join) {
-						CollaborationDataModelManager modelMgm = Activator.getDefault().getDataModelManager();
-						modelMgm.addReceivedCollaborationProject(collabRequestedDialog.getProject(), msg.getTitle(), msg.getMessage(), collabProjectId);
-					}
-					
-					//send reply
-					CollaborationStatusMessage statusMsg = new CollaborationStatusMessage(sender, msg.getProjectID(), join);
-					connectionManager.sendTo(msg.getSenderID(), statusMsg);
-					
-				} catch (ECFException e)
-				{
-					ResourcesPlugin.getPlugin().getLog().log(new Status(IStatus.ERROR, Activator.PLUGIN_ID, 0, e.getMessage(), e));
+				CollaborationRequestedDialog collabRequestedDialog = new CollaborationRequestedDialog(sender.getName(), msg.getTitle(), msg.getMessage(), null);
+				collabRequestedDialog.create();
+				boolean join = collabRequestedDialog.open() == Window.OK; 
+				
+				if(join) {
+					CollaborationDataModelManager modelMgm = Activator.getDefault().getDataModelManager();
+					modelMgm.addReceivedCollaborationProject(collabRequestedDialog.getProject(), msg.getTitle(), msg.getMessage(), collabProjectId);
 				}
+				
+				//send reply
+				CollaborationStatusMessage statusMsg = new CollaborationStatusMessage(sender, msg.getProjectID(), join);
+				connectionManager.sendTo(msg.getSenderID(), statusMsg);
 			}	
 		});	
 	}

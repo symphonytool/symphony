@@ -7,14 +7,17 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.swt.widgets.Display;
 
 import eu.compassresearch.ide.collaboration.Activator;
+import eu.compassresearch.ide.collaboration.communication.ConnectionManager;
 import eu.compassresearch.ide.collaboration.communication.MessageProcessor;
 import eu.compassresearch.ide.collaboration.communication.messages.NewConfigurationMessage;
+import eu.compassresearch.ide.collaboration.communication.messages.NotificationMessage;
+import eu.compassresearch.ide.collaboration.communication.messages.NotificationMessage.NotificationType;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationDataModelManager;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationProject;
 import eu.compassresearch.ide.collaboration.datamodel.Configuration;
 import eu.compassresearch.ide.collaboration.datamodel.Configurations;
-import eu.compassresearch.ide.collaboration.files.FileHandler;
 import eu.compassresearch.ide.collaboration.files.FileDTO;
+import eu.compassresearch.ide.collaboration.files.FileHandler;
 import eu.compassresearch.ide.collaboration.notifications.Notification;
 import eu.compassresearch.ide.collaboration.ui.menu.CollaborationDialogs;
 
@@ -32,15 +35,18 @@ public class NewConfigurationMessageHandler extends
 		final String senderName = msg.getSenderID().getName();
 
 		CollaborationDataModelManager dataModelManager = Activator.getDefault().getDataModelManager();
-
-		// TODO move to collaboration manager
+		ConnectionManager connectionManager = Activator.getDefault().getConnectionManager();
+		
 		final CollaborationProject collaborationProject = dataModelManager.getCollaborationProjectFromID(msg.getProjectID());
+		//if collaboration project not found, error handle
 		if (collaborationProject == null)
 		{
-			Notification.logError(Notification.Collab_ERROR_NO_SUCH_COLLAB__PROJ_ID
-					+ " " + senderName, null);
-			// TODO reply with error msg of no such collaboration project id
-			//TODO gentle notification of error
+			String message = Notification.Collab_ERROR_NO_SUCH_COLLAB__PROJ_ID  + " " + senderName;
+			Notification.logError(message, null);
+
+			//send reply
+			NotificationMessage notificationMsg = new NotificationMessage(connectionManager.getConnectedUser(), msg.getProjectID(), NotificationType.ERROR, message);
+			connectionManager.sendTo(msg.getSenderID(), notificationMsg);
 			
 			return;
 		}
