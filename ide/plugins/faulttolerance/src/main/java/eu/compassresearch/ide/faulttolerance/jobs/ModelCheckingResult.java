@@ -1,9 +1,7 @@
 /**
  * 
  */
-package eu.compassresearch.ide.faulttolerance.modelchecker;
-
-import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
+package eu.compassresearch.ide.faulttolerance.jobs;
 
 /**
  * @author Andr&eacute; Didier (<a href=
@@ -13,7 +11,6 @@ import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
  */
 public class ModelCheckingResult {
 	private boolean success;
-	private ICmlSourceUnit cmlSourceUnit;
 	private String processName;
 
 	private String formulaScriptAbsolutePath;
@@ -26,14 +23,6 @@ public class ModelCheckingResult {
 
 	public void setSuccess(boolean success) {
 		this.success = success;
-	}
-
-	public ICmlSourceUnit getCmlSourceUnit() {
-		return cmlSourceUnit;
-	}
-
-	public void setCmlSourceUnit(ICmlSourceUnit cmlSourceUnit) {
-		this.cmlSourceUnit = cmlSourceUnit;
 	}
 
 	public String getProcessName() {

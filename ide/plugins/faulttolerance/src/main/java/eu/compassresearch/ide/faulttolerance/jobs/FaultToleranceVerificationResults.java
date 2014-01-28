@@ -27,8 +27,6 @@ public class FaultToleranceVerificationResults {
 	private boolean limitedFaultTolerant;
 	private boolean prerequisitesChecked;
 	private int verifications;
-	@Deprecated
-	private String limitExpression;
 	private String processName;
 	private IResource resource;
 	private ILexLocation location;
@@ -71,11 +69,6 @@ public class FaultToleranceVerificationResults {
 		return limitedFaultTolerant;
 	}
 
-	@Deprecated
-	public String getLimitExpression() {
-		return limitExpression;
-	}
-
 	public String getProcessName() {
 		return processName;
 	}
@@ -98,11 +91,6 @@ public class FaultToleranceVerificationResults {
 
 	public void setLimitedFaultTolerant(boolean limitedFaultTolerant) {
 		this.limitedFaultTolerant = limitedFaultTolerant;
-	}
-
-	@Deprecated
-	public void setLimitExpression(String limitExpression) {
-		this.limitExpression = limitExpression;
 	}
 
 	public void setProcessName(String processName) {

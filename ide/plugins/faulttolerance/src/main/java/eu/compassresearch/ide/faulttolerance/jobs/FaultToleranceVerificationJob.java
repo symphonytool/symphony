@@ -3,18 +3,15 @@
  */
 package eu.compassresearch.ide.faulttolerance.jobs;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 
 import eu.compassresearch.ide.faulttolerance.Message;
 import eu.compassresearch.ide.faulttolerance.UnableToRunFaultToleranceVerificationException;
-import eu.compassresearch.ide.faulttolerance.modelchecker.ModelCheckerCaller;
-import eu.compassresearch.ide.faulttolerance.modelchecker.ModelCheckingResult;
 
 /**
  * @author Andr&eacute; Didier (<a href=
@@ -22,76 +19,14 @@ import eu.compassresearch.ide.faulttolerance.modelchecker.ModelCheckingResult;
  *         >alrd@cin.ufpe.br</a>)
  * 
  */
-public abstract class FaultToleranceVerificationJob extends ModelCheckingJob {
+public class FaultToleranceVerificationJob extends Job {
 
 	private final FaultToleranceVerificationResults faultToleranceResults;
 
-	private final List<IFaultToleranceVerificationListener> listeners;
-
-	private final ListenerFirer divergenceFreeStartFirer;
-	private final ListenerFirer divergenceFreeFinishFirer;
-	private final ListenerFirer semifairnessStartFirer;
-	private final ListenerFirer semifairnessFinishFirer;
-
-	protected abstract class ListenerFirer {
-		protected abstract void doFire(IFaultToleranceVerificationListener l,
-				FaultToleranceVerificationEvent event);
-
-		public final void fire(FaultToleranceVerificationEvent event) {
-			FaultToleranceVerificationEvent allFiredEvent = null;
-			if (event != null
-					&& event.getResults().isAllVerificationsChecked(4)) {
-				allFiredEvent = new FaultToleranceVerificationEvent(
-						event.getResults(), true);
-			}
-			for (IFaultToleranceVerificationListener l : FaultToleranceVerificationJob.this.listeners) {
-				doFire(l, event);
-				if (allFiredEvent != null) {
-					l.faultToleranceVerificationsFinished(allFiredEvent);
-				}
-			}
-
-		}
-	}
-
 	public FaultToleranceVerificationJob(
-			FaultToleranceVerificationResults results, Message jobNameMessage,
-			int totalUnitsOfWork) {
-		super(jobNameMessage, results.getProcessName(), totalUnitsOfWork + 1);
+			FaultToleranceVerificationResults results) {
+		super(Message.FAULT_TOLERANCE_JOB_NAME.format(results.getProcessName()));
 		this.faultToleranceResults = results;
-		this.listeners = new LinkedList<>();
-		this.divergenceFreeStartFirer = new ListenerFirer() {
-			@Override
-			protected void doFire(IFaultToleranceVerificationListener l,
-					FaultToleranceVerificationEvent event) {
-				l.divergenceFreeVerificationStarted();
-			}
-		};
-		this.divergenceFreeFinishFirer = new ListenerFirer() {
-			@Override
-			protected void doFire(IFaultToleranceVerificationListener l,
-					FaultToleranceVerificationEvent event) {
-				l.divergenceFreeVerificationFinished(event);
-			}
-		};
-		this.semifairnessStartFirer = new ListenerFirer() {
-			@Override
-			protected void doFire(IFaultToleranceVerificationListener l,
-					FaultToleranceVerificationEvent event) {
-				l.semifairnessVerificationStarted();
-			}
-		};
-		this.semifairnessFinishFirer = new ListenerFirer() {
-			@Override
-			protected void doFire(IFaultToleranceVerificationListener l,
-					FaultToleranceVerificationEvent event) {
-				l.semifairnessVerificationFinished(event);
-			}
-		};
-	}
-
-	public final void add(IFaultToleranceVerificationListener listener) {
-		listeners.add(listener);
 	}
 
 	private void checkMonitor(IProgressMonitor monitor)
@@ -101,100 +36,38 @@ public abstract class FaultToleranceVerificationJob extends ModelCheckingJob {
 		}
 	}
 
-	@Override
-	protected final void performModelCheckingCall(ModelCheckingResult results,
-			ModelCheckerCaller caller, IProgressMonitor monitor)
+	private void verifyPreRequisites(final IProgressMonitor monitor)
 			throws InterruptedException {
-		checkPreRequisites(monitor);
-
-		if (faultToleranceResults.isPreRequisitesOk()) {
-			performFaultToleranceCall(results, caller, faultToleranceResults,
-					monitor);
-		} else {
-			performPrerequisitesNotMet(faultToleranceResults, monitor);
-		}
-		faultToleranceResults.incrementVerification();
-	}
-
-	protected abstract void performPrerequisitesNotMet(
-			FaultToleranceVerificationResults faultToleranceResults,
-			IProgressMonitor monitor);
-
-	protected abstract void performFaultToleranceCall(
-			ModelCheckingResult mcResults, ModelCheckerCaller caller,
-			FaultToleranceVerificationResults ftResults,
-			IProgressMonitor monitor) throws InterruptedException;
-
-	private void checkPreRequisites(IProgressMonitor monitor)
-			throws InterruptedException {
-		faultToleranceResults.acquire();
-		monitor.subTask(Message.CHECKING_PREREQUISITES.format());
-		checkMonitor(monitor);
-		if (!faultToleranceResults.isPrerequisitesChecked()) {
-			IProgressMonitor group = Job.getJobManager().createProgressGroup();
-			runPreRequisitesVerification(group);
-			faultToleranceResults.setPrerequisitesChecked(true);
-		}
-		faultToleranceResults.release();
-		monitor.worked(1);
-	}
-
-	private void runPreRequisitesVerification(IProgressMonitor group)
-			throws InterruptedException {
-
-		if (!manageFiles()) {
-			faultToleranceResults.incrementVerification(); // semifair
-			faultToleranceResults.incrementVerification(); // div-free
-			return;
-		}
 
 		try {
-			group.beginTask(Message.CHECKING_PREREQUISITES.format(), 3);
+			// group.beginTask(Message.CHECKING_PREREQUISITES.format(), 2);
 
-			DivergenceFreeVerificationJob dfj = new DivergenceFreeVerificationJob(
-					faultToleranceResults.getProcessName(),
-					faultToleranceResults.getCmlSourceUnit(),
-					faultToleranceResults.getFolder());
-			SemifairnessVerificationJob sj = new SemifairnessVerificationJob(
-					faultToleranceResults.getProcessName(),
-					faultToleranceResults.getCmlSourceUnit(),
-					faultToleranceResults.getFolder());
+			ModelCheckingJob dfj = new ModelCheckingJob(
+					Message.DIVERGENCE_FREE_JOB,
+					faultToleranceResults.getProcessName());
 
-			dfj.setProgressGroup(group, dfj.getTotalUnitsOfWork());
-			sj.setProgressGroup(group, sj.getTotalUnitsOfWork());
+			ModelCheckingJob sj = new ModelCheckingJob(
+					Message.SEMIFAIRNESS_JOB,
+					faultToleranceResults.getProcessName());
 
 			dfj.addJobChangeListener(new JobChangeAdapter() {
 				@Override
 				public void done(IJobChangeEvent event) {
-					ModelCheckingResult mcr = ((ModelCheckingJob) event
-							.getJob()).getModelCheckingResult();
-					FaultToleranceVerificationEvent ftEvent = new FaultToleranceVerificationEvent(
-							faultToleranceResults, mcr.isSuccess());
-					faultToleranceResults.setDivergenceFree(mcr.isSuccess());
-					faultToleranceResults.incrementVerification();
-					divergenceFreeFinishFirer.fire(ftEvent);
-				}
-
-				@Override
-				public void aboutToRun(IJobChangeEvent event) {
-					divergenceFreeStartFirer.fire(null);
+					ModelCheckingStatus status = ((ModelCheckingStatus) event
+							.getResult());
+					faultToleranceResults.setDivergenceFree(status.getResults()
+							.isSuccess());
+					monitor.worked(1);
 				}
 			});
 			sj.addJobChangeListener(new JobChangeAdapter() {
 				@Override
 				public void done(IJobChangeEvent event) {
-					ModelCheckingResult mcr = ((ModelCheckingJob) event
-							.getJob()).getModelCheckingResult();
-					FaultToleranceVerificationEvent ftEvent = new FaultToleranceVerificationEvent(
-							faultToleranceResults, mcr.isSuccess());
-					faultToleranceResults.setSemifair(mcr.isSuccess());
-					faultToleranceResults.incrementVerification();
-					semifairnessFinishFirer.fire(ftEvent);
-				}
-
-				@Override
-				public void aboutToRun(IJobChangeEvent event) {
-					semifairnessStartFirer.fire(null);
+					ModelCheckingStatus status = ((ModelCheckingStatus) event
+							.getResult());
+					faultToleranceResults.setSemifair(status.getResults()
+							.isSuccess());
+					monitor.worked(1);
 				}
 			});
 
@@ -204,11 +77,13 @@ public abstract class FaultToleranceVerificationJob extends ModelCheckingJob {
 			dfj.join();
 			sj.join();
 		} finally {
-			group.done();
+			faultToleranceResults.setPrerequisitesChecked(true);
 		}
 	}
 
-	private boolean manageFiles() throws InterruptedException {
+	private boolean manageFiles(IProgressMonitor monitor)
+			throws InterruptedException {
+
 		FilesManagementJob fmj = new FilesManagementJob(
 				faultToleranceResults.getProcessName(),
 				faultToleranceResults.getCmlSourceUnit(),
@@ -227,6 +102,73 @@ public abstract class FaultToleranceVerificationJob extends ModelCheckingJob {
 
 		fmj.schedule();
 		fmj.join();
+		monitor.worked(1);
 		return faultToleranceResults.getException() == null;
+	}
+
+	@Override
+	protected IStatus run(IProgressMonitor monitor) {
+		try {
+			monitor.beginTask(Message.FAULT_TOLERANCE_VERIFICATION_TASK_MESSAGE
+					.format(faultToleranceResults.getProcessName()), 5);
+
+			manageFiles(monitor);
+			checkMonitor(monitor);
+			verifyPreRequisites(monitor);
+			checkMonitor(monitor);
+
+			if (faultToleranceResults.isPreRequisitesOk()) {
+				runFaultToleranceVerification(monitor);
+			}
+			return new FaultToleranceVerificationStatus(faultToleranceResults);
+		} catch (InterruptedException e) {
+			return Status.CANCEL_STATUS;
+		} finally {
+			monitor.done();
+		}
+	}
+
+	private void runFaultToleranceVerification(final IProgressMonitor monitor) {
+		final ModelCheckingJob fftj = new ModelCheckingJob(
+				Message.FULL_FAULT_TOLERANCE_JOB,
+				faultToleranceResults.getProcessName());
+		final ModelCheckingJob lftj = new ModelCheckingJob(
+				Message.LIMITED_FAULT_TOLERANCE_JOB,
+				faultToleranceResults.getProcessName());
+
+		fftj.addJobChangeListener(new JobChangeAdapter() {
+			@Override
+			public void done(IJobChangeEvent event) {
+				ModelCheckingStatus status = ((ModelCheckingStatus) event
+						.getResult());
+				faultToleranceResults.setFullFaultTolerant(status.getResults()
+						.isSuccess());
+				monitor.worked(1);
+			}
+		});
+
+		lftj.addJobChangeListener(new JobChangeAdapter() {
+
+			@Override
+			public void done(IJobChangeEvent event) {
+				ModelCheckingStatus status = ((ModelCheckingStatus) event
+						.getResult());
+				faultToleranceResults.setLimitedFaultTolerant(status
+						.getResults().isSuccess());
+				monitor.worked(1);
+			}
+
+		});
+
+		fftj.schedule();
+		lftj.schedule();
+
+		try {
+			lftj.join();
+			fftj.join();
+		} catch (InterruptedException e) {
+			// Interrupted...
+		}
+
 	}
 }

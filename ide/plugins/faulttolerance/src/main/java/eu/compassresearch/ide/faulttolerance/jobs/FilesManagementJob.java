@@ -59,28 +59,28 @@ public class FilesManagementJob extends Job {
 		try {
 
 			monitor.beginTask(Message.STARTING_FAULT_TOLERANCE_FILES_MANAGEMENT
-					.format(processName), 7);
+					.format(processName), 100);
 			checkMonitor(monitor);
 			createFolder();
-			monitor.worked(1);
+			monitor.worked(20);
 			checkMonitor(monitor);
 			createFaultToleranceBaseFile(folder);
-			monitor.worked(1);
+			monitor.worked(10);
 			checkMonitor(monitor);
 			createFaultToleranceProcessesFile(folder);
-			monitor.worked(1);
+			monitor.worked(10);
 			checkMonitor(monitor);
 			createDivergenceFreedomFormulaScript(folder);
-			monitor.worked(1);
+			monitor.worked(10);
 			checkMonitor(monitor);
 			createSemifarinessFormulaScript(folder);
-			monitor.worked(1);
+			monitor.worked(10);
 			checkMonitor(monitor);
 			createFullFaultToleranceFormulaScript(folder);
-			monitor.worked(1);
+			monitor.worked(10);
 			checkMonitor(monitor);
 			createLimitedFaultToleranceFormulaScript(folder);
-			monitor.worked(1);
+			monitor.worked(30);
 
 			return Status.OK_STATUS;
 		} catch (InterruptedException e) {

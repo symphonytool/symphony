@@ -51,8 +51,6 @@ public class Activator extends AbstractUIPlugin implements IStartup {
 
 	@Override
 	public void earlyStartup() {
-		// TODO Auto-generated method stub
-
 	}
 
 	public void log(Exception exception) {

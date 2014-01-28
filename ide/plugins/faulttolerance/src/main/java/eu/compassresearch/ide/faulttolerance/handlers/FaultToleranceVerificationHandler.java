@@ -3,14 +3,17 @@
  */
 package eu.compassresearch.ide.faulttolerance.handlers;
 
+import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PartInitException;
 import org.overture.ast.definitions.PDefinition;
 
 import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
 import eu.compassresearch.ide.faulttolerance.Activator;
-import eu.compassresearch.ide.faulttolerance.jobs.FaultToleranceHelper;
+import eu.compassresearch.ide.faulttolerance.jobs.FaultToleranceVerificationJob;
 import eu.compassresearch.ide.faulttolerance.jobs.FaultToleranceVerificationResults;
+import eu.compassresearch.ide.faulttolerance.jobs.FaultToleranceVerificationStatus;
 import eu.compassresearch.ide.faulttolerance.markers.MarkerManager;
 
 /**
@@ -77,8 +80,21 @@ public class FaultToleranceVerificationHandler extends SelectProcessHandler {
 		} catch (PartInitException e) {
 			// ok, keep focus on current window.
 		}
-		FaultToleranceHelper.schedule(results, markerManager);
 
+		FaultToleranceVerificationJob j = new FaultToleranceVerificationJob(
+				results);
+		j.addJobChangeListener(new JobChangeAdapter() {
+			@Override
+			public void done(IJobChangeEvent event) {
+				if (event.getResult() instanceof FaultToleranceVerificationStatus) {
+					FaultToleranceVerificationResults r = ((FaultToleranceVerificationStatus) event
+							.getResult()).getResults();
+					markerManager.faultToleranceVerificationsFinished(r);
+				}
+			}
+		});
+
+		j.schedule();
 	}
 
 }

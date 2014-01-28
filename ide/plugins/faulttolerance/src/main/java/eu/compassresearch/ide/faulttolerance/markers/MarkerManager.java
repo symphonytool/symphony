@@ -9,9 +9,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.overture.ast.intf.lex.ILexLocation;
 
 import eu.compassresearch.ide.faulttolerance.Message;
-import eu.compassresearch.ide.faulttolerance.jobs.FaultToleranceVerificationEvent;
 import eu.compassresearch.ide.faulttolerance.jobs.FaultToleranceVerificationResults;
-import eu.compassresearch.ide.faulttolerance.jobs.IFaultToleranceVerificationListener;
 
 /**
  * @author Andr&eacute; Didier (<a href=
@@ -19,108 +17,13 @@ import eu.compassresearch.ide.faulttolerance.jobs.IFaultToleranceVerificationLis
  *         >alrd@cin.ufpe.br</a>)
  * 
  */
-public class MarkerManager implements IFaultToleranceVerificationListener {
+public class MarkerManager {
 
 	public final static String ATTRIBUTE_PROCESS_NAME = "processName";
 	public final static String MARKERS_ID = "eu.compassresearch.ide.faulttolerance.verification.problem";
 
-	@Override
-	public void divergenceFreeVerificationStarted() {
-	}
-
-	@Override
-	public void divergenceFreeVerificationFinished(
-			FaultToleranceVerificationEvent event) {
-		/*
-		 * int severity; String message;
-		 * 
-		 * if (event.getResults(). isDivergenceFree()) { severity =
-		 * IMarker.SEVERITY_INFO; message = Message. DIVERGENCE_FREE_SUCCESS
-		 * .format (event.getResults() .getProcessName()); } else { severity =
-		 * IMarker.SEVERITY_ERROR; message = Message.DIVERGENCE_FREE_ERROR .
-		 * format(event.getResults() .getProcessName()); } renewMarker(severity,
-		 * message, event.getResults( ).getProcessName(), null, event
-		 * .getResults().getResource (), event.getResults() .getLocation());
-		 */
-	}
-
-	@Override
-	public void semifairnessVerificationStarted() {
-	}
-
-	@Override
-	public void semifairnessVerificationFinished(
-			FaultToleranceVerificationEvent event) {
-		/*
-		 * int severity; String message;
-		 * 
-		 * if (event.getResults().isSemifair()) { severity =
-		 * IMarker.SEVERITY_INFO; message =
-		 * Message.SEMIFAIR_SUCCESS.format(event.getResults()
-		 * .getProcessName()); } else { severity = IMarker.SEVERITY_ERROR;
-		 * message = Message.SEMIFAIR_ERROR.format(event.getResults()
-		 * .getProcessName()); } renewMarker(severity, message,
-		 * event.getResults().getProcessName(), null,
-		 * event.getResults().getResource(), event.getResults() .getLocation());
-		 */
-	}
-
-	@Override
-	public void fullFaultToleranceVerificationStarted() {
-	}
-
-	@Override
-	public void fullFaultToleranceVerificationFinished(
-			FaultToleranceVerificationEvent event) {
-		/*
-		 * if (!event.getResults().isPreRequisitesOk()) { return; } int
-		 * severity; String message;
-		 * 
-		 * if (event.getResults().isFullFaultTolerant()) { severity =
-		 * IMarker.SEVERITY_WARNING; message =
-		 * Message.FULL_FAULT_TOLERANCE_SUCCESS.format(event
-		 * .getResults().getProcessName()); } else { severity =
-		 * IMarker.SEVERITY_INFO; message =
-		 * Message.FULL_FAULT_TOLERANCE_ERROR.format(event
-		 * .getResults().getProcessName()); } renewMarker(severity, message,
-		 * event.getResults().getProcessName(), null,
-		 * event.getResults().getResource(), event.getResults() .getLocation());
-		 */
-	}
-
-	@Override
-	public void limitedFaultToleranceVerificationStarted() {
-	}
-
-	@Override
-	public void limitedFaultToleranceVerificationFinished(
-			FaultToleranceVerificationEvent event) {
-		/*
-		 * 
-		 * if (!event.getResults().isPreRequisitesOk()) { return; }
-		 * 
-		 * int severity; String message;
-		 * 
-		 * if (event.getResults().isLimitedFaultTolerant()) { severity =
-		 * IMarker.SEVERITY_INFO; message =
-		 * Message.LIMITED_FAULT_TOLERANCE_SUCCESS.format(event
-		 * .getResults().getProcessName(), event.getResults()
-		 * .getLimitExpression()); } else { severity = IMarker.SEVERITY_ERROR;
-		 * message = Message.LIMITED_FAULT_TOLERANCE_ERROR.format(event
-		 * .getResults().getProcessName(), event.getResults()
-		 * .getLimitExpression()); }
-		 * 
-		 * renewMarker(severity, message, event.getResults().getProcessName(),
-		 * event.getResults().getLimitExpression(), event.getResults()
-		 * .getResource(), event.getResults().getLocation());
-		 */
-
-	}
-
-	@Override
 	public void faultToleranceVerificationsFinished(
-			FaultToleranceVerificationEvent event) {
-		FaultToleranceVerificationResults r = event.getResults();
+			FaultToleranceVerificationResults r) {
 		int cases = (r.isDivergenceFree() ? 1 : 0) | (r.isSemifair() ? 2 : 0)
 				| (r.isFullFaultTolerant() ? 4 : 0)
 				| (r.isLimitedFaultTolerant() ? 8 : 0);
