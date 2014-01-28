@@ -21,7 +21,7 @@ import eu.compassresearch.core.interpreter.cosim.communication.Utils;
 
 public class CoSimulationIntegrationTest
 {
-	private static final int DEFAULT_TIMEOUT = 30 * 1000;
+	private static final int DEFAULT_TIMEOUT = 60 * 1000;
 	private boolean quit = false;
 	Set<ConsoleWatcher> watched = new HashSet<ConsoleWatcher>();
 
