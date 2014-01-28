@@ -3,19 +3,16 @@ package eu.compassresearch.ide.collaboration.communication.handlers;
 import java.io.InvalidObjectException;
 
 import eu.compassresearch.ide.collaboration.communication.IMessageHandler;
-import eu.compassresearch.ide.collaboration.communication.MessageProcessor;
 import eu.compassresearch.ide.collaboration.communication.messages.BaseMessage;
 import eu.compassresearch.ide.collaboration.notifications.Notification;
 
 public abstract class BaseMessageHandler<T extends BaseMessage> implements IMessageHandler
 {
 	final Class<T> msgType;
-	protected MessageProcessor messageProcessor;
 	
-	public BaseMessageHandler(Class<T> messageType, MessageProcessor processor)
+	public BaseMessageHandler(Class<T> messageType)
 	{
 		msgType = messageType;
-		messageProcessor = processor;
 	}
 
 	public Boolean canHandleMessage(BaseMessage msg)

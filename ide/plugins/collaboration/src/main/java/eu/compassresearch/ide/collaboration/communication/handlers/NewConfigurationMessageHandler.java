@@ -8,7 +8,6 @@ import org.eclipse.swt.widgets.Display;
 
 import eu.compassresearch.ide.collaboration.Activator;
 import eu.compassresearch.ide.collaboration.communication.ConnectionManager;
-import eu.compassresearch.ide.collaboration.communication.MessageProcessor;
 import eu.compassresearch.ide.collaboration.communication.messages.NewConfigurationMessage;
 import eu.compassresearch.ide.collaboration.communication.messages.NotificationMessage;
 import eu.compassresearch.ide.collaboration.communication.messages.NotificationMessage.NotificationType;
@@ -24,9 +23,9 @@ import eu.compassresearch.ide.collaboration.ui.menu.CollaborationDialogs;
 public class NewConfigurationMessageHandler extends
 		BaseMessageHandler<NewConfigurationMessage>
 {
-	public NewConfigurationMessageHandler(MessageProcessor processor)
+	public NewConfigurationMessageHandler()
 	{
-		super(NewConfigurationMessage.class, processor);
+		super(NewConfigurationMessage.class);
 	}
 
 	@Override

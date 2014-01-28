@@ -6,7 +6,6 @@ import org.eclipse.swt.widgets.Display;
 
 import eu.compassresearch.ide.collaboration.Activator;
 import eu.compassresearch.ide.collaboration.communication.ConnectionManager;
-import eu.compassresearch.ide.collaboration.communication.MessageProcessor;
 import eu.compassresearch.ide.collaboration.communication.messages.CollaborationRequest;
 import eu.compassresearch.ide.collaboration.communication.messages.CollaborationStatusMessage;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationDataModelManager;
@@ -14,10 +13,9 @@ import eu.compassresearch.ide.collaboration.ui.menu.CollaborationRequestedDialog
 
 public class CollaborationRequestHandler extends BaseMessageHandler<CollaborationRequest>
 {		
-	public CollaborationRequestHandler(
-			MessageProcessor processor)
+	public CollaborationRequestHandler()
 	{
-		super(CollaborationRequest.class, processor);
+		super(CollaborationRequest.class);
 	}
 
 	@Override

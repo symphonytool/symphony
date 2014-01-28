@@ -180,12 +180,12 @@ public class ConnectionManager implements IPresenceListener
 
 	private void addMessageHandlers()
 	{
-		messageProcessor.addMessageHandler(new CollaborationRequestHandler(messageProcessor));
-		messageProcessor.addMessageHandler(new NewConfigurationMessageHandler(messageProcessor));
-		messageProcessor.addMessageHandler(new ConfigurationStatusMessageHandler(messageProcessor));
-		messageProcessor.addMessageHandler(new CollaborationStatusMessageHandler(messageProcessor));
-		messageProcessor.addMessageHandler(new CollaborationGroupUpdateMessageHandler(messageProcessor));
-		messageProcessor.addMessageHandler(new NotificationMessageHandler(messageProcessor));
+		messageProcessor.addMessageHandler(new CollaborationRequestHandler());
+		messageProcessor.addMessageHandler(new NewConfigurationMessageHandler());
+		messageProcessor.addMessageHandler(new ConfigurationStatusMessageHandler());
+		messageProcessor.addMessageHandler(new CollaborationStatusMessageHandler());
+		messageProcessor.addMessageHandler(new CollaborationGroupUpdateMessageHandler());
+		messageProcessor.addMessageHandler(new NotificationMessageHandler());
 	}
 
 	public boolean isConnectionInitialized()

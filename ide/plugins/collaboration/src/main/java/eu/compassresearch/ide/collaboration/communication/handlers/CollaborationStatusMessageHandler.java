@@ -8,7 +8,6 @@ import org.eclipse.ecf.sync.SerializationException;
 import org.eclipse.swt.widgets.Display;
 
 import eu.compassresearch.ide.collaboration.Activator;
-import eu.compassresearch.ide.collaboration.communication.MessageProcessor;
 import eu.compassresearch.ide.collaboration.communication.messages.CollaborationStatusMessage;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationDataModelManager;
 import eu.compassresearch.ide.collaboration.ui.menu.CollaborationDialogs;
@@ -16,9 +15,9 @@ import eu.compassresearch.ide.collaboration.ui.menu.CollaborationDialogs;
 public class CollaborationStatusMessageHandler extends BaseMessageHandler<CollaborationStatusMessage>
 {
 
-	public CollaborationStatusMessageHandler(MessageProcessor processor)
+	public CollaborationStatusMessageHandler()
 	{
-		super(CollaborationStatusMessage.class, processor);
+		super(CollaborationStatusMessage.class);
 	}
 
 	@Override

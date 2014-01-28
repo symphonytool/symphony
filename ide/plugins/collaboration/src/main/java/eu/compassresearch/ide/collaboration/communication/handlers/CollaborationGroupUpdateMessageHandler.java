@@ -3,7 +3,6 @@ package eu.compassresearch.ide.collaboration.communication.handlers;
 import org.eclipse.swt.widgets.Display;
 
 import eu.compassresearch.ide.collaboration.Activator;
-import eu.compassresearch.ide.collaboration.communication.MessageProcessor;
 import eu.compassresearch.ide.collaboration.communication.messages.CollaborationGroupUpdateMessage;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationDataModelManager;
 
@@ -11,9 +10,9 @@ public class CollaborationGroupUpdateMessageHandler extends
 		BaseMessageHandler<CollaborationGroupUpdateMessage>
 {
 
-	public CollaborationGroupUpdateMessageHandler(MessageProcessor processor)
+	public CollaborationGroupUpdateMessageHandler()
 	{
-		super(CollaborationGroupUpdateMessage.class, processor);
+		super(CollaborationGroupUpdateMessage.class);
 	}
 
 	@Override

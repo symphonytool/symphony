@@ -3,16 +3,15 @@ package eu.compassresearch.ide.collaboration.communication.handlers;
 import org.eclipse.swt.widgets.Display;
 
 import eu.compassresearch.ide.collaboration.Activator;
-import eu.compassresearch.ide.collaboration.communication.MessageProcessor;
 import eu.compassresearch.ide.collaboration.communication.messages.ConfigurationStatusMessage;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationDataModelManager;
 
 public class ConfigurationStatusMessageHandler extends
 		BaseMessageHandler<ConfigurationStatusMessage>
 {
-	public ConfigurationStatusMessageHandler(MessageProcessor processor)
+	public ConfigurationStatusMessageHandler()
 	{
-		super(ConfigurationStatusMessage.class, processor);
+		super(ConfigurationStatusMessage.class);
 	}
 
 	@Override
