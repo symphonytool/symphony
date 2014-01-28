@@ -60,6 +60,7 @@ public class Configuration extends Model {
 		Files filesInOldConfig = oldConfiguration.getFiles();
 		Files filesInNewConfig = filesInOldConfig.copy(this);
 		files = filesInNewConfig;
+		hasLimitedVisibility = oldConfiguration.hasLimitedVisibility();
 	}
 	
 	public void addFile(File file) throws CoreException {
@@ -172,6 +173,18 @@ public class Configuration extends Model {
 	
 	public boolean hasLimitedVisibility()
 	{		
+		//check if still true
+		if(!hasLimitedVisibility){
+			
+			for (File file : files.getFilesList())
+			{
+				if(file.getShares().size() != 0) {
+					hasLimitedVisibility = true;
+					break;
+				}
+			}
+		}
+		
 		return hasLimitedVisibility;
 	}
 	
