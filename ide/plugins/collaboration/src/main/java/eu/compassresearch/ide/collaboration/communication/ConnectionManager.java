@@ -13,7 +13,6 @@ import org.eclipse.ecf.core.identity.ID;
 import org.eclipse.ecf.core.util.ECFException;
 import org.eclipse.ecf.datashare.IChannelContainerAdapter;
 import org.eclipse.ecf.presence.IPresence;
-import org.eclipse.ecf.presence.IPresence.Mode;
 import org.eclipse.ecf.presence.IPresence.Type;
 import org.eclipse.ecf.presence.IPresenceListener;
 import org.eclipse.ecf.presence.roster.IRoster;
@@ -48,25 +47,26 @@ public class ConnectionManager implements IPresenceListener
 	@Override
 	public void handlePresence(ID fromID, IPresence presence)
 	{
-			String status = presence.getStatus();
-			Mode mode = presence.getMode();
-			Type type = presence.getType();
-			
-			if(type == Type.AVAILABLE) {
-				addUser(fromID);
-			} else {
-				removeUser(fromID);
-			}
+		Type type = presence.getType();
+
+		if (type == Type.AVAILABLE)
+		{
+			addUser(fromID);
+		} else
+		{
+			removeUser(fromID);
+		}
 	}
 
 	private void removeUser(ID user)
 	{
-		synchronized (availableCollaboratorsLock){
+		synchronized (availableCollaboratorsLock)
+		{
 			if (availableCollaborators != null
 					|| availableCollaborators.containsKey(user))
 			{
 				availableCollaborators.remove(user);
-			} 
+			}
 		}
 	}
 
@@ -111,7 +111,7 @@ public class ConnectionManager implements IPresenceListener
 			{
 				collaboratorId = receivers.get(user.getName());
 			}
-			
+
 			sendTo(collaboratorId, messageToSend);
 		}
 	}
@@ -129,7 +129,7 @@ public class ConnectionManager implements IPresenceListener
 	// Send to a specific ID
 	private void sendTo(ID receiverID, byte[] serializedData)
 	{
-		//there needs to be a receiver, and don't send to self. 
+		// there needs to be a receiver, and don't send to self.
 		if (receiverID != null && receiverID != connectedUser)
 		{
 			messageProcessor.sendMessage(receiverID, serializedData);
@@ -166,7 +166,7 @@ public class ConnectionManager implements IPresenceListener
 	public void removeMessageProcessor(ID containerID)
 	{
 		MessageProcessor collabMgm = messageProcessors.remove(containerID);
-		if (collabMgm != null)
+		if (collabMgm != null && !collabMgm.isDisposed())
 		{
 			collabMgm.dispose();
 		}
