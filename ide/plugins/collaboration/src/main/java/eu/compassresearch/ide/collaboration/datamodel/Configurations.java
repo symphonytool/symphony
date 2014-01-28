@@ -4,10 +4,9 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 
-import eu.compassresearch.ide.collaboration.files.FileHandler;
+import eu.compassresearch.ide.collaboration.files.FileStatus;
 import eu.compassresearch.ide.collaboration.files.FileUpdate;
 
 public class Configurations extends Model
@@ -107,7 +106,7 @@ public class Configurations extends Model
 		}
 	}
 
-	public void addFile(IFile file) throws CoreException
+	public void addFile(FileStatus fileStatus) throws CoreException
 	{
 		//TODO change away from IFile and move hash calc
 		if (configurations.isEmpty())
@@ -117,8 +116,7 @@ public class Configurations extends Model
 				
 		Configuration newestConfiguration = getNewestConfiguration();
 		
-		String calculatedSha = FileHandler.calculateSha(file);
-		File newFile = new File(file.getName(), calculatedSha, file.getProjectRelativePath().toString(), newestConfiguration);
+		File newFile = new File(fileStatus, newestConfiguration);
 		newFile.setAsNewFile();
 		
 		newestConfiguration.addFile(newFile);

@@ -145,7 +145,7 @@ public class CollaborationDataModelManager
 			{
 				if (fileStatus.getState() == FileState.ADDED) // if the file is new, add it to the tree
 				{
-					collaborationProject.addNewFile(file);
+					collaborationProject.addNewFile(fileStatus);
 				} else if (fileStatus.getState() == FileState.CHANGED) // else update its state and hash
 				{
 					FileUpdate fileUdate = new FileUpdate(fileStatus.getFileName(), fileStatus.getHash());
@@ -165,7 +165,7 @@ public class CollaborationDataModelManager
 	private FileStatus createFileStatus(IFile file)
 	{
 		String hash = FileHandler.calculateSha(file);
-		FileStatus fileStatus = new FileStatus(file.getName(), hash);
+		FileStatus fileStatus = new FileStatus(file.getName(), hash, file.getProjectRelativePath().toString());
 		return fileStatus;
 	}
 
@@ -374,7 +374,7 @@ public class CollaborationDataModelManager
 
 		for (File file : targetFilesList)
 		{
-			FileStatus fileStatus = new FileStatus(file.getName(), file.getHash());
+			FileStatus fileStatus = new FileStatus(file.getName(), file.getHash(), file.getFilePath());
 			fileStatus = compareTofiles.retrieveFileStatus(fileStatus);
 			configComparison.addFileStatus(fileStatus);
 		}

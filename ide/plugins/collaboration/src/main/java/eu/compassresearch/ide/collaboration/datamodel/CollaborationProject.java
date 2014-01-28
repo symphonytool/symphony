@@ -2,7 +2,6 @@ package eu.compassresearch.ide.collaboration.datamodel;
 
 import java.util.UUID;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 
 import eu.compassresearch.ide.collaboration.files.FileStatus;
@@ -122,9 +121,9 @@ public class CollaborationProject extends Model
 		return uniqueID;
 	}
 
-	public void addNewFile(IFile file) throws CoreException
+	public void addNewFile(FileStatus fileStatus) throws CoreException
 	{
-		configurations.addFile(file);
+		configurations.addFile(fileStatus);
 	}
 	
 	public void updateFile(FileUpdate fileUpdate) 

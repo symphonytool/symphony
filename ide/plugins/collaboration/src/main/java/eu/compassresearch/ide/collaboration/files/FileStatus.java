@@ -10,17 +10,19 @@ public class FileStatus
 	private String fileName;
 	private FileState state;
 	private String hash;
+	private String filePath;
 	
-	public FileStatus(String fileName, String hash)
+	public FileStatus(String fileName, String hash, String filePath)
 	{
-		this(fileName, hash,  FileState.ADDED);
+		this(fileName, hash, filePath,  FileState.ADDED);
 	}
 	
-	public FileStatus(String fileName, String hash, FileState state)
+	public FileStatus(String fileName, String hash, String filePath, FileState state)
 	{
 		this.fileName = fileName;
 		this.hash = hash;
 		this.state = state;
+		this.filePath = filePath;
 	}
 
 	public String getFileName()
@@ -46,5 +48,15 @@ public class FileStatus
 	public void setState(FileState state)
 	{
 		this.state = state;
+	}
+
+	public String getFilePath()
+	{
+		return filePath;
+	}
+
+	public void setFilePath(String filePath)
+	{
+		this.filePath = filePath;
 	}
 }
