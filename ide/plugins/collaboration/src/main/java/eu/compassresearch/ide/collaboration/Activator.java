@@ -3,7 +3,6 @@ package eu.compassresearch.ide.collaboration;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.ecf.core.IContainerManager;
-import org.eclipse.ecf.core.user.IUser;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
@@ -25,11 +24,6 @@ public class Activator extends AbstractUIPlugin
 	private CollaborationDataModelManager dataModelManager;
 	private FileChangeManager fileChangeManager;
 	private ConnectionManager connectionManager;
-
-	
-	//TODO remove when presence container is functional 
-	private IUser self;
-	private IUser receiver;
 	
 	public Activator() {
 		// nothing to do

@@ -221,20 +221,18 @@ public class ConnectionManager implements IPresenceListener
 
 	private List<ID> getUsersFromRoster()
 	{
-
 		if (collaboratorRoster == null)
 			return null;
 
 		// /get buddies
-		Collection items = Collections.unmodifiableCollection(collaboratorRoster.getItems());
+		Collection<IRosterItem> items = Collections.unmodifiableCollection(getRoosterItems());
 
 		List<ID> newUsers = new ArrayList<ID>();
 
 		synchronized (items)
 		{
-			for (Iterator it = items.iterator(); it.hasNext();)
+			for (IRosterItem item: items)
 			{
-				IRosterItem item = (IRosterItem) it.next();
 				addRosterEntry(item, newUsers);
 			}
 		}
@@ -242,7 +240,14 @@ public class ConnectionManager implements IPresenceListener
 		return newUsers;
 	}
 
+	@SuppressWarnings("unchecked")
+	private Collection<IRosterItem> getRoosterItems()
+	{
+		return collaboratorRoster.getItems();
+	}
+
 	// cycle through all roster items recursively
+	@SuppressWarnings("rawtypes")
 	private void addRosterEntry(IRosterItem item, List<ID> newUsers)
 	{
 		if (item instanceof IRosterGroup)

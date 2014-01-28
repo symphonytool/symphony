@@ -76,17 +76,6 @@ public class Files extends Model {
 		return forFile;
 	}
 	
-	private List<String> getHashes(){
-		
-		List<String> fileList = new ArrayList<String>();
-		for (File f : files.values())
-		{
-			fileList.add(f.getHash());
-		}
-		
-		return fileList;
-	}
-	
 	public void accept(IModelVisitor visitor, Object passAlongArgument) {
 		//visitor.visitFiles(this, passAlongArgument);
 	}

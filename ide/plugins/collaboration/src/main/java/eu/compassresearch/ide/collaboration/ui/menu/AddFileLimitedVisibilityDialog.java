@@ -1,6 +1,5 @@
 package eu.compassresearch.ide.collaboration.ui.menu;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
