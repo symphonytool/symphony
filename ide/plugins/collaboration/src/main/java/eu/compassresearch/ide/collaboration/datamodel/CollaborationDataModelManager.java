@@ -98,7 +98,7 @@ public class CollaborationDataModelManager
 
 			for (String name : collaboratorNames)
 			{
-				addedFile.addShare(name);
+				addedFile.addVisibility(name);
 			}
 		}
 

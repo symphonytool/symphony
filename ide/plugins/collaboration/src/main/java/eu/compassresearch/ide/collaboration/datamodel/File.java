@@ -16,7 +16,7 @@ public class File extends Model
 
 	private static final long serialVersionUID = -6007439345479622225L;
 
-	protected Shares shares;
+	protected Visibility visibility;
 	protected long timestamp_ux_epoch;
 	private String hash;
 	private final String filePath;
@@ -31,7 +31,7 @@ public class File extends Model
 	public File(String name, String hash, String filePath, Model parent)
 	{
 		super(name, parent);
-		this.shares = new Shares(this);
+		this.visibility = new Visibility(this);
 		this.hash = hash;
 		this.filePath = filePath;
 		Date d = new Date();
@@ -40,12 +40,12 @@ public class File extends Model
 		this.hasBeenStored = false;
 	}
 
-	private File(String name, String hash, String filePath, Shares shares,
+	private File(String name, String hash, String filePath, Visibility shares,
 			Date timestamp, Model parent)
 	{
 		super(name, parent);
 
-		this.shares = shares;
+		this.visibility = shares;
 		this.hash = hash;
 		this.filePath = filePath;
 		this.timestamp_ux_epoch = timestamp.getTime();
@@ -58,7 +58,7 @@ public class File extends Model
 	{
 		super(fileName, parent);
 
-		this.shares = new Shares(this);
+		this.visibility = new Visibility(this);
 		this.hash = fileHash;
 		this.timestamp_ux_epoch = timestamp;
 		this.fileState = FileState.NORMAL;
@@ -66,30 +66,30 @@ public class File extends Model
 		this.filePath = filePath;
 	}
 
-	public void addShare(Share share)
+	public void addVisibility(Visible share)
 	{
 		Configuration config = (Configuration) getParent();
 		config.setLimitedVisibility();
 
-		shares.addShare(share);
+		visibility.addVisible(share);
 		fireObjectUpdatedEvent(share);
 	}
 
-	public void addShare(String name)
+	public void addVisibility(String name)
 	{
-		addShare(new Share(name, this));
+		addVisibility(new Visible(name, this));
 	}
 
-	protected void removeShare(Share share)
+	protected void removeVisibility(Visible share)
 	{
-		shares.removeShare(share);
+		visibility.removeVisible(share);
 		share.removeListener(listener);
 		fireObjectRemovedEvent(share);
 	}
 
-	public Shares getShares()
+	public Visibility getVisibility()
 	{
-		return shares;
+		return visibility;
 	}
 
 	public String getHash()
@@ -128,7 +128,7 @@ public class File extends Model
 	public List<String> getVisibilityList()
 	{
 		List<String> collaboratorsList = new ArrayList<String>();
-		for (Share share : getShares().getSharesList())
+		for (Visible share : getVisibility().getVisibleList())
 		{
 			collaboratorsList.add(share.getName());
 		}
@@ -137,7 +137,7 @@ public class File extends Model
 
 	public boolean isVisibilityLimited()
 	{
-		return shares.size() > 0;
+		return visibility.size() > 0;
 	}
 
 	@Override
@@ -149,14 +149,14 @@ public class File extends Model
 	@Override
 	public void addListener(IDeltaListener listener)
 	{
-		shares.addListener(listener);
+		visibility.addListener(listener);
 		super.addListener(listener);
 	}
 
 	@Override
 	public void removeListener(IDeltaListener listener)
 	{
-		shares.removeListener(listener);
+		visibility.removeListener(listener);
 		super.removeListener(listener);
 	}
 
@@ -205,7 +205,7 @@ public class File extends Model
 
 	public File copy(Model newParent)
 	{
-		File f = new File(name, this.hash, this.filePath, shares.clone(), getTimeStamp(), newParent);
+		File f = new File(name, this.hash, this.filePath, visibility.clone(), getTimeStamp(), newParent);
 		return f;
 	}
 

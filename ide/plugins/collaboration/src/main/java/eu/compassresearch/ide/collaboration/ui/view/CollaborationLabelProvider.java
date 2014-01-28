@@ -24,8 +24,8 @@ import eu.compassresearch.ide.collaboration.datamodel.Configuration;
 import eu.compassresearch.ide.collaboration.datamodel.Configurations;
 import eu.compassresearch.ide.collaboration.datamodel.File;
 import eu.compassresearch.ide.collaboration.datamodel.Files;
-import eu.compassresearch.ide.collaboration.datamodel.Share;
-import eu.compassresearch.ide.collaboration.datamodel.Shares;
+import eu.compassresearch.ide.collaboration.datamodel.Visible;
+import eu.compassresearch.ide.collaboration.datamodel.Visibility;
 import eu.compassresearch.ide.collaboration.datamodel.User;
 import eu.compassresearch.ide.collaboration.ui.TreeViewerPlugin;
 
@@ -52,10 +52,10 @@ public class CollaborationLabelProvider extends LabelProvider implements
 		} else if (element instanceof File)
 		{
 			descriptor = getImageDescriptor("version.gif");
-		} else if (element instanceof Shares)
+		} else if (element instanceof Visibility)
 		{
 			descriptor = getImageDescriptor("shares.gif");
-		} else if (element instanceof Share)
+		} else if (element instanceof Visible)
 		{
 			descriptor = getImageDescriptor("share.gif");
 		} else if (element instanceof CollaborationGroup)
@@ -120,9 +120,9 @@ public class CollaborationLabelProvider extends LabelProvider implements
 		} else if (element instanceof Files)
 		{
 			return ((Files) element).toString();
-		} else if (element instanceof Shares)
+		} else if (element instanceof Visibility)
 		{
-			return ((Shares) element).toString();
+			return ((Visibility) element).toString();
 		} else if (element instanceof File)
 		{
 
@@ -142,9 +142,9 @@ public class CollaborationLabelProvider extends LabelProvider implements
 
 			return toString;
 
-		} else if (element instanceof Share)
+		} else if (element instanceof Visible)
 		{
-			return ((Share) element).toString();
+			return ((Visible) element).toString();
 		} else if (element instanceof CollaborationGroup)
 		{
 			return ((CollaborationGroup) element).toString();

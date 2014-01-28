@@ -12,7 +12,7 @@ import eu.compassresearch.ide.collaboration.datamodel.Configurations;
 import eu.compassresearch.ide.collaboration.datamodel.DeltaEvent;
 import eu.compassresearch.ide.collaboration.datamodel.IDeltaListener;
 import eu.compassresearch.ide.collaboration.datamodel.Model;
-import eu.compassresearch.ide.collaboration.datamodel.Shares;
+import eu.compassresearch.ide.collaboration.datamodel.Visibility;
 import eu.compassresearch.ide.collaboration.datamodel.File;
 import eu.compassresearch.ide.collaboration.datamodel.Files;
 
@@ -71,15 +71,15 @@ public class CollaborationContentProvider implements ITreeContentProvider, IDelt
 		} else if(parentElement instanceof Configuration) {
 			Configuration contract = (Configuration)parentElement;
 			return new Object[]{contract.getFiles()};
-		} else if(parentElement instanceof Shares) {
-			Shares shares = (Shares)parentElement;
-			return shares.getSharesList().toArray();
+		} else if(parentElement instanceof Visibility) {
+			Visibility shares = (Visibility)parentElement;
+			return shares.getVisibleList().toArray();
 		} else if(parentElement instanceof Files) {
 			Files files = (Files)parentElement;
 			return files.getFilesList().toArray();
 		} else if(parentElement instanceof File) {
 			File file = (File)parentElement;
-			return new Object[]{file.getShares()};
+			return new Object[]{file.getVisibility()};
 		} 
 		else if(parentElement instanceof CollaborationGroup) {
 			CollaborationGroup collabGroup = (CollaborationGroup)parentElement;

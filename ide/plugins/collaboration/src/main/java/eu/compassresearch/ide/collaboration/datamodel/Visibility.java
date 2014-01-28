@@ -3,65 +3,65 @@ package eu.compassresearch.ide.collaboration.datamodel;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Shares extends Model {
+public class Visibility extends Model {
 
 	private static final long serialVersionUID = -5246629853836276264L;
 	
-	protected List<Share> shares;
+	protected List<Visible> visibility;
 
-	public Shares(Model parent) {
-		super("Shares", parent);
-		shares = new ArrayList<Share>();
+	public Visibility(Model parent) {
+		super("Visibility", parent);
+		visibility = new ArrayList<Visible>();
 	}
 	
-	private Shares(List<Share> shares, Model parent) {
-		super("Shares", parent);
-		this.shares = shares;
+	private Visibility(List<Visible> shares, Model parent) {
+		super("Visibility", parent);
+		this.visibility = shares;
 	}
 	
-	public void addShare(Share share) {
-		shares.add(share);
+	public void addVisible(Visible share) {
+		visibility.add(share);
 		fireObjectUpdatedEvent(share);
 	}
 	
-	protected void removeShare(Share share) {
-		shares.remove(share);
+	protected void removeVisible(Visible share) {
+		visibility.remove(share);
 		share.removeListener(listener);
 		fireObjectRemovedEvent(share);
 	}
 	
-	public List<Share> getSharesList() {
-		return shares;
+	public List<Visible> getVisibleList() {
+		return visibility;
 	}
 	
 	public int size() {
-		return shares.size();
+		return visibility.size();
 	}
 	
-	public Shares clone(){
+	public Visibility clone(){
 		
-		ArrayList<Share> clone = new ArrayList<Share>();
+		ArrayList<Visible> clone = new ArrayList<Visible>();
 		
-		for (Share share : shares)
+		for (Visible share : visibility)
 		{
 			clone.add(share.clone());
 		}
 	
-		return new Shares(clone, getParent());
+		return new Visibility(clone, getParent());
 	}
 	
 	@Override
 	public String toString()
 	{
-		int size = shares.size();
+		int size = visibility.size();
 		
-		return super.toString() + (size > 0 ? " (" + shares.size() + ")" : "");
+		return super.toString() + (size > 0 ? " (" + visibility.size() + ")" : "");
 	}
 	
 	@Override
 	public void addListener(IDeltaListener listener) {
 		
-		for (Share s : shares)
+		for (Visible s : visibility)
 		{
 			s.addListener(listener);
 		}
@@ -72,7 +72,7 @@ public class Shares extends Model {
 	@Override
 	public void removeListener(IDeltaListener listener)
 	{
-		for (Share s : shares)
+		for (Visible s : visibility)
 		{
 			s.removeListener(listener);
 		}

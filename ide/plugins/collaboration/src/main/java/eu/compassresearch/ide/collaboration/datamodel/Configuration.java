@@ -178,7 +178,7 @@ public class Configuration extends Model {
 			
 			for (File file : files.getFilesList())
 			{
-				if(file.getShares().size() != 0) {
+				if(file.getVisibility().size() != 0) {
 					hasLimitedVisibility = true;
 					break;
 				}
