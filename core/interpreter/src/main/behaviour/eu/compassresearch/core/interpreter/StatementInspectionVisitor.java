@@ -15,6 +15,7 @@ import org.overture.ast.statements.ACallStm;
 import org.overture.ast.statements.ACaseAlternativeStm;
 import org.overture.ast.statements.ACasesStm;
 import org.overture.ast.statements.AElseIfStm;
+import org.overture.ast.statements.AForAllStm;
 import org.overture.ast.statements.AForPatternBindStm;
 import org.overture.ast.statements.AIfStm;
 import org.overture.ast.statements.ALetStm;
@@ -28,6 +29,7 @@ import org.overture.interpreter.values.NameValuePair;
 import org.overture.interpreter.values.OperationValue;
 import org.overture.interpreter.values.Value;
 import org.overture.interpreter.values.ValueList;
+import org.overture.interpreter.values.ValueSet;
 
 import eu.compassresearch.ast.CmlAstFactory;
 import eu.compassresearch.ast.actions.ADivAction;
@@ -468,17 +470,15 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 			return new Pair<INode, Context>(skipNode, question);
 		}
 	}
-
+	
 	@Override
-	public Inspection caseAForPatternBindStm(final AForPatternBindStm node,
-			final Context question) throws AnalysisException
+	public Inspection caseAForAllStm(final AForAllStm node, final Context question)
+			throws AnalysisException
 	{
-
-		final ValueList v = question.lookup(NamespaceUtility.getSeqForName()).seqValue(question);
+		final ValueSet v = question.lookup(NamespaceUtility.getSeqForName()).setValue(question);
 
 		// if the sequence is empty we're done and evolve into skip
-		if (v.isEmpty() && owner.hasChildren()
-				&& owner.getLeftChild().finished())
+		if (v.isEmpty() && owner.getLeftChild().finished())
 		{
 			final ASkipAction skipAction = CmlAstFactory.newASkipAction(node.getLocation());
 			return newInspection(createTauTransitionWithTime(skipAction), new CmlCalculationStep()
@@ -494,10 +494,69 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 				}
 			});
 		}
+		// if the sequence is non empty and we a finished child
+	    // we need to create a new one
+		else if (!v.isEmpty() && owner.getLeftChild().finished())
+		{
+			// put the front element in scope of the action
+			Value x = v.firstElement();
+			v.remove(x);
 
-		// if the sequence is non empty and we either have no or a finished child
-		// we need to create a new one
-		else if (!owner.hasChildren() || owner.getLeftChild().finished())
+			if (node.getPattern() != null)
+			{
+				try
+				{
+					question.putList(PPatternAssistantInterpreter.getNamedValues(node.getPattern(), x, question));
+				} catch (PatternMatchException e)
+				{
+					// Ignore mismatches
+				}
+			}
+
+			setLeftChild(node.getStatement(), question);
+		}
+
+		return newInspection(owner.getLeftChild().inspect(), new CmlCalculationStep()
+		{
+
+			@Override
+			public Pair<INode, Context> execute(CmlTransition selectedTransition)
+					throws AnalysisException
+					{
+
+				owner.getLeftChild().execute(selectedTransition);
+
+				return new Pair<INode, Context>(node, question);
+					}
+		});
+	}
+
+	@Override
+	public Inspection caseAForPatternBindStm(final AForPatternBindStm node,
+			final Context question) throws AnalysisException
+	{
+		final ValueList v = question.lookup(NamespaceUtility.getSeqForName()).seqValue(question);
+
+		// if the sequence is empty we're done and evolve into skip
+		if (v.isEmpty() && owner.getLeftChild().finished())
+		{
+			final ASkipAction skipAction = CmlAstFactory.newASkipAction(node.getLocation());
+			return newInspection(createTauTransitionWithTime(skipAction), new CmlCalculationStep()
+			{
+				@Override
+				public Pair<INode, Context> execute(
+						CmlTransition selectedTransition)
+						throws AnalysisException
+				{
+					// clear the child nodes
+					clearLeftChild();
+					return new Pair<INode, Context>(skipAction, question.outer);
+				}
+			});
+		}
+		// if the sequence is non empty and we a finished child
+	    // we need to create a new one
+		else if (!v.isEmpty() && owner.getLeftChild().finished())
 		{
 			// put the front element in scope of the action
 			Value x = v.firstElement();
@@ -523,13 +582,14 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 			@Override
 			public Pair<INode, Context> execute(CmlTransition selectedTransition)
 					throws AnalysisException
-			{
+					{
 
 				owner.getLeftChild().execute(selectedTransition);
 
 				return new Pair<INode, Context>(node, question);
-			}
+					}
 		});
+
 
 	}
 

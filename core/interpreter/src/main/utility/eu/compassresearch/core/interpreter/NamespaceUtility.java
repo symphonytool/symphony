@@ -47,6 +47,11 @@ class NamespaceUtility
 	{
 		return new CmlLexNameToken("|FORSEQ|", "v", new LexLocation());
 	}
+	
+	public static ILexNameToken getForAllName()
+	{
+		return new CmlLexNameToken("|FORSEQ|", "v", new LexLocation());
+	}
 
 	public static ILexNameToken getNamesetName()
 	{
