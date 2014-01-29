@@ -6,7 +6,9 @@ package eu.compassresearch.ide.faulttolerance.jobs;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintStream;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -167,14 +169,27 @@ public class FaultToleranceVerificationJob extends Job {
 			monitor.worked(1);
 			checkMonitor(monitor);
 
-			// TODO create only the definitions that are not already created.
-			createCmlFiles(monitor);
+			List<String> channelsNotFound = new LinkedList<>();
+			List<String> chansetsNotFound = new LinkedList<>();
+			List<String> processesNotFound = new LinkedList<>();
+			List<String> valuesNotFound = new LinkedList<>();
+			List<String> namesetsNotFound = new LinkedList<>();
+
+			clearGeneratedCmlFiles(monitor);
+
+			checkDefinitions(namesetsNotFound, valuesNotFound,
+					channelsNotFound, chansetsNotFound, processesNotFound,
+					monitor);
 			monitor.worked(1);
 			checkMonitor(monitor);
 
-			checkDefinitions(monitor);
+			createCmlFiles(namesetsNotFound, valuesNotFound, channelsNotFound,
+					chansetsNotFound, processesNotFound, monitor);
 			monitor.worked(1);
 			checkMonitor(monitor);
+
+			createMissingDefinitionsMessage(namesetsNotFound, valuesNotFound,
+					channelsNotFound, chansetsNotFound, processesNotFound);
 
 			if (faultToleranceResults.getDefinitionsMessage() == null) {
 				createFormulaFiles(monitor);
@@ -191,12 +206,30 @@ public class FaultToleranceVerificationJob extends Job {
 		}
 	}
 
-	private void checkDefinitions(IProgressMonitor monitor) {
-		List<String> channelsNotFound = new LinkedList<>();
-		List<String> chansetsNotFound = new LinkedList<>();
-		List<String> processesNotFound = new LinkedList<>();
-		List<String> valuesNotFound = new LinkedList<>();
-		List<String> namesetsNotFound = new LinkedList<>();
+	private void clearGeneratedCmlFiles(IProgressMonitor monitor) {
+		List<Message> fileNames = new LinkedList<>();
+		IFolder folder = faultToleranceResults.getFolder();
+		String processName = faultToleranceResults.getProcessName();
+
+		fileNames.add(Message.BASE_CML_FILE_NAME);
+		fileNames.add(Message.CML_PROCESSES_FILE_NAME);
+
+		for (Message fileName : fileNames) {
+			IFile outputFile = folder.getFile(fileName.format(processName));
+			if (outputFile.exists()) {
+				try {
+					outputFile.delete(true, new NullProgressMonitor());
+				} catch (CoreException e) {
+					// move to next, don't care.
+				}
+			}
+		}
+	}
+
+	private void checkDefinitions(List<String> namesetsNotFound,
+			List<String> valuesNotFound, List<String> channelsNotFound,
+			List<String> chansetsNotFound, List<String> processesNotFound,
+			IProgressMonitor monitor) {
 		String processName = faultToleranceResults.getProcessName();
 		ICmlProject cmlProject = faultToleranceResults.getCmlProject();
 		try {
@@ -229,8 +262,6 @@ public class FaultToleranceVerificationJob extends Job {
 					chansetNames, new SubProgressMonitor(monitor, 1));
 			checkNames(Message.EXISTING_NEEDED_PROCESSES, processesNotFound,
 					processNames, new SubProgressMonitor(monitor, 1));
-			createMissingDefinitionsMessage(namesetsNotFound, valuesNotFound,
-					channelsNotFound, chansetsNotFound, processesNotFound);
 		} catch (CoreException e) {
 			faultToleranceResults.add(e);
 		} finally {
@@ -336,10 +367,15 @@ public class FaultToleranceVerificationJob extends Job {
 		createLimitedFaultToleranceFormulaScript(definitions);
 	}
 
-	private void createCmlFiles(IProgressMonitor monitor)
+	private void createCmlFiles(List<String> namesetsNotFound,
+			List<String> valuesNotFound, List<String> channelsNotFound,
+			List<String> chansetsNotFound, List<String> processesNotFound,
+			IProgressMonitor monitor)
 			throws UnableToRunFaultToleranceVerificationException {
-		createFaultToleranceBaseFile();
-		createFaultToleranceProcessesFile();
+		createFaultToleranceBaseFile(namesetsNotFound, valuesNotFound,
+				channelsNotFound, chansetsNotFound, processesNotFound);
+		createFaultToleranceProcessesFile(namesetsNotFound, valuesNotFound,
+				channelsNotFound, chansetsNotFound, processesNotFound);
 	}
 
 	private void findDefinitions(List<PDefinition> definitions,
@@ -444,41 +480,150 @@ public class FaultToleranceVerificationJob extends Job {
 		}
 	}
 
-	private void createFaultToleranceProcessesFile()
+	private void createFaultToleranceProcessesFile(
+			List<String> namesetsNotFound, List<String> valuesNotFound,
+			List<String> channelsNotFound, List<String> chansetsNotFound,
+			List<String> processesNotFound)
 			throws UnableToRunFaultToleranceVerificationException {
-		IFolder folder = faultToleranceResults.getFolder();
-		writeFile(folder, Message.CML_PROCESSES_FILE_NAME,
-				Message.CML_PROCESSES_TEMPLATE,
-				Message.UNABLE_TO_CREATE_FAULT_TOLERANCE_PROCESSES_FILE);
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		PrintStream ps = new PrintStream(baos);
+
+		List<String> processesToAdd = new LinkedList<>();
+
+		updateElementsToAdd(Message.DIVERGENCE_FREEDOM_PROCESS_NAME,
+				Message.DIVERGENCE_FREEDOM_PROCESS_TEMPLATE, processesNotFound,
+				processesToAdd);
+		updateElementsToAdd(Message.SEMIFAIRNESS_PROCESS_NAME,
+				Message.SEMIFAIRNESS_PROCESS_TEMPLATE, processesNotFound,
+				processesToAdd);
+		updateElementsToAdd(Message.LAZY_DEADLOCK_CHECK_PROCESS_NAME,
+				Message.LAZY_DEADLOCK_CHECK_PROCESS_TEMPLATE,
+				processesNotFound, processesToAdd);
+		updateElementsToAdd(Message.LAZY_LIMIT_DEADLOCK_CHECK_PROCESS_NAME,
+				Message.LAZY_LIMIT_DEADLOCK_CHECK_PROCESS_TEMPLATE,
+				processesNotFound, processesToAdd);
+		updateElementsToAdd(Message.NO_FAULTS_PROCESS_NAME,
+				Message.NO_FAULTS_PROCESS_TEMPLATE, processesNotFound,
+				processesToAdd);
+		updateElementsToAdd(Message.LAZY_PROCESS_NAME,
+				Message.LAZY_PROCESS_TEMPLATE, processesNotFound,
+				processesToAdd);
+		updateElementsToAdd(Message.LIMIT_PROCESS_NAME,
+				Message.LIMIT_PROCESS_TEMPLATE, processesNotFound,
+				processesToAdd);
+		updateElementsToAdd(Message.LAZY_LIMIT_PROCESS_NAME,
+				Message.LAZY_LIMIT_PROCESS_TEMPLATE, processesNotFound,
+				processesToAdd);
+
+		for (String template : processesToAdd) {
+			ps.println(template);
+			ps.println();
+		}
+
+		if (!processesToAdd.isEmpty()) {
+			IFolder folder = faultToleranceResults.getFolder();
+			writeFile(folder, Message.CML_PROCESSES_FILE_NAME,
+					baos.toByteArray(),
+					Message.UNABLE_TO_CREATE_FAULT_TOLERANCE_PROCESSES_FILE);
+		}
 	}
 
-	private void createFaultToleranceBaseFile()
+	private void createFaultToleranceBaseFile(List<String> namesetsNotFound,
+			List<String> valuesNotFound, List<String> channelsNotFound,
+			List<String> chansetsNotFound, List<String> processesNotFound)
 			throws UnableToRunFaultToleranceVerificationException {
-		IFolder folder = faultToleranceResults.getFolder();
-		writeFile(folder, Message.BASE_CML_FILE_NAME,
-				Message.BASE_CML_TEMPLATE,
-				Message.UNABLE_TO_CREATE_FAULT_TOLERANCE_PROCESSES_FILE);
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		PrintStream ps = new PrintStream(baos);
+
+		boolean requires;
+		requires = createBaseFileChansets(chansetsNotFound, ps);
+		requires = createBaseFileProcesses(processesNotFound, ps) || requires;
+
+		if (requires) {
+			IFolder folder = faultToleranceResults.getFolder();
+			writeFile(folder, Message.BASE_CML_FILE_NAME, baos.toByteArray(),
+					Message.UNABLE_TO_CREATE_FAULT_TOLERANCE_PROCESSES_FILE);
+		}
 	}
 
-	private void writeFile(IFolder folder, Message fileName,
-			Message fileContents, Message errorMessage)
-			throws UnableToRunFaultToleranceVerificationException {
-		String processName = faultToleranceResults.getProcessName();
-		writeFile(folder, fileName, fileContents.format(processName),
-				errorMessage);
+	private boolean createBaseFileProcesses(List<String> processesNotFound,
+			PrintStream ps) {
+		List<String> processesToAdd = new LinkedList<>();
+		updateElementsToAdd(Message.PROCESS_RUN_E_NAME,
+				Message.PROCESS_RUN_E_TEMPLATE, processesNotFound,
+				processesToAdd);
+		updateElementsToAdd(Message.PROCESS_CHAOS_E_NAME,
+				Message.PROCESS_CHAOS_E_TEMPLATE, processesNotFound,
+				processesToAdd);
+
+		for (String processTemplate : processesToAdd) {
+			ps.println(processTemplate);
+			ps.println();
+		}
+		return !processesToAdd.isEmpty();
+	}
+
+	private boolean createBaseFileChansets(List<String> chansetsNotFound,
+			PrintStream ps) {
+		List<String> chansetsToAdd = new LinkedList<>();
+
+		String pn = faultToleranceResults.getProcessName();
+		if (!chansetsNotFound.contains(Message.CHANSET_H_NAME.format(pn))) {
+			StringTokenizer relatedToH = new StringTokenizer(
+					Message.CHANSET_H_RELATED.format(pn), ",");
+			while (relatedToH.hasMoreTokens()) {
+				chansetsNotFound.remove(relatedToH.nextToken());
+			}
+		}
+
+		updateElementsToAdd(Message.CHANSET_E_NAME, Message.CHANSET_E_TEMPLATE,
+				chansetsNotFound, chansetsToAdd);
+		updateElementsToAdd(Message.CHANSET_F_NAME, Message.CHANSET_F_TEMPLATE,
+				chansetsNotFound, chansetsToAdd);
+		updateElementsToAdd(Message.CHANSET_H_NAME, Message.CHANSET_H_TEMPLATE,
+				chansetsNotFound, chansetsToAdd);
+
+		if (!chansetsToAdd.isEmpty()) {
+			ps.println("chansets");
+			for (String chansetTemplate : chansetsToAdd) {
+				ps.printf("\t%s", chansetTemplate);
+				ps.println();
+			}
+		}
+		return !chansetsToAdd.isEmpty();
+	}
+
+	private void updateElementsToAdd(Message nameMessage, Message template,
+			Collection<String> namesNotFound, List<String> templateList) {
+		String pn = faultToleranceResults.getProcessName();
+		String name = nameMessage.format(pn);
+		if (namesNotFound.contains(name)) {
+			templateList.add(template.format(pn));
+		}
+		namesNotFound.remove(name);
 	}
 
 	private void writeFile(IFolder folder, Message fileName, String contents,
+			Message errorMessage)
+			throws UnableToRunFaultToleranceVerificationException {
+		writeFile(folder, fileName, contents.getBytes(), errorMessage);
+	}
+
+	private void writeFile(IFolder folder, Message fileName, byte[] contents,
 			Message errorMessage)
 			throws UnableToRunFaultToleranceVerificationException {
 		String processName = faultToleranceResults.getProcessName();
 		IFile outputFile = folder.getFile(fileName.format(processName));
 
 		try {
-			if (!outputFile.exists()) {
-				outputFile.create(
-						new ByteArrayInputStream(contents.getBytes()), true,
+			InputStream in = new ByteArrayInputStream(contents);
+			if (outputFile.exists()) {
+				outputFile.setContents(in, true, true,
 						new NullProgressMonitor());
+			} else {
+				outputFile.create(in, true, new NullProgressMonitor());
+				faultToleranceResults.getCmlProject().getModel()
+						.refresh(true, new NullProgressMonitor());
 			}
 		} catch (CoreException e) {
 			throw new UnableToRunFaultToleranceVerificationException(
