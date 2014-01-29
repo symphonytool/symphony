@@ -29,15 +29,8 @@ object TPListener {
         flag = true
       }
     }
-//    if (flag == true) {
-//      val pol = new CmlProofObligationList()
-//      for (po <- JavaConversions.asScalaIterable(poList)) {
-//        pol.add(po)
-//      }
-//       PogPluginRunner.redrawPos(proj, pol)
-//    }
   }
-
+  
 }
 
 class TPListener(session: Session, ischanged : IPoStatusChanged) extends SessionEvents {
@@ -99,4 +92,10 @@ class TPListener(session: Session, ischanged : IPoStatusChanged) extends Session
     */
   }
 
+  def cmdAt(thyNode : Document.Node.Name, offset : Integer): Option[Command] = {
+    val node = session.snapshot(thyNode).node
+    node.command_at(offset).map(_._1)
+  }
+
+  
 }

@@ -325,8 +325,11 @@ public class TPPluginDoStuff {
 			return;
 			}
 			
+			// we know we have a session because we checked for it outside
+			Session sess = IsabelleCore.isabelle().session().get();
+			
 			// Start Proof Session
-			ProofSession ps = new ProofSession(null, cmlProj.getModel().getAst(), new TextFileDocumentProvider());
+			ProofSession ps = new ProofSession(null, cmlProj.getModel().getAst(), new TextFileDocumentProvider(), sess);
 			
 			// Create project folder (needs to be timestamped)
 			DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
@@ -380,9 +383,6 @@ public class TPPluginDoStuff {
 				String thyFileName = fileName + ".thy";
 				IFile thyFile = pogFolder.getFile(thyFileName);
 				translateCmltoThy(model, thyFile, thyFileName);
-				
-				// we know we have a session because we checked for it outside
-				Session sess = IsabelleCore.isabelle().session().get();
 				
 				// submit the file to isabelle
 				String dirName = modelBk.getLocationURI().toString();

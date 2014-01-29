@@ -8,4 +8,6 @@ public static final String NEEDS_PROJECT_PARAM_ID = "eu.compassresearch.ide.theo
 
 public static final String PROOF_SESSION_ID = "eu.compassresearch.ide.theoremprover.proofsess";
 
+public static final int BY_CML_AUTO_TAC_OFFSET = 17;
+
 }
