@@ -1,7 +1,9 @@
 package eu.compassresearch.core.interpreter;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -19,7 +21,6 @@ import org.overture.ast.typechecker.Pass;
 import org.overture.interpreter.assistant.pattern.PPatternAssistantInterpreter;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ContextException;
-import org.overture.interpreter.runtime.ValueException;
 import org.overture.interpreter.values.NameValuePair;
 import org.overture.interpreter.values.NameValuePairList;
 import org.overture.interpreter.values.NameValuePairMap;
@@ -29,6 +30,7 @@ import org.overture.interpreter.values.Value;
 import eu.compassresearch.ast.CmlAstFactory;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.ACallAction;
+import eu.compassresearch.ast.actions.AChannelRenamingAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.ADivAction;
 import eu.compassresearch.ast.actions.AEndDeadlineAction;
@@ -81,6 +83,7 @@ import eu.compassresearch.core.interpreter.api.values.ExpressionConstraint;
 import eu.compassresearch.core.interpreter.api.values.LatticeTopValue;
 import eu.compassresearch.core.interpreter.api.values.NamesetValue;
 import eu.compassresearch.core.interpreter.api.values.NoConstraint;
+import eu.compassresearch.core.interpreter.api.values.RenamingValue;
 import eu.compassresearch.core.interpreter.api.values.UnresolvedExpressionValue;
 import eu.compassresearch.core.interpreter.api.values.ValueConstraint;
 import eu.compassresearch.core.interpreter.utility.Pair;
@@ -294,6 +297,65 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 				return new Pair<INode, Context>(node.getAction(), nextContext);
 			}
 		});
+	}
+	
+	@Override
+	public Inspection caseAChannelRenamingAction(final AChannelRenamingAction node,
+			final Context question) throws AnalysisException
+	{
+		
+		final CmlBehaviour leftChild = owner.getLeftChild();
+		
+		if(!leftChild.finished())
+		{
+			RenamingValue rv = (RenamingValue)question.lookup(NamespaceUtility.getRenamingValueName());
+ 			CmlTransitionSet childTransitions = leftChild.inspect();
+			final HashMap<CmlTransition, CmlTransition> newtoOld = new HashMap<CmlTransition, CmlTransition>();
+ 			for(Entry<ChannelNameValue, ChannelNameValue> pair : rv.renamingMap().entrySet())
+ 			{
+ 				CmlTransitionSet transitionsToBeRenamed  = childTransitions.retainByChannelName(pair.getKey());
+ 				//if this is true then we have remove the from channel and need to add the
+ 				for(ObservableTransition toBeRenamed : transitionsToBeRenamed.getObservableChannelEvents())
+ 				{
+ 					LabelledTransition tbr = (LabelledTransition)toBeRenamed;
+ 					childTransitions = childTransitions.removeByChannelName(pair.getKey());
+ 					LabelledTransition renamedtransition = tbr.rename(pair.getValue());
+ 					childTransitions = childTransitions.union(renamedtransition);
+ 					newtoOld.put(renamedtransition, tbr);
+ 				}
+ 			}
+ 			
+ 			return newInspection(childTransitions, new CmlCalculationStep()
+			{
+				
+				@Override
+				public Pair<INode, Context> execute(CmlTransition selectedTransition)
+						throws AnalysisException
+				{
+					if(newtoOld.containsKey(selectedTransition))
+						leftChild.execute(newtoOld.get(selectedTransition));
+					else
+						leftChild.execute(selectedTransition);
+					
+					return new Pair<INode, Context>(node, question);
+				}
+			});
+ 			
+		}
+		else
+		{
+			final INode skipNode = CmlAstFactory.newASkipAction(node.getLocation()); 
+			return newInspection(createTauTransitionWithoutTime(skipNode), new CmlCalculationStep()
+			{
+				@Override
+				public Pair<INode, Context> execute(CmlTransition selectedTransition)
+						throws AnalysisException
+				{
+					clearLeftChild();
+					return new Pair<INode, Context>(skipNode, question.outer);
+				}
+			});
+		}
 	}
 
 	/**

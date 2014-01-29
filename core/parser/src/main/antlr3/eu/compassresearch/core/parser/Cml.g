@@ -1527,7 +1527,7 @@ actionbase returns[PAction action]
             ABlockSimpleBlockStm block = AstFactory.newABlockSimpleBlockStm(extractLexLocation($start,$rpT), new ArrayList<AAssignmentDefinition>());
             block.getStatements().add(action2stm($action.action));
             $action = stm2action( block);
-            if (renamingExpr.rexp != null) {
+            if ($renamingExpr.rexp != null) {
                 $action = new AChannelRenamingAction(null, $action, $renamingExpr.rexp);
             }
         }

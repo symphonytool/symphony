@@ -188,6 +188,11 @@ public class ChannelNameValue extends Value
 			return val2;
 		}
 	}
+	
+	public ChannelNameValue rename(CMLChannelValue channel)
+	{
+		return new ChannelNameValue(channel, values, constraints);
+	}
 
 	public boolean isComparable(ChannelNameValue channelNameValue)
 	{

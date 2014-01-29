@@ -119,6 +119,12 @@ class ObservableLabelledTransition extends AbstractLabelledTransition implements
 		// return new LinkedList<ChannelEvent>();
 		// }
 	}
+	
+	@Override
+	public LabelledTransition rename(ChannelNameValue value)
+	{
+		return new ObservableLabelledTransition(this.eventSources, this.channelName.rename(value.getChannel()));
+	}
 
 	class EventExpander extends AnswerCMLAdaptor<List<LabelledTransition>>
 	{
