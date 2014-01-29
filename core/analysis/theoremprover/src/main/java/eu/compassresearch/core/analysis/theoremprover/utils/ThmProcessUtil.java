@@ -27,6 +27,8 @@ public class ThmProcessUtil {
 	public static String isaProcBegin = "begin";
 	public static String isaProcEnd = "end";
 	public static String isaOp = "definition";
+	public static String opParamLeft = "\\<parallel>";
+	public static String opParamRight = "\\<parallel>";
 	public static String opExpLeft = "\\<lparr>";
 	public static String opExpRight = "\\<rparr>";
 	public static String opBodyLeft = "{: ";
@@ -44,8 +46,8 @@ public class ThmProcessUtil {
 	public static String div = "DIV";
 	public static String wait = "WAIT ";
 	public static String comm = " -> ";
-	public static String guardLeftBrack = "[";
-	public static String guardRightBrack = "]";
+	public static String guardLeftBrack = "[\\<lparr>";
+	public static String guardRightBrack = "\\<rparr>]";
 	public static String guardSep = " & ";
 	public static String seqComp = " ; ";
 	public static String extChoice = " \\<box> ";

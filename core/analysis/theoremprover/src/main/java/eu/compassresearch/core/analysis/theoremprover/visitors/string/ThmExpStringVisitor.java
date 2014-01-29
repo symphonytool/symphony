@@ -106,8 +106,12 @@ import org.overture.ast.patterns.ATypeMultipleBind;
 import org.overture.ast.patterns.PBind;
 import org.overture.ast.patterns.PMultipleBind;
 import org.overture.ast.patterns.PPattern;
+import org.overture.ast.types.AMapMapType;
 import org.overture.ast.types.ANamedInvariantType;
+import org.overture.ast.types.AOperationType;
 import org.overture.ast.types.ARecordInvariantType;
+import org.overture.ast.types.ASeq1SeqType;
+import org.overture.ast.types.ASeqSeqType;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.expressions.ABracketedExp;
@@ -473,8 +477,19 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 				}
 			}	
 		}
-		
-		
+		if (appRoot.getType() instanceof AOperationType)
+		{
+			return rootsb.toString() + "[" + sb.toString() + "]";
+		}
+		else if (appRoot.getType() instanceof ASeqSeqType || appRoot.getType() instanceof ASeq1SeqType)
+		{
+			return rootsb.toString() + "<" + sb.toString() + ">";
+		}
+		else if (appRoot.getType() instanceof AMapMapType)
+		{
+			return rootsb.toString() + "[" + sb.toString() + "]";
+		}
+		else
 		return rootsb.toString() + "(" + sb.toString() + ")";
 	}	
 

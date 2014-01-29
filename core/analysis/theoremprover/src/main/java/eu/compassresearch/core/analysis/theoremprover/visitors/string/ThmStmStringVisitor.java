@@ -82,6 +82,9 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 					assignStr.append("; ");
 				}
 			}
+			if (! a.getStatements().isEmpty()){
+				assignStr.append("; ");
+			}
 		}
 		
 		for(Iterator<PStm> itr = a.getStatements().listIterator(); itr.hasNext();) {

@@ -32,7 +32,7 @@ public class ThmExplicitOperation extends ThmDecl{
 			this.resType = resType;
 		}
 		this.pre = genPre(pre);
-		this.post = genPost(pre);
+		this.post = genPost(post);
 		this.body = genBody(body);
 	}
 	
@@ -63,8 +63,7 @@ public class ThmExplicitOperation extends ThmDecl{
 		}
 		
 		String preOutput = ThmProcessUtil.isaOp + " \"pre_" + name + " (" +inputName +") " + " = " + 
-				ThmProcessUtil.opExpLeft + fixParamRefs(exp) +
-				ThmProcessUtil.opExpRight + "\"\n" + tactic("pre_"+ name, operation);
+				"|" + fixParamRefs(exp) + "|" + "\"\n" + tactic("pre_"+ name, operation);
 		
 		return preOutput;	
 	}
@@ -77,8 +76,7 @@ public class ThmExplicitOperation extends ThmDecl{
 		}
 		
 		String postOutput = ThmProcessUtil.isaOp + " \"post_" + name + " (" + inputName +") (" + outputName +")" + " = " + 
-				ThmProcessUtil.opExpLeft + fixParamRefs(exp) +
-				ThmProcessUtil.opExpRight + "\"\n" + tactic("post_"+ name, operation);
+				"|" + fixParamRefs(exp) + "|"  + "\"\n" + tactic("post_"+ name, operation);
 		
 		return postOutput;	
 	}
@@ -120,7 +118,7 @@ public class ThmExplicitOperation extends ThmDecl{
 		}
 		
 		//Replace the keyword "RESULT" with the Lambda post value
-		ex = ex.replace("^RESULT^", "^" + outputName + "^");
+		ex = ex.replace("^RESULT^", "@" + outputName);
 		
 		return ex;
 	}
@@ -137,8 +135,8 @@ public class ThmExplicitOperation extends ThmDecl{
 		res.append(body + "\n\n");
 		
 		res.append(ThmProcessUtil.isaOp + " \"" + name + " = CMPOpO " + 
-				ThmProcessUtil.opExpLeft + paramTypes + ThmProcessUtil.opExpRight + " " + 
-				ThmProcessUtil.opExpLeft + resType + ThmProcessUtil.opExpRight + " " + 
+				ThmProcessUtil.opParamLeft + paramTypes + ThmProcessUtil.opParamRight + " " + 
+				ThmProcessUtil.opParamLeft + resType + ThmProcessUtil.opParamRight + " " + 
 				"pre_" + name + " " + 
 				"post_" + name + " " + 
 				"body_" + name + "\n" + 
