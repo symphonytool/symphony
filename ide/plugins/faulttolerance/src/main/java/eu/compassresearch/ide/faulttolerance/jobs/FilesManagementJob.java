@@ -93,14 +93,44 @@ public class FilesManagementJob extends Job {
 		}
 	}
 
-	private void createLimitedFaultToleranceFormulaScript(IFolder folder) {
-		// TODO Auto-generated method stub
-
+	private void createLimitedFaultToleranceFormulaScript(IFolder folder)
+			throws UnableToRunFaultToleranceVerificationException {
+		try {
+			NewMCVisitor adaptor = new NewMCVisitor();
+			List<PDefinition> definitions = cmlSourceUnit
+					.getParseListDefinitions();
+			String formulaScriptContent = adaptor.generateFormulaScript(
+					definitions, MCConstants.DEADLOCK_PROPERTY,
+					Message.LAZY_LIMIT_DEADLOCK_CHECK_PROCESS_NAME
+							.format(processName));
+			writeFile(folder,
+					Message.LIMITED_FAULT_TOLERANCE_FORMULA_SCRIPT_FILE_NAME,
+					formulaScriptContent,
+					Message.UNABLE_TO_CREATE_FORMULA_SCRIPT);
+		} catch (IOException | AnalysisException e) {
+			throw new UnableToRunFaultToleranceVerificationException(
+					Message.UNABLE_TO_CREATE_FORMULA_SCRIPT, e, processName);
+		}
 	}
 
-	private void createFullFaultToleranceFormulaScript(IFolder folder) {
-		// TODO Auto-generated method stub
-
+	private void createFullFaultToleranceFormulaScript(IFolder folder)
+			throws UnableToRunFaultToleranceVerificationException {
+		try {
+			NewMCVisitor adaptor = new NewMCVisitor();
+			List<PDefinition> definitions = cmlSourceUnit
+					.getParseListDefinitions();
+			String formulaScriptContent = adaptor.generateFormulaScript(
+					definitions, MCConstants.DEADLOCK_PROPERTY,
+					Message.LAZY_DEADLOCK_CHECK_PROCESS_NAME
+							.format(processName));
+			writeFile(folder,
+					Message.FULL_FAULT_TOLERANCE_FORMULA_SCRIPT_FILE_NAME,
+					formulaScriptContent,
+					Message.UNABLE_TO_CREATE_FORMULA_SCRIPT);
+		} catch (IOException | AnalysisException e) {
+			throw new UnableToRunFaultToleranceVerificationException(
+					Message.UNABLE_TO_CREATE_FORMULA_SCRIPT, e, processName);
+		}
 	}
 
 	private void createSemifarinessFormulaScript(IFolder folder)

@@ -66,8 +66,13 @@ public class FaultToleranceVerificationJob extends Job {
 								.getResult());
 						faultToleranceResults.setDivergenceFree(status
 								.getResults().isSuccess());
+						faultToleranceResults.add(status.getResults()
+								.getException());
 					}
 					monitor.worked(1);
+					if (!event.getJob().getResult().isOK()) {
+						monitor.setCanceled(true);
+					}
 				}
 			});
 			sj.addJobChangeListener(new JobChangeAdapter() {
@@ -77,7 +82,12 @@ public class FaultToleranceVerificationJob extends Job {
 							.getResult());
 					faultToleranceResults.setSemifair(status.getResults()
 							.isSuccess());
+					faultToleranceResults.add(status.getResults()
+							.getException());
 					monitor.worked(1);
+					if (!event.getJob().getResult().isOK()) {
+						monitor.setCanceled(true);
+					}
 				}
 			});
 
@@ -91,7 +101,7 @@ public class FaultToleranceVerificationJob extends Job {
 		}
 	}
 
-	private boolean manageFiles(IProgressMonitor monitor)
+	private void manageFiles(final IProgressMonitor monitor)
 			throws InterruptedException {
 
 		FilesManagementJob fmj = new FilesManagementJob(
@@ -102,18 +112,23 @@ public class FaultToleranceVerificationJob extends Job {
 		fmj.addJobChangeListener(new JobChangeAdapter() {
 			@Override
 			public void done(IJobChangeEvent event) {
-				FilesManagementJob job = (FilesManagementJob) event.getJob();
-				UnableToRunFaultToleranceVerificationException e = job
-						.getException();
-				faultToleranceResults.setException(e);
-				faultToleranceResults.setFolder(job.getFolder());
+				if (event.getJob() instanceof FilesManagementJob) {
+					FilesManagementJob job = (FilesManagementJob) event
+							.getJob();
+					UnableToRunFaultToleranceVerificationException e = job
+							.getException();
+					faultToleranceResults.setException(e);
+					faultToleranceResults.setFolder(job.getFolder());
+				}
+				monitor.worked(1);
+				if (!event.getJob().getResult().isOK()) {
+					monitor.setCanceled(true);
+				}
 			}
 		});
 
 		fmj.schedule();
 		fmj.join();
-		monitor.worked(1);
-		return faultToleranceResults.getException() == null;
 	}
 
 	@Override
@@ -155,7 +170,11 @@ public class FaultToleranceVerificationJob extends Job {
 						.getResult());
 				faultToleranceResults.setFullFaultTolerant(status.getResults()
 						.isSuccess());
+				faultToleranceResults.add(status.getResults().getException());
 				monitor.worked(1);
+				if (!event.getJob().getResult().isOK()) {
+					monitor.setCanceled(true);
+				}
 			}
 		});
 
@@ -167,7 +186,11 @@ public class FaultToleranceVerificationJob extends Job {
 						.getResult());
 				faultToleranceResults.setLimitedFaultTolerant(status
 						.getResults().isSuccess());
+				faultToleranceResults.add(status.getResults().getException());
 				monitor.worked(1);
+				if (!event.getJob().getResult().isOK()) {
+					monitor.setCanceled(true);
+				}
 			}
 
 		});

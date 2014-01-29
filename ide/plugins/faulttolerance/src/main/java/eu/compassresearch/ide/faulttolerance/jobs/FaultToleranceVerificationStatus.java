@@ -21,19 +21,19 @@ public class FaultToleranceVerificationStatus extends Status {
 	public FaultToleranceVerificationStatus(
 			FaultToleranceVerificationResults results) {
 		super(getSeverity(results), Activator.ID, getMessage(results), results
-				.getException());
+				.getFirstException());
 		this.results = results;
 	}
 
 	private static String getMessage(FaultToleranceVerificationResults results) {
-		if (results.getException() != null) {
-			return results.getException().getLocalizedMessage();
+		if (results.hasException()) {
+			return results.getExceptionsLocalizedMessage();
 		}
 		return null;
 	}
 
 	private static int getSeverity(FaultToleranceVerificationResults results) {
-		return results.getException() == null ? IStatus.OK : IStatus.ERROR;
+		return results.hasException() ? IStatus.ERROR : IStatus.OK;
 	}
 
 	public FaultToleranceVerificationResults getResults() {

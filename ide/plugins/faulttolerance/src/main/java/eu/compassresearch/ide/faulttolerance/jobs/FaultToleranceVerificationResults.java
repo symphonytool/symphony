@@ -3,6 +3,11 @@
  */
 package eu.compassresearch.ide.faulttolerance.jobs;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.util.LinkedList;
+import java.util.List;
+
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
@@ -37,12 +42,23 @@ public class FaultToleranceVerificationResults {
 
 	private UnableToRunFaultToleranceVerificationException exception;
 
+	private final List<Exception> otherExceptions;
+
 	private final ILock prerequisitesLock;
 	private final ILock verificationsLock;
 
 	public FaultToleranceVerificationResults() {
 		prerequisitesLock = Job.getJobManager().newLock();
 		verificationsLock = Job.getJobManager().newLock();
+		otherExceptions = new LinkedList<>();
+	}
+
+	public void add(Exception e) {
+		if (e != null) {
+			synchronized (otherExceptions) {
+				otherExceptions.add(e);
+			}
+		}
 	}
 
 	public void acquire() {
@@ -138,10 +154,6 @@ public class FaultToleranceVerificationResults {
 		return verifications == maxVerifications;
 	}
 
-	public UnableToRunFaultToleranceVerificationException getException() {
-		return exception;
-	}
-
 	public void setException(
 			UnableToRunFaultToleranceVerificationException exception) {
 		this.exception = exception;
@@ -179,4 +191,47 @@ public class FaultToleranceVerificationResults {
 		this.folder = folder;
 	}
 
+	public boolean hasException() {
+		return exception != null || !otherExceptions.isEmpty();
+	}
+
+	public String getExceptionsLocalizedMessage() {
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		PrintStream ps = new PrintStream(baos);
+
+		int i = 1;
+
+		if (exception != null) {
+			ps.print(i);
+			ps.print(". ");
+			ps.println(exception.getLocalizedMessage());
+		}
+
+		for (Exception e : otherExceptions) {
+			ps.print(++i);
+			ps.print(". ");
+			ps.println(e.getLocalizedMessage());
+		}
+
+		return new String(baos.toByteArray());
+	}
+
+	public void showExceptions(PrintStream ps) {
+		if (exception != null) {
+			exception.printStackTrace(ps);
+		}
+		for (Exception e : otherExceptions) {
+			e.printStackTrace(ps);
+		}
+	}
+
+	public Exception getFirstException() {
+		if (exception != null) {
+			return exception;
+		}
+		if (!otherExceptions.isEmpty()) {
+			return otherExceptions.get(0);
+		}
+		return null;
+	}
 }

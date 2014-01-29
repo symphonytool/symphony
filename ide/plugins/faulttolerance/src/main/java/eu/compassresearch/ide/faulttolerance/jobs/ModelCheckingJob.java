@@ -8,6 +8,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 
+import eu.compassresearch.core.analysis.modelchecker.api.FormulaIntegrationException;
 import eu.compassresearch.core.analysis.modelchecker.api.FormulaIntegrator;
 import eu.compassresearch.core.analysis.modelchecker.api.FormulaResult;
 import eu.compassresearch.ide.faulttolerance.Message;
@@ -48,9 +49,15 @@ public final class ModelCheckingJob extends Job {
 
 	private void performModelCheckingCall(ModelCheckingResult result,
 			IProgressMonitor monitor) throws InterruptedException {
-		FormulaResult formulaResult = FormulaIntegrator.getInstance().analyse(
-				absolutePath);
-		monitor.worked(100);
+		try {
+			FormulaResult formulaResult = FormulaIntegrator.getInstance()
+					.analyse(absolutePath);
+			// TODO process formulaResult
+			monitor.worked(100);
+		} catch (FormulaIntegrationException e) {
+			result.setException(e);
+			result.setSuccess(false);
+		}
 	}
 
 }
