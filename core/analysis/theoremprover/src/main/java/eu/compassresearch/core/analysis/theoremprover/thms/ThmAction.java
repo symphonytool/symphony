@@ -14,6 +14,6 @@ public class ThmAction extends ThmDecl {
 	}
 	
 	public String toString(){
-		return (ThmProcessUtil.isaAct + " \"" + name + " = `"  + action + "`\"\n" + tacHook(name));
+		return (ThmProcessUtil.isaAct + " \"" + name + " = `"  + action + "`\"\n" + tactic(name, action));
 	}
 }

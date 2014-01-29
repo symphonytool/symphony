@@ -15,6 +15,7 @@ import org.overture.ast.statements.ACallStm;
 import org.overture.ast.statements.AElseIfStm;
 import org.overture.ast.statements.AIfStm;
 import org.overture.ast.statements.ALetStm;
+import org.overture.ast.statements.AReturnStm;
 import org.overture.ast.statements.ASkipStm;
 import org.overture.ast.statements.AWhileStm;
 import org.overture.ast.statements.PStateDesignator;
@@ -166,6 +167,14 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 		return nodeDeps;
 	}
 	
+	public NodeNameList caseAReturnStm(AReturnStm a, NodeNameList bvars)
+	throws AnalysisException {
+		NodeNameList nodeDeps = new NodeNameList();
+		nodeDeps.addAll(a.getExpression().apply(thmDepVisitor, bvars));
+
+		return nodeDeps;
+	}
+	
 //	public NodeNameList caseANonDeterministicDoStatementAction(ANonDeterministicDoStatementAction a, NodeNameList bvars)
 //			throws AnalysisException {
 //		NodeNameList nodeDeps = new NodeNameList();
@@ -249,14 +258,7 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 //		return nodeDeps;
 //	}
 //	
-//	public NodeNameList caseAReturnStatementAction(AReturnStatementAction a, NodeNameList bvars)
-//			throws AnalysisException {
-//		NodeNameList nodeDeps = new NodeNameList();
-////       [exp]:exp
-//			//TODO: NOT YET HANDLED
-//
-//		return nodeDeps;
-//	}
+
 //	
 //	public NodeNameList caseANewStatementAction(ANewStatementAction a, NodeNameList bvars)
 //			throws AnalysisException {

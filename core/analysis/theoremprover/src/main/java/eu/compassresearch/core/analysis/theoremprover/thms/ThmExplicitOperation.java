@@ -1,14 +1,9 @@
 package eu.compassresearch.core.analysis.theoremprover.thms;
 
-import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
-
 import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.patterns.PPattern;
-
 import eu.compassresearch.core.analysis.theoremprover.utils.ThmProcessUtil;
-import eu.compassresearch.core.analysis.theoremprover.utils.ThmTypeUtil;
 
 public class ThmExplicitOperation extends ThmDecl{
 	
@@ -16,48 +11,92 @@ public class ThmExplicitOperation extends ThmDecl{
 	private String pre;
 	private String post;
 	private String body;
-	private String params;
-	private String preParamList;
-	private String postParamList;
+	private LinkedList<PPattern> params;
 	private String resType;
+	private String paramTypes;
+	
+	private static String inputName = "inp";
+	private static String outputName = "outp";
 
-	public ThmExplicitOperation(String name, LinkedList<PPattern> params, String pre, String post, String initExprs, String resType) {
+
+	public ThmExplicitOperation(String name, LinkedList<PPattern> params, String pre, String post, String body, LinkedList<String> paramT, String resType) {
 		this.name = name;
-		this.body = initExprs;
-		this.params = getParams(params);
-		this.resType = resType;
-		this.preParamList = getPrePostParamList(params, "pre");
-		this.postParamList = getPrePostParamList(params, "post");
-		this.pre = createPrePostFunc(name, pre, "pre", params);
-		this.post = createPrePostFunc(name, post, "post", params);
+		this.params = params;
+		this.paramTypes = genParamTypeList(paramT);
+		if(resType == null)
+		{
+			this.resType = "()";
+		}
+		else 
+		{
+			this.resType = resType;
+		}
+		this.pre = genPre(pre);
+		this.post = genPost(pre);
+		this.body = genBody(body);
 	}
 	
-	private String getParams(LinkedList<PPattern> param) {
+	private String genParamTypeList(LinkedList<String> paramT) {
+
 		StringBuilder sb = new StringBuilder();
-		for(PPattern pat: param)		
+		if(paramT == null)
 		{
-			sb.append(((AIdentifierPattern) pat).getName().toString() + " ");
+			sb.append("()");
+		}
+		else 
+		{
+			for(String p: paramT)		
+			{
+				sb.append("(" + p + ")*");
+			}
+			sb.append("()");
 		}
 		return sb.toString();
 	}
 	
-
-	private String createPrePostFunc(String name, String exp, String prepost, LinkedList<PPattern> params)
-	{	
+	
+	private String genPre(String exp)
+	{
 		if(exp == null)
 		{
 			exp = "true";
 		}
-		if (prepost.equals("post"))
+		
+		String preOutput = ThmProcessUtil.isaOp + " \"pre_" + name + " (" +inputName +") " + " = " + 
+				ThmProcessUtil.opExpLeft + fixParamRefs(exp) +
+				ThmProcessUtil.opExpRight + "\"\n" + tactic("pre_"+ name, operation);
+		
+		return preOutput;	
+	}
+	
+	private String genPost(String exp)
+	{
+		if(exp == null)
 		{
-			exp = fixPostFuncExpr(exp, params);
-		}	
+			exp = "true";
+		}
 		
-		LinkedList<List<PPattern>> pats = new LinkedList<List<PPattern>>();
-		pats.add(params);
+		String postOutput = ThmProcessUtil.isaOp + " \"post_" + name + " (" + inputName +") (" + outputName +")" + " = " + 
+				ThmProcessUtil.opExpLeft + fixParamRefs(exp) +
+				ThmProcessUtil.opExpRight + "\"\n" + tactic("post_"+ name, operation);
 		
-		ThmExpFunc preFunc = new ThmExpFunc((prepost + "_" + name), exp, pats);
-		return preFunc.getRefFunction();
+		return postOutput;	
+	}
+	
+
+	
+	private String genBody(String exp)
+	{
+		if(exp == null)
+		{
+			exp = "true";
+		}
+		
+		String bodyOutput = ThmProcessUtil.isaOp + " \"body_" + name + " (" + inputName +")" + " = " + 
+				ThmProcessUtil.opBodyLeft + fixParamRefs(exp) +
+				ThmProcessUtil.opBodyRight + "\"\n" + tactic("body_"+ name, operation);
+		
+		return bodyOutput;	
 	}
 	
 	/**
@@ -68,77 +107,23 @@ public class ThmExplicitOperation extends ThmDecl{
 	 * @param pattern - the parameters
 	 * @return the new, fixed string
 	 */
-	private String fixPostFuncExpr(String ex, LinkedList<PPattern> pattern){
-		if (resType != null)
+	private String fixParamRefs(String ex){
+		int count = 1;
+		
+		for(PPattern p : params)
 		{
-			int count = 0;
-
-			//for each parameter, add 1 to the parameter count
-			for(PPattern p : pattern)
-			{
-				count++;
-			}
-			
-			//the result is therefore the next parameter
-			int resCount = count+1;
-			
-			//replace the keyword RESULT with the result parameter
-			String lambdaName = "^" +ThmTypeUtil.isaFuncLambaVal+"^.#" + resCount;
-			ex = ex.replace("^RESULT^", lambdaName);
+			String pName = "^" + ((AIdentifierPattern) p).getName().toString() + "^";
+			String lambdaName = "@" + inputName +".#" + count;
+		
+			ex = ex.replace(pName, lambdaName);
+			count++;
 		}
+		
+		//Replace the keyword "RESULT" with the Lambda post value
+		ex = ex.replace("^RESULT^", "^" + outputName + "^");
+		
 		return ex;
 	}
-
-	private String getPrePostParamList(LinkedList<PPattern> paras, String prepost){
-		
-		StringBuilder sb = new StringBuilder();
-		sb.append("(");
-		for (Iterator<PPattern> itr = paras.listIterator(); itr.hasNext(); ) {
-			
-			PPattern pat = itr.next();
-			sb.append("^");
-			sb.append(((AIdentifierPattern) pat).getName().toString());
-			sb.append("^");
-			//If there are remaining parameters, add a ","
-			if(itr.hasNext() || (prepost.equals("post") && resType != null)){	
-				sb.append(", ");
-			}
-		}
-		//if there is a result value
-		if (prepost.equals("post") && resType != null)
-		{
-			sb.append("^" + ThmTypeUtil.isaFuncLambdaPostVal + "^");
-		}
-		sb.append(")");
-		
-		return sb.toString();//NOT SURE IF NEED TO DO THIS... fixParamRefs(sb.toString(), paras);
-	}
-	
-//	/**
-//	 * Method to change the value names in an expression when they are parameter names
-//	 * This is so that the lambda expression of a function operates as expected. 
-//	 * Parameters are determined by numeric order.
-//	 * @param ex - expression to fix
-//	 * @param pattern - the parameters
-//	 * @return the new, fixed string
-//	 */
-//	private String fixParamRefs(String ex, LinkedList<PPattern> pattern){
-//		int count = 1;
-//		
-//		for(PPattern p : pattern )
-//		{
-//			String pName = "^" + ((AIdentifierPattern) p).getName().toString() + "^";
-//			String lambdaName = "^" +ThmTypeUtil.isaFuncLambaVal+"^.#" + count;
-//		
-//			ex = ex.replace(pName, lambdaName);
-//			count++;
-//		}
-//		
-//		//Replace the keyword "RESULT" with the Lambda post value
-//		ex = ex.replace("^RESULT^", "^" + ThmTypeUtil.isaFuncLambdaPostVal + "^");
-//		
-//		return ex;
-//	}
 	
 		
 	@Override
@@ -149,19 +134,15 @@ public class ThmExplicitOperation extends ThmDecl{
 
 		res.append(post + "\n\n");
 		
-		res.append(ThmProcessUtil.isaOp + " \"" + name + " " + params + " = `" + 
-				ThmProcessUtil.opExpLeft +  "pre_"+ name + preParamList + ThmProcessUtil.opExpRight + " " +  
-				ThmProcessUtil.opTurn + " ");
-		if (resType	!= null)
-		{
-			res.append(ThmProcessUtil.opExpLeft + "(" + ThmTypeUtil.isaOpLambdaPost + " " + ThmTypeUtil.isaFuncLambdaPostVal+ " : " + resType + " @ (post_" + name + postParamList +"))"+ ThmProcessUtil.opExpRight);
-		}
-		else
-		{
-			res.append(ThmProcessUtil.opExpLeft +"post_" + name + postParamList + ThmProcessUtil.opExpRight +" ");
-		}
-				
-		res.append(" \\<and> (" + body + ")`\"\n" + tacHook(name));
+		res.append(body + "\n\n");
+		
+		res.append(ThmProcessUtil.isaOp + " \"" + name + " = CMPOpO " + 
+				ThmProcessUtil.opExpLeft + paramTypes + ThmProcessUtil.opExpRight + " " + 
+				ThmProcessUtil.opExpLeft + resType + ThmProcessUtil.opExpRight + " " + 
+				"pre_" + name + " " + 
+				"post_" + name + " " + 
+				"body_" + name + "\n" + 
+				tactic(name, operation));
 		
 		return res.toString();
 	}

@@ -29,9 +29,14 @@ public class ThmProcessUtil {
 	public static String isaOp = "definition";
 	public static String opExpLeft = "\\<lparr>";
 	public static String opExpRight = "\\<rparr>";
+	public static String opBodyLeft = "{: ";
+	public static String opBodyRight = " :}";
 	public static String opTurn = "\\<turnstile>";
 	public static String isaMainAction = "MainAction";
 	public static String isaMu = "\\<mu>";
+	
+
+	public static String isaReturn = "return ";
 
 	public static String skip = "SKIP";
 	public static String stop = "STOP";
