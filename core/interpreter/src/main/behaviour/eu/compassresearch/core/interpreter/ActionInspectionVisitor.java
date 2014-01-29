@@ -303,59 +303,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 	public Inspection caseAChannelRenamingAction(final AChannelRenamingAction node,
 			final Context question) throws AnalysisException
 	{
-		
-		final CmlBehaviour leftChild = owner.getLeftChild();
-		
-		if(!leftChild.finished())
-		{
-			RenamingValue rv = (RenamingValue)question.lookup(NamespaceUtility.getRenamingValueName());
- 			CmlTransitionSet childTransitions = leftChild.inspect();
-			final HashMap<CmlTransition, CmlTransition> newtoOld = new HashMap<CmlTransition, CmlTransition>();
- 			for(Entry<ChannelNameValue, ChannelNameValue> pair : rv.renamingMap().entrySet())
- 			{
- 				CmlTransitionSet transitionsToBeRenamed  = childTransitions.retainByChannelName(pair.getKey());
- 				//if this is true then we have remove the from channel and need to add the
- 				for(ObservableTransition toBeRenamed : transitionsToBeRenamed.getObservableChannelEvents())
- 				{
- 					LabelledTransition tbr = (LabelledTransition)toBeRenamed;
- 					childTransitions = childTransitions.removeByChannelName(pair.getKey());
- 					LabelledTransition renamedtransition = tbr.rename(pair.getValue());
- 					childTransitions = childTransitions.union(renamedtransition);
- 					newtoOld.put(renamedtransition, tbr);
- 				}
- 			}
- 			
- 			return newInspection(childTransitions, new CmlCalculationStep()
-			{
-				
-				@Override
-				public Pair<INode, Context> execute(CmlTransition selectedTransition)
-						throws AnalysisException
-				{
-					if(newtoOld.containsKey(selectedTransition))
-						leftChild.execute(newtoOld.get(selectedTransition));
-					else
-						leftChild.execute(selectedTransition);
-					
-					return new Pair<INode, Context>(node, question);
-				}
-			});
- 			
-		}
-		else
-		{
-			final INode skipNode = CmlAstFactory.newASkipAction(node.getLocation()); 
-			return newInspection(createTauTransitionWithoutTime(skipNode), new CmlCalculationStep()
-			{
-				@Override
-				public Pair<INode, Context> execute(CmlTransition selectedTransition)
-						throws AnalysisException
-				{
-					clearLeftChild();
-					return new Pair<INode, Context>(skipNode, question.outer);
-				}
-			});
-		}
+		return caseChannelRenaming(node, question);
 	}
 
 	/**

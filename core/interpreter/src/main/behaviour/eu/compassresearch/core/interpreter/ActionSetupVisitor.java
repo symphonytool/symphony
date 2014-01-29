@@ -37,10 +37,13 @@ import eu.compassresearch.ast.actions.ATimedInterruptAction;
 import eu.compassresearch.ast.actions.ATimeoutAction;
 import eu.compassresearch.ast.actions.AUntimedTimeoutAction;
 import eu.compassresearch.ast.actions.AWaitAction;
+import eu.compassresearch.ast.actions.PAction;
+import eu.compassresearch.ast.expressions.SRenameChannelExp;
 import eu.compassresearch.ast.statements.AActionStm;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorFactory;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.values.RenamingValue;
+import eu.compassresearch.core.interpreter.utility.LocationExtractor;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
 class ActionSetupVisitor extends CommonSetupVisitor
@@ -336,19 +339,12 @@ class ActionSetupVisitor extends CommonSetupVisitor
 		return new Pair<INode, Context>(node, context);
 	}
 	
-	
 	@Override
 	public Pair<INode, Context> caseAChannelRenamingAction(
 			AChannelRenamingAction node, Context question)
 			throws AnalysisException
 	{
-		Context rnContext = CmlContextFactory.newContext(node.getLocation(), "Renaming context", question);
-		RenamingValue rv = (RenamingValue)node.getRenameExpression().apply(this.cmlExpressionVisitor,question);
-		rnContext.putNew(new NameValuePair(NamespaceUtility.getRenamingValueName(), rv));
-		
-		setLeftChild(node.getAction(), question);
-		
-		return new Pair<INode, Context>(node, rnContext);
+		return caseChannelRenaming(node, node.getRenameExpression(), node.getAction(), question);
 	}
 	
 	@Override
