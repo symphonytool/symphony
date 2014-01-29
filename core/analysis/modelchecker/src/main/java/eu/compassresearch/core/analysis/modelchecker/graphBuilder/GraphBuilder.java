@@ -123,6 +123,80 @@ public class GraphBuilder {
 		return result.toString();
 	}
 	
+	public String generateDotRachabilityGraph(StringBuilder input) throws IOException{
+		STATE_NUMBER = 1; //resets the state number
+		StringBuilder result = new StringBuilder();
+		LinkedList<Object> objects = this.loadLTSObjects(input);
+		GraphResult graph = new GraphResult();
+		graph = BFS(objects);
+		writeDotToBuffer(result, graph);
+		
+		return result.toString();
+	}
+	public GraphResult BFS(LinkedList<Object> objects){
+		GraphResult result = new GraphResult();
+		
+		//this removes all procdefs and givenproc from the list 
+		State initialState = this.getInitialState(objects);
+		initialState.setShape("doublecircle");
+		
+		LinkedList<Transition> transitions = this.filterTransitions(objects);
+		
+		ArrayDeque<State> toVisit = new ArrayDeque<State>();
+		LinkedList<State> visitedStates = new LinkedList<State>();
+		LinkedList<Transition> visitedTransitions = new LinkedList<Transition>(); 
+		
+		toVisit.addLast(initialState);
+		
+		while(toVisit.size() > 0 ){
+			//System.out.println("Initial size of to visit states: " + toVisit.size());
+			State current = toVisit.pollFirst();
+			current.setVisited(true);
+			current.setNumber(STATE_NUMBER++);
+			if(!visitedStates.contains(current)){
+				visitedStates.addLast(current);
+			}
+			//System.out.println("Size of visited states: " + visitedStates.size());
+			//visitedStates.add(current);
+			
+			LinkedList<Transition> transitionsFrom = this.getAllTransitionsFrom(transitions, current);
+			
+				//there are outgoing transitions. they can be tock transitions
+				for (Transition transition : transitionsFrom) {
+					transition.setSourceState(current);
+					State target = transition.getTargetState();
+					
+					if(!visitedStates.contains(target)){
+						if(!toVisit.contains(target)){
+							toVisit.addLast(target);
+						}
+					}
+					if(!visitedTransitions.contains(transition)){
+						visitedTransitions.add(transition);
+					}
+				
+				}
+			
+			//System.out.println("Final size of to visit states: " + toVisit.size());
+		}
+		
+		//singlePath contains the single path with numbered states. we separate states and transitions
+		LinkedList<State> pathStates = this.getSourceStates(visitedTransitions);
+		
+		LinkedList<State> targetStates = this.getTargetStates(visitedTransitions);
+		for (State state : targetStates) {
+			if(!pathStates.contains(state)){
+				pathStates.add(state);
+			}
+		}
+		
+		result.setStates(pathStates);
+		result.setTransitions(visitedTransitions);
+		
+		
+		return result;
+	}
+	
 	private void writeDotToBuffer(StringBuilder result, GraphResult graph) {
 		result.append( "digraph { \n ");
 		result.append( "rankdir=\"LR\";\n ");
@@ -865,7 +939,8 @@ public class GraphBuilder {
 		//String filePath = "/examples/phils-and-fork0.facts.txt";
 		//String filePath = "D:\\COMPASS\\compassresearch-code\\core\\analysis\\modelchecker\\src\\test\\resources\\timed-interrupt2.facts";
 		//String filePath = "D:\\COMPASS\\compassresearch-code\\core\\analysis\\modelchecker\\src\\test\\resources\\simpler-register.facts";
-		String filePath = "D:\\COMPASS\\compassresearch-code\\core\\analysis\\modelchecker\\src\\test\\resources\\BeoAVDeviceDiscovery-final-version-model-checker.facts";
+		//String filePath = "D:\\COMPASS\\compassresearch-code\\core\\analysis\\modelchecker\\src\\test\\resources\\BeoAVDeviceDiscovery-final-version-model-checker.facts";
+		String filePath = "D:\\COMPASS\\compassresearch-code\\core\\analysis\\modelchecker\\src\\test\\resources\\insiel.facts";
 		
 		//String filePath = "/examples/NDet2.facts.txt";
 		//String filePath = "/examples/Livelock2.facts.txt";
@@ -874,7 +949,8 @@ public class GraphBuilder {
 		//String filePath = "/examples/Livelock.facts.txt";
 		StringBuilder facts = Utilities.readScriptFromAbsoluteFile(filePath);
 		//eu.compassresearch.core.analysis.modelchecker.visitors.Utilities.readScriptFromFile(filePath);
-		String dotCode = gb.generateDot(facts,Utilities.DEADLOCK);
+		//String dotCode = gb.generateDot(facts,Utilities.DEADLOCK);
+		String dotCode = gb.generateDotRachabilityGraph(facts);
 		System.out.println(dotCode);
 	}
 	
