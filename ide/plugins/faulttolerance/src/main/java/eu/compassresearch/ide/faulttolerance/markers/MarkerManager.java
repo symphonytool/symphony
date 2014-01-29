@@ -24,6 +24,10 @@ public class MarkerManager {
 
 	public void faultToleranceVerificationsFinished(
 			FaultToleranceVerificationResults r) {
+		if (r.getDefinitionsMessage() != null) {
+			markerDefinitions(r);
+			return;
+		}
 		int cases = (r.isDivergenceFree() ? 1 : 0) | (r.isSemifair() ? 2 : 0)
 				| (r.isFullFaultTolerant() ? 4 : 0)
 				| (r.isLimitedFaultTolerant() ? 8 : 0);
@@ -58,6 +62,14 @@ public class MarkerManager {
 			markerFullFaultTolerant(r);
 			break;
 		}
+	}
+
+	private void markerDefinitions(FaultToleranceVerificationResults r) {
+		renewMarker(
+				IMarker.SEVERITY_ERROR,
+				Message.MISSING_DEFINITIONS.format(r.getProcessName(),
+						r.getDefinitionsMessage()), r.getProcessName(), null,
+				r.getResource(), r.getLocation());
 	}
 
 	private String getLimitExpression(FaultToleranceVerificationResults r) {

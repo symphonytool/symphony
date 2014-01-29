@@ -56,7 +56,6 @@ public class FaultToleranceVerificationHandler extends SelectProcessHandler {
 		results.setOutputContainer(su.getProject().getModelBuildPath()
 				.getOutput());
 		results.setCmlProject(su.getProject());
-		results.setCmlSourceUnit(su);
 
 		/*
 		 * InputDialog id = new InputDialog(shell,

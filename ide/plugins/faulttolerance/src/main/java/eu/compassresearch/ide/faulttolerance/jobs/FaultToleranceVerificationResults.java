@@ -16,7 +16,6 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.overture.ast.intf.lex.ILexLocation;
 
 import eu.compassresearch.ide.core.resources.ICmlProject;
-import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
 import eu.compassresearch.ide.faulttolerance.UnableToRunFaultToleranceVerificationException;
 
 /**
@@ -31,12 +30,11 @@ public class FaultToleranceVerificationResults {
 	private boolean fullFaultTolerant;
 	private boolean limitedFaultTolerant;
 	private boolean prerequisitesChecked;
-	private int verifications;
+	private String definitionsMessage;
 	private String processName;
 	private IResource resource;
 	private ILexLocation location;
 	private IContainer outputContainer;
-	private ICmlSourceUnit cmlSourceUnit;
 	private ICmlProject cmlProject;
 	private IFolder folder;
 
@@ -45,11 +43,9 @@ public class FaultToleranceVerificationResults {
 	private final List<Exception> otherExceptions;
 
 	private final ILock prerequisitesLock;
-	private final ILock verificationsLock;
 
 	public FaultToleranceVerificationResults() {
 		prerequisitesLock = Job.getJobManager().newLock();
-		verificationsLock = Job.getJobManager().newLock();
 		otherExceptions = new LinkedList<>();
 	}
 
@@ -122,7 +118,7 @@ public class FaultToleranceVerificationResults {
 	}
 
 	public boolean isPreRequisitesOk() {
-		return divergenceFree && semifair;
+		return divergenceFree && semifair && definitionsMessage == null;
 	}
 
 	public IResource getResource() {
@@ -141,19 +137,6 @@ public class FaultToleranceVerificationResults {
 		this.location = location;
 	}
 
-	public void incrementVerification() {
-		try {
-			verificationsLock.acquire();
-			verifications++;
-		} finally {
-			verificationsLock.release();
-		}
-	}
-
-	public boolean isAllVerificationsChecked(int maxVerifications) {
-		return verifications == maxVerifications;
-	}
-
 	public void setException(
 			UnableToRunFaultToleranceVerificationException exception) {
 		this.exception = exception;
@@ -165,14 +148,6 @@ public class FaultToleranceVerificationResults {
 
 	public void setOutputContainer(IContainer outputContainer) {
 		this.outputContainer = outputContainer;
-	}
-
-	public ICmlSourceUnit getCmlSourceUnit() {
-		return cmlSourceUnit;
-	}
-
-	public void setCmlSourceUnit(ICmlSourceUnit cmlSourceUnit) {
-		this.cmlSourceUnit = cmlSourceUnit;
 	}
 
 	public ICmlProject getCmlProject() {
@@ -234,4 +209,13 @@ public class FaultToleranceVerificationResults {
 		}
 		return null;
 	}
+
+	public String getDefinitionsMessage() {
+		return definitionsMessage;
+	}
+
+	public void setDefinitionsMessage(String definitionsMessage) {
+		this.definitionsMessage = definitionsMessage;
+	}
+
 }
