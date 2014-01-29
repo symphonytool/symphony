@@ -221,11 +221,10 @@ public class TPVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContext, ThmNodeL
 	 * @param thyFileName
 	 * @return
 	 */
-	public static String generatePogThyStr(List<INode> ast, IProofObligationList poList, String thyFileName) 
+	public static String generatePoStr(List<INode> ast, IProofObligation po) 
 	{
-		String pogErrors = "";
-		String pogString = "";
-		ThmTheoremList poThys = new ThmTheoremList();
+		String poOutput = "";
+		ThmTheorem poThy = null;
 		
 		//First, obtain all the state variable names so that the theorem expressions use the correct
 		//variable identifiers : $ or ^^
@@ -243,50 +242,32 @@ public class TPVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContext, ThmNodeL
 			}
 			catch (Exception e)
 			{
-				pogErrors = pogErrors + "(*Thy gen error:*)\n" + 
+				poOutput = "(*Thy gen error:*)\n" + 
 						"(*Could not generate Isabelle syntax for POs - please submit bug report with CML file*)\n\n";
 			}
 		}
 	
 		try {
-			//For each proof obligation, create a theorem
-			for (IProofObligation ipo : poList){
-				ProofObligation po = (ProofObligation) ipo;
 				//THIS BIT NEEDS MORE EFFORT!
 				AVdmPoTree poValTree = po.getValueTree();
 				PExp poExp = poValTree.getPredicate();
 				NodeNameList bvars = new NodeNameList();
 				String theoryBody = poExp.apply(new ThmStringVisitor(), new ThmVarsContext(svars, bvars));//ThmExprUtil.getIsabelleExprStr(svars, bvars, poExp);//"true";
-				poThys.add(new ThmTheorem("po" + po.getIsaName(), theoryBody, "by (cml_auto_tac)"));
-			}
-			pogString = poThys.toString();
+				poThy = new ThmTheorem("po" + po.getIsaName(), theoryBody, "by (cml_auto_tac)");
+				poOutput = poThy.toString();
 		}
 		catch (Exception e)
 		{
-			pogErrors = pogErrors + "(*Thy gen error:*)\n" + 
+			poOutput = "(*Thy gen error:*)\n" + 
 					"(*Could not generate Isabelle syntax for POs - please submit bug report with CML file*)\n\n";
 		}
 
-		//retrieve the file name without the .thy file extension
-		String thyName = thyFileName.substring(0, thyFileName.lastIndexOf('.'));
-		String poThyName = thyName+ "_PO";
-
-		StringBuilder sb = new StringBuilder();
-		//Add thy header 
-		sb.append("theory " + poThyName + " \n" + "  imports utp_cml " + thyName +"\n"
-				+ "begin \n" + "\n");
-		sb.append("text {* Auto-generated THY file for proof obligations generated for "+  thyName + ".cml *}\n\n");
-		
-		//Add any node errors
-		sb.append(pogErrors);
-		
-		//Add generated node strings
-		sb.append(pogString);
-			
-		sb.append("\n" + "end");
-		
-		return sb.toString();
+		return poOutput;
 	}
+
+	
+	//
+
 	
 	/*******
 	 * Method to sort a list of nodes into dependent-order
