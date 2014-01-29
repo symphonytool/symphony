@@ -814,22 +814,22 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 //		return "{" + firstString + " | " + bindstr.toString() + " @ " + predString + "}";
 //	}
 
-//	public String caseASeqEnumSeqExp(ASeqEnumSeqExp ex, ThmVarsContext vars) throws AnalysisException{
-//		
-//		StringBuilder sb = new StringBuilder();
-//		LinkedList<PExp> mem = ex.getMembers();
-//
-//		for (Iterator<PExp> itr = mem.listIterator(); itr.hasNext(); ) {
-//			PExp m = itr.next();
-//			sb.append(m.apply(thmStringVisitor, vars));
-//			//If there are remaining types, add a ","
-//			if(itr.hasNext()){	
-//				sb.append(", ");
-//			}
-//		}
-//		
-//		return "[" + sb.toString() +"]";
-//	}
+	public String caseASeqEnumSeqExp(ASeqEnumSeqExp ex, ThmVarsContext vars) throws AnalysisException{
+		
+		StringBuilder sb = new StringBuilder();
+		LinkedList<PExp> mem = ex.getMembers();
+
+		for (Iterator<PExp> itr = mem.listIterator(); itr.hasNext(); ) {
+			PExp m = itr.next();
+			sb.append(m.apply(thmStringVisitor, vars));
+			//If there are remaining types, add a ","
+			if(itr.hasNext()){	
+				sb.append(", ");
+			}
+		}
+		
+		return "[" + sb.toString() +"]";
+	}
 
 //	public String caseASetCompSetExp(ASetCompSetExp ex, ThmVarsContext vars) throws AnalysisException{
 //		StringBuilder bindstr = new StringBuilder();

@@ -938,15 +938,15 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 //		return nodeDeps;
 //	}
 	
-//	public NodeNameList caseASeqEnumSeqExp(ASeqEnumSeqExp ex, NodeNameList bvars) throws AnalysisException{
-//		NodeNameList nodeDeps = new NodeNameList();
-//		
-//		for (PExp m : ex.getMembers()){
-//			nodeDeps.addAll(m.apply(thmDepVisitor, bvars));	
-//		}
-//
-//		return nodeDeps;
-//	}
+	public NodeNameList caseASeqEnumSeqExp(ASeqEnumSeqExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+		
+		for (PExp m : ex.getMembers()){
+			nodeDeps.addAll(m.apply(thmDepVisitor, bvars));	
+		}
+
+		return nodeDeps;
+	}
 
 
 //	public NodeNameList caseAMapCompMapExp(AMapCompMapExp ex, NodeNameList bvars) throws AnalysisException{

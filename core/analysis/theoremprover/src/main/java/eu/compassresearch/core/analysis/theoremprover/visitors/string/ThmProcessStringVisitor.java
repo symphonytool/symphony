@@ -42,8 +42,6 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 	}
 	
 	/**
-	 * NEED TO GET VISITORS WORKING HERE MORE...
-	 * 
 	 * Return the ThmNode for a Action Process - this is more complex than most other
 	 * Node utils, due to the internal scoping etc required in a process
 	 * @param procName the process name
@@ -115,10 +113,10 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 			}
 			//hack a name for the initialisation op
 			LexNameToken initName = new LexNameToken("", "IsabelleStateInit", act.getLocation());
-			ThmNode stn = new ThmNode(initName, initExprNodeDeps, new ThmExplicitOperation(initName.getName(), new LinkedList<PPattern>(), null, null, initExpStr.toString(), null));
+			ThmNode stn = new ThmNode(initName, initExprNodeDeps, new ThmExplicitOperation(initName.getName(), new LinkedList<PPattern>(), null, null, initExpStr.toString(), null, null));
 			actTnl.add(stn);		
 			
-			mainActStateStr = " = `IsabelleStateInit; ";
+			mainActStateStr = " = ` call IsabelleStateInit[]; ";
 		}
 		
 		//sort the state, operation and actions, so that they are in dependency order

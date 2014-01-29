@@ -453,8 +453,8 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 		//Get the state variable name
 		ILexNameToken sName = node.getName();
 		//obtain the type of the state variable, and the type dependencies
-		String typeString = node.getType().apply(stringVisitor, new ThmVarsContext());//ThmTypeUtil.getIsabelleType(st.getType());
-		NodeNameList nodeDeps = node.getType().apply(depVisitor, new NodeNameList());//(ThmTypeUtil.getIsabelleTypeDeps(st.getType()));
+		String typeString = node.getType().apply(stringVisitor, new ThmVarsContext());
+		NodeNameList nodeDeps = node.getType().apply(depVisitor, new NodeNameList());
 
 		ThmNode stn = new ThmNode(sName, nodeDeps, new ThmState(sName.getName(), typeString));
 		tnl.add(stn);
@@ -481,41 +481,46 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 		LinkedList<APatternListTypePair> params = node.getParameterPatterns();			
 		//Deal with the parameters
 		//Find bound values to exclude from dependency list and add node dependencies
+		
+		LinkedList<String> paramTypes = new LinkedList<String>();
 		for(APatternListTypePair p : params)
 		{
 			for(PPattern pat : p.getPatterns())
 			{
 				vars.addBVar(((AIdentifierPattern) pat).getName());
 			}
-			nodeDeps.addAll(p.getType().apply(depVisitor, vars.getBVars()));//(ThmTypeUtil.getIsabelleTypeDeps(p.getType()));
+			paramTypes.add(p.getType().apply(stringVisitor, vars));
+			nodeDeps.addAll(p.getType().apply(depVisitor, vars.getBVars()));
 		}	
-		//Add return type(s) to dependancy list and list of bound values
+		//Add return type(s) to dependency list and list of bound values
 		APatternTypePair res = node.getResult();
 		String resType = null;
 		if (res != null)// && !(res.isEmpty()) && res.getFirst()!= null)
 		{
-			resType = res.getType().apply(stringVisitor, vars);//ThmTypeUtil.getIsabelleType(res.getFirst().getType());
+			resType = res.getType().apply(stringVisitor, vars);
 			vars.addBVar(((AIdentifierPattern) res.getPattern()).getName());
-			nodeDeps.addAll(res.getType().apply(depVisitor, vars.getBVars()));//ThmTypeUtil.getIsabelleTypeDeps(p.getType()));
+			nodeDeps.addAll(res.getType().apply(depVisitor, vars.getBVars()));
 		}	
+		
+		
 		
 		if (node.getPrecondition() != null)
 		{
-			pre = node.getPrecondition().apply(stringVisitor, vars);// ThmExprUtil.getIsabelleExprStr(svars, bvars, node.getPrecondition());
-			nodeDeps.addAll(node.getPrecondition().apply(depVisitor, vars.getBVars()));//(ThmExprUtil.getIsabelleExprDeps(bvars, node.getPrecondition()));
+			pre = node.getPrecondition().apply(stringVisitor, vars);
+			nodeDeps.addAll(node.getPrecondition().apply(depVisitor, vars.getBVars()));
 		}
 		if (node.getPostcondition() != null)
 		{
 			//Set the expression utility postcondition flag to true - so to generate primed variables
 			ThmExprUtil.setPostExpr(true);
 			stringVisitor.setPostExpr(true);
-			post = node.getPostcondition().apply(stringVisitor, vars); //ThmExprUtil.getIsabelleExprStr(svars, bvars, node.getPostcondition());
+			post = node.getPostcondition().apply(stringVisitor, vars); 
 			ThmExprUtil.setPostExpr(false);
 			stringVisitor.setPostExpr(false);
-			nodeDeps.addAll(node.getPostcondition().apply(depVisitor, vars.getBVars()));//(ThmExprUtil.getIsabelleExprDeps(bvars, node.getPostcondition()));
+			nodeDeps.addAll(node.getPostcondition().apply(depVisitor, vars.getBVars()));
 
 		}
-		tn = new ThmNode(node.getName(), nodeDeps, new ThmImplicitOperation(node.getName().getName(), params, pre, post, res, resType));
+		tn = new ThmNode(node.getName(), nodeDeps, new ThmImplicitOperation(node.getName().getName(), params, pre, post, res, paramTypes, resType));
 		
 		tnl.add(tn);
 		return tnl;
@@ -539,36 +544,43 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 		AOperationType opType = (AOperationType) node.getType();
 		for(PType pType : opType.getParameters())
 		{
-			nodeDeps.addAll(pType.apply(depVisitor, vars.getBVars()));//(ThmTypeUtil.getIsabelleTypeDeps(pType));
+			nodeDeps.addAll(pType.apply(depVisitor, vars.getBVars()));
 		}
 		//Add result type to dependency list
-		nodeDeps.addAll(opType.getResult().apply(depVisitor, vars.getBVars()));//(ThmTypeUtil.getIsabelleTypeDeps(opType.getResult()));
+		nodeDeps.addAll(opType.getResult().apply(depVisitor, vars.getBVars()));
 		
-		String body = node.getBody().apply(stringVisitor, vars);//ThmProcessUtil.getIsabelleActionString(exOp.getBody(), svars, bvars);
+		String body = node.getBody().apply(stringVisitor, vars);
 		String pre = null;
 		String post = null;
 		if (node.getPrecondition() != null)
 		{
-			pre = node.getPrecondition().apply(stringVisitor, vars);// ThmExprUtil.getIsabelleExprStr(svars, bvars, node.getPrecondition());
-			nodeDeps.addAll(node.getPrecondition().apply(depVisitor, vars.getBVars()));//(ThmExprUtil.getIsabelleExprDeps(bvars, node.getPrecondition()));
+			pre = node.getPrecondition().apply(stringVisitor, vars);
+			nodeDeps.addAll(node.getPrecondition().apply(depVisitor, vars.getBVars()));
 		}
 		if (node.getPostcondition() != null)
 		{
 			//Set the expression utility postcondition flag to true - so to generate primed variables
 			ThmExprUtil.setPostExpr(true);
 			stringVisitor.setPostExpr(true);
-			post = node.getPostcondition().apply(stringVisitor, vars); //ThmExprUtil.getIsabelleExprStr(svars, bvars, node.getPostcondition());
+			post = node.getPostcondition().apply(stringVisitor, vars); 
 			ThmExprUtil.setPostExpr(false);
 			stringVisitor.setPostExpr(false);
-			nodeDeps.addAll(node.getPostcondition().apply(depVisitor, vars.getBVars()));//(ThmExprUtil.getIsabelleExprDeps(bvars, node.getPostcondition()));
+			nodeDeps.addAll(node.getPostcondition().apply(depVisitor, vars.getBVars()));
 		}
-		String resType = null;
-		if(! (node.getActualResult() instanceof AVoidType))
+//		String resType = null;
+//		if(! (node.getActualResult() instanceof AVoidType))
+//		{
+//			resType = node.getActualResult().apply(stringVisitor, vars);//ThmTypeUtil.getIsabelleType(node.getActualResult());
+//		}
+
+		LinkedList<String> paramTypes = new LinkedList<String>();
+		for(PType p : ((AOperationType) node.getType()).getParameters())
 		{
-			resType = node.getActualResult().apply(stringVisitor, vars);//ThmTypeUtil.getIsabelleType(node.getActualResult());
+				paramTypes.add(p.apply(stringVisitor, vars));
 		}
+		String resType = ((AOperationType) node.getType()).getResult().apply(stringVisitor, vars);
 		
-		tn = new ThmNode(node.getName(), nodeDeps, new ThmExplicitOperation(node.getName().getName(), params, pre, post, body.toString(), resType));
+		tn = new ThmNode(node.getName(), nodeDeps, new ThmExplicitOperation(node.getName().getName(), params, pre, post, body.toString(), paramTypes, resType));
 		
 		tnl.add(tn);
 		return tnl;
