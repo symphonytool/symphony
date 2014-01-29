@@ -34,7 +34,7 @@ public class GenPosHandler extends AbstractHandler {
 			MessageDialog.openInformation(HandlerUtil
 					.getActiveWorkbenchWindow(event).getShell(),
 					"Symphony",
-					"Isabelle is not running.");
+					"Theorem Prover is not running.");
 			return null;
 		}
 

@@ -1,8 +1,8 @@
 package eu.compassresearch.ide.theoremprover;
 
-import isabelle.Document;
 import isabelle.Session;
 import isabelle.eclipse.core.IsabelleCore;
+import isabelle.eclipse.core.text.EditDocumentModel;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -27,11 +27,15 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IWorkbenchSite;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
+import org.eclipse.ui.editors.text.TextFileDocumentProvider;
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.node.INode;
 import org.overture.pog.obligation.ProofObligationList;
 import org.overture.pog.pub.IProofObligation;
 import org.overture.pog.pub.IProofObligationList;
@@ -43,6 +47,8 @@ import eu.compassresearch.ide.core.resources.ICmlModel;
 import eu.compassresearch.ide.core.resources.ICmlProject;
 import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
 import eu.compassresearch.ide.core.unsupported.UnsupportedElementInfo;
+import eu.compassresearch.ide.pog.PogPluginRunner;
+import eu.compassresearch.ide.pog.PogPluginUtils;
 import eu.compassresearch.ide.theoremprover.utils.TheoryLoader;
 import eu.compassresearch.ide.ui.utility.CmlProjectUtil;
 
@@ -257,6 +263,18 @@ public class TPPluginDoStuff {
 				});
 
 	}
+	
+	public void enqueuePO(IProofObligation ipo, IDocument document, List<INode> ast) throws BadLocationException, CoreException{
+		String isaPO = TPVisitor.generatePoStr(ast, ipo);
+		addLine(document, isaPO);
+	}
+	
+	private void addLine(IDocument doc, String line) throws BadLocationException{
+		 int offset = doc.getLineOffset(doc.getNumberOfLines()-1);
+		 doc.replace(offset, 0, line+"\n");
+	}
+	
+	
 
 	/*****
 	 * PLACEHOLDER FOR NOW - SHOULD TIE IN WITH COMMAND, FUNCTIONALITY NEEDS
@@ -300,7 +318,16 @@ public class TPPluginDoStuff {
 						badPol);
 				return;
 			}
-
+			
+			if (!badPol.isEmpty()) {popBadPol(
+					"PO generation and export incomplete.", "Some POs are currently not supported by the theorem prover.",
+					badPol);
+			return;
+			}
+			
+			// Start Proof Session
+			ProofSession ps = new ProofSession(null, cmlProj.getModel().getAst(), new TextFileDocumentProvider());
+			
 			// Create project folder (needs to be timestamped)
 			DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
 			// Get the date today using Calendar object.
@@ -354,26 +381,41 @@ public class TPPluginDoStuff {
 				IFile thyFile = pogFolder.getFile(thyFileName);
 				translateCmltoThy(model, thyFile, thyFileName);
 				
-			// we know we have a session because we checked for it outside
+				// we know we have a session because we checked for it outside
 				Session sess = IsabelleCore.isabelle().session().get();
 				
 				// submit the file to isabelle
-				String dirName = modelBk.getRawLocation().toOSString();
-				TheoryLoader.addTheory(fileName, dirName, sess, thyFile);
+				String dirName = modelBk.getLocationURI().toString();
+				String fullName = thyFile.getLocationURI().toString();
+				TheoryLoader.addTheory(fullName, fileName, dirName, sess, thyFile, ps.getThyProvider());
 
+				
 				// Create empty thy file which imports generated file
 				IFile pogThyFile = pogFolder.getFile(fileName + "_PO.thy");
-				createPogThy(model, pogThyFile, thyFileName, goodPol);
-			}
-			if (badPol.isEmpty()) {
-				MessageDialog.openInformation(null, "Symphony",
-						"PO generation and export complete.");
-			} else {
-				popBadPol(
-						"PO generation and export incomplete.", "Some POs are currently not supported by the theorem prover.",
-						badPol);
+				createPogThy(pogThyFile, generateHeader(thyFileName));
+				
+				String pogFullName = pogThyFile.getLocationURI().toString();
+			
+				
+				EditDocumentModel pogEDM = TheoryLoader.addTheory(pogFullName, fileName + "_PO" ,dirName, sess, pogThyFile, ps.getThyProvider());
+				
+				PogPluginRunner ppr = new PogPluginRunner(window, site, cmlProj);
+				ppr.runPog();
+				
+				
+				// persist POFile 
+				ps.setPoEDM(pogEDM);
+				
 
+				cmlProj.getModel().setAttribute(TPConstants.PROOF_SESSION_ID, ps);
+				
+				
+				
 			}
+	
+				MessageDialog.openInformation(null, "Symphony",
+						"POs generated and ready for discharge.");
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			popErrorMessage(e.getMessage());
@@ -381,6 +423,23 @@ public class TPPluginDoStuff {
 		}
 	}
 
+	public String generateHeader(String thyFileName) {
+		//retrieve the file name without the .thy file extension
+		String thyName = thyFileName.substring(0, thyFileName.lastIndexOf('.'));
+		String poThyName = thyName+ "_PO";
+
+		StringBuilder sb = new StringBuilder();
+		//Add thy header 
+		sb.append("theory " + poThyName + " \n" + "  imports utp_cml " + thyName +"\n"
+				+ "begin \n" + "\n");
+		sb.append("text {* Auto-generated THY file for proof obligations generated for "+  thyName + ".cml *}\n\n");
+		
+		sb.append("\n" + "end");
+		return sb.toString();
+	}
+	
+	
+	
 private 	void popBadPol(String msg, String reason, IProofObligationList badPol) {
 		MultiStatus bads = new MultiStatus(TPConstants.PLUGIN_ID, 1, reason,null);
 		for (IProofObligation po : badPol) {
@@ -407,17 +466,15 @@ private 	void popBadPol(String msg, String reason, IProofObligationList badPol) 
 	 * @param pol
 	 * @return
 	 */
-	private IFile createPogThy(ICmlModel model, IFile pogThyFile,
-			String thyFileName, IProofObligationList pol) {
+	private IFile createPogThy(IFile pogThyFile,
+			String header) {
 
-		// Get the thy string for a given model and it's proof obligations
-		String thmString = TPVisitor.generatePogThyStr(model.getAst(), pol,
-				thyFileName);
+
 
 		// create the file
 		try {
 			pogThyFile.delete(true, null);
-			pogThyFile.create(new ByteArrayInputStream(thmString.toString()
+			pogThyFile.create(new ByteArrayInputStream(header
 					.getBytes()), true, new NullProgressMonitor());
 		} catch (CoreException e) {
 			CmlTPPlugin.log(e);
