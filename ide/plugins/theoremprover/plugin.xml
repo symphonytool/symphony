@@ -32,6 +32,13 @@
                optional="false">
          </commandParameter>
    </command>
+   
+   <command
+         defaultHandler="eu.compassresearch.ide.theoremprover.commands.EnqPoHandler"
+         id="eu.compassresearch.ide.theoremprover.enqueuepo"
+         name="Discharge PO">
+   </command>
+   
    <command
           defaultHandler="eu.compassresearch.ide.theoremprover.commands.LaunchIsabelleHandler"
           id="eu.compassresearch.ide.theoremprover.isabellelaunchcommand"
@@ -76,6 +83,16 @@
       		</command>
       	</menu>
    </menuContribution>
+   
+      <menuContribution
+         locationURI="popup:eu.compassresearch.ide.pog.POsTable">
+           <command
+           		commandId="eu.compassresearch.ide.theoremprover.enqueuepo"
+            	label="Submit PO to Isabelle for discharging"
+           		style="push">
+      		</command>
+   </menuContribution>
+   
    
    <menuContribution
          allPopups="false"

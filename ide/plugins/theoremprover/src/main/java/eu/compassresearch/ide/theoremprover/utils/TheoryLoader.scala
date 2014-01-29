@@ -13,27 +13,36 @@ import org.eclipse.ui.texteditor.AbstractTextEditor
 import org.eclipse.ui.PlatformUI
 import org.eclipse.ui.editors.text.TextFileDocumentProvider
 import org.eclipse.core.resources.IFile
+import org.eclipse.core.runtime.NullProgressMonitor
 
 object TheoryLoader {
 
   // Add a new theory and link it an appropriate IDocument
-  def addTheory(name: String, dir: String, session: Session, file: IFile) {
+  def addTheory(fullName: String, name: String, dir: String, session: Session, file: IFile, thyProvider : IDocumentProvider) : EditDocumentModel = {
 
-    val node = Document.Node.Name(name, dir, name)
+    val node = Document.Node.Name(fullName, dir, name)
     
-    val provider = new TextFileDocumentProvider();
-    provider.connect(file); // file is of IFile
-    val document = provider.getDocument(file);
+    thyProvider.connect(file); // file is of IFile
+    val document = thyProvider.getDocument(file);
    
     val model = new EditDocumentModel(session, document, node)
     
-     model.init()
+    model.init()
      // dispose immediately after initialisation
-     model.dispose()
+    model.submitFullPerspective(new NullProgressMonitor());
+//    model.dispose()
     
-     provider.disconnect(file);
+   // provider.disconnect(file)
+    
+    model
 
   }
+  
+
+  def addReadOnlyTheory(){}
+  
+  
+  
   
   
 
