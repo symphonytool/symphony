@@ -11,6 +11,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.ui.editors.text.TextFileDocumentProvider;
+import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.overture.ast.node.INode;
 import org.overture.pog.pub.IProofObligation;
 
@@ -20,7 +21,7 @@ public class ProofSession {
 	
 	
 	public ProofSession(EditDocumentModel poEDM, List<INode> ast,
-			TextFileDocumentProvider thyProvider, Session sess) {
+			IDocumentProvider thyProvider, Session sess) {
 		super();
 		this.poEDM = poEDM;
 		this.ast = ast;
@@ -31,11 +32,11 @@ public class ProofSession {
 
 	EditDocumentModel poEDM;
 	List<INode> ast;
-	TextFileDocumentProvider thyProvider;
+	IDocumentProvider thyProvider;
 	TPListener tpListener;
 	Map<Integer, IProofObligation> mapping;
 	
-	public TextFileDocumentProvider getThyProvider() {
+	public IDocumentProvider getThyProvider() {
 		return thyProvider;
 	}
 	public void setThyProvider(TextFileDocumentProvider thyProvider) {
