@@ -30,10 +30,15 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.ui.IEditorDescriptor;
 import org.eclipse.ui.IWorkbenchSite;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.WorkbenchException;
 import org.eclipse.ui.editors.text.TextFileDocumentProvider;
+import org.eclipse.ui.handlers.HandlerUtil;
+import org.eclipse.ui.part.FileEditorInput;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.node.INode;
 import org.overture.pog.obligation.ProofObligationList;
@@ -171,6 +176,181 @@ public class TPPluginDoStuff {
 			popErrorMessage(e.getMessage());
 		}
 	}
+	
+	public void dischargeClassic(ICmlProject cmlProj) {
+		try {
+			// Check there are no type errors.
+			if (!CmlProjectUtil.typeCheck(this.window.getShell(), cmlProj)) {
+				popErrorMessage("Can not produce theory file for theorem Proving. \n There are type errors in model.");
+				return;
+			}
+			// Grab the model from the project
+			final ICmlModel model = cmlProj.getModel();
+
+			IProofObligationList pol = PogPubUtil
+					.generateProofObligations(model.getAst());
+			if (pol.isEmpty()) {
+				popErrorMessage("There are no Proof Oligations to discharge.");
+				return;
+			}
+
+			// Check is PO elements are supported
+			IProofObligationList goodPol = new ProofObligationList();
+			IProofObligationList badPol = new ProofObligationList();
+			for (IProofObligation po : pol) {
+				TPUnsupportedCollector tpu = new TPUnsupportedCollector();
+				// check if the po is supported
+				List<UnsupportedElementInfo> unsupports = tpu
+						.getUnsupporteds(po.getValueTree().getPredicate());
+				if (unsupports.isEmpty()) {
+					goodPol.add(po);
+				} else {
+					badPol.add(po);
+				}
+			}
+
+			if (goodPol.isEmpty()) {
+				popBadPol(
+						"PO generation and export failed.", "None of the Proof Obligations are currently supported by the theorem prover",
+						badPol);
+				return;
+			}
+
+			// Create project folder (needs to be timestamped)
+			DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
+			// Get the date today using Calendar object.
+			Date today = Calendar.getInstance().getTime();
+			// Using DateFormat format method we can create a string
+			// representation of a date with the defined format.
+			String date = df.format(today);
+
+			IFolder pogFolder = cmlProj.getModelBuildPath().getOutput()
+					.getFolder(new Path("POG/" + date));
+			IFolder modelBk = pogFolder.getFolder("model");
+			if (!pogFolder.exists()) {
+				// if generated folder doesn't exist
+				if (!pogFolder.getParent().getParent().exists()) {
+					// create 'generated' folder
+					((IFolder) pogFolder.getParent().getParent()).create(true,
+							true, new NullProgressMonitor());
+					// create 'POG' folder
+					((IFolder) pogFolder.getParent()).create(true, true,
+							new NullProgressMonitor());
+
+				}
+				// if 'generated' folder does exist and POG folder doesn't exist
+				else if (!pogFolder.getParent().exists()) {
+
+					((IFolder) pogFolder.getParent()).create(true, true,
+							new NullProgressMonitor());
+
+				}
+				// Create timestamped folder
+				pogFolder.create(true, true, new NullProgressMonitor());
+				pogFolder.refreshLocal(IResource.DEPTH_ZERO,
+						new NullProgressMonitor());
+
+				// Create model backup folder
+				modelBk.create(true, true, new NullProgressMonitor());
+				modelBk.refreshLocal(IResource.DEPTH_ZERO,
+						new NullProgressMonitor());
+			}
+			// Save the original model to the Isabelle folder for reference
+			cmlProj.getModel().backup(modelBk);
+
+			IFile lastPogThy=null;
+			
+			for (ICmlSourceUnit sourceUnit : model.getSourceUnits()) {
+				// create a generated thy file for the model
+				String name = sourceUnit.getFile().getName();
+				String fileName = name.substring(0,
+						name.length()
+								- (sourceUnit.getFile().getFileExtension()
+										.length() + 1));
+				String thyFileName = fileName + ".thy";
+				IFile thyFile = pogFolder.getFile(thyFileName);
+				translateCmltoThy(model, thyFile, thyFileName);
+
+				// Create empty thy file which imports generated file
+				IFile pogThyFile = pogFolder.getFile(fileName + "_PO.thy");
+				createPogThyClassic(model, pogThyFile, thyFileName, goodPol);
+				lastPogThy = pogThyFile;
+			}
+			
+			if (badPol.isEmpty()) {
+				MessageDialog.openInformation(null, "Symphony",
+						"PO generation and export complete.");
+				
+				// open Isabelle perspective and file
+				try {
+					PlatformUI.getWorkbench().showPerspective(
+							TPConstants.ISABELLE_PERSPECTIVE_ID, site.getWorkbenchWindow());
+					if (lastPogThy !=null){
+						IEditorDescriptor desc = PlatformUI.getWorkbench().
+						        getEditorRegistry().getDefaultEditor(lastPogThy.getName());
+						site.getPage().openEditor(new FileEditorInput(lastPogThy), desc.getId());
+					}
+	
+				} catch (WorkbenchException e) {
+
+					e.printStackTrace();
+				}
+				
+				
+			} else {
+				popBadPol(
+						"PO generation and export incomplete.", "Some POs are currently not supported by the theorem prover.",
+						badPol);
+
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			popErrorMessage(e.getMessage());
+			CmlTPPlugin.log(e);
+		}
+	}
+	
+	/****
+	 * Method to create a new THY file for a model's proof obligations.
+	 * 
+	 * @param model
+	 * @param pogThyFile
+	 * @param thyFileName
+	 * @param pol
+	 * @return
+	 */
+	private IFile createPogThyClassic(ICmlModel model, IFile pogThyFile,
+			String thyFileName, IProofObligationList pol) {
+
+		// Get the thy string for a given model and it's proof obligations
+		StringBuilder sb = new StringBuilder();
+		
+		
+		sb.append(this.generateThyHeader(thyFileName));
+		
+		String postring;
+		
+		for (IProofObligation ipo : pol){
+			postring = TPVisitor.generatePoStr(model.getAst(), ipo);
+			sb.append(postring+"\n\n");
+		}
+		
+		
+		sb.append(generateThyFooter());
+
+		// create the file
+		try {
+			pogThyFile.delete(true, null);
+			pogThyFile.create(new ByteArrayInputStream(sb.toString()
+					.getBytes()), true, new NullProgressMonitor());
+		} catch (CoreException e) {
+			CmlTPPlugin.log(e);
+		}
+
+		return pogThyFile;
+	}
+
+
 
 	private boolean checkUnsupporteds(IProject proj) throws AnalysisException {
 
@@ -280,7 +460,7 @@ public class TPPluginDoStuff {
 	 * PLACEHOLDER FOR NOW - SHOULD TIE IN WITH COMMAND, FUNCTIONALITY NEEDS
 	 * INTERTWINING WITH TP STUFF BETTER, TOO.
 	 */
-	public void generatePOs(ICmlProject cmlProj) {
+	public void genPOsDev(ICmlProject cmlProj) {
 		try {
 			// Check there are no type errors.
 			if (!CmlProjectUtil.typeCheck(this.window.getShell(), cmlProj)) {
@@ -325,8 +505,11 @@ public class TPPluginDoStuff {
 			return;
 			}
 			
+			// we know we have a session because we checked for it outside
+			Session sess = IsabelleCore.isabelle().session().get();
+			
 			// Start Proof Session
-			ProofSession ps = new ProofSession(null, cmlProj.getModel().getAst(), new TextFileDocumentProvider());
+			ProofSession ps = new ProofSession(null, cmlProj.getModel().getAst(), new TextFileDocumentProvider(), sess);
 			
 			// Create project folder (needs to be timestamped)
 			DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
@@ -381,9 +564,6 @@ public class TPPluginDoStuff {
 				IFile thyFile = pogFolder.getFile(thyFileName);
 				translateCmltoThy(model, thyFile, thyFileName);
 				
-				// we know we have a session because we checked for it outside
-				Session sess = IsabelleCore.isabelle().session().get();
-				
 				// submit the file to isabelle
 				String dirName = modelBk.getLocationURI().toString();
 				String fullName = thyFile.getLocationURI().toString();
@@ -392,7 +572,7 @@ public class TPPluginDoStuff {
 				
 				// Create empty thy file which imports generated file
 				IFile pogThyFile = pogFolder.getFile(fileName + "_PO.thy");
-				createPogThy(pogThyFile, generateHeader(thyFileName));
+				createPogThy(pogThyFile, generateEmptyThy(thyFileName));
 				
 				String pogFullName = pogThyFile.getLocationURI().toString();
 			
@@ -423,7 +603,7 @@ public class TPPluginDoStuff {
 		}
 	}
 
-	public String generateHeader(String thyFileName) {
+	private String generateThyHeader(String thyFileName) {
 		//retrieve the file name without the .thy file extension
 		String thyName = thyFileName.substring(0, thyFileName.lastIndexOf('.'));
 		String poThyName = thyName+ "_PO";
@@ -434,7 +614,17 @@ public class TPPluginDoStuff {
 				+ "begin \n" + "\n");
 		sb.append("text {* Auto-generated THY file for proof obligations generated for "+  thyName + ".cml *}\n\n");
 		
-		sb.append("\n" + "end");
+		return sb.toString();
+	}
+	
+	private String generateThyFooter(){
+		return "\n" + "end";
+	}
+	
+	public String generateEmptyThy(String thyFileName) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(this.generateThyHeader(thyFileName));	
+		sb.append(this.generateThyFooter());
 		return sb.toString();
 	}
 	
