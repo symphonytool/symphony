@@ -1,16 +1,12 @@
 package eu.compassresearch.core.analysis.theoremprover.thms;
 
-import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
-
 import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.patterns.APatternListTypePair;
 import org.overture.ast.patterns.APatternTypePair;
 import org.overture.ast.patterns.PPattern;
 
 import eu.compassresearch.core.analysis.theoremprover.utils.ThmProcessUtil;
-import eu.compassresearch.core.analysis.theoremprover.utils.ThmTypeUtil;
 
 public class ThmImplicitOperation extends ThmDecl{
 	
@@ -18,8 +14,6 @@ public class ThmImplicitOperation extends ThmDecl{
 	private String pre;
 	private String post;
 	private LinkedList<APatternListTypePair> params;
-	private String preParamList;
-	private String postParamList;
 	private APatternTypePair result;
 	private String resType;
 	private Object paramTypes;
@@ -30,7 +24,7 @@ public class ThmImplicitOperation extends ThmDecl{
 	
 	public ThmImplicitOperation(String name, LinkedList<APatternListTypePair> params, String pre, String post, APatternTypePair res, LinkedList<String> paramT,String resType) {
 		this.name = name;
-		this.params = params;//getParams(params);
+		this.params = params;
 		this.paramTypes = genParamTypeList(paramT);
 		this.result = res;
 		//generate function for precondition
@@ -39,11 +33,6 @@ public class ThmImplicitOperation extends ThmDecl{
 		this.pre = genPre(pre);
 		this.post = genPost(post);
 		
-
-//		this.preParamList = getPrePostParamList(params, null); //supply null as precond shouldn't use result
-//		this.postParamList = getPrePostParamList(params, res);
-//		this.pre = createPrePostFunc(pre, "pre", params);
-//		this.post = createPrePostFunc(post, "post", params);
 		this.resType = resType;
 	}
 	
@@ -136,15 +125,13 @@ public class ThmImplicitOperation extends ThmDecl{
 	
 		res.append(post + "\n\n");
 		
-		res.append(ThmProcessUtil.isaOp + " \"" + name + " = CMPOpO " + 
+		res.append(ThmProcessUtil.isaOp + " \"" + name + " = CMLOpO " + 
 				ThmProcessUtil.opParamLeft + paramTypes + ThmProcessUtil.opParamRight + " " + 
 				ThmProcessUtil.opParamLeft + resType + ThmProcessUtil.opParamRight + " " + 
 				"pre_" + name + " " + 
-				"post_" + name + "\n" + 
+				"post_" + name + "\"\n" + 
 				tactic(name, operation));
 		
 		return res.toString();
 	}
-	
-	
 }

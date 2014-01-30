@@ -56,7 +56,7 @@ public class TPPluginDoStuff {
 	private IWorkbenchWindow window;
 	private IWorkbenchSite site;
 
-	public static final String UNSUPPORTED_ELEMENTS_MSG = "This model contains unsupported CML elements. Check the warnings for more information.";
+	public static final String UNSUPPORTED_ELEMENTS_MSG = "This model contains unsupported CML elements. Theorem proving will continue, however errors may occur in the resultant theory file. Check the warnings for more information.";
 	public static final String ISABELLE_KEYWORDS_MSG = "This model contains Isabelle reserved words. Check the warnings for more information.";
 
 	/**
@@ -189,7 +189,7 @@ public class TPPluginDoStuff {
 			return false;
 		} else {
 			cmlProj.addUnsupportedMarkers(uns);
-			MessageDialog.openError(null, "COMPASS", UNSUPPORTED_ELEMENTS_MSG);
+			MessageDialog.openInformation(null, "COMPASS", UNSUPPORTED_ELEMENTS_MSG);
 			return true;
 		}
 	}

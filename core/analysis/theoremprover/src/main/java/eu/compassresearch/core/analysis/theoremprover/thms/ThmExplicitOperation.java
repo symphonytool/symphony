@@ -134,12 +134,12 @@ public class ThmExplicitOperation extends ThmDecl{
 		
 		res.append(body + "\n\n");
 		
-		res.append(ThmProcessUtil.isaOp + " \"" + name + " = CMPOpO " + 
+		res.append(ThmProcessUtil.isaOp + " \"" + name + " = CMLOpO " + 
 				ThmProcessUtil.opParamLeft + paramTypes + ThmProcessUtil.opParamRight + " " + 
 				ThmProcessUtil.opParamLeft + resType + ThmProcessUtil.opParamRight + " " + 
 				"pre_" + name + " " + 
 				"post_" + name + " " + 
-				"body_" + name + "\n" + 
+				"body_" + name + "\"\n" + 
 				tactic(name, operation));
 		
 		return res.toString();
