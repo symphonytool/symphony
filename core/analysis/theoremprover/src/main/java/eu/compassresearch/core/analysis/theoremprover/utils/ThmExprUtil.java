@@ -50,7 +50,7 @@ public class ThmExprUtil {
 	public static String unaryPlus = "+ ";
  
 	public static String notHandled = "(*expr not yet handled*)";
-	public static String isaUndefined = "undefined";
+	public static String isaUndefined = "undef";
 	public static String isaDown = "\\<down>";
 	
 	public static boolean isPost = false;
