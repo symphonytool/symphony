@@ -1,6 +1,7 @@
 package eu.compassresearch.core.interpreter;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.statements.AForAllStm;
 import org.overture.ast.statements.AForIndexStm;
@@ -352,8 +353,24 @@ class ActionSetupVisitor extends CommonSetupVisitor
 	public Pair<INode, Context> caseAForIndexStm(AForIndexStm node,
 			Context question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
-		return super.caseAForIndexStm(node, question);
+		Context forIndexContext = CmlContextFactory.newContext(node.getLocation(), "For index context", question);
+		Value idValue = node.getFrom().apply(this.cmlExpressionVisitor,question);
+		forIndexContext.putNew(new NameValuePair(node.getVar(),idValue));
+		
+		Value byValue = null;
+		if(node.getBy() != null)
+			byValue = node.getBy().apply(this.cmlExpressionVisitor,question);
+		else
+			byValue = new IntegerValue(1);
+		forIndexContext.putNew(new NameValuePair(NamespaceUtility.getForIndexByName(),byValue));
+		
+		Value toValue = node.getTo().apply(this.cmlExpressionVisitor,question);
+		forIndexContext.putNew(new NameValuePair(NamespaceUtility.getForIndexToName(),toValue));
+		
+		//put action to execute in the left child
+		setLeftChild(node.getStatement(), forIndexContext);
+		
+		return new Pair<INode, Context>(node, forIndexContext);
 	}
 	
 	@Override
