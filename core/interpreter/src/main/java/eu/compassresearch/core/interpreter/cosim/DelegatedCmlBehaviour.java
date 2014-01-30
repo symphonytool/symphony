@@ -1,6 +1,7 @@
 package eu.compassresearch.core.interpreter.cosim;
 
 import java.lang.reflect.Field;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -11,6 +12,7 @@ import org.overture.ast.node.INode;
 import org.overture.ast.node.Node;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ValueException;
+import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorFactory;
@@ -20,10 +22,15 @@ import eu.compassresearch.core.interpreter.api.behaviour.CmlTrace;
 import eu.compassresearch.core.interpreter.api.events.CmlBehaviorStateObserver;
 import eu.compassresearch.core.interpreter.api.events.EventSource;
 import eu.compassresearch.core.interpreter.api.events.TraceObserver;
+import eu.compassresearch.core.interpreter.api.transitions.AbstractLabelledTransition;
 import eu.compassresearch.core.interpreter.api.transitions.AbstractSilentTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.transitions.TimedTransition;
+import eu.compassresearch.core.interpreter.api.values.CMLChannelValue;
+import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
+import eu.compassresearch.core.interpreter.api.values.NoConstraint;
+import eu.compassresearch.core.interpreter.api.values.ValueConstraint;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
 /**
@@ -97,6 +104,8 @@ public class DelegatedCmlBehaviour implements CmlBehaviour
 			for (CmlTransition t : transitions.getAllEvents())
 			{
 				setEventSources(t, this);
+
+				typeSetChannelValue(t);
 			}
 
 			return transitions;
@@ -104,6 +113,81 @@ public class DelegatedCmlBehaviour implements CmlBehaviour
 		{
 			throw new InterpreterRuntimeException("Failed to invoke inspect on delegate", e);
 		}
+	}
+
+	private void typeSetChannelValue(CmlTransition t)
+	{
+		if (t instanceof AbstractLabelledTransition)
+		{
+			ChannelNameValue channelNameValue = ((AbstractLabelledTransition) t).getChannelName();
+			
+			updateConstraints(channelNameValue);
+			
+			Value channel = next.second.lookup(channelNameValue.getChannel().name);
+			if(channel instanceof CMLChannelValue)
+			{
+				Field channelField = null;
+
+				List<Field> fields = Node.getAllFields(new Vector<Field>(), channelNameValue.getClass());
+				for (Field field : fields)
+				{
+					if (field.getName().equals("channel"))
+					{
+						field.setAccessible(true);
+						channelField = field;
+						break;
+					}
+				}
+
+				try
+				{
+					channelField.set(channelNameValue,(CMLChannelValue) channel);
+				} catch (IllegalArgumentException | IllegalAccessException e)
+				{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
+	private void updateConstraints(ChannelNameValue channelNameValue)
+	{
+		Field channelField = null;
+
+		List<Field> fields = Node.getAllFields(new Vector<Field>(), channelNameValue.getClass());
+		for (Field field : fields)
+		{
+			if (field.getName().equals("constraints"))
+			{
+				field.setAccessible(true);
+				channelField = field;
+				break;
+			}
+		}
+
+		try
+		{
+			@SuppressWarnings("unchecked")
+			List<ValueConstraint> constraints=	(List<ValueConstraint>) channelField.get(channelNameValue);
+			
+			if(constraints==null)
+			{
+				
+				constraints = new LinkedList<ValueConstraint>();
+				for (int i = 0; i < channelNameValue.getValues().size(); i++)
+				{
+					constraints.add(new NoConstraint());
+				}
+			}
+			
+			channelField.set(channelNameValue,constraints);
+		} catch (IllegalArgumentException | IllegalAccessException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 
 	public static void setEventSources(CmlTransition t,

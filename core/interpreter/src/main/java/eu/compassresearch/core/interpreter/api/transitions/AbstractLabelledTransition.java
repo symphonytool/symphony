@@ -11,7 +11,7 @@ import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
  * 
  * @author akm
  */
-abstract class AbstractLabelledTransition extends AbstractCmlTransition
+public abstract class AbstractLabelledTransition extends AbstractCmlTransition
 		implements LabelledTransition
 {
 
