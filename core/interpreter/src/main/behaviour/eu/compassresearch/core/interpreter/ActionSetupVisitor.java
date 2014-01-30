@@ -3,6 +3,7 @@ package eu.compassresearch.core.interpreter;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.node.INode;
 import org.overture.ast.statements.AForAllStm;
+import org.overture.ast.statements.AForIndexStm;
 import org.overture.ast.statements.AForPatternBindStm;
 import org.overture.interpreter.assistant.pattern.PPatternAssistantInterpreter;
 import org.overture.interpreter.runtime.Context;
@@ -345,6 +346,14 @@ class ActionSetupVisitor extends CommonSetupVisitor
 			throws AnalysisException
 	{
 		return caseChannelRenaming(node, node.getRenameExpression(), node.getAction(), question);
+	}
+	
+	@Override
+	public Pair<INode, Context> caseAForIndexStm(AForIndexStm node,
+			Context question) throws AnalysisException
+	{
+		// TODO Auto-generated method stub
+		return super.caseAForIndexStm(node, question);
 	}
 	
 	@Override

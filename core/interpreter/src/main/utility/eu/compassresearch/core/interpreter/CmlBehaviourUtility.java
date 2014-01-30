@@ -88,7 +88,7 @@ class CmlBehaviourUtility
 			}
 			else if(srcVal instanceof ObjectValue)
 			{
-				replaceObjectMembers((ObjectValue)srcVal,(ObjectValue)dstObj.getMemberValues().get(srcEntry.getKey()), dstContext);
+				replaceObjectMembers((ObjectValue)srcVal,(ObjectValue)dstObj.getMemberValues().get(srcEntry.getKey()).deref(), dstContext);
 			}
 		}
 	}

@@ -16,6 +16,7 @@ import org.overture.ast.statements.ACaseAlternativeStm;
 import org.overture.ast.statements.ACasesStm;
 import org.overture.ast.statements.AElseIfStm;
 import org.overture.ast.statements.AForAllStm;
+import org.overture.ast.statements.AForIndexStm;
 import org.overture.ast.statements.AForPatternBindStm;
 import org.overture.ast.statements.AIfStm;
 import org.overture.ast.statements.ALetStm;
@@ -469,6 +470,14 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 			// now this process evolves into Skip
 			return new Pair<INode, Context>(skipNode, question);
 		}
+	}
+	
+	@Override
+	public Inspection caseAForIndexStm(AForIndexStm node, Context question)
+			throws AnalysisException
+	{
+		
+		return super.caseAForIndexStm(node, question);
 	}
 	
 	@Override
