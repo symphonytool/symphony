@@ -2300,8 +2300,8 @@ implicitFunctionDefinitionTail returns[AImplicitFunctionDefinition tail]
                List<PPattern> patterns = new LinkedList<PPattern>();
                AVariableExp varExp = (AVariableExp)exp.getLeft();
                patterns.add(AstFactory.newAIdentifierPattern(varExp.getName().clone()));
-               ASetMultipleBind bind = AstFactory.newASetMultipleBind(patterns, exp.getRight().clone());
-               body = AstFactory.newALetBeStExp(exp.getLocation(), bind, null, exp.getLeft().clone());
+               //ASetMultipleBind bind = AstFactory.newASetMultipleBind(patterns, exp.getRight().clone());
+               //body = AstFactory.newALetBeStExp(exp.getLocation(), bind, null, exp.getLeft().clone());
             }
 
 
