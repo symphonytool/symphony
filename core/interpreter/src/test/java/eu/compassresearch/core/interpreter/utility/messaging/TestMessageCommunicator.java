@@ -38,7 +38,8 @@ import eu.compassresearch.core.interpreter.api.transitions.ObservableTransition;
 import eu.compassresearch.core.interpreter.api.transitions.TimedTransition;
 import eu.compassresearch.core.interpreter.debug.CmlDbgStatusMessage;
 import eu.compassresearch.core.interpreter.debug.CmlInterpreterStateDTO;
-import eu.compassresearch.core.interpreter.debug.messaging.Message;
+import eu.compassresearch.core.interpreter.debug.messaging.AbstractMessage;
+import eu.compassresearch.core.interpreter.debug.messaging.JsonMessage;
 import eu.compassresearch.core.interpreter.debug.messaging.MessageCommunicator;
 import eu.compassresearch.core.interpreter.debug.messaging.MessageContainer;
 import eu.compassresearch.core.interpreter.utility.Pair;
@@ -64,7 +65,7 @@ public class TestMessageCommunicator
 		ByteArrayOutputStream outStream = new ByteArrayOutputStream();
 
 		// MessageContainer message = new MessageContainer(new CmlDbgStatusMessage(CmlDbgpStatus.STARTING));
-		Message sentMessage = new CmlDbgStatusMessage(new CmlInterpreterStateDTO(null, CmlInterpreterState.INITIALIZED));
+		AbstractMessage sentMessage = new CmlDbgStatusMessage(new CmlInterpreterStateDTO(null, CmlInterpreterState.INITIALIZED));
 		MessageCommunicator.sendMessage(outStream, sentMessage);
 
 		// ObjectMapper mapper = new ObjectMapper();
@@ -81,7 +82,7 @@ public class TestMessageCommunicator
 		BufferedReader reader = new BufferedReader(new InputStreamReader(in));
 		MessageContainer messageContainter = MessageCommunicator.receiveMessage(reader, new MessageContainer(new CmlDbgStatusMessage(CmlInterpreterState.TERMINATED_BY_USER)));
 
-		Message recvMessage = messageContainter.getMessage();
+		JsonMessage recvMessage = messageContainter.getMessage();
 
 		// MessageContainer msg2 = mapper.readValue(in, MessageContainer.class);
 
@@ -345,7 +346,7 @@ public class TestMessageCommunicator
 				return 0;
 			}
 		}, CmlInterpreterState.FINISHED);
-		Message sentMessage = new CmlDbgStatusMessage(status);
+		AbstractMessage sentMessage = new CmlDbgStatusMessage(status);
 		MessageCommunicator.sendMessage(outStream, sentMessage);
 
 		// ObjectMapper mapper = new ObjectMapper();
@@ -362,7 +363,7 @@ public class TestMessageCommunicator
 		BufferedReader reader = new BufferedReader(new InputStreamReader(in));
 		MessageContainer messageContainter = MessageCommunicator.receiveMessage(reader, new MessageContainer(new CmlDbgStatusMessage(CmlInterpreterState.TERMINATED_BY_USER)));
 
-		Message recvMessage = messageContainter.getMessage();
+		JsonMessage recvMessage = messageContainter.getMessage();
 
 		// Assert.assertEquals(sentMessage., recvMessage);
 

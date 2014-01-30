@@ -30,7 +30,7 @@ import eu.compassresearch.core.interpreter.api.SelectionStrategy;
 import eu.compassresearch.core.interpreter.api.events.CmlInterpreterStateObserver;
 import eu.compassresearch.core.interpreter.api.events.InterpreterStateChangedEvent;
 import eu.compassresearch.core.interpreter.debug.messaging.CmlRequest;
-import eu.compassresearch.core.interpreter.debug.messaging.Message;
+import eu.compassresearch.core.interpreter.debug.messaging.AbstractMessage;
 import eu.compassresearch.core.interpreter.debug.messaging.MessageCommunicator;
 import eu.compassresearch.core.interpreter.debug.messaging.MessageContainer;
 import eu.compassresearch.core.interpreter.debug.messaging.RequestMessage;
@@ -187,7 +187,7 @@ public class SocketServerCmlDebugger implements CmlDebugger,
 		sendMessage(requestOS, dm);
 	}
 
-	static void sendMessage(OutputStream requestOS, Message dm)
+	static void sendMessage(OutputStream requestOS, AbstractMessage dm)
 			throws IOException
 	{
 		MessageCommunicator.sendMessage(requestOS, dm);

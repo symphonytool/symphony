@@ -1,15 +1,14 @@
 package eu.compassresearch.core.interpreter.cosim.communication;
 
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
-import eu.compassresearch.core.interpreter.debug.messaging.Message;
-import eu.compassresearch.core.interpreter.debug.messaging.MessageType;
+import eu.compassresearch.core.interpreter.debug.messaging.JsonMessage;
 
 /**
  * Message to signal that a client should execute a {@link CmlTransition}
  * 
  * @author kel
  */
-public class ExecuteMessage extends Message
+public class ExecuteMessage implements JsonMessage
 {
 
 	private CmlTransition transition;
@@ -24,18 +23,6 @@ public class ExecuteMessage extends Message
 	public ExecuteMessage(CmlTransition transition)
 	{
 		this.transition = transition;
-	}
-
-	@Override
-	public MessageType getType()
-	{
-		return MessageType.RESPONSE;
-	}
-
-	@Override
-	public String getKey()
-	{
-		return null;
 	}
 
 	@Override

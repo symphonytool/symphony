@@ -1,14 +1,13 @@
 package eu.compassresearch.core.interpreter.cosim.communication;
 
-import eu.compassresearch.core.interpreter.debug.messaging.Message;
-import eu.compassresearch.core.interpreter.debug.messaging.MessageType;
+import eu.compassresearch.core.interpreter.debug.messaging.JsonMessage;
 
 /**
  * Message used to inspect a process located on the client use of a co-simulation
  * 
  * @author kel
  */
-public class InspectMessage extends Message
+public class InspectMessage implements JsonMessage
 {
 
 	private String process;
@@ -23,18 +22,6 @@ public class InspectMessage extends Message
 	public InspectMessage(String process)
 	{
 		this.process = process;
-	}
-
-	@Override
-	public MessageType getType()
-	{
-		return MessageType.RESPONSE;
-	}
-
-	@Override
-	public String getKey()
-	{
-		return null;
 	}
 
 	@Override

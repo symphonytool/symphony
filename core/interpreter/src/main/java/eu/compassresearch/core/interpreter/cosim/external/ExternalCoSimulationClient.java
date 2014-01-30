@@ -10,11 +10,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.Vector;
 import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.TimeUnit;
 
-import org.overture.ast.analysis.AnalysisException;
-
-import eu.compassresearch.core.interpreter.CoSimCmlInterpreter;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
@@ -28,10 +24,10 @@ import eu.compassresearch.core.interpreter.cosim.communication.ExecuteMessage;
 import eu.compassresearch.core.interpreter.cosim.communication.FinishedReplyMessage;
 import eu.compassresearch.core.interpreter.cosim.communication.FinishedRequestMessage;
 import eu.compassresearch.core.interpreter.cosim.communication.InspectMessage;
-import eu.compassresearch.core.interpreter.cosim.communication.InspectionReplyMessage;
-import eu.compassresearch.core.interpreter.cosim.communication.ProvidesImplementationMessage;
+import eu.compassresearch.core.interpreter.cosim.communication.InspectReplyMessage;
+import eu.compassresearch.core.interpreter.cosim.communication.RegisterSubSystemMessage;
 import eu.compassresearch.core.interpreter.cosim.communication.Utils;
-import eu.compassresearch.core.interpreter.debug.messaging.Message;
+import eu.compassresearch.core.interpreter.debug.messaging.JsonMessage;
 
 /**
  * Co-simulation client controller
@@ -123,7 +119,7 @@ public class ExternalCoSimulationClient extends Thread
 
 	private void receive() throws SocketException, IOException
 	{
-		Message message = comm.receive();
+		JsonMessage message = comm.receive();
 
 		if (message instanceof InspectMessage)
 		{
@@ -145,7 +141,7 @@ public class ExternalCoSimulationClient extends Thread
 			{
 				System.out.println("Offering event: " + t.getTransitionId());
 			}
-			comm.send(new InspectionReplyMessage(inspectMessage.getProcess(), transitions));
+			comm.send(new InspectReplyMessage(inspectMessage.getProcess(), transitions));
 		} else if (message instanceof ExecuteMessage)
 		{
 			final ExecuteMessage executeMessage = (ExecuteMessage) message;
@@ -205,7 +201,7 @@ public class ExternalCoSimulationClient extends Thread
 	{
 		try
 		{
-			comm.send(new ProvidesImplementationMessage(Arrays.asList(processes)));
+			comm.send(new RegisterSubSystemMessage(Arrays.asList(processes)));
 		} catch (IOException e)
 		{
 			throw new InterpreterRuntimeException("The co-simulation client failed to send the provides implementation message", e);

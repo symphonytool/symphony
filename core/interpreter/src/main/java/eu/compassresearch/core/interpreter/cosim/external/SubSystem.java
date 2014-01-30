@@ -1,7 +1,7 @@
 package eu.compassresearch.core.interpreter.cosim.external;
 
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -14,7 +14,6 @@ import org.overture.ast.types.PType;
 import org.overture.interpreter.values.IntegerValue;
 import org.overture.interpreter.values.Value;
 
-import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.core.interpreter.NamespaceUtility;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
@@ -22,10 +21,7 @@ import eu.compassresearch.core.interpreter.api.transitions.ObservableLabelledTra
 import eu.compassresearch.core.interpreter.api.transitions.ObservableTransition;
 import eu.compassresearch.core.interpreter.api.values.CMLChannelValue;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
-import eu.compassresearch.core.interpreter.api.values.LatticeTopElement;
 import eu.compassresearch.core.interpreter.api.values.LatticeTopValue;
-import eu.compassresearch.core.interpreter.api.values.NoConstraint;
-import eu.compassresearch.core.interpreter.api.values.ValueConstraint;
 import eu.compassresearch.core.interpreter.cosim.IProcessDelegate;
 import eu.compassresearch.core.interpreter.cosim.communication.Utils;
 
@@ -35,13 +31,13 @@ public class SubSystem implements IProcessDelegate
 	@Override
 	public CmlTransitionSet inspect() throws Exception
 	{
-//		ObservableTransition transition = untypedChannel("c");
-		
+		// ObservableTransition transition = untypedChannel("c");
+
 		SortedSet<CmlTransition> events = new TreeSet<CmlTransition>();
-//		events.add(untypedChannel("c"));
-//		events.add(sendChannel("a", 1));
+		events.add(untypedChannel("c"));
+		events.add(sendChannel("a", 1));
 		events.add(readChannel("b", new AIntNumericBasicType()));
-		
+
 		CmlTransitionSet transitions = new CmlTransitionSet(events);
 
 		return transitions;
@@ -50,61 +46,61 @@ public class SubSystem implements IProcessDelegate
 	private ObservableTransition untypedChannel(String name)
 	{
 		CMLChannelValue channel = createChannelValue(name);
-		ChannelNameValue channelName = new ChannelNameValue(channel);
+		ChannelNameValue channelName = new ChannelNameValue(channel, new LinkedList<Value>(), null);
 		ObservableTransition transition = new ObservableLabelledTransition(null, channelName);
 		return transition;
 	}
-	
-	private ObservableTransition sendChannel(String name,int... value)
+
+	private ObservableTransition sendChannel(String name, int... value)
 	{
-		CMLChannelValue channel = createChannelValue(name,new AIntNumericBasicType());
+		CMLChannelValue channel = createChannelValue(name, new AIntNumericBasicType());
 		List<Value> values = new Vector<Value>();
 		for (int v : value)
 		{
 			values.add(new IntegerValue(v));
 		}
-		
-		List<ValueConstraint> constraints = new Vector<ValueConstraint>();
-		
-		constraints.add(new NoConstraint());
-		
-		ChannelNameValue channelName = new ChannelNameValue(channel,values,constraints);
+
+//		List<ValueConstraint> constraints = new Vector<ValueConstraint>();
+
+		// constraints.add(new NoConstraint());
+
+		ChannelNameValue channelName = new ChannelNameValue(channel, values, null);
 		ObservableTransition transition = new ObservableLabelledTransition(null, channelName);
 		return transition;
 	}
-	
-	private ObservableTransition readChannel(String name,PType... value)
+
+	private ObservableTransition readChannel(String name, PType... value)
 	{
-		CMLChannelValue channel = createChannelValue(name,value);
+		CMLChannelValue channel = createChannelValue(name, value);
 		List<Value> values = new Vector<Value>();
 		for (PType v : value)
 		{
 			values.add(new LatticeTopValue(v));
 		}
-		
-		ChannelNameValue channelName = new ChannelNameValue(channel,values);
+
+		ChannelNameValue channelName = new ChannelNameValue(channel, values, null);
 		ObservableTransition transition = new ObservableLabelledTransition(null, channelName);
 		return transition;
 	}
 
-	
 	private static CMLChannelValue createChannelValue(String name)
 	{
-		return createChannelValue(name, (PType[])null);
+		return createChannelValue(name, (PType[]) null);
 	}
-	@SuppressWarnings("deprecation")
-	private static CMLChannelValue createChannelValue(String name,PType... type)
+
+	private static CMLChannelValue createChannelValue(String name,
+			PType... type)
 	{
-		AChannelType channelType = null;
-		if(type!=null)
-		{
-			channelType = new AChannelType(new LexLocation(), false, Arrays.asList(type));
-		}else
-		{
-			channelType = new AChannelType();
-		}
-		
-		return new CMLChannelValue(channelType, NamespaceUtility.createChannelName(new LexIdentifierToken(name, false, new LexLocation())));
+//		AChannelType channelType = null;
+		// if(type!=null)
+		// {
+		// channelType = new AChannelType(new LexLocation(), false, Arrays.asList(type));
+		// }else
+		// {
+//		channelType = new AChannelType();
+		// }
+
+		return new CMLChannelValue(null, NamespaceUtility.createChannelName(new LexIdentifierToken(name, false, new LexLocation())));
 	}
 
 	@Override
@@ -112,7 +108,7 @@ public class SubSystem implements IProcessDelegate
 	{
 		System.out.println("Executing: " + transition);
 		Utils.milliPause(1000);
-		
+
 	}
 
 	@Override
@@ -133,8 +129,6 @@ public class SubSystem implements IProcessDelegate
 	{
 		// TODO Auto-generated method stub
 	}
-
-	
 
 	public static void main(String[] args) throws InterruptedException,
 			IOException

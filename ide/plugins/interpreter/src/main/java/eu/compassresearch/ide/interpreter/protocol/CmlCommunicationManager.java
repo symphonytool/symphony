@@ -17,6 +17,9 @@ import org.eclipse.core.runtime.CoreException;
 import org.overture.ide.debug.core.dbgp.IDbgpProperty;
 import org.overture.ide.debug.core.dbgp.IDbgpStackLevel;
 
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+
 import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
 import eu.compassresearch.core.interpreter.debug.Breakpoint;
 import eu.compassresearch.core.interpreter.debug.CmlDbgCommandMessage;
@@ -24,8 +27,8 @@ import eu.compassresearch.core.interpreter.debug.CmlDbgStatusMessage;
 import eu.compassresearch.core.interpreter.debug.CmlDebugCommand;
 import eu.compassresearch.core.interpreter.debug.StackFrameDTO;
 import eu.compassresearch.core.interpreter.debug.VariableDTO;
+import eu.compassresearch.core.interpreter.debug.messaging.AbstractMessage;
 import eu.compassresearch.core.interpreter.debug.messaging.CmlRequest;
-import eu.compassresearch.core.interpreter.debug.messaging.Message;
 import eu.compassresearch.core.interpreter.debug.messaging.MessageCommunicator;
 import eu.compassresearch.core.interpreter.debug.messaging.MessageContainer;
 import eu.compassresearch.core.interpreter.debug.messaging.RequestMessage;
@@ -90,7 +93,7 @@ public class CmlCommunicationManager extends Thread
 		MessageCommunicator.sendMessage(requestOutputStream, message);
 	}
 
-	public void sendMessage(Message message) throws Exception
+	public void sendMessage(AbstractMessage message) throws Exception
 	{
 		MessageCommunicator.sendMessage(requestOutputStream, message);
 	}
@@ -144,7 +147,7 @@ public class CmlCommunicationManager extends Thread
 	 *            The message to be processed
 	 * @return true if the event loop should continue otherwise false
 	 */
-	private <H extends Message> boolean dispatchMessageHandler(
+	private <H extends AbstractMessage> boolean dispatchMessageHandler(
 			Map<String, MessageEventHandler<H>> handlers, H message)
 	{
 		boolean result = false;

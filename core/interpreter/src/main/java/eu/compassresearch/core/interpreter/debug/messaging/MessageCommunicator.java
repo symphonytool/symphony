@@ -1,6 +1,7 @@
 package eu.compassresearch.core.interpreter.debug.messaging;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -55,9 +56,8 @@ public class MessageCommunicator
 	}
 
 	private static ObjectMapper mapper = null;
-	
+
 	final static Logger logger = LoggerFactory.getLogger(MessageCommunicator.class);
-	
 
 	protected static ObjectMapper mapperInstance()
 	{
@@ -124,19 +124,23 @@ public class MessageCommunicator
 		return mapper;
 	}
 
-	public static void sendMessage(OutputStream outStream, Message message)
+	public static void sendMessage(OutputStream outStream, AbstractMessage message)
 			throws IOException
 	{
-//		System.out.println("Sending..." + message);
-		logger.debug("Sending..." + message);
 		MessageContainer messageContainer = new MessageContainer(message);
-		mapperInstance().writeValue(outStream, messageContainer);
+		sendRawMessage(outStream, messageContainer);
+	}
+
+	public static <T> void sendRawMessage(OutputStream outStream, T message)
+			throws IOException
+	{
+		logger.debug("Sending..." + message);
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		mapperInstance().writeValue(out,new Object[]{ message});
+		logger.trace("Send RAW: "+out.toString());
+		mapperInstance().writeValue(outStream,new Object[]{ message});
 		outStream.write(System.lineSeparator().getBytes());
 		outStream.flush();
-		// System.out.println("Sendt..." + message);
-		// PrintWriter writer = new PrintWriter(outStream);
-		// writer.println(mapperInstance().toJson(messageContainer));
-		// writer.flush();
 	}
 
 	/**
@@ -149,15 +153,28 @@ public class MessageCommunicator
 	public static MessageContainer receiveMessage(BufferedReader requestReader)
 			throws IOException
 	{
-		MessageContainer message = null;
+		return receiveRawMessage(requestReader);
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T> T receiveRawMessage(BufferedReader requestReader) throws IOException
+	{
+		T message = null;
 		String strMessage = requestReader.readLine();
-		logger.debug("Read RAW");
-		logger.trace(strMessage);
+		
+		logger.trace("Read RAW: "+strMessage);
 		if (strMessage != null)
 		{
-			try{
-			message = mapperInstance().readValue(strMessage, MessageContainer.class);
-			}catch(Exception e)
+			try
+			{
+				Object[] data = mapperInstance().readValue(strMessage, Object[].class);
+				if(data!=null && data.length>0)
+				{
+					message = (T) data[0];
+					logger.debug("Read "+message);
+				}
+				
+			} catch (Exception e)
 			{
 				e.printStackTrace();
 			}
@@ -174,23 +191,12 @@ public class MessageCommunicator
 	 * @throws IOException
 	 */
 	public static MessageContainer receiveMessage(BufferedReader requestReader,
-			MessageContainer connectionClosedMessage) throws IOException
+			MessageContainer defaultMessage) throws IOException
 	{
-		MessageContainer message = null;
-		String strMessage = requestReader.readLine();
-		logger.debug("Read RAW");
-		logger.trace( strMessage);
-		if (strMessage != null)
+		MessageContainer message = receiveMessage(requestReader);
+		if (message == null)
 		{
-			try{
-			message = mapperInstance().readValue(strMessage, MessageContainer.class);
-			}catch(Exception e)
-			{
-				e.printStackTrace();
-			}
-		} else
-		{
-			message = connectionClosedMessage;
+			message = defaultMessage;
 		}
 
 		return message;

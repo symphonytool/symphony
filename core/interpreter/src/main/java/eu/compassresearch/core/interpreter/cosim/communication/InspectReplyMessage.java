@@ -1,15 +1,14 @@
 package eu.compassresearch.core.interpreter.cosim.communication;
 
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
-import eu.compassresearch.core.interpreter.debug.messaging.Message;
-import eu.compassresearch.core.interpreter.debug.messaging.MessageType;
+import eu.compassresearch.core.interpreter.debug.messaging.JsonMessage;
 
 /**
  * Message used by a client to reply an inspection with a {@link CmlTransitionSet}
  * 
  * @author kel
  */
-public class InspectionReplyMessage extends Message
+public class InspectReplyMessage implements JsonMessage
 {
 
 	private String process;
@@ -18,26 +17,14 @@ public class InspectionReplyMessage extends Message
 	/**
 	 * default for message parsing
 	 */
-	public InspectionReplyMessage()
+	public InspectReplyMessage()
 	{
 	}
 
-	public InspectionReplyMessage(String process, CmlTransitionSet transitions)
+	public InspectReplyMessage(String process, CmlTransitionSet transitions)
 	{
 		this.process = process;
 		this.transitions = transitions;
-	}
-
-	@Override
-	public MessageType getType()
-	{
-		return MessageType.RESPONSE;
-	}
-
-	@Override
-	public String getKey()
-	{
-		return null;
 	}
 
 	@Override

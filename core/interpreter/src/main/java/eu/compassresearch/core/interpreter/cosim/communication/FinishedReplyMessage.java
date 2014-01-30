@@ -1,14 +1,13 @@
 package eu.compassresearch.core.interpreter.cosim.communication;
 
-import eu.compassresearch.core.interpreter.debug.messaging.Message;
-import eu.compassresearch.core.interpreter.debug.messaging.MessageType;
+import eu.compassresearch.core.interpreter.debug.messaging.JsonMessage;
 
 /**
  * Message used by a client to reply to a {@link FinishedRequestMessage}
  * 
  * @author kel
  */
-public class FinishedReplyMessage extends Message
+public class FinishedReplyMessage implements JsonMessage
 {
 
 	private String process;
@@ -25,18 +24,6 @@ public class FinishedReplyMessage extends Message
 	{
 		this.process = process;
 		this.finished = finished;
-	}
-
-	@Override
-	public MessageType getType()
-	{
-		return MessageType.RESPONSE;
-	}
-
-	@Override
-	public String getKey()
-	{
-		return null;
 	}
 
 	@Override

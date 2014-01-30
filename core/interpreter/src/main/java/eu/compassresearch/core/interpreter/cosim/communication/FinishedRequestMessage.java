@@ -1,14 +1,13 @@
 package eu.compassresearch.core.interpreter.cosim.communication;
 
-import eu.compassresearch.core.interpreter.debug.messaging.Message;
-import eu.compassresearch.core.interpreter.debug.messaging.MessageType;
+import eu.compassresearch.core.interpreter.debug.messaging.JsonMessage;
 
 /**
  * Message used to ask a client about whether it is finished or not
  * 
  * @author kel
  */
-public class FinishedRequestMessage extends Message
+public class FinishedRequestMessage implements JsonMessage
 {
 
 	private String process;
@@ -23,18 +22,6 @@ public class FinishedRequestMessage extends Message
 	public FinishedRequestMessage(String process)
 	{
 		this.process = process;
-	}
-
-	@Override
-	public MessageType getType()
-	{
-		return MessageType.RESPONSE;
-	}
-
-	@Override
-	public String getKey()
-	{
-		return null;
 	}
 
 	@Override

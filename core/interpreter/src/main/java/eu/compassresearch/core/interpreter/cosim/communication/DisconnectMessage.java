@@ -1,14 +1,13 @@
 package eu.compassresearch.core.interpreter.cosim.communication;
 
-import eu.compassresearch.core.interpreter.debug.messaging.Message;
-import eu.compassresearch.core.interpreter.debug.messaging.MessageType;
+import eu.compassresearch.core.interpreter.debug.messaging.JsonMessage;
 
 /**
  * Message to signal that a client should disconnect
  * 
  * @author kel
  */
-public class DisconnectMessage extends Message
+public class DisconnectMessage implements JsonMessage
 {
 
 	/**
@@ -16,18 +15,6 @@ public class DisconnectMessage extends Message
 	 */
 	public DisconnectMessage()
 	{
-	}
-
-	@Override
-	public MessageType getType()
-	{
-		return MessageType.RESPONSE;
-	}
-
-	@Override
-	public String getKey()
-	{
-		return null;
 	}
 
 	@Override

@@ -10,9 +10,8 @@ import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
 import eu.compassresearch.core.interpreter.cosim.communication.Utils;
-import eu.compassresearch.core.interpreter.debug.messaging.Message;
+import eu.compassresearch.core.interpreter.debug.messaging.JsonMessage;
 import eu.compassresearch.core.interpreter.debug.messaging.MessageCommunicator;
-import eu.compassresearch.core.interpreter.debug.messaging.MessageContainer;
 
 /**
  * Wrapper class for Json communication. It wraps a socket and provides a simple message interface for communication.
@@ -47,21 +46,21 @@ public class MessageManager
 		}
 	}
 
-	public void send(Message message) throws JsonGenerationException,
+	public void send(JsonMessage message) throws JsonGenerationException,
 			JsonMappingException, IOException
 	{
-		MessageCommunicator.sendMessage(output, message);
+		MessageCommunicator.sendRawMessage(output, message);
 	}
 
-	public Message receive() throws IOException
+	public JsonMessage receive() throws IOException
 	{
-		MessageContainer container = null;
+		JsonMessage msg = null;
 
-		while (container == null)
+		while (msg == null)
 		{
-			container = MessageCommunicator.receiveMessage(input);
+			msg = MessageCommunicator.receiveRawMessage(input);
 			Utils.milliPause(10);
 		}
-		return container.getMessage();
+		return msg;
 	}
 }

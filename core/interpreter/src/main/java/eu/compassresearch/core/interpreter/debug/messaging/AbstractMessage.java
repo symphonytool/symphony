@@ -1,6 +1,6 @@
 package eu.compassresearch.core.interpreter.debug.messaging;
 
-public abstract class Message
+public abstract class AbstractMessage implements JsonMessage
 {
 
 	/**
@@ -13,7 +13,7 @@ public abstract class Message
 	 */
 	protected Object content;
 
-	public Message()
+	public AbstractMessage()
 	{
 		this.setSessionId("");
 	}

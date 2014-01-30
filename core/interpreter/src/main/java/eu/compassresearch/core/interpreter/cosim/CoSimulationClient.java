@@ -20,13 +20,15 @@ import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.transitions.ObservableTransition;
 import eu.compassresearch.core.interpreter.cosim.communication.DisconnectMessage;
+import eu.compassresearch.core.interpreter.cosim.communication.ExecuteCompletedMessage;
 import eu.compassresearch.core.interpreter.cosim.communication.ExecuteMessage;
 import eu.compassresearch.core.interpreter.cosim.communication.FinishedReplyMessage;
 import eu.compassresearch.core.interpreter.cosim.communication.FinishedRequestMessage;
 import eu.compassresearch.core.interpreter.cosim.communication.InspectMessage;
-import eu.compassresearch.core.interpreter.cosim.communication.InspectionReplyMessage;
-import eu.compassresearch.core.interpreter.cosim.communication.ProvidesImplementationMessage;
-import eu.compassresearch.core.interpreter.debug.messaging.Message;
+import eu.compassresearch.core.interpreter.cosim.communication.InspectReplyMessage;
+import eu.compassresearch.core.interpreter.cosim.communication.RegisterSubSystemMessage;
+import eu.compassresearch.core.interpreter.cosim.communication.Utils;
+import eu.compassresearch.core.interpreter.debug.messaging.JsonMessage;
 
 /**
  * Co-simulation client controller
@@ -116,7 +118,7 @@ public class CoSimulationClient extends Thread
 
 	private void receive() throws SocketException, IOException
 	{
-		Message message = comm.receive();
+		JsonMessage message = comm.receive();
 
 		if (message instanceof InspectMessage)
 		{
@@ -130,15 +132,16 @@ public class CoSimulationClient extends Thread
 				throw new InterpreterRuntimeException("Interpreter inspection failed in co-simulation client", e);
 			}
 
-			for (ObservableTransition t : transitions.getObservableChannelEvents())
-			{
-				System.out.println("Offering event: " + t.getTransitionId());
-			}
-			comm.send(new InspectionReplyMessage(inspectMessage.getProcess(), transitions));
+//			for (ObservableTransition t : transitions.getObservableChannelEvents())
+//			{
+//				System.out.println("Offering event: " + t.getTransitionId());
+//			}
+			comm.send(new InspectReplyMessage(inspectMessage.getProcess(), transitions));
 		} else if (message instanceof ExecuteMessage)
 		{
 			ExecuteMessage executeMessage = (ExecuteMessage) message;
 			availableTransitions.add(remapTransitionIds((ObservableTransition) executeMessage.getTransition()));
+			comm.send(new ExecuteCompletedMessage());
 		} else if (message instanceof FinishedRequestMessage)
 		{
 			FinishedRequestMessage finishedRequest = (FinishedRequestMessage) message;
@@ -154,13 +157,13 @@ public class CoSimulationClient extends Thread
 
 	private static CmlTransition remapTransitionIds(CmlTransition transition)
 	{
-			try
-			{
-				DelegatedCmlBehaviour.setTransitionId(transition, transition.getRawTransitionId());
-			} catch (IllegalAccessException e)
-			{
-				throw new InterpreterRuntimeException(e);
-			}
+		try
+		{
+			DelegatedCmlBehaviour.setTransitionId(transition, transition.getRawTransitionId());
+		} catch (IllegalAccessException e)
+		{
+			throw new InterpreterRuntimeException(e);
+		}
 
 		return transition;
 	}
@@ -169,7 +172,7 @@ public class CoSimulationClient extends Thread
 	{
 		try
 		{
-			comm.send(new ProvidesImplementationMessage(Arrays.asList(processes)));
+			comm.send(new RegisterSubSystemMessage(Arrays.asList(processes)));
 		} catch (IOException e)
 		{
 			throw new InterpreterRuntimeException("The co-simulation client failed to send the provides implementation message", e);
@@ -181,8 +184,7 @@ public class CoSimulationClient extends Thread
 		die();
 	}
 
-	public CmlTransition getExecutableTransition()
-			throws InterruptedException
+	public CmlTransition getExecutableTransition() throws InterruptedException
 	{
 		CmlTransition tmp = this.availableTransitions.take();
 		if (transitions != null)
@@ -194,23 +196,23 @@ public class CoSimulationClient extends Thread
 				list.addAll(t.getEventSources());
 			}
 
-				SortedSet<CmlBehaviour> eventSources = new TreeSet<CmlBehaviour>();
+			SortedSet<CmlBehaviour> eventSources = new TreeSet<CmlBehaviour>();
 
-				for (CmlBehaviour source : list)
+			for (CmlBehaviour source : list)
+			{
+				if (tmp.getHashedEventSources().contains(source.hashCode()))
 				{
-					if (tmp.getHashedEventSources().contains(source.hashCode()))
-					{
-						eventSources.add(source);
-					}
+					eventSources.add(source);
 				}
+			}
 
-				try
-				{
-					DelegatedCmlBehaviour.setEventSources(tmp, eventSources);
-				} catch (IllegalAccessException e)
-				{
-					throw new InterpreterRuntimeException(e);
-				}
+			try
+			{
+				DelegatedCmlBehaviour.setEventSources(tmp, eventSources);
+			} catch (IllegalAccessException e)
+			{
+				throw new InterpreterRuntimeException(e);
+			}
 
 			return tmp;
 		}
@@ -222,4 +224,11 @@ public class CoSimulationClient extends Thread
 		this.interpreter = interpreter;
 	}
 
+	public void waitForDiconnect()
+	{
+		while(connected)
+		{
+			Utils.milliPause(10);
+		}
+	}
 }

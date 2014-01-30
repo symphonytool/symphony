@@ -5,6 +5,7 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.SynchronousQueue;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
@@ -15,7 +16,7 @@ import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.cosim.IProcessBehaviourDelegationManager;
 import eu.compassresearch.core.interpreter.cosim.MessageManager;
 import eu.compassresearch.core.interpreter.cosim.ProcessDelegate;
-import eu.compassresearch.core.interpreter.debug.messaging.Message;
+import eu.compassresearch.core.interpreter.debug.messaging.JsonMessage;
 
 /**
  * A connection thread used to handle co-simulation communication from the coordinator to a single client
@@ -53,6 +54,8 @@ public class ConnectionThread extends Thread
 	 */
 	private Map<String, SynchronousQueue<Boolean>> isFinishedMap = new HashMap<String, SynchronousQueue<Boolean>>();
 
+	Semaphore executingSem = new Semaphore(0);
+	
 	public ConnectionThread(ThreadGroup group, Socket conn, boolean principal,
 			IProcessBehaviourDelegationManager delegationManager)
 			throws IOException
@@ -131,23 +134,26 @@ public class ConnectionThread extends Thread
 
 	private void receive() throws IOException
 	{
-		Message message = comm.receive();
+		JsonMessage message = comm.receive();
 
-		if (message instanceof ProvidesImplementationMessage)
+		if (message instanceof RegisterSubSystemMessage)
 		{
-			for (String processName : ((ProvidesImplementationMessage) message).getProcesses())
+			for (String processName : ((RegisterSubSystemMessage) message).getProcesses())
 			{
 				this.delegationManager.addDelegate(new ProcessDelegate(processName, this));
 				availableTransitionsMap.put(processName, new SynchronousQueue<CmlTransitionSet>());
 			}
-		} else if (message instanceof InspectionReplyMessage)
+		} else if (message instanceof InspectReplyMessage)
 		{
-			InspectionReplyMessage replyMsg = (InspectionReplyMessage) message;
+			InspectReplyMessage replyMsg = (InspectReplyMessage) message;
 			availableTransitionsMap.get(replyMsg.getProcess()).add(replyMsg.getTransitions());
 		} else if (message instanceof FinishedReplyMessage)
 		{
 			FinishedReplyMessage replyMsg = (FinishedReplyMessage) message;
 			isFinishedMap.get(replyMsg.getProcess()).offer(replyMsg.isFinished());
+		}else if (message instanceof ExecuteCompletedMessage)
+		{
+			executingSem.release();
 		}
 	}
 
@@ -163,6 +169,14 @@ public class ConnectionThread extends Thread
 			throws JsonGenerationException, JsonMappingException, IOException
 	{
 		comm.send(new ExecuteMessage(transition));
+		try
+		{
+			executingSem.acquire();
+		} catch (InterruptedException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	public boolean isFinished(String processName)

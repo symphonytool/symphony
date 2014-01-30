@@ -4,14 +4,14 @@ public class MessageContainer
 {
 
 	private String version = "0.0.1";
-	private Message message;
+	private AbstractMessage message;
 
 	protected MessageContainer()
 	{
 		message = null;
 	}
 
-	public MessageContainer(Message message)
+	public MessageContainer(AbstractMessage message)
 	{
 		this.setMessage(message);
 	}
@@ -22,12 +22,12 @@ public class MessageContainer
 		return message.getType();
 	}
 
-	public Message getMessage()
+	public JsonMessage getMessage()
 	{
 		return message;
 	}
 
-	protected void setMessage(Message message)
+	protected void setMessage(AbstractMessage message)
 	{
 
 		this.message = message;
