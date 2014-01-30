@@ -17,6 +17,11 @@ public class NamespaceUtility
 	{
 		return new CmlLexNameToken("", id.getName(), id.getLocation(), false, false);
 	}
+	
+	public static ILexNameToken getRenamingValueName()
+	{
+		return new CmlLexNameToken("|RENAMING|", "values", new LexLocation());
+	}
 
 	public static ILexNameToken createChannelName(ILexIdentifierToken id)
 	{
@@ -44,6 +49,11 @@ public class NamespaceUtility
 	}
 
 	public static ILexNameToken getSeqForName()
+	{
+		return new CmlLexNameToken("|FORSEQ|", "v", new LexLocation());
+	}
+	
+	public static ILexNameToken getForAllName()
 	{
 		return new CmlLexNameToken("|FORSEQ|", "v", new LexLocation());
 	}

@@ -27,6 +27,7 @@ import eu.compassresearch.ast.actions.SReplicatedAction;
 import eu.compassresearch.ast.analysis.DepthFirstAnalysisCMLAdaptor;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
+import eu.compassresearch.ast.expressions.SRenameChannelExp;
 import eu.compassresearch.ast.process.SReplicatedProcess;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
@@ -37,6 +38,7 @@ import eu.compassresearch.core.interpreter.api.values.ChannelNameSetValue;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
 import eu.compassresearch.core.interpreter.api.values.CmlSetQuantifier;
 import eu.compassresearch.core.interpreter.api.values.LatticeTopValue;
+import eu.compassresearch.core.interpreter.api.values.RenamingValue;
 import eu.compassresearch.core.interpreter.utility.LocationExtractor;
 import eu.compassresearch.core.interpreter.utility.Pair;
 import eu.compassresearch.core.interpreter.utility.SetMath;
@@ -91,6 +93,19 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 		setRightChild(rightNode, new BehaviourName("/_\\ right", owner.getName(), "", ""), question);
 
 		return new Pair<INode, Context>(node, question);
+	}
+	
+	protected Pair<INode, Context> caseChannelRenaming(
+			INode node, SRenameChannelExp renameExpression, INode subNode, Context question)
+			throws AnalysisException
+	{
+		Context rnContext = CmlContextFactory.newContext(LocationExtractor.extractLocation(node), "Renaming context", question);
+		RenamingValue rv = (RenamingValue)renameExpression.apply(this.cmlExpressionVisitor,question);
+		rnContext.putNew(new NameValuePair(NamespaceUtility.getRenamingValueName(), rv));
+		
+		setLeftChild(subNode, question);
+		
+		return new Pair<INode, Context>(node, rnContext);
 	}
 
 	/*

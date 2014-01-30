@@ -2,12 +2,21 @@ package eu.compassresearch.core.interpreter;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.node.INode;
+import org.overture.ast.statements.AForAllStm;
+import org.overture.ast.statements.AForIndexStm;
 import org.overture.ast.statements.AForPatternBindStm;
+import org.overture.interpreter.assistant.pattern.PPatternAssistantInterpreter;
 import org.overture.interpreter.runtime.Context;
+import org.overture.interpreter.runtime.PatternMatchException;
 import org.overture.interpreter.values.IntegerValue;
 import org.overture.interpreter.values.NameValuePair;
+import org.overture.interpreter.values.Value;
+import org.overture.interpreter.values.ValueList;
+import org.overture.interpreter.values.ValueSet;
 
+import eu.compassresearch.ast.CmlAstFactory;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
+import eu.compassresearch.ast.actions.AChannelRenamingAction;
 import eu.compassresearch.ast.actions.AEndDeadlineAction;
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
 import eu.compassresearch.ast.actions.AExternalChoiceReplicatedAction;
@@ -29,9 +38,13 @@ import eu.compassresearch.ast.actions.ATimedInterruptAction;
 import eu.compassresearch.ast.actions.ATimeoutAction;
 import eu.compassresearch.ast.actions.AUntimedTimeoutAction;
 import eu.compassresearch.ast.actions.AWaitAction;
+import eu.compassresearch.ast.actions.PAction;
+import eu.compassresearch.ast.expressions.SRenameChannelExp;
 import eu.compassresearch.ast.statements.AActionStm;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorFactory;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
+import eu.compassresearch.core.interpreter.api.values.RenamingValue;
+import eu.compassresearch.core.interpreter.utility.LocationExtractor;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
 @SuppressWarnings("deprecation")
@@ -297,9 +310,88 @@ class ActionSetupVisitor extends CommonSetupVisitor
 	public Pair<INode, Context> caseAForPatternBindStm(AForPatternBindStm node,
 			Context question) throws AnalysisException
 	{
-
 		Context context = CmlContextFactory.newContext(node.getLocation(), "Sequence for loop context", question);
-		context.putNew(new NameValuePair(NamespaceUtility.getSeqForName(), node.getExp().apply(cmlExpressionVisitor, question)));
+		Value v = node.getExp().apply(cmlExpressionVisitor, question);
+		context.putNew(new NameValuePair(NamespaceUtility.getSeqForName(), v));
+		
+		// put the front element in scope of the action
+		ValueList seqValue = v.seqValue(question);
+		
+		if(!seqValue.isEmpty())
+		{
+			Value x = seqValue.firstElement();
+			seqValue.remove(x);
+
+			if (node.getPatternBind().getPattern() != null)
+			{
+				try
+				{
+					context.putList(PPatternAssistantInterpreter.getNamedValues(node.getPatternBind().getPattern(), x, context));
+				} catch (PatternMatchException e)
+				{
+					// Ignore mismatches
+				}
+			}
+
+			setLeftChild(node.getStatement(), context);
+		}
+		else
+		{
+			setLeftChild(CmlAstFactory.newASkipAction(node.getLocation()), question);
+		}
+
+		return new Pair<INode, Context>(node, context);
+	}
+	
+	@Override
+	public Pair<INode, Context> caseAChannelRenamingAction(
+			AChannelRenamingAction node, Context question)
+			throws AnalysisException
+	{
+		return caseChannelRenaming(node, node.getRenameExpression(), node.getAction(), question);
+	}
+	
+	@Override
+	public Pair<INode, Context> caseAForIndexStm(AForIndexStm node,
+			Context question) throws AnalysisException
+	{
+		// TODO Auto-generated method stub
+		return super.caseAForIndexStm(node, question);
+	}
+	
+	@Override
+	public Pair<INode, Context> caseAForAllStm(AForAllStm node, Context question)
+			throws AnalysisException
+	{
+		Context context = CmlContextFactory.newContext(node.getLocation(), "For all loop context", question);
+		Value v = node.getSet().apply(cmlExpressionVisitor, question);
+		context.putNew(new NameValuePair(NamespaceUtility.getForAllName(), v));
+		
+		// put the front element in scope of the action
+		ValueSet setValue = v.setValue(question);
+		
+		if(!setValue.isEmpty())
+		{
+			Value x = setValue.firstElement();
+			setValue.remove(x);
+
+			if (node.getPattern() != null)
+			{
+				try
+				{
+					context.putList(PPatternAssistantInterpreter.getNamedValues(node.getPattern(), x, context));
+				} catch (PatternMatchException e)
+				{
+					// Ignore mismatches
+				}
+			}
+
+			setLeftChild(node.getStatement(), context);
+		}
+		else
+		{
+			setLeftChild(CmlAstFactory.newASkipAction(node.getLocation()), question);
+		}
 
 		return new Pair<INode, Context>(node, context);
 	}

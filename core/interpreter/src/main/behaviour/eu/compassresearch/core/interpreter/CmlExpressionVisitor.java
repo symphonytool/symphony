@@ -33,6 +33,7 @@ import org.overture.interpreter.values.ValueList;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.expressions.ABracketedExp;
 import eu.compassresearch.ast.expressions.AEnumVarsetExpression;
+import eu.compassresearch.ast.expressions.AEnumerationRenameChannelExp;
 import eu.compassresearch.ast.expressions.AFatCompVarsetExpression;
 import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
 import eu.compassresearch.ast.expressions.AIdentifierVarsetExpression;
@@ -40,6 +41,7 @@ import eu.compassresearch.ast.expressions.ANameChannelExp;
 import eu.compassresearch.ast.expressions.AUnionVOpVarsetExpression;
 import eu.compassresearch.ast.expressions.PCMLExp;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
+import eu.compassresearch.ast.patterns.ARenamePair;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.values.CMLChannelValue;
@@ -47,6 +49,7 @@ import eu.compassresearch.core.interpreter.api.values.ChannelNameSetValue;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
 import eu.compassresearch.core.interpreter.api.values.LatticeTopValue;
 import eu.compassresearch.core.interpreter.api.values.NamesetValue;
+import eu.compassresearch.core.interpreter.api.values.RenamingValue;
 
 public class CmlExpressionVisitor extends
 		QuestionAnswerCMLAdaptor<Context, Value>
@@ -370,6 +373,23 @@ public class CmlExpressionVisitor extends
 	{
 
 		return node.getExpression().apply(this, question);
+	}
+	
+	@Override
+	public Value caseAEnumerationRenameChannelExp(
+			AEnumerationRenameChannelExp node, Context question)
+			throws AnalysisException
+	{
+		RenamingValue rnv = new RenamingValue();
+		
+		for(ARenamePair pair : node.getRenamePairs())
+		{
+			ChannelNameValue src = createChannelNameValue(pair.getFrom(), question);
+			ChannelNameValue dst = createChannelNameValue(pair.getTo(), question);
+			rnv.renamingMap().put(src,dst);
+		}
+		
+		return rnv;
 	}
 
 	@Override

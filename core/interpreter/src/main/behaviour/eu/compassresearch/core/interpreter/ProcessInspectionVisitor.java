@@ -25,6 +25,7 @@ import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.lex.CmlLexNameToken;
 import eu.compassresearch.ast.process.AActionProcess;
 import eu.compassresearch.ast.process.AAlphabetisedParallelismProcess;
+import eu.compassresearch.ast.process.AChannelRenamingProcess;
 import eu.compassresearch.ast.process.AEndDeadlineProcess;
 import eu.compassresearch.ast.process.AExternalChoiceProcess;
 import eu.compassresearch.ast.process.AGeneralisedParallelismProcess;
@@ -351,6 +352,14 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 			});
 
 		}
+	}
+		
+	@Override
+	public Inspection caseAChannelRenamingProcess(
+			AChannelRenamingProcess node, Context question)
+			throws AnalysisException
+	{
+		return caseChannelRenaming(node, question);
 	}
 
 	// FIXME the operator string is only a tmp solution

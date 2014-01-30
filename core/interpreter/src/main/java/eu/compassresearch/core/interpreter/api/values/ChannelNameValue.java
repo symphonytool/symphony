@@ -151,7 +151,12 @@ public class ChannelNameValue extends Value
 		return new ChannelNameValue(this.channel, meetValues, meetConstraints);
 	}
 
-
+	
+	public ChannelNameValue rename(CMLChannelValue channel)
+	{
+		return new ChannelNameValue(channel, values, constraints);
+	}
+	
 	public boolean isComparable(ChannelNameValue channelNameValue)
 	{
 		return this.getChannel().equals(channelNameValue.channel)

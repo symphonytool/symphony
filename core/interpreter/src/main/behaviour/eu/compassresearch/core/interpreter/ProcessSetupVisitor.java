@@ -9,6 +9,7 @@ import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.AStopAction;
 import eu.compassresearch.ast.process.AAlphabetisedParallelismProcess;
 import eu.compassresearch.ast.process.AAlphabetisedParallelismReplicatedProcess;
+import eu.compassresearch.ast.process.AChannelRenamingProcess;
 import eu.compassresearch.ast.process.AEndDeadlineProcess;
 import eu.compassresearch.ast.process.AExternalChoiceProcess;
 import eu.compassresearch.ast.process.AExternalChoiceReplicatedProcess;
@@ -82,6 +83,14 @@ class ProcessSetupVisitor extends CommonSetupVisitor
 			throws AnalysisException
 	{
 		return caseATimedInterrupt(node, node.getLeft(), question);
+	}
+	
+	@Override
+	public Pair<INode, Context> caseAChannelRenamingProcess(
+			AChannelRenamingProcess node, Context question)
+			throws AnalysisException
+	{
+		return caseChannelRenaming(node, node.getRenameExpression(), node.getProcess(), question);
 	}
 
 	@Override
