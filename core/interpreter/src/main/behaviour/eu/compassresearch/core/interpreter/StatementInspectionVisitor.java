@@ -20,6 +20,7 @@ import org.overture.ast.statements.AForIndexStm;
 import org.overture.ast.statements.AForPatternBindStm;
 import org.overture.ast.statements.AIfStm;
 import org.overture.ast.statements.ALetStm;
+import org.overture.ast.statements.ASpecificationStm;
 import org.overture.ast.statements.AWhileStm;
 import org.overture.ast.statements.PStm;
 import org.overture.interpreter.assistant.pattern.PPatternAssistantInterpreter;
@@ -471,6 +472,13 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 			// now this process evolves into Skip
 			return new Pair<INode, Context>(skipNode, question);
 		}
+	}
+	
+	@Override
+	public Inspection caseASpecificationStm(ASpecificationStm node,
+			Context question) throws AnalysisException
+	{
+		throw new AnalysisException("The specification statement cannot be executed, refine it something explicit if it should be executed");
 	}
 	
 	@Override
