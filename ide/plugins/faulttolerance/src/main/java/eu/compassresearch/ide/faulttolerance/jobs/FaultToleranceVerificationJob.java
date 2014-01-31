@@ -24,11 +24,8 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
-import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AValueDefinition;
 import org.overture.ast.definitions.PDefinition;
@@ -37,6 +34,7 @@ import eu.compassresearch.ast.definitions.AChannelDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.definitions.ANamesetDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
+import eu.compassresearch.core.analysis.modelchecker.api.FormulaIntegrator;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewMCVisitor;
 import eu.compassresearch.ide.core.resources.ICmlProject;
 import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
@@ -53,107 +51,119 @@ import eu.compassresearch.ide.modelchecker.MCConstants;
 public class FaultToleranceVerificationJob extends Job {
 
 	private final FaultToleranceVerificationResults faultToleranceResults;
+	private final ThreadGroup threads;
 
 	public FaultToleranceVerificationJob(
 			FaultToleranceVerificationResults results) {
 		super(Message.FAULT_TOLERANCE_JOB_NAME.format(results.getProcessName()));
 		this.faultToleranceResults = results;
-	}
-
-	private void checkMonitor(IProgressMonitor monitor)
-			throws InterruptedException {
-		if (monitor.isCanceled()) {
-			throw new InterruptedException();
-		}
+		this.threads = new ThreadGroup(
+				Message.FAULT_TOLERANCE_JOB_NAME.format(results
+						.getProcessName()));
 	}
 
 	private String getAbsolutePath(Message fileNameMessage) {
 		return String.format("%s/%s", faultToleranceResults.getFolder()
-				.getLocationURI(), fileNameMessage.format(faultToleranceResults
-				.getProcessName()));
+				.getLocation().toPortableString(),
+				fileNameMessage.format(faultToleranceResults.getProcessName()));
 	}
 
 	private void verifyPreRequisites(final IProgressMonitor monitor)
 			throws InterruptedException {
 
 		try {
-			// group.beginTask(Message.CHECKING_PREREQUISITES.format(), 2);
+			monitor.beginTask(Message.CHECKING_PREREQUISITES.format(), 2);
 
-			ModelCheckingJob dfj = new ModelCheckingJob(
-					Message.DIVERGENCE_FREE_JOB,
-					faultToleranceResults.getProcessName(),
-					getAbsolutePath(Message.DIVERGENCE_FREEDOM_FORMULA_SCRIPT_FILE_NAME));
+			Thread dft = new Thread(
+					threads,
+					new ModelCheckingTask(
+							faultToleranceResults.getProcessName(),
+							getAbsolutePath(Message.DIVERGENCE_FREEDOM_FORMULA_SCRIPT_FILE_NAME),
+							new IModelCheckingTaskListener() {
+								@Override
+								public void done(ModelCheckingResult results) {
+									faultToleranceResults
+											.setDivergenceFree(results
+													.isSuccess());
+									faultToleranceResults.add(results
+											.getException());
+									monitor.worked(1);
+								}
+							}),
+					Message.DIVERGENCE_FREE_JOB.format(faultToleranceResults
+							.getProcessName()));
 
-			ModelCheckingJob sj = new ModelCheckingJob(
-					Message.SEMIFAIRNESS_JOB,
-					faultToleranceResults.getProcessName(),
-					getAbsolutePath(Message.SEMIFAIRNESS_FORMULA_SCRIPT_FILE_NAME));
+			Thread st = new Thread(
+					threads,
+					new ModelCheckingTask(
+							faultToleranceResults.getProcessName(),
+							getAbsolutePath(Message.SEMIFAIRNESS_FORMULA_SCRIPT_FILE_NAME),
+							new IModelCheckingTaskListener() {
+								@Override
+								public void done(ModelCheckingResult results) {
+									faultToleranceResults.setSemifair(results
+											.isSuccess());
+									faultToleranceResults.add(results
+											.getException());
+									monitor.worked(1);
+								}
+							}),
+					Message.SEMIFAIRNESS_JOB.format(faultToleranceResults
+							.getProcessName()));
 
-			dfj.addJobChangeListener(new JobChangeAdapter() {
-				@Override
-				public void done(IJobChangeEvent event) {
-					if (event.getResult() instanceof ModelCheckingStatus) {
-						ModelCheckingStatus status = ((ModelCheckingStatus) event
-								.getResult());
-						faultToleranceResults.setDivergenceFree(status
-								.getResults().isSuccess());
-						faultToleranceResults.add(status.getResults()
-								.getException());
-					}
-					monitor.worked(1);
-					if (!event.getJob().getResult().isOK()) {
-						monitor.setCanceled(true);
-					}
-				}
-			});
-			sj.addJobChangeListener(new JobChangeAdapter() {
-				@Override
-				public void done(IJobChangeEvent event) {
-					ModelCheckingStatus status = ((ModelCheckingStatus) event
-							.getResult());
-					faultToleranceResults.setSemifair(status.getResults()
-							.isSuccess());
-					faultToleranceResults.add(status.getResults()
-							.getException());
-					monitor.worked(1);
-					if (!event.getJob().getResult().isOK()) {
-						monitor.setCanceled(true);
-					}
-				}
-			});
+			dft.setDaemon(true);
+			st.setDaemon(true);
 
-			dfj.schedule();
-			sj.schedule();
+			dft.start();
+			dft.join();
 
-			dfj.join();
-			sj.join();
+			st.start();
+			st.join();
+
 		} finally {
 			faultToleranceResults.setPrerequisitesChecked(true);
 		}
 	}
 
 	@Override
-	protected IStatus run(IProgressMonitor monitor) {
+	protected IStatus run(final IProgressMonitor monitor) {
 		try {
 			monitor.beginTask(Message.FAULT_TOLERANCE_VERIFICATION_TASK_MESSAGE
-					.format(faultToleranceResults.getProcessName()), 6);
+					.format(faultToleranceResults.getProcessName()), 3);
 
-			createFilesAndCheckDefinitions(new SubProgressMonitor(monitor, 4));
-			checkMonitor(monitor);
+			Runnable mainRun = new Runnable() {
+				@Override
+				public void run() {
+					try {
+						createFilesAndCheckDefinitions(new SubProgressMonitor(
+								monitor, 1));
 
-			if (faultToleranceResults.getDefinitionsMessage() == null) {
-				verifyPreRequisites(monitor);
-				checkMonitor(monitor);
-			}
-			monitor.worked(1);
+						if (faultToleranceResults.getDefinitionsMessage() == null
+								&& !faultToleranceResults.hasException()) {
+							verifyPreRequisites(new SubProgressMonitor(monitor,
+									1));
+						}
 
-			if (faultToleranceResults.isPreRequisitesOk()) {
-				runFaultToleranceVerification(monitor);
-			}
-			monitor.worked(1);
+						if (faultToleranceResults.isPreRequisitesOk()
+								&& !faultToleranceResults.hasException()) {
+							runFaultToleranceVerification(new SubProgressMonitor(
+									monitor, 1));
+						}
+					} catch (InterruptedException e) {
+						faultToleranceResults.setCancelledByUser(true);
+					}
+				}
+			};
+
+			Thread t = new Thread(threads, mainRun,
+					Message.FAULT_TOLERANCE_VERIFICATION_TASK_MESSAGE
+							.format(faultToleranceResults.getProcessName()));
+			t.start();
+			t.join();
+
 			return new FaultToleranceVerificationStatus(faultToleranceResults);
 		} catch (InterruptedException e) {
-			return Status.CANCEL_STATUS;
+			return new FaultToleranceVerificationStatus(faultToleranceResults);
 		} finally {
 			monitor.done();
 		}
@@ -163,11 +173,9 @@ public class FaultToleranceVerificationJob extends Job {
 		try {
 			monitor.beginTask(Message.STARTING_FAULT_TOLERANCE_FILES_MANAGEMENT
 					.format(faultToleranceResults.getProcessName()), 4);
-			checkMonitor(monitor);
 
 			createFolder();
 			monitor.worked(1);
-			checkMonitor(monitor);
 
 			List<String> channelsNotFound = new LinkedList<>();
 			List<String> chansetsNotFound = new LinkedList<>();
@@ -181,12 +189,10 @@ public class FaultToleranceVerificationJob extends Job {
 					channelsNotFound, chansetsNotFound, processesNotFound,
 					monitor);
 			monitor.worked(1);
-			checkMonitor(monitor);
 
 			createCmlFiles(namesetsNotFound, valuesNotFound, channelsNotFound,
 					chansetsNotFound, processesNotFound, monitor);
 			monitor.worked(1);
-			checkMonitor(monitor);
 
 			createMissingDefinitionsMessage(namesetsNotFound, valuesNotFound,
 					channelsNotFound, chansetsNotFound, processesNotFound);
@@ -195,18 +201,21 @@ public class FaultToleranceVerificationJob extends Job {
 				createFormulaFiles(monitor);
 				monitor.worked(1);
 			}
-		} catch (InterruptedException e) {
+		} catch (CoreException e) {
 			faultToleranceResults.add(e);
-			monitor.setCanceled(true);
+			// TODO remove code:
+			// monitor.setCanceled(true);
 		} catch (UnableToRunFaultToleranceVerificationException e) {
 			faultToleranceResults.setException(e);
-			monitor.setCanceled(true);
+			// TODO remove code:
+			// monitor.setCanceled(true);
 		} finally {
 			monitor.done();
 		}
 	}
 
-	private void clearGeneratedCmlFiles(IProgressMonitor monitor) {
+	private void clearGeneratedCmlFiles(IProgressMonitor monitor)
+			throws CoreException {
 		List<Message> fileNames = new LinkedList<>();
 		IFolder folder = faultToleranceResults.getFolder();
 		String processName = faultToleranceResults.getProcessName();
@@ -224,6 +233,19 @@ public class FaultToleranceVerificationJob extends Job {
 				}
 			}
 		}
+		refreshModel(new NullProgressMonitor());
+	}
+
+	// TODO remove code below:
+	// private void refreshFolder(IProgressMonitor monitor) throws CoreException
+	// {
+	// faultToleranceResults.getFolder().refreshLocal(IResource.DEPTH_ONE,
+	// monitor);
+	// }
+
+	private void refreshModel(IProgressMonitor monitor) {
+		faultToleranceResults.getCmlProject().getModel()
+				.refresh(false, new SubProgressMonitor(monitor, 1));
 	}
 
 	private void checkDefinitions(List<String> namesetsNotFound,
@@ -231,12 +253,10 @@ public class FaultToleranceVerificationJob extends Job {
 			List<String> chansetsNotFound, List<String> processesNotFound,
 			IProgressMonitor monitor) {
 		String processName = faultToleranceResults.getProcessName();
-		ICmlProject cmlProject = faultToleranceResults.getCmlProject();
 		try {
 			monitor.beginTask(Message.DEFINITIONS_VERIFICATION_TASK_NAME
 					.format(processName), 11);
-			cmlProject.getModel().refresh(false,
-					new SubProgressMonitor(monitor, 1));
+			refreshModel(new SubProgressMonitor(monitor, 1));
 			Set<String> channelNames = new TreeSet<>();
 			Set<String> chansetNames = new TreeSet<>();
 			Set<String> processNames = new TreeSet<>();
@@ -474,7 +494,7 @@ public class FaultToleranceVerificationJob extends Job {
 					Message.DIVERGENCE_FREEDOM_FORMULA_SCRIPT_FILE_NAME,
 					formulaScriptContent,
 					Message.UNABLE_TO_CREATE_FORMULA_SCRIPT);
-		} catch (IOException | AnalysisException e) {
+		} catch (Exception e) {
 			throw new UnableToRunFaultToleranceVerificationException(
 					Message.UNABLE_TO_CREATE_FORMULA_SCRIPT, e, processName);
 		}
@@ -618,12 +638,11 @@ public class FaultToleranceVerificationJob extends Job {
 		try {
 			InputStream in = new ByteArrayInputStream(contents);
 			if (outputFile.exists()) {
-				outputFile.setContents(in, true, true,
+				outputFile.setContents(in, false, false,
 						new NullProgressMonitor());
 			} else {
-				outputFile.create(in, true, new NullProgressMonitor());
-				faultToleranceResults.getCmlProject().getModel()
-						.refresh(true, new NullProgressMonitor());
+				outputFile.create(in, false, new NullProgressMonitor());
+				refreshModel(new NullProgressMonitor());
 			}
 		} catch (CoreException e) {
 			throw new UnableToRunFaultToleranceVerificationException(
@@ -645,13 +664,13 @@ public class FaultToleranceVerificationJob extends Job {
 			folder = container.getFolder(new Path(Message.FOLDER_NAME
 					.format(processName)));
 			if (!folder.getParent().exists()) {
-				((IFolder) folder.getParent()).create(true, true,
+				((IFolder) folder.getParent()).create(false, false,
 						new NullProgressMonitor());
 			}
 			if (!folder.exists()) {
-				folder.create(true, true, new NullProgressMonitor());
-				folder.refreshLocal(IResource.DEPTH_ZERO,
+				folder.getParent().refreshLocal(IResource.DEPTH_ONE,
 						new NullProgressMonitor());
+				folder.create(false, false, new NullProgressMonitor());
 			}
 			faultToleranceResults.setFolder(folder);
 		} catch (CoreException e) {
@@ -661,57 +680,69 @@ public class FaultToleranceVerificationJob extends Job {
 		}
 	}
 
-	private void runFaultToleranceVerification(final IProgressMonitor monitor) {
-		final ModelCheckingJob fftj = new ModelCheckingJob(
-				Message.FULL_FAULT_TOLERANCE_JOB,
-				faultToleranceResults.getProcessName(),
-				getAbsolutePath(Message.FULL_FAULT_TOLERANCE_FORMULA_SCRIPT_FILE_NAME));
-		final ModelCheckingJob lftj = new ModelCheckingJob(
-				Message.LIMITED_FAULT_TOLERANCE_JOB,
-				faultToleranceResults.getProcessName(),
-				getAbsolutePath(Message.LIMITED_FAULT_TOLERANCE_FORMULA_SCRIPT_FILE_NAME));
+	private void runFaultToleranceVerification(final IProgressMonitor monitor)
+			throws InterruptedException {
 
-		fftj.addJobChangeListener(new JobChangeAdapter() {
-			@Override
-			public void done(IJobChangeEvent event) {
-				ModelCheckingStatus status = ((ModelCheckingStatus) event
-						.getResult());
-				faultToleranceResults.setFullFaultTolerant(status.getResults()
-						.isSuccess());
-				faultToleranceResults.add(status.getResults().getException());
-				monitor.worked(1);
-				if (!event.getJob().getResult().isOK()) {
-					monitor.setCanceled(true);
-				}
-			}
-		});
+		monitor.beginTask(Message.FAULT_TOLERANCE_VERIFICATION_TASK_MESSAGE
+				.format(faultToleranceResults.getProcessName()), 2);
 
-		lftj.addJobChangeListener(new JobChangeAdapter() {
+		Thread fftt = new Thread(
+				threads,
+				new ModelCheckingTask(
+						faultToleranceResults.getProcessName(),
+						getAbsolutePath(Message.FULL_FAULT_TOLERANCE_FORMULA_SCRIPT_FILE_NAME),
+						new IModelCheckingTaskListener() {
+							@Override
+							public void done(ModelCheckingResult results) {
+								faultToleranceResults
+										.setFullFaultTolerant(results
+												.isSuccess());
+								faultToleranceResults.add(results
+										.getException());
+								monitor.worked(1);
+							}
+						}),
+				Message.FULL_FAULT_TOLERANCE_JOB.format(faultToleranceResults
+						.getProcessName()));
 
-			@Override
-			public void done(IJobChangeEvent event) {
-				ModelCheckingStatus status = ((ModelCheckingStatus) event
-						.getResult());
-				faultToleranceResults.setLimitedFaultTolerant(status
-						.getResults().isSuccess());
-				faultToleranceResults.add(status.getResults().getException());
-				monitor.worked(1);
-				if (!event.getJob().getResult().isOK()) {
-					monitor.setCanceled(true);
-				}
-			}
+		Thread lftt = new Thread(
+				threads,
+				new ModelCheckingTask(
+						faultToleranceResults.getProcessName(),
+						getAbsolutePath(Message.LIMITED_FAULT_TOLERANCE_FORMULA_SCRIPT_FILE_NAME),
+						new IModelCheckingTaskListener() {
+							@Override
+							public void done(ModelCheckingResult results) {
+								faultToleranceResults
+										.setLimitedFaultTolerant(results
+												.isSuccess());
+								faultToleranceResults.add(results
+										.getException());
+								monitor.worked(1);
+							}
+						}),
+				Message.LIMITED_FAULT_TOLERANCE_JOB
+						.format(faultToleranceResults.getProcessName()));
 
-		});
+		fftt.setDaemon(true);
+		lftt.setDaemon(true);
 
-		fftj.schedule();
-		lftj.schedule();
+		// TODO change the order when the ModelChecker support multithreading.
+		fftt.start();
+		fftt.join();
 
+		lftt.start();
+		lftt.join();
+	}
+
+	@Override
+	protected void canceling() {
+		super.canceling();
+		threads.interrupt();
 		try {
-			lftj.join();
-			fftj.join();
-		} catch (InterruptedException e) {
-			// Interrupted...
+			FormulaIntegrator.getInstance().finalize();
+		} catch (Throwable e) {
+			// TODO Auto-generated catch block
 		}
-
 	}
 }

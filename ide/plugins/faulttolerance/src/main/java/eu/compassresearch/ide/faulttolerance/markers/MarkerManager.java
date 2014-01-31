@@ -24,10 +24,19 @@ public class MarkerManager {
 
 	public void faultToleranceVerificationsFinished(
 			FaultToleranceVerificationResults r) {
+		if (r.hasException()) {
+			markerException(r);
+			return;
+		}
 		if (r.getDefinitionsMessage() != null) {
 			markerDefinitions(r);
 			return;
 		}
+		if (r.isCancelledByUser()) {
+			markerCancelledByUser(r);
+			return;
+		}
+
 		int cases = (r.isDivergenceFree() ? 1 : 0) | (r.isSemifair() ? 2 : 0)
 				| (r.isFullFaultTolerant() ? 4 : 0)
 				| (r.isLimitedFaultTolerant() ? 8 : 0);
@@ -62,6 +71,22 @@ public class MarkerManager {
 			markerFullFaultTolerant(r);
 			break;
 		}
+	}
+
+	private void markerCancelledByUser(FaultToleranceVerificationResults r) {
+		renewMarker(
+				IMarker.SEVERITY_INFO,
+				Message.CANCELLED_BY_USER.format(r.getProcessName(),
+						r.getExceptionsLocalizedMessage()), r.getProcessName(),
+				null, r.getResource(), r.getLocation());
+	}
+
+	private void markerException(FaultToleranceVerificationResults r) {
+		renewMarker(
+				IMarker.SEVERITY_ERROR,
+				Message.EXCEPTION_OCCURRED.format(r.getProcessName(),
+						r.getExceptionsLocalizedMessage()), r.getProcessName(),
+				null, r.getResource(), r.getLocation());
 	}
 
 	private void markerDefinitions(FaultToleranceVerificationResults r) {

@@ -37,6 +37,7 @@ public class FaultToleranceVerificationResults {
 	private IContainer outputContainer;
 	private ICmlProject cmlProject;
 	private IFolder folder;
+	private boolean cancelledByUser;
 
 	private UnableToRunFaultToleranceVerificationException exception;
 
@@ -177,13 +178,13 @@ public class FaultToleranceVerificationResults {
 		int i = 1;
 
 		if (exception != null) {
-			ps.print(i);
+			ps.print(i++);
 			ps.print(". ");
 			ps.println(exception.getLocalizedMessage());
 		}
 
 		for (Exception e : otherExceptions) {
-			ps.print(++i);
+			ps.print(i++);
 			ps.print(". ");
 			ps.println(e.getLocalizedMessage());
 		}
@@ -216,6 +217,14 @@ public class FaultToleranceVerificationResults {
 
 	public void setDefinitionsMessage(String definitionsMessage) {
 		this.definitionsMessage = definitionsMessage;
+	}
+
+	public boolean isCancelledByUser() {
+		return cancelledByUser;
+	}
+
+	public void setCancelledByUser(boolean cancelledByUser) {
+		this.cancelledByUser = cancelledByUser;
 	}
 
 }
