@@ -17,20 +17,20 @@ import org.eclipse.core.runtime.NullProgressMonitor
 
 object TheoryLoader {
 
-  // Add a new theory and link it an appropriate IDocument
-  def addTheory(fullName: String, name: String, dir: String, session: Session, file: IFile, thyProvider : IDocumentProvider) : EditDocumentModel = {
+  // Create an EditDocumentModel from a given thy file. Doesn't resolve dependencies.
+  def addTheory(node: String, dir: String, theory: String
+                , session: Session, file: IFile
+                , thyProvider : IDocumentProvider) : EditDocumentModel = {
 
-    val node = Document.Node.Name(fullName, dir, name)
+    val thyNode = Document.Node.Name(node, dir, theory)
     
     thyProvider.connect(file); // file is of IFile
     val document = thyProvider.getDocument(file);
    
-    val model = new EditDocumentModel(session, document, node)
+    val model = new EditDocumentModel(session, document, thyNode)
     
     model.init()
-     // dispose immediately after initialisation
     model.submitFullPerspective(new NullProgressMonitor());
-//    model.dispose()
     
    // provider.disconnect(file)
     

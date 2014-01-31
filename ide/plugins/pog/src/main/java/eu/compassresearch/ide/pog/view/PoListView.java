@@ -127,14 +127,11 @@ public class PoListView extends PoOverviewTableView {
 			}
 		});
 		
-	    // This is new code
-	    // First we create a menu Manager
+	    // Core for supporting context menu in POG table
 	    MenuManager menuManager = new MenuManager();
 	    Menu menu = menuManager.createContextMenu(viewer.getTable());
-	    // Set the MenuManager
 	    viewer.getTable().setMenu(menu);
 	    getSite().registerContextMenu(menuManager, viewer);
-	    // make the selection available
 	    getSite().setSelectionProvider(viewer);
 	}
 

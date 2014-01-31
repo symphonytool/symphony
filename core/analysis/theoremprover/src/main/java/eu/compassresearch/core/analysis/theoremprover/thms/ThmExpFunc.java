@@ -216,7 +216,7 @@ public class ThmExpFunc extends ThmDecl {
 		}
 		
 		sb.append("^" + ThmTypeUtil.isaFuncLambdaPostVal +  "^ = " + expr +"))\n");
-		sb.append("else undefined");
+		sb.append("else " + ThmTypeUtil.isaUndefined);
 		
 		return sb.toString();
 	}

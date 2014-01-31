@@ -27,6 +27,7 @@ import org.overture.pog.pub.IProofObligation;
 
 import eu.compassresearch.ide.core.resources.ICmlProject;
 import eu.compassresearch.ide.pog.PogPluginUtils;
+import eu.compassresearch.ide.theoremprover.ProofSess;
 import eu.compassresearch.ide.theoremprover.ProofSession;
 import eu.compassresearch.ide.theoremprover.TPConstants;
 import eu.compassresearch.ide.theoremprover.TPPluginDoStuff;
@@ -52,21 +53,24 @@ public class EnqPoHandler extends AbstractHandler
 			
 			ICmlProject cmlProj = (ICmlProject) proj.getAdapter(ICmlProject.class);
 
-			ProofSession ps = cmlProj.getModel().getAttribute(TPConstants.PROOF_SESSION_ID, ProofSession.class);
+			ProofSess ps = cmlProj.getModel().getAttribute(TPConstants.PROOF_SESSION_ID, ProofSess.class);
 			
-			EditDocumentModel edm = ps.getPoEDM();
-			List<INode> ast = ps.getAst();
+			EditDocumentModel edm = ps.poEDM();
+			List<INode> ast = ps.ast();
 			
-			doer.enqueuePO(po, edm.document(), ast);
-		    edm.submitFullPerspective(new NullProgressMonitor());
-		    ps.getThyProvider().saveDocument(new NullProgressMonitor(), null, edm.document(), true);
+			ps.enqueuePO(po);
+			// doer.enqueuePO(po, edm.document(), ast);
+/*
+			edm.submitFullPerspective(new NullProgressMonitor());
+		    ps.thyProvider().saveDocument(new NullProgressMonitor(), null, edm.document(), true);
+		    */
 		    
 //		    prov.connect();
 //		    prov.
 //		    ps.getPoEDM().document().
 			
 			
-		} catch (BadLocationException | CoreException e) {
+		} catch (CoreException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

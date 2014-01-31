@@ -39,6 +39,7 @@ import org.eclipse.ui.WorkbenchException;
 import org.eclipse.ui.editors.text.TextFileDocumentProvider;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.part.FileEditorInput;
+import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.node.INode;
 import org.overture.pog.obligation.ProofObligationList;
@@ -508,8 +509,8 @@ public class TPPluginDoStuff {
 			// we know we have a session because we checked for it outside
 			Session sess = IsabelleCore.isabelle().session().get();
 			
-			// Start Proof Session
-			ProofSession ps = new ProofSession(null, cmlProj.getModel().getAst(), new TextFileDocumentProvider(), sess);
+
+			IDocumentProvider prov = new TextFileDocumentProvider();
 			
 			// Create project folder (needs to be timestamped)
 			DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
@@ -567,7 +568,7 @@ public class TPPluginDoStuff {
 				// submit the file to isabelle
 				String dirName = modelBk.getLocationURI().toString();
 				String fullName = thyFile.getLocationURI().toString();
-				TheoryLoader.addTheory(fullName, fileName, dirName, sess, thyFile, ps.getThyProvider());
+				TheoryLoader.addTheory(fullName, dirName, fileName, sess, thyFile, prov);
 
 				
 				// Create empty thy file which imports generated file
@@ -576,17 +577,14 @@ public class TPPluginDoStuff {
 				
 				String pogFullName = pogThyFile.getLocationURI().toString();
 			
-				
-				EditDocumentModel pogEDM = TheoryLoader.addTheory(pogFullName, fileName + "_PO" ,dirName, sess, pogThyFile, ps.getThyProvider());
+				EditDocumentModel pogEDM = TheoryLoader.addTheory(pogFullName ,dirName, fileName + "_PO", sess, pogThyFile, prov);
 				
 				PogPluginRunner ppr = new PogPluginRunner(window, site, cmlProj);
 				ppr.runPog();
-				
-				
-				// persist POFile 
-				ps.setPoEDM(pogEDM);
-				
-
+			    
+				// Start Proof Session			
+				ProofSess ps = new ProofSess(pogEDM, cmlProj.getModel().getAst(), prov, sess);
+                ps.init();
 				cmlProj.getModel().setAttribute(TPConstants.PROOF_SESSION_ID, ps);
 				
 				
