@@ -17,16 +17,18 @@ import org.eclipse.swt.widgets.Display;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 
-import eu.compassresearch.ide.collaboration.communication.messages.ConfigurationStatusMessage.NegotiationStatus;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationGroup;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationProject;
 import eu.compassresearch.ide.collaboration.datamodel.Configuration;
+import eu.compassresearch.ide.collaboration.datamodel.ConfigurationStatus;
+import eu.compassresearch.ide.collaboration.datamodel.ConfigurationStatus.ConfigurationNegotiationStatus;
+import eu.compassresearch.ide.collaboration.datamodel.ConfigurationStatuses;
 import eu.compassresearch.ide.collaboration.datamodel.Configurations;
 import eu.compassresearch.ide.collaboration.datamodel.File;
 import eu.compassresearch.ide.collaboration.datamodel.Files;
-import eu.compassresearch.ide.collaboration.datamodel.Visible;
-import eu.compassresearch.ide.collaboration.datamodel.Visibility;
 import eu.compassresearch.ide.collaboration.datamodel.User;
+import eu.compassresearch.ide.collaboration.datamodel.Visibility;
+import eu.compassresearch.ide.collaboration.datamodel.Visible;
 import eu.compassresearch.ide.collaboration.ui.TreeViewerPlugin;
 
 public class CollaborationLabelProvider extends LabelProvider implements
@@ -52,6 +54,12 @@ public class CollaborationLabelProvider extends LabelProvider implements
 		} else if (element instanceof File)
 		{
 			descriptor = getImageDescriptor("version.gif");
+		} else if (element instanceof ConfigurationStatuses)
+		{
+			descriptor = getImageDescriptor("shares.gif");
+		} else if (element instanceof ConfigurationStatus)
+		{
+			descriptor = getImageDescriptor("shares.gif");
 		} else if (element instanceof Visibility)
 		{
 			descriptor = getImageDescriptor("shares.gif");
@@ -86,7 +94,8 @@ public class CollaborationLabelProvider extends LabelProvider implements
 			CollaborationProject collabProject = ((CollaborationProject) element);
 
 			return collabProject.getTitle() + " (attached to project: "
-					+ collabProject.getProjectWorkspaceName() + ") " + collabProject.getUniqueID();
+					+ collabProject.getProjectWorkspaceName() + ") "
+					+ collabProject.getUniqueID();
 		} else if (element instanceof Configurations)
 		{
 			if (((Configurations) element).getName() == null)
@@ -110,9 +119,11 @@ public class CollaborationLabelProvider extends LabelProvider implements
 			if (config.isShared())
 			{
 				toString += " (Shared)";
-			} else if(config.isLocal()){
+			} else if (config.isLocal())
+			{
 				toString += " (Not shared - local configuration)";
-			} else if (config.isReceived()){
+			} else if (config.isReceived())
+			{
 				toString += " (Received)";
 			}
 			return toString;
@@ -141,7 +152,13 @@ public class CollaborationLabelProvider extends LabelProvider implements
 			}
 
 			return toString;
-
+		} else if (element instanceof ConfigurationStatuses)
+		{
+			ConfigurationStatuses cs = (ConfigurationStatuses) element;
+			return cs.toString();
+		} else if (element instanceof ConfigurationStatus)
+		{
+			return ((ConfigurationStatus) element).toString();
 		} else if (element instanceof Visible)
 		{
 			return ((Visible) element).toString();
@@ -201,25 +218,26 @@ public class CollaborationLabelProvider extends LabelProvider implements
 		{
 			Configuration c = (Configuration) element;
 
-			if (c.getStatus() == NegotiationStatus.ACCEPT)
-			{
-				return Display.getCurrent().getSystemColor(SWT.COLOR_DARK_GREEN);
-			} else if (c.getStatus() == NegotiationStatus.REJECT)
-			{
-				return Display.getCurrent().getSystemColor(SWT.COLOR_RED);
-			}
+//			if (c.getStatus() == NegotiationStatus.ACCEPT)
+//			{
+//				return Display.getCurrent().getSystemColor(SWT.COLOR_DARK_GREEN);
+//			} else if (c.getStatus() == NegotiationStatus.REJECT)
+//			{
+//				return Display.getCurrent().getSystemColor(SWT.COLOR_RED);
+//			}
 
 			if (c.isShared())
 			{
-				//return Display.getCurrent().getSystemColor(SWT.COLOR_LIST_BACKGROUND);
+				// return Display.getCurrent().getSystemColor(SWT.COLOR_LIST_BACKGROUND);
 			} else if (c.isReceived())
 			{
 				// return Display.getCurrent().getSystemColor(SWT.COLOR_BLUE);
 			} else if (c.isLocal())
 			{
-				//return Display.getCurrent().getSystemColor(SWT.COLOR_WHITE);
+				// return Display.getCurrent().getSystemColor(SWT.COLOR_WHITE);
 			}
-		}
+		} 
+		
 
 		return null;
 	}
@@ -231,11 +249,6 @@ public class CollaborationLabelProvider extends LabelProvider implements
 		{
 			Configuration c = (Configuration) element;
 
-			if (c.getStatus() == NegotiationStatus.ACCEPT || c.getStatus() == NegotiationStatus.REJECT)
-			{
-				return Display.getCurrent().getSystemColor(SWT.COLOR_WHITE);
-			} 
-			
 			if (c.isShared())
 			{
 				return Display.getCurrent().getSystemColor(SWT.COLOR_GRAY);
@@ -245,7 +258,24 @@ public class CollaborationLabelProvider extends LabelProvider implements
 			} else if (c.isLocal())
 			{
 				return Display.getCurrent().getSystemColor(SWT.COLOR_DARK_RED);
-			}	
+			}
+		} else  if (element instanceof ConfigurationStatus){
+			ConfigurationStatus cs = (ConfigurationStatus) element;
+			
+			ConfigurationNegotiationStatus status = cs.getStatus();
+			
+			switch(status){
+				case ACCEPT:
+					return Display.getCurrent().getSystemColor(SWT.COLOR_DARK_GREEN);
+				case NOTSET:
+					break;
+				case REJECT:
+					return Display.getCurrent().getSystemColor(SWT.COLOR_RED);
+				case RENEGOTIATED:
+					break;
+				default:
+					break;
+			}
 		}
 		return null;
 	}

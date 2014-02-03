@@ -1,13 +1,16 @@
 package eu.compassresearch.ide.collaboration.datamodel;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.ecf.core.identity.ID;
 
 import eu.compassresearch.ide.collaboration.Activator;
-import eu.compassresearch.ide.collaboration.communication.messages.ConfigurationStatusMessage.NegotiationStatus;
+import eu.compassresearch.ide.collaboration.datamodel.ConfigurationStatus.ConfigurationNegotiationStatus;
 import eu.compassresearch.ide.collaboration.files.FileStatus;
 import eu.compassresearch.ide.collaboration.notifications.Notification;
 
@@ -18,18 +21,22 @@ public class Configuration extends Model {
 	enum CollaborationState {LOCAL,SHARED,RECEIVED};
 	
 	protected Files files;
-	private NegotiationStatus status;
+	protected ConfigurationStatuses configurationStatuses;
+	
 	private String uniqueID;
 	protected long timestamp_ux_epoch; 
 	private Configuration parentConfiguration;
 	private CollaborationState collabState;
+	//used to sign configuration
 	private String configurationSignature;
+	//used to indicate when the configuration contains files that should not be shared to the entire collaboration group
 	private boolean hasLimitedVisibility;
 
 	public Configuration(Model parent){
 		super("Unnamed Configuration", parent);
 		uniqueID = UUID.randomUUID().toString();
 		files = new Files(this);
+		configurationStatuses = new ConfigurationStatuses(this);
 		collabState = CollaborationState.LOCAL;
 		configurationSignature = null;
 		Date d = new Date();
@@ -38,8 +45,10 @@ public class Configuration extends Model {
 		hasLimitedVisibility = false;
 	}
 	
+	
+	//CTOR used when new a new configuration is received
 	public Configuration(String configurationUniqueID, long timeStamp,
-			String signedBy, Configuration oldConfiguration, Model parent){
+			String signedBy, List<String> sentTo, Configuration oldConfiguration, Model parent){
 		
 		super("Unnamed Configuration", parent);
 		
@@ -50,9 +59,14 @@ public class Configuration extends Model {
 		hasLimitedVisibility = false;
 		this.name =  uniqueID.substring(0, 8) + " - " + new Date(timestamp_ux_epoch);
 		files = new Files(this);
+		configurationStatuses = new ConfigurationStatuses(this);
 		parentConfiguration = oldConfiguration;
+
+		configurationStatuses.addConfigurationStatus(sentTo);
+		
 	}
 	
+	//CTOR used when creating a configuration on the basis of an older configuration
 	public Configuration(Configuration oldConfiguration, Model parent) {
 		this(parent);
 		
@@ -60,9 +74,10 @@ public class Configuration extends Model {
 		Files filesInOldConfig = oldConfiguration.getFiles();
 		Files filesInNewConfig = filesInOldConfig.copy(this);
 		files = filesInNewConfig;
+		configurationStatuses = new ConfigurationStatuses(this);
 		hasLimitedVisibility = oldConfiguration.hasLimitedVisibility();
 	}
-	
+
 	public void addFile(File file) throws CoreException {
 		
 		if(configurationSignature != null) {
@@ -88,6 +103,12 @@ public class Configuration extends Model {
 		return files;
 	}
 
+	
+	public ConfigurationStatuses getConfigurationStatuses()
+	{
+		return configurationStatuses;
+	}
+
 	public int size() {
 		return files.size();
 	}
@@ -98,7 +119,8 @@ public class Configuration extends Model {
 	
 	@Override
 	public void addListener(IDeltaListener listener) {
-		files.addListener(listener);			
+		files.addListener(listener);	
+		configurationStatuses.addListener(listener);
 		super.addListener(listener);
 	}
 	
@@ -106,18 +128,8 @@ public class Configuration extends Model {
 	public void removeListener(IDeltaListener listener)
 	{
 		files.removeListener(listener);
+		configurationStatuses.removeListener(listener);
 		super.removeListener(listener);
-	}
-
-	public NegotiationStatus getStatus()
-	{
-		return status;
-	}
-
-	public void setStatus(NegotiationStatus status)
-	{
-		this.status = status;
-		fireObjectUpdatedEvent(this);
 	}
 
 	public Configuration getParentConfiguration()
@@ -225,5 +237,26 @@ public class Configuration extends Model {
 	public File getFile(String filename)
 	{
 		return files.getFile(filename);
+	}
+
+
+	public void setStatus(ID connectedUser, ConfigurationNegotiationStatus status)
+	{
+		ConfigurationStatus configurationStatus = configurationStatuses.getConfigurationStatus(connectedUser);
+		
+		if(configurationStatus != null) {
+			configurationStatus.setStatus(status);
+		}
+	}
+
+	public void addSentTo(List<User> sentTo)
+	{
+		ArrayList<String> users = new ArrayList<>();
+		for (User user : sentTo)
+		{
+			users.add(user.getName());
+		}
+		
+		configurationStatuses.addConfigurationStatus(users);
 	}
 }

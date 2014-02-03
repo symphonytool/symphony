@@ -7,6 +7,8 @@ import java.util.Map;
 
 import org.eclipse.ecf.core.identity.ID;
 
+import eu.compassresearch.ide.collaboration.Activator;
+
 public class CollaborationGroup extends Model {
 
 	private static final long serialVersionUID = 1083165101733581295L;
@@ -39,8 +41,23 @@ public class CollaborationGroup extends Model {
 		return collaborators.get(name);
 	}	
 	
+	//get all collaborators, joined and invited
 	public List<User> getCollaborators() {
 		return new ArrayList<User>(collaborators.values());
+	}
+	
+	//get collaborators that have accepted to join the collaboration. 
+	public List<User> getJoinedCollaborators() {
+			
+		List<User> joinedUsers = new ArrayList<>();
+		for (User usr : collaborators.values())
+		{
+			if(usr.hasDeclinedGroup()){
+				joinedUsers.add(usr);
+			}
+		}
+		
+		return joinedUsers;
 	}
 
 	public int size() {

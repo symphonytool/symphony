@@ -10,7 +10,7 @@ public class ConfigurationStatusMessage extends BaseMessage
 	private final NegotiationStatus status; 
 
 	public enum NegotiationStatus {
-	    ACCEPT, REJECT, RENEGOTIATE; 
+	    ACCEPT, REJECT, RENEGOTIATED; 
 	}
 	
 	public ConfigurationStatusMessage(ID sender, String projectID, String configurationId, NegotiationStatus status)

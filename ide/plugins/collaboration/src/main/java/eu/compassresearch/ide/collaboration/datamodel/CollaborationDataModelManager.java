@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -23,6 +25,7 @@ import eu.compassresearch.ide.collaboration.communication.messages.Collaboration
 import eu.compassresearch.ide.collaboration.communication.messages.ConfigurationStatusMessage;
 import eu.compassresearch.ide.collaboration.communication.messages.ConfigurationStatusMessage.NegotiationStatus;
 import eu.compassresearch.ide.collaboration.communication.messages.NewConfigurationMessage;
+import eu.compassresearch.ide.collaboration.datamodel.ConfigurationStatus.ConfigurationNegotiationStatus;
 import eu.compassresearch.ide.collaboration.files.FileComparison;
 import eu.compassresearch.ide.collaboration.files.FileDTO;
 import eu.compassresearch.ide.collaboration.files.FileHandler;
@@ -212,21 +215,25 @@ public class CollaborationDataModelManager
 	public void signAndShareConfiguration(Configuration config)
 			throws CoreException
 	{
+		List<User> sendTo;
 		if (config.hasLimitedVisibility())
 		{
-			shareWithLimitedVisibility(config);
+			sendTo = shareWithLimitedVisibility(config);
 		} else
 		{
-			shareWithAll(config);
+			sendTo = shareWithAll(config);
 		}
-
-		// TODO rework set signed
+		
 		ConnectionManager connectionManager = Activator.getDefault().getConnectionManager();
+		ID connectedUser = connectionManager.getConnectedUser();
+		
+		config.addSentTo(sendTo);
+		
 		config.setSignedBy(connectionManager.getConnectedUser().getName());
 		config.setConfigurationShared();
 	}
 
-	private void shareWithAll(Configuration config)
+	private List<User> shareWithAll(Configuration config)
 			throws SerializationException
 	{
 		CollaborationProject collaborationProject = config.getCollaborationProject();
@@ -242,12 +249,16 @@ public class CollaborationDataModelManager
 			filesToSend.add(fileDTO);
 		}
 
-		// there is no limitation on visibility so to send all
-		NewConfigurationMessage newConfigurationMessage = new NewConfigurationMessage(connectionManager.getConnectedUser(), collaborationProject.getUniqueID(), config, filesToSend);
-		connectionManager.send(newConfigurationMessage, collaborationProject);
+		// there is no limitation on visibility so send to all
+		CollaborationGroup collaboratorGroup = collaborationProject.getCollaboratorGroup();
+		List<User> sendTo = collaboratorGroup.getJoinedCollaborators();
+		NewConfigurationMessage newConfigurationMessage = new NewConfigurationMessage(connectionManager.getConnectedUser(), collaborationProject.getUniqueID(), config, filesToSend, sendTo);
+		connectionManager.sendToAll(newConfigurationMessage, collaborationProject);
+		
+		return new ArrayList<User>(sendTo);
 	}
 
-	private void shareWithLimitedVisibility(Configuration config)
+	private List<User> shareWithLimitedVisibility(Configuration config)
 			throws SerializationException
 	{
 		CollaborationProject collaborationProject = config.getCollaborationProject();
@@ -294,7 +305,7 @@ public class CollaborationDataModelManager
 			}
 		}
 
-		List<User> collaborators = collaborationProject.getCollaboratorGroup().getCollaborators();
+		List<User> collaborators = collaborationProject.getCollaboratorGroup().getJoinedCollaborators();
 		// figure out what to send to who
 		for (User user : collaborators)
 		{
@@ -306,7 +317,7 @@ public class CollaborationDataModelManager
 				// a file with no limitation on visibility has also changed, so we need to send to all
 				newConfigurationMessage.addFiles(filesToAll);
 				newConfigurationMessage.addFiles(filesToCollaborator);
-			} else
+			} else if (!filesToCollaborator.isEmpty())
 			{
 				// has any files specific for this collaborator been changed
 				List<FileDTO> intersect = new ArrayList<FileDTO>(changedFiles);
@@ -320,10 +331,21 @@ public class CollaborationDataModelManager
 				}
 			}
 
-			// store our configuration. 
-			configurationsToSend.put(user, newConfigurationMessage);
-			connectionManager.sendTo(user, newConfigurationMessage);
+			//only add if there are changes 
+			if(!newConfigurationMessage.getFileDTOs().isEmpty()){
+				// store our configuration. 
+				configurationsToSend.put(user, newConfigurationMessage);
+			}
 		}
+		
+		//send 
+		Set<Entry<User, NewConfigurationMessage>> entrySet = configurationsToSend.entrySet();
+		for (Entry<User, NewConfigurationMessage> entry : entrySet)
+		{
+			connectionManager.sendTo(entry.getKey(), entry.getValue());
+		}
+		
+		 return new ArrayList<User>(configurationsToSend.keySet());
 	}
 
 	private FileDTO createFileDTO(File file)
@@ -446,20 +468,33 @@ public class CollaborationDataModelManager
 			throws CoreException
 	{
 		ConnectionManager connectionManager = Activator.getDefault().getConnectionManager();
+		ID connectedUser = connectionManager.getConnectedUser();
 		CollaborationProject collaborationProject = configToApprove.getCollaborationProject();
-
+		
 		ConfigurationStatusMessage statMsg = new ConfigurationStatusMessage(connectionManager.getConnectedUser(), collaborationProject.getUniqueID(), configToApprove.getUniqueID(), NegotiationStatus.ACCEPT);
-		connectionManager.send(statMsg, collaborationProject);
-
-		configToApprove.setStatus(NegotiationStatus.ACCEPT);
+		connectionManager.sendToAll(statMsg, collaborationProject);
+		
+		configToApprove.setStatus(connectedUser, ConfigurationNegotiationStatus.ACCEPT);
+	}
+	
+	public void rejectConfiguration(Configuration configurationToReject)
+	{
+		ConnectionManager connectionManager = Activator.getDefault().getConnectionManager();
+		ID connectedUser = connectionManager.getConnectedUser();
+		CollaborationProject collaborationProject = configurationToReject.getCollaborationProject();
+		
+		ConfigurationStatusMessage statMsg = new ConfigurationStatusMessage(connectionManager.getConnectedUser(), collaborationProject.getUniqueID(), configurationToReject.getUniqueID(), NegotiationStatus.REJECT);
+		connectionManager.sendToAll(statMsg, collaborationProject);
+		
+		configurationToReject.setStatus(connectedUser, ConfigurationNegotiationStatus.REJECT);
 	}
 
-	public void updateConfigurationStatus(String configurationId,
-			NegotiationStatus negotiationStatus, String projectId)
+	public void updateConfigurationStatus(ID id, String configurationId,
+			ConfigurationNegotiationStatus negotiationStatus, String projectId)
 	{
 		CollaborationProject collaborationProject = getCollaborationProjectFromID(projectId);
 		Configuration configuration = collaborationProject.getConfiguration(configurationId);
-		configuration.setStatus(negotiationStatus);
+		configuration.setStatus(id, negotiationStatus);
 	}
 
 	public void collaboratorJoining(ID senderID, boolean joining, String projectID, boolean notifyCollaborators) throws SerializationException
@@ -492,7 +527,7 @@ public class CollaborationDataModelManager
 			}
 			
 			CollaborationGroupUpdateMessage collabGroupUpdateMsg = new CollaborationGroupUpdateMessage(connectionManager.getConnectedUser(), collaborationProject.getUniqueID(), collaboratorIds);
-			connectionManager.send(collabGroupUpdateMsg, collaborationProject);
+			connectionManager.sendToAll(collabGroupUpdateMsg, collaborationProject);
 		}
 	}
 

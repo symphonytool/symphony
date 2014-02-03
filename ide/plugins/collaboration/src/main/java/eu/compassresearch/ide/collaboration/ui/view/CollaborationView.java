@@ -18,8 +18,11 @@ import org.eclipse.compare.structuremergeviewer.DiffNode;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.ecf.core.util.ECFException;
 import org.eclipse.ecf.sync.SerializationException;
 import org.eclipse.jface.action.Action;
@@ -40,7 +43,6 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IEditorPart;
@@ -57,7 +59,6 @@ import eu.compassresearch.ide.collaboration.datamodel.CollaborationGroup;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationProject;
 import eu.compassresearch.ide.collaboration.datamodel.Configuration;
 import eu.compassresearch.ide.collaboration.datamodel.ConfigurationComparison;
-import eu.compassresearch.ide.collaboration.datamodel.Configurations;
 import eu.compassresearch.ide.collaboration.datamodel.File;
 import eu.compassresearch.ide.collaboration.datamodel.Model;
 import eu.compassresearch.ide.collaboration.files.FileComparison;
@@ -130,7 +131,7 @@ public class CollaborationView extends ViewPart
 			}
 		};
 		diffWithPrevConfigurationAction.setToolTipText("Diff selected configuration with the previous configuration");
-		
+
 		activateConfigurationAction = new Action("Activate configuration (introduce files into workspace)")
 		{
 			public void run()
@@ -139,7 +140,6 @@ public class CollaborationView extends ViewPart
 			}
 		};
 		activateConfigurationAction.setToolTipText("Activates this configuration by moving the files into the workspace project");
-		
 
 		diffWithPrevFileAction = new Action("Diff with previous file")
 		{
@@ -168,7 +168,7 @@ public class CollaborationView extends ViewPart
 					approveSelected();
 				} catch (CoreException e)
 				{
-					// TODO Auto-generated catch block
+					ResourcesPlugin.getPlugin().getLog().log(new Status(IStatus.ERROR, Activator.PLUGIN_ID, 0, e.getMessage(), e));
 					e.printStackTrace();
 				}
 			}
@@ -184,7 +184,7 @@ public class CollaborationView extends ViewPart
 					rejectSelected();
 				} catch (ECFException e)
 				{
-					// TODO Auto-generated catch block
+					ResourcesPlugin.getPlugin().getLog().log(new Status(IStatus.ERROR, Activator.PLUGIN_ID, 0, e.getMessage(), e));
 					e.printStackTrace();
 				}
 			}
@@ -225,10 +225,11 @@ public class CollaborationView extends ViewPart
 					{
 						Configuration config = (Configuration) selectedDomainObject;
 
-						if(config.isShared() || config.isReceived()){
+						if (config.isShared() || config.isReceived())
+						{
 							manager.add(activateConfigurationAction);
 						}
-						
+
 						if (Activator.getDefault().getConnectionManager().isConnectionInitialized())
 						{
 
@@ -241,13 +242,10 @@ public class CollaborationView extends ViewPart
 							{
 								manager.add(approveContractAction);
 								manager.add(rejectContractAction);
-								//TODO is it needed
-								//manager.add(negotiateContractAction);
 							}
 						}
-						
+
 						manager.add(diffWithPrevConfigurationAction);
-						
 
 					} else if ((selectedDomainObject instanceof File))
 					{
@@ -338,7 +336,7 @@ public class CollaborationView extends ViewPart
 			}
 		});
 	}
-	
+
 	protected void activateConfiguration()
 	{
 		if (treeViewer.getSelection().isEmpty())
@@ -349,21 +347,22 @@ public class CollaborationView extends ViewPart
 			IStructuredSelection selection = (IStructuredSelection) treeViewer.getSelection();
 			Model selectedDomainObject = (Model) selection.getFirstElement();
 
-			if (selectedDomainObject instanceof Configuration){
-				
+			if (selectedDomainObject instanceof Configuration)
+			{
+
 				Configuration selectedConfig = (Configuration) selectedDomainObject;
-				
+
 				CollaborationDataModelManager dataModelManager = Activator.getDefault().getDataModelManager();
-				
+
 				try
 				{
 					dataModelManager.activateConfiguration(selectedConfig);
 				} catch (CoreException e)
 				{
-					// TODO Auto-generated catch block
+					ResourcesPlugin.getPlugin().getLog().log(new Status(IStatus.ERROR, Activator.PLUGIN_ID, 0, e.getMessage(), e));
 					e.printStackTrace();
 				}
-				
+
 			}
 		}
 	}
@@ -408,32 +407,32 @@ public class CollaborationView extends ViewPart
 
 		return tempFileStore;
 	}
-	
+
 	protected void diffWithPrev()
 	{
-		
+
 		if (treeViewer.getSelection().isEmpty())
 		{
 			return;
-		} 
-		
+		}
+
 		CollaborationDataModelManager dataModelManager = Activator.getDefault().getDataModelManager();
-		
+
 		IStructuredSelection selection = (IStructuredSelection) treeViewer.getSelection();
 		Model selectedDomainObject = (Model) selection.getFirstElement();
 
 		if ((selectedDomainObject instanceof Configuration))
 		{
 			Configuration configuration = (Configuration) selectedDomainObject;
-			
+
 			ConfigurationComparison configurationCompare = dataModelManager.compareConfigurationWithPrev(configuration);
-			
+
 			if (configurationCompare == null)
 			{
 				CollaborationDialogs.getInstance().displayNotificationPopup(configuration.getName(), Notification.Collab_Dialog_ERROR_COMPARE_NO_PREVIOUS);
 				return;
 			}
-			
+
 			configurationCompare.getCompareResult();
 
 		} else if ((selectedDomainObject instanceof File))
@@ -443,19 +442,20 @@ public class CollaborationView extends ViewPart
 			try
 			{
 				FileComparison prevAndSelectedCompare = dataModelManager.compareFileWithPrev(selectedFile);
-				//is file defined previously
+				// is file defined previously
 				if (prevAndSelectedCompare == null)
 				{
 					CollaborationDialogs.getInstance().displayNotificationPopup(selectedFile.getName(), Notification.Collab_Dialog_ERROR_COMPARE_NO_PREVIOUS);
 					return;
 				}
 
-				//are they identical?
-				if(prevAndSelectedCompare.isIdentical()){
+				// are they identical?
+				if (prevAndSelectedCompare.isIdentical())
+				{
 					CollaborationDialogs.getInstance().displayNotificationPopup(selectedFile.getName(), Notification.Collab_Dialog_COMPARE_ARE_IDENTICAL);
 					return;
 				}
-				
+
 				showCompareDialog(prevAndSelectedCompare);
 
 			} catch (CoreException | IOException e)
@@ -488,7 +488,6 @@ public class CollaborationView extends ViewPart
 			@Override
 			public String getCancelButtonLabel()
 			{
-				// TODO Auto-generated method stub
 				return Notification.Collab_Dialog_BTN_OK;
 			}
 		});
@@ -600,7 +599,7 @@ public class CollaborationView extends ViewPart
 						| IFile.FORCE, monitor);
 			} catch (CoreException e)
 			{
-				// TODO Auto-generated catch block
+				ResourcesPlugin.getPlugin().getLog().log(new Status(IStatus.ERROR, Activator.PLUGIN_ID, 0, e.getMessage(), e));
 				e.printStackTrace();
 			}
 		}
@@ -619,9 +618,9 @@ public class CollaborationView extends ViewPart
 			if (selectedDomainObject instanceof Configuration)
 			{
 				Configuration configToApprove = (Configuration) selectedDomainObject;
-				
+
 				CollaborationDataModelManager collabMgM = Activator.getDefault().getDataModelManager();
-				
+
 				collabMgM.approveConfiguration(configToApprove);
 			}
 		}
@@ -639,11 +638,11 @@ public class CollaborationView extends ViewPart
 
 			if (selectedDomainObject instanceof Configuration)
 			{
-				Configuration contract = (Configuration) selectedDomainObject;
-				MessageProcessor messageProcessor = Activator.getDefault().getConnectionManager().getMessageProcessor();
-				// FileStatusMessage statMsg = new FileStatusMessage(contract.getReceiver(), contract.getSender(),
-				// contract.getFilename(), NegotiationStatus.REJECT, new Date());
-				// collabMgM.sendMessage(contract.getSender(), statMsg.serialize());
+				Configuration configurationToReject = (Configuration) selectedDomainObject;
+
+				CollaborationDataModelManager collabMgM = Activator.getDefault().getDataModelManager();
+
+				collabMgM.rejectConfiguration(configurationToReject);
 			}
 		}
 	}
@@ -671,25 +670,27 @@ public class CollaborationView extends ViewPart
 				// file.create(oldFile.getContents(), IResource.NONE, null);
 				// } catch (CoreException e1)
 				// {
-				// // TODO Auto-generated catch block
-				// e1.printStackTrace();
+				// ResourcesPlugin.getPlugin().getLog().log(new Status(IStatus.ERROR, Activator.PLUGIN_ID, 0,
+				// e.getMessage(), e));
+				// e.printStackTrace();
 				// }
 
-				Display.getDefault().asyncExec(new Runnable()
-				{
-					public void run()
-					{
-						IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-						// try
-						// {
-						// IEditorPart openEditor = IDE.openEditor(page, file, true);
-						// } catch (PartInitException e)
-						// {
-						// // TODO Auto-generated catch block
-						// e.printStackTrace();
-						// }
-					}
-				});
+				// Display.getDefault().asyncExec(new Runnable()
+				// {
+				// public void run()
+				// {
+				// IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+				// try
+				// {
+				// IEditorPart openEditor = IDE.openEditor(page, file, true);
+				// } catch (PartInitException e)
+				// {
+				// ResourcesPlugin.getPlugin().getLog().log(new Status(IStatus.ERROR, Activator.PLUGIN_ID, 0,
+				// e.getMessage(), e));
+				// e.printStackTrace();
+				// }
+				// }
+				// });
 			}
 		}
 	}

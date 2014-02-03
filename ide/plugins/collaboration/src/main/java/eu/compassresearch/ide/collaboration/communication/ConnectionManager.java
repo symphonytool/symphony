@@ -89,16 +89,17 @@ public class ConnectionManager implements IPresenceListener
 	}
 
 	// Send to all users, that have accepted to be part of the collaboration.
-	public void send(BaseMessage messageToSend, CollaborationProject project)
+	// Returns receivers
+	public void sendToAll(BaseMessage messageToSend, CollaborationProject project)
 	{
-
 		CollaborationGroup collaboratorGroup = project.getCollaboratorGroup();
-		List<User> collaborators = collaboratorGroup.getCollaborators();
+		List<User> collaborators = collaboratorGroup.getJoinedCollaborators();
 
 		for (User collaborator : collaborators)
 		{
 			sendTo(collaborator, messageToSend);
 		}
+		
 	}
 
 	public void sendTo(User user, BaseMessage messageToSend)

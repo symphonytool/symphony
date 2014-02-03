@@ -53,7 +53,7 @@ public class NewConfigurationMessageHandler extends
 		// TODO check that parent config is the same as msg.getParentConfigurationUniqueID()
 		try
 		{
-			FileHandler.saveFilesToCollaborationDir(msg.getFileSets(), collaborationProject);
+			FileHandler.saveFilesToCollaborationDir(msg.getFileDTOs(), collaborationProject);
 
 		} catch (CoreException e)
 		{
@@ -68,9 +68,9 @@ public class NewConfigurationMessageHandler extends
 				Configurations configurations = collaborationProject.getConfigurations();
 			
 				Configuration newestConfiguration = configurations.getNewestConfiguration();
-				Configuration receivedConfiguration = new Configuration(msg.getConfigurationUniqueID(), msg.getTimeStamp(), msg.getSignedBy(), newestConfiguration, configurations);
+				Configuration receivedConfiguration = new Configuration(msg.getConfigurationUniqueID(), msg.getTimeStamp(), msg.getSignedBy(), msg.getReceiverList(), newestConfiguration, configurations);
 				configurations.addConfiguration(receivedConfiguration);
-				for (FileDTO fs : msg.getFileSets())
+				for (FileDTO fs : msg.getFileDTOs())
 				{
 					receivedConfiguration.addNewFile(fs.getFileName(), fs.getFileHash(), fs.getTimestamp(), fs.getFilePath());
 				}
@@ -82,6 +82,5 @@ public class NewConfigurationMessageHandler extends
 		// TODO send received response
 		// FileStatusMessage statusMsg = new FileStatusMessage(fileMsg.getReceiverID(), fileMsg.getSenderID(), filename,
 		// NegotiationStatus.RECEIVED, time);
-
 	}
 }
