@@ -12,6 +12,7 @@ public class TransitionDTO
 	private String name;
 	private List<ILexLocation> locations;
 
+	@SuppressWarnings("unused")
 	private TransitionDTO()
 	{
 		locations = new LinkedList<ILexLocation>();

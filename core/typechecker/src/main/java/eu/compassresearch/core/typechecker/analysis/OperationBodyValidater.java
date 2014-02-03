@@ -42,7 +42,7 @@ public class OperationBodyValidater extends DepthFirstAnalysisCMLAdaptor
 	{
 		if (node.getAncestor(SOperationDefinition.class) != null)
 		{
-			issueHandler.addTypeError(node,TypeErrorMessages.ACTIONS_NOT_ALLOWED_IN_OPERATION);
+			issueHandler.addTypeError(node, TypeErrorMessages.ACTIONS_NOT_ALLOWED_IN_OPERATION);
 			ok = false;
 		}
 	}
@@ -52,7 +52,7 @@ public class OperationBodyValidater extends DepthFirstAnalysisCMLAdaptor
 	{
 		if (node.getAncestor(SOperationDefinition.class) != null)
 		{
-			issueHandler.addTypeError(node,TypeErrorMessages.PROCESSES_NOT_ALLOWED_IN_OPERATION,"");
+			issueHandler.addTypeError(node, TypeErrorMessages.PROCESSES_NOT_ALLOWED_IN_OPERATION, "");
 			ok = false;
 		}
 	}

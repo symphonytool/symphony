@@ -4,6 +4,10 @@ import org.overture.interpreter.values.Value;
 
 public class PartiallyImpreciseValue extends Value implements LooseValue
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private Value complexValue;
 
 	public PartiallyImpreciseValue(Value complexValue)

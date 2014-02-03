@@ -12,8 +12,8 @@ import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour.BehaviourN
 import eu.compassresearch.core.interpreter.utility.Pair;
 
 /**
- * Handles all setup actions. However, this is not meant to handle the 
- * semantic begin rules for actions.
+ * Handles all setup actions. However, this is not meant to handle the semantic begin rules for actions.
+ * 
  * @author akm
  */
 abstract class AbstractSetupVisitor extends
@@ -32,9 +32,9 @@ abstract class AbstractSetupVisitor extends
 	 * Factory to create new CmlBehavior objects
 	 */
 	protected final CmlBehaviorFactory cmlBehaviorFactory;
-	
+
 	/**
-	 * Evaluator for expressions 
+	 * Evaluator for expressions
 	 */
 	protected final QuestionAnswerCMLAdaptor<Context, Value> cmlExpressionVisitor = new CmlExpressionVisitor();
 	/**
@@ -42,7 +42,8 @@ abstract class AbstractSetupVisitor extends
 	 */
 	protected final CmlDefinitionVisitor cmlDefEvaluator = new CmlDefinitionVisitor();
 
-	public AbstractSetupVisitor(CmlBehaviour owner, VisitorAccess visitorAccess, CmlBehaviorFactory cmlBehaviorFactory)
+	public AbstractSetupVisitor(CmlBehaviour owner,
+			VisitorAccess visitorAccess, CmlBehaviorFactory cmlBehaviorFactory)
 	{
 		this.owner = owner;
 		this.controlAccess = visitorAccess;

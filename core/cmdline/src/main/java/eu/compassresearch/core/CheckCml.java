@@ -539,7 +539,7 @@ public class CheckCml
 				try
 				{
 
-					final CmlInterpreter interpreter = VanillaInterpreterFactory.newInterpreter(sources);
+					final CmlInterpreter interpreter = new VanillaInterpreterFactory().newInterpreter(sources);
 
 					AnalysisRunAdaptor re = new AnalysisRunAdaptor(null)
 					{

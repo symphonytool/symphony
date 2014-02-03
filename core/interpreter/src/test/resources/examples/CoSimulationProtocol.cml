@@ -1,0 +1,129 @@
+types
+
+TCP_Event = <CONNECT>|<DISCONNECT>
+CoSimulationProtocol = <RegisterSubSystemMessage>|<InspectMessage>|<InspectReplyMessage>|<ExecuteMessage>|<ExecuteCompletedMessage>|<FinishedRequestMessage>|<FinishedReplyMessage>|<DisconnectMessage> 
+
+ChannelEventObject = nat
+ChannelObjectSet = set of ChannelEventObject 
+
+String = seq of char
+channels
+
+ch_tcp:TCP_Event |CoSimulationProtocol
+ch_init
+
+class IO =
+begin
+operations
+public  println: int ==> ()
+println(arg) ==
+    is not yet specified
+    
+public  println: String ==> ()
+println(arg) ==
+    is not yet specified    
+
+  public toString: int ==> () -- need to be a static class, must sync access to  the native io stream
+        toString(i)== is not yet specified   
+end
+
+class CoSimulationCallback =
+begin
+
+state
+
+  debug:[IO] := nil
+  
+operations
+
+public CoSimulationCallback:()==> CoSimulationCallback
+       CoSimulationCallback()== (debug := new IO())
+      
+public inspect:()==>ChannelObjectSet
+      inspect()== 
+      (
+       debug. println("inspecting");
+       return {}
+      )
+      
+public execute:ChannelEventObject==>()
+       execute(-)== 
+       (
+       debug. println("executing")
+       )      
+
+public finished:()==>bool
+       finished() == 
+       (
+       debug. println("finished");
+       return false
+      )
+end
+
+
+
+process CoSimlulationServer =
+begin
+ state
+   isExecuteable:bool := false
+
+ operations
+   setExeState:bool==>()
+   setExeState(b)== isExecuteable := b
+
+
+actions
+
+   act_serviceLoop = ch_tcp.<CONNECT>->(act_connected /_\ (ch_tcp.<DISCONNECT>->Skip[]ch_tcp.<DisconnectMessage>->Skip))
+   
+   act_connected = ch_tcp.<RegisterSubSystemMessage>->act_clientProtocolLoop
+   
+   act_clientProtocolLoop = ( act_inspecting []act_finished [] [isExecuteable]& act_executing); act_clientProtocolLoop
+   
+   act_inspecting = ch_tcp.<InspectMessage>->ch_tcp.<InspectReplyMessage>->(setExeState(true));Skip 
+   
+   act_executing = ch_tcp.<ExecuteMessage>->ch_tcp.<ExecuteCompletedMessage>->(setExeState(false));Skip
+   
+   act_finished = ch_tcp.<FinishedRequestMessage>->ch_tcp.<FinishedReplyMessage>->Skip 
+
+   @ ch_init->(act_serviceLoop /_\ch_init->Skip)
+
+end
+
+process CoSimlulationClient =
+begin
+
+state
+   myCallback:[CoSimulationCallback]:=nil
+   isExecuteable:bool := false
+
+
+operations
+
+   setExeState:bool==>()
+   setExeState(b)== isExecuteable := b
+
+   initObject:()==>()
+   initObject() == ( myCallback := new CoSimulationCallback())  
+
+actions
+
+   act_serviceLoop = ch_tcp.<CONNECT>->(act_connected /_\ (ch_tcp.<DISCONNECT>->Skip[]ch_tcp.<DisconnectMessage>->Skip))
+   
+   act_connected = ch_tcp.<RegisterSubSystemMessage>->act_clientProtocolLoop
+   
+   act_clientProtocolLoop = ( act_inspecting []act_finished [] [isExecuteable]& act_executing); act_clientProtocolLoop
+   
+   act_inspecting = ch_tcp.<InspectMessage>->( myCallback.inspect());ch_tcp.<InspectReplyMessage>->(setExeState(true));Skip 
+   
+   act_executing = ch_tcp.<ExecuteMessage>->( myCallback.execute(1));ch_tcp.<ExecuteCompletedMessage>->(setExeState(false));Skip
+   
+   act_finished = ch_tcp.<FinishedRequestMessage>->( myCallback.finished());ch_tcp.<FinishedReplyMessage>->Skip 
+
+   @ ch_init->initObject();(act_serviceLoop /_\ch_init->Skip)
+
+end
+
+process CoSimlulationClientAndServer =   CoSimlulationServer  [|{|ch_init,ch_tcp |}|]CoSimlulationClient
+
+process testdriver = CoSimlulationClientAndServer [| {ch_init,ch_tcp} |] begin @ ch_init -> ch_tcp.<CONNECT> -> ch_tcp.<RegisterSubSystemMessage> -> ch_tcp.<FinishedRequestMessage> -> ch_tcp.<DisconnectMessage> -> Skip end

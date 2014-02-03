@@ -104,7 +104,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 							try
 							{
 								communicationManager.addBreakpoint(cmlBp.getResourceURI(), cmlBp.getLineNumber(), cmlBp.isEnabled());
-							} catch (CoreException e)
+							} catch (Exception e)
 							{
 								CmlDebugPlugin.logError("Failed to set breakpoint", e);
 							}
@@ -116,7 +116,14 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 					}
 				}
 
-				communicationManager.sendMessage(new ResponseMessage(message.getRequestId(), CmlRequest.SETUP, ""));
+				try
+				{
+					communicationManager.sendMessage(new ResponseMessage(message.getRequestId(), CmlRequest.SETUP, ""));
+				} catch (Exception e)
+				{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				return true;
 			}
 		});
@@ -379,7 +386,14 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 	{
 		// fireTargetTerminating();
 
-		communicationManager.terminate();
+		try
+		{
+			communicationManager.terminate();
+		} catch (Exception e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		if (waitTermination)
 		{
 			final IProcess p = getProcess();
@@ -442,13 +456,27 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 	@Override
 	public void resume() throws DebugException
 	{
-		this.communicationManager.sendCommandMessage(CmlDebugCommand.RESUME);
+		try
+		{
+			this.communicationManager.sendCommandMessage(CmlDebugCommand.RESUME);
+		} catch (Exception e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		fireResumeEvent(0);
 	}
 
 	public void select(TransitionDTO choice)
 	{
-		this.communicationManager.sendMessage(new CmlDbgCommandMessage(CmlDebugCommand.SET_CHOICE, choice));
+		try
+		{
+			this.communicationManager.sendMessage(new CmlDbgCommandMessage(CmlDebugCommand.SET_CHOICE, choice));
+		} catch (Exception e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		fireResumeEvent(0);
 	}
 
@@ -467,7 +495,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 			try
 			{
 				communicationManager.addBreakpoint(cb.getResourceURI(), ((CmlLineBreakpoint) breakpoint).getLineNumber(), breakpoint.isEnabled());
-			} catch (CoreException e)
+			} catch (Exception e)
 			{
 				CmlDebugPlugin.logError("Faild to add breakpoint", e);
 			}
@@ -483,7 +511,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 			try
 			{
 				communicationManager.removeBreakpoint(cb.getResourceURI(), ((CmlLineBreakpoint) breakpoint).getLineNumber());
-			} catch (CoreException e)
+			} catch (Exception e)
 			{
 				CmlDebugPlugin.logError("Faild to remove breakpoint", e);
 			}
@@ -499,7 +527,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 			try
 			{
 				communicationManager.updateBreakpoint(cb.getResourceURI(), ((CmlLineBreakpoint) breakpoint).getLineNumber(), breakpoint.isEnabled());
-			} catch (CoreException e)
+			} catch (Exception e)
 			{
 				CmlDebugPlugin.logError("Faild to update breakpoint", e);
 			}
@@ -549,7 +577,14 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 	@Override
 	public void disconnect() throws DebugException
 	{
-		communicationManager.disconnect();
+		try
+		{
+			communicationManager.disconnect();
+		} catch (Exception e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@Override

@@ -11,7 +11,7 @@ import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
  * 
  * @author akm
  */
-abstract class AbstractLabelledTransition extends AbstractCmlTransition
+public abstract class AbstractLabelledTransition extends AbstractCmlTransition
 		implements LabelledTransition
 {
 
@@ -20,6 +20,11 @@ abstract class AbstractLabelledTransition extends AbstractCmlTransition
 	 */
 	private static final long serialVersionUID = -1807730095394673285L;
 	final protected ChannelNameValue channelName;
+
+	protected AbstractLabelledTransition()
+	{
+		channelName = null;
+	}
 
 	public AbstractLabelledTransition(CmlBehaviour eventSource,
 			ChannelNameValue channelName)
@@ -33,6 +38,20 @@ abstract class AbstractLabelledTransition extends AbstractCmlTransition
 	{
 		super(sources);
 		this.channelName = channelName;
+	}
+
+	/**
+	 * Constructor for combining transitions
+	 * 
+	 * @param baseEvent
+	 * @param otherComEvent
+	 * @param meetValue
+	 */
+	public AbstractLabelledTransition(CmlTransition baseEvent,
+			CmlTransition otherComEvent, ChannelNameValue meetValue)
+	{
+		super(baseEvent, otherComEvent);
+		this.channelName = meetValue;
 	}
 
 	/**

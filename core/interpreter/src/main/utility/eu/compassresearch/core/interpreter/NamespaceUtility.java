@@ -9,13 +9,18 @@ import org.overture.ast.node.INode;
 import eu.compassresearch.ast.lex.CmlLexNameToken;
 import eu.compassresearch.core.interpreter.utility.LocationExtractor;
 
-class NamespaceUtility
+public class NamespaceUtility
 {
 	private static ILexNameToken namesetName = new CmlLexNameToken("|NAMESET|", "writable_names", new LexLocation());
 
 	public static ILexNameToken createSimpleName(ILexIdentifierToken id)
 	{
 		return new CmlLexNameToken("", id.getName(), id.getLocation(), false, false);
+	}
+	
+	public static ILexNameToken getRenamingValueName()
+	{
+		return new CmlLexNameToken("|RENAMING|", "values", new LexLocation());
 	}
 
 	public static ILexNameToken createChannelName(ILexIdentifierToken id)
@@ -32,8 +37,23 @@ class NamespaceUtility
 	{
 		return new CmlLexNameToken("|TIMEOUT|", "STARTTIME", new LexLocation());
 	}
+	
+	public static ILexNameToken getStartsByTimeName()
+	{
+		return new CmlLexNameToken("|STARTSBY|", "STARTTIME", new LexLocation());
+	}
+	
+	public static ILexNameToken getEndsByTimeName()
+	{
+		return new CmlLexNameToken("|ENDSBY|", "STARTTIME", new LexLocation());
+	}
 
 	public static ILexNameToken getSeqForName()
+	{
+		return new CmlLexNameToken("|FORSEQ|", "v", new LexLocation());
+	}
+	
+	public static ILexNameToken getForAllName()
 	{
 		return new CmlLexNameToken("|FORSEQ|", "v", new LexLocation());
 	}

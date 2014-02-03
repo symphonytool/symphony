@@ -13,7 +13,6 @@ import org.overture.ast.lex.LexNameList;
 import org.overture.ast.statements.PStm;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.typechecker.Environment;
-import org.overture.typechecker.assistant.definition.PDefinitionListAssistantTC;
 
 import eu.compassresearch.ast.analysis.DepthFirstAnalysisCMLAdaptor;
 import eu.compassresearch.ast.definitions.AActionClassDefinition;
@@ -49,30 +48,32 @@ public class UniquenessChecker extends DepthFirstAnalysisCMLAdaptor
 
 	private UniquenessChecker(List<PDefinition> lp)
 	{
-		this.env = new FlatCheckedGlobalEnvironment(AF, lp, NameScope.NAMESANDSTATE){
+		this.env = new FlatCheckedGlobalEnvironment(AF, lp, NameScope.NAMESANDSTATE)
+		{
 			protected void dupHideCheck(List<PDefinition> list, NameScope scope)
 			{
-				List<PDefinition> filteredList= new LinkedList<PDefinition>(list);
+				List<PDefinition> filteredList = new LinkedList<PDefinition>(list);
 				for (PDefinition def : list)
 				{
-					if(def instanceof AClassInvariantDefinition)
+					if (def instanceof AClassInvariantDefinition)
 					{
 						filteredList.remove(def);
 					}
 				}
-				LexNameList allnamesDeepSearch = PDefinitionListAssistantTC.getVariableNames(filteredList);
-				
-				LexNameList	allnames = new LexNameList(allnamesDeepSearch);
-				
+				LexNameList allnamesDeepSearch = AF.createPDefinitionListAssistant().getVariableNames(filteredList);
+
+				LexNameList allnames = new LexNameList(allnamesDeepSearch);
+
 				for (ILexNameToken n : allnamesDeepSearch)
 				{
-					if(n.parent().parent() instanceof SClassDefinition)
+					if (n.parent().parent() instanceof SClassDefinition)
 					{
 						allnames.remove(n);
 					}
 				}
-				
-				//FIXME: this list ends up only having all global definitions + all process names. Is this what have to be unique. Class uniqueness is enforced elsewhere
+
+				// FIXME: this list ends up only having all global definitions + all process names. Is this what have to
+				// be unique. Class uniqueness is enforced elsewhere
 
 				for (ILexNameToken n1 : allnames)
 				{
@@ -101,8 +102,7 @@ public class UniquenessChecker extends DepthFirstAnalysisCMLAdaptor
 					}
 				}
 			}
-		}
-		;
+		};
 	}
 
 	@Override

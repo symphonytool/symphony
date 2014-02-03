@@ -60,99 +60,102 @@ public class RttMbtProjectExplorer extends org.eclipse.ui.navigator.CommonNaviga
     	IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		workspaceDirectory = workspace.getRoot().getLocation().toFile();
 
+		// clear tree selection in Activator
+		Activator.setCurrentProjectExplorerItem(null);
+
 		IProject project = null;
 		if (selection instanceof TreeSelection) {		    
 			TreeSelection treeSelection = (TreeSelection)selection;
+			Activator.setCurrentProjectExplorerItem(treeSelection);
 			if (treeSelection.size() == 0) {
 				setAllKeysFlase();
 				return;
 			}
-			if (treeSelection.size() > 1) {
+			if ((treeSelection.size() > 1) && (!client.getAllowMultipleRttMbtTmsTasks())) {
 				setAllKeysFlase();
 				return;
 			}
-			if ((treeSelection.getFirstElement() != null) &&
-				(treeSelection.getFirstElement() instanceof IFolder)) {
-				IFolder folder = (IFolder)treeSelection.getFirstElement();
-				project = folder.getProject();
-				selectedObject = folder.getName();
-				selectedObjectPath = RttMbtClient.getAbsolutePathFromFileURI(folder.getLocationURI());
-				isFolderSelected = true;
-			} else if ((treeSelection.getFirstElement() != null) &&
-				       (treeSelection.getFirstElement() instanceof IFile)) {
-				IFile file = (IFile)treeSelection.getFirstElement();
-				project = file.getProject();
-				selectedObject = file.getName();
-				selectedObjectPath = RttMbtClient.getAbsolutePathFromFileURI(file.getLocationURI());
-				isFileSelected = true;
-			} else if ((treeSelection.getFirstElement() != null) &&
-				       (treeSelection.getFirstElement() instanceof IProject)) {
-				project = (IProject)treeSelection.getFirstElement();
-				selectedObject = project.getName();
-				selectedObjectPath = RttMbtClient.getAbsolutePathFromFileURI(project.getLocationURI());
-				isFolderSelected = true;
+			// if more than one item is selected, check that the same type of elements is selected
+			boolean wasGenerationContextSelected = false;
+			boolean wasExecutionContextSelected = false;
+			boolean wasModelDumpSelected = false;
+			boolean wasRttMbtProjectSelected = false;
+			boolean wasMakefileSelected = false;
+			Object elements[] = treeSelection.toArray();
+			for (int idx = 0; idx < treeSelection.size(); idx++) {
+				// get current element
+				Object element = elements[idx];
+				if (element == null) continue;
+				if (element instanceof IFolder) {
+					IFolder folder = (IFolder)treeSelection.getFirstElement();
+					project = folder.getProject();
+					selectedObject = folder.getName();
+					selectedObjectPath = RttMbtClient.getAbsolutePathFromFileURI(folder.getLocationURI());
+					isFolderSelected = true;
+				} else if (element instanceof IFile) {
+					IFile file = (IFile)treeSelection.getFirstElement();
+					project = file.getProject();
+					selectedObject = file.getName();
+					selectedObjectPath = RttMbtClient.getAbsolutePathFromFileURI(file.getLocationURI());
+					isFileSelected = true;
+				} else if (element instanceof IProject) {
+					project = (IProject)treeSelection.getFirstElement();
+					selectedObject = project.getName();
+					selectedObjectPath = RttMbtClient.getAbsolutePathFromFileURI(project.getLocationURI());
+					isFolderSelected = true;
+				} else {
+					setAllKeysFlase();
+					continue;
+				}
+
+				// enable RTT-MBT actions
+				if (isGenerationContextSelected() && (idx == 0 || wasGenerationContextSelected)) {
+					setService(RttMbtCommandState.keyIsGenerationContextTP,RttMbtCommandState.TRUE);
+					setService(RttMbtCommandState.keyIsExecutionContextTP,RttMbtCommandState.FALSE);
+					setService(RttMbtCommandState.keyIsModelDumpSelected, RttMbtCommandState.FALSE);
+					setService(RttMbtCommandState.keyIsMakefileSelected, RttMbtCommandState.FALSE);
+					setService(RttMbtCommandState.keyIsRttMbtProjectSelected, RttMbtCommandState.FALSE);
+					wasGenerationContextSelected = true;
+				} else if ((isExecutionContextSelected() || RttMbtClient.isRtt6TestProcedure(selectedObjectPath)) &&
+						   (idx == 0 || wasExecutionContextSelected)) {
+					setService(RttMbtCommandState.keyIsExecutionContextTP,RttMbtCommandState.TRUE);
+					setService(RttMbtCommandState.keyIsGenerationContextTP,RttMbtCommandState.FALSE);
+					setService(RttMbtCommandState.keyIsModelDumpSelected, RttMbtCommandState.FALSE);
+					setService(RttMbtCommandState.keyIsMakefileSelected, RttMbtCommandState.FALSE);
+					setService(RttMbtCommandState.keyIsRttMbtProjectSelected, RttMbtCommandState.FALSE);
+					wasExecutionContextSelected = true;
+				} else if (isModelDumpSelected() && (idx == 0 || wasModelDumpSelected)) {
+					setService(RttMbtCommandState.keyIsModelDumpSelected, RttMbtCommandState.TRUE);
+					setService(RttMbtCommandState.keyIsGenerationContextTP, RttMbtCommandState.FALSE);
+					setService(RttMbtCommandState.keyIsExecutionContextTP, RttMbtCommandState.FALSE);
+					setService(RttMbtCommandState.keyIsMakefileSelected, RttMbtCommandState.FALSE);
+					setService(RttMbtCommandState.keyIsRttMbtProjectSelected, RttMbtCommandState.FALSE);
+					wasModelDumpSelected = true;
+				} else if (isRttMbtProjectSelected() && (idx == 0 || wasRttMbtProjectSelected)) {
+					setService(RttMbtCommandState.keyIsRttMbtProjectSelected, RttMbtCommandState.TRUE);
+					setService(RttMbtCommandState.keyIsGenerationContextTP, RttMbtCommandState.FALSE);
+					setService(RttMbtCommandState.keyIsExecutionContextTP, RttMbtCommandState.FALSE);
+					setService(RttMbtCommandState.keyIsModelDumpSelected, RttMbtCommandState.FALSE);
+					setService(RttMbtCommandState.keyIsMakefileSelected, RttMbtCommandState.FALSE);
+					wasRttMbtProjectSelected = true;
+				} else if (isMakefileSelected() && (idx == 0 || wasMakefileSelected)) {
+					setService(RttMbtCommandState.keyIsMakefileSelected, RttMbtCommandState.TRUE);
+					setService(RttMbtCommandState.keyIsGenerationContextTP, RttMbtCommandState.FALSE);
+					setService(RttMbtCommandState.keyIsExecutionContextTP, RttMbtCommandState.FALSE);
+					setService(RttMbtCommandState.keyIsModelDumpSelected, RttMbtCommandState.FALSE);
+					setService(RttMbtCommandState.keyIsRttMbtProjectSelected, RttMbtCommandState.FALSE);
+					wasMakefileSelected = true;
+				} else {
+					setAllKeysFlase();
+					wasGenerationContextSelected = false;
+					wasExecutionContextSelected = false;
+					wasModelDumpSelected = false;
+					wasRttMbtProjectSelected = false;
+					wasMakefileSelected = false;
+				}
 			}
 		}
-		// check for invalid selection
-		if ((project == null) ||
-			(selectedObject == null) ||
-			(selectedObjectPath == null)) {
-			setAllKeysFlase();
-			return;
-		}
 
-		// set project specific properties
-		String value = RttMbtProjectPropertiesPage.getPropertyValue(project, "RttMbtrttProjectDatabase");
-		if (value != null) {
-			client.setProjectDatabaseName(value);
-		}
-		value = RttMbtProjectPropertiesPage.getPropertyValue(project, "RttMbtRttTprocPrefix");
-		if ((value != null) && (value.length() > 0)) {
-			client.setRttMbtTestProcFolderName(value);
-		} else {
-			client.setRttMbtTestProcFolderName(Activator.getPreferenceValue("RttMbtRttTprocPrefix"));
-		}
-		value = RttMbtProjectPropertiesPage.getPropertyValue(project, "RttMbtTProcGenCtx");
-		if ((value != null) && (value.length() > 0)) {
-			client.setRttMbtTProcGenCtxFolderName(value);
-		} else {
-			client.setRttMbtTProcGenCtxFolderName(Activator.getPreferenceValue("RttMbtTProcGenCtx"));
-		}
-
-		// enable RTT-MBT actions
-		if (isGenerationContextSelected()) {
-			setService(RttMbtCommandState.keyIsGenerationContextTP,RttMbtCommandState.TRUE);
-			setService(RttMbtCommandState.keyIsExecutionContextTP,RttMbtCommandState.FALSE);
-			setService(RttMbtCommandState.keyIsModelDumpSelected, RttMbtCommandState.FALSE);
-			setService(RttMbtCommandState.keyIsMakefileSelected, RttMbtCommandState.FALSE);
-			setService(RttMbtCommandState.keyIsRttMbtProjectSelected, RttMbtCommandState.FALSE);
-		} else if (isExecutionContextSelected()) {
-			setService(RttMbtCommandState.keyIsExecutionContextTP,RttMbtCommandState.TRUE);
-			setService(RttMbtCommandState.keyIsGenerationContextTP,RttMbtCommandState.FALSE);
-			setService(RttMbtCommandState.keyIsModelDumpSelected, RttMbtCommandState.FALSE);
-			setService(RttMbtCommandState.keyIsMakefileSelected, RttMbtCommandState.FALSE);
-			setService(RttMbtCommandState.keyIsRttMbtProjectSelected, RttMbtCommandState.FALSE);
-		} else if (isModelDumpSelected()) {
-			setService(RttMbtCommandState.keyIsModelDumpSelected, RttMbtCommandState.TRUE);
-			setService(RttMbtCommandState.keyIsGenerationContextTP, RttMbtCommandState.FALSE);
-			setService(RttMbtCommandState.keyIsExecutionContextTP, RttMbtCommandState.FALSE);
-			setService(RttMbtCommandState.keyIsMakefileSelected, RttMbtCommandState.FALSE);
-			setService(RttMbtCommandState.keyIsRttMbtProjectSelected, RttMbtCommandState.FALSE);
-		} else if (isRttMbtProjectSelected()) {
-			setService(RttMbtCommandState.keyIsRttMbtProjectSelected, RttMbtCommandState.TRUE);
-			setService(RttMbtCommandState.keyIsGenerationContextTP, RttMbtCommandState.FALSE);
-			setService(RttMbtCommandState.keyIsExecutionContextTP, RttMbtCommandState.FALSE);
-			setService(RttMbtCommandState.keyIsModelDumpSelected, RttMbtCommandState.FALSE);
-			setService(RttMbtCommandState.keyIsMakefileSelected, RttMbtCommandState.FALSE);
-		} else if (isMakefileSelected()) {
-			setService(RttMbtCommandState.keyIsMakefileSelected, RttMbtCommandState.TRUE);
-			setService(RttMbtCommandState.keyIsGenerationContextTP, RttMbtCommandState.FALSE);
-			setService(RttMbtCommandState.keyIsExecutionContextTP, RttMbtCommandState.FALSE);
-			setService(RttMbtCommandState.keyIsModelDumpSelected, RttMbtCommandState.FALSE);
-			setService(RttMbtCommandState.keyIsRttMbtProjectSelected, RttMbtCommandState.FALSE);
-		} else {
-			setAllKeysFlase();
-		}
 		return;
 	}
 
@@ -161,6 +164,7 @@ public class RttMbtProjectExplorer extends org.eclipse.ui.navigator.CommonNaviga
 		setService(RttMbtCommandState.keyIsExecutionContextTP, RttMbtCommandState.FALSE);
 		setService(RttMbtCommandState.keyIsModelDumpSelected, RttMbtCommandState.FALSE);
 		setService(RttMbtCommandState.keyIsRttMbtProjectSelected, RttMbtCommandState.FALSE);
+		setService(RttMbtCommandState.keyIsMakefileSelected, RttMbtCommandState.FALSE);
     }
 
     private void setService(String key, String value) {

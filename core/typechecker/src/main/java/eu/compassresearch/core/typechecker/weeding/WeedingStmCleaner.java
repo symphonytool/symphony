@@ -10,7 +10,6 @@ import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.definitions.SOperationDefinition;
 import org.overture.ast.factory.AstFactory;
 import org.overture.ast.node.INode;
-import eu.compassresearch.ast.statements.AActionStm;
 import org.overture.ast.statements.ABlockSimpleBlockStm;
 import org.overture.ast.statements.PStm;
 
@@ -18,6 +17,7 @@ import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.AStmAction;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.DepthFirstAnalysisCMLAdaptor;
+import eu.compassresearch.ast.statements.AActionStm;
 import eu.compassresearch.core.typechecker.DefinitionList;
 
 /**
@@ -33,12 +33,14 @@ public class WeedingStmCleaner extends DepthFirstAnalysisCMLAdaptor
 		for (PDefinition s : sourceForest)
 		{
 			if (s != null)
+			{
 				try
 				{
 					s.apply(lv);
 				} catch (AnalysisException e)
 				{
 				}
+			}
 		}
 	}
 

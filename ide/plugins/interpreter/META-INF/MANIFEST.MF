@@ -31,4 +31,5 @@ Bundle-ClassPath: .,
  jars/json-simple.jar,
  jars/jackson-core.jar,
  jars/jackson-databind.jar,
- jars/jackson-annotations.jar
+ jars/jackson-annotations.jar,
+ jars/slf4j-api.jar

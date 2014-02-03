@@ -6,6 +6,10 @@ import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 public class CmlBehaviorStateEvent extends Event<CmlBehaviour>
 {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private final CmlBehaviorState state;
 
 	public CmlBehaviorStateEvent(CmlBehaviour source, CmlBehaviorState newState)

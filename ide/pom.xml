@@ -19,7 +19,7 @@
   <properties>
     <maven.test.skip>true</maven.test.skip>
     <maven.javadoc.skip>true</maven.javadoc.skip>
-    <tycho.version>0.18.1</tycho.version>
+    <tycho.version>0.19.0</tycho.version>
   </properties>
 
   <modules>
@@ -185,6 +185,17 @@
           </plugin>
         </plugins>
       </build>
+    </profile>
+
+    <profile>
+      <id>overture-test-repo</id>
+      <repositories>
+        <repository>
+          <id>overture.au.dk-p2</id>
+          <url>http://overture.au.dk/p2/symphony-overture-test/</url>
+          <layout>p2</layout>
+        </repository>
+      </repositories>
     </profile>
   </profiles>
 </project>

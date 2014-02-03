@@ -1,6 +1,5 @@
 package eu.compassresearch.core.interpreter.api.transitions;
 
-import java.util.HashSet;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -36,7 +35,8 @@ public class TimedTransition extends AbstractCmlTransition implements
 		timeLimit = 0;
 	}
 
-	protected TimedTransition(SortedSet<CmlBehaviour> eventSources, long timeLimit)
+	protected TimedTransition(SortedSet<CmlBehaviour> eventSources,
+			long timeLimit)
 	{
 		super(eventSources);
 		this.timeLimit = timeLimit;

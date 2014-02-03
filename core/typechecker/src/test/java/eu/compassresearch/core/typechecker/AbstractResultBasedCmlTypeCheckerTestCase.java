@@ -220,8 +220,9 @@ public abstract class AbstractResultBasedCmlTypeCheckerTestCase extends
 	private void configureResultGeneration()
 	{
 		if (System.getProperty(TESTS_TC_PROPERTY_PREFIX + "all") != null
-				|| (getPropertyId() != null && System.getProperty(TESTS_TC_PROPERTY_PREFIX
-						+ getPropertyId()) != null))
+				|| getPropertyId() != null
+				&& System.getProperty(TESTS_TC_PROPERTY_PREFIX
+						+ getPropertyId()) != null)
 		{
 			Properties.recordTestResults = true;
 		}
@@ -259,7 +260,8 @@ public abstract class AbstractResultBasedCmlTypeCheckerTestCase extends
 	}
 
 	@Override
-	protected boolean assertEqualResults(Boolean expected, Boolean actual,PrintWriter out)
+	protected boolean assertEqualResults(Boolean expected, Boolean actual,
+			PrintWriter out)
 	{
 		return true;
 	}

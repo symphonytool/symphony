@@ -38,7 +38,7 @@ public class jsonReceiveFileFromCacheCommand extends jsonCommand {
 		if (reply == null) {
 			return null;
 		}
-		// @todo: extract parameters by resule name
+		// @todo: extract parameters by result name
 		return (JSONObject)reply.get("receive-file-from-cache-reply");
 	}
 
@@ -58,16 +58,21 @@ public class jsonReceiveFileFromCacheCommand extends jsonCommand {
 			(filename == null) ||
 			(fileContent == null) ||
 			(checksum == null)) {
-			client.addErrorMessage("*** error: missing parameters in receive-file-from-cache-reply from server!");
+			client.addErrorMessage("missing parameters in receive-file-from-cache-reply from server!");
 			resultValue = false;
 			return;
 		}
 		// store file
+		if (checksum.compareTo("file does not exist") == 0) {
+			// no error message for non existing files, but receive command should fail
+			resultValue = false;
+			return;
+		}
 		filename = client.addLocalWorkspace(filename);
 		writeBase64StringFileContent(filename, fileContent, true);
 		String localChecksum = getSHA256Checksum(filename);
 		if (!checksum.equals(localChecksum)) {
-			client.addErrorMessage("*** error: checksum of received file '" + filename + "' does not match with retrieved local file!");
+			client.addErrorMessage("checksum of received file '" + filename + "' does not match with retrieved local file!");
 			resultValue = false;
 			return;
 		}

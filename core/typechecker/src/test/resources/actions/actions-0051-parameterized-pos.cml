@@ -9,5 +9,5 @@ begin
 	actions
 		d=  r:int @ x:=r; Skip
 		
-	@ d
+	@ d(1)
 end

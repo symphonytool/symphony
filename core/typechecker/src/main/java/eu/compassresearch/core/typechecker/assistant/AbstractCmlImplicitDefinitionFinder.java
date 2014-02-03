@@ -122,7 +122,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 		super(af);
 	}
 
-
 	@Override
 	public void caseFile(File node, Environment question)
 			throws AnalysisException
@@ -870,6 +869,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAChannelType(AChannelType node, Environment question)
 			throws AnalysisException
 	{
-		
+
 	}
 }

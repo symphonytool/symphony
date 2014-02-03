@@ -15,5 +15,7 @@ public interface LabelledTransition extends CmlTransition
 	public ChannelNameValue getChannelName();
 
 	public List<LabelledTransition> expand();
+	
+	public LabelledTransition rename(ChannelNameValue value);
 
 }

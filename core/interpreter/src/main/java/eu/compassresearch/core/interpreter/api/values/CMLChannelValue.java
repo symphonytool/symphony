@@ -23,7 +23,7 @@ public class CMLChannelValue extends Value implements CmlChannel // CmlIOChannel
 	 * 
 	 */
 	private static final long serialVersionUID = 6350630462785844551L;
-	private ILexNameToken name;
+	public final ILexNameToken name;
 	private AChannelType channelType;
 
 	private class ChannelEventMediator implements

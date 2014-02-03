@@ -1,0 +1,51 @@
+types
+
+-- inteface events for the steaming layer
+-- transition model == &(s:State,e:StreamingLayerControlEvent)->(s�:State || s:State, e:StreamingLayerReplyEvent )
+
+StreamingLayerControlEvent = <CONNECT>|<DISCONNECT>|<SETUPSTREAM>|<PLAY>|<STOP>-- state transition events
+StreamingLayerReplyEvent = <CONNECED>|<DISCONNECED>|<STREAM_READY>|<PLAYING>|<STOPPED> --async events
+StreamingLayerErrorEvent = <STATE_ERROR> --async events
+
+
+-- control layer user events
+ControlLayerUserEvent = <CONNECT>|<DISCONNECT>|<SETUPSTREAM>|<PLAY>|<STOP>|<INTERUPT>-- state transition events
+
+channels
+
+init -- channel for starting and shurting down the processes
+
+-- channels for the streaming layer interface
+streamingControlChannel:StreamingLayerControlEvent
+streamingReplyChannel:StreamingLayerReplyEvent
+streamingLayerErrorChannel:StreamingLayerErrorEvent
+
+-- local channels for the control layer interface
+controlLayerUserEvent:ControlLayerUserEvent -- for now we just use the streaming layer events
+controlLayerInteruptChannel
+
+process ControlLayerProcess =
+begin
+
+actions
+   mainEntryPointState = Skip 
+  
+ 
+   
+   @init ->mainEntryPointState
+   
+end
+
+
+process StreamingLayerProcess =
+begin
+actions
+   
+   
+   @init ->mainEntryPointState
+end
+
+
+
+
+process BeoSoS = ControlLayerProcess [|{|init|}|]StreamingLayerProcess

@@ -26,8 +26,7 @@ public class CmlInspectionVisitor extends AbstractInspectionVisitor
 	private QuestionAnswerCMLAdaptor<Context, Inspection> actionVisitor;
 
 	public CmlInspectionVisitor(CmlBehaviour ownerProcess,
-			CmlBehaviorFactory cmlBehaviorFactory, 
-			VisitorAccess visitorAccess)
+			CmlBehaviorFactory cmlBehaviorFactory, VisitorAccess visitorAccess)
 	{
 		super(ownerProcess, visitorAccess, cmlBehaviorFactory, null);
 		this.actionVisitor = new ActionInspectionVisitor(ownerProcess, visitorAccess, cmlBehaviorFactory, this);

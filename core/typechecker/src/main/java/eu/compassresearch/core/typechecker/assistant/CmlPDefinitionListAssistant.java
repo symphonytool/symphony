@@ -7,7 +7,6 @@ import java.util.Set;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.typechecker.assistant.ITypeCheckerAssistantFactory;
-import org.overture.typechecker.assistant.definition.PDefinitionAssistantTC;
 import org.overture.typechecker.assistant.definition.PDefinitionListAssistantTC;
 
 import eu.compassresearch.ast.definitions.AActionDefinition;
@@ -31,7 +30,7 @@ public class CmlPDefinitionListAssistant extends PDefinitionListAssistantTC
 
 		for (PDefinition d : singleDefinitions(definitions))
 		{
-			if ((PDefinitionAssistantTC.isFunctionOrOperation(d)
+			if ((af.createPDefinitionAssistant().isFunctionOrOperation(d)
 					|| d instanceof AChannelDefinition
 					|| d instanceof AChansetDefinition
 					|| d instanceof AActionDefinition || d instanceof AProcessDefinition)
