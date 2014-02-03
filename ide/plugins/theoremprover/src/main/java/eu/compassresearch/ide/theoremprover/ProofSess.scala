@@ -18,16 +18,18 @@ import eu.compassresearch.ide.core.resources.ICmlProject
 import org.overture.pog.pub.IProofObligationList
 import eu.compassresearch.ide.pog.PogPluginRunner
 
+sealed case class PoThm(val offset : Int, val body: String, val byPos: Int, val poNum: Int)
+
 class ProofSess( val poEDM : EditDocumentModel
-                , var proj : ICmlProject
-                , var pol : IProofObligationList
+                , val proj : ICmlProject
+                , val pol : IProofObligationList
                 , val ast : java.util.List[INode]
 			    , val thyProvider : IDocumentProvider
 			    , val sess : Session) extends SessionEvents {
 
   // A map from position offsets in the CML file to the corresponding proof obligation
-  var poMap: Map[Command,Int] = Map.empty
-  var nextPO: Option[Pair[Int,Int]] = None
+  var poMap: Map[Command,PoThm] = Map.empty
+  var nextPO: Option[PoThm] = None
   
   def enqueuePO(ipo : IProofObligation) {
     ipo.setStatus(POStatus.SUBMITTED)
@@ -37,7 +39,7 @@ class ProofSess( val poEDM : EditDocumentModel
     val offset = doc.getLineOffset(doc.getNumberOfLines() - 1)
     val byPos = offset + (isaPO.length() - TPConstants.BY_CML_AUTO_TAC_OFFSET)
     
-    nextPO = Some(Pair(byPos, ipo.getNumber()))
+    nextPO = Some(PoThm(offset, isaPO + "\n", byPos, ipo.getNumber()))
     
     doc.replace(offset, 0, isaPO + "\n")
     
@@ -71,11 +73,11 @@ class ProofSess( val poEDM : EditDocumentModel
           
           // If a proof obligation has just been added extract the associated command
           nextPO match {
-            case Some(Pair(byPos, ipo)) => {
+            case Some(pt) => {
         	  val node = sess.snapshot(poEDM.name).node
-              val cmd = node.command_at(byPos).map(_._1)
+              val cmd = node.command_at(pt.byPos).map(_._1)
               cmd match {
-                case Some(c) => { poMap += (c -> ipo); nextPO = None }
+                case Some(c) => { poMap += (c -> pt); nextPO = None }
                 case None => {}
         	  }
         	  
@@ -90,19 +92,25 @@ class ProofSess( val poEDM : EditDocumentModel
             
             if (poMap.contains(c)) {
               // FIXME: Check if PO has indeed been proved or has actually failed...
-              val po = poMap(c) 
+              val pt = poMap(c) 
            	  val st = state.command_state(version, c)
     	      val cst = Protocol.command_status(st.status)
     	      
     	      
            	  if (cst.is_finished && !cst.is_failed) {
-                System.out.println("PO " + po.toString() + " discharged...")
-                pol.get(po - 1).setStatus(POStatus.PROVED)
+                // Proof Succeeded
+           	    pol.get(pt.poNum - 1).setStatus(POStatus.PROVED)
                 PogPluginRunner.redrawPos(proj, pol)
            	  } else if (cst.is_failed) {
-                System.out.println("PO " + po.toString() + " failed...")
-                pol.get(po - 1).setStatus(POStatus.DISPROVED)
+           	    // Proof Failed
+                pol.get(pt.poNum - 1).setStatus(POStatus.DISPROVED)
                 PogPluginRunner.redrawPos(proj, pol)           	    
+
+                // Remove the failed proof goal
+                poEDM.document.replace(pt.offset, pt.body.length(), "")
+                poEDM.submitFullPerspective(new NullProgressMonitor())
+                thyProvider.saveDocument(new NullProgressMonitor(), null, poEDM.document, true)
+
            	  }
            	  
             }
