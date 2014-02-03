@@ -25,6 +25,12 @@ public class User extends Model {
 	{
 		return name;
 	}
+	
+	@Override
+	public String toString()
+	{
+		return name + "(" + userID.getName() + ")";
+	}
 
 	@Override
 	public CollaborationProject getCollaborationProject()
