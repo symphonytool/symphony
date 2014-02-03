@@ -8,6 +8,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -131,9 +133,11 @@ public class FaultToleranceVerificationJob extends Job {
 	}
 
 	private void beginSubTask(Message message, int ticks,
-			IProgressMonitor monitor) {
-		String formattedMessage = message.format(faultToleranceResults
-				.getProcessName());
+			IProgressMonitor monitor, Object... additionalParameters) {
+		List<Object> params = new ArrayList<>(
+				Arrays.asList(additionalParameters));
+		params.add(0, faultToleranceResults.getProcessName());
+		String formattedMessage = message.format(params.toArray());
 		monitor.beginTask(formattedMessage, ticks);
 		monitor.subTask(formattedMessage);
 	}
@@ -186,8 +190,7 @@ public class FaultToleranceVerificationJob extends Job {
 			beginSubTask(Message.STARTING_FAULT_TOLERANCE_FILES_MANAGEMENT, 5,
 					monitor);
 
-			createFolder();
-			monitor.worked(1);
+			createFolder(createSubProgressMonitor(monitor, 1));
 
 			List<String> channelsNotFound = new LinkedList<>();
 			List<String> chansetsNotFound = new LinkedList<>();
@@ -252,13 +255,6 @@ public class FaultToleranceVerificationJob extends Job {
 			monitor.done();
 		}
 	}
-
-	// TODO remove code below:
-	// private void refreshFolder(IProgressMonitor monitor) throws CoreException
-	// {
-	// faultToleranceResults.getFolder().refreshLocal(IResource.DEPTH_ONE,
-	// monitor);
-	// }
 
 	private void refreshModel(IProgressMonitor monitor) {
 		faultToleranceResults.getCmlProject().getModel()
@@ -399,14 +395,14 @@ public class FaultToleranceVerificationJob extends Job {
 			beginSubTask(Message.CREATE_FORMULA_FILES_TASK_NAME, 5, monitor);
 			List<PDefinition> definitions = new LinkedList<>();
 			findDefinitions(definitions, createSubProgressMonitor(monitor, 1));
-			createDivergenceFreedomFormulaScript(definitions);
-			monitor.worked(1);
-			createSemifarinessFormulaScript(definitions);
-			monitor.worked(1);
-			createFullFaultToleranceFormulaScript(definitions);
-			monitor.worked(1);
-			createLimitedFaultToleranceFormulaScript(definitions);
-			monitor.worked(1);
+			createDivergenceFreedomFormulaScript(definitions,
+					createSubProgressMonitor(monitor, 1));
+			createSemifarinessFormulaScript(definitions,
+					createSubProgressMonitor(monitor, 1));
+			createFullFaultToleranceFormulaScript(definitions,
+					createSubProgressMonitor(monitor, 1));
+			createLimitedFaultToleranceFormulaScript(definitions,
+					createSubProgressMonitor(monitor, 1));
 		} finally {
 			monitor.done();
 		}
@@ -420,11 +416,11 @@ public class FaultToleranceVerificationJob extends Job {
 		try {
 			beginSubTask(Message.CREATE_CML_FILES_TASK_NAME, 2, monitor);
 			createFaultToleranceBaseFile(namesetsNotFound, valuesNotFound,
-					channelsNotFound, chansetsNotFound, processesNotFound);
-			monitor.worked(1);
+					channelsNotFound, chansetsNotFound, processesNotFound,
+					createSubProgressMonitor(monitor, 1));
 			createFaultToleranceProcessesFile(namesetsNotFound, valuesNotFound,
-					channelsNotFound, chansetsNotFound, processesNotFound);
-			monitor.worked(1);
+					channelsNotFound, chansetsNotFound, processesNotFound,
+					createSubProgressMonitor(monitor, 1));
 		} finally {
 			monitor.done();
 		}
@@ -451,11 +447,12 @@ public class FaultToleranceVerificationJob extends Job {
 	}
 
 	private void createLimitedFaultToleranceFormulaScript(
-			List<PDefinition> definitions)
+			List<PDefinition> definitions, IProgressMonitor monitor)
 			throws UnableToRunFaultToleranceVerificationException {
 		IFolder folder = faultToleranceResults.getFolder();
 		String processName = faultToleranceResults.getProcessName();
 		try {
+			beginSubTask(Message.CREATE_FORMULA_FILES_TASK_NAME, 1, monitor);
 			NewMCVisitor adaptor = new NewMCVisitor();
 			String formulaScriptContent = adaptor.generateFormulaScript(
 					definitions, MCConstants.DEADLOCK_PROPERTY,
@@ -464,19 +461,23 @@ public class FaultToleranceVerificationJob extends Job {
 			writeFile(folder,
 					Message.LIMITED_FAULT_TOLERANCE_FORMULA_SCRIPT_FILE_NAME,
 					formulaScriptContent,
-					Message.UNABLE_TO_CREATE_FORMULA_SCRIPT);
+					Message.UNABLE_TO_CREATE_FORMULA_SCRIPT,
+					createSubProgressMonitor(monitor, 1));
 		} catch (IOException | AnalysisException e) {
 			throw new UnableToRunFaultToleranceVerificationException(
 					Message.UNABLE_TO_CREATE_FORMULA_SCRIPT, e, processName);
+		} finally {
+			monitor.done();
 		}
 	}
 
 	private void createFullFaultToleranceFormulaScript(
-			List<PDefinition> definitions)
+			List<PDefinition> definitions, IProgressMonitor monitor)
 			throws UnableToRunFaultToleranceVerificationException {
 		IFolder folder = faultToleranceResults.getFolder();
 		String processName = faultToleranceResults.getProcessName();
 		try {
+			beginSubTask(Message.CREATE_FORMULA_FILES_TASK_NAME, 1, monitor);
 			NewMCVisitor adaptor = new NewMCVisitor();
 			String formulaScriptContent = adaptor.generateFormulaScript(
 					definitions, MCConstants.DEADLOCK_PROPERTY,
@@ -485,39 +486,48 @@ public class FaultToleranceVerificationJob extends Job {
 			writeFile(folder,
 					Message.FULL_FAULT_TOLERANCE_FORMULA_SCRIPT_FILE_NAME,
 					formulaScriptContent,
-					Message.UNABLE_TO_CREATE_FORMULA_SCRIPT);
+					Message.UNABLE_TO_CREATE_FORMULA_SCRIPT,
+					createSubProgressMonitor(monitor, 1));
 		} catch (IOException | AnalysisException e) {
 			throw new UnableToRunFaultToleranceVerificationException(
 					Message.UNABLE_TO_CREATE_FORMULA_SCRIPT, e, processName);
+		} finally {
+			monitor.done();
 		}
 	}
 
-	private void createSemifarinessFormulaScript(List<PDefinition> definitions)
+	private void createSemifarinessFormulaScript(List<PDefinition> definitions,
+			IProgressMonitor monitor)
 			throws UnableToRunFaultToleranceVerificationException {
 		IFolder folder = faultToleranceResults.getFolder();
 		String processName = faultToleranceResults.getProcessName();
 
 		try {
+			beginSubTask(Message.CREATE_FORMULA_FILES_TASK_NAME, 1, monitor);
 			NewMCVisitor adaptor = new NewMCVisitor();
 			String formulaScriptContent = adaptor.generateFormulaScript(
 					definitions, MCConstants.LIVELOCK_PROPERTY,
 					Message.SEMIFAIRNESS_PROCESS_NAME.format(processName));
 			writeFile(folder, Message.SEMIFAIRNESS_FORMULA_SCRIPT_FILE_NAME,
 					formulaScriptContent,
-					Message.UNABLE_TO_CREATE_FORMULA_SCRIPT);
+					Message.UNABLE_TO_CREATE_FORMULA_SCRIPT,
+					createSubProgressMonitor(monitor, 1));
 		} catch (IOException | AnalysisException e) {
 			throw new UnableToRunFaultToleranceVerificationException(
 					Message.UNABLE_TO_CREATE_FORMULA_SCRIPT, e, processName);
+		} finally {
+			monitor.done();
 		}
 
 	}
 
 	private void createDivergenceFreedomFormulaScript(
-			List<PDefinition> definitions)
+			List<PDefinition> definitions, IProgressMonitor monitor)
 			throws UnableToRunFaultToleranceVerificationException {
 		IFolder folder = faultToleranceResults.getFolder();
 		String processName = faultToleranceResults.getProcessName();
 		try {
+			beginSubTask(Message.CREATE_FORMULA_FILES_TASK_NAME, 1, monitor);
 			NewMCVisitor adaptor = new NewMCVisitor();
 			String formulaScriptContent = adaptor
 					.generateFormulaScript(definitions,
@@ -527,76 +537,97 @@ public class FaultToleranceVerificationJob extends Job {
 			writeFile(folder,
 					Message.DIVERGENCE_FREEDOM_FORMULA_SCRIPT_FILE_NAME,
 					formulaScriptContent,
-					Message.UNABLE_TO_CREATE_FORMULA_SCRIPT);
+					Message.UNABLE_TO_CREATE_FORMULA_SCRIPT,
+					createSubProgressMonitor(monitor, 1));
 		} catch (Exception e) {
 			throw new UnableToRunFaultToleranceVerificationException(
 					Message.UNABLE_TO_CREATE_FORMULA_SCRIPT, e, processName);
+		} finally {
+			monitor.done();
 		}
 	}
 
 	private void createFaultToleranceProcessesFile(
 			List<String> namesetsNotFound, List<String> valuesNotFound,
 			List<String> channelsNotFound, List<String> chansetsNotFound,
-			List<String> processesNotFound)
+			List<String> processesNotFound, IProgressMonitor monitor)
 			throws UnableToRunFaultToleranceVerificationException {
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		PrintStream ps = new PrintStream(baos);
 
-		List<String> processesToAdd = new LinkedList<>();
+		try {
+			beginSubTask(Message.CREATE_CML_FILES_TASK_NAME, 1, monitor);
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			PrintStream ps = new PrintStream(baos);
 
-		updateElementsToAdd(Message.DIVERGENCE_FREEDOM_PROCESS_NAME,
-				Message.DIVERGENCE_FREEDOM_PROCESS_TEMPLATE, processesNotFound,
-				processesToAdd);
-		updateElementsToAdd(Message.SEMIFAIRNESS_PROCESS_NAME,
-				Message.SEMIFAIRNESS_PROCESS_TEMPLATE, processesNotFound,
-				processesToAdd);
-		updateElementsToAdd(Message.LAZY_DEADLOCK_CHECK_PROCESS_NAME,
-				Message.LAZY_DEADLOCK_CHECK_PROCESS_TEMPLATE,
-				processesNotFound, processesToAdd);
-		updateElementsToAdd(Message.LAZY_LIMIT_DEADLOCK_CHECK_PROCESS_NAME,
-				Message.LAZY_LIMIT_DEADLOCK_CHECK_PROCESS_TEMPLATE,
-				processesNotFound, processesToAdd);
-		updateElementsToAdd(Message.NO_FAULTS_PROCESS_NAME,
-				Message.NO_FAULTS_PROCESS_TEMPLATE, processesNotFound,
-				processesToAdd);
-		updateElementsToAdd(Message.LAZY_PROCESS_NAME,
-				Message.LAZY_PROCESS_TEMPLATE, processesNotFound,
-				processesToAdd);
-		updateElementsToAdd(Message.LIMIT_PROCESS_NAME,
-				Message.LIMIT_PROCESS_TEMPLATE, processesNotFound,
-				processesToAdd);
-		updateElementsToAdd(Message.LAZY_LIMIT_PROCESS_NAME,
-				Message.LAZY_LIMIT_PROCESS_TEMPLATE, processesNotFound,
-				processesToAdd);
+			List<String> processesToAdd = new LinkedList<>();
 
-		for (String template : processesToAdd) {
-			ps.println(template);
-			ps.println();
-		}
+			updateElementsToAdd(Message.DIVERGENCE_FREEDOM_PROCESS_NAME,
+					Message.DIVERGENCE_FREEDOM_PROCESS_TEMPLATE,
+					processesNotFound, processesToAdd);
+			updateElementsToAdd(Message.SEMIFAIRNESS_PROCESS_NAME,
+					Message.SEMIFAIRNESS_PROCESS_TEMPLATE, processesNotFound,
+					processesToAdd);
+			updateElementsToAdd(Message.LAZY_DEADLOCK_CHECK_PROCESS_NAME,
+					Message.LAZY_DEADLOCK_CHECK_PROCESS_TEMPLATE,
+					processesNotFound, processesToAdd);
+			updateElementsToAdd(Message.LAZY_LIMIT_DEADLOCK_CHECK_PROCESS_NAME,
+					Message.LAZY_LIMIT_DEADLOCK_CHECK_PROCESS_TEMPLATE,
+					processesNotFound, processesToAdd);
+			updateElementsToAdd(Message.NO_FAULTS_PROCESS_NAME,
+					Message.NO_FAULTS_PROCESS_TEMPLATE, processesNotFound,
+					processesToAdd);
+			updateElementsToAdd(Message.LAZY_PROCESS_NAME,
+					Message.LAZY_PROCESS_TEMPLATE, processesNotFound,
+					processesToAdd);
+			updateElementsToAdd(Message.LIMIT_PROCESS_NAME,
+					Message.LIMIT_PROCESS_TEMPLATE, processesNotFound,
+					processesToAdd);
+			updateElementsToAdd(Message.LAZY_LIMIT_PROCESS_NAME,
+					Message.LAZY_LIMIT_PROCESS_TEMPLATE, processesNotFound,
+					processesToAdd);
 
-		if (!processesToAdd.isEmpty()) {
-			IFolder folder = faultToleranceResults.getFolder();
-			writeFile(folder, Message.CML_PROCESSES_FILE_NAME,
-					baos.toByteArray(),
-					Message.UNABLE_TO_CREATE_FAULT_TOLERANCE_PROCESSES_FILE);
+			for (String template : processesToAdd) {
+				ps.println(template);
+				ps.println();
+			}
+
+			if (!processesToAdd.isEmpty()) {
+				IFolder folder = faultToleranceResults.getFolder();
+				writeFile(
+						folder,
+						Message.CML_PROCESSES_FILE_NAME,
+						baos.toByteArray(),
+						Message.UNABLE_TO_CREATE_FAULT_TOLERANCE_PROCESSES_FILE,
+						monitor);
+			}
+		} finally {
+			monitor.done();
 		}
 	}
 
 	private void createFaultToleranceBaseFile(List<String> namesetsNotFound,
 			List<String> valuesNotFound, List<String> channelsNotFound,
-			List<String> chansetsNotFound, List<String> processesNotFound)
+			List<String> chansetsNotFound, List<String> processesNotFound,
+			IProgressMonitor monitor)
 			throws UnableToRunFaultToleranceVerificationException {
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		PrintStream ps = new PrintStream(baos);
+		try {
+			beginSubTask(Message.CREATE_CML_FILES_TASK_NAME, 1, monitor);
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			PrintStream ps = new PrintStream(baos);
 
-		boolean requires;
-		requires = createBaseFileChansets(chansetsNotFound, ps);
-		requires = createBaseFileProcesses(processesNotFound, ps) || requires;
+			boolean requires;
+			requires = createBaseFileChansets(chansetsNotFound, ps);
+			requires = createBaseFileProcesses(processesNotFound, ps)
+					|| requires;
 
-		if (requires) {
-			IFolder folder = faultToleranceResults.getFolder();
-			writeFile(folder, Message.BASE_CML_FILE_NAME, baos.toByteArray(),
-					Message.UNABLE_TO_CREATE_FAULT_TOLERANCE_BASE_FILE);
+			if (requires) {
+				IFolder folder = faultToleranceResults.getFolder();
+				writeFile(folder, Message.BASE_CML_FILE_NAME,
+						baos.toByteArray(),
+						Message.UNABLE_TO_CREATE_FAULT_TOLERANCE_BASE_FILE,
+						createSubProgressMonitor(monitor, 1));
+			}
+		} finally {
+			monitor.done();
 		}
 	}
 
@@ -658,46 +689,51 @@ public class FaultToleranceVerificationJob extends Job {
 	}
 
 	private void writeFile(IFolder folder, Message fileName, String contents,
-			Message errorMessage)
+			Message errorMessage, IProgressMonitor monitor)
 			throws UnableToRunFaultToleranceVerificationException {
-		writeFile(folder, fileName, contents.getBytes(), errorMessage);
+		writeFile(folder, fileName, contents.getBytes(), errorMessage, monitor);
 	}
 
 	private void writeFile(IFolder folder, Message fileName, byte[] contents,
-			Message errorMessage)
+			Message errorMessage, IProgressMonitor monitor)
 			throws UnableToRunFaultToleranceVerificationException {
 		String processName = faultToleranceResults.getProcessName();
-		IFile outputFile = folder.getFile(fileName.format(processName));
+		String fileNameFormatted = fileName.format(processName);
+		IFile outputFile = folder.getFile(fileNameFormatted);
 
 		try {
-			// TODO replace NullProgressMonitor to real ones.
+			beginSubTask(Message.WRITE_FILE, 2, monitor, fileNameFormatted);
 			InputStream in = new ByteArrayInputStream(contents);
 			if (outputFile.exists()) {
 				outputFile.setContents(in, false, false,
-						new NullProgressMonitor());
+						createSubProgressMonitor(monitor, 2));
 			} else {
-				outputFile.create(in, false, new NullProgressMonitor());
-				refreshModel(new NullProgressMonitor());
+				outputFile.create(in, false,
+						createSubProgressMonitor(monitor, 1));
+				refreshModel(createSubProgressMonitor(monitor, 1));
 			}
 		} catch (CoreException e) {
 			throw new UnableToRunFaultToleranceVerificationException(
 					errorMessage, e, processName);
+		} finally {
+			monitor.done();
 		}
 	}
 
-	private void createFolder()
+	private void createFolder(IProgressMonitor monitor)
 			throws UnableToRunFaultToleranceVerificationException {
 		IContainer container = faultToleranceResults.getOutputContainer();
 		String processName = faultToleranceResults.getProcessName();
 		try {
+			String folderName = Message.FOLDER_NAME.format(processName);
+			beginSubTask(Message.CREATE_FOLDER, 2, monitor, folderName);
 			IFolder folder;
 			if (container == null) {
 				throw new UnableToRunFaultToleranceVerificationException(
 						Message.UNABLE_TO_CREATE_FAULT_TOLERANCE_FOLDER,
 						processName);
 			}
-			folder = container.getFolder(new Path(Message.FOLDER_NAME
-					.format(processName)));
+			folder = container.getFolder(new Path(folderName));
 			if (!folder.getParent().exists()) {
 				((IFolder) folder.getParent()).create(false, false,
 						new NullProgressMonitor());
@@ -712,6 +748,8 @@ public class FaultToleranceVerificationJob extends Job {
 			throw new UnableToRunFaultToleranceVerificationException(
 					Message.UNABLE_TO_CREATE_FAULT_TOLERANCE_FOLDER, e,
 					processName);
+		} finally {
+			monitor.done();
 		}
 	}
 
