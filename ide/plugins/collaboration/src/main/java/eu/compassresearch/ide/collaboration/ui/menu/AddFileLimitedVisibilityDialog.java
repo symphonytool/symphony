@@ -78,22 +78,28 @@ public class AddFileLimitedVisibilityDialog extends TitleAreaDialog
 		listCollaborators = new List (container, SWT.BORDER | SWT.V_SCROLL | SWT.MULTI);
 		listCollaborators.setLayoutData(gdProject);
 		
-		for (User user : collaboratorGroup.getCollaborators())
-		{
-			listCollaborators.add(user.getName());	
-		}
+		java.util.List<User> collaborators = collaboratorGroup.getCollaborators();
 		
-		//no need to allow the addition of visibility to ourself
-		ID connectedUser = Activator.getDefault().getConnectionManager().getConnectedUser();
-		listCollaborators.remove(connectedUser.getName());
-		
-		listCollaborators.addSelectionListener(new SelectionAdapter()
-		{
-			public void widgetSelected(SelectionEvent e)
+		if(!collaborators.isEmpty()){
+			
+			for (User user : collaborators)
 			{
-				validate();
+				listCollaborators.add(user.getName());	
 			}
-		});
+			
+			//no need to allow the addition of visibility to ourself
+			ID connectedUser = Activator.getDefault().getConnectionManager().getConnectedUser();
+			
+			listCollaborators.remove(connectedUser.getName());
+			
+			listCollaborators.addSelectionListener(new SelectionAdapter()
+			{
+				public void widgetSelected(SelectionEvent e)
+				{
+					validate();
+				}
+			});
+		}
 		
 		return area;
 	}

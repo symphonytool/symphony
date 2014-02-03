@@ -17,6 +17,7 @@ import org.eclipse.ui.handlers.HandlerUtil;
 
 import eu.compassresearch.ide.collaboration.Activator;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationDataModelManager;
+import eu.compassresearch.ide.collaboration.datamodel.CollaborationGroup;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationProject;
 import eu.compassresearch.ide.collaboration.files.FileStatus;
 import eu.compassresearch.ide.collaboration.notifications.Notification;
@@ -48,6 +49,13 @@ public class AddFileToCollaborationLimitedVisibilityHandler extends
 				CollaborationDialogs.getInstance().displayNotificationPopup(file.getName(), "File is in a project (" + projectName +")\nthat has no collaboration project attached");
 				return null;
 			}
+			
+			CollaborationGroup collaboratorGroup = collaborationProject.getCollaboratorGroup();
+			if(collaboratorGroup.getCollaborators().isEmpty()) {
+				CollaborationDialogs.getInstance().displayNotificationPopup(file.getName(), "Cannot add file with limited visibility. \nThere are no collaborators in the project.");
+				return null;
+			}
+			
 			
 			AddFileLimitedVisibilityDialog addFileDialog = CollaborationDialogs.getInstance().getAddFileLimitedVisibilityDialog(file.getName(), collaborationProject);
 			 
