@@ -41,20 +41,9 @@ class ProofSess( val poEDM : EditDocumentModel
     
     doc.replace(offset, 0, isaPO + "\n")
     
-    poEDM.submitFullPerspective(new NullProgressMonitor());
-    thyProvider.saveDocument(new NullProgressMonitor(), null, poEDM.document, true);
-    
-/*
+    poEDM.submitFullPerspective(new NullProgressMonitor())
+    thyProvider.saveDocument(new NullProgressMonitor(), null, poEDM.document, true)
 
-    val node = sess.snapshot(poEDM.name).node
-    val cmd = node.command_at(byPos).map(_._1)
-    cmd match {
-      case Some(c) => poMap += (c -> ipo)
-      case None => {}
-    }
-    * 
-    * 
-    */
   }
   
     // When commands change (e.g. results from the prover), notify the handler about changed ranges.
