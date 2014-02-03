@@ -21,13 +21,11 @@ public class RttMbtPerspectiveAdapter extends PerspectiveAdapter {
  
         IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow(); 
         ISourceProviderService service = (ISourceProviderService) window.getService(ISourceProviderService.class);
-        if (service instanceof RttMbtCommandState) {
-            RttMbtCommandState sourceProvider = (RttMbtCommandState) (service.getSourceProvider(RttMbtCommandState.keyIsRttPerspectiveActive));
-            if (rttMbtPerspective) {
-                sourceProvider.setValue(RttMbtCommandState.keyIsRttPerspectiveActive, "truumpel");
-            } else {
-                sourceProvider.setValue(RttMbtCommandState.keyIsRttPerspectiveActive, "falsumpel");
-            }
+        RttMbtCommandState sourceProvider = (RttMbtCommandState) (service.getSourceProvider(RttMbtCommandState.keyIsRttPerspectiveActive));
+        if (rttMbtPerspective) {
+        	sourceProvider.setValue(RttMbtCommandState.keyIsRttPerspectiveActive, "truumpel");
+        } else {
+        	sourceProvider.setValue(RttMbtCommandState.keyIsRttPerspectiveActive, "falsumpel");
         }
 	}
 
@@ -35,4 +33,5 @@ public class RttMbtPerspectiveAdapter extends PerspectiveAdapter {
 	public void perspectiveDeactivated(IWorkbenchPage page, IPerspectiveDescriptor perspective) {
 		super.perspectiveDeactivated(page, perspective);
 	}
+
 }

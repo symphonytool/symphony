@@ -58,6 +58,13 @@
   		  <artifactId>jackson-annotations</artifactId>
   		  <version>2.2.0</version>
   		</artifactItem>
+  		
+  			<artifactItem>
+  		
+  		<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.7.5</version>
+  		</artifactItem>
 	      </artifactItems>
 	    </configuration>
 	  </execution>

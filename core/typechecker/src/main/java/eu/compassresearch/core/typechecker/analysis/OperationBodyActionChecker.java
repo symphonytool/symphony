@@ -37,7 +37,7 @@ public class OperationBodyActionChecker extends AnswerCMLAdaptor<Boolean>
 	@Override
 	public Boolean defaultPAction(PAction node) throws AnalysisException
 	{
-		issueHandler.addTypeError(node, TypeErrorMessages.REACTIVE_CONSTRUCTS_IN_OP_NOT_ALLOWED,""
+		issueHandler.addTypeError(node, TypeErrorMessages.REACTIVE_CONSTRUCTS_IN_OP_NOT_ALLOWED, ""
 				+ node);
 		return false;
 	}

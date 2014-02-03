@@ -50,6 +50,7 @@ import org.overture.ast.types.AFunctionType;
 import org.overture.ast.types.AOperationType;
 import org.overture.ast.types.PType;
 import org.overture.pog.pub.IPOContextStack;
+import org.overture.pog.pub.IPogAssistantFactory;
 import org.overture.typechecker.assistant.pattern.PPatternAssistantTC;
 
 public class CmlParameterPatternObligation extends CmlProofObligation
@@ -59,19 +60,19 @@ public class CmlParameterPatternObligation extends CmlProofObligation
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	public CmlParameterPatternObligation(
+	public CmlParameterPatternObligation(IPogAssistantFactory af,
 		AExplicitOperationDefinition def, IPOContextStack ctxt) throws AnalysisException
 	{
 		super(def, CmlPOType.OPERATION_PATTERNS, ctxt, def.getLocation());
-		valuetree.setPredicate(ctxt.getPredWithContext(generate(def.getPredef(), getParamPatternList(def), ((AOperationType) def.getType()).getParameters(), ((AOperationType) def.getType()).getResult())));
+		valuetree.setPredicate(ctxt.getPredWithContext(generate(af,def.getPredef(), getParamPatternList(def), ((AOperationType) def.getType()).getParameters(), ((AOperationType) def.getType()).getResult())));
 
 	}
 
-	public CmlParameterPatternObligation(
+	public CmlParameterPatternObligation(IPogAssistantFactory af,
 		AImplicitOperationDefinition def, IPOContextStack ctxt) throws AnalysisException
 	{
 		super(def, CmlPOType.OPERATION_PATTERNS, ctxt, def.getLocation());
-		valuetree.setPredicate(ctxt.getPredWithContext(generate(def.getPredef(), getListParamPatternList(def), ((AOperationType) def.getType()).getParameters(), ((AOperationType) def.getType()).getResult())));
+		valuetree.setPredicate(ctxt.getPredWithContext(generate(af,def.getPredef(), getListParamPatternList(def), ((AOperationType) def.getType()).getParameters(), ((AOperationType) def.getType()).getResult())));
 
 	}
 	
@@ -102,7 +103,7 @@ public class CmlParameterPatternObligation extends CmlProofObligation
 	}
 	
 	
-	private PExp generate(PDefinition predef, List<List<PPattern>> plist, List<PType> params, PType result) throws AnalysisException
+	private PExp generate(IPogAssistantFactory af, PDefinition predef, List<List<PPattern>> plist, List<PType> params, PType result) throws AnalysisException
 	{
 		AForAllExp forallExp = new AForAllExp();
 		List<PMultipleBind> forallBindList = new Vector<PMultipleBind>();
@@ -133,7 +134,7 @@ public class CmlParameterPatternObligation extends CmlProofObligation
 					forallBindList.add(getMultipleTypeBind(atype, aname));
 					existsBindList.add(getMultipleTypeBind(atype, bname));
 
-					for (PDefinition def: PPatternAssistantTC.getDefinitions(param, atype, NameScope.LOCAL))
+					for (PDefinition def: af.createPPatternAssistant().getDefinitions(param, atype, NameScope.LOCAL))
 					{
 						if (def.getName() != null && !previousBindings.contains(def.getName()))
 						{

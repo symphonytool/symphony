@@ -14,7 +14,6 @@ import eu.compassresearch.ast.definitions.AProcessDefinition;
 public class CmlKindFinder extends AbstractCmlKindFinder
 {
 
-
 	public CmlKindFinder(ITypeCheckerAssistantFactory af)
 	{
 		super(af);

@@ -1,7 +1,6 @@
 package eu.compassresearch.core.interpreter.utility;
 
 import org.junit.Assert;
-
 import org.junit.Test;
 import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.lex.LexLocation;
@@ -15,6 +14,7 @@ public class TestLocationExtractor
 	public void testExtractLocation()
 	{
 
+		@SuppressWarnings("deprecation")
 		AInterleavingReplicatedAction node = new AInterleavingReplicatedAction(new LexLocation("test", "Test", 0, 0, 1, 1, 0, 1), null, null, null);
 
 		ILexLocation loc = LocationExtractor.extractLocation(node);

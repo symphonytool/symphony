@@ -41,7 +41,7 @@ public class GlobalEnvironmentBuilder extends AnalysisCMLAdaptor
 		 */
 		for (PDefinition def : sourceForest)
 		{
-			//Fix for bug 184 where pre/post functions wasn't created correctly for the global context
+			// Fix for bug 184 where pre/post functions wasn't created correctly for the global context
 			if (CmlContextFactory.factory.createPDefinitionAssistant().isFunctionOrOperation(def))
 			{
 				globalState.putAllNew(CmlContextFactory.factory.createPDefinitionAssistant().getNamedValues(def, globalState));

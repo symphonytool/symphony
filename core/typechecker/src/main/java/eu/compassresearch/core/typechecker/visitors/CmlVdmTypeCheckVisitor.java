@@ -28,7 +28,6 @@ import org.overture.ast.util.PTypeSet;
 import org.overture.typechecker.TypeCheckInfo;
 import org.overture.typechecker.TypeCheckerErrors;
 import org.overture.typechecker.TypeComparator;
-import org.overture.typechecker.assistant.type.PTypeAssistantTC;
 import org.overture.typechecker.visitor.TypeCheckVisitor;
 
 import eu.compassresearch.ast.actions.ASkipAction;
@@ -79,7 +78,7 @@ public class CmlVdmTypeCheckVisitor extends
 		{
 			PType type = super.caseAApplyExp(node, question);
 
-			if (PTypeAssistantTC.isOperation(node.getRoot().getType()))
+			if (question.assistantFactory.createPTypeAssistant().isOperation(node.getRoot().getType()))
 			{
 				// FIXME is the correct? not sure if value def should be excluded hereS
 				if (!(node.parent() instanceof PStm
@@ -309,7 +308,7 @@ public class CmlVdmTypeCheckVisitor extends
 		PExp guard = node.getGuard();
 		PType guardType = guard.apply(THIS, question);
 
-		if (!(TypeComparator.isSubType(guardType, new ABooleanBasicType())))
+		if (!TypeComparator.isSubType(guardType, new ABooleanBasicType(), question.assistantFactory))
 		{
 			TypeCheckerErrors.report(0, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage("Boolean", "a guard of type "
 					+ guardType), guard.getLocation(), guard);

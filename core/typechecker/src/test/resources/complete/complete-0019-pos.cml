@@ -8,6 +8,6 @@ begin
 
 actions
 
- INIT = Skip @ INIT()
+ INIT = Skip @ INIT
 
 end

@@ -53,7 +53,10 @@ public class CmlEventOptionView extends ViewPart implements
 					} else if (e.getKind() == DebugEvent.TERMINATE
 							&& e.getSource() instanceof CmlDebugTarget)
 					{
-						viewer.setInput(null);
+						if (!viewer.getControl().isDisposed())
+						{
+							viewer.setInput(null);
+						}
 					}
 				}
 			}
@@ -175,17 +178,21 @@ public class CmlEventOptionView extends ViewPart implements
 			public int compare(TransitionDTO o1, TransitionDTO o2)
 			{
 				if (o1.getName().equals("tock"))
+				{
 					return -1;
-				else if (o2.getName().equals("tock"))
+				} else if (o2.getName().equals("tock"))
+				{
 					return 1;
-				else
+				} else
+				{
 					return o1.getName().compareToIgnoreCase(o2.getName());
+				}
 			}
 
 		});
-		
+
 		viewer.setInput(transitions);
-		if(!transitions.isEmpty())
+		if (!transitions.isEmpty())
 		{
 			viewer.setSelection(new StructuredSelection(transitions.get(0)));
 		}

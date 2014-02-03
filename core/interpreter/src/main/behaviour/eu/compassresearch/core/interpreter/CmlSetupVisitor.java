@@ -16,7 +16,8 @@ class CmlSetupVisitor extends AbstractSetupVisitor
 	private AbstractSetupVisitor actionVisitor;
 	private AbstractSetupVisitor processVisitor;
 
-	public CmlSetupVisitor(CmlBehaviour owner, VisitorAccess visitorAccess, CmlBehaviorFactory cmlBehaviorFactory)
+	public CmlSetupVisitor(CmlBehaviour owner, VisitorAccess visitorAccess,
+			CmlBehaviorFactory cmlBehaviorFactory)
 	{
 		super(owner, visitorAccess, cmlBehaviorFactory);
 		actionVisitor = new ActionSetupVisitor(owner, visitorAccess, cmlBehaviorFactory);

@@ -1,10 +1,10 @@
 package eu.compassresearch.core.interpreter.debug;
 
 import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
-import eu.compassresearch.core.interpreter.debug.messaging.Message;
+import eu.compassresearch.core.interpreter.debug.messaging.AbstractMessage;
 import eu.compassresearch.core.interpreter.debug.messaging.MessageType;
 
-public class CmlDbgStatusMessage extends Message
+public class CmlDbgStatusMessage extends AbstractMessage
 {
 
 	private CmlInterpreterStateDTO interpreterStatus;

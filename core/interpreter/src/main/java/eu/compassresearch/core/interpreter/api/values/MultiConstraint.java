@@ -39,4 +39,14 @@ public class MultiConstraint implements ValueConstraint
 		return true;
 	}
 
+	public static ValueConstraint combine(ValueConstraint c1,
+			ValueConstraint c2)
+	{
+		if(c1 instanceof NoConstraint && c2 instanceof NoConstraint)
+		{
+			return c1;
+		}
+		return new MultiConstraint(c1,c2);
+	}
+
 }

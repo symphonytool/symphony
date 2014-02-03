@@ -14,7 +14,6 @@ import eu.compassresearch.ast.lex.CmlLexNameToken;
 public class CmlVariableNameCollector extends AbstractCmlVariableNameCollector
 {
 
-
 	public CmlVariableNameCollector(ITypeCheckerAssistantFactory af)
 	{
 		super(af);
@@ -49,7 +48,7 @@ public class CmlVariableNameCollector extends AbstractCmlVariableNameCollector
 	{
 		return new LexNameList(node.getName());
 	}
-	
+
 	@Override
 	public LexNameList caseANamesetDefinition(ANamesetDefinition node)
 			throws AnalysisException

@@ -481,13 +481,13 @@ classDefinition returns[AClassClassDefinition def]
     : 'class' id=IDENTIFIER ('extends' parent=IDENTIFIER)? '=' 'begin' classDefinitionBlockOptList 'end'
         {
             AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(false, false, extractLexLocation($start));
-            CmlLexNameToken className = new CmlLexNameToken("", $id.getText(), extractLexLocation($id));
+            CmlLexNameToken className = new CmlLexNameToken("CLASS", $id.getText(), extractLexLocation($id));
             List<PDefinition> members = $classDefinitionBlockOptList.defs;
             List<ILexNameToken> superclasses = new ArrayList<ILexNameToken>();
 
             if($parent!=null)
             {
-                CmlLexNameToken superClassName = new CmlLexNameToken("", $parent.getText(), extractLexLocation($parent));
+                CmlLexNameToken superClassName = new CmlLexNameToken("CLASS", $parent.getText(), extractLexLocation($parent));
                 superclasses.add(superClassName);
             }
 
@@ -1524,10 +1524,12 @@ actionbase returns[PAction action]
         }
     | '(' action rpT=')' renamingExpr?
         {
-            // FIXME --- maybe add renaming expr here?
-             ABlockSimpleBlockStm block = AstFactory.newABlockSimpleBlockStm(extractLexLocation($start,$rpT), new ArrayList<AAssignmentDefinition>());
+            ABlockSimpleBlockStm block = AstFactory.newABlockSimpleBlockStm(extractLexLocation($start,$rpT), new ArrayList<AAssignmentDefinition>());
             block.getStatements().add(action2stm($action.action));
             $action = stm2action( block);
+            if ($renamingExpr.rexp != null) {
+                $action = new AChannelRenamingAction(null, $action, $renamingExpr.rexp);
+            }
         }
     | 'mu' identifierList '@' '(' actionList close=')'
         {

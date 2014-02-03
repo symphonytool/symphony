@@ -16,6 +16,8 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.viewers.LabelProvider;
@@ -42,6 +44,79 @@ import eu.compassresearch.rttMbtTmsClientApi.RttMbtClient;
 
 public class RttMbtRequirementsCoverage extends MultiPageEditorPart  {
 
+	private enum Verdict {
+		UNCOVERED,
+		COVERED,
+		NOTTESTED,
+	    INCONCLUSIVE,
+	    PASS,
+	    FAIL,
+	    TESTERROR,
+	    UNDEFINED
+	}
+
+	private String Verdict2String(Verdict verdict) {
+		String value = "";
+		switch (verdict) {
+		case UNCOVERED:
+			value = "NOT COVERED";
+			break;
+		case COVERED:
+			value = "COVERED";
+			break;
+		case NOTTESTED:
+			value = "NOT TESTED";
+			break;
+		case INCONCLUSIVE:
+			value = "INCONCLUSIVE";
+			break;
+		case PASS:
+			value = "PASS";
+			break;
+		case FAIL:
+			value = "FAIL";
+			break;
+		case TESTERROR:
+			value = "TESTERROR";
+			break;
+		case UNDEFINED:				
+			value = "UNDEFINED";
+			break;
+		}
+		return value;
+	}
+
+	private RGB Verdict2RGB(Verdict verdict) {
+		RGB value = null;
+		switch (verdict) {
+		case UNCOVERED:
+			value = new RGB(255,255,0);
+			break;
+		case COVERED:
+			value = new RGB(0,255,0);
+			break;
+		case NOTTESTED:
+			value = new RGB(255,255,0);
+			break;
+		case INCONCLUSIVE:
+			value = new RGB(255,255,0);
+			break;
+		case PASS:
+			value = new RGB(0,255,0);
+			break;
+		case FAIL:
+			value = new RGB(255,0,0);
+			break;
+		case TESTERROR:
+			value = new RGB(255,0,0);
+			break;
+		case UNDEFINED:				
+			value = new RGB(255,0,0);
+			break;
+		}
+		return value;
+	}
+
 	// widget to display the data
 	private Tree reqTreeView;
 	private Tree tcTreeView;
@@ -50,43 +125,49 @@ public class RttMbtRequirementsCoverage extends MultiPageEditorPart  {
 	private SortedMap<String,List<String>> req2tc = new TreeMap<String,List<String>>();
 	private SortedMap<String,List<String>> tc2req = new TreeMap<String,List<String>>();
 	private SortedMap<String,String> testcases = new TreeMap<String,String>();
-	private SortedMap<String,Boolean> tccov = new TreeMap<String,Boolean>();
-	private SortedMap<String,Boolean> reqcov = new TreeMap<String,Boolean>();
+	private SortedMap<String,Verdict> tccov = new TreeMap<String,Verdict>();
+	private SortedMap<String,Verdict> reqcov = new TreeMap<String,Verdict>();
 	
 	// a reference to the RttMbtClient for log messages
 	protected RttMbtClient client = null;
 	
-	// The project root of this coverage editor
-	private String RttProjectRoot = null;
-
 	@Override
 	public void init(IEditorSite site, IEditorInput input)
 			throws PartInitException {
 		// get RTT-MBT TMS client
     	client = Activator.getClient();
     	client.setConsoleName("Coverage");
-		// - is called shortly after editor construction
-		// - This marks the start of the editor lifecycle
+    	// check input
 		if (! (input instanceof IFileEditorInput) ) {
 			throw new PartInitException("Invalid input! Expected file input");
 		} else {
 			IFileEditorInput iFileInput = (IFileEditorInput) input;
 			IFile ifile = iFileInput.getFile();
+
+			// init client according to selected file
+			String selectedObjectFilesystemPath = RttMbtClient.getAbsolutePathFromFileURI(ifile.getLocationURI());
+			String selectedObjectWorkspacePath = ifile.getFullPath().toString();
+			String selectedObjectWorkspaceProjectName = ifile.getProject().getName();
+			String selectedObjectWorkspaceProjectPath = ifile.getProject().getFullPath().toString();
+			client.initPathVariablesFromSelection(selectedObjectFilesystemPath,
+					                              selectedObjectWorkspacePath,
+					                              selectedObjectWorkspaceProjectName,
+					                              selectedObjectWorkspaceProjectPath);
+	    	IWorkspace workspace = ResourcesPlugin.getWorkspace();
+			String workspacePath = workspace.getRoot().getLocation().toFile().getAbsolutePath();
+			client.setWorkspacePath(workspacePath);
+			client.setConsoleName(selectedObjectWorkspaceProjectName);
+
+			// get the input stream
 			InputStream istream;
 			try {
 				// create fileScanners for req2tc.csv and tc2req.csv
-				String localpath = RttMbtClient.getAbsolutePathFromFileURI(ifile.getLocationURI());
-				if (localpath== null) {
-					client.addErrorMessage("*** error: unable to open related test case and requirements coverage files!");
-					return;
-				}
 				istream = ifile.getContents();
 				Scanner covScanner = new Scanner(istream);
-				RttProjectRoot = localpath.substring(0, localpath.lastIndexOf("model"));				
-				localpath = localpath.replaceAll("overall_coverage.csv", "");
-				String req2tcpath = localpath + "req2tc.csv";
-				String tc2reqpath = localpath + "tc2req.csv";
-				String tcpath = localpath + "testcases.csv";
+				String modelpath = client.getRttProjectPath() + File.separator + "model" + File.separator;
+				String req2tcpath = modelpath + "req2tc.csv";
+				String tc2reqpath = modelpath + "tc2req.csv";
+				String tcpath = modelpath + "testcases.csv";
 				FileInputStream req2tcstream = new FileInputStream(req2tcpath);
 				FileInputStream tc2reqstream = new FileInputStream(tc2reqpath);
 				FileInputStream tcstream = new FileInputStream(tcpath);
@@ -159,7 +240,7 @@ public class RttMbtRequirementsCoverage extends MultiPageEditorPart  {
 						if (line.hasNext()) {
 							value = line.next();
 							testcases.put(key, value);
-							tccov.put(key, false);
+							tccov.put(key, Verdict.UNCOVERED);
 						} else {
 							client.addErrorMessage("[FAIL]: illegal file format for req2tc.csv");
 						}
@@ -167,13 +248,41 @@ public class RttMbtRequirementsCoverage extends MultiPageEditorPart  {
 						client.addErrorMessage("[FAIL]: illegal file format for req2tc.csv");
 					}
 				}
-				// get test case coverage from covered_testcases.csv and update testcase coverage
+				// get test case coverage from covered_testcases.csv and update test case coverage
 				while (covScanner.hasNextLine()) {
-					key = covScanner.nextLine();
+					Verdict verdict = Verdict.UNCOVERED;
+					if (ifile.getName().compareTo("overall_coverage.csv") == 0) {
+						key = covScanner.nextLine();
+						verdict = Verdict.COVERED;
+					} else if (ifile.getName().compareTo("covered_testcases.csv") == 0) {
+						String raw = covScanner.nextLine();
+						int start = raw.indexOf(';');
+						int end = raw.lastIndexOf(';');
+						if (start == -1 || end == -1) {
+							key = raw;
+							verdict = Verdict.COVERED;
+						} else if (start == end) {
+							key = raw.substring(start + 1);
+							verdict = Verdict.COVERED;
+						} else {
+							key = raw.substring(start + 1, end);
+							String covVerdict = raw.substring(end + 1);
+							verdict = Verdict.INCONCLUSIVE;
+							if (covVerdict.compareTo("PASS") == 0) {
+								verdict = Verdict.PASS;
+							}
+							if (covVerdict.compareTo("FAIL") == 0) {
+								verdict = Verdict.FAIL;
+							}
+						}
+					} else {
+						key = covScanner.nextLine();
+						verdict = Verdict.COVERED;
+					}
 					if (!tccov.containsKey(key)) {
 						client.addErrorMessage("[WARNING]: added coverage for unknown test case '" + key + "'");						
 					}
-					tccov.put(key, true);
+					tccov.put(key, verdict);
 				}
 				// calculate requirements coverage
 				Set<String> requirements = req2tc.keySet();
@@ -181,12 +290,51 @@ public class RttMbtRequirementsCoverage extends MultiPageEditorPart  {
 				while (i.hasNext()) {
 					String requirement = i.next();
 					List<String> tcs = req2tc.get(requirement);
-					Boolean covered = true;
-					for (int idx = 0; (idx < tcs.size()) && (covered); idx++) {
+					Verdict verdict = Verdict.UNDEFINED;
+					for (int idx = 0; idx < tcs.size(); idx++) {
 						String testcase = tcs.get(idx);
-						covered = covered && tccov.get(testcase);
+						Verdict tcVerdict = tccov.get(testcase);
+						switch(tcVerdict) {
+						case NOTTESTED:
+								verdict = Verdict.NOTTESTED;
+							break;
+						case PASS:
+							if (verdict == Verdict.UNDEFINED) {
+								verdict = Verdict.PASS;
+							}
+							break;
+						case FAIL:
+							if (verdict != Verdict.TESTERROR) {
+								verdict = Verdict.FAIL;
+							}
+							break;
+						case INCONCLUSIVE:
+							if ((verdict != Verdict.FAIL) &&
+								(verdict != Verdict.TESTERROR)) {
+								verdict = Verdict.INCONCLUSIVE;
+							}
+							break;
+						case TESTERROR:
+							verdict = Verdict.TESTERROR;
+							break;
+						case COVERED:
+							if (verdict == Verdict.UNDEFINED) {
+								verdict = Verdict.COVERED;
+							}
+							break;
+						case UNCOVERED:
+							if ((verdict == Verdict.UNDEFINED) ||
+								(verdict == Verdict.PASS) ||
+								(verdict == Verdict.COVERED)) {
+								verdict = Verdict.UNCOVERED;
+							}
+							break;
+						default:
+							verdict = Verdict.UNDEFINED;
+							break;
+						}
 					}
-					reqcov.put(requirement, covered);
+					reqcov.put(requirement, verdict);
 				}
 				covScanner.close();
 				req2tcScanner.close();
@@ -214,15 +362,19 @@ public class RttMbtRequirementsCoverage extends MultiPageEditorPart  {
 		String ltlformula = button.getData().toString();
 		ElementListSelectionDialog selection =
 				new ElementListSelectionDialog(getContainer().getShell(), new LabelProvider());
-		File tprocRoot = new File(RttProjectRoot + client.getRttMbtTProcGenCtxFolderName());
+		File tprocRoot = new File(client.getRttProjectPath() + File.separator + client.getRttMbtTProcGenCtxFolderName());
 		File[] files = tprocRoot.listFiles();
 		List<File> subdirs = new ArrayList<File>();
 		List<File> testprocs = new ArrayList<File>();
 		int idx;
-		for (idx = 0; idx < files.length; idx++) {
-			if (files[idx].isDirectory()) {
-				subdirs.add(files[idx]);
+		if (files != null) {
+			for (idx = 0; idx < files.length; idx++) {
+				if (files[idx].isDirectory()) {
+					subdirs.add(files[idx]);
+				}
 			}
+		} else {
+			client.addErrorMessage("unable to find test generation context directories!");
 		}
 		for (idx = 0; idx < subdirs.size(); idx++) {
 			File conf = new File(subdirs.get(idx), "conf");
@@ -252,13 +404,16 @@ public class RttMbtRequirementsCoverage extends MultiPageEditorPart  {
 						append.write(ltlformula + "\n");
 						append.close();
 						addgoalStream.close();
-						client.addLogMessage("added '" + ltlformula + "'\nto '" + addgoals.getAbsolutePath() + "'");
+						client.addLogMessage("added '" + ltlformula + "'");
+						client.addLogMessage("to '" + addgoals.getAbsolutePath() + "'");
 					} catch (IOException ex) {
 						client.addErrorMessage("Unable to open '" + addgoals.getAbsolutePath() + "' for writing!");
 					}
 					idx = testprocs.size();
 				}
 			}
+		} else {
+			client.addErrorMessage("unable to open test generation context seleciton dialog");
 		}
 	}
 
@@ -285,25 +440,16 @@ public class RttMbtRequirementsCoverage extends MultiPageEditorPart  {
 		while (tcIt.hasNext()) {
 			tcTag = tcIt.next();
 			TreeItem reqParent = null;
-			// add testcase
+			// add test case
 			reqParent = new TreeItem(tcTreeView, SWT.NONE);
 			reqParent.setText(0, tcTag);
-			if (tccov.get(tcTag)) {
-				reqParent.setText(1, "COVERED");
-				reqParent.setBackground(1, new Color(Display.getDefault(), new RGB(0,255,0)));
-			} else {
-				reqParent.setText(1, "NOT COVERED");
-				reqParent.setBackground(1, new Color(Display.getDefault(), new RGB(255,255,0)));
-			}
+			reqParent.setText(1, Verdict2String(tccov.get(tcTag)));
+			reqParent.setBackground(1, new Color(Display.getDefault(), Verdict2RGB(tccov.get(tcTag))));
 			TreeEditor editor = new TreeEditor(tcTreeView);
 			editor.horizontalAlignment = SWT.LEFT;
 			editor.minimumWidth = 40;
 			editor.minimumHeight = 12;
 		    Button cellEditor = new Button(tcTreeView, SWT.PUSH);
-		    //Image image = this.getDefaultImage();
-		    //Device device = image.getDevice();
-		    //Image plus = new Image(device, RttMbtRequirementsCoverage.class.getResourceAsStream("plus.png"));
-		    //cellEditor.setImage(plus);
 		    cellEditor.setText("add");
 		    cellEditor.setBackground(reqParent.getBackground());
 		    cellEditor.setData(tcTag + ";" + testcases.get(tcTag) + ";");
@@ -321,18 +467,13 @@ public class RttMbtRequirementsCoverage extends MultiPageEditorPart  {
 				reqTag = requirements.get(idx);
 				TreeItem req = new TreeItem(reqParent, SWT.NONE);
 				req.setText(0, reqTag);
-				if (reqcov.get(reqTag)) {
-					req.setText(1, "COVERED");
-					req.setBackground(1, new Color(Display.getDefault(), new RGB(0,255,0)));
-				} else {
-					req.setText(1, "NOT COVERED");
-					req.setBackground(1, new Color(Display.getDefault(), new RGB(255,255,0)));
-				}
+				req.setText(1, Verdict2String(reqcov.get(reqTag)));
+				req.setBackground(1, new Color(Display.getDefault(), Verdict2RGB(reqcov.get(reqTag))));
 				req.setText(2, "");
 			}
 		}
 
-		// pack columns
+    	// pack columns
 		for (int idx = 0; idx < tc2reqHeader.length; idx++) {
 			tcTreeView.getColumn(idx).pack();
 		}
@@ -340,7 +481,8 @@ public class RttMbtRequirementsCoverage extends MultiPageEditorPart  {
 
 	// requirements coverage
 	private void createReq2TcPage() {
-		reqTreeView = new Tree(getContainer(), SWT.H_SCROLL | SWT.V_SCROLL);
+    	// init tree view
+    	reqTreeView = new Tree(getContainer(), SWT.H_SCROLL | SWT.V_SCROLL);
 		reqTreeView.setHeaderVisible(true);
 		int index = addPage(reqTreeView);
 		setPageText(index,"Requirements Coverage");
@@ -363,25 +505,15 @@ public class RttMbtRequirementsCoverage extends MultiPageEditorPart  {
 			TreeItem tcParent = null;
 			tcParent = new TreeItem(reqTreeView, SWT.NONE);
 			tcParent.setText(0, reqTag);
-			if (reqcov.get(reqTag)) {
-				tcParent.setText(1, "COVERED");
-				tcParent.setBackground(1, new Color(Display.getDefault(), new RGB(0,255,0)));
-			} else {
-				tcParent.setText(1, "NOT COVERED");
-				tcParent.setBackground(1, new Color(Display.getDefault(), new RGB(255,255,0)));
-			}
+			tcParent.setText(1, Verdict2String(reqcov.get(reqTag)));
+			tcParent.setBackground(1, new Color(Display.getDefault(), Verdict2RGB(reqcov.get(reqTag))));
 			tcParent.setText(2, "");
 			for (int idx = 0; idx < tcs.size(); idx++) {
 				tcTag = tcs.get(idx);
 				TreeItem tc = new TreeItem(tcParent, SWT.NONE);
 				tc.setText(0, tcTag);
-				if (tccov.get(tcTag)) {
-					tc.setText(1, "COVERED");
-					tc.setBackground(1, new Color(Display.getDefault(), new RGB(0,255,0)));
-				} else {
-					tc.setText(1, "NOT COVERED");
-					tc.setBackground(1, new Color(Display.getDefault(), new RGB(255,255,0)));
-				}
+				tc.setText(1, Verdict2String(tccov.get(tcTag)));
+				tc.setBackground(1, new Color(Display.getDefault(), Verdict2RGB(tccov.get(tcTag))));
 				TreeEditor editor = new TreeEditor(reqTreeView);
 				editor.horizontalAlignment = SWT.LEFT;
 				editor.minimumWidth = 40;
@@ -403,7 +535,7 @@ public class RttMbtRequirementsCoverage extends MultiPageEditorPart  {
 					});
 			    editor.setEditor(cellEditor, tc, 2);
 			}
-			tcParent.setExpanded(true);
+			tcParent.setExpanded(false);
 		}
 		// pack columns
 		for (int idx = 0; idx < req2tcHeader.length; idx++) {

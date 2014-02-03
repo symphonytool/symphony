@@ -119,7 +119,6 @@ public class AbstractCmlFunctionChecker extends FunctionChecker implements
 		super(af);
 	}
 
-
 	@Override
 	public Boolean caseFile(File node) throws AnalysisException
 	{

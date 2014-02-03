@@ -1,5 +1,6 @@
 package eu.compassresearch.core.interpreter;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -18,7 +19,9 @@ import org.overture.interpreter.runtime.ValueException;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.CmlAstFactory;
+import eu.compassresearch.ast.actions.AChannelRenamingAction;
 import eu.compassresearch.ast.actions.ASkipAction;
+import eu.compassresearch.ast.actions.AStartDeadlineAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
 import eu.compassresearch.ast.expressions.ANameChannelExp;
@@ -39,6 +42,7 @@ import eu.compassresearch.core.interpreter.api.values.CMLChannelValue;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameSetValue;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
 import eu.compassresearch.core.interpreter.api.values.NamesetValue;
+import eu.compassresearch.core.interpreter.api.values.RenamingValue;
 import eu.compassresearch.core.interpreter.utility.LocationExtractor;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
@@ -51,8 +55,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 	}
 
 	public CommonInspectionVisitor(CmlBehaviour ownerProcess,
-			VisitorAccess visitorAccess,
-			CmlBehaviorFactory cmlBehaviorFactory,
+			VisitorAccess visitorAccess, CmlBehaviorFactory cmlBehaviorFactory,
 			QuestionAnswerCMLAdaptor<Context, Inspection> parentVisitor)
 	{
 		super(ownerProcess, visitorAccess, cmlBehaviorFactory, parentVisitor);
@@ -91,6 +94,64 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		else
 		{
 			return leftChildAlphabet.union(rightChildAlphabet);
+		}
+	}
+	
+	protected Inspection caseChannelRenaming(final INode node,
+			final Context question) throws AnalysisException
+	{
+		
+		final CmlBehaviour leftChild = owner.getLeftChild();
+		
+		if(!leftChild.finished())
+		{
+			RenamingValue rv = (RenamingValue)question.lookup(NamespaceUtility.getRenamingValueName());
+ 			CmlTransitionSet childTransitions = leftChild.inspect();
+			final HashMap<CmlTransition, CmlTransition> newtoOld = new HashMap<CmlTransition, CmlTransition>();
+ 			for(Entry<ChannelNameValue, ChannelNameValue> pair : rv.renamingMap().entrySet())
+ 			{
+ 				CmlTransitionSet transitionsToBeRenamed  = childTransitions.retainByChannelName(pair.getKey());
+ 				//if this is true then we have remove the from channel and need to add the
+ 				for(ObservableTransition toBeRenamed : transitionsToBeRenamed.getObservableChannelEvents())
+ 				{
+ 					LabelledTransition tbr = (LabelledTransition)toBeRenamed;
+ 					childTransitions = childTransitions.removeByChannelName(pair.getKey());
+ 					LabelledTransition renamedtransition = tbr.rename(pair.getValue());
+ 					childTransitions = childTransitions.union(renamedtransition);
+ 					newtoOld.put(renamedtransition, tbr);
+ 				}
+ 			}
+ 			
+ 			return newInspection(childTransitions, new CmlCalculationStep()
+			{
+				
+				@Override
+				public Pair<INode, Context> execute(CmlTransition selectedTransition)
+						throws AnalysisException
+				{
+					if(newtoOld.containsKey(selectedTransition))
+						leftChild.execute(newtoOld.get(selectedTransition));
+					else
+						leftChild.execute(selectedTransition);
+					
+					return new Pair<INode, Context>(node, question);
+				}
+			});
+ 			
+		}
+		else
+		{
+			final INode skipNode = CmlAstFactory.newASkipAction(LocationExtractor.extractLocation(node)); 
+			return newInspection(createTauTransitionWithoutTime(skipNode), new CmlCalculationStep()
+			{
+				@Override
+				public Pair<INode, Context> execute(CmlTransition selectedTransition)
+						throws AnalysisException
+				{
+					clearLeftChild();
+					return new Pair<INode, Context>(skipNode, question.outer);
+				}
+			});
 		}
 	}
 
@@ -429,8 +490,10 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 							|| rightChannelEvent.getChannelName().isGTEQPrecise(leftChannelEvent.getChannelName()))
 					{
 						ObservableTransition result = leftTrans.synchronizeWith(rightTrans);
-						if(result != null)
+						if (result != null)
+						{
 							syncEvents.add(result);
+						}
 					}
 				}
 			}
@@ -749,6 +812,157 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 			});
 		}
 	}
+	
+	/**
+	 * This implements the startsby operator which is defined as. So assume we have
+	 * A startsby e then A must execute an observable event within e
+     * time units. Otherwise, the process is infeasible. In other words it throws a postcondition
+     * Exception if the process has no observable behavior within e timeunits
+	 * 
+	 * @throws AnalysisException
+	 */
+	protected Inspection caseStartDeadline(final INode node,
+			final INode leftNode, PExp timeExpression,
+			final Context question) throws AnalysisException
+	{
+		// Evaluate the expression into a natural number
+		long val = timeExpression.apply(cmlExpressionVisitor, question).natValue(question);
+		long startTimeVal = question.lookup(NamespaceUtility.getStartsByTimeName()).natValue(question);
+		
+		// If the left is Skip then the whole process becomes skip with the state of the left child
+		if (owner.getLeftChild().finished())
+		{
+			return newInspection(createTauTransitionWithTime(owner.getLeftChild().getNextState().first, "Timeout: left behavior is finished"), new CmlCalculationStep()
+			{
+
+				@Override
+				public Pair<INode, Context> execute(
+						CmlTransition selectedTransition)
+						throws AnalysisException
+				{
+
+					return replaceWithChild(owner.getLeftChild());
+				}
+			});
+		}
+		// if the current time of the process has passed the limit (val) then 
+		// a post condition exception is thrown
+		else if (owner.getCurrentTime() - startTimeVal >= val)
+		{
+			throw new ValueException(4072, "Postcondition failure: This process is infeasable since it exceeded the start deadline without any observable events", question);
+		}
+		// if the current time of the process has not passed the limit (val) and the left process
+		// makes an observable transition then the whole process behaves as the left process
+		else
+		{
+			//
+			final CmlBehaviour leftBehavior = owner.getLeftChild();
+
+			CmlTransitionSet resultAlpha = null;
+			CmlTransitionSet leftAlpha = leftBehavior.inspect();
+			// If time can pass in the left, we need to put the remaining time of the timeout
+			if (leftAlpha.hasTockEvent())
+			{
+				TimedTransition leftTimeTransition = leftAlpha.getTockEvent();
+				resultAlpha = leftAlpha.subtract(leftTimeTransition);
+				long limit = val - (owner.getCurrentTime() - startTimeVal);
+				resultAlpha = resultAlpha.union(leftTimeTransition.synchronizeWith(new TimedTransition(owner, limit)));
+			} else
+			{
+				resultAlpha = leftAlpha;
+			}
+
+			return newInspection(resultAlpha, new CmlCalculationStep()
+			{
+				@Override
+				public Pair<INode, Context> execute(
+						CmlTransition selectedTransition)
+						throws AnalysisException
+				{
+
+					leftBehavior.execute(selectedTransition);
+
+					if (selectedTransition instanceof ObservableTransition
+							&& selectedTransition instanceof LabelledTransition)
+					{
+						return replaceWithChild(leftBehavior);
+					} else
+					{
+						return new Pair<INode, Context>(node, question);
+					}
+				}
+			});
+		}
+	}
+	
+	/**
+	 * 
+	 * @throws AnalysisException
+	 */
+	protected Inspection caseEndDeadline(final INode node,
+			final INode leftNode, PExp timeExpression,
+			final Context question) throws AnalysisException
+	{
+		// Evaluate the expression into a natural number
+		long val = timeExpression.apply(cmlExpressionVisitor, question).natValue(question);
+		long startTimeVal = question.lookup(NamespaceUtility.getEndsByTimeName()).natValue(question);
+		
+		// If the left is Skip then the whole process becomes skip with the state of the left child
+		if (owner.getLeftChild().finished())
+		{
+			return newInspection(createTauTransitionWithTime(owner.getLeftChild().getNextState().first, "Timeout: left behavior is finished"), new CmlCalculationStep()
+			{
+
+				@Override
+				public Pair<INode, Context> execute(
+						CmlTransition selectedTransition)
+						throws AnalysisException
+				{
+
+					return replaceWithChild(owner.getLeftChild());
+				}
+			});
+		}
+		// if the current time of the process has passed the limit (val) then 
+		// a post condition exception is thrown
+		else if (owner.getCurrentTime() - startTimeVal >= val)
+		{
+			throw new ValueException(4072, "Postcondition failure: This process is infeasable since it did not successfully terminate before the deadline", question);
+		}
+		// if the current time of the process has not passed the limit (val) and the left process
+		// makes an observable transition then the whole process behaves as the left process
+		else
+		{
+			//
+			final CmlBehaviour leftBehavior = owner.getLeftChild();
+
+			CmlTransitionSet resultAlpha = null;
+			CmlTransitionSet leftAlpha = leftBehavior.inspect();
+			// If time can pass in the left, we need to put the remaining time of the timeout
+			if (leftAlpha.hasTockEvent())
+			{
+				TimedTransition leftTimeTransition = leftAlpha.getTockEvent();
+				resultAlpha = leftAlpha.subtract(leftTimeTransition);
+				long limit = val - (owner.getCurrentTime() - startTimeVal);
+				resultAlpha = resultAlpha.union(leftTimeTransition.synchronizeWith(new TimedTransition(owner, limit)));
+			} else
+			{
+				resultAlpha = leftAlpha;
+			}
+
+			return newInspection(resultAlpha, new CmlCalculationStep()
+			{
+				@Override
+				public Pair<INode, Context> execute(
+						CmlTransition selectedTransition)
+						throws AnalysisException
+				{
+					leftBehavior.execute(selectedTransition);
+					return new Pair<INode, Context>(node, question);
+				}
+			});
+		}
+	}
 
 	protected Inspection caseATimeout(final INode node, final INode leftNode,
 			final INode rightNode, PExp timeoutExpression,
@@ -756,7 +970,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 	{
 		// Evaluate the expression into a natural number
 		long val = timeoutExpression.apply(cmlExpressionVisitor, question).natValue(question);
-		long startTimeVal = question.lookup(NamespaceUtility.getStartTimeName()).intValue(question);
+		long startTimeVal = question.lookup(NamespaceUtility.getStartTimeName()).natValue(question);
 		// If the left is Skip then the whole process becomes skip with the state of the left child
 		if (owner.getLeftChild().finished())
 		{

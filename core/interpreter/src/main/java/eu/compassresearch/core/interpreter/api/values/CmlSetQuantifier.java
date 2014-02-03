@@ -15,6 +15,10 @@ import org.overture.interpreter.values.ValueList;
 public class CmlSetQuantifier extends Value implements
 		Iterable<NameValuePairList>
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	List<ILexNameToken> quantifierNames;
 	SetValue valueTuples;
 

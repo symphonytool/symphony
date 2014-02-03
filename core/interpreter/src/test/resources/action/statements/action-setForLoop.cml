@@ -1,0 +1,13 @@
+types
+
+answertype = <YES>| <NO>
+
+channels 
+a : answertype
+
+
+process A = 
+begin 
+
+	@ for all x in set {<YES>,<NO>} do a.x -> Skip
+end

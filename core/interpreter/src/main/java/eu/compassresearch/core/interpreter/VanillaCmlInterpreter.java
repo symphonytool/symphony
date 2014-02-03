@@ -148,7 +148,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		// Create the initial context with the global definitions
 		Context topContext = getInitialContext(null);
 		// Create a CmlBehaviour for the top process
-		runningTopProcess = config.cmlBehaviorFactory.newCmlBehaviour(topProcess.getProcess(), topContext, new CmlBehaviour.BehaviourName(topProcess.getName().getName()),null);
+		runningTopProcess = config.cmlBehaviorFactory.newCmlBehaviour(topProcess.getProcess(), topContext, new CmlBehaviour.BehaviourName(topProcess.getName().getName()), null);
 
 		// Fire the interpreter running event before we start
 		setNewState(CmlInterpreterState.RUNNING);
@@ -206,29 +206,15 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	 * @throws AnalysisException
 	 * @throws InterruptedException
 	 */
-	private void executeTopProcess(CmlBehaviour behaviour)
+	protected void executeTopProcess(CmlBehaviour behaviour)
 			throws AnalysisException, InterruptedException
 	{
 		// continue until the top process is not finished and not deadlocked
 		while (!behaviour.finished() && !behaviour.deadlocked())
 		{
-			// inspect the top process to get the next possible trace element
-			CmlTransitionSet topAlphabet = behaviour.inspect();
-			// expand what's possible in the alphabet
-			CmlTransitionSet availableEvents = topAlphabet.expandAlphabet();
+			CmlTransitionSet availableEvents = inspect(behaviour);
 
-			CmlRuntime.logger().fine("Waiting for environment on : "
-					+ availableEvents.getAllEvents());
-
-			logState(availableEvents);
-
-			SelectionStrategy env = getEnvironment();
-			// set the state of the interpreter to be waiting for the environment
-			env.choices(filterEvents(availableEvents));
-			setNewState(CmlInterpreterState.WAITING_FOR_ENVIRONMENT);
-			// Get the environment to select the next transition.
-			// this is potentially a blocking call!!
-			selectedEvent = env.resolveChoice();
+			selectedEvent = resolveChoice(availableEvents);
 
 			// if its null we terminate and assume that this happened because of a user interrupt
 			if (selectedEvent == null)
@@ -242,7 +228,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			// if we get here it means that it in a running state again
 			setNewState(CmlInterpreterState.RUNNING);
 
-			behaviour.execute(selectedEvent);
+			executeBehaviour(behaviour);
 			CmlTrace trace = behaviour.getTraceModel();
 
 			logTransition(behaviour, trace);
@@ -268,6 +254,38 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			setNewState(CmlInterpreterState.FINISHED);
 		}
 
+	}
+
+	protected CmlTransitionSet inspect(CmlBehaviour behaviour)
+			throws AnalysisException
+	{
+		// inspect the top process to get the next possible trace element
+		CmlTransitionSet topAlphabet = behaviour.inspect();
+		// expand what's possible in the alphabet
+		CmlTransitionSet availableEvents = topAlphabet.expandAlphabet();
+		return availableEvents;
+	}
+
+	protected void executeBehaviour(CmlBehaviour behaviour)
+			throws AnalysisException
+	{
+		behaviour.execute(selectedEvent);
+	}
+
+	public CmlTransition resolveChoice(CmlTransitionSet availableEvents)
+	{
+		CmlRuntime.logger().fine("Waiting for environment on : "
+				+ availableEvents.getAllEvents());
+
+		logState(availableEvents);
+
+		SelectionStrategy env = getEnvironment();
+		// set the state of the interpreter to be waiting for the environment
+		env.choices(filterEvents(availableEvents));
+		setNewState(CmlInterpreterState.WAITING_FOR_ENVIRONMENT);
+		// Get the environment to select the next transition.
+		// this is potentially a blocking call!!
+		return env.resolveChoice();
 	}
 
 	public void logState(CmlTransitionSet availableEvents)
@@ -309,8 +327,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		{
 			CmlRuntime.logger().finer("----------------Silent step by '"
 					+ behaviour + "'--------------------");
-			CmlRuntime.logger().finer("Trace of '" + behaviour + "': "
-					+ trace);
+			CmlRuntime.logger().finer("Trace of '" + behaviour + "': " + trace);
 			CmlRuntime.logger().finer("Eval. Status={ "
 					+ behaviour.nextStepToString() + " }");
 			CmlRuntime.logger().finer("-----------------------------------------------------------------");

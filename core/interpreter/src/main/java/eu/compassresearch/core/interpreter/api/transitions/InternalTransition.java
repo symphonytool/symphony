@@ -6,7 +6,10 @@ import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 
 public class InternalTransition extends AbstractSilentTransition
 {
-	private static final String internalString = "internal";
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	public InternalTransition(CmlBehaviour source, INode transitionDstNode,
 			String transitionText)
