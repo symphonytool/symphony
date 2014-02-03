@@ -29,23 +29,35 @@ class ProofSess( val poEDM : EditDocumentModel
 
   // A map from position offsets in the CML file to the corresponding proof obligation
   var poMap: Map[Command,PoThm] = Map.empty
-  var nextPO: Option[PoThm] = None
+  var poPending: List[PoThm] = List()
+  var poSubmitted: Set[Int] = Set()
+  
+  def enqueueAllPOs() {
+    val it = pol.iterator()
+    while (it.hasNext()) {
+      enqueuePO(it.next())
+    }
+  }
   
   def enqueuePO(ipo : IProofObligation) {
-    ipo.setStatus(POStatus.SUBMITTED)
-    PogPluginRunner.redrawPos(proj, pol)
-    val isaPO = TPVisitor.generatePoStr(ast, ipo)
-    val doc = poEDM.document
-    val offset = doc.getLineOffset(doc.getNumberOfLines() - 1)
-    val byPos = offset + (isaPO.length() - TPConstants.BY_CML_AUTO_TAC_OFFSET)
     
-    nextPO = Some(PoThm(offset, isaPO + "\n", byPos, ipo.getNumber()))
+    // Only enqueue if the ipo has not been submitted yet
+    if (!poSubmitted.contains(ipo.getNumber())) {
+      ipo.setStatus(POStatus.SUBMITTED)      
+      PogPluginRunner.redrawPos(proj, pol)
+      poSubmitted += ipo.getNumber()
+      val isaPO = TPVisitor.generatePoStr(ast, ipo)
+      val doc = poEDM.document
+      val offset = doc.getLineOffset(doc.getNumberOfLines() - 1)
+      val byPos = offset + (isaPO.length() - TPConstants.BY_CML_AUTO_TAC_OFFSET)
     
-    doc.replace(offset, 0, isaPO + "\n")
+      poPending ++= PoThm(offset, isaPO + "\n", byPos, ipo.getNumber()) :: List()
     
-    poEDM.submitFullPerspective(new NullProgressMonitor())
-    thyProvider.saveDocument(new NullProgressMonitor(), null, poEDM.document, true)
-
+      doc.replace(offset, 0, isaPO + "\n")
+    
+      poEDM.submitFullPerspective(new NullProgressMonitor())
+      thyProvider.saveDocument(new NullProgressMonitor(), null, poEDM.document, true)
+    }
   }
   
     // When commands change (e.g. results from the prover), notify the handler about changed ranges.
@@ -72,17 +84,17 @@ class ProofSess( val poEDM : EditDocumentModel
 
           
           // If a proof obligation has just been added extract the associated command
-          nextPO match {
-            case Some(pt) => {
+          poPending match {
+            case (pt :: pts) => {
         	  val node = sess.snapshot(poEDM.name).node
               val cmd = node.command_at(pt.byPos).map(_._1)
               cmd match {
-                case Some(c) => { poMap += (c -> pt); nextPO = None }
+                case Some(c) => { poMap += (c -> pt); poPending = pts }
                 case None => {}
         	  }
         	  
             }
-        	case None => {}
+        	case List() => {}
           }
       
           for (c <- changed.commands) {
