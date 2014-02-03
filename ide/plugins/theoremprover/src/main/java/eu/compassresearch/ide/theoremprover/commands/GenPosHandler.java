@@ -49,7 +49,7 @@ public class GenPosHandler extends AbstractHandler {
 		TPPluginDoStuff doer = new TPPluginDoStuff(
 				HandlerUtil.getActiveWorkbenchWindow(event), page
 						.getActivePart().getSite());
-		doer.dischargeClassic(proj);
+		doer.genPOsDev(proj);
 
 //		// open Isabelle perspective
 //		try {

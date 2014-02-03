@@ -583,7 +583,7 @@ public class TPPluginDoStuff {
 				ppr.runPog();
 			    
 				// Start Proof Session			
-				ProofSess ps = new ProofSess(pogEDM, cmlProj.getModel().getAst(), prov, sess);
+				ProofSess ps = new ProofSess(pogEDM, cmlProj, goodPol, cmlProj.getModel().getAst(), prov, sess);
                 ps.init();
 				cmlProj.getModel().setAttribute(TPConstants.PROOF_SESSION_ID, ps);
 				
