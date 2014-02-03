@@ -72,7 +72,7 @@ public class FaultToleranceVerificationJob extends Job {
 			throws InterruptedException {
 
 		try {
-			monitor.beginTask(Message.CHECKING_PREREQUISITES.format(), 2);
+			beginSubTask(Message.CHECKING_PREREQUISITES, 2, monitor);
 
 			Thread dft = new Thread(
 					threads,
@@ -125,28 +125,40 @@ public class FaultToleranceVerificationJob extends Job {
 		}
 	}
 
+	private IProgressMonitor createSubProgressMonitor(IProgressMonitor parent,
+			int ticks) {
+		return new SubProgressMonitor(parent, 1);
+	}
+
+	private void beginSubTask(Message message, int ticks,
+			IProgressMonitor monitor) {
+		String formattedMessage = message.format(faultToleranceResults
+				.getProcessName());
+		monitor.beginTask(formattedMessage, ticks);
+		monitor.subTask(formattedMessage);
+	}
+
 	@Override
 	protected IStatus run(final IProgressMonitor monitor) {
 		try {
 			monitor.beginTask(Message.FAULT_TOLERANCE_VERIFICATION_TASK_MESSAGE
 					.format(faultToleranceResults.getProcessName()), 3);
-
 			Runnable mainRun = new Runnable() {
 				@Override
 				public void run() {
 					try {
-						createFilesAndCheckDefinitions(new SubProgressMonitor(
+						createFilesAndCheckDefinitions(createSubProgressMonitor(
 								monitor, 1));
 
 						if (faultToleranceResults.getDefinitionsMessage() == null
 								&& !faultToleranceResults.hasException()) {
-							verifyPreRequisites(new SubProgressMonitor(monitor,
-									1));
+							verifyPreRequisites(createSubProgressMonitor(
+									monitor, 1));
 						}
 
 						if (faultToleranceResults.isPreRequisitesOk()
 								&& !faultToleranceResults.hasException()) {
-							runFaultToleranceVerification(new SubProgressMonitor(
+							runFaultToleranceVerification(createSubProgressMonitor(
 									monitor, 1));
 						}
 					} catch (InterruptedException e) {
@@ -156,7 +168,7 @@ public class FaultToleranceVerificationJob extends Job {
 			};
 
 			Thread t = new Thread(threads, mainRun,
-					Message.FAULT_TOLERANCE_VERIFICATION_TASK_MESSAGE
+					Message.FAULT_TOLERANCE_VERIFICATION_THREAD_NAME
 							.format(faultToleranceResults.getProcessName()));
 			t.start();
 			t.join();
@@ -171,8 +183,8 @@ public class FaultToleranceVerificationJob extends Job {
 
 	private void createFilesAndCheckDefinitions(IProgressMonitor monitor) {
 		try {
-			monitor.beginTask(Message.STARTING_FAULT_TOLERANCE_FILES_MANAGEMENT
-					.format(faultToleranceResults.getProcessName()), 4);
+			beginSubTask(Message.STARTING_FAULT_TOLERANCE_FILES_MANAGEMENT, 5,
+					monitor);
 
 			createFolder();
 			monitor.worked(1);
@@ -183,23 +195,21 @@ public class FaultToleranceVerificationJob extends Job {
 			List<String> valuesNotFound = new LinkedList<>();
 			List<String> namesetsNotFound = new LinkedList<>();
 
-			clearGeneratedCmlFiles(monitor);
+			clearGeneratedCmlFiles(createSubProgressMonitor(monitor, 1));
 
 			checkDefinitions(namesetsNotFound, valuesNotFound,
 					channelsNotFound, chansetsNotFound, processesNotFound,
-					monitor);
-			monitor.worked(1);
+					createSubProgressMonitor(monitor, 1));
 
 			createCmlFiles(namesetsNotFound, valuesNotFound, channelsNotFound,
-					chansetsNotFound, processesNotFound, monitor);
-			monitor.worked(1);
+					chansetsNotFound, processesNotFound,
+					createSubProgressMonitor(monitor, 1));
 
 			createMissingDefinitionsMessage(namesetsNotFound, valuesNotFound,
 					channelsNotFound, chansetsNotFound, processesNotFound);
 
 			if (faultToleranceResults.getDefinitionsMessage() == null) {
-				createFormulaFiles(monitor);
-				monitor.worked(1);
+				createFormulaFiles(createSubProgressMonitor(monitor, 1));
 			}
 		} catch (CoreException e) {
 			faultToleranceResults.add(e);
@@ -223,17 +233,24 @@ public class FaultToleranceVerificationJob extends Job {
 		fileNames.add(Message.BASE_CML_FILE_NAME);
 		fileNames.add(Message.CML_PROCESSES_FILE_NAME);
 
-		for (Message fileName : fileNames) {
-			IFile outputFile = folder.getFile(fileName.format(processName));
-			if (outputFile.exists()) {
-				try {
-					outputFile.delete(true, new NullProgressMonitor());
-				} catch (CoreException e) {
-					// move to next, don't care.
+		try {
+			beginSubTask(Message.CLEAR_GENERATED_CML_FILES_TASK_NAME,
+					(fileNames.size() + 1), monitor);
+			for (Message fileName : fileNames) {
+				IFile outputFile = folder.getFile(fileName.format(processName));
+				if (outputFile.exists()) {
+					try {
+						outputFile.delete(true,
+								createSubProgressMonitor(monitor, 1));
+					} catch (CoreException e) {
+						// move to next, don't care.
+					}
 				}
 			}
+			refreshModel(createSubProgressMonitor(monitor, 1));
+		} finally {
+			monitor.done();
 		}
-		refreshModel(new NullProgressMonitor());
 	}
 
 	// TODO remove code below:
@@ -245,43 +262,42 @@ public class FaultToleranceVerificationJob extends Job {
 
 	private void refreshModel(IProgressMonitor monitor) {
 		faultToleranceResults.getCmlProject().getModel()
-				.refresh(false, new SubProgressMonitor(monitor, 1));
+				.refresh(false, monitor);
 	}
 
 	private void checkDefinitions(List<String> namesetsNotFound,
 			List<String> valuesNotFound, List<String> channelsNotFound,
 			List<String> chansetsNotFound, List<String> processesNotFound,
 			IProgressMonitor monitor) {
-		String processName = faultToleranceResults.getProcessName();
 		try {
-			monitor.beginTask(Message.DEFINITIONS_VERIFICATION_TASK_NAME
-					.format(processName), 11);
-			refreshModel(new SubProgressMonitor(monitor, 1));
+			beginSubTask(Message.DEFINITIONS_VERIFICATION_TASK_NAME, 11,
+					monitor);
+			refreshModel(createSubProgressMonitor(monitor, 1));
 			Set<String> channelNames = new TreeSet<>();
 			Set<String> chansetNames = new TreeSet<>();
 			Set<String> processNames = new TreeSet<>();
 			Set<String> valueNames = new TreeSet<>();
 			Set<String> namesetNames = new TreeSet<>();
 			findDefinitions(AChannelDefinition.class, channelNames,
-					new SubProgressMonitor(monitor, 1));
+					createSubProgressMonitor(monitor, 1));
 			findDefinitions(AChansetDefinition.class, chansetNames,
-					new SubProgressMonitor(monitor, 1));
+					createSubProgressMonitor(monitor, 1));
 			findDefinitions(AProcessDefinition.class, processNames,
-					new SubProgressMonitor(monitor, 1));
+					createSubProgressMonitor(monitor, 1));
 			findDefinitions(AValueDefinition.class, valueNames,
-					new SubProgressMonitor(monitor, 1));
+					createSubProgressMonitor(monitor, 1));
 			findDefinitions(ANamesetDefinition.class, valueNames,
-					new SubProgressMonitor(monitor, 1));
+					createSubProgressMonitor(monitor, 1));
 			checkNames(Message.EXISTING_NEEDED_NAMESETS, namesetsNotFound,
-					namesetNames, new SubProgressMonitor(monitor, 1));
+					namesetNames, createSubProgressMonitor(monitor, 1));
 			checkNames(Message.EXISTING_NEEDED_VALUES, valuesNotFound,
-					valueNames, new SubProgressMonitor(monitor, 1));
+					valueNames, createSubProgressMonitor(monitor, 1));
 			checkNames(Message.EXISTING_NEEDED_CHANNELS, channelsNotFound,
-					channelNames, new SubProgressMonitor(monitor, 1));
+					channelNames, createSubProgressMonitor(monitor, 1));
 			checkNames(Message.EXISTING_NEEDED_CHANSETS, chansetsNotFound,
-					chansetNames, new SubProgressMonitor(monitor, 1));
+					chansetNames, createSubProgressMonitor(monitor, 1));
 			checkNames(Message.EXISTING_NEEDED_PROCESSES, processesNotFound,
-					processNames, new SubProgressMonitor(monitor, 1));
+					processNames, createSubProgressMonitor(monitor, 1));
 		} catch (CoreException e) {
 			faultToleranceResults.add(e);
 		} finally {
@@ -335,10 +351,10 @@ public class FaultToleranceVerificationJob extends Job {
 
 	private <T extends PDefinition> void findDefinitions(Class<T> cl,
 			Set<String> names, IProgressMonitor monitor) throws CoreException {
-		String processName = faultToleranceResults.getProcessName();
 		ICmlProject cmlProject = faultToleranceResults.getCmlProject();
 		try {
-			monitor.beginTask(Message.CHECK_NAMES_TASK.format(processName), 1);
+			beginSubTask(Message.CHECK_NAMES_TASK, cmlProject.getSourceUnits()
+					.size(), monitor);
 			for (ICmlSourceUnit su : cmlProject.getSourceUnits()) {
 				for (PDefinition def : su.getParseListDefinitions()) {
 					if (cl.isAssignableFrom(def.getClass())) {
@@ -349,8 +365,8 @@ public class FaultToleranceVerificationJob extends Job {
 						}
 					}
 				}
+				monitor.worked(1);
 			}
-			monitor.worked(1);
 		} finally {
 			monitor.done();
 		}
@@ -363,8 +379,8 @@ public class FaultToleranceVerificationJob extends Job {
 		try {
 			StringTokenizer namesTokenizer = new StringTokenizer(
 					namesMessage.format(processName), ",");
-			monitor.beginTask(Message.CHECK_NAMES_TASK.format(processName),
-					namesTokenizer.countTokens());
+			beginSubTask(Message.CHECK_NAMES_TASK,
+					namesTokenizer.countTokens(), monitor);
 			while (namesTokenizer.hasMoreTokens()) {
 				String name = namesTokenizer.nextToken();
 				if (!existingNames.contains(name)) {
@@ -379,12 +395,21 @@ public class FaultToleranceVerificationJob extends Job {
 
 	private void createFormulaFiles(IProgressMonitor monitor)
 			throws UnableToRunFaultToleranceVerificationException {
-		List<PDefinition> definitions = new LinkedList<>();
-		findDefinitions(definitions, new SubProgressMonitor(monitor, 2));
-		createDivergenceFreedomFormulaScript(definitions);
-		createSemifarinessFormulaScript(definitions);
-		createFullFaultToleranceFormulaScript(definitions);
-		createLimitedFaultToleranceFormulaScript(definitions);
+		try {
+			beginSubTask(Message.CREATE_FORMULA_FILES_TASK_NAME, 5, monitor);
+			List<PDefinition> definitions = new LinkedList<>();
+			findDefinitions(definitions, createSubProgressMonitor(monitor, 1));
+			createDivergenceFreedomFormulaScript(definitions);
+			monitor.worked(1);
+			createSemifarinessFormulaScript(definitions);
+			monitor.worked(1);
+			createFullFaultToleranceFormulaScript(definitions);
+			monitor.worked(1);
+			createLimitedFaultToleranceFormulaScript(definitions);
+			monitor.worked(1);
+		} finally {
+			monitor.done();
+		}
 	}
 
 	private void createCmlFiles(List<String> namesetsNotFound,
@@ -392,22 +417,31 @@ public class FaultToleranceVerificationJob extends Job {
 			List<String> chansetsNotFound, List<String> processesNotFound,
 			IProgressMonitor monitor)
 			throws UnableToRunFaultToleranceVerificationException {
-		createFaultToleranceBaseFile(namesetsNotFound, valuesNotFound,
-				channelsNotFound, chansetsNotFound, processesNotFound);
-		createFaultToleranceProcessesFile(namesetsNotFound, valuesNotFound,
-				channelsNotFound, chansetsNotFound, processesNotFound);
+		try {
+			beginSubTask(Message.CREATE_CML_FILES_TASK_NAME, 2, monitor);
+			createFaultToleranceBaseFile(namesetsNotFound, valuesNotFound,
+					channelsNotFound, chansetsNotFound, processesNotFound);
+			monitor.worked(1);
+			createFaultToleranceProcessesFile(namesetsNotFound, valuesNotFound,
+					channelsNotFound, chansetsNotFound, processesNotFound);
+			monitor.worked(1);
+		} finally {
+			monitor.done();
+		}
 	}
 
 	private void findDefinitions(List<PDefinition> definitions,
-			SubProgressMonitor monitor)
+			IProgressMonitor monitor)
 			throws UnableToRunFaultToleranceVerificationException {
 		ICmlProject cmlProject = faultToleranceResults.getCmlProject();
 		String processName = faultToleranceResults.getProcessName();
 		try {
+			beginSubTask(Message.FIND_PARSE_LIST_DEFINITIONS_TASK_NAME,
+					cmlProject.getSourceUnits().size(), monitor);
 			for (ICmlSourceUnit su : cmlProject.getSourceUnits()) {
 				definitions.addAll(su.getParseListDefinitions());
+				monitor.worked(1);
 			}
-			monitor.worked(1);
 		} catch (CoreException e) {
 			throw new UnableToRunFaultToleranceVerificationException(
 					Message.UNABLE_TO_FIND_PROJECT_DEFINITIONS, e, processName);
@@ -562,7 +596,7 @@ public class FaultToleranceVerificationJob extends Job {
 		if (requires) {
 			IFolder folder = faultToleranceResults.getFolder();
 			writeFile(folder, Message.BASE_CML_FILE_NAME, baos.toByteArray(),
-					Message.UNABLE_TO_CREATE_FAULT_TOLERANCE_PROCESSES_FILE);
+					Message.UNABLE_TO_CREATE_FAULT_TOLERANCE_BASE_FILE);
 		}
 	}
 
@@ -636,6 +670,7 @@ public class FaultToleranceVerificationJob extends Job {
 		IFile outputFile = folder.getFile(fileName.format(processName));
 
 		try {
+			// TODO replace NullProgressMonitor to real ones.
 			InputStream in = new ByteArrayInputStream(contents);
 			if (outputFile.exists()) {
 				outputFile.setContents(in, false, false,
@@ -683,8 +718,8 @@ public class FaultToleranceVerificationJob extends Job {
 	private void runFaultToleranceVerification(final IProgressMonitor monitor)
 			throws InterruptedException {
 
-		monitor.beginTask(Message.FAULT_TOLERANCE_VERIFICATION_TASK_MESSAGE
-				.format(faultToleranceResults.getProcessName()), 2);
+		beginSubTask(Message.FAULT_TOLERANCE_VERIFICATION_TASK_MESSAGE, 2,
+				monitor);
 
 		Thread fftt = new Thread(
 				threads,
@@ -727,7 +762,7 @@ public class FaultToleranceVerificationJob extends Job {
 		fftt.setDaemon(true);
 		lftt.setDaemon(true);
 
-		// TODO change the order when the ModelChecker support multithreading.
+		// TODO change the order when the ModelChecker supports multithreading.
 		fftt.start();
 		fftt.join();
 
