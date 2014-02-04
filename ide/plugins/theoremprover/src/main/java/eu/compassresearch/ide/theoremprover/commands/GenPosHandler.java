@@ -50,17 +50,17 @@ public class GenPosHandler extends AbstractHandler {
 		TPPluginDoStuff doer = new TPPluginDoStuff(
 				HandlerUtil.getActiveWorkbenchWindow(event), page
 						.getActivePart().getSite());
-		doer.genPOsDev(proj);
+		doer.dischargeClassic(proj);
 		
 
-//		// open Isabelle perspective
-//		try {
-//			PlatformUI.getWorkbench().showPerspective(
-//					TPConstants.ISABELLE_PERSPECTIVE_ID, HandlerUtil.getActiveWorkbenchWindow(event));
-//		} catch (WorkbenchException e) {
-//
-//			e.printStackTrace();
-//		}
+		// open Isabelle perspective
+		try {
+			PlatformUI.getWorkbench().showPerspective(
+					TPConstants.ISABELLE_PERSPECTIVE_ID, HandlerUtil.getActiveWorkbenchWindow(event));
+		} catch (WorkbenchException e) {
+
+			e.printStackTrace();
+		}
 		
 		return null;
 	}

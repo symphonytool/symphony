@@ -67,7 +67,7 @@ public class GenPosDevHandler extends AbstractHandler {
 		doer.genPOsDev(proj);
 		
 		ProofSess ps = proj.getModel().getAttribute(TPConstants.PROOF_SESSION_ID, ProofSess.class);
-		ps.enqueueAllPOs();
+	//	ps.enqueueAllPOs();
 
 
 		return null;
