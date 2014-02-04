@@ -49,7 +49,7 @@ class ProofSess( val poEDM : EditDocumentModel
       val isaPO = TPVisitor.generatePoStr(ast, ipo)
       val doc = poEDM.document
       val offset = doc.getLineOffset(doc.getNumberOfLines() - 1)
-      val byPos = offset + (isaPO.length() - 17)
+      val byPos = offset + (isaPO.length() - TPConstants.BY_CML_AUTO_TAC_OFFSET)
     
       poPending ++= PoThm(offset, isaPO + "\n", byPos, ipo.getNumber()) :: List()
     
