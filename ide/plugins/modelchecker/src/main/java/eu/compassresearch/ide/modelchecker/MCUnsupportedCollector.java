@@ -458,7 +458,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseABooleanConstExp(ABooleanConstExp node)
 			throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseABooleanConstExp(node);

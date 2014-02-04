@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.QuestionAnswerAdaptor;
 import org.overture.ast.expressions.AApplyExp;
+import org.overture.ast.expressions.ABooleanConstExp;
 import org.overture.ast.expressions.AEqualsBinaryExp;
 import org.overture.ast.expressions.AGreaterEqualNumericBinaryExp;
 import org.overture.ast.expressions.AGreaterNumericBinaryExp;
@@ -42,7 +43,9 @@ import eu.compassresearch.ast.expressions.ANameChannelExp;
 import eu.compassresearch.ast.expressions.AUnionVOpVarsetExpression;
 import eu.compassresearch.ast.expressions.PCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ExpressionEvaluator;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAApplyExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCABooleanConstExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAEnumVarsetExpression;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAEqualsBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAFatCompVarsetExpression;
@@ -282,6 +285,14 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 		return new MCAVariableExp(name);
 	}
 	
+	@Override
+	public MCNode caseABooleanConstExp(ABooleanConstExp node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		
+		
+		MCABooleanConstExp result = new MCABooleanConstExp(node.getValue().getValue());
+		return result;
+	}
 	/*
 	
 
@@ -296,17 +307,7 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 
 	
 
-	@Override
-	public StringBuilder caseABooleanConstExp(ABooleanConstExp node,
-			CMLModelcheckerContext question) throws AnalysisException {
-		
-		if(ExpressionEvaluator.evaluate(node)){
-			//nothing todo
-		}else{
-			question.getScriptContent().append("GUARDNDEF#");
-		}
-		return super.caseABooleanConstExp(node, question);
-	}
+	
 
 	@Override
 	public StringBuilder caseAAndBooleanBinaryExp(AAndBooleanBinaryExp node,
