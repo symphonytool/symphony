@@ -16,6 +16,8 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.overture.ast.intf.lex.ILexLocation;
 
 import eu.compassresearch.ide.core.resources.ICmlProject;
+import eu.compassresearch.ide.faulttolerance.FaultToleranceProperty;
+import eu.compassresearch.ide.faulttolerance.FaultToleranceType;
 import eu.compassresearch.ide.faulttolerance.UnableToRunFaultToleranceVerificationException;
 
 /**
@@ -25,10 +27,10 @@ import eu.compassresearch.ide.faulttolerance.UnableToRunFaultToleranceVerificati
  * 
  */
 public class FaultToleranceVerificationResults {
-	private boolean divergenceFree;
-	private boolean semifair;
-	private boolean fullFaultTolerant;
-	private boolean limitedFaultTolerant;
+	private final FaultToleranceProperty divergenceFreedom;
+	private final FaultToleranceProperty semifairness;
+	private final FaultToleranceProperty fullFaultTolerance;
+	private final FaultToleranceProperty limitedFaultTolerance;
 	private boolean prerequisitesChecked;
 	private String definitionsMessage;
 	private String processName;
@@ -46,8 +48,15 @@ public class FaultToleranceVerificationResults {
 	private final ILock prerequisitesLock;
 
 	public FaultToleranceVerificationResults() {
-		prerequisitesLock = Job.getJobManager().newLock();
-		otherExceptions = new LinkedList<>();
+		this.prerequisitesLock = Job.getJobManager().newLock();
+		this.otherExceptions = new LinkedList<>();
+		this.divergenceFreedom = FaultToleranceType.DivergenceFreedom
+				.newProperty();
+		this.semifairness = FaultToleranceType.Semifairness.newProperty();
+		this.fullFaultTolerance = FaultToleranceType.FullFaultTolerance
+				.newProperty();
+		this.limitedFaultTolerance = FaultToleranceType.LimitedFaultTolerance
+				.newProperty();
 	}
 
 	public void add(Exception e) {
@@ -67,19 +76,19 @@ public class FaultToleranceVerificationResults {
 	}
 
 	public boolean isDivergenceFree() {
-		return divergenceFree;
+		return divergenceFreedom.isSatisfied();
 	}
 
 	public boolean isSemifair() {
-		return semifair;
+		return semifairness.isSatisfied();
 	}
 
 	public boolean isFullFaultTolerant() {
-		return fullFaultTolerant;
+		return fullFaultTolerance.isSatisfied();
 	}
 
 	public boolean isLimitedFaultTolerant() {
-		return limitedFaultTolerant;
+		return limitedFaultTolerance.isSatisfied();
 	}
 
 	public String getProcessName() {
@@ -88,22 +97,6 @@ public class FaultToleranceVerificationResults {
 
 	public ILock getPrerequisitesLock() {
 		return prerequisitesLock;
-	}
-
-	public void setDivergenceFree(boolean divergenceFree) {
-		this.divergenceFree = divergenceFree;
-	}
-
-	public void setSemifair(boolean semifair) {
-		this.semifair = semifair;
-	}
-
-	public void setFullFaultTolerant(boolean fullFaultTolerant) {
-		this.fullFaultTolerant = fullFaultTolerant;
-	}
-
-	public void setLimitedFaultTolerant(boolean limitedFaultTolerant) {
-		this.limitedFaultTolerant = limitedFaultTolerant;
 	}
 
 	public void setProcessName(String processName) {
@@ -119,7 +112,8 @@ public class FaultToleranceVerificationResults {
 	}
 
 	public boolean isPreRequisitesOk() {
-		return divergenceFree && semifair && definitionsMessage == null;
+		return divergenceFreedom.isSatisfied() && semifairness.isSatisfied()
+				&& definitionsMessage == null;
 	}
 
 	public IResource getResource() {
@@ -225,6 +219,22 @@ public class FaultToleranceVerificationResults {
 
 	public void setCancelledByUser(boolean cancelledByUser) {
 		this.cancelledByUser = cancelledByUser;
+	}
+
+	public FaultToleranceProperty getDivergenceFreedom() {
+		return divergenceFreedom;
+	}
+
+	public FaultToleranceProperty getSemifairness() {
+		return semifairness;
+	}
+
+	public FaultToleranceProperty getFullFaultTolerance() {
+		return fullFaultTolerance;
+	}
+
+	public FaultToleranceProperty getLimitedFaultTolerance() {
+		return limitedFaultTolerance;
 	}
 
 }

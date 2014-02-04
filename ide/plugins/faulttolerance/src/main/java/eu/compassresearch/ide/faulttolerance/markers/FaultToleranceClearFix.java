@@ -22,6 +22,7 @@ public class FaultToleranceClearFix implements IMarkerResolution {
 
 	@Override
 	public String getLabel() {
+		// TODO colocar em Message.java
 		return "Clear " + processName + " fault tolerance verification.";
 	}
 

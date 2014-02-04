@@ -3,6 +3,8 @@
  */
 package eu.compassresearch.ide.faulttolerance.jobs;
 
+import eu.compassresearch.core.analysis.modelchecker.api.FormulaResult;
+
 /**
  * @author Andr&eacute; Didier (<a href=
  *         "mailto:alrd@cin.ufpe.br?Subject=Package eu.compassresearch.ide.faulttolerance.jobs, class ModelCheckingResults"
@@ -14,6 +16,8 @@ public class ModelCheckingResult {
 	private String processName;
 
 	private String formulaScriptAbsolutePath;
+
+	private FormulaResult formulaResult;
 
 	private Exception exception;
 
@@ -47,6 +51,14 @@ public class ModelCheckingResult {
 
 	public void setFormulaScriptAbsolutePath(String formulaScriptAbsolutePath) {
 		this.formulaScriptAbsolutePath = formulaScriptAbsolutePath;
+	}
+
+	public FormulaResult getFormulaResult() {
+		return formulaResult;
+	}
+
+	public void setFormulaResult(FormulaResult formulaResult) {
+		this.formulaResult = formulaResult;
 	}
 
 }

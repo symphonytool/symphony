@@ -21,13 +21,12 @@ import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.WorkspaceJob;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SubProgressMonitor;
-import org.eclipse.core.runtime.jobs.Job;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AValueDefinition;
 import org.overture.ast.definitions.PDefinition;
@@ -50,7 +49,7 @@ import eu.compassresearch.ide.modelchecker.MCConstants;
  *         >alrd@cin.ufpe.br</a>)
  * 
  */
-public class FaultToleranceVerificationJob extends Job {
+public class FaultToleranceVerificationJob extends WorkspaceJob {
 
 	private final FaultToleranceVerificationResults faultToleranceResults;
 	private final ThreadGroup threads;
@@ -85,8 +84,8 @@ public class FaultToleranceVerificationJob extends Job {
 								@Override
 								public void done(ModelCheckingResult results) {
 									faultToleranceResults
-											.setDivergenceFree(results
-													.isSuccess());
+											.getDivergenceFreedom().update(
+													results);
 									faultToleranceResults.add(results
 											.getException());
 									monitor.worked(1);
@@ -103,8 +102,8 @@ public class FaultToleranceVerificationJob extends Job {
 							new IModelCheckingTaskListener() {
 								@Override
 								public void done(ModelCheckingResult results) {
-									faultToleranceResults.setSemifair(results
-											.isSuccess());
+									faultToleranceResults.getSemifairness()
+											.update(results);
 									faultToleranceResults.add(results
 											.getException());
 									monitor.worked(1);
@@ -143,7 +142,7 @@ public class FaultToleranceVerificationJob extends Job {
 	}
 
 	@Override
-	protected IStatus run(final IProgressMonitor monitor) {
+	public IStatus runInWorkspace(final IProgressMonitor monitor) {
 		try {
 			monitor.beginTask(Message.FAULT_TOLERANCE_VERIFICATION_TASK_MESSAGE
 					.format(faultToleranceResults.getProcessName()), 3);
@@ -187,10 +186,8 @@ public class FaultToleranceVerificationJob extends Job {
 
 	private void createFilesAndCheckDefinitions(IProgressMonitor monitor) {
 		try {
-			beginSubTask(Message.STARTING_FAULT_TOLERANCE_FILES_MANAGEMENT, 5,
+			beginSubTask(Message.STARTING_FAULT_TOLERANCE_FILES_MANAGEMENT, 4,
 					monitor);
-
-			createFolder(createSubProgressMonitor(monitor, 1));
 
 			List<String> channelsNotFound = new LinkedList<>();
 			List<String> chansetsNotFound = new LinkedList<>();
@@ -216,21 +213,17 @@ public class FaultToleranceVerificationJob extends Job {
 			}
 		} catch (CoreException e) {
 			faultToleranceResults.add(e);
-			// TODO remove code:
-			// monitor.setCanceled(true);
 		} catch (UnableToRunFaultToleranceVerificationException e) {
 			faultToleranceResults.setException(e);
-			// TODO remove code:
-			// monitor.setCanceled(true);
 		} finally {
 			monitor.done();
 		}
 	}
 
 	private void clearGeneratedCmlFiles(IProgressMonitor monitor)
-			throws CoreException {
+			throws CoreException,
+			UnableToRunFaultToleranceVerificationException {
 		List<Message> fileNames = new LinkedList<>();
-		IFolder folder = faultToleranceResults.getFolder();
 		String processName = faultToleranceResults.getProcessName();
 
 		fileNames.add(Message.BASE_CML_FILE_NAME);
@@ -238,9 +231,11 @@ public class FaultToleranceVerificationJob extends Job {
 
 		try {
 			beginSubTask(Message.CLEAR_GENERATED_CML_FILES_TASK_NAME,
-					(fileNames.size() + 1), monitor);
+					(fileNames.size() + 2), monitor);
+			prepareFolder(createSubProgressMonitor(monitor, 1));
 			for (Message fileName : fileNames) {
-				IFile outputFile = folder.getFile(fileName.format(processName));
+				IFile outputFile = faultToleranceResults.getFolder().getFile(
+						fileName.format(processName));
 				if (outputFile.exists()) {
 					try {
 						outputFile.delete(true,
@@ -264,7 +259,7 @@ public class FaultToleranceVerificationJob extends Job {
 	private void checkDefinitions(List<String> namesetsNotFound,
 			List<String> valuesNotFound, List<String> channelsNotFound,
 			List<String> chansetsNotFound, List<String> processesNotFound,
-			IProgressMonitor monitor) {
+			IProgressMonitor monitor) throws CoreException {
 		try {
 			beginSubTask(Message.DEFINITIONS_VERIFICATION_TASK_NAME, 11,
 					monitor);
@@ -294,8 +289,6 @@ public class FaultToleranceVerificationJob extends Job {
 					chansetNames, createSubProgressMonitor(monitor, 1));
 			checkNames(Message.EXISTING_NEEDED_PROCESSES, processesNotFound,
 					processNames, createSubProgressMonitor(monitor, 1));
-		} catch (CoreException e) {
-			faultToleranceResults.add(e);
 		} finally {
 			monitor.done();
 		}
@@ -449,17 +442,18 @@ public class FaultToleranceVerificationJob extends Job {
 	private void createLimitedFaultToleranceFormulaScript(
 			List<PDefinition> definitions, IProgressMonitor monitor)
 			throws UnableToRunFaultToleranceVerificationException {
-		IFolder folder = faultToleranceResults.getFolder();
 		String processName = faultToleranceResults.getProcessName();
 		try {
 			beginSubTask(Message.CREATE_FORMULA_FILES_TASK_NAME, 1, monitor);
 			NewMCVisitor adaptor = new NewMCVisitor();
+			final String modelCheckerProperty = MCConstants.DEADLOCK_PROPERTY;
+			faultToleranceResults.getLimitedFaultTolerance()
+					.setModelCheckerProperty(modelCheckerProperty);
 			String formulaScriptContent = adaptor.generateFormulaScript(
-					definitions, MCConstants.DEADLOCK_PROPERTY,
+					definitions, modelCheckerProperty,
 					Message.LAZY_LIMIT_DEADLOCK_CHECK_PROCESS_NAME
 							.format(processName));
-			writeFile(folder,
-					Message.LIMITED_FAULT_TOLERANCE_FORMULA_SCRIPT_FILE_NAME,
+			writeFile(Message.LIMITED_FAULT_TOLERANCE_FORMULA_SCRIPT_FILE_NAME,
 					formulaScriptContent,
 					Message.UNABLE_TO_CREATE_FORMULA_SCRIPT,
 					createSubProgressMonitor(monitor, 1));
@@ -474,17 +468,18 @@ public class FaultToleranceVerificationJob extends Job {
 	private void createFullFaultToleranceFormulaScript(
 			List<PDefinition> definitions, IProgressMonitor monitor)
 			throws UnableToRunFaultToleranceVerificationException {
-		IFolder folder = faultToleranceResults.getFolder();
 		String processName = faultToleranceResults.getProcessName();
 		try {
 			beginSubTask(Message.CREATE_FORMULA_FILES_TASK_NAME, 1, monitor);
 			NewMCVisitor adaptor = new NewMCVisitor();
+			final String modelCheckerProperty = MCConstants.DEADLOCK_PROPERTY;
+			faultToleranceResults.getFullFaultTolerance()
+					.setModelCheckerProperty(modelCheckerProperty);
 			String formulaScriptContent = adaptor.generateFormulaScript(
-					definitions, MCConstants.DEADLOCK_PROPERTY,
+					definitions, modelCheckerProperty,
 					Message.LAZY_DEADLOCK_CHECK_PROCESS_NAME
 							.format(processName));
-			writeFile(folder,
-					Message.FULL_FAULT_TOLERANCE_FORMULA_SCRIPT_FILE_NAME,
+			writeFile(Message.FULL_FAULT_TOLERANCE_FORMULA_SCRIPT_FILE_NAME,
 					formulaScriptContent,
 					Message.UNABLE_TO_CREATE_FORMULA_SCRIPT,
 					createSubProgressMonitor(monitor, 1));
@@ -499,16 +494,18 @@ public class FaultToleranceVerificationJob extends Job {
 	private void createSemifarinessFormulaScript(List<PDefinition> definitions,
 			IProgressMonitor monitor)
 			throws UnableToRunFaultToleranceVerificationException {
-		IFolder folder = faultToleranceResults.getFolder();
 		String processName = faultToleranceResults.getProcessName();
 
 		try {
 			beginSubTask(Message.CREATE_FORMULA_FILES_TASK_NAME, 1, monitor);
 			NewMCVisitor adaptor = new NewMCVisitor();
+			final String modelCheckerProperty = MCConstants.LIVELOCK_PROPERTY;
+			faultToleranceResults.getDivergenceFreedom()
+					.setModelCheckerProperty(modelCheckerProperty);
 			String formulaScriptContent = adaptor.generateFormulaScript(
-					definitions, MCConstants.LIVELOCK_PROPERTY,
+					definitions, modelCheckerProperty,
 					Message.SEMIFAIRNESS_PROCESS_NAME.format(processName));
-			writeFile(folder, Message.SEMIFAIRNESS_FORMULA_SCRIPT_FILE_NAME,
+			writeFile(Message.SEMIFAIRNESS_FORMULA_SCRIPT_FILE_NAME,
 					formulaScriptContent,
 					Message.UNABLE_TO_CREATE_FORMULA_SCRIPT,
 					createSubProgressMonitor(monitor, 1));
@@ -524,18 +521,18 @@ public class FaultToleranceVerificationJob extends Job {
 	private void createDivergenceFreedomFormulaScript(
 			List<PDefinition> definitions, IProgressMonitor monitor)
 			throws UnableToRunFaultToleranceVerificationException {
-		IFolder folder = faultToleranceResults.getFolder();
 		String processName = faultToleranceResults.getProcessName();
 		try {
 			beginSubTask(Message.CREATE_FORMULA_FILES_TASK_NAME, 1, monitor);
 			NewMCVisitor adaptor = new NewMCVisitor();
+			final String modelCheckerProperty = MCConstants.LIVELOCK_PROPERTY;
+			faultToleranceResults.getDivergenceFreedom()
+					.setModelCheckerProperty(modelCheckerProperty);
 			String formulaScriptContent = adaptor
-					.generateFormulaScript(definitions,
-							MCConstants.LIVELOCK_PROPERTY,
+					.generateFormulaScript(definitions, modelCheckerProperty,
 							Message.DIVERGENCE_FREEDOM_PROCESS_NAME
 									.format(processName));
-			writeFile(folder,
-					Message.DIVERGENCE_FREEDOM_FORMULA_SCRIPT_FILE_NAME,
+			writeFile(Message.DIVERGENCE_FREEDOM_FORMULA_SCRIPT_FILE_NAME,
 					formulaScriptContent,
 					Message.UNABLE_TO_CREATE_FORMULA_SCRIPT,
 					createSubProgressMonitor(monitor, 1));
@@ -591,9 +588,7 @@ public class FaultToleranceVerificationJob extends Job {
 			}
 
 			if (!processesToAdd.isEmpty()) {
-				IFolder folder = faultToleranceResults.getFolder();
 				writeFile(
-						folder,
 						Message.CML_PROCESSES_FILE_NAME,
 						baos.toByteArray(),
 						Message.UNABLE_TO_CREATE_FAULT_TOLERANCE_PROCESSES_FILE,
@@ -620,9 +615,7 @@ public class FaultToleranceVerificationJob extends Job {
 					|| requires;
 
 			if (requires) {
-				IFolder folder = faultToleranceResults.getFolder();
-				writeFile(folder, Message.BASE_CML_FILE_NAME,
-						baos.toByteArray(),
+				writeFile(Message.BASE_CML_FILE_NAME, baos.toByteArray(),
 						Message.UNABLE_TO_CREATE_FAULT_TOLERANCE_BASE_FILE,
 						createSubProgressMonitor(monitor, 1));
 			}
@@ -688,21 +681,25 @@ public class FaultToleranceVerificationJob extends Job {
 		namesNotFound.remove(name);
 	}
 
-	private void writeFile(IFolder folder, Message fileName, String contents,
+	private void writeFile(Message fileName, String contents,
 			Message errorMessage, IProgressMonitor monitor)
 			throws UnableToRunFaultToleranceVerificationException {
-		writeFile(folder, fileName, contents.getBytes(), errorMessage, monitor);
+		writeFile(fileName, contents.getBytes(), errorMessage, monitor);
 	}
 
-	private void writeFile(IFolder folder, Message fileName, byte[] contents,
+	private void writeFile(Message fileName, byte[] contents,
 			Message errorMessage, IProgressMonitor monitor)
 			throws UnableToRunFaultToleranceVerificationException {
 		String processName = faultToleranceResults.getProcessName();
 		String fileNameFormatted = fileName.format(processName);
-		IFile outputFile = folder.getFile(fileNameFormatted);
 
 		try {
-			beginSubTask(Message.WRITE_FILE, 2, monitor, fileNameFormatted);
+			beginSubTask(Message.WRITE_FILE, 3, monitor, fileNameFormatted);
+			prepareFolder(createSubProgressMonitor(monitor, 1));
+
+			IFile outputFile = faultToleranceResults.getFolder().getFile(
+					fileNameFormatted);
+
 			InputStream in = new ByteArrayInputStream(contents);
 			if (outputFile.exists()) {
 				outputFile.setContents(in, false, false,
@@ -720,7 +717,7 @@ public class FaultToleranceVerificationJob extends Job {
 		}
 	}
 
-	private void createFolder(IProgressMonitor monitor)
+	private void prepareFolder(IProgressMonitor monitor)
 			throws UnableToRunFaultToleranceVerificationException {
 		IContainer container = faultToleranceResults.getOutputContainer();
 		String processName = faultToleranceResults.getProcessName();
@@ -736,12 +733,13 @@ public class FaultToleranceVerificationJob extends Job {
 			folder = container.getFolder(new Path(folderName));
 			if (!folder.getParent().exists()) {
 				((IFolder) folder.getParent()).create(false, false,
-						new NullProgressMonitor());
+						createSubProgressMonitor(monitor, 2));
 			}
 			if (!folder.exists()) {
 				folder.getParent().refreshLocal(IResource.DEPTH_ONE,
-						new NullProgressMonitor());
-				folder.create(false, false, new NullProgressMonitor());
+						createSubProgressMonitor(monitor, 1));
+				folder.create(false, false,
+						createSubProgressMonitor(monitor, 1));
 			}
 			faultToleranceResults.setFolder(folder);
 		} catch (CoreException e) {
@@ -767,9 +765,8 @@ public class FaultToleranceVerificationJob extends Job {
 						new IModelCheckingTaskListener() {
 							@Override
 							public void done(ModelCheckingResult results) {
-								faultToleranceResults
-										.setFullFaultTolerant(results
-												.isSuccess());
+								faultToleranceResults.getFullFaultTolerance()
+										.update(results);
 								faultToleranceResults.add(results
 										.getException());
 								monitor.worked(1);
@@ -787,8 +784,8 @@ public class FaultToleranceVerificationJob extends Job {
 							@Override
 							public void done(ModelCheckingResult results) {
 								faultToleranceResults
-										.setLimitedFaultTolerant(results
-												.isSuccess());
+										.getLimitedFaultTolerance().update(
+												results);
 								faultToleranceResults.add(results
 										.getException());
 								monitor.worked(1);

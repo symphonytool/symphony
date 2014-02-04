@@ -8,6 +8,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.overture.ast.intf.lex.ILexLocation;
 
+import eu.compassresearch.ide.faulttolerance.FaultToleranceProperty;
 import eu.compassresearch.ide.faulttolerance.Message;
 import eu.compassresearch.ide.faulttolerance.jobs.FaultToleranceVerificationResults;
 
@@ -21,6 +22,7 @@ public class MarkerManager {
 
 	public final static String ATTRIBUTE_PROCESS_NAME = "processName";
 	public final static String MARKERS_ID = "eu.compassresearch.ide.faulttolerance.verification.problem";
+	public final static String ATTRIBUTE_FT_PROPERTY = "faultToleranceProperty";
 
 	public void faultToleranceVerificationsFinished(
 			FaultToleranceVerificationResults r) {
@@ -78,7 +80,7 @@ public class MarkerManager {
 				IMarker.SEVERITY_INFO,
 				Message.CANCELLED_BY_USER.format(r.getProcessName(),
 						r.getExceptionsLocalizedMessage()), r.getProcessName(),
-				null, r.getResource(), r.getLocation());
+				null, null, r.getResource(), r.getLocation());
 	}
 
 	private void markerException(FaultToleranceVerificationResults r) {
@@ -86,7 +88,7 @@ public class MarkerManager {
 				IMarker.SEVERITY_ERROR,
 				Message.EXCEPTION_OCCURRED.format(r.getProcessName(),
 						r.getExceptionsLocalizedMessage()), r.getProcessName(),
-				null, r.getResource(), r.getLocation());
+				null, null, r.getResource(), r.getLocation());
 	}
 
 	private void markerDefinitions(FaultToleranceVerificationResults r) {
@@ -94,6 +96,7 @@ public class MarkerManager {
 				IMarker.SEVERITY_ERROR,
 				Message.MISSING_DEFINITIONS.format(r.getProcessName(),
 						r.getDefinitionsMessage()), r.getProcessName(), null,
+				null,
 				r.getResource(), r.getLocation());
 	}
 
@@ -110,7 +113,8 @@ public class MarkerManager {
 		renewMarker(
 				IMarker.SEVERITY_WARNING,
 				Message.FULL_FAULT_TOLERANCE_SUCCESS.format(r.getProcessName()),
-				r.getProcessName(), null, r.getResource(), r.getLocation());
+				r.getProcessName(), null, null, r.getResource(),
+				r.getLocation());
 
 	}
 
@@ -119,7 +123,8 @@ public class MarkerManager {
 				IMarker.SEVERITY_INFO,
 				Message.LIMITED_FAULT_TOLERANCE_SUCCESS.format(
 						r.getProcessName(), getLimitExpression(r)),
-				r.getProcessName(), null, r.getResource(), r.getLocation());
+				r.getProcessName(), r.getFullFaultTolerance(), null,
+				r.getResource(), r.getLocation());
 
 	}
 
@@ -127,7 +132,8 @@ public class MarkerManager {
 			FaultToleranceVerificationResults r) {
 		renewMarker(IMarker.SEVERITY_ERROR,
 				Message.DIVERGENCE_FREE_SEMIFAIR_ERROR.format(r
-						.getProcessName()), r.getProcessName(), null,
+						.getProcessName()), r.getProcessName(),
+				r.getDivergenceFreedom(), null,
 				r.getResource(), r.getLocation());
 	}
 
@@ -135,26 +141,29 @@ public class MarkerManager {
 		renewMarker(IMarker.SEVERITY_ERROR,
 				Message.LIMITED_FAULT_TOLERANCE_ERROR.format(
 						r.getProcessName(), getLimitExpression(r)),
-				r.getProcessName(), null, r.getResource(), r.getLocation());
+				r.getProcessName(), r.getLimitedFaultTolerance(), null,
+				r.getResource(), r.getLocation());
 
 	}
 
 	private void markerDivergenceFree(FaultToleranceVerificationResults r) {
 		renewMarker(IMarker.SEVERITY_ERROR,
 				Message.DIVERGENCE_FREE_ERROR.format(r.getProcessName()),
-				r.getProcessName(), null, r.getResource(), r.getLocation());
+				r.getProcessName(), r.getDivergenceFreedom(), null,
+				r.getResource(), r.getLocation());
 	}
 
 	private void markerSemifair(FaultToleranceVerificationResults r) {
 		renewMarker(IMarker.SEVERITY_ERROR,
 				Message.SEMIFAIR_ERROR.format(r.getProcessName()),
-				r.getProcessName(), null, r.getResource(), r.getLocation());
+				r.getProcessName(), r.getSemifairness(), null, r.getResource(),
+				r.getLocation());
 
 	}
 
 	private void renewMarker(int severity, String message, String processName,
-			String limitProcess, IResource selectedResource,
-			ILexLocation location) {
+			FaultToleranceProperty property, String limitProcess,
+			IResource selectedResource, ILexLocation location) {
 		try {
 			if (selectedResource != null) {
 
@@ -173,10 +182,9 @@ public class MarkerManager {
 				if (processName != null) {
 					marker.setAttribute(ATTRIBUTE_PROCESS_NAME, processName);
 				}
-				/*
-				 * TODO: verify if needed. if (limitProcess != null) {
-				 * marker.setAttribute("limitProcess", limitProcess); }
-				 */
+				if (property != null) {
+					marker.setAttribute(ATTRIBUTE_FT_PROPERTY, property);
+				}
 			}
 		} catch (CoreException e) {
 			//
