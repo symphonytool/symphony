@@ -27,7 +27,7 @@ public class ProofSession {
 		this.ast = ast;
 		this.thyProvider = thyProvider;
 		this.mapping = new HashMap<>();
-	    this.tpListener = new TPListener(sess, null); // FIXME: What is IpoStatusChanged?
+	    this.tpListener = new TPListener(sess); 
 	}
 
 	EditDocumentModel poEDM;

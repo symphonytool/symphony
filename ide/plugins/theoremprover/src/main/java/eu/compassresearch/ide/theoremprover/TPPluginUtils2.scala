@@ -1,18 +1,9 @@
 package eu.compassresearch.ide.theoremprover
-
-import java.util.concurrent.locks.ReentrantReadWriteLock
-import scala.io.Source
-import isabelle.Document
-import isabelle.Document.Snapshot
-import isabelle.Linear_Set
-import isabelle.Session
-import isabelle.Text
 import isabelle.eclipse.core.IsabelleCore
 import isabelle.eclipse.core.app.Isabelle
-import isabelle.eclipse.core.util.ConcurrentUtil.FunReadWriteLock
 import eu.compassresearch.core.analysis.theoremprover.IsabelleTheory
-import eu.compassresearch.ast.program.PSource
 import eu.compassresearch.ide.core.resources.ICmlModel
+import eu.compassresearch.ide.theoremprover.TPListener
 
 object TPPluginUtils2 {
   
