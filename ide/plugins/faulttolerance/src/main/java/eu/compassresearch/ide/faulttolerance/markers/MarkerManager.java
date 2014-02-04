@@ -182,9 +182,6 @@ public class MarkerManager {
 				if (processName != null) {
 					marker.setAttribute(ATTRIBUTE_PROCESS_NAME, processName);
 				}
-				if (property != null) {
-					marker.setAttribute(ATTRIBUTE_FT_PROPERTY, property);
-				}
 			}
 		} catch (CoreException e) {
 			//
