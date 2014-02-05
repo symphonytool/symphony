@@ -11,8 +11,6 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.debug.core.DebugPlugin;
-import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
@@ -28,7 +26,6 @@ import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.intf.lex.ILexLocation;
 
 import eu.compassresearch.ast.definitions.AProcessDefinition;
-import eu.compassresearch.ide.interpreter.model.CmlDebugTarget;
 import eu.compassresearch.ide.ui.editor.core.CmlEditor;
 
 public final class CmlUtil
@@ -70,18 +67,6 @@ public final class CmlUtil
 		}
 	}
 
-	public static CmlDebugTarget findCmlDebugTarget()
-	{
-		for (IDebugTarget f : DebugPlugin.getDefault().getLaunchManager().getDebugTargets())
-		{
-			if (f instanceof CmlDebugTarget && f.isSuspended())
-			{
-				return (CmlDebugTarget) f;
-			}
-		}
-
-		return null;
-	}
 
 	private static void setSelectionFromLocation(ILexLocation loc,
 			List<StyleRange> lastSelectedRanges, StyledText styledText)
@@ -168,8 +153,15 @@ public final class CmlUtil
 
 	public static void showLocation(StyledText st, ILexLocation loc)
 	{
-		st.setCaretOffset(loc.getStartOffset());
-		st.showSelection();
+		try
+		{
+			st.setCaretOffset(loc.getStartOffset());
+			st.showSelection();
+		} catch (IllegalArgumentException e)
+		{
+			CmlDebugPlugin.logWarning("Unable to move caret to offset "
+					+ loc.getStartOffset() + " for " + loc, e);
+		}
 	}
 
 	public static List<AProcessDefinition> getGlobalProcessesFromSource(
