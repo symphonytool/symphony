@@ -52,7 +52,7 @@ public class CollaborationGroup extends Model {
 		List<User> joinedUsers = new ArrayList<>();
 		for (User usr : collaborators.values())
 		{
-			if(usr.hasDeclinedGroup()){
+			if(usr.hasJoinedGroup()){
 				joinedUsers.add(usr);
 			}
 		}
@@ -65,7 +65,7 @@ public class CollaborationGroup extends Model {
 	}
 
 	@Override
-	public void addListener(IDeltaListener listener)
+	public void addListener(IModelEventListener listener)
 	{
 		for (User u : collaborators.values())
 		{
@@ -76,7 +76,7 @@ public class CollaborationGroup extends Model {
 	}
 	
 	@Override
-	public void removeListener(IDeltaListener listener)
+	public void removeListener(IModelEventListener listener)
 	{
 		for (User u : collaborators.values())
 		{

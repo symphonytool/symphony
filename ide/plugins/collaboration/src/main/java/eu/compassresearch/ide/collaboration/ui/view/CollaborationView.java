@@ -1,19 +1,13 @@
 package eu.compassresearch.ide.collaboration.ui.view;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
 import java.util.Iterator;
 
 import org.eclipse.compare.CompareConfiguration;
 import org.eclipse.compare.CompareEditorInput;
 import org.eclipse.compare.CompareUI;
-import org.eclipse.compare.IEditableContent;
-import org.eclipse.compare.IModificationDate;
-import org.eclipse.compare.IStreamContentAccessor;
-import org.eclipse.compare.ITypedElement;
-import org.eclipse.compare.contentmergeviewer.IFlushable;
 import org.eclipse.compare.structuremergeviewer.DiffNode;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
@@ -23,6 +17,11 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.debug.core.DebugPlugin;
+import org.eclipse.debug.core.ILaunchConfigurationType;
+import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
+import org.eclipse.debug.core.ILaunchManager;
+import org.eclipse.debug.ui.DebugUITools;
 import org.eclipse.ecf.core.util.ECFException;
 import org.eclipse.ecf.sync.SerializationException;
 import org.eclipse.jface.action.Action;
@@ -39,7 +38,6 @@ import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -52,7 +50,6 @@ import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.ViewPart;
 
 import eu.compassresearch.ide.collaboration.Activator;
-import eu.compassresearch.ide.collaboration.communication.MessageProcessor;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationDataModelManager;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationDataModelRoot;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationGroup;
@@ -61,10 +58,12 @@ import eu.compassresearch.ide.collaboration.datamodel.Configuration;
 import eu.compassresearch.ide.collaboration.datamodel.ConfigurationComparison;
 import eu.compassresearch.ide.collaboration.datamodel.File;
 import eu.compassresearch.ide.collaboration.datamodel.Model;
+import eu.compassresearch.ide.collaboration.distributedsimulation.DistributedSimulationManager;
 import eu.compassresearch.ide.collaboration.files.FileComparison;
 import eu.compassresearch.ide.collaboration.notifications.Notification;
 import eu.compassresearch.ide.collaboration.ui.menu.AddCollaboratorRosterMenuContributionItem;
 import eu.compassresearch.ide.collaboration.ui.menu.CollaborationDialogs;
+import eu.compassresearch.ide.interpreter.ICmlDebugConstants;
 
 /**
  * @see ViewPart
@@ -81,7 +80,7 @@ public class CollaborationView extends ViewPart
 	protected Action diffWithPrevFileAction;
 	protected Action approveContractAction;
 	protected Action rejectContractAction;
-	protected Action negotiateContractAction;
+	protected Action initDistributedSimulationAction;
 	protected Action addToCollaborationGroup;
 
 	public void createPartControl(Composite parent)
@@ -191,14 +190,14 @@ public class CollaborationView extends ViewPart
 		};
 		rejectContractAction.setToolTipText("Reject this file");
 
-		negotiateContractAction = new Action("Negotiate")
+		initDistributedSimulationAction = new Action("Initiate Distributed Simulation")
 		{
 			public void run()
 			{
-				negotiateSelected();
+				initiatedDistributedSimulation();
 			}
 		};
-		negotiateContractAction.setToolTipText("Renegotiate this file");
+		initDistributedSimulationAction.setToolTipText("Initiate simulation between collaborators");
 	}
 
 	private void addContextMenu()
@@ -211,6 +210,8 @@ public class CollaborationView extends ViewPart
 			@Override
 			public void menuAboutToShow(IMenuManager manager)
 			{
+				boolean hasConnection = Activator.getDefault().getConnectionManager().isConnectionInitialized();
+
 				if (treeViewer.getSelection().isEmpty())
 				{
 					return;
@@ -221,7 +222,15 @@ public class CollaborationView extends ViewPart
 					IStructuredSelection selection = (IStructuredSelection) treeViewer.getSelection();
 					Model selectedDomainObject = (Model) selection.getFirstElement();
 
-					if ((selectedDomainObject instanceof Configuration))
+					if (selectedDomainObject instanceof CollaborationProject)
+					{
+						if (hasConnection)
+						{
+							// CollaborationProject collaboration = (CollaborationProject) selectedDomainObject;
+							manager.add(initDistributedSimulationAction);
+						}
+
+					} else if (selectedDomainObject instanceof Configuration)
 					{
 						Configuration config = (Configuration) selectedDomainObject;
 
@@ -230,7 +239,7 @@ public class CollaborationView extends ViewPart
 							manager.add(activateConfigurationAction);
 						}
 
-						if (Activator.getDefault().getConnectionManager().isConnectionInitialized())
+						if (hasConnection)
 						{
 
 							if (config.isLocal())
@@ -339,87 +348,138 @@ public class CollaborationView extends ViewPart
 
 	protected void activateConfiguration()
 	{
-		if (treeViewer.getSelection().isEmpty())
+		Model selectedDomainObject = getSelectedEntry();
+
+		if (selectedDomainObject == null)
 		{
 			return;
-		} else
+		}
+		if (selectedDomainObject instanceof Configuration)
 		{
-			IStructuredSelection selection = (IStructuredSelection) treeViewer.getSelection();
-			Model selectedDomainObject = (Model) selection.getFirstElement();
 
-			if (selectedDomainObject instanceof Configuration)
+			Configuration selectedConfig = (Configuration) selectedDomainObject;
+
+			CollaborationDataModelManager dataModelManager = Activator.getDefault().getDataModelManager();
+
+			try
 			{
-
-				Configuration selectedConfig = (Configuration) selectedDomainObject;
-
-				CollaborationDataModelManager dataModelManager = Activator.getDefault().getDataModelManager();
-
-				try
-				{
-					dataModelManager.activateConfiguration(selectedConfig);
-				} catch (CoreException e)
-				{
-					ResourcesPlugin.getPlugin().getLog().log(new Status(IStatus.ERROR, Activator.PLUGIN_ID, 0, e.getMessage(), e));
-					e.printStackTrace();
-				}
-
+				dataModelManager.activateConfiguration(selectedConfig);
+			} catch (CoreException e)
+			{
+				ResourcesPlugin.getPlugin().getLog().log(new Status(IStatus.ERROR, Activator.PLUGIN_ID, 0, e.getMessage(), e));
+				e.printStackTrace();
 			}
 		}
 	}
 
-	private void openFileInEditor(File file,
-			CollaborationProject collaborationProject) throws CoreException,
-			IOException
+	protected void initiatedDistributedSimulation()
 	{
-		CollaborationDataModelManager collabMgM = Activator.getDefault().getDataModelManager();
+		Model selectedDomainObject = getSelectedEntry();
 
-		IFile iFile = collabMgM.getFile(file, collaborationProject);
-
-		final IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-		IEditorPart openEditor;
-		if (file.isStored())
+		if (selectedDomainObject == null)
 		{
-			// file is loaded from the protected collaboration dir,
-			// so open in a temp file to avoid modifications or work around of read-only
-			IFileStore tempFileStore = getTempFileStore(file, iFile);
-			openEditor = IDE.openEditorOnFileStore(page, tempFileStore);
-		} else
-		{
-			// file is not stored in the hidden collaboration dir and can be opened directly from the workspace
-			openEditor = IDE.openEditor(page, iFile, true);
+			return;
 		}
-		openEditor.getEditorInput();
+		
+		if (selectedDomainObject instanceof CollaborationProject)
+		{
+			CollaborationProject project = (CollaborationProject) selectedDomainObject;
+			
+			DistributedSimulationManager simulationManager = Activator.getDefault().getDistributedSimulationManager();
+			
+			simulationManager.initiateCollaborationOnProject(project);
+			
+		}
+	}
+	
+	protected String encodeArrayAsCoommaSeperatedString(String... item)
+	{
+		StringBuffer sb = new StringBuffer();
+		for (Iterator<String> iterator = Arrays.asList(item).iterator(); iterator.hasNext();)
+		{
+			sb.append(iterator.next());
+			if (iterator.hasNext())
+			{
+				sb.append(",");
+			}
+
+		}
+		return sb.toString();
 	}
 
-	IFileStore getTempFileStore(File file, IFile storedFile)
-			throws IOException, CoreException
+	protected void signAndShare()
 	{
+		Model selectedDomainObject = getSelectedEntry();
 
-		java.io.File tempFile = java.io.File.createTempFile(file.getName()
-				+ "-" + file.getHashFileName(), null);
-		tempFile.deleteOnExit();
+		if (selectedDomainObject == null)
+		{
+			return;
+		}
 
-		final IFileStore storedFileStore = EFS.getStore(storedFile.getLocationURI());
-		final IFileStore tempFileStore = EFS.getLocalFileSystem().fromLocalFile(tempFile);
+		if (selectedDomainObject instanceof Configuration)
+		{
+			Configuration config = (Configuration) selectedDomainObject;
+			CollaborationDataModelManager collabMgM = Activator.getDefault().getDataModelManager();
 
-		storedFileStore.copy(tempFileStore, EFS.OVERWRITE, null);
-		tempFile = tempFileStore.toLocalFile(EFS.CACHE, null);
+			try
+			{
+				collabMgM.signAndShareConfiguration(config);
+			} catch (CoreException e)
+			{
+				e.printStackTrace();
+				Notification.logError(e.toString(), e);
+			}
+		}
+	}
 
-		return tempFileStore;
+	protected void approveSelected() throws CoreException
+	{
+		Model selectedDomainObject = getSelectedEntry();
+
+		if (selectedDomainObject == null)
+		{
+			return;
+		}
+
+		if (selectedDomainObject instanceof Configuration)
+		{
+			Configuration configToApprove = (Configuration) selectedDomainObject;
+
+			CollaborationDataModelManager collabMgM = Activator.getDefault().getDataModelManager();
+
+			collabMgM.approveConfiguration(configToApprove);
+		}
+	}
+
+	protected void rejectSelected() throws SerializationException
+	{
+		Model selectedDomainObject = getSelectedEntry();
+
+		if (selectedDomainObject == null)
+		{
+			return;
+		}
+
+		if (selectedDomainObject instanceof Configuration)
+		{
+			Configuration configurationToReject = (Configuration) selectedDomainObject;
+
+			CollaborationDataModelManager collabMgM = Activator.getDefault().getDataModelManager();
+
+			collabMgM.rejectConfiguration(configurationToReject);
+		}
 	}
 
 	protected void diffWithPrev()
 	{
+		Model selectedDomainObject = getSelectedEntry();
 
-		if (treeViewer.getSelection().isEmpty())
+		if (selectedDomainObject == null)
 		{
 			return;
 		}
 
 		CollaborationDataModelManager dataModelManager = Activator.getDefault().getDataModelManager();
-
-		IStructuredSelection selection = (IStructuredSelection) treeViewer.getSelection();
-		Model selectedDomainObject = (Model) selection.getFirstElement();
 
 		if ((selectedDomainObject instanceof Configuration))
 		{
@@ -493,221 +553,62 @@ public class CollaborationView extends ViewPart
 		});
 	}
 
-	protected void signAndShare()
+	private void openFileInEditor(File file,
+			CollaborationProject collaborationProject) throws CoreException,
+			IOException
 	{
-		if (treeViewer.getSelection().isEmpty())
+		CollaborationDataModelManager collabMgM = Activator.getDefault().getDataModelManager();
+
+		IFile iFile = collabMgM.getFile(file, collaborationProject);
+
+		final IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+		IEditorPart openEditor;
+		if (file.isStored())
 		{
-			return;
+			// file is loaded from the protected collaboration dir,
+			// so open in a temp file to avoid modifications or work around of read-only
+			IFileStore tempFileStore = getTempFileStore(file, iFile);
+			openEditor = IDE.openEditorOnFileStore(page, tempFileStore);
 		} else
 		{
-			IStructuredSelection selection = (IStructuredSelection) treeViewer.getSelection();
-			Model selectedDomainObject = (Model) selection.getFirstElement();
-
-			if (selectedDomainObject instanceof Configuration)
-			{
-				Configuration config = (Configuration) selectedDomainObject;
-				CollaborationDataModelManager collabMgM = Activator.getDefault().getDataModelManager();
-
-				try
-				{
-					collabMgM.signAndShareConfiguration(config);
-				} catch (CoreException e)
-				{
-					e.printStackTrace();
-					Notification.logError(e.toString(), e);
-				}
-			}
+			// file is not stored in the hidden collaboration dir and can be opened directly from the workspace
+			openEditor = IDE.openEditor(page, iFile, true);
 		}
+		openEditor.getEditorInput();
 	}
 
-	public class CompareItem implements IFlushable, IStreamContentAccessor,
-			ITypedElement, IModificationDate, IEditableContent
-	{
-		private String name;
-		private long time;
-		private byte[] contents = null;
-		private boolean editable = true;
-		private IFile toSave;
-
-		CompareItem(IFile file, String name, String contents, long time)
-		{
-			this.name = name;
-			this.contents = contents == null ? null : contents.getBytes();
-			this.time = time;
-			this.toSave = file;
-		}
-
-		CompareItem(String name, String contents, long time)
-		{
-			this(null, name, contents, time);
-		}
-
-		public CompareItem(String name, String contents)
-		{
-			this(name, contents, 0);
-		}
-
-		public InputStream getContents() throws CoreException
-		{
-			return contents == null ? null : new ByteArrayInputStream(contents);
-		}
-
-		public Image getImage()
-		{
-			return null;
-		}
-
-		public long getModificationDate()
-		{
-			return time;
-		}
-
-		public String getName()
-		{
-			return name;
-		}
-
-		public String getType()
-		{
-			return ITypedElement.TEXT_TYPE;
-		}
-
-		@Override
-		public boolean isEditable()
-		{
-			return editable;
-		}
-
-		@Override
-		public ITypedElement replace(ITypedElement dest, ITypedElement src)
-		{
-			return dest;
-		}
-
-		@Override
-		public void setContent(byte[] newContent)
-		{
-			contents = newContent;
-		}
-
-		@Override
-		public void flush(IProgressMonitor monitor)
-		{
-			try
-			{
-				toSave.setContents(getContents(), IFile.KEEP_HISTORY
-						| IFile.FORCE, monitor);
-			} catch (CoreException e)
-			{
-				ResourcesPlugin.getPlugin().getLog().log(new Status(IStatus.ERROR, Activator.PLUGIN_ID, 0, e.getMessage(), e));
-				e.printStackTrace();
-			}
-		}
-	}
-
-	protected void approveSelected() throws CoreException
-	{
-		if (treeViewer.getSelection().isEmpty())
-		{
-			return;
-		} else
-		{
-			IStructuredSelection selection = (IStructuredSelection) treeViewer.getSelection();
-			Model selectedDomainObject = (Model) selection.getFirstElement();
-
-			if (selectedDomainObject instanceof Configuration)
-			{
-				Configuration configToApprove = (Configuration) selectedDomainObject;
-
-				CollaborationDataModelManager collabMgM = Activator.getDefault().getDataModelManager();
-
-				collabMgM.approveConfiguration(configToApprove);
-			}
-		}
-	}
-
-	protected void rejectSelected() throws SerializationException
-	{
-		if (treeViewer.getSelection().isEmpty())
-		{
-			return;
-		} else
-		{
-			IStructuredSelection selection = (IStructuredSelection) treeViewer.getSelection();
-			Model selectedDomainObject = (Model) selection.getFirstElement();
-
-			if (selectedDomainObject instanceof Configuration)
-			{
-				Configuration configurationToReject = (Configuration) selectedDomainObject;
-
-				CollaborationDataModelManager collabMgM = Activator.getDefault().getDataModelManager();
-
-				collabMgM.rejectConfiguration(configurationToReject);
-			}
-		}
-	}
-
-	protected void negotiateSelected()
-	{
-		if (treeViewer.getSelection().isEmpty())
-		{
-			return;
-		} else
-		{
-			IStructuredSelection selection = (IStructuredSelection) treeViewer.getSelection();
-			Model selectedDomainObject = (Model) selection.getFirstElement();
-
-			if (selectedDomainObject instanceof Configuration)
-			{
-				Configuration contract = (Configuration) selectedDomainObject;
-				MessageProcessor messageProcessor = Activator.getDefault().getConnectionManager().getMessageProcessor();
-
-				// IFile oldFile = collabMgM.getProjectFolder().getFile(contract.getFilename());
-				// final IFile file = collabMgM.nextFilename(contract.getFilename());
-				//
-				// try
-				// {
-				// file.create(oldFile.getContents(), IResource.NONE, null);
-				// } catch (CoreException e1)
-				// {
-				// ResourcesPlugin.getPlugin().getLog().log(new Status(IStatus.ERROR, Activator.PLUGIN_ID, 0,
-				// e.getMessage(), e));
-				// e.printStackTrace();
-				// }
-
-				// Display.getDefault().asyncExec(new Runnable()
-				// {
-				// public void run()
-				// {
-				// IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-				// try
-				// {
-				// IEditorPart openEditor = IDE.openEditor(page, file, true);
-				// } catch (PartInitException e)
-				// {
-				// ResourcesPlugin.getPlugin().getLog().log(new Status(IStatus.ERROR, Activator.PLUGIN_ID, 0,
-				// e.getMessage(), e));
-				// e.printStackTrace();
-				// }
-				// }
-				// });
-			}
-		}
-	}
-
-	public CollaborationDataModelRoot getInitalInput()
+	IFileStore getTempFileStore(File file, IFile storedFile)
+			throws IOException, CoreException
 	{
 
-		CollaborationDataModelManager dataModelManager = Activator.getDefault().getDataModelManager();
+		java.io.File tempFile = java.io.File.createTempFile(file.getName()
+				+ "-" + file.getHashFileName(), null);
+		tempFile.deleteOnExit();
 
-		return dataModelManager.getDataModel();
+		final IFileStore storedFileStore = EFS.getStore(storedFile.getLocationURI());
+		final IFileStore tempFileStore = EFS.getLocalFileSystem().fromLocalFile(tempFile);
+
+		storedFileStore.copy(tempFileStore, EFS.OVERWRITE, null);
+		tempFile = tempFileStore.toLocalFile(EFS.CACHE, null);
+
+		return tempFileStore;
 	}
 
 	public Model getSelectedEntry()
 	{
+		if (treeViewer.getSelection().isEmpty())
+			return null;
+
 		IStructuredSelection selection = (IStructuredSelection) treeViewer.getSelection();
 		Model selectedDomainObject = (Model) selection.getFirstElement();
 		return selectedDomainObject;
+	}
+
+	public CollaborationDataModelRoot getInitalInput()
+	{
+		CollaborationDataModelManager dataModelManager = Activator.getDefault().getDataModelManager();
+
+		return dataModelManager.getDataModel();
 	}
 
 	public void setFocus()
@@ -715,4 +616,13 @@ public class CollaborationView extends ViewPart
 		treeViewer.expandAll();
 	}
 
+	public void expandAll()
+	{
+		treeViewer.expandAll();
+	}
+
+	public void collapseAll()
+	{
+		treeViewer.collapseAll();
+	}
 }

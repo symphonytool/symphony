@@ -9,6 +9,7 @@ import org.osgi.util.tracker.ServiceTracker;
 
 import eu.compassresearch.ide.collaboration.communication.ConnectionManager;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationDataModelManager;
+import eu.compassresearch.ide.collaboration.distributedsimulation.DistributedSimulationManager;
 import eu.compassresearch.ide.collaboration.files.FileChangeListener;
 
 public class Activator extends AbstractUIPlugin
@@ -24,6 +25,7 @@ public class Activator extends AbstractUIPlugin
 	private CollaborationDataModelManager dataModelManager;
 	private FileChangeListener fileChangeManager;
 	private ConnectionManager connectionManager;
+	private DistributedSimulationManager distributedSimulationManager;
 	
 	public Activator() {
 		// nothing to do
@@ -45,6 +47,9 @@ public class Activator extends AbstractUIPlugin
 		
 		//init connections manager
 		connectionManager = new ConnectionManager();
+		
+		//init distributed simulation
+		distributedSimulationManager = new DistributedSimulationManager(dataModelManager,connectionManager);
 	}
 	
 	@Override
@@ -89,5 +94,10 @@ public class Activator extends AbstractUIPlugin
 	public ConnectionManager getConnectionManager()
 	{
 		return connectionManager;
+	}
+
+	public DistributedSimulationManager getDistributedSimulationManager()
+	{
+		return distributedSimulationManager;
 	}
 }

@@ -110,6 +110,8 @@ public class CollaborationDataModelManager
 
 	public FileStatus handleFile(IFile file)
 	{
+		if(file == null) return null;
+		
 		// create initial filestatus with file hash
 		FileStatus fileStatus = createFileStatus(file);
 

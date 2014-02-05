@@ -73,7 +73,7 @@ public class CollaborationProject extends Model
 	}
 
 	@Override
-	public void addListener(IDeltaListener listener) {
+	public void addListener(IModelEventListener listener) {
 		
 		configurations.addListener(listener);
 		collaboratorGroup.addListener(listener);
@@ -82,7 +82,7 @@ public class CollaborationProject extends Model
 	}
 	
 	@Override
-	public void removeListener(IDeltaListener listener)
+	public void removeListener(IModelEventListener listener)
 	{
 		configurations.removeListener(listener);
 		collaboratorGroup.removeListener(listener);

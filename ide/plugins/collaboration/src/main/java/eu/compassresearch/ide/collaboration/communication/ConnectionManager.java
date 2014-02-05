@@ -27,6 +27,8 @@ import eu.compassresearch.ide.collaboration.communication.handlers.Collaboration
 import eu.compassresearch.ide.collaboration.communication.handlers.ConfigurationStatusMessageHandler;
 import eu.compassresearch.ide.collaboration.communication.handlers.NewConfigurationMessageHandler;
 import eu.compassresearch.ide.collaboration.communication.handlers.NotificationMessageHandler;
+import eu.compassresearch.ide.collaboration.communication.handlers.SimulationReplyMessageHandler;
+import eu.compassresearch.ide.collaboration.communication.handlers.SimulationRequestMessageHandler;
 import eu.compassresearch.ide.collaboration.communication.messages.BaseMessage;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationGroup;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationProject;
@@ -187,6 +189,8 @@ public class ConnectionManager implements IPresenceListener
 		messageProcessor.addMessageHandler(new CollaborationStatusMessageHandler());
 		messageProcessor.addMessageHandler(new CollaborationGroupUpdateMessageHandler());
 		messageProcessor.addMessageHandler(new NotificationMessageHandler());
+		messageProcessor.addMessageHandler(new SimulationRequestMessageHandler());
+		messageProcessor.addMessageHandler(new SimulationReplyMessageHandler());
 	}
 
 	public boolean isConnectionInitialized()
@@ -222,7 +226,11 @@ public class ConnectionManager implements IPresenceListener
 			{
 				for (ID id : usersFromRoster)
 				{
-					availableCollaborators.put(id.getName(), id);
+					//special case, user account is a Messaging service, so ignore. 
+					String externalForm = id.toExternalForm();
+					if(!externalForm.contains("Messaging")){
+							availableCollaborators.put(id.getName(), id);
+					}
 				}
 			}
 		}

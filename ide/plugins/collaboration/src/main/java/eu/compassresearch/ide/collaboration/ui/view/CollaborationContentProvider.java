@@ -11,14 +11,14 @@ import eu.compassresearch.ide.collaboration.datamodel.Configuration;
 import eu.compassresearch.ide.collaboration.datamodel.ConfigurationStatuses;
 import eu.compassresearch.ide.collaboration.datamodel.Configurations;
 import eu.compassresearch.ide.collaboration.datamodel.DeltaEvent;
-import eu.compassresearch.ide.collaboration.datamodel.IDeltaListener;
+import eu.compassresearch.ide.collaboration.datamodel.IModelEventListener;
 import eu.compassresearch.ide.collaboration.datamodel.Model;
 import eu.compassresearch.ide.collaboration.datamodel.Visibility;
 import eu.compassresearch.ide.collaboration.datamodel.File;
 import eu.compassresearch.ide.collaboration.datamodel.Files;
 
 public class CollaborationContentProvider implements ITreeContentProvider,
-		IDeltaListener
+		IModelEventListener
 {
 	private static Object[] EMPTY_ARRAY = new Object[0];
 	protected TreeViewer viewer;

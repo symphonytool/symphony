@@ -6,10 +6,6 @@
 	<menuContribution
          allPopups="false"
          locationURI="popup:eu.compassresearch.ide.ui.CmlNavigator">
-<!--	 <dynamic 
-			class="eu.compassresearch.ide.collaboration.ui.menu.CollabRosterMenuContributionItem" 
-			id="eu.compassresearch.ide.collaboration">
-	</dynamic> !-->
 		<menu
               id="eu.compassresearch.ide.collaboration.ui.CollaborativeModelling"
               label="Collaborative Modelling">
@@ -42,7 +38,19 @@
 	<menuContribution
          allPopups="false"
          locationURI="additions:eu.compassresearch.ide.collaboration.ui.view.CollaborationView">
-	  	<command
+    	<command
+            commandId="eu.compassresearch.ide.collaboration.ui.ExpandTree"
+            label="Expand All"
+            style="push"
+            tooltip="Expand Tree">
+    	</command>
+    	<command
+            commandId="eu.compassresearch.ide.collaboration.ui.CollapseTree"
+            label="Collapse All"
+            style="push"
+            tooltip="Collapse Tree">
+    	</command>
+    		<command
             commandId="eu.compassresearch.ide.collaboration.ui.NewCollaborationProject"
             label="Add new collaboration project"
             style="push"
@@ -109,10 +117,18 @@
          name="Add new collaboration project">
 		</command>
 		<command
+         id="eu.compassresearch.ide.collaboration.ui.ExpandTree"
+         name="Expand Tree">
+		</command>
+		<command
+         id="eu.compassresearch.ide.collaboration.ui.CollapseTree"
+         name="Expand Tree">
+		</command>
+		<command
          id="eu.compassresearch.ide.collaboration.ui.AddFileToCollaboration"
          name="Include file in collaboration project">
 		</command>
-				<command
+		<command
          id="eu.compassresearch.ide.collaboration.ui.AddFileToCollaborationWithLimitedVisibility"
          name="Include file in collaboration project (with limited visibility)">
 		</command>
@@ -123,6 +139,14 @@
 	<handler
 	 class ="eu.compassresearch.ide.collaboration.ui.commands.NewCollaborationProjectHandler"
      commandId="eu.compassresearch.ide.collaboration.ui.NewCollaborationProject">
+	</handler>
+	<handler
+	 class ="eu.compassresearch.ide.collaboration.ui.commands.ExpandTreeHandler"
+     commandId="eu.compassresearch.ide.collaboration.ui.ExpandTree">
+	</handler>
+	<handler
+	 class ="eu.compassresearch.ide.collaboration.ui.commands.CollapseTreeHandler"
+     commandId="eu.compassresearch.ide.collaboration.ui.CollapseTree">
 	</handler>
 	<handler
 	 class ="eu.compassresearch.ide.collaboration.ui.commands.AddFileToCollaborationHandler"

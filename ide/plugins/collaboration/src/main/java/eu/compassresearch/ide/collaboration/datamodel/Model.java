@@ -9,7 +9,7 @@ public abstract class Model implements Serializable {
 	
 	private Model parent;
 	protected String name;	
-	protected IDeltaListener listener;
+	protected IModelEventListener listener;
 	
 	public Model(String name, Model parent) {
 		this.name = name;
@@ -44,11 +44,11 @@ public abstract class Model implements Serializable {
 	
 	public abstract CollaborationProject getCollaborationProject();
 	
-	public void addListener(IDeltaListener listener) {
+	public void addListener(IModelEventListener listener) {
 		this.listener = listener;
 	}
 	
-	public void removeListener(IDeltaListener listener) {
+	public void removeListener(IModelEventListener listener) {
 
 		if(this.listener != null && this.listener.equals(listener)) {
 			this.listener = null;

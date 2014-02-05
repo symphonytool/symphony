@@ -118,14 +118,14 @@ public class Configuration extends Model {
 	}
 	
 	@Override
-	public void addListener(IDeltaListener listener) {
+	public void addListener(IModelEventListener listener) {
 		files.addListener(listener);	
 		configurationStatuses.addListener(listener);
 		super.addListener(listener);
 	}
 	
 	@Override
-	public void removeListener(IDeltaListener listener)
+	public void removeListener(IModelEventListener listener)
 	{
 		files.removeListener(listener);
 		configurationStatuses.removeListener(listener);

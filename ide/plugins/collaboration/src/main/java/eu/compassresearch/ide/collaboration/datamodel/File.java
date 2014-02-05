@@ -147,14 +147,14 @@ public class File extends Model
 	}
 
 	@Override
-	public void addListener(IDeltaListener listener)
+	public void addListener(IModelEventListener listener)
 	{
 		visibility.addListener(listener);
 		super.addListener(listener);
 	}
 
 	@Override
-	public void removeListener(IDeltaListener listener)
+	public void removeListener(IModelEventListener listener)
 	{
 		visibility.removeListener(listener);
 		super.removeListener(listener);

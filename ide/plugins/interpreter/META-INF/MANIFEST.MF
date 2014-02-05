@@ -33,3 +33,4 @@ Bundle-ClassPath: .,
  jars/jackson-databind.jar,
  jars/jackson-annotations.jar,
  jars/slf4j-api.jar
+Export-Package: eu.compassresearch.ide.interpreter

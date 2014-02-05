@@ -7,6 +7,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.ecf.core.identity.ID;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
@@ -19,6 +20,7 @@ import org.eclipse.ui.progress.UIJob;
 
 import eu.compassresearch.ide.collaboration.Activator;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationProject;
+import eu.compassresearch.ide.collaboration.distributedsimulation.DistributedSimulationManager;
 import eu.compassresearch.ide.collaboration.files.FileStatus;
 import eu.compassresearch.ide.collaboration.files.FileStatus.FileState;
 import eu.compassresearch.ide.collaboration.ui.view.CollaborationView;
@@ -92,7 +94,18 @@ public class CollaborationDialogs
 	{
 		return new AddFileLimitedVisibilityDialog(fileName, collaborationProject, PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell());
 	}
-
+	
+	public DistributedSimulationInitialisationDialog getDistributedSimulationInitialisationDialog(List<String> processes, List<String> collaborators, DistributedSimulationManager distributedSimulationManager){
+		return new DistributedSimulationInitialisationDialog(processes, collaborators, distributedSimulationManager, PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell());
+	}
+	
+	public DistributedSimulationRequestDialog getDistributedSimulationRequestDialog(String user,
+			CollaborationProject collaborationProject, String process, DistributedSimulationManager distributedSimulationManager)
+	{
+		return new DistributedSimulationRequestDialog(user, collaborationProject, process, distributedSimulationManager, PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell());
+	}
+	
+	
 	public static IWorkbenchWindow getWorkbench()
 	{
 		final IWorkbenchWindow workbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();

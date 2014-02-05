@@ -87,7 +87,7 @@ public class Files extends Model {
 	}
 	
 	@Override
-	public void addListener(IDeltaListener listener) {
+	public void addListener(IModelEventListener listener) {
 		
 		for (File f : files.values())
 		{
@@ -98,7 +98,7 @@ public class Files extends Model {
 	}
 	
 	@Override
-	public void removeListener(IDeltaListener listener)
+	public void removeListener(IModelEventListener listener)
 	{
 		for (File f : files.values())
 		{

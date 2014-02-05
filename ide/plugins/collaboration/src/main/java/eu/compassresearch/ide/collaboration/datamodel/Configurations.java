@@ -61,7 +61,7 @@ public class Configurations extends Model
 	}
 
 	@Override
-	public void addListener(IDeltaListener listener)
+	public void addListener(IModelEventListener listener)
 	{
 
 		for (Configuration c : configurations)
@@ -73,7 +73,7 @@ public class Configurations extends Model
 	}
 
 	@Override
-	public void removeListener(IDeltaListener listener)
+	public void removeListener(IModelEventListener listener)
 	{
 		for (Configuration c : configurations)
 		{

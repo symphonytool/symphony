@@ -59,7 +59,7 @@ public class Visibility extends Model {
 	}
 	
 	@Override
-	public void addListener(IDeltaListener listener) {
+	public void addListener(IModelEventListener listener) {
 		
 		for (Visible s : visibility)
 		{
@@ -70,7 +70,7 @@ public class Visibility extends Model {
 	}
 	
 	@Override
-	public void removeListener(IDeltaListener listener)
+	public void removeListener(IModelEventListener listener)
 	{
 		for (Visible s : visibility)
 		{
