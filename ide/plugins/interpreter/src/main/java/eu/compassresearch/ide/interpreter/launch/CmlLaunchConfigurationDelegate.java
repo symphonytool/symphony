@@ -205,7 +205,14 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 
 		commandArray.add("java");
 		// commandArray.addAll(getClassPath());
-		commandArray.addAll(VdmProjectClassPathCollector.getClassPath(getProject(configuration), collectRequiredBundleIds(ICmlDebugConstants.ID_CML_PLUGIN_NAME), new String[] {}));
+		List<String> additionalCpEntries = new Vector<String>();
+		
+		if(true/*logging disabled*/)
+		{
+			additionalCpEntries.add(getDefaultLog4JProperties());
+		}
+		
+		commandArray.addAll(VdmProjectClassPathCollector.getClassPath(getProject(configuration), collectRequiredBundleIds(ICmlDebugConstants.ID_CML_PLUGIN_NAME), additionalCpEntries.toArray(new String[]{})));
 		commandArray.add(ICmlDebugConstants.DEBUG_ENGINE_CLASS);
 		commandArray.addAll(1, getVmArguments(configuration));
 		commandArray.add(config);
@@ -234,6 +241,33 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 	}
 	
 	
+	private String getDefaultLog4JProperties()
+	{
+		final Bundle bundle = Platform.getBundle(CmlDebugPlugin.PLUGIN_ID);
+		if (bundle != null)
+		{
+			URL buildInfoUrl = FileLocator.find(bundle, new Path("log4j.properties"), null);
+
+			try
+			{
+				if (buildInfoUrl != null)
+				{
+					URL buildInfofileUrl = FileLocator.toFileURL(buildInfoUrl);
+					if (buildInfofileUrl != null)
+					{
+						File file = new File(buildInfofileUrl.getFile());
+
+						return file.getParentFile().getAbsolutePath();
+					}
+
+				}
+			} catch (IOException e)
+			{
+			}
+		}
+		return null;
+	}
+
 	private Collection<? extends String> getVmArguments(
 			ILaunchConfiguration configuration) throws CoreException
 	{
