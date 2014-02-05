@@ -1,26 +1,31 @@
 package eu.compassresearch.core.analysis.theoremprover.visitors.deps;
 
-import java.util.LinkedList;
-
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AInstanceVariableDefinition;
 import org.overture.ast.definitions.PDefinition;
-import org.overture.ast.expressions.PExp;
 import org.overture.ast.node.INode;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.definitions.AActionClassDefinition;
 import eu.compassresearch.ast.process.AActionProcess;
 import eu.compassresearch.ast.process.AAlphabetisedParallelismProcess;
+import eu.compassresearch.ast.process.AAlphabetisedParallelismReplicatedProcess;
+import eu.compassresearch.ast.process.AChannelRenamingProcess;
 import eu.compassresearch.ast.process.AEndDeadlineProcess;
 import eu.compassresearch.ast.process.AExternalChoiceProcess;
+import eu.compassresearch.ast.process.AExternalChoiceReplicatedProcess;
 import eu.compassresearch.ast.process.AGeneralisedParallelismProcess;
+import eu.compassresearch.ast.process.AGeneralisedParallelismReplicatedProcess;
 import eu.compassresearch.ast.process.AHidingProcess;
+import eu.compassresearch.ast.process.AInstantiationProcess;
 import eu.compassresearch.ast.process.AInterleavingProcess;
+import eu.compassresearch.ast.process.AInterleavingReplicatedProcess;
 import eu.compassresearch.ast.process.AInternalChoiceProcess;
+import eu.compassresearch.ast.process.AInternalChoiceReplicatedProcess;
 import eu.compassresearch.ast.process.AInterruptProcess;
 import eu.compassresearch.ast.process.AReferenceProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
+import eu.compassresearch.ast.process.ASequentialCompositionReplicatedProcess;
 import eu.compassresearch.ast.process.AStartDeadlineProcess;
 import eu.compassresearch.ast.process.ATimedInterruptProcess;
 import eu.compassresearch.ast.process.ATimeoutProcess;
@@ -31,7 +36,6 @@ import eu.compassresearch.core.analysis.theoremprover.utils.ThmProcessUtil;
 import eu.compassresearch.core.analysis.theoremprover.visitors.TPVisitor;
 import eu.compassresearch.core.analysis.theoremprover.visitors.string.ThmVarsContext;
 
-@SuppressWarnings("serial")
 public class ThmProcessDepVisitor  extends
 QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 	
@@ -74,7 +78,7 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 				{					
 					AInstanceVariableDefinition sdef = (AInstanceVariableDefinition) pdef;
 					//if the variable is initialised straight away, get the dependencies
-					initExprNodeDeps.addAll(sdef.getExpression().apply(new ThmDepVisitor(), new NodeNameList()));//(ThmExprUtil.getIsabelleExprDeps(new NodeNameList(),  st.getExpression()));
+					initExprNodeDeps.addAll(sdef.getExpression().apply(thmDepVisitor, new NodeNameList()));//(ThmExprUtil.getIsabelleExprDeps(new NodeNameList(),  st.getExpression()));
 					//Add all dependencies to the processes dependencies
 					nodeDeps.addAll(initExprNodeDeps);
 				}
@@ -99,164 +103,179 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 		return nodeDeps;
 	}
 	
-	/**
-	 * Return the dependencies of a value AST node
-	 * @param node - the value definition
-	 * @return the list of dependencies
-	 */
-	public NodeNameList caseASequentialCompositionProcess(ASequentialCompositionProcess p, NodeNameList bvars)
-			throws AnalysisException {
-		NodeNameList nodeDeps = new NodeNameList();
-
-		nodeDeps.addAll(p.getLeft().apply(thmDepVisitor, bvars));
-		nodeDeps.addAll(p.getRight().apply(thmDepVisitor, bvars));
-		
-		return nodeDeps;
-	}
-
-	public NodeNameList caseAExternalChoiceProcess(AExternalChoiceProcess p, NodeNameList bvars)
-			throws AnalysisException {
-		NodeNameList nodeDeps = new NodeNameList();
-
-		nodeDeps.addAll(p.getLeft().apply(thmDepVisitor, bvars));
-		nodeDeps.addAll(p.getRight().apply(thmDepVisitor, bvars));
-		
-		return nodeDeps;
-	}
-
-	public NodeNameList caseAInternalChoiceProcess(AInternalChoiceProcess p, NodeNameList bvars)
-			throws AnalysisException {
-		NodeNameList nodeDeps = new NodeNameList();
-
-		nodeDeps.addAll(p.getLeft().apply(thmDepVisitor, bvars));
-		nodeDeps.addAll(p.getRight().apply(thmDepVisitor, bvars));
-		
-		return nodeDeps;
-	}
-
-	public NodeNameList caseAInterleavingProcess(AInterleavingProcess p, NodeNameList bvars)
-			throws AnalysisException {
-		NodeNameList nodeDeps = new NodeNameList();
-
-		nodeDeps.addAll(p.getLeft().apply(thmDepVisitor, bvars));
-		nodeDeps.addAll(p.getRight().apply(thmDepVisitor, bvars));
-			
-		return nodeDeps;
-	}
-
-	public NodeNameList caseAGeneralisedParallelismProcess(AGeneralisedParallelismProcess p, NodeNameList bvars)
-			throws AnalysisException {
-		NodeNameList nodeDeps = new NodeNameList();
-		
-		nodeDeps.addAll(p.getLeft().apply(thmDepVisitor, bvars));
-		nodeDeps.addAll(p.getRight().apply(thmDepVisitor, bvars));
-		nodeDeps.addAll(p.getChansetExpression().apply(thmDepVisitor, bvars));
 	
+	public NodeNameList caseAAlphabetisedParallelismProcess(AAlphabetisedParallelismProcess p, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
 		return nodeDeps;
 	}
 
-	public NodeNameList caseAAlphabetisedParallelismProcess(AAlphabetisedParallelismProcess p, NodeNameList bvars)
-			throws AnalysisException {
+	public NodeNameList caseAAlphabetisedParallelismReplicatedProcess(AAlphabetisedParallelismReplicatedProcess p, NodeNameList bvars) throws AnalysisException{
 		NodeNameList nodeDeps = new NodeNameList();
-
-		nodeDeps.addAll(p.getLeft().apply(thmDepVisitor, bvars));
-		nodeDeps.addAll(p.getRight().apply(thmDepVisitor, bvars));
-		nodeDeps.addAll(p.getLeftChansetExpression().apply(thmDepVisitor, bvars));
-		nodeDeps.addAll(p.getRightChansetExpression().apply(thmDepVisitor, bvars));
-	
 		return nodeDeps;
 	}
 
-	public NodeNameList caseAInterruptProcess(AInterruptProcess p, NodeNameList bvars)
-			throws AnalysisException {
+	public NodeNameList caseAChannelRenamingProcess(AChannelRenamingProcess node, NodeNameList bvars) throws AnalysisException{	
 		NodeNameList nodeDeps = new NodeNameList();
-
-		nodeDeps.addAll(p.getLeft().apply(thmDepVisitor, bvars));
-		nodeDeps.addAll(p.getRight().apply(thmDepVisitor, bvars));
-		
-	
-		return nodeDeps;
-	}
-
-	public NodeNameList caseAValueDefinition(ATimedInterruptProcess p, NodeNameList bvars)
-			throws AnalysisException {
-		NodeNameList nodeDeps = new NodeNameList();
-
-		nodeDeps.addAll(p.getLeft().apply(thmDepVisitor, bvars));
-		nodeDeps.addAll(p.getRight().apply(thmDepVisitor, bvars));
-		nodeDeps.addAll(p.getTimeExpression().apply(thmDepVisitor, bvars));
-	
-		return nodeDeps;
-	}
-
-	public NodeNameList caseAUntimedTimeoutProcess(AUntimedTimeoutProcess p, NodeNameList bvars)
-			throws AnalysisException {
-		NodeNameList nodeDeps = new NodeNameList();
-
-		nodeDeps.addAll(p.getLeft().apply(thmDepVisitor, bvars));
-		nodeDeps.addAll(p.getRight().apply(thmDepVisitor, bvars));
-		
-	
-		return nodeDeps;
-	}
-
-	public NodeNameList caseATimeoutProcess(ATimeoutProcess p, NodeNameList bvars)
-			throws AnalysisException {
-		NodeNameList nodeDeps = new NodeNameList();
-
-		nodeDeps.addAll(p.getLeft().apply(thmDepVisitor, bvars));
-		nodeDeps.addAll(p.getRight().apply(thmDepVisitor, bvars));
-		nodeDeps.addAll(p.getTimeoutExpression().apply(thmDepVisitor, bvars));
-	
-		return nodeDeps;
-	}
-
-	public NodeNameList caseAHidingProcess(AHidingProcess p, NodeNameList bvars)
-			throws AnalysisException {
-		NodeNameList nodeDeps = new NodeNameList();
-
-		nodeDeps.addAll(p.getLeft().apply(thmDepVisitor, bvars));
-		nodeDeps.addAll(p.getChansetExpression().apply(thmDepVisitor, bvars));
-	
-		return nodeDeps;
-	}
-	
-	public NodeNameList caseAStartDeadlineProcess(AStartDeadlineProcess p, NodeNameList bvars)
-			throws AnalysisException {
-		NodeNameList nodeDeps = new NodeNameList();
-
-		nodeDeps.addAll(p.getLeft().apply(thmDepVisitor, bvars));
-		nodeDeps.addAll(p.getExpression().apply(thmDepVisitor, bvars));
-		
 		return nodeDeps;
 	}
 	
 	public NodeNameList caseAEndDeadlineProcess(AEndDeadlineProcess p, NodeNameList bvars)
 			throws AnalysisException {
 		NodeNameList nodeDeps = new NodeNameList();
-
-		nodeDeps.addAll(p.getLeft().apply(thmDepVisitor, bvars));
-		nodeDeps.addAll(p.getExpression().apply(thmDepVisitor, bvars));
-	
 		return nodeDeps;
 	}
-	
-	public NodeNameList caseAReferenceProcess(AReferenceProcess p, NodeNameList bvars)
+
+	public NodeNameList caseAExternalChoiceProcess(AExternalChoiceProcess p, NodeNameList bvars)
 			throws AnalysisException {
 		NodeNameList nodeDeps = new NodeNameList();
-
-		LinkedList<PExp> args = p.getArgs();
-		nodeDeps.add(p.getProcessName());
-		if (args.size() != 0)
-		{
-			for (PExp e: p.getArgs()) 
-			{
-				nodeDeps.addAll(e.apply(thmDepVisitor, bvars));	
-			}
-		}
-	
 		return nodeDeps;
 	}
+
+
+	public NodeNameList caseAExternalChoiceReplicatedProcess(
+			AExternalChoiceReplicatedProcess node, NodeNameList bvars)
+			throws AnalysisException {
+		NodeNameList nodeDeps = new NodeNameList();
+		return nodeDeps;
+	}
+
+
+	public NodeNameList caseAGeneralisedParallelismProcess(
+			AGeneralisedParallelismProcess node, NodeNameList bvars)
+			throws AnalysisException {
+		NodeNameList nodeDeps = new NodeNameList();
+		return nodeDeps;
+	}
+
+
+	public NodeNameList caseAGeneralisedParallelismReplicatedProcess(
+			AGeneralisedParallelismReplicatedProcess node, NodeNameList bvars)
+			throws AnalysisException {
+		NodeNameList nodeDeps = new NodeNameList();
+		return nodeDeps;
+	}
+
+
+	public NodeNameList caseAHidingProcess(AHidingProcess node, NodeNameList bvars)
+			throws AnalysisException {
+		NodeNameList nodeDeps = new NodeNameList();
+		return nodeDeps;
+	}
+
+
+	public NodeNameList caseAInstantiationProcess(AInstantiationProcess node, NodeNameList bvars)
+			throws AnalysisException {
+		NodeNameList nodeDeps = new NodeNameList();
+		return nodeDeps;
+	}
+
+
+	public NodeNameList caseAInterleavingProcess(AInterleavingProcess node, NodeNameList bvars)
+			throws AnalysisException {
+		NodeNameList nodeDeps = new NodeNameList();
+		return nodeDeps;
+	}
+
+
+	public NodeNameList caseAInterleavingReplicatedProcess(
+			AInterleavingReplicatedProcess node, NodeNameList bvars)
+			throws AnalysisException {
+		NodeNameList nodeDeps = new NodeNameList();
+		return nodeDeps;
+	}
+
+
+	public NodeNameList caseAInternalChoiceProcess(AInternalChoiceProcess node, NodeNameList bvars)
+			throws AnalysisException {
+		NodeNameList nodeDeps = new NodeNameList();
+		return nodeDeps;
+	}
+
+
+	public NodeNameList caseAInternalChoiceReplicatedProcess(
+			AInternalChoiceReplicatedProcess node, NodeNameList bvars)
+			throws AnalysisException {
+		NodeNameList nodeDeps = new NodeNameList();
+		return nodeDeps;
+	}
+
+
+	public NodeNameList caseAInterruptProcess(AInterruptProcess node, NodeNameList bvars)
+			throws AnalysisException {
+		NodeNameList nodeDeps = new NodeNameList();
+		return nodeDeps;
+	}
+
+
+	public NodeNameList caseAReferenceProcess(AReferenceProcess node, NodeNameList bvars)
+			throws AnalysisException {
+		NodeNameList nodeDeps = new NodeNameList();
+		return nodeDeps;
+	}
+
+
+	public NodeNameList caseASequentialCompositionProcess(
+			ASequentialCompositionProcess node, NodeNameList bvars)
+			throws AnalysisException {
+		NodeNameList nodeDeps = new NodeNameList();
+		return nodeDeps;
+	}
+
+
+	public NodeNameList caseASequentialCompositionReplicatedProcess(
+			ASequentialCompositionReplicatedProcess node, NodeNameList bvars)
+			throws AnalysisException {
+		NodeNameList nodeDeps = new NodeNameList();
+		return nodeDeps;
+	}
+
+
+	public NodeNameList caseAStartDeadlineProcess(AStartDeadlineProcess node, NodeNameList bvars)
+			throws AnalysisException {
+		NodeNameList nodeDeps = new NodeNameList();
+		return nodeDeps;
+	}
+
+
+	public NodeNameList caseATimedInterruptProcess(ATimedInterruptProcess node, NodeNameList bvars)
+			throws AnalysisException {
+		NodeNameList nodeDeps = new NodeNameList();
+		return nodeDeps;
+	}
+
+
+	public NodeNameList caseATimeoutProcess(ATimeoutProcess node, NodeNameList bvars)
+			throws AnalysisException {
+		NodeNameList nodeDeps = new NodeNameList();
+		return nodeDeps;
+	}
+
+
+	public NodeNameList caseAUntimedTimeoutProcess(AUntimedTimeoutProcess node, NodeNameList bvars)
+			throws AnalysisException {
+		NodeNameList nodeDeps = new NodeNameList();
+		return nodeDeps;
+	}
+
+	
+	
+//	
+//	public NodeNameList caseAReferenceProcess(AReferenceProcess p, NodeNameList bvars)
+//			throws AnalysisException {
+//		NodeNameList nodeDeps = new NodeNameList();
+//
+//		LinkedList<PExp> args = p.getArgs();
+//		nodeDeps.add(p.getProcessName());
+//		if (args.size() != 0)
+//		{
+//			for (PExp e: p.getArgs()) 
+//			{
+//				nodeDeps.addAll(e.apply(thmDepVisitor, bvars));	
+//			}
+//		}
+//	
+//		return nodeDeps;
+//	}
 
 	@Override
 	public NodeNameList createNewReturnValue(INode arg0, NodeNameList arg1)

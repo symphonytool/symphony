@@ -6,14 +6,14 @@ public class ThmAction extends ThmDecl {
 
 	//private components of an Action
 	private String name;
-	private String action;
+	private String act;
 	
-	public ThmAction(String name, String action) {
+	public ThmAction(String name, String act) {
 		this.name = name;
-		this.action = action;
+		this.act = act;
 	}
 	
 	public String toString(){
-		return (ThmProcessUtil.isaAct + " \"" + name + " = `"  + action + "`\"\n" + tactic(name, action));
+		return (ThmProcessUtil.isaAct + " \"" + name + " = `"  + act + "`\"\n" + tactic(name, action));
 	}
 }
