@@ -353,7 +353,7 @@ public class NewMCVisitor extends
 		//String cml_file = "src/test/resources/Dphils.cml";
 		//String cml_file = "src/test/resources/BeoAVDeviceDiscovery-final-version-model-checker.cml";
 		//String cml_file = "src/test/resources/cmlfile5.cml";
-		String cml_file = "src/test/resources/SimpleElection.cml";
+		String cml_file = "src/test/resources/test.cml";
 		//String cml_file = "src/test/resources/action-prefix-skip.cml";
 		//System.out.println("Testing on " + cml_file);
 		PSource source1 = Utilities.makeSourceFromFile(cml_file);
@@ -372,7 +372,7 @@ public class NewMCVisitor extends
 		//String mainProcessName = "Test_TurnOnProduct";
 		//String mainProcessName = "RegisterProc";
 		//String mainProcessName = "N_LAZY_Q";
-		String mainProcessName = "GreyBox";
+		String mainProcessName = "LazyLimit_NFTBasic";
 		
 		
 		String formulaCode = visitor1.generateFormulaScript(source1.getParagraphs(),Utilities.DEADLOCK_PROPERTY,mainProcessName);

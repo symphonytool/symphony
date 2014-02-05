@@ -35,6 +35,16 @@ public class MCAIdentifierVarsetExpression implements MCPVarsetExpression {
 		return chansetDef.getChansetExpression().getChannelNames();
 	}
 
+	
+	@Override
+	public boolean equals(Object obj) {
+		boolean result = false;
+		if(obj instanceof MCAIdentifierVarsetExpression){
+			result = this.identifier.equals(((MCAIdentifierVarsetExpression) obj).getIdentifier());
+		}
+		return result;
+	}
+
 	public String getIdentifier() {
 		return identifier;
 	}
