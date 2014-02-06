@@ -34,6 +34,7 @@ import eu.compassresearch.ide.collaboration.ui.menu.DistributedSimulationInitial
 import eu.compassresearch.ide.collaboration.ui.menu.DistributedSimulationRequestDialog;
 import eu.compassresearch.ide.core.resources.ICmlModel;
 import eu.compassresearch.ide.core.resources.ICmlProject;
+import eu.compassresearch.ide.interpreter.CmlUtil;
 import eu.compassresearch.ide.interpreter.ICmlDebugConstants;
 
 public class DistributedSimulationManager
@@ -105,15 +106,9 @@ public class DistributedSimulationManager
 			return;
 		}
 
-		// TODO load processes
 		ICmlProject cmlProj = (ICmlProject) iProject.getAdapter(ICmlProject.class);
 		ICmlModel model = cmlProj.getModel();
-		// CmlUtil.getGlobalProcessesFromSource(definitions)
-
-		// TODO get processes from project
-		ArrayList<String> processes = new ArrayList<>();
-		processes.add("A");
-		processes.add("B");
+		List<String> processes = CmlUtil.getGlobalProcessesFromSourceAsString(model);
 
 		if (processes.isEmpty())
 		{
