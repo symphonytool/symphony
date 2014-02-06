@@ -53,7 +53,7 @@ public class NewCMLModelcheckerContext {
 	public Domain propertiesDomain;
 	public String propertyToCheck = Utilities.DEADLOCK_PROPERTY;
 	public NewSetStack<MCPVarsetExpression> setStack;
-	public ArrayList<MCLieInFact> lieIn;
+	public ArrayListSet<MCLieInFact> lieIn;
 	public ArrayListSet<MCLieInFact> realLieInFacts;
 	public ArrayListSet<MCAActionDefinition> localActions;
 	public ArrayListSet<MCCondition> conditions;
@@ -207,7 +207,7 @@ public class NewCMLModelcheckerContext {
 	
 	public NewCMLModelcheckerContext() {
 		setStack = new NewSetStack<MCPVarsetExpression>();
-		lieIn = new ArrayList<MCLieInFact>();
+		lieIn = new ArrayListSet<MCLieInFact>();
 		operations = new ArrayListSet<MCSCmlOperationDefinition>(); 
 		localActions = new ArrayListSet<MCAActionDefinition>();
 		conditions = new ArrayListSet<MCCondition>();

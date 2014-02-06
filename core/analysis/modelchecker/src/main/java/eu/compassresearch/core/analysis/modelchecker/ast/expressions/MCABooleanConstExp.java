@@ -8,8 +8,8 @@ public class MCABooleanConstExp implements MCBooleanExp {
 
 	private boolean value;
 	
-	public MCABooleanConstExp() {
-		// TODO Auto-generated constructor stub
+	public MCABooleanConstExp(boolean value) {
+		this.value = value;
 	}
 
 	@Override

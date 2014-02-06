@@ -5,6 +5,9 @@
 	//Stop timed
     trans(iS,tock,iS) :- iS is State(st,Stop). 
 	
+	//Div
+	trans(iS,tau,iS) :- iS is State(st,Div). 
+	
 	// a?x -> P
     State(st_,P),
     trans(ini, CommEv(chName,chExp,chType), State(st_,P))

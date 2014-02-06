@@ -8,6 +8,7 @@ import org.overture.ast.analysis.QuestionAnswerAdaptor;
 import org.overture.ast.definitions.AAssignmentDefinition;
 import org.overture.ast.definitions.AExplicitFunctionDefinition;
 import org.overture.ast.definitions.AExplicitOperationDefinition;
+import org.overture.ast.definitions.AImplicitOperationDefinition;
 import org.overture.ast.definitions.AInstanceVariableDefinition;
 import org.overture.ast.definitions.ALocalDefinition;
 import org.overture.ast.definitions.AStateDefinition;
@@ -306,6 +307,14 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 	
 	
 	@Override
+	public MCNode caseAImplicitOperationDefinition(
+			AImplicitOperationDefinition node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		
+		return super.caseAImplicitOperationDefinition(node, question);
+	}
+
+	@Override
 	public MCNode caseAExplicitFunctionDefinition(
 			AExplicitFunctionDefinition node, NewCMLModelcheckerContext question)
 			throws AnalysisException {
@@ -340,7 +349,10 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 		for (PDefinition pDef : node.getDefs()) {
 			definitions.add((MCPCMLDefinition) pDef.apply(rootVisitor, question));
 		}
-		MCPCMLType type = (MCPCMLType) node.getType().apply(rootVisitor, question);
+		MCPCMLType type = null;
+		if (node.getType() != null){
+			type = (MCPCMLType) node.getType().apply(rootVisitor, question);
+		}
 		MCPCMLExp expression = (MCPCMLExp) node.getExpression().apply(rootVisitor, question);
 		MCAValueDefinition result = new MCAValueDefinition(name, definitions, expression,type);
 

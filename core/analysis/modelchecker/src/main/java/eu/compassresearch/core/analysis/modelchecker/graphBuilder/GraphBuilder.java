@@ -949,8 +949,8 @@ public class GraphBuilder {
 		//String filePath = "/examples/Livelock.facts.txt";
 		StringBuilder facts = Utilities.readScriptFromAbsoluteFile(filePath);
 		//eu.compassresearch.core.analysis.modelchecker.visitors.Utilities.readScriptFromFile(filePath);
-		//String dotCode = gb.generateDot(facts,Utilities.DEADLOCK);
-		String dotCode = gb.generateDotRachabilityGraph(facts);
+		String dotCode = gb.generateDot(facts,Utilities.DEADLOCK);
+		//String dotCode = gb.generateDotRachabilityGraph(facts);
 		System.out.println(dotCode);
 	}
 	
