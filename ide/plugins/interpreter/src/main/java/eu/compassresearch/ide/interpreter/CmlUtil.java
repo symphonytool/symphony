@@ -9,8 +9,6 @@ import java.util.Vector;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
@@ -47,27 +45,6 @@ public final class CmlUtil
 		}
 	}
 
-	public static void clearAllSelections()
-	{
-		IEditorPart editor = null;
-		IWorkbenchWindow wbw = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-		if (wbw != null)
-		{
-			editor = wbw.getActivePage().getActiveEditor();
-		}
-
-		if (editor != null && editor instanceof CmlEditor)
-		{
-			StyledText styledText = (StyledText) ((CmlEditor) editor).getAdapter(Control.class);
-			for (StyleRange sr : styledText.getStyleRanges())
-			{
-				sr.background = null;
-				styledText.setStyleRange(sr);
-			}
-		}
-	}
-
-
 	private static void setSelectionFromLocation(ILexLocation loc,
 			List<StyleRange> lastSelectedRanges, StyledText styledText)
 	{
@@ -93,17 +70,27 @@ public final class CmlUtil
 		}
 	}
 
+	/**
+	 * Finds and opens an editor for a given location
+	 * 
+	 * @param loc
+	 * @return an editor part or null of the file is not found
+	 */
 	private static IEditorPart findEditorFromLocation(ILexLocation loc)
 	{
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
-		IPath location = Path.fromOSString(loc.getFile().getAbsolutePath());
-		IFile file = workspace.getRoot().getFileForLocation(location);
-		// It may be a linked resource
-		if (file == null
-				&& workspace.getRoot().findFilesForLocation(location).length > 0)
+
+		IFile[] files = workspace.getRoot().findFilesForLocationURI(loc.getFile().toURI());
+
+		IFile file = null;
+		if (files != null && files.length > 0)
 		{
-			file = workspace.getRoot().findFilesForLocation(location)[0];
+			file = files[0];
+		} else
+		{
+			return null;
 		}
+
 		IEditorPart editor = null;
 		try
 		{
@@ -117,7 +104,7 @@ public final class CmlUtil
 		return editor;
 	}
 
-	public static void setSelectionFromLocation(ILexLocation loc,
+	private static void setSelectionFromLocation(ILexLocation loc,
 			Map<StyledText, List<StyleRange>> map)
 	{
 		IEditorPart editor = findEditorFromLocation(loc);
