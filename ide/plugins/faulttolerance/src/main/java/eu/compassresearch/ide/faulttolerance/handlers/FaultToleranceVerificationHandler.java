@@ -6,7 +6,7 @@ package eu.compassresearch.ide.faulttolerance.handlers;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.progress.IProgressService;
 import org.overture.ast.definitions.PDefinition;
 
 import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
@@ -57,31 +57,12 @@ public class FaultToleranceVerificationHandler extends SelectProcessHandler {
 				.getOutput());
 		results.setCmlProject(su.getProject());
 
-		/*
-		 * InputDialog id = new InputDialog(shell,
-		 * Message.LIMIT_EXPRESSION_DIALOG_TITLE.format(results
-		 * .getProcessName()),
-		 * Message.LIMIT_EXPRESSION_DIALOG_MESSAGE.format(results
-		 * .getProcessName()), Message.LIMIT_EXPRESSION.format(), null);
-		 * id.open();
-		 * 
-		 * 
-		 * results.setLimitExpression(id.getValue()); if (id.getReturnCode() ==
-		 * InputDialog.CANCEL) { return; }
-		 */
-
 		MarkerManager.clearMarkers(results.getProcessName(),
 				results.getResource());
-		try {
-			Activator.getDefault().getWorkbench().getActiveWorkbenchWindow()
-					.getActivePage()
-					.showView("org.eclipse.ui.views.ProgressView");
-		} catch (PartInitException e) {
-			// ok, keep focus on current window.
-		}
 
 		FaultToleranceVerificationJob j = new FaultToleranceVerificationJob(
 				results);
+
 		j.addJobChangeListener(new JobChangeAdapter() {
 			@Override
 			public void done(IJobChangeEvent event) {
@@ -93,6 +74,10 @@ public class FaultToleranceVerificationHandler extends SelectProcessHandler {
 			}
 		});
 
+		IProgressService progressService = Activator.getDefault()
+				.getWorkbench().getProgressService();
+		progressService.showInDialog(shell, j);
+		j.setRule(new ProcessNameSchedulingRule(results.getProcessName()));
 		j.schedule();
 	}
 

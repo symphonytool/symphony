@@ -151,7 +151,8 @@ public class FaultToleranceVerificationJob extends WorkspaceJob {
 	public IStatus runInWorkspace(final IProgressMonitor monitor) {
 		try {
 			monitor.beginTask(Message.FAULT_TOLERANCE_VERIFICATION_TASK_MESSAGE
-					.format(faultToleranceResults.getProcessName()), 3);
+					.format(faultToleranceResults.getProcessName()), 4);
+
 			Runnable mainRun = new Runnable() {
 				@Override
 				public void run() {
@@ -216,7 +217,7 @@ public class FaultToleranceVerificationJob extends WorkspaceJob {
 			IProgressMonitor monitor) throws CoreException,
 			UnableToRunFaultToleranceVerificationException {
 		try {
-			beginSubTask(Message.PREPARE_DEFINITIONS, 4, monitor);
+			beginSubTask(Message.PREPARE_DEFINITIONS, 5, monitor);
 			List<String> channelsNotFound = new LinkedList<>();
 			List<String> chansetsNotFound = new LinkedList<>();
 			List<String> processesNotFound = new LinkedList<>();
@@ -238,6 +239,8 @@ public class FaultToleranceVerificationJob extends WorkspaceJob {
 					channelsNotFound, chansetsNotFound, processesNotFound);
 
 			findDefinitions(definitions, createSubProgressMonitor(monitor, 1));
+
+			clearGeneratedCmlFiles(createSubProgressMonitor(monitor, 1));
 		} finally {
 			baseFileLock.release();
 			monitor.done();
@@ -588,7 +591,7 @@ public class FaultToleranceVerificationJob extends WorkspaceJob {
 			throws UnableToRunFaultToleranceVerificationException {
 
 		try {
-			beginSubTask(Message.CREATE_CML_FILES_TASK_NAME, 1, monitor);
+			beginSubTask(Message.CREATE_CML_FILES_TASK_NAME, 2, monitor);
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			PrintStream ps = new PrintStream(baos);
 
@@ -630,6 +633,9 @@ public class FaultToleranceVerificationJob extends WorkspaceJob {
 						baos.toByteArray(),
 						Message.UNABLE_TO_CREATE_FAULT_TOLERANCE_PROCESSES_FILE,
 						createSubProgressMonitor(monitor, 1));
+				refreshModel(createSubProgressMonitor(monitor, 1));
+			} else {
+				monitor.worked(2);
 			}
 		} finally {
 			monitor.done();
@@ -642,7 +648,7 @@ public class FaultToleranceVerificationJob extends WorkspaceJob {
 			IProgressMonitor monitor)
 			throws UnableToRunFaultToleranceVerificationException {
 		try {
-			beginSubTask(Message.CREATE_CML_FILES_TASK_NAME, 1, monitor);
+			beginSubTask(Message.CREATE_CML_FILES_TASK_NAME, 2, monitor);
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			PrintStream ps = new PrintStream(baos);
 
@@ -655,6 +661,9 @@ public class FaultToleranceVerificationJob extends WorkspaceJob {
 				writeFile(Message.BASE_CML_FILE_NAME, baos.toByteArray(),
 						Message.UNABLE_TO_CREATE_FAULT_TOLERANCE_BASE_FILE,
 						createSubProgressMonitor(monitor, 1));
+				refreshModel(createSubProgressMonitor(monitor, 1));
+			} else {
+				monitor.worked(2);
 			}
 		} finally {
 			monitor.done();
