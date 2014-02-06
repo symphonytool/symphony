@@ -3,26 +3,25 @@ package eu.compassresearch.ide.collaboration.communication.handlers;
 import org.eclipse.swt.widgets.Display;
 
 import eu.compassresearch.ide.collaboration.Activator;
-import eu.compassresearch.ide.collaboration.communication.messages.SimulationReplyMessage;
+import eu.compassresearch.ide.collaboration.communication.messages.SimulationStartMessage;
 import eu.compassresearch.ide.collaboration.distributedsimulation.DistributedSimulationManager;
 
-public class SimulationReplyMessageHandler extends
-		BaseMessageHandler<SimulationReplyMessage>
+public class SimulationStartMessageHandler extends BaseMessageHandler<SimulationStartMessage>
 {
-	public SimulationReplyMessageHandler()
+	public SimulationStartMessageHandler()
 	{
-		super(SimulationReplyMessage.class);
+		super(SimulationStartMessage.class);
 	}
 
 	@Override
-	public void process(final SimulationReplyMessage msg)
+	public void process(final SimulationStartMessage msg)
 	{
 		Display.getDefault().asyncExec(new Runnable()
 		{
 			public void run()
 			{
 				DistributedSimulationManager distributedSimulationManager = Activator.getDefault().getDistributedSimulationManager();
-				distributedSimulationManager.simulationRequestUpdate(msg.getSenderID().getName(), msg.getProjectID(), msg.getProcess(), msg.isAccepted());
+				distributedSimulationManager.simulationStarting(msg.getSenderID().getName(), msg.getProjectID(), msg.getProcess(), msg.getHost());
 			}
 		});
 	}

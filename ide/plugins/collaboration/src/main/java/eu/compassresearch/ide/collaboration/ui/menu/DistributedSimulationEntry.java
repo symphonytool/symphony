@@ -1,10 +1,12 @@
 package eu.compassresearch.ide.collaboration.ui.menu;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -13,20 +15,21 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 
-import eu.compassresearch.ide.collaboration.distributedsimulation.ISimulationListener;
+import eu.compassresearch.ide.collaboration.distributedsimulation.IDistributedSimulationListener;
 
-public class DistributedSimulationEntry implements ISimulationListener
+public class DistributedSimulationEntry implements IDistributedSimulationListener
 {
 	private Group container;
-	private Button btnConfirm;
+	private Button btnProcessSelected;
 	private Combo cmbCollaborator;
 	private Label lblaccepted;
 	private String selectedCollaborator;
 	private String process;
 	private boolean processSelected;
 	private List<String> collaborators;
+	private List<SelectionListener> listeners;
 
-	public DistributedSimulationEntry(String process, List<String> collaborators,Composite parent, int style)
+	public DistributedSimulationEntry(String process, List<String> collaborators, Composite parent, int style)
 	{
 		container = new Group(parent, style);
 		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
@@ -37,28 +40,31 @@ public class DistributedSimulationEntry implements ISimulationListener
 		this.process = process;
 		this.collaborators = collaborators;
 		selectedCollaborator = "";
+		listeners = new ArrayList<>();
 		
 	    createElements();
 	}
-
+	
 	private void createElements()
 	{
-		btnConfirm = new Button(container, SWT.CHECK);
-	    btnConfirm.setText(process);
+		btnProcessSelected = new Button(container, SWT.CHECK);
+	    btnProcessSelected.setText(process);
 	    GridData gd = new GridData(GridData.CENTER);
 		gd.widthHint = 180;
-		btnConfirm.setLayoutData(gd);
+		btnProcessSelected.setLayoutData(gd);
 		
-	    btnConfirm.addSelectionListener(new SelectionAdapter() {
+	    btnProcessSelected.addSelectionListener(new SelectionAdapter() {
 	        @Override
 	        public void widgetSelected(SelectionEvent e) {
 	        	
 	        	processSelected();
+	        	fireSelectionChanged(e);
 	        }
 	    });
 	    
 	    cmbCollaborator = new Combo(container, SWT.READ_ONLY);
 	    cmbCollaborator.setBounds(50, 50, 150, 50);
+	    cmbCollaborator.add("");
 	    cmbCollaborator.setItems(collaborators.toArray(new String[0]));
 	    cmbCollaborator.setVisible(false);
 	    cmbCollaborator.setLayoutData(new GridData(GridData.CENTER));
@@ -67,6 +73,7 @@ public class DistributedSimulationEntry implements ISimulationListener
 	        public void widgetSelected(SelectionEvent e) {
 	       
 	        	collaboratorSelected();
+	        	fireSelectionChanged(e);
 	        }
 		});
 
@@ -85,7 +92,7 @@ public class DistributedSimulationEntry implements ISimulationListener
 
 	private void processSelected(){
 		
-		if(btnConfirm.getSelection()){
+		if(btnProcessSelected.getSelection()){
 			cmbCollaborator.setVisible(true);
 			processSelected = true;
 			
@@ -96,7 +103,7 @@ public class DistributedSimulationEntry implements ISimulationListener
 	}
 	
 	private void setAccepted(boolean isAccepted){
-		
+				
 		if(isAccepted){
 			lblaccepted.setText("Ready");
 			lblaccepted.setForeground(lblaccepted.getDisplay().getSystemColor(SWT.COLOR_DARK_GREEN));
@@ -122,19 +129,39 @@ public class DistributedSimulationEntry implements ISimulationListener
 	{
 		return processSelected && !selectedCollaborator.isEmpty();
 	}
-
-	@Override
-	public void onRequestUpdate()
-	{
-		// TODO Auto-generated method stub
+	
+	public void addSelectionChangedListener(SelectionListener listener){
 		
+		listeners.add(listener);
 	}
-
+	
+	private void fireSelectionChanged(SelectionEvent e){
+		for (SelectionListener listener : listeners)
+		{
+			listener.widgetSelected(e);
+		}
+	}
+	
 	@Override
-	public void onMsgUpdated(String requestedProcess, boolean accepted)
-	{
+	public void onRequestUpdated(String requestedProcess, boolean accepted)
+	{		
 		if(requestedProcess.equals(process)) {
 			setAccepted(accepted);
 		}
+	}
+
+	public void disableSelection()
+	{
+		if(selectedCollaborator.isEmpty()){
+			btnProcessSelected.setSelection(false);
+		}
+		btnProcessSelected.setEnabled(false);
+		cmbCollaborator.setEnabled(false);
+	}
+
+	@Override
+	public void onSimluationStarting()
+	{
+		// TODO Auto-generated method stub
 	}
 }

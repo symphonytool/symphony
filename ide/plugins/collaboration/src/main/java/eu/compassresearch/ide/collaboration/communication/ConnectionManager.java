@@ -29,11 +29,13 @@ import eu.compassresearch.ide.collaboration.communication.handlers.NewConfigurat
 import eu.compassresearch.ide.collaboration.communication.handlers.NotificationMessageHandler;
 import eu.compassresearch.ide.collaboration.communication.handlers.SimulationReplyMessageHandler;
 import eu.compassresearch.ide.collaboration.communication.handlers.SimulationRequestMessageHandler;
+import eu.compassresearch.ide.collaboration.communication.handlers.SimulationStartMessageHandler;
 import eu.compassresearch.ide.collaboration.communication.messages.BaseMessage;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationGroup;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationProject;
 import eu.compassresearch.ide.collaboration.datamodel.User;
 import eu.compassresearch.ide.collaboration.notifications.Notification;
+import eu.compassresearch.ide.collaboration.ui.menu.CollaborationDialogs;
 
 public class ConnectionManager implements IPresenceListener
 {
@@ -92,7 +94,8 @@ public class ConnectionManager implements IPresenceListener
 
 	// Send to all users, that have accepted to be part of the collaboration.
 	// Returns receivers
-	public void sendToAll(BaseMessage messageToSend, CollaborationProject project)
+	public void sendToAll(BaseMessage messageToSend,
+			CollaborationProject project)
 	{
 		CollaborationGroup collaboratorGroup = project.getCollaboratorGroup();
 		List<User> collaborators = collaboratorGroup.getJoinedCollaborators();
@@ -101,20 +104,36 @@ public class ConnectionManager implements IPresenceListener
 		{
 			sendTo(collaborator, messageToSend);
 		}
-		
 	}
 
 	public void sendTo(User user, BaseMessage messageToSend)
 	{
 		if (user.hasJoinedGroup())
 		{
-			Map<String, ID> receivers = getAvailableCollaborators();
+			Map<String, ID> receivers = getAvailableCollaborators(false);
 			ID collaboratorId;
 			synchronized (availableCollaboratorsLock)
 			{
 				collaboratorId = receivers.get(user.getName());
 			}
 
+			//try to force update list from the rooster list
+			if (collaboratorId == null)
+			{
+				receivers = getAvailableCollaborators(true);
+
+				synchronized (availableCollaboratorsLock)
+				{
+					collaboratorId = receivers.get(user.getName());
+				}
+			}
+
+			//giving up
+			if(collaboratorId == null){
+				Notification.logError(Notification.Error_sending_COLLABORATOR_NA + " " + user.getName(), null);
+				return; 
+			} 
+			
 			sendTo(collaboratorId, messageToSend);
 		}
 	}
@@ -138,6 +157,11 @@ public class ConnectionManager implements IPresenceListener
 	// Send to a specific ID
 	private void sendTo(ID receiverID, byte[] serializedData)
 	{
+		if (receiverID == null)
+		{
+			throw new NullPointerException("Cannot send message, receiver was null. Is receiver still online?");
+		}
+
 		// there needs to be a receiver, and don't send to self.
 		if (receiverID != null && receiverID != connectedUser)
 		{
@@ -191,6 +215,7 @@ public class ConnectionManager implements IPresenceListener
 		messageProcessor.addMessageHandler(new NotificationMessageHandler());
 		messageProcessor.addMessageHandler(new SimulationRequestMessageHandler());
 		messageProcessor.addMessageHandler(new SimulationReplyMessageHandler());
+		messageProcessor.addMessageHandler(new SimulationStartMessageHandler());
 	}
 
 	public boolean isConnectionInitialized()
@@ -213,23 +238,57 @@ public class ConnectionManager implements IPresenceListener
 		this.collaboratorRoster = roster;
 
 	}
-
-	Map<String, ID> getAvailableCollaborators()
-	{
-		// lazy load
-		if (availableCollaborators == null || availableCollaborators.isEmpty())
+	
+	public boolean isCollaboratorOnline(String username) {
+		
+		getAvailableCollaborators(false);
+		
+		boolean isAvailable;
+		synchronized (availableCollaboratorsLock)
 		{
-			List<ID> usersFromRoster = getUsersFromRoster();
-			availableCollaborators = new HashMap<String, ID>();
+			isAvailable = availableCollaborators.containsKey(username);
+		}
+		
+		return isAvailable;
+	}
+	
+	public ArrayList<String> retainOnlineCollaborators(ArrayList<String> collaborators)
+	{
+		ArrayList<String> removeList = new ArrayList<>();
+		for (String username : collaborators)
+		{
+			if(!isCollaboratorOnline(username)){
+				removeList.add(username);
+			};
+		}
+		
+		collaborators.removeAll(removeList);
+		
+		return collaborators;
+	}
 
-			if (usersFromRoster != null)
+	Map<String, ID> getAvailableCollaborators(boolean force)
+	{
+
+		synchronized (availableCollaboratorsLock)
+		{
+			// lazy load
+			if (force || availableCollaborators == null
+					|| availableCollaborators.isEmpty())
 			{
-				for (ID id : usersFromRoster)
+				List<ID> usersFromRoster = getUsersFromRoster();
+				availableCollaborators = new HashMap<String, ID>();
+
+				if (usersFromRoster != null)
 				{
-					//special case, user account is a Messaging service, so ignore. 
-					String externalForm = id.toExternalForm();
-					if(!externalForm.contains("Messaging")){
+					for (ID id : usersFromRoster)
+					{
+						// special case, user account is a Messaging service, so ignore.
+						String externalForm = id.toExternalForm();
+						if (!externalForm.contains("Messaging"))
+						{
 							availableCollaborators.put(id.getName(), id);
+						}
 					}
 				}
 			}

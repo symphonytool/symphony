@@ -10,6 +10,9 @@ import eu.compassresearch.ide.collaboration.Activator;
 public class Notification extends NLS {
 	private static final String BUNDLE_NAME = "eu.compassresearch.ide.collaboration.notifications.messages";
 
+	public static String Dist_Simulation_ERROR_NO_PROCESSES;
+	public static String Dist_Simulation_ERROR_NO_COLLABORATORS;
+	public static String Error_sending_COLLABORATOR_NA ;
 	public static String Collab_Dialog_COMPARE_ARE_IDENTICAL;
 	public static String Collab_Dialog_SEND_NEW_CONFIG;
 	public static String Collab_ERROR_NO_SUCH_COLLAB__PROJ_ID;

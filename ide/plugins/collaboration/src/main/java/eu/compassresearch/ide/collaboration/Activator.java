@@ -49,7 +49,7 @@ public class Activator extends AbstractUIPlugin
 		connectionManager = new ConnectionManager();
 		
 		//init distributed simulation
-		distributedSimulationManager = new DistributedSimulationManager(dataModelManager,connectionManager);
+		distributedSimulationManager = new DistributedSimulationManager(connectionManager);
 	}
 	
 	@Override

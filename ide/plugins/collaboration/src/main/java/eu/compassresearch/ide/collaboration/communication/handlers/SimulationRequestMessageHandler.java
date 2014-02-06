@@ -8,6 +8,7 @@ import eu.compassresearch.ide.collaboration.communication.ConnectionManager;
 import eu.compassresearch.ide.collaboration.communication.messages.SimulationRequestMessage;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationDataModelManager;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationProject;
+import eu.compassresearch.ide.collaboration.distributedsimulation.DistributedSimulationManager;
 import eu.compassresearch.ide.collaboration.ui.menu.CollaborationDialogs;
 import eu.compassresearch.ide.collaboration.ui.menu.DistributedSimulationRequestDialog;
 
@@ -26,31 +27,18 @@ public class SimulationRequestMessageHandler extends BaseMessageHandler<Simulati
 		final ID currentUser = connectionManager.getConnectedUser();
 		final CollaborationDataModelManager modelMgm = Activator.getDefault().getDataModelManager();
 		final String process = msg.getProcess();
+		final String host = msg.getHost();
 		
 		Display.getDefault().asyncExec(new Runnable()
 		{
 			public void run()
 			{
 				CollaborationProject collaborationProject = modelMgm.getCollaborationProjectFromID(collabProjectId);
-				DistributedSimulationRequestDialog distributedSimulationRequestDialog = 
-						CollaborationDialogs.getInstance().getDistributedSimulationRequestDialog(msg.getSenderID().getName(), collaborationProject, process, Activator.getDefault().getDistributedSimulationManager());
 				
-				distributedSimulationRequestDialog.open();
-			
+				String sender = msg.getSenderID().getName();
 				
-				
-//				CollaborationRequestedDialog collabRequestedDialog = new CollaborationRequestedDialog(msg.getSenderID().getName(), msg.getTitle(), msg.getMessage(), modelMgm.getExistingProjects(), null);
-//				collabRequestedDialog.create();
-//				boolean join = collabRequestedDialog.open() == Window.OK;
-
-//				if (join)
-//				{
-//					modelMgm.addReceivedCollaborationProject(collabRequestedDialog.getProject(), msg.getTitle(), msg.getMessage(), collabProjectId);
-//				}
-
-//				// send reply
-//				CollaborationStatusMessage statusMsg = new CollaborationStatusMessage(sender, msg.getProjectID(), join);
-//				connectionManager.sendTo(msg.getSenderID(), statusMsg);
+				DistributedSimulationManager distributedSimulationManager = Activator.getDefault().getDistributedSimulationManager();
+				distributedSimulationManager.newSimulationRequest(sender, collaborationProject, process);
 			}
 		});
 		

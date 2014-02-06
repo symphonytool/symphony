@@ -8,6 +8,7 @@ import java.util.Map;
 import org.eclipse.ecf.core.identity.ID;
 
 import eu.compassresearch.ide.collaboration.Activator;
+import eu.compassresearch.ide.collaboration.communication.ConnectionManager;
 
 public class CollaborationGroup extends Model {
 
@@ -48,11 +49,15 @@ public class CollaborationGroup extends Model {
 	
 	//get collaborators that have accepted to join the collaboration. 
 	public List<User> getJoinedCollaborators() {
-			
+		
+		ID connectedUser = Activator.getDefault().getConnectionManager().getConnectedUser();
+		String connectedUserName = connectedUser.getName();
+		
 		List<User> joinedUsers = new ArrayList<>();
 		for (User usr : collaborators.values())
 		{
-			if(usr.hasJoinedGroup()){
+			String userName = usr.getUserID().getName();
+			if(usr.hasJoinedGroup() && !userName.equalsIgnoreCase(connectedUserName)){
 				joinedUsers.add(usr);
 			}
 		}

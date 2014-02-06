@@ -11,7 +11,6 @@ public class SimulationReplyMessage extends BaseMessage
 	public SimulationReplyMessage(ID sender, String collabProjectID, String process, boolean accepted)
 	{
 		super(sender, collabProjectID);
-		// TODO Auto-generated constructor stub
 		this.process = process;
 		this.accepted = accepted;
 	}
@@ -25,5 +24,4 @@ public class SimulationReplyMessage extends BaseMessage
 	{
 		return accepted;
 	}
-
 }
