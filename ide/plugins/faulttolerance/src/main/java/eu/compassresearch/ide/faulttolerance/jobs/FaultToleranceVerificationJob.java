@@ -122,9 +122,9 @@ public class FaultToleranceVerificationJob extends WorkspaceJob {
 			st.setDaemon(true);
 
 			dft.start();
-			dft.join();
-
 			st.start();
+
+			dft.join();
 			st.join();
 
 		} finally {
@@ -844,11 +844,10 @@ public class FaultToleranceVerificationJob extends WorkspaceJob {
 		fftt.setDaemon(true);
 		lftt.setDaemon(true);
 
-		// TODO change the order when the ModelChecker supports multithreading.
 		lftt.start();
-		lftt.join();
-
 		fftt.start();
+
+		lftt.join();
 		fftt.join();
 	}
 
