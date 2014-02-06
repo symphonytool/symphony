@@ -27,6 +27,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.core.runtime.jobs.ILock;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AValueDefinition;
 import org.overture.ast.definitions.PDefinition;
@@ -35,7 +36,6 @@ import eu.compassresearch.ast.definitions.AChannelDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.definitions.ANamesetDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
-import eu.compassresearch.core.analysis.modelchecker.api.FormulaIntegrator;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewMCVisitor;
 import eu.compassresearch.ide.core.resources.ICmlProject;
 import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
@@ -54,6 +54,8 @@ public class FaultToleranceVerificationJob extends WorkspaceJob {
 	private final FaultToleranceVerificationResults faultToleranceResults;
 	private final ThreadGroup threads;
 
+	private static final ILock baseFileLock;
+
 	public FaultToleranceVerificationJob(
 			FaultToleranceVerificationResults results) {
 		super(Message.FAULT_TOLERANCE_JOB_NAME.format(results.getProcessName()));
@@ -61,6 +63,10 @@ public class FaultToleranceVerificationJob extends WorkspaceJob {
 		this.threads = new ThreadGroup(
 				Message.FAULT_TOLERANCE_JOB_NAME.format(results
 						.getProcessName()));
+	}
+
+	static {
+		baseFileLock = getJobManager().newLock();
 	}
 
 	private String getAbsolutePath(Message fileNameMessage) {
@@ -173,6 +179,7 @@ public class FaultToleranceVerificationJob extends WorkspaceJob {
 			Thread t = new Thread(threads, mainRun,
 					Message.FAULT_TOLERANCE_VERIFICATION_THREAD_NAME
 							.format(faultToleranceResults.getProcessName()));
+
 			t.start();
 			t.join();
 
@@ -186,15 +193,37 @@ public class FaultToleranceVerificationJob extends WorkspaceJob {
 
 	private void createFilesAndCheckDefinitions(IProgressMonitor monitor) {
 		try {
-			beginSubTask(Message.STARTING_FAULT_TOLERANCE_FILES_MANAGEMENT, 4,
+			beginSubTask(Message.STARTING_FAULT_TOLERANCE_FILES_MANAGEMENT, 2,
 					monitor);
 
+			List<PDefinition> definitions = new LinkedList<>();
+			prepareDefinitions(definitions,
+					createSubProgressMonitor(monitor, 1));
+			if (faultToleranceResults.getDefinitionsMessage() == null) {
+				createFormulaFiles(definitions,
+						createSubProgressMonitor(monitor, 1));
+			}
+		} catch (CoreException e) {
+			faultToleranceResults.add(e);
+		} catch (UnableToRunFaultToleranceVerificationException e) {
+			faultToleranceResults.setException(e);
+		} finally {
+			monitor.done();
+		}
+	}
+
+	private void prepareDefinitions(List<PDefinition> definitions,
+			IProgressMonitor monitor) throws CoreException,
+			UnableToRunFaultToleranceVerificationException {
+		try {
+			beginSubTask(Message.PREPARE_DEFINITIONS, 4, monitor);
 			List<String> channelsNotFound = new LinkedList<>();
 			List<String> chansetsNotFound = new LinkedList<>();
 			List<String> processesNotFound = new LinkedList<>();
 			List<String> valuesNotFound = new LinkedList<>();
 			List<String> namesetsNotFound = new LinkedList<>();
 
+			baseFileLock.acquire();
 			clearGeneratedCmlFiles(createSubProgressMonitor(monitor, 1));
 
 			checkDefinitions(namesetsNotFound, valuesNotFound,
@@ -208,14 +237,9 @@ public class FaultToleranceVerificationJob extends WorkspaceJob {
 			createMissingDefinitionsMessage(namesetsNotFound, valuesNotFound,
 					channelsNotFound, chansetsNotFound, processesNotFound);
 
-			if (faultToleranceResults.getDefinitionsMessage() == null) {
-				createFormulaFiles(createSubProgressMonitor(monitor, 1));
-			}
-		} catch (CoreException e) {
-			faultToleranceResults.add(e);
-		} catch (UnableToRunFaultToleranceVerificationException e) {
-			faultToleranceResults.setException(e);
+			findDefinitions(definitions, createSubProgressMonitor(monitor, 1));
 		} finally {
+			baseFileLock.release();
 			monitor.done();
 		}
 	}
@@ -223,31 +247,39 @@ public class FaultToleranceVerificationJob extends WorkspaceJob {
 	private void clearGeneratedCmlFiles(IProgressMonitor monitor)
 			throws CoreException,
 			UnableToRunFaultToleranceVerificationException {
-		List<Message> fileNames = new LinkedList<>();
-		String processName = faultToleranceResults.getProcessName();
-
-		fileNames.add(Message.BASE_CML_FILE_NAME);
-		fileNames.add(Message.CML_PROCESSES_FILE_NAME);
-
 		try {
-			beginSubTask(Message.CLEAR_GENERATED_CML_FILES_TASK_NAME,
-					(fileNames.size() + 2), monitor);
+			baseFileLock.acquire();
+			deleteFiles(Message.CLEAR_GENERATED_CML_FILES_TASK_NAME, monitor,
+					Message.BASE_CML_FILE_NAME, Message.CML_PROCESSES_FILE_NAME);
+		} finally {
+			baseFileLock.release();
+		}
+	}
+
+	private void deleteFiles(Message taskMessage, IProgressMonitor monitor,
+			Message... fileNames)
+			throws UnableToRunFaultToleranceVerificationException {
+		try {
+			beginSubTask(taskMessage, (fileNames.length + 2), monitor);
 			prepareFolder(createSubProgressMonitor(monitor, 1));
 			for (Message fileName : fileNames) {
-				IFile outputFile = faultToleranceResults.getFolder().getFile(
-						fileName.format(processName));
-				if (outputFile.exists()) {
-					try {
-						outputFile.delete(true,
-								createSubProgressMonitor(monitor, 1));
-					} catch (CoreException e) {
-						// move to next, don't care.
-					}
-				}
+				deleteFile(fileName, monitor);
 			}
 			refreshModel(createSubProgressMonitor(monitor, 1));
 		} finally {
 			monitor.done();
+		}
+	}
+
+	private void deleteFile(Message fileName, IProgressMonitor monitor) {
+		IFile outputFile = faultToleranceResults.getFolder().getFile(
+				fileName.format(faultToleranceResults.getProcessName()));
+		if (outputFile.exists()) {
+			try {
+				outputFile.delete(true, createSubProgressMonitor(monitor, 1));
+			} catch (CoreException e) {
+				// move to next, don't care.
+			}
 		}
 	}
 
@@ -382,12 +414,12 @@ public class FaultToleranceVerificationJob extends WorkspaceJob {
 		}
 	}
 
-	private void createFormulaFiles(IProgressMonitor monitor)
-			throws UnableToRunFaultToleranceVerificationException {
+	private void createFormulaFiles(List<PDefinition> definitions,
+			IProgressMonitor monitor)
+			throws UnableToRunFaultToleranceVerificationException,
+			CoreException {
 		try {
-			beginSubTask(Message.CREATE_FORMULA_FILES_TASK_NAME, 5, monitor);
-			List<PDefinition> definitions = new LinkedList<>();
-			findDefinitions(definitions, createSubProgressMonitor(monitor, 1));
+			beginSubTask(Message.CREATE_FORMULA_FILES_TASK_NAME, 4, monitor);
 			createDivergenceFreedomFormulaScript(definitions,
 					createSubProgressMonitor(monitor, 1));
 			createSemifarinessFormulaScript(definitions,
@@ -433,7 +465,8 @@ public class FaultToleranceVerificationJob extends WorkspaceJob {
 			}
 		} catch (CoreException e) {
 			throw new UnableToRunFaultToleranceVerificationException(
-					Message.UNABLE_TO_FIND_PROJECT_DEFINITIONS, e, processName);
+					Message.UNABLE_TO_FIND_PROJECT_DEFINITIONS, e, processName,
+					e.getLocalizedMessage());
 		} finally {
 			monitor.done();
 		}
@@ -459,7 +492,8 @@ public class FaultToleranceVerificationJob extends WorkspaceJob {
 					createSubProgressMonitor(monitor, 1));
 		} catch (IOException | AnalysisException e) {
 			throw new UnableToRunFaultToleranceVerificationException(
-					Message.UNABLE_TO_CREATE_FORMULA_SCRIPT, e, processName);
+					Message.UNABLE_TO_CREATE_FORMULA_SCRIPT, e, processName,
+					e.getLocalizedMessage());
 		} finally {
 			monitor.done();
 		}
@@ -485,7 +519,8 @@ public class FaultToleranceVerificationJob extends WorkspaceJob {
 					createSubProgressMonitor(monitor, 1));
 		} catch (IOException | AnalysisException e) {
 			throw new UnableToRunFaultToleranceVerificationException(
-					Message.UNABLE_TO_CREATE_FORMULA_SCRIPT, e, processName);
+					Message.UNABLE_TO_CREATE_FORMULA_SCRIPT, e, processName,
+					e.getLocalizedMessage());
 		} finally {
 			monitor.done();
 		}
@@ -511,7 +546,8 @@ public class FaultToleranceVerificationJob extends WorkspaceJob {
 					createSubProgressMonitor(monitor, 1));
 		} catch (IOException | AnalysisException e) {
 			throw new UnableToRunFaultToleranceVerificationException(
-					Message.UNABLE_TO_CREATE_FORMULA_SCRIPT, e, processName);
+					Message.UNABLE_TO_CREATE_FORMULA_SCRIPT, e, processName,
+					e.getLocalizedMessage());
 		} finally {
 			monitor.done();
 		}
@@ -538,7 +574,8 @@ public class FaultToleranceVerificationJob extends WorkspaceJob {
 					createSubProgressMonitor(monitor, 1));
 		} catch (Exception e) {
 			throw new UnableToRunFaultToleranceVerificationException(
-					Message.UNABLE_TO_CREATE_FORMULA_SCRIPT, e, processName);
+					Message.UNABLE_TO_CREATE_FORMULA_SCRIPT, e, processName,
+					e.getLocalizedMessage());
 		} finally {
 			monitor.done();
 		}
@@ -592,7 +629,7 @@ public class FaultToleranceVerificationJob extends WorkspaceJob {
 						Message.CML_PROCESSES_FILE_NAME,
 						baos.toByteArray(),
 						Message.UNABLE_TO_CREATE_FAULT_TOLERANCE_PROCESSES_FILE,
-						monitor);
+						createSubProgressMonitor(monitor, 1));
 			}
 		} finally {
 			monitor.done();
@@ -627,9 +664,6 @@ public class FaultToleranceVerificationJob extends WorkspaceJob {
 	private boolean createBaseFileProcesses(List<String> processesNotFound,
 			PrintStream ps) {
 		List<String> processesToAdd = new LinkedList<>();
-		updateElementsToAdd(Message.PROCESS_RUN_E_NAME,
-				Message.PROCESS_RUN_E_TEMPLATE, processesNotFound,
-				processesToAdd);
 		updateElementsToAdd(Message.PROCESS_CHAOS_E_NAME,
 				Message.PROCESS_CHAOS_E_TEMPLATE, processesNotFound,
 				processesToAdd);
@@ -711,7 +745,7 @@ public class FaultToleranceVerificationJob extends WorkspaceJob {
 			}
 		} catch (CoreException e) {
 			throw new UnableToRunFaultToleranceVerificationException(
-					errorMessage, e, processName);
+					errorMessage, e, processName, e.getLocalizedMessage());
 		} finally {
 			monitor.done();
 		}
@@ -723,7 +757,7 @@ public class FaultToleranceVerificationJob extends WorkspaceJob {
 		String processName = faultToleranceResults.getProcessName();
 		try {
 			String folderName = Message.FOLDER_NAME.format(processName);
-			beginSubTask(Message.CREATE_FOLDER, 2, monitor, folderName);
+			beginSubTask(Message.CREATE_FOLDER, 4, monitor, folderName);
 			IFolder folder;
 			if (container == null) {
 				throw new UnableToRunFaultToleranceVerificationException(
@@ -734,18 +768,22 @@ public class FaultToleranceVerificationJob extends WorkspaceJob {
 			if (!folder.getParent().exists()) {
 				((IFolder) folder.getParent()).create(false, false,
 						createSubProgressMonitor(monitor, 2));
+			} else {
+				monitor.worked(2);
 			}
 			if (!folder.exists()) {
 				folder.getParent().refreshLocal(IResource.DEPTH_ONE,
 						createSubProgressMonitor(monitor, 1));
 				folder.create(false, false,
 						createSubProgressMonitor(monitor, 1));
+			} else {
+				monitor.worked(2);
 			}
 			faultToleranceResults.setFolder(folder);
 		} catch (CoreException e) {
 			throw new UnableToRunFaultToleranceVerificationException(
 					Message.UNABLE_TO_CREATE_FAULT_TOLERANCE_FOLDER, e,
-					processName);
+					processName, e.getLocalizedMessage());
 		} finally {
 			monitor.done();
 		}
@@ -798,21 +836,16 @@ public class FaultToleranceVerificationJob extends WorkspaceJob {
 		lftt.setDaemon(true);
 
 		// TODO change the order when the ModelChecker supports multithreading.
-		fftt.start();
-		fftt.join();
-
 		lftt.start();
 		lftt.join();
+
+		fftt.start();
+		fftt.join();
 	}
 
 	@Override
 	protected void canceling() {
 		super.canceling();
 		threads.interrupt();
-		try {
-			FormulaIntegrator.getInstance().finalize();
-		} catch (Throwable e) {
-			// TODO Auto-generated catch block
-		}
 	}
 }
