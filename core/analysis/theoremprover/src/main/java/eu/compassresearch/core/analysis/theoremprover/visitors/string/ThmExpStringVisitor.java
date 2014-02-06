@@ -643,7 +643,7 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 	}
 
 	public String caseAUndefinedExp(AUndefinedExp ex, ThmVarsContext vars) throws AnalysisException{
-		return "undefined";
+		return ThmExprUtil.undefined;
 	}
 
 	public String caseAVariableExp(AVariableExp ex, ThmVarsContext vars) throws AnalysisException{

@@ -82,6 +82,7 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 		String typeStr = "";
 		NodeNameList nodeDeps = new NodeNameList();
 		String inv = "";
+		LinkedList<String> invparams = new LinkedList<String>();
 		
 		
 		if(type instanceof SInvariantType)
@@ -94,10 +95,22 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 				
 				for(ThmNode i : invNode)
 				{
-					//Ensure the invariant function depends on the type defintion
-					i.addDep(name);
+					//Add invariant definition to type dependency 
+					nodeDeps.add(i.getId());
+					//NOT SURE ABOUT DEPENDANCY ORDER - SWAPPING FOR NOW.
+//					//Ensure the invariant function depends on the type definition
+//					i.addDep(name);
 				}
 				tnl.addAll(invNode);
+				inv = "inv_"+ name;
+				LinkedList<List<PPattern>> invParamList = invFunc.getParamPatternList();
+				for(List<PPattern> pplist : invParamList)
+				{
+					for(PPattern pp : pplist)
+					{
+						invparams.add(((AIdentifierPattern) pp).getName().toString());
+					}
+				}
 			}
 		}
 		if (type instanceof ANamedInvariantType)
@@ -105,11 +118,11 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 			ANamedInvariantType nametype = (ANamedInvariantType) type;
 			PType tp = nametype.getType();
 			//Send to visitor for Type String
-			typeStr = tp.apply(stringVisitor, new ThmVarsContext());//ThmTypeUtil.getIsabelleType(tp);
+			typeStr = tp.apply(stringVisitor, new ThmVarsContext());
 			//Send to visitor for Deplist
-			nodeDeps.addAll(tp.apply(depVisitor, new NodeNameList()));//ThmTypeUtil.getIsabelleTypeDeps(tp));
+			nodeDeps.addAll(tp.apply(depVisitor, new NodeNameList()));
 
-			tn = new ThmNode(name, nodeDeps, new ThmType(name.toString(), typeStr, inv));
+			tn = new ThmNode(name, nodeDeps, new ThmType(name.toString(), typeStr, inv, invparams));
 			
 		}
 		else if (type instanceof ARecordInvariantType)
@@ -119,7 +132,7 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 			//Send to visitor for Deplist
 			nodeDeps.addAll(rtype.apply(depVisitor, new NodeNameList()));
 
-			tn = new ThmNode(name, nodeDeps, new ThmRecType(name.toString(), rtype.getFields(), inv));
+			tn = new ThmNode(name, nodeDeps, new ThmRecType(name.toString(), rtype.getFields(), inv, invparams));
 		}
 		
 		tnl.add(tn);

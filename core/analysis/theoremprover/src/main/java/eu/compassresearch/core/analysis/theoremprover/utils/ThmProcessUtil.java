@@ -73,7 +73,7 @@ public class ThmProcessUtil {
 	public static String repActNotHandled = "(*replicated action not handled*)";
 	public static String stmtNotHandled = "(*statement not handled*)";
 	public static String procNotHandled = "(*process not handled*)";
-	public static String undefined = "undef";
+	public static String undefined = chaos;
 
 	
 	public static NodeNameList getProcessNames(AActionProcess act){

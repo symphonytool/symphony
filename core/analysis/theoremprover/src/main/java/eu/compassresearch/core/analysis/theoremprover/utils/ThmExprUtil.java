@@ -8,7 +8,8 @@ public class ThmExprUtil {
 	public static String isaAcute = "\\<acute>";
 	public static String isaType = "definition";
 	public static String isaAbbr = "abbreviation";
- 
+
+	public static String undefined = "undef";
 	public static String comp = " comp ";
 	public static String domainResBy = " <-: ";
 	public static String domainResTo = " <: ";

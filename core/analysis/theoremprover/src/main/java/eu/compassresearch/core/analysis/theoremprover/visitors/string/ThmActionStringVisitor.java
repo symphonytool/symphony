@@ -175,13 +175,13 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		return a.getLeftAction().apply(thmStringVisitor, vars) + ThmProcessUtil.interleave  + a.getRightAction().apply(thmStringVisitor, vars);
 	}
 	
-//	public String caseAGeneralisedParallelismParallelAction(AGeneralisedParallelismParallelAction a, ThmVarsContext vars) throws AnalysisException{
-//		String left = a.getLeftAction().apply(thmStringVisitor, vars);
-//		String right = a.getRightAction().apply(thmStringVisitor, vars);
-//		String chExp = a.getChansetExpression().apply(thmStringVisitor, vars);
-//		
-//		return left + "[|" + chExp +"|]" + right;
-//	}
+	public String caseAGeneralisedParallelismParallelAction(AGeneralisedParallelismParallelAction a, ThmVarsContext vars) throws AnalysisException{
+		String left = a.getLeftAction().apply(thmStringVisitor, vars);
+		String right = a.getRightAction().apply(thmStringVisitor, vars);
+		String chExp = a.getChansetExpression().apply(thmStringVisitor, vars);
+		
+		return left + "[|" + chExp +"|]" + right;
+	}
 
 	public String caseAAlphabetisedParallelismParallelAction(
 			AAlphabetisedParallelismParallelAction node, ThmVarsContext vars) throws AnalysisException{
@@ -208,11 +208,6 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 	
 	public String caseAExternalChoiceReplicatedAction(
 			AExternalChoiceReplicatedAction node, ThmVarsContext vars) throws AnalysisException{
-		return ThmProcessUtil.undefined;
-	}
-
-	public String caseAGeneralisedParallelismParallelAction(
-			AGeneralisedParallelismParallelAction node, ThmVarsContext vars) throws AnalysisException{
 		return ThmProcessUtil.undefined;
 	}
 	

@@ -216,16 +216,16 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 		return nodeDeps;
 	}
 	
-//	public NodeNameList caseAGeneralisedParallelismParallelAction(AGeneralisedParallelismParallelAction a, NodeNameList bvars)
-//			throws AnalysisException {
-//		NodeNameList nodeDeps = new NodeNameList();
-//
-//		nodeDeps.addAll(a.getLeftAction().apply(thmDepVisitor, bvars));
-//		nodeDeps.addAll(a.getRightAction().apply(thmDepVisitor, bvars));
-//		nodeDeps.addAll(a.getChansetExpression().apply(thmDepVisitor, bvars));
-//
-//		return nodeDeps;
-//	}
+	public NodeNameList caseAGeneralisedParallelismParallelAction(AGeneralisedParallelismParallelAction a, NodeNameList bvars)
+			throws AnalysisException {
+		NodeNameList nodeDeps = new NodeNameList();
+
+		nodeDeps.addAll(a.getLeftAction().apply(thmDepVisitor, bvars));
+		nodeDeps.addAll(a.getRightAction().apply(thmDepVisitor, bvars));
+		nodeDeps.addAll(a.getChansetExpression().apply(thmDepVisitor, bvars));
+
+		return nodeDeps;
+	}
 
 	public NodeNameList caseAStmAction(AStmAction a, NodeNameList bvars) throws AnalysisException{ 
 		NodeNameList nodeDeps = new NodeNameList();
@@ -270,13 +270,6 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 	
 	public NodeNameList caseAExternalChoiceReplicatedAction(
 			AExternalChoiceReplicatedAction node, NodeNameList bvars)
-			throws AnalysisException {
-		NodeNameList nodeDeps = new NodeNameList();
-		return nodeDeps;
-	}
-
-	public NodeNameList caseAGeneralisedParallelismParallelAction(
-			AGeneralisedParallelismParallelAction node, NodeNameList bvars)
 			throws AnalysisException {
 		NodeNameList nodeDeps = new NodeNameList();
 		return nodeDeps;
