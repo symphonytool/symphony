@@ -24,8 +24,6 @@ import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.ITerminate;
 import org.eclipse.debug.core.model.IThread;
 import org.eclipse.osgi.util.NLS;
-import org.eclipse.swt.custom.StyleRange;
-import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Display;
 import org.overture.ide.debug.core.model.DebugEventHelper;
 
@@ -40,7 +38,6 @@ import eu.compassresearch.core.interpreter.debug.messaging.RequestMessage;
 import eu.compassresearch.core.interpreter.debug.messaging.ResponseMessage;
 import eu.compassresearch.ide.core.resources.ICmlProject;
 import eu.compassresearch.ide.interpreter.CmlDebugPlugin;
-import eu.compassresearch.ide.interpreter.CmlUtil;
 import eu.compassresearch.ide.interpreter.debug.ui.model.CmlLineBreakpoint;
 import eu.compassresearch.ide.interpreter.protocol.CmlCommunicationManager;
 import eu.compassresearch.ide.interpreter.protocol.CmlThreadManager;
@@ -52,11 +49,10 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 	private ILaunch launch;
 	private IProcess process;
 	public final ICmlProject project;
-	private Map<StyledText, List<StyleRange>> lastSelectedRanges = new HashMap<StyledText, List<StyleRange>>();
-
 	CmlCommunicationManager communicationManager;
 	CmlThreadManager threadManager;
 	CmlInterpreterStateDTO lastState = null;
+	private boolean suspendedForSelection;
 
 	public CmlDebugTarget(ILaunch launch, IProcess process,
 			ICmlProject project, int communicationPort) throws CoreException,
@@ -72,13 +68,6 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 
 		DebugPlugin.getDefault().getBreakpointManager().addBreakpointListener(this);
 	}
-
-	// public void initializeHandlers()
-	// {
-	// requestHandlers = initializeRequestHandlers();
-	// statusHandlers = initializeStatusHandlers();
-	//
-	// }
 
 	/**
 	 * Initialises all the request message handlers
@@ -148,14 +137,14 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 				lastState = message.getInterpreterStatus();
 				threadManager.started(message.getInterpreterStatus());
 
-				Display.getDefault().syncExec(new Runnable()
-				{
-					@Override
-					public void run()
-					{
-						CmlUtil.clearAllSelections();
-					}
-				});
+				// Display.getDefault().syncExec(new Runnable()
+				// {
+				// @Override
+				// public void run()
+				// {
+				// CmlUtil.clearAllSelections();
+				// }
+				// });
 				return true;
 			}
 		});
@@ -166,14 +155,6 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 			public boolean handleMessage(CmlDbgStatusMessage message)
 			{
 				lastState = message.getInterpreterStatus();
-				Display.getDefault().syncExec(new Runnable()
-				{
-					@Override
-					public void run()
-					{
-						CmlUtil.clearSelections(lastSelectedRanges);
-					}
-				});
 				return true;
 			}
 		});
@@ -193,7 +174,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 						threadManager.updateThreads(message.getInterpreterStatus(), communicationManager);
 						try
 						{
-							suspend();
+							suspendForSelection();
 						} catch (DebugException e)
 						{
 							// TODO Auto-generated catch block
@@ -201,6 +182,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 						}
 						return Status.OK_STATUS;
 					}
+
 				};
 				setupThreads.setSystem(true);
 				setupThreads.schedule();
@@ -236,20 +218,6 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 					@Override
 					public void run()
 					{
-						// if (message.getInterpreterStatus().hasActiveBreakpoint())
-						// {
-						// Breakpoint bp = message.getInterpreterStatus().getActiveBreakpoint();
-						// for (CmlProcessDTO pi : message.getInterpreterStatus().getAllProcesses())
-						// {
-						// if (pi.getLocation().getStartLine() == bp.getLine())
-						// {
-						// CmlUtil.setSelectionFromLocation(pi.getLocation(), lastSelectedRanges);
-						// CmlUtil.showLocation(lastSelectedRanges.keySet().iterator().next(), pi.getLocation());
-						// break;
-						// }
-						// }
-						// }
-
 						try
 						{
 							suspend();
@@ -271,27 +239,6 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 			public boolean handleMessage(CmlDbgStatusMessage message)
 			{
 				lastState = message.getInterpreterStatus();
-				// threadManager.stopping();
-				// if (lastState.hasErrors())
-				// {
-				// if (lastState.getErrors().get(0).getLocation() != null)
-				// {
-				// Display.getDefault().syncExec(new Runnable()
-				// {
-				// @Override
-				// public void run()
-				// {
-				// Map<StyledText, List<StyleRange>> map = new HashMap<StyledText, List<StyleRange>>();
-				// CmlUtil.setSelectionFromLocation(lastState.getErrors().get(0).getLocation(), map);
-				// CmlUtil.showLocation(map.keySet().iterator().next(), lastState.getErrors().get(0).getLocation());
-				// MessageDialog.openError(null, "Simulation Error", lastState.getErrors().get(0).getErrorMessage());
-				// CmlUtil.clearSelections(map);
-				// }
-				// });
-				// }
-				// }
-				// CmlDebugPlugin.logWarning(message + " : "
-				// + message.getInterpreterStatus().getErrors());
 				return false;
 			}
 		});
@@ -302,17 +249,6 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 			public boolean handleMessage(CmlDbgStatusMessage message)
 			{
 				lastState = message.getInterpreterStatus();
-				Display.getDefault().syncExec(new Runnable()
-				{
-
-					@Override
-					public void run()
-					{
-						CmlUtil.clearAllSelections();
-					}
-				});
-
-				// threadManager.stopping();
 				return false;
 			}
 		});
@@ -323,17 +259,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 			public boolean handleMessage(CmlDbgStatusMessage message)
 			{
 				lastState = message.getInterpreterStatus();
-				Display.getDefault().syncExec(new Runnable()
-				{
-					@Override
-					public void run()
-					{
-						CmlUtil.clearAllSelections();
-					}
-				});
-
 				handlers.get(CmlInterpreterState.SUSPENDED.toString()).handleMessage(message);
-				// threadManager.stopping();
 				return true;
 			}
 		});
@@ -344,14 +270,6 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 			public boolean handleMessage(CmlDbgStatusMessage message)
 			{
 				lastState = message.getInterpreterStatus();
-				Display.getDefault().syncExec(new Runnable()
-				{
-					@Override
-					public void run()
-					{
-						CmlUtil.clearAllSelections();
-					}
-				});
 				return false;
 			}
 		});
@@ -435,7 +353,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 	@Override
 	public boolean canResume()
 	{
-		return isSuspended();
+		return isSuspended() && !suspendedForSelection;
 	}
 
 	@Override
@@ -472,12 +390,24 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 		try
 		{
 			this.communicationManager.sendMessage(new CmlDbgCommandMessage(CmlDebugCommand.SET_CHOICE, choice));
+			this.suspendedForSelection = false;
 		} catch (Exception e)
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		fireResumeEvent(0);
+	}
+
+	private void suspendForSelection() throws DebugException
+	{
+		this.suspendedForSelection = true;
+		suspend();
+	}
+
+	public boolean isSuspendedForSelection()
+	{
+		return this.suspendedForSelection;
 	}
 
 	@Override

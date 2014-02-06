@@ -19,13 +19,16 @@ import org.eclipse.jface.viewers.ListViewer;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Display;
 
 import eu.compassresearch.core.interpreter.debug.CmlInterpreterStateDTO;
 import eu.compassresearch.core.interpreter.debug.TransitionDTO;
 import eu.compassresearch.ide.interpreter.CmlUtil;
+import eu.compassresearch.ide.interpreter.model.CmlDebugTarget;
 
 public class CmlEventOptionView extends AbstractCmlDebugView implements
 		IDebugEventSetListener, IDoubleClickListener, ISelectionChangedListener
@@ -46,11 +49,29 @@ public class CmlEventOptionView extends AbstractCmlDebugView implements
 					if (e.getKind() == DebugEvent.SUSPEND
 							&& e.getSource() == target)
 					{
-						filltransitionList();
+						if (e.getSource() != null
+								&& e.getSource() instanceof CmlDebugTarget)
+						{
+							CmlDebugTarget t = (CmlDebugTarget) e.getSource();
+							if (isAvailable())
+							{
+								Display display = viewer.getControl().getDisplay();
+								if (t.isSuspendedForSelection())
+								{
+									filltransitionList();
+									viewer.getControl().setBackground(display.getSystemColor(SWT.COLOR_WHITE));
+								} else
+								{
+									viewer.getControl().setBackground(new Color(display, 240, 240, 240));
+								}
+								viewer.getControl().setEnabled(t.isSuspendedForSelection());
+
+							}
+						}
 					} else if (e.getKind() == DebugEvent.TERMINATE
 							&& e.getSource() == target)
 					{
-						if (!viewer.getControl().isDisposed())
+						if (isAvailable())
 						{
 							viewer.setInput(null);
 						}
@@ -115,16 +136,16 @@ public class CmlEventOptionView extends AbstractCmlDebugView implements
 
 	private void finish()
 	{
-		Display.getDefault().syncExec(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				CmlUtil.clearSelections(lastSelectedRanges);
-				viewer.setInput(null);
-				viewer.refresh();
-			}
-		});
+		// Display.getDefault().syncExec(new Runnable()
+		// {
+		// @Override
+		// public void run()
+		// {
+		CmlUtil.clearSelections(lastSelectedRanges);
+		viewer.setInput(null);
+		viewer.refresh();
+		// }
+		// });
 	}
 
 	@Override
