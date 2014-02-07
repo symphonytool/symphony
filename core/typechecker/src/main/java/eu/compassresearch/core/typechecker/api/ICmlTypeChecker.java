@@ -9,8 +9,8 @@ import org.overture.ast.types.PType;
  */
 public interface ICmlTypeChecker
 {
-	public final static String GLOBAL_CLASS_NAME ="$global";
-	
+	public final static String GLOBAL_CLASS_NAME = "$global";
+
 	public class AbortTypecheck extends InternalException
 	{
 
@@ -33,8 +33,7 @@ public interface ICmlTypeChecker
 	 *         courses to failing the type check can be inspected though getErrors.
 	 */
 	public boolean typeCheck();
-	
-	
+
 	public PType typeCheck(PExp expr) throws Exception;
 
 	/**

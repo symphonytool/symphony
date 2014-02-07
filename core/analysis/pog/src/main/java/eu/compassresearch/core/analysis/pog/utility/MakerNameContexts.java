@@ -22,11 +22,6 @@ import eu.compassresearch.core.analysis.pog.visitors.CmlPogAssistantFactory;
 public class MakerNameContexts extends AnswerCMLAdaptor<PONameContext>
 {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
 	IPogAssistantFactory af;
 
 	public MakerNameContexts()

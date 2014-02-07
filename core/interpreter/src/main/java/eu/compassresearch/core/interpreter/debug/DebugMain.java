@@ -2,22 +2,30 @@ package eu.compassresearch.core.interpreter.debug;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Vector;
 
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.overture.ast.analysis.AnalysisException;
 
 import eu.compassresearch.core.interpreter.CmlRuntime;
+import eu.compassresearch.core.interpreter.CoSimClientInterpreterFactory;
+import eu.compassresearch.core.interpreter.CoSimCoordinatorInterpreterFactory;
+import eu.compassresearch.core.interpreter.CoSimulationMode;
 import eu.compassresearch.core.interpreter.Config;
 import eu.compassresearch.core.interpreter.Console;
+import eu.compassresearch.core.interpreter.InterpreterFactory;
 import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
 import eu.compassresearch.core.interpreter.api.AnnimationStrategy;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.RandomSelectionStrategy;
 import eu.compassresearch.core.interpreter.api.SelectionStrategy;
+import eu.compassresearch.core.interpreter.cosim.CoSimulationClient;
+import eu.compassresearch.core.interpreter.cosim.CoSimulationServer;
 import eu.compassresearch.core.interpreter.remote.IRemoteControl;
 import eu.compassresearch.core.interpreter.remote.IRemoteInterpreter;
 import eu.compassresearch.core.interpreter.remote.RemoteInterpreter;
@@ -31,6 +39,10 @@ import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 public class DebugMain
 {
 
+	static InterpreterFactory factory = new VanillaInterpreterFactory();
+	static CoSimulationServer server = null;
+	static CoSimulationClient client = null;
+
 	/**
 	 * @param args
 	 * @throws Exception
@@ -38,6 +50,7 @@ public class DebugMain
 	 * @throws CmlInterpreterException
 	 * @throws AnalysisException
 	 */
+	@SuppressWarnings("unchecked")
 	public static void main(String[] args) throws Exception
 	{
 
@@ -49,6 +62,7 @@ public class DebugMain
 		boolean autoFilterTockEvents = false;
 		int port = CmlDebugDefaultValues.PORT;
 		String host = "localhost";
+
 		try
 		{
 			// ----------- Config -------------------------------------
@@ -156,10 +170,12 @@ public class DebugMain
 			{
 				Console.debug.println("Debug Thread: Typechecking: OK");
 
+				configureCoSimulation(jargs);
+
 				boolean filterTockEvents = autoFilterTockEvents
 						&& !TimedSpeckChecker.containsTimeConstructs(res.definitions);
-				Config config = VanillaInterpreterFactory.newDefaultConfig(filterTockEvents);
-				CmlInterpreter cmlInterpreter = VanillaInterpreterFactory.newInterpreter(res.definitions, config);
+				Config config = factory.newDefaultConfig(filterTockEvents);
+				CmlInterpreter cmlInterpreter = factory.newInterpreter(res.definitions, config);
 				cmlInterpreter.setDefaultName(startProcessName);
 				CmlRuntime.consoleMode = false;
 				Console.debug.println("Debug Thread: Initializing the interpreter...");
@@ -198,12 +214,104 @@ public class DebugMain
 
 		} catch (IOException | AnalysisException e)
 		{
-			// TODO Auto-generated catch block
 			e.printStackTrace(Console.err);
 		} finally
 		{
-			// debugger.close();
+			shutdownCoSimulation();
 		}
+	}
+
+	private static void shutdownCoSimulation() throws InterruptedException
+	{
+		if (server != null)
+		{
+			server.close();
+		}
+
+		if (client != null)
+		{
+			Console.out.println("Waiting for client to recieve disconnect instructions...");
+			client.join();
+			try
+			{
+				Console.out.println("Client instructed to disconnect so disconnecting now");
+				client.disconnect();
+			} catch (Exception e)
+			{
+				// don't care
+			}
+		}
+
+	}
+
+	private static void configureCoSimulation(JSONObject jargs)
+			throws IOException
+	{
+		CoSimulationMode mode = null;
+		List<String> externalProcesses = new Vector<String>();
+		String host = null;
+		int port = 0;
+
+		String processName = (String) jargs.get(CmlInterpreterArguments.PROCESS_NAME.toString());
+
+		if (jargs.containsKey(CmlInterpreterArguments.COSIM_MODE.key))
+		{
+			mode = CoSimulationMode.fromString((String) jargs.get(CmlInterpreterArguments.COSIM_MODE.key));
+		} else
+		{
+			return;
+		}
+
+		if (mode == CoSimulationMode.CoSimCoordinator)
+		{
+			if (jargs.containsKey(CmlInterpreterArguments.COSIM_EXTERNAL_PROCESSES.key))
+			{
+				String tmp = (String) jargs.get(CmlInterpreterArguments.COSIM_EXTERNAL_PROCESSES.key);
+				externalProcesses.addAll(Arrays.asList(tmp.split(",")));
+			} else
+			{
+				Console.err.println("Missing required argument for external processes");
+			}
+
+		}
+
+		if (jargs.containsKey(CmlInterpreterArguments.COSIM_HOST.key))
+		{
+			String tmp = (String) jargs.get(CmlInterpreterArguments.COSIM_HOST.key);
+
+			String[] decodedTmp = tmp.split("\\:");
+			host = decodedTmp[0];
+			port = Integer.valueOf(decodedTmp[1]);
+		}
+
+		// configure
+		Console.out.println("Starting co-simulation with " + host + ":" + port);
+
+		switch (mode)
+		{
+			case CoSimCoordinator:
+			{
+
+				server = new CoSimulationServer(externalProcesses, port);
+				server.listen();
+				server.waitForClients();
+				factory = new CoSimCoordinatorInterpreterFactory(server);
+
+				break;
+			}
+			case CoSimClient:
+			{
+				client = new CoSimulationClient(host, port);
+				client.connect();
+				client.start();
+
+				client.registerImplementation(processName);
+				factory = new CoSimClientInterpreterFactory(client);
+
+				break;
+			}
+		}
+
 	}
 
 	private static void usage(String message)

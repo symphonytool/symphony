@@ -1,0 +1,15 @@
+channels 
+a, b, c
+
+process A = 
+begin 
+
+	state
+	v : int := 2
+	
+	@ cases v:
+		1 -> a -> Skip,
+		2 -> b -> Skip,
+		others -> Skip
+		end
+end

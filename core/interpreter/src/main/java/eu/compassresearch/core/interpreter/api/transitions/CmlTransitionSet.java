@@ -131,6 +131,11 @@ public class CmlTransitionSet extends Value
 
 		return allEvents;
 	}
+	
+	public int size()
+	{
+		return _observableEvents.size() + silentEvents.size();  
+	}
 
 	/**
 	 * Calculate the union of this alphabet and the given event

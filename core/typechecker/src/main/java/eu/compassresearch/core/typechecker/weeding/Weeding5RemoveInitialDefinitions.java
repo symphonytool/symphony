@@ -22,12 +22,14 @@ public class Weeding5RemoveInitialDefinitions extends
 		for (PDefinition s : sourceForest)
 		{
 			if (s != null)
+			{
 				try
 				{
 					s.apply(lv);
 				} catch (AnalysisException e)
 				{
 				}
+			}
 		}
 	}
 

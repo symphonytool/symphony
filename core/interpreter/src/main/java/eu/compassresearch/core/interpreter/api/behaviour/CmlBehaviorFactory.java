@@ -8,7 +8,9 @@ import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour.BehaviourN
 
 public interface CmlBehaviorFactory
 {
-	public CmlBehaviour newCmlBehaviour(INode action, Context context, CmlBehaviour parent) throws AnalysisException;
-	
-	public CmlBehaviour newCmlBehaviour(INode action, Context context, BehaviourName name, CmlBehaviour parent) throws AnalysisException;
+	public CmlBehaviour newCmlBehaviour(INode action, Context context,
+			CmlBehaviour parent) throws AnalysisException;
+
+	public CmlBehaviour newCmlBehaviour(INode action, Context context,
+			BehaviourName name, CmlBehaviour parent) throws AnalysisException;
 }

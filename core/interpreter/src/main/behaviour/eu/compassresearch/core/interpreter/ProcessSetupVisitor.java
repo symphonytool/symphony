@@ -9,6 +9,8 @@ import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.AStopAction;
 import eu.compassresearch.ast.process.AAlphabetisedParallelismProcess;
 import eu.compassresearch.ast.process.AAlphabetisedParallelismReplicatedProcess;
+import eu.compassresearch.ast.process.AChannelRenamingProcess;
+import eu.compassresearch.ast.process.AEndDeadlineProcess;
 import eu.compassresearch.ast.process.AExternalChoiceProcess;
 import eu.compassresearch.ast.process.AExternalChoiceReplicatedProcess;
 import eu.compassresearch.ast.process.AGeneralisedParallelismProcess;
@@ -21,6 +23,7 @@ import eu.compassresearch.ast.process.AInternalChoiceReplicatedProcess;
 import eu.compassresearch.ast.process.AInterruptProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionReplicatedProcess;
+import eu.compassresearch.ast.process.AStartDeadlineProcess;
 import eu.compassresearch.ast.process.ATimedInterruptProcess;
 import eu.compassresearch.ast.process.ATimeoutProcess;
 import eu.compassresearch.ast.process.AUntimedTimeoutProcess;
@@ -30,10 +33,12 @@ import eu.compassresearch.core.interpreter.api.values.ChannelNameSetValue;
 import eu.compassresearch.core.interpreter.api.values.CmlSetQuantifier;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
+@SuppressWarnings("deprecation")
 class ProcessSetupVisitor extends CommonSetupVisitor
 {
 
-	public ProcessSetupVisitor(CmlBehaviour owner, VisitorAccess visitorAccess, CmlBehaviorFactory cmlBehaviorFactory)
+	public ProcessSetupVisitor(CmlBehaviour owner, VisitorAccess visitorAccess,
+			CmlBehaviorFactory cmlBehaviorFactory)
 	{
 		super(owner, visitorAccess, cmlBehaviorFactory);
 	}
@@ -79,6 +84,14 @@ class ProcessSetupVisitor extends CommonSetupVisitor
 	{
 		return caseATimedInterrupt(node, node.getLeft(), question);
 	}
+	
+	@Override
+	public Pair<INode, Context> caseAChannelRenamingProcess(
+			AChannelRenamingProcess node, Context question)
+			throws AnalysisException
+	{
+		return caseChannelRenaming(node, node.getRenameExpression(), node.getProcess(), question);
+	}
 
 	@Override
 	public Pair<INode, Context> caseAUntimedTimeoutProcess(
@@ -96,12 +109,28 @@ class ProcessSetupVisitor extends CommonSetupVisitor
 		setLeftChild(node.getLeft(), question);
 		return new Pair<INode, Context>(node, question);
 	}
+	
+	@Override
+	public Pair<INode, Context> caseAStartDeadlineProcess(
+			AStartDeadlineProcess node, Context question)
+			throws AnalysisException
+	{
+		return setupTimedOperator(node, node.getLeft(), NamespaceUtility.getStartsByTimeName(), question);
+	}
+	
+	@Override
+	public Pair<INode, Context> caseAEndDeadlineProcess(
+			AEndDeadlineProcess node, Context question)
+			throws AnalysisException
+	{
+		return setupTimedOperator(node, node.getLeft(), NamespaceUtility.getEndsByTimeName(), question);
+	}
 
 	@Override
 	public Pair<INode, Context> caseATimeoutProcess(ATimeoutProcess node,
 			Context question) throws AnalysisException
 	{
-		return caseATimeout(node, node.getLeft(), question);
+		return setupTimedOperator(node, node.getLeft(), NamespaceUtility.getStartTimeName(), question);
 	}
 
 	/*

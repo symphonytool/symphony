@@ -2,7 +2,7 @@ package eu.compassresearch.core.interpreter.debug.messaging;
 
 import java.util.UUID;
 
-public abstract class DialogMessage extends Message
+public abstract class DialogMessage extends AbstractMessage
 {
 
 	private UUID requestId;

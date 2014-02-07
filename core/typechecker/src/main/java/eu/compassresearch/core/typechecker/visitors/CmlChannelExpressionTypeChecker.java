@@ -118,7 +118,7 @@ public class CmlChannelExpressionTypeChecker extends
 			// cmlEnv.addChannel(to.getIdentifier(), fromChanDef);
 		}
 
-		node.setType(TypeCheckerUtil.generateUnionType(node.getLocation(), types));
+		node.setType(TypeCheckerUtil.generateUnionType(question.assistantFactory, node.getLocation(), types));
 		return node.getType();
 
 	}

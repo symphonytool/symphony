@@ -38,8 +38,6 @@ public class CmlDBGPReader extends DBGPReader
 			interpreter.suspend();
 		} catch (InterruptedException e)
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 	}
 

@@ -120,7 +120,6 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 		super(af);
 	}
 
-
 	@Override
 	public PType caseFile(File node) throws AnalysisException
 	{

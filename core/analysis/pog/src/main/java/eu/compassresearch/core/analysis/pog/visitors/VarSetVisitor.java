@@ -20,11 +20,8 @@ public abstract class VarSetVisitor extends
 	 * obligations.addAll(node.getRight().apply(mainVisitor, question)); return obligations;
 	 */
 
-	private ProofObligationGenerator parentVisitor;
-
 	public VarSetVisitor(ProofObligationGenerator parentPog)
 	{
-		parentVisitor = parentPog;
 	}
 
 	@Override

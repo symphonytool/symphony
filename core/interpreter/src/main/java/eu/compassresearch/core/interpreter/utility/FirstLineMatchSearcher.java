@@ -12,7 +12,6 @@ import org.overture.ast.node.INode;
 import org.overture.ast.statements.PStm;
 
 import eu.compassresearch.ast.analysis.DepthFirstAnalysisCMLAdaptor;
-import eu.compassresearch.ast.definitions.AActionClassDefinition;
 
 public class FirstLineMatchSearcher extends DepthFirstAnalysisCMLAdaptor
 {
@@ -41,14 +40,6 @@ public class FirstLineMatchSearcher extends DepthFirstAnalysisCMLAdaptor
 	{
 		this.file = file;
 		this.line = line;
-	}
-
-	@Override
-	public void caseAActionClassDefinition(AActionClassDefinition node)
-			throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-		super.caseAActionClassDefinition(node);
 	}
 
 	@Override

@@ -3,8 +3,13 @@ package eu.compassresearch.ide.interpreter.launching;
 public enum CmlLaunchConfigurationErrorMessages
 {
 
-	NO_PROJECT_WITH_NAME_EXIST("No project identified by '%s' exists"), PROJECT_NOT_OPEN(
-			"Project '%s' is not open"), PROJECT_NOT_SET("Project not set");
+	NO_PROJECT_WITH_NAME_EXIST("No project identified by '%s' exists"),
+
+	PROJECT_NOT_OPEN("Project '%s' is not open"),
+
+	PROJECT_NOT_SET("Project not set"),
+	
+	URL_NOT_VALID("The url '%s' is not valid");
 	// FATAL_ERROR("A fatal unrecoverable error has occured, please report this error to akm@iha.dk")
 	;
 
