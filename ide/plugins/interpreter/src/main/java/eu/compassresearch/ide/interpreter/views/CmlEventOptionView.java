@@ -95,7 +95,6 @@ public class CmlEventOptionView extends AbstractCmlDebugView implements
 	@Override
 	public void createPartControl(final org.eclipse.swt.widgets.Composite parent)
 	{
-		// Composite composite = new Composite(parent, SWT.NONE);
 		viewer = new ListViewer(parent);
 		viewer.addDoubleClickListener(this);
 		viewer.addSelectionChangedListener(this);
@@ -106,8 +105,6 @@ public class CmlEventOptionView extends AbstractCmlDebugView implements
 			public void inputChanged(Viewer viewer, Object oldInput,
 					Object newInput)
 			{
-				// System.out.println("Input changed: old=" + oldInput + ", new="
-				// + newInput);
 			}
 
 			@Override
@@ -136,16 +133,9 @@ public class CmlEventOptionView extends AbstractCmlDebugView implements
 
 	private void finish()
 	{
-		// Display.getDefault().syncExec(new Runnable()
-		// {
-		// @Override
-		// public void run()
-		// {
 		CmlUtil.clearSelections(lastSelectedRanges);
 		viewer.setInput(null);
 		viewer.refresh();
-		// }
-		// });
 	}
 
 	@Override
