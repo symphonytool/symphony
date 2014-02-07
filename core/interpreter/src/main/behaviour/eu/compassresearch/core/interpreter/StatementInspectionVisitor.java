@@ -20,12 +20,14 @@ import org.overture.ast.statements.AForIndexStm;
 import org.overture.ast.statements.AForPatternBindStm;
 import org.overture.ast.statements.AIfStm;
 import org.overture.ast.statements.ALetStm;
+import org.overture.ast.statements.ASpecificationStm;
 import org.overture.ast.statements.AWhileStm;
 import org.overture.ast.statements.PStm;
 import org.overture.interpreter.assistant.pattern.PPatternAssistantInterpreter;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.PatternMatchException;
 import org.overture.interpreter.runtime.ValueException;
+import org.overture.interpreter.values.IntegerValue;
 import org.overture.interpreter.values.NameValuePair;
 import org.overture.interpreter.values.OperationValue;
 import org.overture.interpreter.values.Value;
@@ -471,18 +473,76 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 	}
 	
 	@Override
-	public Inspection caseAForIndexStm(AForIndexStm node, Context question)
+	public Inspection caseASpecificationStm(ASpecificationStm node,
+			Context question) throws AnalysisException
+	{
+		throw new AnalysisException("The specification statement cannot be executed, refine it something explicit if it should be executed");
+	}
+	
+	@Override
+	public Inspection caseAForIndexStm(final AForIndexStm node, final Context question)
 			throws AnalysisException
 	{
 		
-		return super.caseAForIndexStm(node, question);
+		final CmlBehaviour leftchild = owner.getLeftChild(); 
+		if(!leftchild.finished())
+		{
+			return newInspection(leftchild.inspect(), new CmlCalculationStep()
+			{
+				@Override
+				public Pair<INode, Context> execute(CmlTransition selectedTransition)
+						throws AnalysisException
+				{
+					leftchild.execute(selectedTransition);
+					return new Pair<INode, Context>(node, question);
+				}
+			});
+		}
+		else
+		{
+			long currentId = question.lookup(node.getVar()).intValue(question);
+			long by = question.lookup(NamespaceUtility.getForIndexByName()).intValue(question);
+			long to = question.lookup(NamespaceUtility.getForIndexToName()).intValue(question);
+			final long nextId = currentId + by; 
+			
+			//we continue
+			if(nextId <= to)
+			{
+				return newInspection(createTauTransitionWithoutTime(node), new CmlCalculationStep()
+				{
+					
+					@Override
+					public Pair<INode, Context> execute(CmlTransition selectedTransition)
+							throws AnalysisException
+					{
+						question.put(node.getVar(), new IntegerValue(nextId));
+						setLeftChild(node.getStatement(),question);
+						return new  Pair<INode, Context>(node, question);
+					}
+				});
+			}
+			else
+			{
+				final INode skip = CmlAstFactory.newASkipAction(node.getLocation());
+				return newInspection(createTauTransitionWithoutTime(skip), new CmlCalculationStep()
+				{
+					@Override
+					public Pair<INode, Context> execute(CmlTransition selectedTransition)
+							throws AnalysisException
+					{
+						clearLeftChild();
+						return new Pair<INode, Context>(skip, question.outer);
+					}
+				});
+			}
+		}
 	}
 	
 	@Override
 	public Inspection caseAForAllStm(final AForAllStm node, final Context question)
 			throws AnalysisException
 	{
-		final ValueSet v = question.lookup(NamespaceUtility.getSeqForName()).setValue(question);
+		final ValueSet v = question.lookup(NamespaceUtility.getForAllName()).setValue(question);
 
 		// if the sequence is empty we're done and evolve into skip
 		if (v.isEmpty() && owner.getLeftChild().finished())

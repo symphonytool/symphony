@@ -1,0 +1,8 @@
+channels 
+a : int
+
+process A = 
+begin 
+
+	@ for x = 1 to 4 by 2 do a.x -> Skip
+end
