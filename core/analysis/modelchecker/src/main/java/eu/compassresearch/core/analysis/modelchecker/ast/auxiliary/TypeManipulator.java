@@ -4,7 +4,11 @@ import java.util.LinkedList;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPParametrisation;
+import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCATypeSingleDeclaration;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAChansetDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCATypeDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANameChannelExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPVarsetExpression;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAIntNumericBasicType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANamedInvariantType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANatNumericBasicType;
@@ -42,6 +46,8 @@ public class TypeManipulator {
 			result = this.getValues((MCAIntNumericBasicType)type);
 		} else if(type instanceof MCAUnionType){
 			result = this.getValues((MCAUnionType)type);
+		} else if(type instanceof MCATypeSingleDeclaration){
+			result = this.getValues((MCATypeSingleDeclaration)type);
 		}
 		return result;
 	}
@@ -65,6 +71,15 @@ public class TypeManipulator {
 			for (String string : valueSet) {
 				result.add(new SingleTypeValue(string));
 			}
+		} else{//the type can be defined in a chanset definition
+			MCAChansetDefinition chansetDef = context.getChansetDefinition(type.getName());
+			if(chansetDef != null){
+				LinkedList<MCANameChannelExp> chansetValues = chansetDef.getChansetExpression().getChannelNames();
+				for (MCANameChannelExp mcaNameChannelExp : chansetValues) {
+					result.add(new SingleTypeValue(mcaNameChannelExp.getIdentifier()));
+				}
+			}
+			
 		}
 		return result;
 	}
@@ -122,6 +137,38 @@ public class TypeManipulator {
 			}
 		//}
 		
+		return result;
+	}
+	
+	public LinkedList<TypeValue> getValues(MCATypeSingleDeclaration type){
+		ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
+		LinkedList<TypeValue> result = new LinkedList<TypeValue>();
+		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
+		
+		MCATypeDefinition typeDef = context.getTypeDefinition(type.getIdentifier());
+		if(typeDef != null){
+			LinkedList<String> valueSet = new LinkedList<String>(); 
+			if(typeDef.getInvExpression() != null){
+				valueSet = evaluator.getValueSet(typeDef.getInvExpression());
+			}else{
+				LinkedList<TypeValue> typeValues = getValues(typeDef.getType());
+				for (TypeValue typeValue : typeValues) {
+					valueSet.add(typeValue.toFormula(MCNode.DEFAULT));
+				}
+			}
+			for (String string : valueSet) {
+				result.add(new SingleTypeValue(string));
+			}
+		} else{//the type can be defined in a chanset definition
+			MCAChansetDefinition chansetDef = context.getChansetDefinition(type.getIdentifier());
+			if(chansetDef != null){
+				LinkedList<MCANameChannelExp> chansetValues = chansetDef.getChansetExpression().getChannelNames();
+				for (MCANameChannelExp mcaNameChannelExp : chansetValues) {
+					result.add(new SingleTypeValue(mcaNameChannelExp.getIdentifier()));
+				}
+			}
+			
+		}
 		return result;
 	}
 

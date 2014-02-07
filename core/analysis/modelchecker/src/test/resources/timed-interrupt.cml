@@ -1,3 +1,6 @@
+channels
+b
+
 process InterruptTest = 
 begin 
 

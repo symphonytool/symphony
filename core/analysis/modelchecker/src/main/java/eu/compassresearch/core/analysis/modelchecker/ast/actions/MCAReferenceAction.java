@@ -39,6 +39,10 @@ public class MCAReferenceAction implements MCPAction {
 			for (MCAActionDefinition localAction : localActions) {
 				if(localAction.getName().toString().equals(this.name.toString())){
 					callResolved = true;
+					//this call forces the generation of lieIn facts
+					//if(localAction.getAction() instanceof MCACommunicationAction){
+					//	localAction.toFormula(option);
+					//}
 					if(localAction.getDeclarations().size() == 0){
 						call = new MCActionCall(name, new LinkedList<MCPCMLExp>());
 					}else{

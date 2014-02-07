@@ -24,9 +24,10 @@ public class Par implements ParallelProcess {
 		boolean result = false;
 		if (obj instanceof Par) {
 			Par other = (Par) obj;
-			result = //this.left.equals(other.getLeft())
-					//&& this.right.equals(other.getRight());
-					this.left.equals(other.getLeft())
+			result = //this.leftBinding.equals(other.getLeftBinding())
+					//&& this.rightBinding.equals(other.getRightBinding())
+					this.syncSet.trim().equals(other.getSyncSet().trim())
+					&& this.left.equals(other.getLeft())
 					&& this.right.equals(other.getRight());
 					
 		} //else if (obj instanceof GenPar) {
@@ -43,7 +44,7 @@ public class Par implements ParallelProcess {
 	
 	@Override
 	public String toString() {
-		return "(" +this.leftBinding.toString() + "," + this.getLeft().toString() + ") " + this.syncSet + " ("+ this.rightBinding.toString() + "," + this.getRight().toString() + ")";
+		return "(" +this.leftBinding.toString() + "," + this.getLeft().toString() + ") |" + this.syncSet.trim() + "| ("+ this.rightBinding.toString() + "," + this.getRight().toString() + ")";
 	}
 	
 	@Override

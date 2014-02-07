@@ -38,6 +38,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCSCmlOpera
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCSFunctionDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAIntLiteralExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASBinaryExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAVariableExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPVarsetExpression;
 import eu.compassresearch.core.parser.CmlParser.processDefinition_return;
@@ -52,7 +53,7 @@ public class NewCMLModelcheckerContext {
 	public Domain propertiesDomain;
 	public String propertyToCheck = Utilities.DEADLOCK_PROPERTY;
 	public NewSetStack<MCPVarsetExpression> setStack;
-	public ArrayList<MCLieInFact> lieIn;
+	public ArrayListSet<MCLieInFact> lieIn;
 	public ArrayListSet<MCLieInFact> realLieInFacts;
 	public ArrayListSet<MCAActionDefinition> localActions;
 	public ArrayListSet<MCCondition> conditions;
@@ -206,7 +207,7 @@ public class NewCMLModelcheckerContext {
 	
 	public NewCMLModelcheckerContext() {
 		setStack = new NewSetStack<MCPVarsetExpression>();
-		lieIn = new ArrayList<MCLieInFact>();
+		lieIn = new ArrayListSet<MCLieInFact>();
 		operations = new ArrayListSet<MCSCmlOperationDefinition>(); 
 		localActions = new ArrayListSet<MCAActionDefinition>();
 		conditions = new ArrayListSet<MCCondition>();
@@ -239,6 +240,18 @@ public class NewCMLModelcheckerContext {
 			int clockValue = Integer.parseInt(value);
 			if(clockValue > this.maxClock){
 				this.maxClock = clockValue;
+			}
+		} else if (timeExpression instanceof MCAVariableExp){
+			String name = ((MCAVariableExp) timeExpression).getName();
+			MCAValueDefinition valueDef = this.getValueDefinition(name);
+			if(valueDef != null){
+				MCPCMLExp value = valueDef.getExpression();
+				if(value instanceof MCAIntLiteralExp){
+					int clockValue = Integer.parseInt(((MCAIntLiteralExp) value).getValue());
+					if(clockValue > this.maxClock){
+						this.maxClock = clockValue;
+					}
+				}
 			}
 		}
 	}
