@@ -15,7 +15,6 @@ import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligationList;
 import eu.compassresearch.core.analysis.pog.utility.MakerNameContexts;
 
-@SuppressWarnings("serial")
 public class POGProcessVisitor extends
 		QuestionAnswerCMLAdaptor<IPOContextStack, CmlProofObligationList>
 {

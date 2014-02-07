@@ -85,7 +85,7 @@ class CmlDefinitionVisitor extends
 			Context question) throws AnalysisException
 	{
 		NameValuePairList vpl = new NameValuePairList();
-		vpl.add(new NameValuePair(node.getName(), new ProcessObjectValue(node, null)));
+		vpl.add(new NameValuePair(node.getName(), new ProcessObjectValue(question.assistantFactory,node, null)));
 		return vpl;
 	}
 

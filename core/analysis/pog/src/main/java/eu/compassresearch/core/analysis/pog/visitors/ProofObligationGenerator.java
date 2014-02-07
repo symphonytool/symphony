@@ -69,7 +69,6 @@ public class ProofObligationGenerator extends
 	 * number the POs correctly. <br>
 	 * Use {@link PogPubUtil} methods instead.
 	 */
-	private static final long serialVersionUID = -4538022323752020155L;
 
 	private final static String ANALYSIS_NAME = "Proof Obligation Generator";
 

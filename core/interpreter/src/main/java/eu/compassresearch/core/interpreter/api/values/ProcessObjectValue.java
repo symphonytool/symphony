@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import org.overture.ast.definitions.SClassDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.types.AClassType;
+import org.overture.interpreter.assistant.IInterpreterAssistantFactory;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.IRuntimeState;
 import org.overture.interpreter.runtime.VdmRuntime;
@@ -28,41 +29,41 @@ public class ProcessObjectValue extends ObjectValue
 	private AProcessDefinition processDefinition = null;
 	private PExp invariantExpression = null;
 
-	public ProcessObjectValue(AProcessDefinition processDefinition,
+	public ProcessObjectValue(IInterpreterAssistantFactory af,AProcessDefinition processDefinition,
 			NameValuePairMap members, ObjectValue creator)
 	{
 		super(CmlToVdmConverter.createClassType(processDefinition), members, new LinkedList<ObjectValue>(), CPUValue.vCPU, creator);
 		this.processDefinition = processDefinition;
-		configureRuntime();
+		configureRuntime(af);
 	}
 
-	public ProcessObjectValue(AProcessDefinition processDefinition,
+	public ProcessObjectValue(IInterpreterAssistantFactory af,AProcessDefinition processDefinition,
 			NameValuePairMap members, ObjectValue creator, PExp invExp)
 	{
-		this(processDefinition, members, creator);
+		this(af,processDefinition, members, creator);
 		this.setInvariantExpression(invExp);
-		configureRuntime();
+		configureRuntime(af);
 	}
 
-	public ProcessObjectValue(AProcessDefinition processDefinition,
+	public ProcessObjectValue(IInterpreterAssistantFactory af,AProcessDefinition processDefinition,
 			SClassDefinition classDefinition, NameValuePairMap members,
 			ObjectValue creator, PExp invExp)
 	{
 		super((AClassType) classDefinition.getType(), members, new LinkedList<ObjectValue>(), CPUValue.vCPU, creator);
 		this.setInvariantExpression(invExp);
 		this.processDefinition = processDefinition;
-		configureRuntime();
+		configureRuntime(af);
 	}
 
-	public ProcessObjectValue(AProcessDefinition processDefinition,
+	public ProcessObjectValue(IInterpreterAssistantFactory af,AProcessDefinition processDefinition,
 			ObjectValue creator)
 	{
 		super(CmlToVdmConverter.createClassType(processDefinition), new NameValuePairMap(), new LinkedList<ObjectValue>(), CPUValue.vCPU, creator);
 		this.processDefinition = processDefinition;
-		configureRuntime();
+		configureRuntime(af);
 	}
 
-	private void configureRuntime()
+	private void configureRuntime(IInterpreterAssistantFactory af)
 	{
 		String name = processDefinition.getName().getName();
 		SClassDefinition def = null;
@@ -71,14 +72,8 @@ public class ProcessObjectValue extends ObjectValue
 		{
 			AActionProcess actionProcess = (AActionProcess) processDefinition.getProcess();
 			def = actionProcess.getActionDefinition();
-			SClassDefinitionRuntime state = new ProcessDefinitionRuntime(def, name);
+			SClassDefinitionRuntime state = new ProcessDefinitionRuntime(af,def, name);
 			VdmRuntime.setNodeState(processDefinition, state);
-
-			// AActionProcess aProcess = (AActionProcess) processDefinition.getProcess();
-			// def = aProcess.getActionDefinition();
-			// state = new ProcessDefinitionRuntime(def, name);
-			// VdmRuntime.setNodeState(def, state);
-
 		}
 
 	}

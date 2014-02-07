@@ -47,7 +47,6 @@ import eu.compassresearch.core.analysis.pog.obligations.CmlSubTypeObligation;
 import eu.compassresearch.core.analysis.pog.utility.ClonerProcessState;
 import eu.compassresearch.core.analysis.pog.utility.MakerNameContexts;
 
-@SuppressWarnings("serial")
 public class POGDeclAndDefVisitor extends
 		QuestionAnswerCMLAdaptor<IPOContextStack, CmlProofObligationList>
 {
@@ -375,7 +374,7 @@ public class POGDeclAndDefVisitor extends
 		if (node.getIsConstructor() && node.getClassDefinition() != null
 				&& node.getClassDefinition().getInvariant() != null)
 		{
-			pol.add(new CmlStateInvariantObligation(node, question));
+			pol.add(new CmlStateInvariantObligation(assistantFactory,node, question));
 		}
 
 		if (!node.getIsConstructor()

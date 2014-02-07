@@ -132,10 +132,10 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 				AProcessDefinition processDefinition = node.getAncestor(AProcessDefinition.class);
 				if (question.title.equals(CmlContextFactory.PARAMETRISED_PROCESS_CONTEXT_NAME))
 				{
-					tmpContext = CmlContextFactory.newObjectContext(node.getLocation(), "Tmp Action Process Context", question.outer, new ProcessObjectValue(processDefinition, node.getActionDefinition(), valueMap, null, null));
+					tmpContext = CmlContextFactory.newObjectContext(node.getLocation(), "Tmp Action Process Context", question.outer, new ProcessObjectValue(question.assistantFactory,processDefinition, node.getActionDefinition(), valueMap, null, null));
 				} else
 				{
-					tmpContext = CmlContextFactory.newObjectContext(node.getLocation(), "Tmp Action Process Context", question, new ProcessObjectValue(processDefinition, node.getActionDefinition(), valueMap, null, null));
+					tmpContext = CmlContextFactory.newObjectContext(node.getLocation(), "Tmp Action Process Context", question, new ProcessObjectValue(question.assistantFactory,processDefinition, node.getActionDefinition(), valueMap, null, null));
 				}
 
 				// Evaluate and add paragraph definitions and add the result to the state
@@ -159,7 +159,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 					}
 				}
 
-				ProcessObjectValue self = new ProcessObjectValue(processDefinition, node.getActionDefinition(), valueMap, question.getSelf(), processInv);
+				ProcessObjectValue self = new ProcessObjectValue(question.assistantFactory,processDefinition, node.getActionDefinition(), valueMap, question.getSelf(), processInv);
 				ObjectContext processObjectContext = null;
 
 				// If params is defined in the above context them we need to add them to the created processContext
@@ -467,7 +467,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 				// if not then we create a new process object
 				else
 				{
-					ProcessObjectValue self = new ProcessObjectValue(node.getProcessDefinition(), evaluatedArgs, question.getSelf());
+					ProcessObjectValue self = new ProcessObjectValue(question.assistantFactory,node.getProcessDefinition(), evaluatedArgs, question.getSelf());
 					nextContext = CmlContextFactory.newObjectContext(node.getLocation(), "Process Context", question, self);
 				}
 
