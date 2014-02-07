@@ -66,13 +66,13 @@
    <command
         defaultHandler="eu.compassresearch.ide.theoremprover.commands.ConfigHandler"
         id="eu.compassresearch.ide.theoremprover.config"
-        name="Config Isabelle">
+        name="ConfigIsabelle">
 	</command>
-   <!--command
+   <command
         defaultHandler="eu.compassresearch.ide.theoremprover.commands.SubAllPosHandler"
         id="eu.compassresearch.ide.theoremprover.suballpos"
         name="Sub All POs">
-	</command-->	
+	</command>	
 </extension>
 
   
@@ -102,27 +102,23 @@
          locationURI="popup:eu.compassresearch.ide.pog.POsTable">
            <command
            		commandId="eu.compassresearch.ide.theoremprover.enqueuepo"
-            	label="Submit PO to Isabelle for discharging"
+            	label="Submit PO to Theorem Prover"
            		style="push">
       		</command>
    </menuContribution>
    
    
-   <!--menuContribution
+   <menuContribution
          allPopups="false"
          locationURI="toolbar:eu.compassresearch.ide.pog.POsTable">
       <command
             commandId="eu.compassresearch.ide.theoremprover.suballpos"
             icon="icons/tp.png"
-            label="Discharge"
+            label="Submit all POs"
             style="push"
             tooltip="Submit all POs to Theorem Prover">
-            <parameter
-                  name="eu.compassresearch.ide.theoremprover.commands.needproj"
-                  value="no">
-            </parameter>
       </command>
-   </menuContribution-->
+   </menuContribution>
    
    
 		<menuContribution
@@ -147,10 +143,9 @@
                   
 		<command
 	            commandId="eu.compassresearch.ide.theoremprover.dischargeposdev"
-    	        icon="icons/tp.png"
-        	    label="Start Proof Session (DEV)"
+    	        label="Start Proof Session (DEV)"
             	style="push"
-            	tooltip="Generate POs and auto-submit to Isabelle. WARNING: Experimental Feature!">
+            	tooltip="Generate POs and auto-interact with Theorem Prover. WARNING: Experimental Feature!">
            <parameter
                   name="eu.compassresearch.ide.theoremprover.commands.needproj"
                   value="yes">
@@ -160,7 +155,6 @@
               
           	<command
 	            commandId="eu.compassresearch.ide.theoremprover.dischargepos"
-    	        icon="icons/tp.png"
         	    label="Generate POs and Theories"
             	style="push"
             	tooltip="Generate Proof Obligations Theorem Prover files for selected Project.">

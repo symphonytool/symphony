@@ -1,46 +1,36 @@
 package eu.compassresearch.ide.theoremprover.commands;
 
+import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.core.commands.IHandler;
-import org.eclipse.core.commands.IHandlerListener;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.handlers.HandlerUtil;
 
-public class SubAllPosHandler implements IHandler {
+import eu.compassresearch.ide.core.resources.ICmlProject;
+import eu.compassresearch.ide.theoremprover.ProofSess;
+import eu.compassresearch.ide.theoremprover.TPConstants;
+import eu.compassresearch.ide.theoremprover.TPPluginUtils;
 
-	@Override
-	public void addHandlerListener(IHandlerListener handlerListener) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void dispose() {
-		// TODO Auto-generated method stub
-
-	}
+public class SubAllPosHandler extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		// TODO Auto-generated method stub
+
+		IWorkbenchPage page = HandlerUtil.getActiveWorkbenchWindow(event)
+				.getActivePage();
+
+		IProject proj = TPPluginUtils.getCurrentlySelectedProject();
+
+		ICmlProject cmlProj = (ICmlProject) proj
+				.getAdapter(ICmlProject.class);
+
+		ProofSess ps = cmlProj.getModel().getAttribute(
+				TPConstants.PROOF_SESSION_ID, ProofSess.class);
+
+		ps.enqueueAllPOs();
+
 		return null;
-	}
-
-	@Override
-	public boolean isEnabled() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean isHandled() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public void removeHandlerListener(IHandlerListener handlerListener) {
-		// TODO Auto-generated method stub
-
 	}
 
 }

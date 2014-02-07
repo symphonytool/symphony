@@ -1,7 +1,5 @@
 package eu.compassresearch.ide.theoremprover.commands;
 
-import java.util.List;
-
 import isabelle.eclipse.core.IsabelleCore;
 
 import org.eclipse.core.commands.AbstractHandler;
@@ -12,7 +10,6 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.handlers.HandlerUtil;
-import org.overture.ast.node.INode;
 
 import eu.compassresearch.ide.core.resources.ICmlProject;
 import eu.compassresearch.ide.pog.PogPluginUtils;
@@ -67,8 +64,7 @@ public class GenPosDevHandler extends AbstractHandler {
 		doer.genPOsDev(proj);
 		
 		ProofSess ps = proj.getModel().getAttribute(TPConstants.PROOF_SESSION_ID, ProofSess.class);
-	//	ps.enqueueAllPOs();
-
+	
 
 		return null;
 	}
