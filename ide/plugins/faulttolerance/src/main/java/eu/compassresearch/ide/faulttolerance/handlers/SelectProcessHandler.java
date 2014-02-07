@@ -73,7 +73,7 @@ public abstract class SelectProcessHandler extends AbstractHandler {
 	}
 
 	private void doOnCmlEditor(ISelection selection, CmlEditor editor,
-			ICmlProject proj, Shell shell) {
+			ICmlProject proj, Shell shell) throws ExecutionException {
 		if (selection instanceof ITextSelection) {
 			doOnSelectedProject((ITextSelection) selection, editor, proj, shell);
 		} else if (selection instanceof ITreeSelection) {
@@ -82,7 +82,8 @@ public abstract class SelectProcessHandler extends AbstractHandler {
 	}
 
 	private void doOnSelectedProject(ITreeSelection selection,
-			CmlEditor editor, ICmlProject proj, Shell shell) {
+			CmlEditor editor, ICmlProject proj, Shell shell)
+			throws ExecutionException {
 		Object o = selection.getFirstElement();
 		if (o instanceof MarkerItem) {
 			doOnSelectedProject((MarkerItem) o, editor, proj, shell);
@@ -92,7 +93,7 @@ public abstract class SelectProcessHandler extends AbstractHandler {
 	}
 
 	private void doOnSelectedProject(MarkerItem markerItem, CmlEditor editor,
-			ICmlProject proj, Shell shell) {
+			ICmlProject proj, Shell shell) throws ExecutionException {
 		String processName = markerItem.getAttributeValue(
 				MarkerManager.ATTRIBUTE_PROCESS_NAME, null);
 		boolean done = false;
@@ -111,7 +112,8 @@ public abstract class SelectProcessHandler extends AbstractHandler {
 	}
 
 	private void doOnSelectedProject(ITextSelection selection,
-			CmlEditor editor, ICmlProject proj, Shell shell) {
+			CmlEditor editor, ICmlProject proj, Shell shell)
+			throws ExecutionException {
 		INode o = editor.getElementAt(selection.getOffset());
 
 		if (o instanceof AProcessDefinition) {
@@ -121,7 +123,7 @@ public abstract class SelectProcessHandler extends AbstractHandler {
 	}
 
 	private void doOnSelectedProcess(ICmlProject cmlProj,
-			AProcessDefinition apd, Shell shell) {
+			AProcessDefinition apd, Shell shell) throws ExecutionException {
 
 		boolean done = false;
 		for (ICmlSourceUnit su : cmlProj.getModel().getSourceUnits()) {
@@ -139,6 +141,7 @@ public abstract class SelectProcessHandler extends AbstractHandler {
 	}
 
 	protected abstract void doOnSelectedProcess(ICmlSourceUnit sourceUnit,
-			PDefinition processDefinition, Shell shell);
+			PDefinition processDefinition, Shell shell)
+			throws ExecutionException;
 
 }

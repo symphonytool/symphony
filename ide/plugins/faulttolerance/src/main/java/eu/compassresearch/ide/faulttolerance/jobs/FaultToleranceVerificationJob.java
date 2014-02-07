@@ -89,9 +89,11 @@ public class FaultToleranceVerificationJob extends WorkspaceJob {
 							new IModelCheckingTaskListener() {
 								@Override
 								public void done(ModelCheckingResult results) {
-									faultToleranceResults
-											.getDivergenceFreedom().update(
-													results);
+									/*
+									 * TODO check before remove
+									 * faultToleranceResults
+									 * .getDivergenceFreedom().update( results);
+									 */
 									faultToleranceResults.add(results
 											.getException());
 									monitor.worked(1);
@@ -108,8 +110,11 @@ public class FaultToleranceVerificationJob extends WorkspaceJob {
 							new IModelCheckingTaskListener() {
 								@Override
 								public void done(ModelCheckingResult results) {
-									faultToleranceResults.getSemifairness()
-											.update(results);
+									/*
+									 * TODO check before remove
+									 * faultToleranceResults.getSemifairness()
+									 * .update(results);
+									 */
 									faultToleranceResults.add(results
 											.getException());
 									monitor.worked(1);
@@ -812,8 +817,11 @@ public class FaultToleranceVerificationJob extends WorkspaceJob {
 						new IModelCheckingTaskListener() {
 							@Override
 							public void done(ModelCheckingResult results) {
-								faultToleranceResults.getFullFaultTolerance()
-										.update(results);
+								/*
+								 * TODO check before remove
+								 * faultToleranceResults.getFullFaultTolerance()
+								 * .update(results);
+								 */
 								faultToleranceResults.add(results
 										.getException());
 								monitor.worked(1);
@@ -830,9 +838,11 @@ public class FaultToleranceVerificationJob extends WorkspaceJob {
 						new IModelCheckingTaskListener() {
 							@Override
 							public void done(ModelCheckingResult results) {
-								faultToleranceResults
-										.getLimitedFaultTolerance().update(
-												results);
+								/*
+								 * TODO check before remove
+								 * faultToleranceResults
+								 * .getLimitedFaultTolerance().update( results);
+								 */
 								faultToleranceResults.add(results
 										.getException());
 								monitor.worked(1);
