@@ -72,6 +72,8 @@ public class FaultToleranceModelCheckingJob extends
 									+ formulaResult.getElapsedTimeLoad()
 									+ formulaResult.getElapsedTimeSolve());
 						}
+					} catch (RuntimeException e) {
+						property.setException(e);
 					} finally {
 						formulaLock.release();
 					}
@@ -88,9 +90,9 @@ public class FaultToleranceModelCheckingJob extends
 					synchronized (property) {
 						if (monitor.isCanceled()) {
 							done = true;
+							property.setCanceledByUser(true);
 							t.interrupt();
 							FormulaIntegrator.getInstance().finalize();
-							property.setCanceledByUser(true);
 						} else if (property.isChecked()) {
 							done = true;
 						}
