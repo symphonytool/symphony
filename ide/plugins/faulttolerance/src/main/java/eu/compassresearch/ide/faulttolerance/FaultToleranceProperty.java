@@ -5,6 +5,8 @@ package eu.compassresearch.ide.faulttolerance;
 
 import org.eclipse.core.resources.IFile;
 
+import eu.compassresearch.ide.modelchecker.MCConstants;
+
 /**
  * @author Andr&eacute; Didier (<a href=
  *         "mailto:alrd@cin.ufpe.br?Subject=Package eu.compassresearch.ide.faulttolerance, class FaultToleranceProperty"
@@ -95,4 +97,22 @@ public class FaultToleranceProperty {
 	public void setFormulaScriptFile(IFile formulaScriptFile) {
 		this.formulaScriptFile = formulaScriptFile;
 	}
+
+	@Override
+	public String toString() {
+		return format();
+	}
+
+	public String format() {
+		String formatted;
+		if (modelCheckerProperty.equals(MCConstants.DEADLOCK_PROPERTY)) {
+			formatted = Message.DEADLOCK_CHECK.format(implementationExpression);
+		} else if (modelCheckerProperty.equals(MCConstants.LIVELOCK_PROPERTY)) {
+			formatted = Message.LIVELOCK_CHECK.format(implementationExpression);
+		} else {
+			formatted = "?";
+		}
+		return formatted;
+	}
+
 }

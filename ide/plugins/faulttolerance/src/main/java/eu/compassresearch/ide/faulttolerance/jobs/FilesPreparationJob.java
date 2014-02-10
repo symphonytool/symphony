@@ -114,20 +114,9 @@ public class FilesPreparationJob extends FaultToleranceVerificationJobBase {
 			response.setStatus(FaultToleranceVerificationResponseStatus.FILES_ERROR);
 			return Status.OK_STATUS;
 		} finally {
-			try {
-				deleteFolder(request, response, new SubProgressMonitor(monitor,
-						1));
-			} finally {
-				monitor.done();
-			}
+			monitor.done();
 		}
 
-	}
-
-	private void deleteFolder(IFaultToleranceVerificationRequest request,
-			IFaultToleranceVerificationResponse response,
-			IProgressMonitor monitor) throws CoreException {
-		response.getFolder().delete(true, monitor);
 	}
 
 	private void createFolder(IFaultToleranceVerificationRequest request,
@@ -327,8 +316,9 @@ public class FilesPreparationJob extends FaultToleranceVerificationJobBase {
 			}
 
 			if (!processesToAdd.isEmpty()) {
-				writeFile(Message.CML_PROCESSES_FILE_NAME, baos.toByteArray(),
-						request, response, new SubProgressMonitor(monitor, 1));
+				writeFile(formatSystemName(Message.CML_PROCESSES_FILE_NAME),
+						baos.toByteArray(), request, response,
+						new SubProgressMonitor(monitor, 1));
 			} else {
 				monitor.worked(1);
 			}
@@ -355,8 +345,9 @@ public class FilesPreparationJob extends FaultToleranceVerificationJobBase {
 					|| requires;
 
 			if (requires) {
-				writeFile(Message.BASE_CML_FILE_NAME, baos.toByteArray(),
-						request, response, new SubProgressMonitor(monitor, 1));
+				writeFile(formatSystemName(Message.BASE_CML_FILE_NAME),
+						baos.toByteArray(), request, response,
+						new SubProgressMonitor(monitor, 1));
 
 			} else {
 				monitor.worked(2);
@@ -514,27 +505,26 @@ public class FilesPreparationJob extends FaultToleranceVerificationJobBase {
 					formatSystemName(Message.CREATE_FORMULA_FILES_TASK_NAME), 5);
 
 			createFormulaFile(definitions, response.getDivergenceFreedom(),
-					Message.DIVERGENCE_FREEDOM_FORMULA_SCRIPT_FILE_NAME,
-					request, response, new SubProgressMonitor(monitor, 1));
+
+			request, response, new SubProgressMonitor(monitor, 1));
 
 			if (monitor.isCanceled()) {
 				return Status.CANCEL_STATUS;
 			}
-			createFormulaFile(definitions, response.getSemifairness(),
-					Message.SEMIFAIRNESS_FORMULA_SCRIPT_FILE_NAME, request,
+			createFormulaFile(definitions, response.getSemifairness(), request,
 					response, new SubProgressMonitor(monitor, 1));
 			if (monitor.isCanceled()) {
 				return Status.CANCEL_STATUS;
 			}
 			createFormulaFile(definitions, response.getLimitedFaultTolerance(),
-					Message.LIMITED_FAULT_TOLERANCE_FORMULA_SCRIPT_FILE_NAME,
-					request, response, new SubProgressMonitor(monitor, 1));
+
+			request, response, new SubProgressMonitor(monitor, 1));
 			if (monitor.isCanceled()) {
 				return Status.CANCEL_STATUS;
 			}
 			createFormulaFile(definitions, response.getFullFaultTolerance(),
-					Message.FULL_FAULT_TOLERANCE_FORMULA_SCRIPT_FILE_NAME,
-					request, response, new SubProgressMonitor(monitor, 1));
+
+			request, response, new SubProgressMonitor(monitor, 1));
 
 			request.getSourceUnit().getProject().getModel()
 					.refresh(true, new SubProgressMonitor(monitor, 1));
@@ -545,44 +535,44 @@ public class FilesPreparationJob extends FaultToleranceVerificationJobBase {
 	}
 
 	private void createFormulaFile(List<PDefinition> definitions,
-			FaultToleranceProperty property, Message scriptFileNameMessage,
+			FaultToleranceProperty property,
 			IFaultToleranceVerificationRequest request,
 			IFaultToleranceVerificationResponse response,
 			IProgressMonitor monitor) throws IOException, AnalysisException,
 			CoreException {
 		try {
-			monitor.beginTask(Message.CREATE_FORMULA_FILE.format(
-					request.getSystemName(),
-					formatSystemName(scriptFileNameMessage)), 1);
+			monitor.beginTask(
+					Message.CREATE_FORMULA_FILE.format(request.getSystemName(),
+							property.getFormulaScriptFile().getName()), 1);
 			NewMCVisitor adaptor = new NewMCVisitor();
 			String formulaScriptContent = adaptor.generateFormulaScript(
 					definitions, property.getModelCheckerProperty(),
-					formatSystemName(Message.DIVERGENCE_FREEDOM_PROCESS_NAME));
-			writeFile(scriptFileNameMessage, formulaScriptContent, request,
-					response, new SubProgressMonitor(monitor, 1));
+					property.getImplementationExpression());
+			writeFile(property.getFormulaScriptFile().getName(),
+					formulaScriptContent, request, response,
+					new SubProgressMonitor(monitor, 1));
 		} finally {
 			monitor.done();
 		}
 	}
 
-	private void writeFile(Message fileName, String contents,
+	private void writeFile(String fileName, String contents,
 			IFaultToleranceVerificationRequest request,
 			IFaultToleranceVerificationResponse response,
 			IProgressMonitor monitor) throws CoreException {
 		writeFile(fileName, contents.getBytes(), request, response, monitor);
 	}
 
-	private void writeFile(Message fileName, byte[] contents,
+	private void writeFile(String fileName, byte[] contents,
 			IFaultToleranceVerificationRequest request,
 			IFaultToleranceVerificationResponse response,
 			IProgressMonitor monitor) throws CoreException {
-		String fileNameFormatted = formatSystemName(fileName);
 
 		try {
 			monitor.beginTask(Message.WRITE_FILE.format(
-					request.getSystemName(), fileNameFormatted), 3);
+					request.getSystemName(), fileName), 3);
 
-			IFile outputFile = response.getFolder().getFile(fileNameFormatted);
+			IFile outputFile = response.getFolder().getFile(fileName);
 
 			InputStream in = new ByteArrayInputStream(contents);
 			if (outputFile.exists()) {

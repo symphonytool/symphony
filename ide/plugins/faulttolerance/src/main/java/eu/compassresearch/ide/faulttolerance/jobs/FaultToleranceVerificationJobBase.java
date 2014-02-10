@@ -3,6 +3,9 @@
  */
 package eu.compassresearch.ide.faulttolerance.jobs;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import org.eclipse.core.resources.IResourceRuleFactory;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.resources.WorkspaceJob;
@@ -26,6 +29,7 @@ public abstract class FaultToleranceVerificationJobBase extends WorkspaceJob {
 
 	private final IFaultToleranceVerificationRequest request;
 	private final IFaultToleranceVerificationResponse response;
+	private final List<IFaultToleranceVerificationPreRequisite> preRequisites;
 
 	public FaultToleranceVerificationJobBase(Message jobNameMessage,
 			IFaultToleranceVerificationRequest request,
@@ -33,12 +37,30 @@ public abstract class FaultToleranceVerificationJobBase extends WorkspaceJob {
 		super(jobNameMessage.format(request.getSystemName()));
 		this.request = request;
 		this.response = response;
-		updateSchedulingRules();
+		this.preRequisites = new LinkedList<>();
+	}
 
+	public void add(IFaultToleranceVerificationPreRequisite preRequisite) {
+		preRequisites.add(preRequisite);
+	}
+
+	public FaultToleranceVerificationJobBase(String name,
+			IFaultToleranceVerificationRequest request,
+			IFaultToleranceVerificationResponse response) {
+		super(name);
+		this.request = request;
+		this.response = response;
+		this.preRequisites = new LinkedList<>();
 	}
 
 	private void updateSchedulingRules() {
 		setRule(updateSchedulingRules(createBaseRule(), request, response));
+	}
+
+	@Override
+	public boolean shouldSchedule() {
+		updateSchedulingRules();
+		return super.shouldSchedule();
 	}
 
 	private ISchedulingRule createBaseRule() {
@@ -46,7 +68,7 @@ public abstract class FaultToleranceVerificationJobBase extends WorkspaceJob {
 				.getRuleFactory();
 		ISchedulingRule fileRule = ruleFactory.createRule(request
 				.getSourceUnit().getFile());
-		ISchedulingRule combinedRule = fileRule;
+		ISchedulingRule combinedRule = MultiRule.combine(fileRule, getRule());
 		ISchedulingRule folderRule = ruleFactory.createRule(response
 				.getFolder());
 		combinedRule = MultiRule.combine(folderRule, combinedRule);
@@ -87,5 +109,19 @@ public abstract class FaultToleranceVerificationJobBase extends WorkspaceJob {
 
 	protected final String formatSystemName(Message message) {
 		return message.format(request.getSystemName());
+	}
+
+	@Override
+	public final boolean shouldRun() {
+		boolean should = super.shouldRun();
+
+		for (IFaultToleranceVerificationPreRequisite pr : preRequisites) {
+			should &= pr.checkPreRequisite();
+			if (!should) {
+				break;
+			}
+		}
+
+		return should;
 	}
 }

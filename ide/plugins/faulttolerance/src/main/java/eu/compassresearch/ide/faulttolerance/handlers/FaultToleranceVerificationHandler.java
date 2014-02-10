@@ -29,7 +29,11 @@ import eu.compassresearch.ide.faulttolerance.FaultToleranceVerificationResponseS
 import eu.compassresearch.ide.faulttolerance.IFaultToleranceVerificationRequest;
 import eu.compassresearch.ide.faulttolerance.IFaultToleranceVerificationResponse;
 import eu.compassresearch.ide.faulttolerance.Message;
+import eu.compassresearch.ide.faulttolerance.jobs.FaultToleranceModelCheckingJob;
+import eu.compassresearch.ide.faulttolerance.jobs.FaultToleranceVerificationCleanupJob;
 import eu.compassresearch.ide.faulttolerance.jobs.FilesPreparationJob;
+import eu.compassresearch.ide.faulttolerance.jobs.IFaultToleranceVerificationPreRequisite;
+import eu.compassresearch.ide.modelchecker.MCConstants;
 
 /**
  * @author Andr&eacute; Didier (<a href=
@@ -224,7 +228,12 @@ public class FaultToleranceVerificationHandler extends SelectProcessHandler {
 
 		Response response = new Response();
 
-		updateFilesAndFolders(request, response);
+		prepareFolder(request, response);
+
+		prepareDivergenceFreedom(request, response);
+		prepareSemifairness(request, response);
+		prepareLimitedFaultTolerance(request, response);
+		prepareFullFaultTolerance(request, response);
 
 		IProgressService progressService = Activator.getDefault()
 				.getWorkbench().getProgressService();
@@ -232,30 +241,56 @@ public class FaultToleranceVerificationHandler extends SelectProcessHandler {
 		startJobs(createJobs(request, response), progressService, shell);
 	}
 
-	private void updateFilesAndFolders(Request request, Response response) {
+	private void prepareFolder(Request request, Response response) {
 		String folderName = Message.FOLDER_NAME.format(request.getSystemName());
 		IContainer container = request.getSourceUnit().getProject()
 				.getModelBuildPath().getOutput();
 		IFolder folder = container.getFolder(new Path(folderName));
 		response.setFolder(folder);
+	}
 
-		// TODO put CML files as well?
-
-		setFile(response.getDivergenceFreedom(),
-				Message.DIVERGENCE_FREEDOM_FORMULA_SCRIPT_FILE_NAME, request,
-				response);
-
-		setFile(response.getSemifairness(),
-				Message.SEMIFAIRNESS_FORMULA_SCRIPT_FILE_NAME, request,
-				response);
-
-		setFile(response.getLimitedFaultTolerance(),
-				Message.LIMITED_FAULT_TOLERANCE_FORMULA_SCRIPT_FILE_NAME,
-				request, response);
-
-		setFile(response.getFullFaultTolerance(),
+	private void prepareFullFaultTolerance(Request request, Response response) {
+		FaultToleranceProperty property = response.getFullFaultTolerance();
+		property.setModelCheckerProperty(MCConstants.DEADLOCK_PROPERTY);
+		setImplementationExpression(property,
+				Message.LAZY_DEADLOCK_CHECK_PROCESS_NAME, request);
+		setFile(property,
 				Message.FULL_FAULT_TOLERANCE_FORMULA_SCRIPT_FILE_NAME, request,
 				response);
+	}
+
+	private void prepareLimitedFaultTolerance(Request request, Response response) {
+		FaultToleranceProperty property = response.getLimitedFaultTolerance();
+		property.setModelCheckerProperty(MCConstants.DEADLOCK_PROPERTY);
+		setImplementationExpression(property,
+				Message.LAZY_LIMIT_DEADLOCK_CHECK_PROCESS_NAME, request);
+		setFile(property,
+				Message.LIMITED_FAULT_TOLERANCE_FORMULA_SCRIPT_FILE_NAME,
+				request, response);
+	}
+
+	private void prepareSemifairness(Request request, Response response) {
+		FaultToleranceProperty property = response.getSemifairness();
+		property.setModelCheckerProperty(MCConstants.LIVELOCK_PROPERTY);
+		setImplementationExpression(property,
+				Message.SEMIFAIRNESS_PROCESS_NAME, request);
+		setFile(property, Message.SEMIFAIRNESS_FORMULA_SCRIPT_FILE_NAME,
+				request, response);
+	}
+
+	private void prepareDivergenceFreedom(Request request, Response response) {
+		FaultToleranceProperty property = response.getDivergenceFreedom();
+		property.setModelCheckerProperty(MCConstants.LIVELOCK_PROPERTY);
+		setImplementationExpression(property,
+				Message.DIVERGENCE_FREEDOM_PROCESS_NAME, request);
+		setFile(property, Message.DIVERGENCE_FREEDOM_FORMULA_SCRIPT_FILE_NAME,
+				request, response);
+	}
+
+	private void setImplementationExpression(FaultToleranceProperty property,
+			Message implementationNameMessage, Request request) {
+		property.setImplementationExpression(implementationNameMessage
+				.format(request.getSystemName()));
 	}
 
 	private void setFile(FaultToleranceProperty property,
@@ -268,14 +303,10 @@ public class FaultToleranceVerificationHandler extends SelectProcessHandler {
 	private void startJobs(List<Set<Job>> jobsSets,
 			IProgressService progressService, Shell shell) {
 		int group = 1;
-		boolean showInDialog = true;
 		for (Set<Job> jobs : jobsSets) {
 			int index = 1;
 			for (Job job : jobs) {
-				if (showInDialog) {
-					progressService.showInDialog(shell, job);
-					showInDialog = false;
-				}
+				// progressService.showInDialog(shell, job);
 				OrderSchedulingRule orderRule = new OrderSchedulingRule(group,
 						index);
 				job.setRule(MultiRule.combine(orderRule, job.getRule()));
@@ -288,18 +319,43 @@ public class FaultToleranceVerificationHandler extends SelectProcessHandler {
 
 	private List<Set<Job>> createJobs(
 			IFaultToleranceVerificationRequest request,
-			IFaultToleranceVerificationResponse response) {
+			final IFaultToleranceVerificationResponse response) {
 		List<Set<Job>> jobsSets = new LinkedList<>();
 		Set<Job> jobs1 = new HashSet<>();
 		jobsSets.add(jobs1);
 		jobs1.add(new FilesPreparationJob(request, response));
 
-		// FIXME add model-checking jobs
 		Set<Job> jobs2 = new HashSet<>();
 		jobsSets.add(jobs2);
+		jobs2.add(new FaultToleranceModelCheckingJob(response
+				.getDivergenceFreedom(), request, response));
+		jobs2.add(new FaultToleranceModelCheckingJob(
+				response.getSemifairness(), request, response));
+
+		IFaultToleranceVerificationPreRequisite divergenceFreeAndSemifair = new IFaultToleranceVerificationPreRequisite() {
+			@Override
+			public boolean checkPreRequisite() {
+				return response.getDivergenceFreedom().isSatisfied()
+						&& response.getSemifairness().isSatisfied();
+			}
+		};
 
 		Set<Job> jobs3 = new HashSet<>();
 		jobsSets.add(jobs3);
+		FaultToleranceModelCheckingJob limitedJob = new FaultToleranceModelCheckingJob(
+				response.getLimitedFaultTolerance(), request, response);
+		FaultToleranceModelCheckingJob fullJob = new FaultToleranceModelCheckingJob(
+				response.getFullFaultTolerance(), request, response);
+		limitedJob.add(divergenceFreeAndSemifair);
+		fullJob.add(divergenceFreeAndSemifair);
+		jobs3.add(limitedJob);
+		jobs3.add(fullJob);
+
+		Set<Job> jobs4 = new HashSet<>();
+		jobsSets.add(jobs4);
+		Job cleanupJob = new FaultToleranceVerificationCleanupJob(request, response);
+		cleanupJob.setUser(true);
+		jobs4.add(cleanupJob);
 
 		return jobsSets;
 

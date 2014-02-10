@@ -37,4 +37,9 @@ public class OrderSchedulingRule implements ISchedulingRule {
 	public boolean isConflicting(ISchedulingRule rule) {
 		return contains(rule);
 	}
+
+	@Override
+	public String toString() {
+		return "Order " + group + "." + index;
+	}
 }
