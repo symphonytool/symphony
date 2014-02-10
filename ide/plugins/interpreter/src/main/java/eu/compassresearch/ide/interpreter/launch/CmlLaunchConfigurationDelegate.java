@@ -209,7 +209,11 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 		
 		if(true/*logging disabled*/)
 		{
-			additionalCpEntries.add(getDefaultLog4JProperties());
+			String defaultLog4JProperties = getDefaultLog4JProperties();
+			if(defaultLog4JProperties!=null)
+			{
+				additionalCpEntries.add(defaultLog4JProperties);
+			}
 		}
 		
 		commandArray.addAll(VdmProjectClassPathCollector.getClassPath(getProject(configuration), collectRequiredBundleIds(ICmlDebugConstants.ID_CML_PLUGIN_NAME), additionalCpEntries.toArray(new String[]{})));
