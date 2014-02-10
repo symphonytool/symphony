@@ -23,7 +23,7 @@ import eu.compassresearch.ide.core.resources.ICmlProject;
 import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
 import eu.compassresearch.ide.faulttolerance.Message;
 import eu.compassresearch.ide.faulttolerance.UnableToRunFaultToleranceVerificationException;
-import eu.compassresearch.ide.faulttolerance.markers.MarkerManager;
+import eu.compassresearch.ide.faulttolerance.jobs.IMarkerModifier;
 import eu.compassresearch.ide.ui.editor.core.CmlEditor;
 
 /**
@@ -32,7 +32,8 @@ import eu.compassresearch.ide.ui.editor.core.CmlEditor;
  *         >alrd@cin.ufpe.br</a>)
  * 
  */
-public abstract class SelectProcessHandler extends AbstractHandler {
+public abstract class SelectProcessHandler extends AbstractHandler implements
+		IMarkerModifier {
 
 	private static IProject getCurrentlySelectedProject(ExecutionEvent event)
 			throws UnableToRunFaultToleranceVerificationException {
@@ -95,7 +96,7 @@ public abstract class SelectProcessHandler extends AbstractHandler {
 	private void doOnSelectedProject(MarkerItem markerItem, CmlEditor editor,
 			ICmlProject proj, Shell shell) throws ExecutionException {
 		String processName = markerItem.getAttributeValue(
-				MarkerManager.ATTRIBUTE_PROCESS_NAME, null);
+				ATTRIBUTE_SYSTEM_NAME, null);
 		boolean done = false;
 		for (ICmlSourceUnit su : proj.getModel().getSourceUnits()) {
 			for (PDefinition def : su.getParseListDefinitions()) {

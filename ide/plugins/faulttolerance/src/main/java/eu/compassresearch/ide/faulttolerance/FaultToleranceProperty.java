@@ -23,6 +23,8 @@ public class FaultToleranceProperty {
 	private String implementationExpression;
 	private String specificationExpression;
 
+	private double elapsedTime;
+
 	private Exception exception;
 	private boolean canceledByUser;
 
@@ -113,6 +115,14 @@ public class FaultToleranceProperty {
 			formatted = "?";
 		}
 		return formatted;
+	}
+
+	public double getElapsedTime() {
+		return elapsedTime;
+	}
+
+	public void setElapsedTime(double elapsedTime) {
+		this.elapsedTime = elapsedTime;
 	}
 
 }

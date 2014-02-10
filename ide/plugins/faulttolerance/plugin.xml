@@ -85,7 +85,7 @@
   <extension id="eu.compassresearch.ide.faulttolerance.verification.problem" point="org.eclipse.core.resources.markers">
      <super type="org.eclipse.core.resources.problemmarker"/>
      <persistent value="true"/>
-     <attribute name="processName"/>
+     <attribute name="systemName"/>
   </extension>
   
   <extension point="org.eclipse.ui.ide.markerResolution">

@@ -67,6 +67,10 @@ public class FaultToleranceModelCheckingJob extends
 							property.setChecked(true);
 							property.setSatisfied(!formulaResult
 									.isSatisfiable());
+							property.setElapsedTime(formulaResult
+									.getElapsedTimeKnows()
+									+ formulaResult.getElapsedTimeLoad()
+									+ formulaResult.getElapsedTimeSolve());
 						}
 					} finally {
 						formulaLock.release();

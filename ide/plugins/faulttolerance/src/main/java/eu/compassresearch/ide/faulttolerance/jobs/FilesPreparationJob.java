@@ -111,6 +111,7 @@ public class FilesPreparationJob extends FaultToleranceVerificationJobBase {
 					new SubProgressMonitor(monitor, 1));
 		} catch (IOException | AnalysisException e) {
 			response.setException(e);
+			// TODO verify if worth using this status
 			response.setStatus(FaultToleranceVerificationResponseStatus.FILES_ERROR);
 			return Status.OK_STATUS;
 		} finally {

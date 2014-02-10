@@ -4,7 +4,10 @@
 package eu.compassresearch.ide.faulttolerance.markers;
 
 import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.ui.IMarkerResolution;
+
+import eu.compassresearch.ide.faulttolerance.jobs.MarkerCleanerJob;
 
 /**
  * @author Andr&eacute; Didier (<a href=
@@ -14,21 +17,22 @@ import org.eclipse.ui.IMarkerResolution;
  */
 public class FaultToleranceClearFix implements IMarkerResolution {
 
-	private final String processName;
+	private final String systemName;
 
-	public FaultToleranceClearFix(String processName) {
-		this.processName = processName;
+	public FaultToleranceClearFix(String systemName) {
+		this.systemName = systemName;
 	}
 
 	@Override
 	public String getLabel() {
 		// TODO colocar em Message.java
-		return "Clear " + processName + " fault tolerance verification.";
+		return "Clear " + systemName + " fault tolerance verification.";
 	}
 
 	@Override
 	public void run(IMarker marker) {
-		MarkerManager.clearMarkers(processName, marker.getResource());
+		Job job = new MarkerCleanerJob(systemName, marker.getResource());
+		job.schedule();
 	}
 
 }

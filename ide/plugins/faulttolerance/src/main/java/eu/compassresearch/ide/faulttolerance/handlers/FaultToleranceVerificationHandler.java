@@ -33,6 +33,7 @@ import eu.compassresearch.ide.faulttolerance.jobs.FaultToleranceModelCheckingJob
 import eu.compassresearch.ide.faulttolerance.jobs.FaultToleranceVerificationCleanupJob;
 import eu.compassresearch.ide.faulttolerance.jobs.FilesPreparationJob;
 import eu.compassresearch.ide.faulttolerance.jobs.IFaultToleranceVerificationPreRequisite;
+import eu.compassresearch.ide.faulttolerance.jobs.MarkerUpdaterJob;
 import eu.compassresearch.ide.modelchecker.MCConstants;
 
 /**
@@ -348,14 +349,20 @@ public class FaultToleranceVerificationHandler extends SelectProcessHandler {
 				response.getFullFaultTolerance(), request, response);
 		limitedJob.add(divergenceFreeAndSemifair);
 		fullJob.add(divergenceFreeAndSemifair);
+		limitedJob.setUser(true);
 		jobs3.add(limitedJob);
 		jobs3.add(fullJob);
 
 		Set<Job> jobs4 = new HashSet<>();
 		jobsSets.add(jobs4);
-		Job cleanupJob = new FaultToleranceVerificationCleanupJob(request, response);
-		cleanupJob.setUser(true);
+		Job cleanupJob = new FaultToleranceVerificationCleanupJob(request,
+				response);
 		jobs4.add(cleanupJob);
+
+		Set<Job> jobs5 = new HashSet<>();
+		jobsSets.add(jobs5);
+		Job markerJob = new MarkerUpdaterJob(request, response);
+		jobs5.add(markerJob);
 
 		return jobsSets;
 
