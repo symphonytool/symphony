@@ -12,27 +12,29 @@ import org.eclipse.core.runtime.jobs.ISchedulingRule;
  * 
  */
 public class OrderSchedulingRule implements ISchedulingRule {
-	private final int order;
+	private final int group;
+	private final int index;
 
-	public OrderSchedulingRule(int order) {
-		this.order = order;
+	public OrderSchedulingRule(int group, int index) {
+		this.group = group;
+		this.index = index;
 	}
 
 	@Override
 	public boolean contains(ISchedulingRule rule) {
 		if (rule instanceof OrderSchedulingRule) {
 			OrderSchedulingRule other = (OrderSchedulingRule) rule;
-			return this.order <= other.order;
+			if (this.group == other.group) {
+				return this.index == other.index;
+			}
+
+			return this.group < other.group;
 		}
 		return false;
 	}
 
 	@Override
 	public boolean isConflicting(ISchedulingRule rule) {
-		if (rule instanceof OrderSchedulingRule) {
-			OrderSchedulingRule other = (OrderSchedulingRule) rule;
-			return this.order <= other.order;
-		}
-		return false;
+		return contains(rule);
 	}
 }

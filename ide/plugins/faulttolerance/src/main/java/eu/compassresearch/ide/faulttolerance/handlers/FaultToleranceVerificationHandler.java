@@ -267,15 +267,22 @@ public class FaultToleranceVerificationHandler extends SelectProcessHandler {
 
 	private void startJobs(List<Set<Job>> jobsSets,
 			IProgressService progressService, Shell shell) {
-		int order = 1;
+		int group = 1;
+		boolean showInDialog = true;
 		for (Set<Job> jobs : jobsSets) {
+			int index = 1;
 			for (Job job : jobs) {
-				progressService.showInDialog(shell, job);
-				OrderSchedulingRule orderRule = new OrderSchedulingRule(order);
+				if (showInDialog) {
+					progressService.showInDialog(shell, job);
+					showInDialog = false;
+				}
+				OrderSchedulingRule orderRule = new OrderSchedulingRule(group,
+						index);
 				job.setRule(MultiRule.combine(orderRule, job.getRule()));
 				job.schedule();
+				index++;
 			}
-			order++;
+			group++;
 		}
 	}
 
@@ -288,6 +295,11 @@ public class FaultToleranceVerificationHandler extends SelectProcessHandler {
 		jobs1.add(new FilesPreparationJob(request, response));
 
 		// FIXME add model-checking jobs
+		Set<Job> jobs2 = new HashSet<>();
+		jobsSets.add(jobs2);
+
+		Set<Job> jobs3 = new HashSet<>();
+		jobsSets.add(jobs3);
 
 		return jobsSets;
 
