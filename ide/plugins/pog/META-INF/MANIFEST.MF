@@ -58,7 +58,8 @@ Import-Package: eu.compassresearch.ast.actions,
  org.overture.pog.visitors,
  org.overture.typechecker,
  org.overture.typechecker.assistant.definition,
- org.overture.typechecker.assistant.type
+ org.overture.typechecker.assistant.type,
+ org.overture.typechecker.assistant
 Export-Package: eu.compassresearch.core.analysis.pog.obligations,
  eu.compassresearch.core.analysis.pog.utility, 
  eu.compassresearch.ide.pog,
