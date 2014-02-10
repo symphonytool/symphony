@@ -334,9 +334,15 @@ public class NewMCVisitor extends
 			files = folder.listFiles();
 		}
 		
+		
+		//String cml_file = "src/test/resources/BeoAVDeviceDiscovery-final version-model checker.cml";
+		//String cml_file = "src/test/resources/simpler-register.cml";
 		//String cml_file = "src/test/resources/simpler-BeoAVDeviceDiscovery.cml";
-		//String cml_file = "src/test/resources/timed-interrupt.cml";
-		String cml_file = "src/test/resources/action-wait2.cml";
+		//String cml_file = "src/test/resources/timed-interrupt2.cml";
+		//String cml_file = "src/test/resources/insiel-ex1.cml";
+		//String cml_file = "src/test/resources/action-generalised-parallelism-no-state-simple.cml";
+		//String cml_file = "src/test/resources/action-wait.cml";
+		//String cml_file = "src/test/resources/recursion.cml";
 		//String cml_file = "src/test/resources/action-prefix-stop.cml";
 		//String cml_file = "src/test/resources/minimondex-incomplete.cml.nok";
 		//String cml_file = "src/test/resources/simpler-minimondex.cml";
@@ -344,6 +350,10 @@ public class NewMCVisitor extends
 		//String cml_file = "src/test/resources/action-prefix-stop.cml";
 		
 		//String cml_file = "src/test/resources/simpler-register.cml";
+		//String cml_file = "src/test/resources/Dphils.cml";
+		//String cml_file = "src/test/resources/BeoAVDeviceDiscovery-final-version-model-checker.cml";
+		//String cml_file = "src/test/resources/cmlfile5.cml";
+		String cml_file = "src/test/resources/test.cml";
 		//String cml_file = "src/test/resources/action-prefix-skip.cml";
 		//System.out.println("Testing on " + cml_file);
 		PSource source1 = Utilities.makeSourceFromFile(cml_file);
@@ -359,8 +369,11 @@ public class NewMCVisitor extends
 		*/
 		
 		NewMCVisitor visitor1 = new NewMCVisitor(source1);
-		//String mainProcessName = "InterruptTest";
-		String mainProcessName = "A";
+		//String mainProcessName = "Test_TurnOnProduct";
+		//String mainProcessName = "RegisterProc";
+		//String mainProcessName = "N_LAZY_Q";
+		String mainProcessName = "LazyLimit_NFTBasic";
+		
 		
 		String formulaCode = visitor1.generateFormulaScript(source1.getParagraphs(),Utilities.DEADLOCK_PROPERTY,mainProcessName);
 		//String[] codes1 = visitor1.generateFormulaCodeForAll(Utilities.DEADLOCK_PROPERTY);

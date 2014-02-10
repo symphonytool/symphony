@@ -46,6 +46,14 @@ public class MCAFatCompVarsetExpression implements MCPVarsetExpression {
 		return result;
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		boolean result = false;
+		if(obj instanceof MCAFatCompVarsetExpression){
+			result = this.channelNameExp.equals(((MCAFatCompVarsetExpression) obj).getChannelNameExp());
+		}
+		return result;
+	}
 	public LinkedList<MCPMultipleBind> getBindings() {
 		return bindings;
 	}

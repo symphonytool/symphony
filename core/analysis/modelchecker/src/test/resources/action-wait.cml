@@ -1,7 +1,7 @@
 channels 
 a
 
-process A = 
+process Wait4 = 
 begin 
 
 	@ Wait 4 ; a -> Skip

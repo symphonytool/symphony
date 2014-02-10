@@ -1,0 +1,11 @@
+channels
+c
+
+process traceExample = 
+begin
+  actions
+  P = a -> b -> P
+  Q = a -> Q
+@ (P \\ {b}) [| {a,b} |] Q
+end
+

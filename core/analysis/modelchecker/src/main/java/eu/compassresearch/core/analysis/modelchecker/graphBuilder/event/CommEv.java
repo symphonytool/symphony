@@ -41,7 +41,11 @@ public class CommEv implements Event {
 
 	@Override
 	public String toString() {
-		return begin + "." + end.toString();
+		String result = begin;
+		if(this.end.toString().length() > 0){
+			result = result + this.end.toString();
+		}
+		return result;
 	}
 
 	@Override

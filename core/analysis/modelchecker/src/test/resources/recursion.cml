@@ -1,0 +1,10 @@
+channels
+ strt 
+ 
+process Recursion = 
+begin
+ actions
+   Rec = Wait 2; a -> b -> Rec
+@ strt -> Rec  
+
+end

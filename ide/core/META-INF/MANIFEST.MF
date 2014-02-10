@@ -2,34 +2,22 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Symphony IDE CML Core
 Bundle-SymbolicName: eu.compassresearch.ide.core;singleton:=true
-Bundle-Version: 0.2.7.qualifier
+Bundle-Version: 0.2.9.qualifier
 Bundle-Activator: eu.compassresearch.ide.core.CmlCorePlugin
 Bundle-Vendor: The COMPASS Project
 Bundle-Localization: plugin
-Export-Package: eu.compassresearch.ast.actions,
- eu.compassresearch.ast.analysis,
- eu.compassresearch.ast.analysis.intf,
- eu.compassresearch.ast.declarations,
- eu.compassresearch.ast.definitions,
- eu.compassresearch.ast.expressions,
- eu.compassresearch.ast.lex,
- eu.compassresearch.ast.messages,
- eu.compassresearch.ast.patterns,
- eu.compassresearch.ast.preview,
- eu.compassresearch.ast.process,
- eu.compassresearch.ast.program,
- eu.compassresearch.ast.statements,
- eu.compassresearch.ast.typechecker,
- eu.compassresearch.ast.types,
- eu.compassresearch.core.common,
- eu.compassresearch.core.parser,
- eu.compassresearch.core.typechecker,
- eu.compassresearch.core.typechecker.api,
- eu.compassresearch.ide.core,
- eu.compassresearch.ide.core.builder,
- eu.compassresearch.ide.core.resources,
- eu.compassresearch.ide.core.unsupported,
- org.antlr.runtime
+Export-Package: eu.compassresearch.ast.actions,eu.compassresearch.ast.
+ analysis,eu.compassresearch.ast.analysis.intf,eu.compassresearch.ast.
+ declarations,eu.compassresearch.ast.definitions,eu.compassresearch.as
+ t.expressions,eu.compassresearch.ast.lex,eu.compassresearch.ast.messa
+ ges,eu.compassresearch.ast.patterns,eu.compassresearch.ast.preview,eu
+ .compassresearch.ast.process,eu.compassresearch.ast.program,eu.compas
+ sresearch.ast.statements,eu.compassresearch.ast.typechecker,eu.compas
+ sresearch.ast.types,eu.compassresearch.core.common,eu.compassresearch
+ .core.parser,eu.compassresearch.core.typechecker,eu.compassresearch.c
+ ore.typechecker.api,eu.compassresearch.ide.core,eu.compassresearch.id
+ e.core.builder,eu.compassresearch.ide.core.resources,eu.compassresear
+ ch.ide.core.unsupported,org.antlr.runtime
 Require-Bundle: org.eclipse.core.runtime;visibility:=reexport,
  org.eclipse.core.resources;visibility:=reexport,
  org.overture.ide.core;visibility:=reexport,

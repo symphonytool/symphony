@@ -1920,7 +1920,6 @@ public class RttMbtClient {
 		} else {
 			// download generated files
 			dirName = getRttProjectPath() + File.separator
-					+ getRttMbtTestProcFolderName() + File.separator
 					+ concreteTestProcPath + File.separator
 					+ "testdata" + File.separator;
 			String mappedTestProcPathDocPrefix = mappedTestProcPath.replaceAll(fileSeparatorPattern(), "_");

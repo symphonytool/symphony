@@ -20,6 +20,7 @@ import eu.compassresearch.core.analysis.modelchecker.graphBuilder.event.CommEv;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.event.Event;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.event.IOCommEv;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.event.Tau;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.event.Tock;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.expression.EqualBooleanExpression;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.expression.LessThanBooleanExpression;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.expression.NotEqualBooleanExpression;
@@ -48,6 +49,8 @@ import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Proces
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.SeqComposition;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Skip;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Stop;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.TimedInterrupt;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.TimedTimeout;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.UntimedInterrupt;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.UntimedTimeout;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.VarDeclaration;
@@ -63,6 +66,10 @@ import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Void;
 
 public class Utilities {
 	
+	//adicionar  
+	//primitive tIntrpt        ::= (lProc : CMLProcess, t:Natural, rProc : CMLProcess).   //Timed Interrupt 
+    //primitive tTimeout       ::= (lProc : CMLProcess, t:Natural, rProc : CMLProcess).   //timed Timeout  
+		    
 	public static final String DEADLOCK = "Deadlock";
 	public static final String LIVELOCK = "Livelock";
 	public static final String NONDETERMINISM = "Nondeterminism";
@@ -90,6 +97,9 @@ public class Utilities {
 		constructors.put(Constructor.Assing.id, Constructor.Assing);
 		constructors.put(Constructor.UntimedInterrupt.id, Constructor.UntimedInterrupt);
 		constructors.put(Constructor.UntimedTimeout.id, Constructor.UntimedTimeout);
+		constructors.put(Constructor.TimedInterrupt.id, Constructor.TimedInterrupt);
+		constructors.put(Constructor.TimedTimeout.id, Constructor.TimedTimeout);
+		
 
 		//CHOICE
 		constructors.put(Constructor.IntChoice.id, Constructor.IntChoice);
@@ -125,6 +135,7 @@ public class Utilities {
 		constructors.put(Constructor.BasicEvent.id, Constructor.BasicEvent);
 		constructors.put(Constructor.IOComm.id, Constructor.IOComm);
 		constructors.put(Constructor.Tau.id, Constructor.Tau);
+		constructors.put(Constructor.Tock.id, Constructor.Tock);
 		constructors.put(Constructor.CommEv.id, Constructor.CommEv);
 
 		
@@ -152,7 +163,7 @@ public class Utilities {
 	}
 	
 	public enum Constructor {
-		Stop("Stop"), Skip("Skip"), Chaos("Chaos"), Div("Div"), Tau("tau"), NoPar(
+		Stop("Stop"), Skip("Skip"), Chaos("Chaos"), Div("Div"), Tau("tau"), Tock("tock"), NoPar(
 				"nopar"), NullBind("nBind"), Par("par"), IPar("iPar"), Parll(
 				"parll"), IParll("iParll"), Prefix("Prefix"), BasicEvent(
 				"BasicEv"), IOComm("IOComm"), Hide("hide"), BBind("BBinding"), State(
@@ -165,7 +176,8 @@ public class Utilities {
 				"GivenProc"), ProcDef("ProcDef"), CommEv("CommEv"),
 				SingleBind("SingleBind"), Void("void"), VarDecl("var"), Let("let"), 
 				GenPar("genPar"), TypeValue("TypeValue"), UntimedInterrupt("intrpt"), 
-				UntimedTimeout ("uTimeout"), ProdType("ProdType");
+				UntimedTimeout ("uTimeout"), ProdType("ProdType"), TimedInterrupt("tIntrpt"),
+				TimedTimeout ("tTimeout");
 		
 		String id;
 		
@@ -245,6 +257,7 @@ public class Utilities {
 				|| constructor.equals(Constructor.Chaos)
 				|| constructor.equals(Constructor.Div)
 				|| constructor.equals(Constructor.Tau)
+				|| constructor.equals(Constructor.Tock)
 				|| constructor.equals(Constructor.NoPar)
 				|| constructor.equals(Constructor.NullBind)
 				|| constructor.equals(Constructor.Void)) {
@@ -270,13 +283,16 @@ public class Utilities {
 	
 	private static void extractTerms(LinkedList<String> terms, String arguments){
 		StringBuilder currentTerm = new StringBuilder();
+		
 		int currIndex = 0;
 		int leftParen = 0;
 		int leftSquareBracket = 0;
 		int leftBracket = 0;
 		if(arguments.length() > 0){
 			char currChar = arguments.charAt(currIndex);
+			
 			if((currChar == ',')){
+				
 				arguments = arguments.substring(1);
 				extractTerms(terms, arguments);
 			}else{
@@ -318,9 +334,11 @@ public class Utilities {
 					
 					if(currIndex != arguments.length()){
 						currChar = arguments.charAt(currIndex);
+						
 					}
 				}
 				terms.add(currentTerm.toString());
+				
 				arguments = arguments.substring(currentTerm.length());
 				extractTerms(terms, arguments);
 			}
@@ -332,7 +350,7 @@ public class Utilities {
 		Object result = null;
 		Constructor c = determineConstructor(content);
 		content = extractConstructor(content);
-		content = content.replaceAll(" ","");
+		//content = content.replaceAll(" ","");
 		result = createObject(c, content);
 		
 		return result;
@@ -365,6 +383,9 @@ public class Utilities {
 			break;
 		case Tau:
 			result = new Tau();
+			break;
+		case Tock:
+			result = new Tock();
 			break;
 		case NoPar:
 			result = new NoPar();
@@ -440,6 +461,18 @@ public class Utilities {
 			auxProcess = (Process) createObject(arguments.pop().trim());
 			process = (Process) createObject(arguments.pop().trim());
 			result = new UntimedTimeout(auxProcess,process);
+			break;
+		case TimedInterrupt:
+			auxProcess = (Process) createObject(arguments.pop().trim());
+			String timeExp = arguments.pop().trim();
+			process = (Process) createObject(arguments.pop().trim());
+			result = new TimedInterrupt(auxProcess, process, timeExp);
+			break;
+		case TimedTimeout:
+			auxProcess = (Process) createObject(arguments.pop().trim());
+			String timeout = arguments.pop().trim();
+			process = (Process) createObject(arguments.pop().trim());
+			result = new TimedTimeout(auxProcess, process, timeout);
 			break;
 		case ExtChoice:
 			auxProcess = (Process) createObject(arguments.pop().trim());

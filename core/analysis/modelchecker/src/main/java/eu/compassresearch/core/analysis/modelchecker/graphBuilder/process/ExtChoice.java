@@ -17,7 +17,8 @@ public class ExtChoice extends Choice {
 	public boolean equals(Object obj) {
 		boolean result = false;
 		if (obj instanceof ExtChoice) {
-			result = super.equals(obj);
+			result = this.getFirstProcess().equals(((ExtChoice) obj).getFirstProcess()) 
+					 && this.getSecondProcess().equals(((ExtChoice) obj).getSecondProcess());
 		}
 		return result;
 	}
