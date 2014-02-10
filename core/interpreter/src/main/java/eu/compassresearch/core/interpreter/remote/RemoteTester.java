@@ -29,7 +29,7 @@ public class RemoteTester implements IRemoteControl
 
 				System.out.println("Selected: " + event);
 
-				if (interpreter.hasArguments(event))
+				if (interpreter.requireArguments(event))
 				{
 					interpreter.select(event, "4");
 				} else

@@ -7,12 +7,16 @@ import java.util.concurrent.SynchronousQueue;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.types.PType;
 import org.overture.interpreter.runtime.Context;
+import org.overture.interpreter.scheduler.BasicSchedulableThread;
+import org.overture.interpreter.scheduler.InitThread;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.api.SelectionStrategy;
+import eu.compassresearch.core.interpreter.api.events.CmlInterpreterStateObserver;
+import eu.compassresearch.core.interpreter.api.events.InterpreterStateChangedEvent;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.transitions.LabelledTransition;
@@ -31,20 +35,33 @@ public class RemoteInterpreter implements IRemoteInterpreter, SelectionStrategy
 	private SynchronousQueue<CmlTransitionSet> availableTransitions = new SynchronousQueue<CmlTransitionSet>();
 
 	private CmlInterpreter interpreter;
+	private CmlInterpreterState state;
 
-	public RemoteInterpreter(CmlDebugger debugger)
+	public RemoteInterpreter(CmlInterpreter cmlInterpreter, CmlDebugger debugger,boolean daemon)
 	{
 		this.debugger = debugger;
+		this.state = cmlInterpreter.getState();
+		cmlInterpreter.onStateChanged().registerObserver(new CmlInterpreterStateObserver()
+		{
+			@Override
+			public void onStateChanged(Object source, InterpreterStateChangedEvent event)
+			{
+				state =event.getStatus();	
+			}
+		});
+		
 		Thread t = new Thread(new Runnable()
 		{
 
 			@Override
 			public void run()
 			{
+				InitThread iniThread = new InitThread(Thread.currentThread());
+				BasicSchedulableThread.setInitialThread(iniThread);
 				RemoteInterpreter.this.debugger.start(RemoteInterpreter.this);
 			}
 		});
-		// t.setDaemon(true);
+		t.setDaemon(daemon);
 		t.start();
 	}
 
@@ -113,7 +130,7 @@ public class RemoteInterpreter implements IRemoteInterpreter, SelectionStrategy
 
 	public void select(CmlTransition event)
 	{
-		if (hasArguments(event))
+		if (requireArguments(event))
 		{
 			throw new InterpreterRuntimeException("The event has arguments. Please use the select method with arguments");
 		}
@@ -186,7 +203,14 @@ public class RemoteInterpreter implements IRemoteInterpreter, SelectionStrategy
 	}
 
 	@Override
-	public boolean hasArguments(CmlTransition event)
+	public boolean requireArguments(CmlTransition event)
+	{
+		return event instanceof LabelledTransition
+				&& getArgumentCount(event) >0;//!((LabelledTransition) event).getChannelName().getValues().isEmpty();
+
+	}
+	
+	private boolean hasArguments(CmlTransition event)
 	{
 		return event instanceof LabelledTransition
 				&& !((LabelledTransition) event).getChannelName().getValues().isEmpty();
@@ -214,6 +238,12 @@ public class RemoteInterpreter implements IRemoteInterpreter, SelectionStrategy
 			return valuesToRead;
 		}
 		return 0;
+	}
+
+	@Override
+	public CmlInterpreterState getState()
+	{
+		return this.state;
 	}
 
 }

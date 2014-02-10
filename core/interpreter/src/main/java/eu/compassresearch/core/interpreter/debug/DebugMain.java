@@ -202,7 +202,7 @@ public class DebugMain
 					debugger.start(strategy);
 				} else
 				{
-					IRemoteInterpreter interpreter = new RemoteInterpreter(debugger);
+					IRemoteInterpreter interpreter = new RemoteInterpreter(cmlInterpreter,debugger,false);
 					remote.run(interpreter);
 				}
 			} else
