@@ -206,7 +206,7 @@ public class RemoteInterpreter implements IRemoteInterpreter, SelectionStrategy
 	public boolean requireArguments(CmlTransition event)
 	{
 		return event instanceof LabelledTransition
-				&& getArgumentCount(event) >0;//!((LabelledTransition) event).getChannelName().getValues().isEmpty();
+				&& getArgumentCount(event) >0;
 
 	}
 	
