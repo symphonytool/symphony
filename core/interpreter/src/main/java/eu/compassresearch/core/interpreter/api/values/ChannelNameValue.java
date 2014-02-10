@@ -5,10 +5,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
-import org.overture.interpreter.values.UndefinedValue;
 import org.overture.interpreter.values.Value;
 
-import eu.compassresearch.core.interpreter.CmlRuntime;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 
 public class ChannelNameValue extends Value
@@ -48,7 +46,7 @@ public class ChannelNameValue extends Value
 	/*
 	 * Copy constructor
 	 */
-	private ChannelNameValue(ChannelNameValue other)
+	protected ChannelNameValue(ChannelNameValue other)
 	{
 		this.channel = other.channel;
 		this.values = new LinkedList<Value>(other.values);
@@ -147,48 +145,18 @@ public class ChannelNameValue extends Value
 		// Combine all the constraint as a MultiConstraint
 		for (int i = 0; i < constraints.size(); i++)
 		{
-			meetConstraints.add(new MultiConstraint(this.constraints.get(i), other.constraints.get(i)));
+			meetConstraints.add(MultiConstraint.combine(this.constraints.get(i), other.constraints.get(i)));
 		}
 
 		return new ChannelNameValue(this.channel, meetValues, meetConstraints);
 	}
 
-	private Value meet(Value val1, Value val2)
+	
+	public ChannelNameValue rename(CMLChannelValue channel)
 	{
-		// The meet operator is reflexive so if both are AnyValue we can return either of them
-		// and since they only are comparable if
-		if (AbstractValueInterpreter.isValueMostPrecise(val1)
-				&& AbstractValueInterpreter.isValueMostPrecise(val2))
-		{
-			return val1;
-		} else if (!AbstractValueInterpreter.isValueMostPrecise(val1)
-				&& !AbstractValueInterpreter.isValueMostPrecise(val2))
-		{
-			// If both are a nonprecise value and they differ the meet would be the set of of them, for now we
-			// just return the AnyValue
-			// TODO we need to be able to represent a AnyValue with a restriction, maybe an
-			// additional constraint expression would do?
-			if (!val1.equals(val2))
-			{
-				CmlRuntime.logger().warning("A Value just descreased in precision");
-				// return new AnyValue();
-				return new UndefinedValue();
-			}
-			// any value would do here since they are identical
-			else
-			{
-				return val1;
-			}
-		} else if (AbstractValueInterpreter.isValueMostPrecise(val1))
-		{
-			return val1;
-		} else
-		{
-			// if(isAnyValue(val2))
-			return val2;
-		}
+		return new ChannelNameValue(channel, values, constraints);
 	}
-
+	
 	public boolean isComparable(ChannelNameValue channelNameValue)
 	{
 		return this.getChannel().equals(channelNameValue.channel)

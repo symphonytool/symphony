@@ -18,17 +18,41 @@
  *******************************************************************************/
 package eu.compassresearch.ide.ui.editor.syntax;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import org.eclipse.jface.text.TextAttribute;
+import org.eclipse.jface.text.rules.EndOfLineRule;
+import org.eclipse.jface.text.rules.IRule;
+import org.eclipse.jface.text.rules.IToken;
+import org.eclipse.jface.text.rules.Token;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.RGB;
 import org.overture.ide.ui.editor.syntax.IVdmKeywords;
 import org.overture.ide.ui.editor.syntax.VdmCodeScanner;
 import org.overture.ide.ui.editor.syntax.VdmColorProvider;
 
 public class CmlCodeScanner extends VdmCodeScanner
 {
+	public static final RGB TYPE = new RGB(0, 0, 255);
 
 	public CmlCodeScanner(VdmColorProvider provider)
 	{
 		super(provider);
+		final IToken stringBold = new Token(new TextAttribute(provider.getColor(TYPE), null, SWT.NONE));
+		IToken type = new Token(new TextAttribute(provider.getColor(VdmColorProvider.TYPE), null, SWT.BOLD));
+		IToken comment = new Token(new TextAttribute(provider.getColor(VdmColorProvider.SINGLE_LINE_COMMENT)));
+		List<IRule> rules = new ArrayList<IRule>();
+		rules.add(new PrefixedUnderscoreIdentifierRule("act", stringBold));
+		rules.add(new PrefixedUnderscoreIdentifierRule("ch", new Token(new TextAttribute(provider.getColor(new RGB(128, 128, 0)), null, SWT.NONE))));
+		rules.add(new QuoteRule(type));
+		rules.add(new EndOfLineRule("//", comment));
+		rules.addAll(Arrays.asList(this.fRules));
 
+		IRule[] result = new IRule[rules.size()];
+		rules.toArray(result);
+		setRules(result);
 	}
 
 	@Override

@@ -1,9 +1,9 @@
 package eu.compassresearch.core.interpreter.debug;
 
-import eu.compassresearch.core.interpreter.debug.messaging.Message;
+import eu.compassresearch.core.interpreter.debug.messaging.AbstractMessage;
 import eu.compassresearch.core.interpreter.debug.messaging.MessageType;
 
-public class CmlDbgCommandMessage extends Message
+public class CmlDbgCommandMessage extends AbstractMessage
 {
 
 	protected CmlDebugCommand command;

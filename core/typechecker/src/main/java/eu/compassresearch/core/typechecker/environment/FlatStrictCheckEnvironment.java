@@ -12,7 +12,6 @@ import org.overture.typechecker.Environment;
 import org.overture.typechecker.FlatCheckedEnvironment;
 import org.overture.typechecker.TypeChecker;
 import org.overture.typechecker.assistant.ITypeCheckerAssistantFactory;
-import org.overture.typechecker.assistant.definition.PDefinitionListAssistantTC;
 
 public class FlatStrictCheckEnvironment extends FlatCheckedEnvironment
 {
@@ -49,7 +48,7 @@ public class FlatStrictCheckEnvironment extends FlatCheckedEnvironment
 
 	protected void dupHideCheck(List<PDefinition> list, NameScope scope)
 	{
-		LexNameList allnames = PDefinitionListAssistantTC.getVariableNames(filterClassInvs(list));
+		LexNameList allnames = af.createPDefinitionListAssistant().getVariableNames(filterClassInvs(list));
 
 		for (ILexNameToken n1 : allnames)
 		{

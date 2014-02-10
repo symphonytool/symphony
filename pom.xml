@@ -6,7 +6,7 @@
   <groupId>eu.compassresearch</groupId>
   <artifactId>root</artifactId>
   <name>The Symphony IDE Top-Level</name>
-  <version>0.2.7-SNAPSHOT</version>
+  <version>0.2.9-SNAPSHOT</version>
 
   <modules>
     <module>tools</module>
@@ -18,7 +18,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <overture.version>2.0.1-SNAPSHOT</overture.version>
+    <overture.version>2.0.3-SNAPSHOT</overture.version>
   </properties>
 
   <dependencies>
@@ -36,6 +36,28 @@
       <modules>
 	<module>ide</module>
       </modules>
+    </profile>
+
+    <profile>
+      <id>overture-test-repo</id>
+      <repositories>
+        <repository>
+          <id>overture.au.dk</id>
+          <name>Overture Project Build Repository for Symphony at AU</name>
+          <releases>
+	    <enabled>false</enabled>
+	    <updatePolicy>daily</updatePolicy>
+	    <checksumPolicy>warn</checksumPolicy>
+          </releases>
+          <snapshots>
+	    <enabled>true</enabled>
+	    <updatePolicy>always</updatePolicy>
+	    <checksumPolicy>warn</checksumPolicy>
+          </snapshots>
+          <url>http://overture.au.dk/maven/symphony-overture-test/</url>
+          <layout>default</layout>
+        </repository>
+      </repositories>
     </profile>
   </profiles>
 
@@ -237,7 +259,7 @@
 	<plugin>
 	  <groupId>pl.project13.maven</groupId>
 	  <artifactId>git-commit-id-plugin</artifactId>
-	  <version>2.1.4</version>
+	  <version>2.1.8</version>
 	  <configuration>
 	    <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
 	  </configuration>

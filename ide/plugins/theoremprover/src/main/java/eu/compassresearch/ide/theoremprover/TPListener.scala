@@ -18,32 +18,25 @@ import eu.compassresearch.ide.pog.PogPluginRunner
 
 object TPListener {
 
-  def updatePOListFromThy(poList: CmlProofObligationList, ithy: IsabelleTheory, ischanged : IPoStatusChanged) = {
+  def updatePOListFromThy(poList: CmlProofObligationList, ithy: IsabelleTheory) = {
     var flag: Boolean = false
     for (p <- JavaConversions.asScalaIterable(poList)) {
       // FIXME: Add code to update POs from the theory
       if (ithy.thmIsProved("po" + p.getUniqueName())) {
         p.setStatus(POStatus.PROVED);
         println(p.getName() + " is proved!");
-        ischanged.statusChanges(p)
+        // ischanged.statusChanges(p)
         flag = true
       }
     }
-//    if (flag == true) {
-//      val pol = new CmlProofObligationList()
-//      for (po <- JavaConversions.asScalaIterable(poList)) {
-//        pol.add(po)
-//      }
-//       PogPluginRunner.redrawPos(proj, pol)
-//    }
   }
-
+  
 }
 
-class TPListener(session: Session, ischanged : IPoStatusChanged) extends SessionEvents {
+class TPListener(session: Session) extends SessionEvents {
 
   var nodeCMLMap: Map[Document.Node.Name, ICmlModel] = Map()
-  var statusChangedThing : IPoStatusChanged = ischanged
+  // var statusChangedThing : IPoStatusChanged = ischanged
   
   def registerNode(n: Document.Node.Name, m: ICmlModel) {
     nodeCMLMap += (n -> m)
@@ -76,7 +69,7 @@ class TPListener(session: Session, ischanged : IPoStatusChanged) extends Session
             val poList = model.getAttribute(POConstants.PO_REGISTRY_ID, classOf[CmlProofObligationList]);
             //FIXME Hardcoded ID string. scala cannot solve the path
             val ithy = model.getAttribute("eu.compassresearch.ide.theoremprover", classOf[IsabelleTheory]);
-            TPListener.updatePOListFromThy(poList, ithy, statusChangedThing)
+            TPListener.updatePOListFromThy(poList, ithy)
           }
         }
       }
@@ -99,4 +92,10 @@ class TPListener(session: Session, ischanged : IPoStatusChanged) extends Session
     */
   }
 
+  def cmdAt(thyNode : Document.Node.Name, offset : Integer): Option[Command] = {
+    val node = session.snapshot(thyNode).node
+    node.command_at(offset).map(_._1)
+  }
+
+  
 }

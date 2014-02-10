@@ -1,0 +1,8 @@
+class S = begin
+
+operations
+
+  public t:()==>S
+  t()== return self
+
+end

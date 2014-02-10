@@ -248,13 +248,13 @@ public class CmlApplicationLaunchShortcut implements ILaunchShortcut2
 			{
 				if (!vdmProject.getModel().isParseCorrect())
 				{
-					MessageDialog.openError(null, "Launch failure", "The Cml model is not parsed correctly and therefore cannot be launched. This could be a glitch, try to close and open the source.");
+					MessageDialog.openError(null, "Launch failure", "The Cml model is not be parsed and therefore cannot be launched.");
 				} else if (!vdmProject.getModel().isTypeCorrect())
 				{
-					MessageDialog.openError(null, "Launch failure", "The Cml model is not typecheck correctly and therefore cannot be launched. This could be a glitch, try to close and open the source.");
+					MessageDialog.openError(null, "Launch failure", "The Cml model is not typecheck and therefore cannot be launched.");
 				} else
 				{
-					MessageDialog.openError(null, "Launch failure", "The Cml model is not loaded correctly and therefore cannot be launched");
+					MessageDialog.openError(null, "Launch failure", "The Cml model is not be loaded and therefore cannot be launched");
 				}
 			}
 		} catch (InterruptedException | CoreException e)

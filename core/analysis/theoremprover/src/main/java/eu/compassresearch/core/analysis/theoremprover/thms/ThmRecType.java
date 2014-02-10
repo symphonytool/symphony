@@ -23,11 +23,36 @@ public class ThmRecType extends ThmDecl {
 		this.fields = fields;
 	}
 	
-	public ThmRecType(String name, LinkedList<AFieldField> fields, String inv)
+	public ThmRecType(String name, LinkedList<AFieldField> fields, String invname, LinkedList<String> invparams)
 	{
 		this.name = name;
 		this.fields = fields;
-		this.invariant = inv;
+		this.invariant = createInvCall(invname, invparams);
+	}
+	
+	
+	
+	private String createInvCall(String invname, LinkedList<String> invparams) {
+		if (invname != "")
+		{
+			//generate the list of parameters
+			String paramList = "";
+			String funccalllist = "";
+			for (Iterator<String> p = invparams.listIterator(); p.hasNext(); ) {
+				String pname = p.next();
+				paramList = paramList + pname + " ";
+				funccalllist = funccalllist + "&"+ pname;
+				if(p.hasNext())
+				{
+					funccalllist = funccalllist + ", ";
+				}
+			}
+			//make the invariant call
+			String invString  = " inv " + paramList + "== " + invname +"(" + funccalllist + ")";
+			
+			return invString;
+		}
+		else return "";
 	}
 	
 	/*****

@@ -12,7 +12,6 @@ import org.overture.pog.visitors.PogParamStmVisitor;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligationList;
 
-@SuppressWarnings("serial")
 public class POGStatementVisitor extends 
 QuestionAnswerCMLAdaptor<IPOContextStack, CmlProofObligationList> {
     

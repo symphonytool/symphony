@@ -164,10 +164,11 @@ public interface ITypeIssueHandler extends IStatusListener
 			super(subtree, number, description);
 			buildStack();
 		}
-		
-		public CMLTypeError(INode subtree, int number,ILexLocation location, String description)
+
+		public CMLTypeError(INode subtree, int number, ILexLocation location,
+				String description)
 		{
-			super(subtree,location, number, description);
+			super(subtree, location, number, description);
 			buildStack();
 		}
 
@@ -194,8 +195,8 @@ public interface ITypeIssueHandler extends IStatusListener
 			int i = 0;
 			StringBuilder sb = new StringBuilder();
 			sb.append(toString());
-			sb.append((reportedAt == null ? "\n\n" : "\nOffending node: "
-					+ reportedAt));
+			sb.append(reportedAt == null ? "\n\n" : "\nOffending node: "
+					+ reportedAt);
 			for (i = 4; i < stackTrace.length && i < 20; i++)
 			{
 				StackTraceElement e = stackTrace[i];
@@ -223,13 +224,16 @@ public interface ITypeIssueHandler extends IStatusListener
 			if (obj instanceof CMLTypeError)
 			{
 				CMLTypeError errorEqualTo = (CMLTypeError) obj;
-				boolean sameSubTree = (errorEqualTo.reportedAt == null && reportedAt == null)
-						|| (errorEqualTo.reportedAt != null
-								&& reportedAt != null && reportedAt == errorEqualTo.reportedAt);
-				boolean sameDescription = (message == null && errorEqualTo.message == null)
-						|| (message != null && message.equals(errorEqualTo.message))
-						|| (error == null && errorEqualTo.error == null)
-						|| (error != null && error.equals(errorEqualTo.error));
+				boolean sameSubTree = errorEqualTo.reportedAt == null
+						&& reportedAt == null
+						|| errorEqualTo.reportedAt != null
+						&& reportedAt != null
+						&& reportedAt == errorEqualTo.reportedAt;
+				boolean sameDescription = message == null
+						&& errorEqualTo.message == null || message != null
+						&& message.equals(errorEqualTo.message)
+						|| error == null && errorEqualTo.error == null
+						|| error != null && error.equals(errorEqualTo.error);
 
 				return sameSubTree && sameDescription;
 			}
@@ -265,9 +269,11 @@ public interface ITypeIssueHandler extends IStatusListener
 	 * @param message
 	 *            - A message detailing the nature of the the error and preferably hinting how to fix it.
 	 */
-	public void addTypeError(INode offendingSubtree,ILexLocation location, String message);
+	public void addTypeError(INode offendingSubtree, ILexLocation location,
+			String message);
 
-	public void addTypeError(INode parent, TypeErrorMessages message, String... arguments);
+	public void addTypeError(INode parent, TypeErrorMessages message,
+			String... arguments);
 
 	/**
 	 * Return a type warning.
@@ -277,7 +283,9 @@ public interface ITypeIssueHandler extends IStatusListener
 	 * @param message
 	 *            - A message detailing the kind of check made to trigger this warning.
 	 */
-	public void addTypeWarning(INode hazardousSubtree, TypeWarningMessages message, String... arguments);
+	public void addTypeWarning(INode hazardousSubtree,
+			TypeWarningMessages message, String... arguments);
+
 	/**
 	 * Return a type warning.
 	 * 
@@ -286,7 +294,8 @@ public interface ITypeIssueHandler extends IStatusListener
 	 * @param message
 	 *            - A message detailing the kind of check made to trigger this warning.
 	 */
-	public void addTypeWarning(INode hazardousSubtree, TypeWarningMessages message);
+	public void addTypeWarning(INode hazardousSubtree,
+			TypeWarningMessages message);
 
 	/**
 	 * Returns true if one or more errors has been added.

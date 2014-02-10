@@ -1,0 +1,8 @@
+channels 
+a b
+
+process A = 
+begin 
+
+	@ (a -> Skip)[[ a <- b ]]
+end

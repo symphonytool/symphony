@@ -25,15 +25,15 @@ public class CaseStudiesTestCase extends
 
 	"/GridManager/FarmB",
 
-//	"/LeaderElection/Election-BigProcess",//parser error
-//
-//	"/LeaderElection/Election-NonLeaders",//parser error
-//
-//	"/LeaderElection/Election-Original",//parser error
+			// "/LeaderElection/Election-BigProcess",//parser error
+			//
+			// "/LeaderElection/Election-NonLeaders",//parser error
+			//
+			// "/LeaderElection/Election-Original",//parser error
 
 			// "/LeaderElection/LeaderElection-Ncl",
 
-//			"/LeaderElection",//parser error
+			// "/LeaderElection",//parser error
 
 			"/Library",
 
@@ -51,7 +51,7 @@ public class CaseStudiesTestCase extends
 
 			"/TelephoneExchange/ClassesVersion",
 
-		//	"/TelephoneExchange/Original",
+			// "/TelephoneExchange/Original",
 
 			"/TrafficManager/CityAndCars/City",
 

@@ -114,7 +114,6 @@ public class AbstractCmlKindFinder extends KindFinder implements
 		ICMLAnswer<String>
 {
 
-
 	public AbstractCmlKindFinder(ITypeCheckerAssistantFactory af)
 	{
 		super(af);

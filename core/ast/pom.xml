@@ -5,7 +5,7 @@
   <parent>
     <groupId>eu.compassresearch.core</groupId>
     <artifactId>core</artifactId>
-    <version>0.2.7-SNAPSHOT</version>
+    <version>0.2.9-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -13,7 +13,7 @@
   <name>Symphony Core CML Abstract Syntax Tree</name>
 
   <properties>
-    <astcreator.version>1.6.0</astcreator.version>
+    <astcreator.version>1.6.1</astcreator.version>
   </properties>
 
   <dependencies>

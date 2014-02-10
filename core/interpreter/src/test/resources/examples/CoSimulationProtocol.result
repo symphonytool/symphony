@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testResult>
+  <exception/>
+  <interpreterState>FINISHED</interpreterState>
+  <trace>
+    <events>ch_init,ch_tcp\.&lt;CONNECT&gt;,ch_tcp\.&lt;RegisterSubSystemMessage&gt;,ch_tcp\.&lt;FinishedRequestMessage&gt;,ch_tcp\.&lt;DisconnectMessage&gt;</events>
+  </trace>
+</testResult>

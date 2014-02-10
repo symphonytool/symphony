@@ -6,7 +6,6 @@ import java.util.LinkedList;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AInstanceVariableDefinition;
 import org.overture.ast.definitions.PDefinition;
-import org.overture.ast.expressions.PExp;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
@@ -15,13 +14,28 @@ import org.overture.ast.patterns.PPattern;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.definitions.AActionClassDefinition;
 import eu.compassresearch.ast.process.AActionProcess;
+import eu.compassresearch.ast.process.AAlphabetisedParallelismProcess;
+import eu.compassresearch.ast.process.AAlphabetisedParallelismReplicatedProcess;
+import eu.compassresearch.ast.process.AChannelRenamingProcess;
+import eu.compassresearch.ast.process.AEndDeadlineProcess;
 import eu.compassresearch.ast.process.AExternalChoiceProcess;
+import eu.compassresearch.ast.process.AExternalChoiceReplicatedProcess;
 import eu.compassresearch.ast.process.AGeneralisedParallelismProcess;
+import eu.compassresearch.ast.process.AGeneralisedParallelismReplicatedProcess;
 import eu.compassresearch.ast.process.AHidingProcess;
+import eu.compassresearch.ast.process.AInstantiationProcess;
 import eu.compassresearch.ast.process.AInterleavingProcess;
+import eu.compassresearch.ast.process.AInterleavingReplicatedProcess;
 import eu.compassresearch.ast.process.AInternalChoiceProcess;
+import eu.compassresearch.ast.process.AInternalChoiceReplicatedProcess;
+import eu.compassresearch.ast.process.AInterruptProcess;
 import eu.compassresearch.ast.process.AReferenceProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
+import eu.compassresearch.ast.process.ASequentialCompositionReplicatedProcess;
+import eu.compassresearch.ast.process.AStartDeadlineProcess;
+import eu.compassresearch.ast.process.ATimedInterruptProcess;
+import eu.compassresearch.ast.process.ATimeoutProcess;
+import eu.compassresearch.ast.process.AUntimedTimeoutProcess;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.analysis.theoremprover.thms.NodeNameList;
 import eu.compassresearch.core.analysis.theoremprover.thms.ThmExplicitOperation;
@@ -42,8 +56,6 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 	}
 	
 	/**
-	 * NEED TO GET VISITORS WORKING HERE MORE...
-	 * 
 	 * Return the ThmNode for a Action Process - this is more complex than most other
 	 * Node utils, due to the internal scoping etc required in a process
 	 * @param procName the process name
@@ -115,10 +127,10 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 			}
 			//hack a name for the initialisation op
 			LexNameToken initName = new LexNameToken("", "IsabelleStateInit", act.getLocation());
-			ThmNode stn = new ThmNode(initName, initExprNodeDeps, new ThmExplicitOperation(initName.getName(), new LinkedList<PPattern>(), null, null, initExpStr.toString(), null));
+			ThmNode stn = new ThmNode(initName, initExprNodeDeps, new ThmExplicitOperation(initName.getName(), new LinkedList<PPattern>(), null, null, initExpStr.toString(), null, null));
 			actTnl.add(stn);		
 			
-			mainActStateStr = " = `IsabelleStateInit; ";
+			mainActStateStr = " = ` call IsabelleStateInit[]; ";
 		}
 		
 		//sort the state, operation and actions, so that they are in dependency order
@@ -143,121 +155,148 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 	
 	
 	
-	
-	public String caseASequentialCompositionProcess(ASequentialCompositionProcess p, ThmVarsContext vars) throws AnalysisException{
 
-		return p.getLeft().apply(thmStringVisitor, vars) + ThmProcessUtil.seqComp + p.getRight().apply(thmStringVisitor, vars);
-	}
 	
-	public String caseAExternalChoiceProcess(AExternalChoiceProcess p, ThmVarsContext vars) throws AnalysisException{
+	public String caseAAlphabetisedParallelismProcess(AAlphabetisedParallelismProcess p, ThmVarsContext vars) throws AnalysisException{
 		
-		return p.getLeft().apply(thmStringVisitor, vars) + ThmProcessUtil.extChoice + p.getRight().apply(thmStringVisitor, vars);
+		return ThmProcessUtil.undefined;
 	}
 	
-	public String caseAInternalChoiceProcess(AInternalChoiceProcess p, ThmVarsContext vars) throws AnalysisException{
+	public String caseAAlphabetisedParallelismReplicatedProcess(AAlphabetisedParallelismReplicatedProcess p, ThmVarsContext vars) throws AnalysisException{
 		
-		return p.getLeft().apply(thmStringVisitor, vars) + ThmProcessUtil.intChoice + p.getRight().apply(thmStringVisitor, vars);
+		return ThmProcessUtil.undefined;
 	}
 	
-	public String caseAInterleavingProcess(AInterleavingProcess p, ThmVarsContext vars) throws AnalysisException{
-
-		return p.getLeft().apply(thmStringVisitor, vars) + ThmProcessUtil.interleave  + p.getRight().apply(thmStringVisitor, vars);
+	public String caseAChannelRenamingProcess(AChannelRenamingProcess node, ThmVarsContext vars) throws AnalysisException{
+	
+		return ThmProcessUtil.undefined;
 	}
 	
-	public String caseAGeneralisedParallelismProcess(AGeneralisedParallelismProcess p, ThmVarsContext vars) throws AnalysisException{
+	public String caseAEndDeadlineProcess(AEndDeadlineProcess p, ThmVarsContext vars) throws AnalysisException{
 
-		String left = p.getLeft().apply(thmStringVisitor, vars);
-		String right = p.getRight().apply(thmStringVisitor, vars);
-		String chExp = p.getChansetExpression().apply(thmStringVisitor, vars);
+		return ThmProcessUtil.undefined;
+	}
 		
-		return left + "[|" + chExp +"|]" + right;
-	}
-	
-//	public String caseAAlphabetisedParallelismProcess(AAlphabetisedParallelismProcess p, ThmVarsContext vars) throws AnalysisException{
-//
-//		String left = p.getLeft().apply(thmStringVisitor, vars);
-//		String right = p.getRight().apply(thmStringVisitor, vars);
-//		String leftChExp = p.getLeftChansetExpression().apply(thmStringVisitor, vars);
-//		String rightChExp = p.getRightChansetExpression().apply(thmStringVisitor, vars);
-//		
-//		return left + "[" + leftChExp + "||" + rightChExp +"]" + right;
-//	}
-	
-//	public String caseAInterruptProcess(AInterruptProcess p, ThmVarsContext vars) throws AnalysisException{
-//
-//		return p.getLeft().apply(thmStringVisitor, vars) + ThmProcessUtil.interrupt + p.getRight().apply(thmStringVisitor, vars);
-//	}
-//	
-//	public String caseATimedInterruptProcess(ATimedInterruptProcess p, ThmVarsContext vars) throws AnalysisException{
-//		
-//		String left = p.getLeft().apply(thmStringVisitor, vars);
-//		String expr = p.getTimeExpression().apply(thmStringVisitor, vars);
-//		String right = p.getRight().apply(thmStringVisitor, vars);
-//
-//		return left + ThmProcessUtil.timeIntLeft + expr + ThmProcessUtil.timeIntRight + right;
-//	}
-//	
-//	public String caseAUntimedTimeoutProcess(AUntimedTimeoutProcess p, ThmVarsContext vars) throws AnalysisException{
-//		
-//		String left =  p.getLeft().apply(thmStringVisitor, vars);
-//		String right = p.getRight().apply(thmStringVisitor, vars);
-//
-//		return left + ThmProcessUtil.timeout + right;
-//	}
-//	
-//	public String caseATimeoutProcess(ATimeoutProcess p, ThmVarsContext vars) throws AnalysisException{
-//
-//		String left = p.getLeft().apply(thmStringVisitor, vars);
-//		String expr = p.getTimeoutExpression().apply(thmStringVisitor, vars);
-//		String right = p.getRight().apply(thmStringVisitor, vars);
-//
-//		return left + ThmProcessUtil.timeoutLeft +  expr + ThmProcessUtil.timeoutRight + right;
-//	}
-	
-	public String caseAHidingProcess(AHidingProcess p, ThmVarsContext vars) throws AnalysisException{
+	public String caseAExternalChoiceProcess(AExternalChoiceProcess node, ThmVarsContext vars) throws AnalysisException{
 
-		String actStr = p.getLeft().apply(thmStringVisitor, vars);
-		String chanStr = p.getChansetExpression().apply(thmStringVisitor, vars);
-		return actStr + ThmProcessUtil.hiding + chanStr;
+		return ThmProcessUtil.undefined;
 	}
 	
-//	public String caseAStartDeadlineProcess(AStartDeadlineProcess p, ThmVarsContext vars) throws AnalysisException{
+	public String caseAExternalChoiceReplicatedProcess(
+			AExternalChoiceReplicatedProcess node, ThmVarsContext vars) throws AnalysisException{
+
+		return ThmProcessUtil.undefined;
+	}
+	
+	public String caseAGeneralisedParallelismProcess(
+			AGeneralisedParallelismProcess node, ThmVarsContext vars) throws AnalysisException{
+
+		return ThmProcessUtil.undefined;
+	}
+
+	public String caseAGeneralisedParallelismReplicatedProcess(
+			AGeneralisedParallelismReplicatedProcess node, ThmVarsContext vars) throws AnalysisException{
+
+		return ThmProcessUtil.undefined;
+	}
+
+	public String caseAHidingProcess(AHidingProcess node, ThmVarsContext vars) throws AnalysisException{
+
+		return ThmProcessUtil.undefined;
+	}
+
+	public String caseAInstantiationProcess(AInstantiationProcess node, ThmVarsContext vars) throws AnalysisException{
+
+		return ThmProcessUtil.undefined;
+	}
+
+	public String caseAInterleavingProcess(AInterleavingProcess node, ThmVarsContext vars) throws AnalysisException{
+
+		return ThmProcessUtil.undefined;
+	}
+
+	public String caseAInterleavingReplicatedProcess(
+			AInterleavingReplicatedProcess node, ThmVarsContext vars) throws AnalysisException{
+
+		return ThmProcessUtil.undefined;
+	}
+
+	public String caseAInternalChoiceProcess(AInternalChoiceProcess node, ThmVarsContext vars) throws AnalysisException{
+
+		return ThmProcessUtil.undefined;
+	}
+
+	public String caseAInternalChoiceReplicatedProcess(
+			AInternalChoiceReplicatedProcess node, ThmVarsContext vars) throws AnalysisException{
+
+		return ThmProcessUtil.undefined;
+	}
+
+	public String caseAInterruptProcess(AInterruptProcess node, ThmVarsContext vars) throws AnalysisException{
+
+		return ThmProcessUtil.undefined;
+	}
+
+	public String caseAReferenceProcess(AReferenceProcess node, ThmVarsContext vars) throws AnalysisException{
+
+		return ThmProcessUtil.undefined;
+	}
+
+	public String caseASequentialCompositionProcess(
+			ASequentialCompositionProcess node, ThmVarsContext vars) throws AnalysisException{
+
+		return ThmProcessUtil.undefined;
+	}
+
+	public String caseASequentialCompositionReplicatedProcess(
+			ASequentialCompositionReplicatedProcess node, ThmVarsContext vars) throws AnalysisException{
+
+		return ThmProcessUtil.undefined;
+	}
+
+	public String caseAStartDeadlineProcess(AStartDeadlineProcess node, ThmVarsContext vars) throws AnalysisException{
+
+		return ThmProcessUtil.undefined;
+	}
+
+	public String caseATimedInterruptProcess(ATimedInterruptProcess node, ThmVarsContext vars) throws AnalysisException{
+
+		return ThmProcessUtil.undefined;
+	}
+
+	public String caseATimeoutProcess(ATimeoutProcess node, ThmVarsContext vars) throws AnalysisException{
+
+		return ThmProcessUtil.undefined;
+	}
+
+	public String caseAUntimedTimeoutProcess(AUntimedTimeoutProcess node, ThmVarsContext vars) throws AnalysisException{
+
+		return ThmProcessUtil.undefined;
+	}
+//	
+//	public String caseAReferenceProcess(AReferenceProcess p, ThmVarsContext vars) throws AnalysisException{
 //
-//		String left = p.getLeft().apply(thmStringVisitor, vars);
-//		String expr = p.getExpression().apply(thmStringVisitor, vars);		
-//		return left + ThmProcessUtil.startsby + expr;
+//		StringBuilder argStr = new StringBuilder();
+//		LinkedList<PExp> args = p.getArgs();
+//		if (args.size() != 0)
+//		{
+//			argStr.append("(");
+//			for (Iterator<PExp> itr = p.getArgs().listIterator(); itr.hasNext(); ) {
+//				PExp e = itr.next();
+//				
+//				argStr.append(e.apply(thmStringVisitor, vars));
+//				//If there are remaining expressions, add a ","
+//				if(itr.hasNext()){	
+//					argStr.append(", ");
+//				}
+//			}
+//			argStr.append(")");
+//		}
+//		return p.getProcessName().toString() + argStr.toString();
 //	}
 //	
-//	public String caseAEndDeadlineProcess(AEndDeadlineProcess p, ThmVarsContext vars) throws AnalysisException{
-//
-//		String left = p.getLeft().apply(thmStringVisitor, vars);
-//		String expr = p.getExpression().apply(thmStringVisitor, vars);	
-//		return left + ThmProcessUtil.endsby + expr;	
-//	}
-	
-	public String caseAReferenceProcess(AReferenceProcess p, ThmVarsContext vars) throws AnalysisException{
-
-		StringBuilder argStr = new StringBuilder();
-		LinkedList<PExp> args = p.getArgs();
-		if (args.size() != 0)
-		{
-			argStr.append("(");
-			for (Iterator<PExp> itr = p.getArgs().listIterator(); itr.hasNext(); ) {
-				PExp e = itr.next();
-				
-				argStr.append(e.apply(thmStringVisitor, vars));
-				//If there are remaining expressions, add a ","
-				if(itr.hasNext()){	
-					argStr.append(", ");
-				}
-			}
-			argStr.append(")");
-		}
-		return p.getProcessName().toString() + argStr.toString();
-	}
-	
 	public String casePProcess(PProcess p, ThmVarsContext vars) throws AnalysisException{
-		return ThmProcessUtil.procNotHandled;
+		return ThmProcessUtil.undefined;
 	}
 	
 	@Override

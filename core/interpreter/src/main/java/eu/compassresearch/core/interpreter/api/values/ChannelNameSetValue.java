@@ -10,6 +10,10 @@ import org.overture.interpreter.values.Value;
 public class ChannelNameSetValue extends Value implements Set<ChannelNameValue>
 {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	Set<ChannelNameValue> channelNames;
 
 	public ChannelNameSetValue(Set<ChannelNameValue> channelNames)

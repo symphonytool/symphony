@@ -2,7 +2,7 @@
 <feature
       id="eu.compassresearch.ide.features.plugins.theoremprover"
       label="Theorem Prover"
-      version="0.2.7.qualifier">
+      version="0.2.9.qualifier">
 
    <description>
       %description

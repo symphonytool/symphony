@@ -56,7 +56,6 @@ import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.core.analysis.pog.obligations.CmlNonZeroTimeObligation;
 import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligationList;
 
-@SuppressWarnings("serial")
 public class POGActionVisitor extends
 		QuestionAnswerCMLAdaptor<IPOContextStack, CmlProofObligationList>
 {

@@ -14,9 +14,9 @@ import org.junit.runners.Parameterized.Parameters;
 public class LivePublicTestCase extends
 		AbstractResultBasedCmlTypeCheckerTestCase
 {
-	private static String caseStudyDir = (System.getProperty("CASESTUDIES") != null ? System.getProperty("CASESTUDIES")
+	private static String caseStudyDir = System.getProperty("CASESTUDIES") != null ? System.getProperty("CASESTUDIES")
 			+ "/../PublicLiveCMLCaseStudies/"
-			: null);
+			: null;
 	static String[] specifications = {
 
 	"/BitRegister", "/Dwarf", "/AVDeviceDiscovery", "/ChoiceSupportInDebugger",

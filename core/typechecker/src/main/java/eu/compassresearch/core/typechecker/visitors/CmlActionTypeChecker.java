@@ -35,9 +35,7 @@ import org.overture.typechecker.TypeCheckInfo;
 import org.overture.typechecker.TypeChecker;
 import org.overture.typechecker.TypeCheckerErrors;
 import org.overture.typechecker.TypeComparator;
-import org.overture.typechecker.assistant.definition.PDefinitionAssistantTC;
 import org.overture.typechecker.assistant.pattern.PPatternAssistantTC;
-import org.overture.typechecker.assistant.statement.ACallObjectStatementAssistantTC;
 
 import eu.compassresearch.ast.CmlAstFactory;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
@@ -139,14 +137,15 @@ public class CmlActionTypeChecker extends
 	public PType caseACallAction(ACallAction node, TypeCheckInfo question)
 			throws AnalysisException
 	{
-		List<PType> atypes = ACallObjectStatementAssistantTC.getArgTypes(node.getArgs(), THIS, question);
+		List<PType> atypes = question.assistantFactory.createACallObjectStatementAssistant().getArgTypes(node.getArgs(), THIS, question);
 
 		if (question.env.isVDMPP())
 		{
 			node.getName().setTypeQualifier(atypes);
 		}
 
-		PDefinition opdef = findDefinition(node.getName(), question.env);
+		PDefinition opdef = question.env.findName(node.getName(), question.scope);// findDefinition(node.getName(),
+																					// question.env);
 
 		if (opdef == null)
 		{
@@ -197,7 +196,7 @@ public class CmlActionTypeChecker extends
 
 		PType rightType = node.getRight().apply(THIS, question);
 
-		return setType(node, leftType, rightType);
+		return setType(question.assistantFactory, node, leftType, rightType);
 	}
 
 	@Override
@@ -215,13 +214,13 @@ public class CmlActionTypeChecker extends
 
 		PType timedExpType = timedExp.apply(THIS, question);
 
-		if (!TypeComparator.isSubType(timedExpType, new AIntNumericBasicType()))
+		if (!TypeComparator.isSubType(timedExpType, new AIntNumericBasicType(), question.assistantFactory))
 		{
 			issueHandler.addTypeError(timedExp, TypeErrorMessages.TIME_UNIT_EXPRESSION_MUST_BE_NAT, timedExp
 					+ "", timedExpType + "");
 		}
 
-		return TypeCheckerUtil.setType(node, leftType, rightType);
+		return TypeCheckerUtil.setType(question.assistantFactory, node, leftType, rightType);
 	}
 
 	@Override
@@ -248,7 +247,7 @@ public class CmlActionTypeChecker extends
 
 		PType actionType = repAction.apply(THIS, question.newScope(defs));
 
-		return TypeCheckerUtil.setType(node, actionType);
+		return TypeCheckerUtil.setType(question.assistantFactory, node, actionType);
 
 	}
 
@@ -310,7 +309,7 @@ public class CmlActionTypeChecker extends
 		// FIXME how should we handle write only checks
 		PType repActionType = node.getReplicatedAction().apply(THIS, question.newScope(defs, NameScope.NAMESANDANYSTATE));
 
-		return TypeCheckerUtil.setType(node, repActionType);
+		return TypeCheckerUtil.setType(question.assistantFactory, node, repActionType);
 	}
 
 	@Override
@@ -335,7 +334,7 @@ public class CmlActionTypeChecker extends
 
 		PType actionType = action.apply(THIS, question.newScope(defs));
 
-		return TypeCheckerUtil.setType(node, actionType);
+		return TypeCheckerUtil.setType(question.assistantFactory, node, actionType);
 	}
 
 	@Override
@@ -352,7 +351,7 @@ public class CmlActionTypeChecker extends
 		PType rightActionType = rightAction.apply(THIS, question);
 
 		// All done!
-		return TypeCheckerUtil.setType(node, leftActionType, rightActionType);
+		return TypeCheckerUtil.setType(question.assistantFactory, node, leftActionType, rightActionType);
 	}
 
 	@Override
@@ -384,7 +383,7 @@ public class CmlActionTypeChecker extends
 		}
 
 		// All done!
-		return TypeCheckerUtil.setType(node, leftActionType, rightActionType);
+		return TypeCheckerUtil.setType(question.assistantFactory, node, leftActionType, rightActionType);
 	}
 
 	@Override
@@ -452,7 +451,7 @@ public class CmlActionTypeChecker extends
 		}
 
 		// All done!
-		return TypeCheckerUtil.setType(node, leftActionType, rightActionType);
+		return TypeCheckerUtil.setType(question.assistantFactory, node, leftActionType, rightActionType);
 	}
 
 	@Override
@@ -479,14 +478,14 @@ public class CmlActionTypeChecker extends
 		PExp timedExp = node.getExpression();
 		PType timedExpType = timedExp.apply(THIS, question);
 
-		if (!TypeComparator.isSubType(timedExpType, new AIntNumericBasicType()))
+		if (!TypeComparator.isSubType(timedExpType, new AIntNumericBasicType(), question.assistantFactory))
 		{
 			issueHandler.addTypeError(timedExpType, TypeErrorMessages.TIME_UNIT_EXPRESSION_MUST_BE_NAT, timedExp
 					+ "", timedExp + " (" + timedExpType + ")");
 			return null;
 		}
 
-		return TypeCheckerUtil.setType(node, AstFactory.newAVoidType(node.getLocation()));
+		return TypeCheckerUtil.setType(question.assistantFactory, node, AstFactory.newAVoidType(node.getLocation()));
 	}
 
 	@Override
@@ -531,7 +530,7 @@ public class CmlActionTypeChecker extends
 			types.add(actType);
 		}
 
-		return TypeCheckerUtil.setType(node, types);
+		return TypeCheckerUtil.setType(question.assistantFactory, node, types);
 	}
 
 	@Override
@@ -558,14 +557,14 @@ public class CmlActionTypeChecker extends
 
 		PType timeExpType = timeExp.apply(THIS, question);
 
-		if (!TypeComparator.isSubType(timeExpType, new ANatNumericBasicType()))
+		if (!TypeComparator.isSubType(timeExpType, new ANatNumericBasicType(), question.assistantFactory))
 		{
 			issueHandler.addTypeError(timeExp, TypeErrorMessages.TIME_UNIT_EXPRESSION_MUST_BE_NAT, timeExp
 					+ "", timeExpType + "");
 
 		}
 
-		return setType(node, leftType, rightType);
+		return setType(question.assistantFactory, node, leftType, rightType);
 	}
 
 	@Override
@@ -600,7 +599,7 @@ public class CmlActionTypeChecker extends
 
 		PType replicatedActionType = replicatedAction.apply(THIS, new TypeCheckInfo(question.assistantFactory, repActionEnv, NameScope.NAMES));
 
-		return setType(node, replicatedActionType);
+		return setType(question.assistantFactory, node, replicatedActionType);
 	}
 
 	@Override
@@ -622,17 +621,21 @@ public class CmlActionTypeChecker extends
 
 		leftChanSet.apply(channelSetChecker, question);
 
-		if(leftNameSet != null)
+		if (leftNameSet != null)
+		{
 			leftNameSet.apply(nameSetChecker, question);
+		}
 
 		PType rightActionType = rightAction.apply(THIS, question);
 
 		rightChanSet.apply(channelSetChecker, question);
 
-		if(rightNameSet != null)
+		if (rightNameSet != null)
+		{
 			rightNameSet.apply(nameSetChecker, question);
+		}
 
-		return setType(node, leftActionType, rightActionType);
+		return setType(question.assistantFactory, node, leftActionType, rightActionType);
 	}
 
 	@Override
@@ -645,7 +648,7 @@ public class CmlActionTypeChecker extends
 
 		PType expType = exp.apply(THIS, question);
 
-		if (!TypeComparator.isSubType(expType, AstFactory.newABooleanBasicType(node.getLocation())))
+		if (!TypeComparator.isSubType(expType, AstFactory.newABooleanBasicType(node.getLocation()), question.assistantFactory))
 		{
 			issueHandler.addTypeError(exp, TypeErrorMessages.INCOMPATIBLE_TYPE, "bool", ""
 					+ expType);
@@ -654,7 +657,7 @@ public class CmlActionTypeChecker extends
 
 		PType actionType = action.apply(THIS, question);
 
-		return setType(node, actionType);
+		return setType(question.assistantFactory, node, actionType);
 
 	}
 
@@ -691,7 +694,7 @@ public class CmlActionTypeChecker extends
 
 		PType repActionType = repAction.apply(THIS, question.newScope(defs));
 
-		return setType(node, repActionType);
+		return setType(question.assistantFactory, node, repActionType);
 	}
 
 	@Override
@@ -720,7 +723,7 @@ public class CmlActionTypeChecker extends
 
 		PType repActionType = repAction.apply(THIS, question.newScope(defs));
 
-		return setType(node, repActionType);
+		return setType(question.assistantFactory, node, repActionType);
 	}
 
 	@Override
@@ -736,7 +739,7 @@ public class CmlActionTypeChecker extends
 
 		PType rightType = right.apply(THIS, question);
 
-		return setType(node, leftType, rightType);
+		return setType(question.assistantFactory, node, leftType, rightType);
 	}
 
 	@SuppressWarnings("static-access")
@@ -746,7 +749,8 @@ public class CmlActionTypeChecker extends
 			throws AnalysisException
 	{
 
-		PDefinition def = findDefinition(node.getName().getIdentifier(), question.env);
+		PDefinition def = question.env.findName(node.getName(), question.scope); // findDefinition(node.getName().getIdentifier(),
+																					// question.env);
 
 		if (def == null)
 		{
@@ -797,7 +801,7 @@ public class CmlActionTypeChecker extends
 			issueHandler.addTypeError(node, TypeErrorMessages.CHANNEL_NOT_DECLARED, node.getIdentifier().getName());
 		} else if (!(channel instanceof AChannelDefinition))
 		{
-			issueHandler.addTypeError(channel, TypeErrorMessages.DEFINITION_X_BUT_FOUND_Y, "channel", PDefinitionAssistantTC.kind(channel), channel.getName().getName()
+			issueHandler.addTypeError(channel, TypeErrorMessages.DEFINITION_X_BUT_FOUND_Y, "channel", question.assistantFactory.createPDefinitionAssistant().kind(channel), channel.getName().getName()
 					+ "");
 		} else
 		{
@@ -851,9 +855,9 @@ public class CmlActionTypeChecker extends
 				AReadCommunicationParameter readParam = (AReadCommunicationParameter) commParam;
 				PPattern p = readParam.getPattern();
 
-				PPatternAssistantTC.typeResolve(p, THIS, question);
+				question.assistantFactory.createPPatternAssistant().typeResolve(p, THIS, question);
 
-				actualType = PPatternAssistantTC.getPossibleType(p);
+				actualType = question.assistantFactory.createPPatternAssistant().getPossibleType(p);
 
 				names.addAll(PPatternAssistantTC.getVariableNames(p));
 
@@ -924,7 +928,7 @@ public class CmlActionTypeChecker extends
 
 		PType commType = node.getAction().apply(this, info);
 
-		return setType(node, commType);
+		return setType(question.assistantFactory, node, commType);
 	}
 
 	@Override
@@ -937,7 +941,7 @@ public class CmlActionTypeChecker extends
 		PType leftType = node.getLeft().apply(THIS, question);
 		PType rightType = node.getRight().apply(THIS, question);
 
-		return setType(node, leftType, rightType);
+		return setType(question.assistantFactory, node, leftType, rightType);
 	}
 
 	@Override
@@ -961,7 +965,7 @@ public class CmlActionTypeChecker extends
 
 		PType rightType = right.apply(THIS, question);
 
-		return setType(node, leftType, rightType);
+		return setType(question.assistantFactory, node, leftType, rightType);
 	}
 
 	@Override
@@ -977,7 +981,7 @@ public class CmlActionTypeChecker extends
 
 		chanSet.apply(channelSetChecker, question);
 
-		return setType(node, actionType);
+		return setType(question.assistantFactory, node, actionType);
 	}
 
 	@Override
@@ -1034,7 +1038,7 @@ public class CmlActionTypeChecker extends
 
 		PType actionType = action.apply(THIS, question.newScope(defs));
 
-		return setType(node, actionType);
+		return setType(question.assistantFactory, node, actionType);
 	}
 
 	@Override
@@ -1050,12 +1054,12 @@ public class CmlActionTypeChecker extends
 
 		PType expType = timeExp.apply(THIS, question);
 
-		if (!(TypeComparator.isSubType(expType, new ANatNumericBasicType())))
+		if (!TypeComparator.isSubType(expType, new ANatNumericBasicType(), question.assistantFactory))
 		{
 			issueHandler.addTypeError(timeExp, TypeErrorMessages.TIME_UNIT_EXPRESSION_MUST_BE_NAT, timeExp
 					+ "", expType + "");
 		}
-		return setType(node, type);
+		return setType(question.assistantFactory, node, type);
 	}
 
 	@Override
@@ -1071,13 +1075,13 @@ public class CmlActionTypeChecker extends
 
 		PType timeExpType = timeExp.apply(THIS, question);
 
-		if (!(TypeComparator.isSubType(timeExpType, new ANatNumericBasicType())))
+		if (!TypeComparator.isSubType(timeExpType, new ANatNumericBasicType(), question.assistantFactory))
 		{
 			issueHandler.addTypeError(timeExp, TypeErrorMessages.TIME_UNIT_EXPRESSION_MUST_BE_NAT, timeExp
 					+ "", timeExpType + "");
 		}
 
-		return setType(node, eventType);
+		return setType(question.assistantFactory, node, eventType);
 	}
 
 	@Override
@@ -1101,7 +1105,7 @@ public class CmlActionTypeChecker extends
 
 		PType actionType = node.getAction().apply(THIS, info);
 
-		return setType(node, actionType);
+		return setType(question.assistantFactory, node, actionType);
 	}
 
 	@Override

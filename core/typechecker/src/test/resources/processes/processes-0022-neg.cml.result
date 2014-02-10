@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <testResult type="eu.compassresearch.core.typechecker.ProcessesCmlTypeCheckerTests">
 <message column="37" line="15" message="Definition 'i' not used." messageType="warning" number="5000" resource="processes-0022-neg.cml"/>
-<message column="23" line="15" message="Definition 'b' not used." messageType="warning" number="5000" resource="processes-0022-neg.cml"/>
 <message column="21" line="15" message="Definition 'a' not used." messageType="warning" number="5000" resource="processes-0022-neg.cml"/>
+<message column="23" line="15" message="Definition 'b' not used." messageType="warning" number="5000" resource="processes-0022-neg.cml"/>
 <message column="1" line="11" message="Instance variable 'k' is not initialized." messageType="warning" number="5001" resource="processes-0022-neg.cml"/>
 <message column="66" line="15" message="Name 'o' is not in scope." messageType="error" number="3182" resource="processes-0022-neg.cml"/>
 <message column="1" line="15" message="Operation returns unexpected type. Actual: () Expected: int" messageType="error" number="3027" resource="processes-0022-neg.cml"/>

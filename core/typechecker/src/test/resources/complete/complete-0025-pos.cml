@@ -1,6 +1,9 @@
 types
 
- S = seq of char RescueDetails::k : int
+ S = seq of char 
+ 
+ RescueDetails::
+ 	k : int
 
 functions
 
@@ -16,6 +19,6 @@ begin
 
 actions
 
- MERGE2 = val eru: ERUId @ (dcl s: S,r:RescueDetails @ s := rescueDetailsToString(r); Skip ) @ Skip
+ MERGE2 = val eru: RescueDetails @ (dcl s: S,r:RescueDetails @ s := rescueDetailsToString(r); Skip ) @ Skip
 
 end

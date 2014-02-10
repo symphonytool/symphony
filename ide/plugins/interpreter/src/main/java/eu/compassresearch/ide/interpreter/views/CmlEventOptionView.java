@@ -19,22 +19,22 @@ import org.eclipse.jface.viewers.ListViewer;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.part.ViewPart;
 
+import eu.compassresearch.core.interpreter.debug.CmlInterpreterStateDTO;
 import eu.compassresearch.core.interpreter.debug.TransitionDTO;
 import eu.compassresearch.ide.interpreter.CmlUtil;
 import eu.compassresearch.ide.interpreter.model.CmlDebugTarget;
 
-public class CmlEventOptionView extends ViewPart implements
+public class CmlEventOptionView extends AbstractCmlDebugView implements
 		IDebugEventSetListener, IDoubleClickListener, ISelectionChangedListener
 {
-	ListViewer viewer;
 	List<String> options = new LinkedList<String>();
 	private Map<StyledText, List<StyleRange>> lastSelectedRanges = new HashMap<StyledText, List<StyleRange>>();
-	CmlDebugTarget target;
 
 	@Override
 	public void handleDebugEvents(final DebugEvent[] events)
@@ -47,13 +47,34 @@ public class CmlEventOptionView extends ViewPart implements
 				for (DebugEvent e : events)
 				{
 					if (e.getKind() == DebugEvent.SUSPEND
-							&& e.getSource() instanceof CmlDebugTarget)
+							&& e.getSource() == target)
 					{
-						filltransitionList((CmlDebugTarget) e.getSource());
+						if (e.getSource() != null
+								&& e.getSource() instanceof CmlDebugTarget)
+						{
+							CmlDebugTarget t = (CmlDebugTarget) e.getSource();
+							if (isAvailable())
+							{
+								Display display = viewer.getControl().getDisplay();
+								if (t.isSuspendedForSelection())
+								{
+									filltransitionList();
+									viewer.getControl().setBackground(display.getSystemColor(SWT.COLOR_WHITE));
+								} else
+								{
+									viewer.getControl().setBackground(new Color(display, 240, 240, 240));
+								}
+								viewer.getControl().setEnabled(t.isSuspendedForSelection());
+
+							}
+						}
 					} else if (e.getKind() == DebugEvent.TERMINATE
-							&& e.getSource() instanceof CmlDebugTarget)
+							&& e.getSource() == target)
 					{
-						viewer.setInput(null);
+						if (isAvailable())
+						{
+							viewer.setInput(null);
+						}
 					}
 				}
 			}
@@ -74,7 +95,6 @@ public class CmlEventOptionView extends ViewPart implements
 	@Override
 	public void createPartControl(final org.eclipse.swt.widgets.Composite parent)
 	{
-		// Composite composite = new Composite(parent, SWT.NONE);
 		viewer = new ListViewer(parent);
 		viewer.addDoubleClickListener(this);
 		viewer.addSelectionChangedListener(this);
@@ -85,8 +105,6 @@ public class CmlEventOptionView extends ViewPart implements
 			public void inputChanged(Viewer viewer, Object oldInput,
 					Object newInput)
 			{
-				// System.out.println("Input changed: old=" + oldInput + ", new="
-				// + newInput);
 			}
 
 			@Override
@@ -103,13 +121,8 @@ public class CmlEventOptionView extends ViewPart implements
 			}
 		});
 
-		target = CmlUtil.findCmlDebugTarget();
-
-		if (target != null)
-		{
-			filltransitionList(target);
-		}
 		DebugPlugin.getDefault().addDebugEventListener(this);
+		super.createPartControl(parent);
 	}
 
 	private void selectChoice(TransitionDTO event)
@@ -120,16 +133,9 @@ public class CmlEventOptionView extends ViewPart implements
 
 	private void finish()
 	{
-		Display.getDefault().syncExec(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				CmlUtil.clearSelections(lastSelectedRanges);
-				viewer.setInput(null);
-				viewer.refresh();
-			}
-		});
+		CmlUtil.clearSelections(lastSelectedRanges);
+		viewer.setInput(null);
+		viewer.refresh();
 	}
 
 	@Override
@@ -164,31 +170,49 @@ public class CmlEventOptionView extends ViewPart implements
 		}
 	}
 
-	private void filltransitionList(CmlDebugTarget target)
+	private void filltransitionList()
 	{
-		this.target = target;
-		List<TransitionDTO> transitions = target.getLastState().getTransitions();
-		Collections.sort(transitions, new Comparator<TransitionDTO>()
+		CmlInterpreterStateDTO lastState = target.getLastState();
+		if (lastState != null)
 		{
-
-			@Override
-			public int compare(TransitionDTO o1, TransitionDTO o2)
+			List<TransitionDTO> transitions = lastState.getTransitions();
+			if (transitions != null && !transitions.isEmpty())
 			{
-				if (o1.getName().equals("tock"))
-					return -1;
-				else if (o2.getName().equals("tock"))
-					return 1;
-				else
-					return o1.getName().compareToIgnoreCase(o2.getName());
-			}
+				Collections.sort(transitions, new Comparator<TransitionDTO>()
+				{
 
-		});
-		
-		viewer.setInput(transitions);
-		if(!transitions.isEmpty())
-		{
-			viewer.setSelection(new StructuredSelection(transitions.get(0)));
+					@Override
+					public int compare(TransitionDTO o1, TransitionDTO o2)
+					{
+						if (o1.getName().equals("tock"))
+						{
+							return -1;
+						} else if (o2.getName().equals("tock"))
+						{
+							return 1;
+						} else
+						{
+							return o1.getName().compareToIgnoreCase(o2.getName());
+						}
+					}
+
+				});
+
+				viewer.setInput(transitions);
+				if (!transitions.isEmpty())
+				{
+					viewer.setSelection(new StructuredSelection(transitions.get(0)));
+				}
+				viewer.refresh();
+			}
 		}
-		viewer.refresh();
+	}
+
+	void internalViewerUpdate()
+	{
+		if (target != null)
+		{
+			filltransitionList();
+		}
 	}
 }

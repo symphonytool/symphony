@@ -9,28 +9,45 @@ import org.overture.ast.node.INode;
 import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.patterns.PPattern;
 
+import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
+import eu.compassresearch.ast.actions.AAlphabetisedParallelismReplicatedAction;
+import eu.compassresearch.ast.actions.AChannelRenamingAction;
 import eu.compassresearch.ast.actions.AChaosAction;
+import eu.compassresearch.ast.actions.ACommonInterleavingReplicatedAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.ADivAction;
+import eu.compassresearch.ast.actions.AEndDeadlineAction;
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
+import eu.compassresearch.ast.actions.AExternalChoiceReplicatedAction;
 import eu.compassresearch.ast.actions.AGeneralisedParallelismParallelAction;
+import eu.compassresearch.ast.actions.AGeneralisedParallelismReplicatedAction;
 import eu.compassresearch.ast.actions.AGuardedAction;
 import eu.compassresearch.ast.actions.AHidingAction;
 import eu.compassresearch.ast.actions.AInterleavingParallelAction;
+import eu.compassresearch.ast.actions.AInterleavingReplicatedAction;
 import eu.compassresearch.ast.actions.AInternalChoiceAction;
+import eu.compassresearch.ast.actions.AInternalChoiceReplicatedAction;
+import eu.compassresearch.ast.actions.AInterruptAction;
 import eu.compassresearch.ast.actions.AMuAction;
+import eu.compassresearch.ast.actions.AParametrisedAction;
+import eu.compassresearch.ast.actions.AParametrisedInstantiatedAction;
 import eu.compassresearch.ast.actions.AReadCommunicationParameter;
 import eu.compassresearch.ast.actions.AReferenceAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
+import eu.compassresearch.ast.actions.ASequentialCompositionReplicatedAction;
 import eu.compassresearch.ast.actions.ASkipAction;
+import eu.compassresearch.ast.actions.AStartDeadlineAction;
 import eu.compassresearch.ast.actions.AStmAction;
 import eu.compassresearch.ast.actions.AStopAction;
+import eu.compassresearch.ast.actions.ATimedInterruptAction;
+import eu.compassresearch.ast.actions.ATimeoutAction;
+import eu.compassresearch.ast.actions.AUntimedTimeoutAction;
+import eu.compassresearch.ast.actions.AWaitAction;
 import eu.compassresearch.ast.actions.AWriteCommunicationParameter;
 import eu.compassresearch.ast.actions.PCommunicationParameter;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.core.analysis.theoremprover.thms.NodeNameList;
 
-@SuppressWarnings("serial")
 public class ThmActionDepVisitor  extends
 QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 	
@@ -67,15 +84,6 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 	
 		return nodeDeps;
 	}
-	
-//	public NodeNameList caseAWaitAction(AWaitAction a, NodeNameList bvars)
-//			throws AnalysisException {
-//		NodeNameList nodeDeps = new NodeNameList();
-//
-//		nodeDeps.addAll(a.getExpression().apply(thmDepVisitor, bvars));
-//
-//		return nodeDeps;
-//	}
 	
 	public NodeNameList caseACommunicationAction(ACommunicationAction a, NodeNameList bvars)
 			throws AnalysisException {
@@ -152,48 +160,6 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 		return nodeDeps;
 	}
 	
-//	public NodeNameList caseAInterruptAction(AInterruptAction a, NodeNameList bvars)
-//			throws AnalysisException {
-//		NodeNameList nodeDeps = new NodeNameList();
-//
-//		nodeDeps.addAll(a.getLeft().apply(thmDepVisitor, bvars));
-//		nodeDeps.addAll(a.getRight().apply(thmDepVisitor, bvars));
-//
-//		return nodeDeps;
-//	}
-//	
-//	public NodeNameList caseATimedInterruptAction(ATimedInterruptAction a, NodeNameList bvars)
-//			throws AnalysisException {
-//		NodeNameList nodeDeps = new NodeNameList();
-//
-//		nodeDeps.addAll(a.getLeft().apply(thmDepVisitor, bvars));
-//		nodeDeps.addAll(a.getRight().apply(thmDepVisitor, bvars));
-//		nodeDeps.addAll(a.getTimeExpression().apply(thmDepVisitor, bvars));
-//
-//		return nodeDeps;
-//	}
-//		
-//	public NodeNameList caseAUntimedTimeoutAction(AUntimedTimeoutAction a, NodeNameList bvars)
-//				throws AnalysisException {
-//		NodeNameList nodeDeps = new NodeNameList();
-//		
-//		nodeDeps.addAll(a.getLeft().apply(thmDepVisitor, bvars));
-//		nodeDeps.addAll(a.getRight().apply(thmDepVisitor, bvars));
-//
-//		return nodeDeps;
-//	}
-//	
-//	public NodeNameList caseATimeoutAction(ATimeoutAction a, NodeNameList bvars)
-//			throws AnalysisException {
-//		NodeNameList nodeDeps = new NodeNameList();
-//
-//		nodeDeps.addAll(a.getLeft().apply(thmDepVisitor, bvars));
-//		nodeDeps.addAll(a.getRight().apply(thmDepVisitor, bvars));
-//		nodeDeps.addAll(a.getTimeoutExpression().apply(thmDepVisitor, bvars));
-//
-//		return nodeDeps;
-//	}
-	
 	public NodeNameList caseAHidingAction(AHidingAction a, NodeNameList bvars)
 			throws AnalysisException {
 		NodeNameList nodeDeps = new NodeNameList();
@@ -203,36 +169,6 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 
 		return nodeDeps;
 	}
-	
-//	public NodeNameList caseAStartDeadlineAction(AStartDeadlineAction a, NodeNameList bvars)
-//			throws AnalysisException {
-//		NodeNameList nodeDeps = new NodeNameList();
-//
-//		nodeDeps.addAll(a.getLeft().apply(thmDepVisitor, bvars));
-//		nodeDeps.addAll(a.getExpression().apply(thmDepVisitor, bvars));
-//
-//		return nodeDeps;
-//	}
-//	
-//	public NodeNameList caseAEndDeadlineAction(AEndDeadlineAction a, NodeNameList bvars)
-//			throws AnalysisException {
-//		NodeNameList nodeDeps = new NodeNameList();
-//
-//		nodeDeps.addAll(a.getLeft().apply(thmDepVisitor, bvars));
-//		nodeDeps.addAll(a.getExpression().apply(thmDepVisitor, bvars));
-//
-//		return nodeDeps;
-//	}
-//	
-//	public NodeNameList caseAChannelRenamingAction(AChannelRenamingAction a, NodeNameList bvars)
-//			throws AnalysisException {
-//		NodeNameList nodeDeps = new NodeNameList();
-//		
-//		nodeDeps.addAll(a.getAction().apply(thmDepVisitor, bvars));
-//		nodeDeps.addAll(a.getRenameExpression().apply(thmDepVisitor, bvars));
-//
-//		return nodeDeps;
-//	}
 	
 	public NodeNameList caseAMuAction(AMuAction a, NodeNameList bvars)
 			throws AnalysisException {
@@ -268,82 +204,7 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 
 		return nodeDeps;
 	}
-	
-//	public NodeNameList caseASequentialCompositionReplicatedAction(ASequentialCompositionReplicatedAction a, NodeNameList bvars)
-//			throws AnalysisException {
-//		NodeNameList nodeDeps = new NodeNameList();
-//
-////		a.getReplicatedAction();
-////		a.getReplicationDeclaration();
-//		//TODO: NOT YET HANDLED
-//
-//		return nodeDeps;
-//	}
-//	
-//	public NodeNameList caseAExternalChoiceReplicatedAction(AExternalChoiceReplicatedAction a, NodeNameList bvars)
-//			throws AnalysisException {
-//		NodeNameList nodeDeps = new NodeNameList();
-//		//TODO: NOT YET HANDLED
-//
-//		return nodeDeps;
-//	}
-//	
-//	public NodeNameList caseAInternalChoiceReplicatedAction(AInternalChoiceReplicatedAction a, NodeNameList bvars)
-//			throws AnalysisException {
-//		NodeNameList nodeDeps = new NodeNameList();
-//		//TODO: NOT YET HANDLED
-//
-//		return nodeDeps;
-//	}
-//	
-//	public NodeNameList caseACommonInterleavingReplicatedAction(ACommonInterleavingReplicatedAction a, NodeNameList bvars)
-//			throws AnalysisException {
-//		NodeNameList nodeDeps = new NodeNameList();
-//		
-////      [namesetExpression]:VarsetExpression
-//		//TODO: NOT YET HANDLED
-//
-//		return nodeDeps;
-//	}
-//	
-//	public NodeNameList caseAInterleavingReplicatedAction(AInterleavingReplicatedAction a, NodeNameList bvars)
-//			throws AnalysisException {
-//		NodeNameList nodeDeps = new NodeNameList();
-////      [namesetExpression]:VarsetExpression
-//		//TODO: NOT YET HANDLED
-//
-//		return nodeDeps;
-//	}
-//	
-//	public NodeNameList caseAGeneralisedParallelismReplicatedAction(AGeneralisedParallelismReplicatedAction a, NodeNameList bvars)
-//			throws AnalysisException {
-//		NodeNameList nodeDeps = new NodeNameList();
-//		
-////      [chansetExpression]:VarsetExpression
-////      [namesetExpression]:VarsetExpression
-//		//TODO: NOT YET HANDLED
-//
-//		return nodeDeps;
-//	}
-//	
-//	public NodeNameList caseAAlphabetisedParallelismReplicatedAction(AAlphabetisedParallelismReplicatedAction a, NodeNameList bvars)
-//			throws AnalysisException {
-//		NodeNameList nodeDeps = new NodeNameList();
-////      [namesetExpression]:VarsetExpression
-////      [chansetExpression]:VarsetExpression
-//		//TODO: NOT YET HANDLED
-//
-//		return nodeDeps;
-//	}
-//	
-//	public NodeNameList caseASynchronousParallelismReplicatedAction(ASynchronousParallelismReplicatedAction a, NodeNameList bvars)
-//			throws AnalysisException {
-//		NodeNameList nodeDeps = new NodeNameList();
-////      [namesetExpression]:VarsetExpression
-//		//TODO: NOT YET HANDLED
-//
-//		return nodeDeps;
-//	}
+
 	
 	public NodeNameList caseAInterleavingParallelAction(AInterleavingParallelAction a, NodeNameList bvars)
 			throws AnalysisException {
@@ -365,18 +226,6 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 
 		return nodeDeps;
 	}
-	
-//	public NodeNameList caseAAlphabetisedParallelismParallelAction(AAlphabetisedParallelismParallelAction a, NodeNameList bvars)
-//			throws AnalysisException {
-//		NodeNameList nodeDeps = new NodeNameList();
-//
-//		nodeDeps.addAll(a.getLeftAction().apply(thmDepVisitor, bvars));
-//		nodeDeps.addAll(a.getRightAction().apply(thmDepVisitor, bvars));
-//		nodeDeps.addAll(a.getLeftChansetExpression().apply(thmDepVisitor, bvars));
-//		nodeDeps.addAll(a.getRightChansetExpression().apply(thmDepVisitor, bvars));
-//
-//		return nodeDeps;
-//	}
 
 	public NodeNameList caseAStmAction(AStmAction a, NodeNameList bvars) throws AnalysisException{ 
 		NodeNameList nodeDeps = new NodeNameList();
@@ -384,6 +233,123 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 		nodeDeps.addAll(a.getStatement().apply(thmDepVisitor, bvars));
 
 		return nodeDeps;	
+	}
+
+	public NodeNameList caseAAlphabetisedParallelismParallelAction(
+			AAlphabetisedParallelismParallelAction node, NodeNameList bvars)
+			throws AnalysisException {
+		NodeNameList nodeDeps = new NodeNameList();
+		return nodeDeps;
+	}
+	
+	public NodeNameList caseAAlphabetisedParallelismReplicatedAction(
+			AAlphabetisedParallelismReplicatedAction node, NodeNameList bvars)
+			throws AnalysisException {
+		NodeNameList nodeDeps = new NodeNameList();
+		return nodeDeps;
+	}
+
+	public NodeNameList caseAChannelRenamingAction(AChannelRenamingAction node, NodeNameList bvars)
+			throws AnalysisException {
+		NodeNameList nodeDeps = new NodeNameList();
+		return nodeDeps;
+	}
+	
+	public NodeNameList caseACommonInterleavingReplicatedAction(
+			ACommonInterleavingReplicatedAction node, NodeNameList bvars)
+			throws AnalysisException {
+		NodeNameList nodeDeps = new NodeNameList();
+		return nodeDeps;
+	}
+
+	public NodeNameList caseAEndDeadlineAction(AEndDeadlineAction node, NodeNameList bvars)
+			throws AnalysisException {
+		NodeNameList nodeDeps = new NodeNameList();
+		return nodeDeps;
+	}
+	
+	public NodeNameList caseAExternalChoiceReplicatedAction(
+			AExternalChoiceReplicatedAction node, NodeNameList bvars)
+			throws AnalysisException {
+		NodeNameList nodeDeps = new NodeNameList();
+		return nodeDeps;
+	}
+	
+	public NodeNameList caseAGeneralisedParallelismReplicatedAction(
+			AGeneralisedParallelismReplicatedAction node, NodeNameList bvars)
+			throws AnalysisException {
+		NodeNameList nodeDeps = new NodeNameList();
+		return nodeDeps;
+	}
+
+	public NodeNameList caseAInterleavingReplicatedAction(
+			AInterleavingReplicatedAction node, NodeNameList bvars)
+			throws AnalysisException {
+		NodeNameList nodeDeps = new NodeNameList();
+		return nodeDeps;
+	}
+	
+	public NodeNameList caseAInternalChoiceReplicatedAction(
+			AInternalChoiceReplicatedAction node, NodeNameList bvars)
+			throws AnalysisException {
+		NodeNameList nodeDeps = new NodeNameList();
+		return nodeDeps;
+	}
+
+	public NodeNameList caseAInterruptAction(AInterruptAction node, NodeNameList bvars)
+			throws AnalysisException {
+		NodeNameList nodeDeps = new NodeNameList();
+		return nodeDeps;
+	}
+	
+	public NodeNameList caseAParametrisedAction(AParametrisedAction node, NodeNameList bvars)
+			throws AnalysisException {
+		NodeNameList nodeDeps = new NodeNameList();
+		return nodeDeps;
+	}
+
+	public NodeNameList caseAParametrisedInstantiatedAction(
+			AParametrisedInstantiatedAction node, NodeNameList bvars)
+			throws AnalysisException {
+		NodeNameList nodeDeps = new NodeNameList();
+		return nodeDeps;
+	}
+	
+	public NodeNameList caseASequentialCompositionReplicatedAction(
+			ASequentialCompositionReplicatedAction node, NodeNameList bvars)
+			throws AnalysisException {
+		NodeNameList nodeDeps = new NodeNameList();
+		return nodeDeps;
+	}
+
+	public NodeNameList caseAStartDeadlineAction(AStartDeadlineAction node, NodeNameList bvars)
+			throws AnalysisException {
+		NodeNameList nodeDeps = new NodeNameList();
+		return nodeDeps;
+	}
+	
+	public NodeNameList caseATimedInterruptAction(ATimedInterruptAction node, NodeNameList bvars)
+			throws AnalysisException {
+		NodeNameList nodeDeps = new NodeNameList();
+		return nodeDeps;
+	}
+
+	public NodeNameList caseATimeoutAction(ATimeoutAction node, NodeNameList bvars)
+			throws AnalysisException {
+		NodeNameList nodeDeps = new NodeNameList();
+		return nodeDeps;
+	}
+	
+	public NodeNameList caseAUntimedTimeoutAction(AUntimedTimeoutAction node, NodeNameList bvars)
+			throws AnalysisException {
+		NodeNameList nodeDeps = new NodeNameList();
+		return nodeDeps;
+	}
+
+	public NodeNameList caseAWaitAction(AWaitAction a, NodeNameList bvars)
+			throws AnalysisException {
+		NodeNameList nodeDeps = new NodeNameList();
+		return nodeDeps;
 	}
 
 	

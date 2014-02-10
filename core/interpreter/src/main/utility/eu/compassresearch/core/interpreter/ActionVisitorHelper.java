@@ -12,6 +12,7 @@ import eu.compassresearch.ast.actions.AStmAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.statements.AAltNonDeterministicStm;
 
+@SuppressWarnings("deprecation")
 class ActionVisitorHelper
 {
 

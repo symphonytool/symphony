@@ -11,6 +11,10 @@ import eu.compassresearch.core.interpreter.api.values.CMLChannelValue;
 public class ChannelEvent extends Event<CMLChannelValue>
 {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	final private ChannelActivity eventType;
 
 	public ChannelEvent(CMLChannelValue channel, ChannelActivity eventType)
