@@ -26,10 +26,6 @@ public interface IFaultToleranceVerificationResponse {
 
 	void setFolder(IFolder folder);
 
-	FaultToleranceVerificationResponseStatus getStatus();
-
-	void setStatus(FaultToleranceVerificationResponseStatus status);
-
 	Exception getException();
 
 	void setException(Exception e);

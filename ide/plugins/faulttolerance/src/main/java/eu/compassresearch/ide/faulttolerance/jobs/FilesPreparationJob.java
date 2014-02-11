@@ -41,7 +41,6 @@ import eu.compassresearch.core.analysis.modelchecker.visitors.NewMCVisitor;
 import eu.compassresearch.ide.core.resources.ICmlProject;
 import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
 import eu.compassresearch.ide.faulttolerance.FaultToleranceProperty;
-import eu.compassresearch.ide.faulttolerance.FaultToleranceVerificationResponseStatus;
 import eu.compassresearch.ide.faulttolerance.IFaultToleranceVerificationRequest;
 import eu.compassresearch.ide.faulttolerance.IFaultToleranceVerificationResponse;
 import eu.compassresearch.ide.faulttolerance.Message;
@@ -111,8 +110,6 @@ public class FilesPreparationJob extends FaultToleranceVerificationJobBase {
 					new SubProgressMonitor(monitor, 1));
 		} catch (IOException | AnalysisException e) {
 			response.setException(e);
-			// TODO verify if worth using this status
-			response.setStatus(FaultToleranceVerificationResponseStatus.FILES_ERROR);
 			return Status.OK_STATUS;
 		} finally {
 			monitor.done();

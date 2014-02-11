@@ -25,7 +25,6 @@ import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
 import eu.compassresearch.ide.faulttolerance.Activator;
 import eu.compassresearch.ide.faulttolerance.FaultToleranceProperty;
 import eu.compassresearch.ide.faulttolerance.FaultToleranceType;
-import eu.compassresearch.ide.faulttolerance.FaultToleranceVerificationResponseStatus;
 import eu.compassresearch.ide.faulttolerance.IFaultToleranceVerificationRequest;
 import eu.compassresearch.ide.faulttolerance.IFaultToleranceVerificationResponse;
 import eu.compassresearch.ide.faulttolerance.Message;
@@ -125,7 +124,6 @@ public class FaultToleranceVerificationHandler extends SelectProcessHandler {
 		private final FaultToleranceProperty fullFaultTolerance;
 		private final List<FaultToleranceProperty> properties;
 		private IFolder folder;
-		private FaultToleranceVerificationResponseStatus status;
 		private Exception exception;
 		private String definitionsMessage;
 
@@ -176,11 +174,6 @@ public class FaultToleranceVerificationHandler extends SelectProcessHandler {
 		}
 
 		@Override
-		public FaultToleranceVerificationResponseStatus getStatus() {
-			return status;
-		}
-
-		@Override
 		public Exception getException() {
 			return exception;
 		}
@@ -193,11 +186,6 @@ public class FaultToleranceVerificationHandler extends SelectProcessHandler {
 		@Override
 		public void setFolder(IFolder folder) {
 			this.folder = folder;
-		}
-
-		@Override
-		public void setStatus(FaultToleranceVerificationResponseStatus status) {
-			this.status = status;
 		}
 
 		@Override
