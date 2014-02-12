@@ -5,7 +5,7 @@
   <parent>
     <groupId>eu.compassresearch</groupId>
     <artifactId>root</artifactId>
-    <version>0.2.7-SNAPSHOT</version>
+    <version>0.2.9-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -58,6 +58,19 @@
               <addMavenDescriptor>false</addMavenDescriptor>
             </archive>
           </configuration>
+        </plugin>
+        <!-- Use the below to update the version numbers of the poms,
+             manifests, and feature.xml files with the commandline:
+
+             $ mvn -Dtycho.mode=maven tycho-versions:set-version -DnewVersion=2.0.2
+
+             Don't commit the changes to the export-packages lines in
+             the manifests, though.
+        -->
+        <plugin>
+          <groupId>org.eclipse.tycho</groupId>
+          <artifactId>tycho-versions-plugin</artifactId>
+          <version>${tycho.version}</version>
         </plugin>
 
         <plugin>

@@ -23,7 +23,7 @@
  <extension
       point="org.eclipse.ui.commands">
    <command
-         defaultHandler="eu.compassresearch.ide.theoremprover.commands.DischargePosHandler"
+         defaultHandler="eu.compassresearch.ide.theoremprover.commands.GenPosHandler"
          id="eu.compassresearch.ide.theoremprover.dischargepos"
          name="DischargePOs">
          <commandParameter
@@ -32,6 +32,22 @@
                optional="false">
          </commandParameter>
    </command>
+   <command
+         defaultHandler="eu.compassresearch.ide.theoremprover.commands.GenPosDevHandler"
+         id="eu.compassresearch.ide.theoremprover.dischargeposdev"
+         name="DischargePOsDev">
+         <commandParameter
+               id="eu.compassresearch.ide.theoremprover.commands.needproj"
+               name="Need"
+               optional="false">
+         </commandParameter>
+   </command>
+   <command
+         defaultHandler="eu.compassresearch.ide.theoremprover.commands.EnqPoHandler"
+         id="eu.compassresearch.ide.theoremprover.enqueuepo"
+         name="Submit PO">
+   </command>
+   
    <command
           defaultHandler="eu.compassresearch.ide.theoremprover.commands.LaunchIsabelleHandler"
           id="eu.compassresearch.ide.theoremprover.isabellelaunchcommand"
@@ -50,8 +66,13 @@
    <command
         defaultHandler="eu.compassresearch.ide.theoremprover.commands.ConfigHandler"
         id="eu.compassresearch.ide.theoremprover.config"
-        name="ConfigHandler">
+        name="ConfigIsabelle">
 	</command>
+   <command
+        defaultHandler="eu.compassresearch.ide.theoremprover.commands.SubAllPosHandler"
+        id="eu.compassresearch.ide.theoremprover.suballpos"
+        name="Sub All POs">
+	</command>	
 </extension>
 
   
@@ -77,27 +98,28 @@
       	</menu>
    </menuContribution>
    
-   <menuContribution
-         allPopups="false"
-         locationURI="toolbar:eu.compassresearch.ide.pog.POsTable">
-      <command
-            commandId="eu.compassresearch.ide.theoremprover.dischargepos"
-            icon="icons/tp.png"
-            label="Discharge"
-            style="push"
-            tooltip="Regenerate POs and export to Theorem Prover">
-            <parameter
-                  name="eu.compassresearch.ide.theoremprover.commands.needproj"
-                  value="no">
-            </parameter>
-      </command>
+      <menuContribution
+         locationURI="popup:eu.compassresearch.ide.pog.POsTable">
+           <command
+           		commandId="eu.compassresearch.ide.theoremprover.enqueuepo"
+            	label="Submit PO to Theorem Prover"
+           		style="push">
+      		</command>
    </menuContribution>
+   
    
    <menuContribution
          allPopups="false"
          locationURI="toolbar:eu.compassresearch.ide.pog.POsTable">
-
+      <command
+            commandId="eu.compassresearch.ide.theoremprover.suballpos"
+            icon="icons/tp.png"
+            label="Submit all POs"
+            style="push"
+            tooltip="Submit all POs to Theorem Prover">
+      </command>
    </menuContribution>
+   
    
 		<menuContribution
          allPopups="false"
@@ -119,11 +141,21 @@
                         visible="true">
                   </separator>
                   
+		<command
+	            commandId="eu.compassresearch.ide.theoremprover.dischargeposdev"
+    	        label="Start Proof Session (DEV)"
+            	style="push"
+            	tooltip="Generate POs and auto-interact with Theorem Prover. WARNING: Experimental Feature!">
+           <parameter
+                  name="eu.compassresearch.ide.theoremprover.commands.needproj"
+                  value="yes">
+            </parameter>
+      		</command>
+                  
               
           	<command
 	            commandId="eu.compassresearch.ide.theoremprover.dischargepos"
-    	        icon="icons/tp.png"
-        	    label="Generate POs and Theories."
+        	    label="Generate POs and Theories"
             	style="push"
             	tooltip="Generate Proof Obligations Theorem Prover files for selected Project.">
            <parameter
@@ -158,6 +190,4 @@
 			</menu>
 		</menuContribution>
 	</extension>
-  
-  
 </plugin>

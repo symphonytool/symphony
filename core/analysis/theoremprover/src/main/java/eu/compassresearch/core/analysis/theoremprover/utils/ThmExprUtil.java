@@ -8,13 +8,14 @@ public class ThmExprUtil {
 	public static String isaAcute = "\\<acute>";
 	public static String isaType = "definition";
 	public static String isaAbbr = "abbreviation";
- 
+
+	public static String undefined = "undef";
 	public static String comp = " comp ";
 	public static String domainResBy = " <-: ";
 	public static String domainResTo = " <: ";
 	public static String equals = " = ";
 	public static String inSet = " in @set ";
-	public static String mapUnion= " munion ";
+	public static String mapUnion= " ++ ";
 	public static String notEqual = " <> ";
 	public static String notInSet= " not in @set ";
 	public static String plusPlus= " ++ ";
@@ -50,7 +51,7 @@ public class ThmExprUtil {
 	public static String unaryPlus = "+ ";
  
 	public static String notHandled = "(*expr not yet handled*)";
-	public static String isaUndefined = "undefined";
+	public static String isaUndefined = "undef";
 	public static String isaDown = "\\<down>";
 	
 	public static boolean isPost = false;

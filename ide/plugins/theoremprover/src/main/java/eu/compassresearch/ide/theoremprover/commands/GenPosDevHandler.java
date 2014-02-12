@@ -1,5 +1,7 @@
 package eu.compassresearch.ide.theoremprover.commands;
 
+import isabelle.eclipse.core.IsabelleCore;
+
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -16,11 +18,23 @@ import eu.compassresearch.ide.theoremprover.TPConstants;
 import eu.compassresearch.ide.theoremprover.TPPluginDoStuff;
 import eu.compassresearch.ide.theoremprover.TPPluginUtils;
 
-public class DischargePosHandler extends AbstractHandler {
+public class GenPosDevHandler extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		ICmlProject proj = null;
+
+		if (IsabelleCore.isabelle().isRunning()) {
+
+			// assume we have the right session
+			// FIXME check for hol-utp session being run
+
+		} else {
+			MessageDialog.openInformation(
+					HandlerUtil.getActiveWorkbenchWindow(event).getShell(),
+					"Symphony", "Theorem Prover is not running.");
+			return null;
+		}
 
 		String needs = event.getParameter(TPConstants.NEEDS_PROJECT_PARAM_ID);
 		if (needs.equals("yes")) {
@@ -46,7 +60,9 @@ public class DischargePosHandler extends AbstractHandler {
 		TPPluginDoStuff doer = new TPPluginDoStuff(
 				HandlerUtil.getActiveWorkbenchWindow(event), page
 						.getActivePart().getSite());
-		doer.dischargePos(proj);
+		doer.genPOsDev(proj);
+		
+
 
 		return null;
 	}

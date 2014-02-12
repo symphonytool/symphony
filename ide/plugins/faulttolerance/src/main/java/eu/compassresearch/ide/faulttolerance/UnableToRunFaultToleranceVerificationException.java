@@ -16,8 +16,14 @@ public class UnableToRunFaultToleranceVerificationException extends Exception {
 	 */
 	private static final long serialVersionUID = 6791707308196632425L;
 
-	public UnableToRunFaultToleranceVerificationException(Message message) {
-		super(message.format());
+	public UnableToRunFaultToleranceVerificationException(Message message,
+			Throwable cause, Object... args) {
+		super(message.format(args), cause);
+	}
+
+	public UnableToRunFaultToleranceVerificationException(Message message,
+			Object... args) {
+		super(message.format(args));
 	}
 
 }

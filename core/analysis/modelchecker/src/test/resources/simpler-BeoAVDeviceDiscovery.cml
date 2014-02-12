@@ -117,7 +117,7 @@
 		  On_State = WaitingOnServiceCall_State /_\ SourceProductEventChannel.<POWER_OFF>->Off_State
 		  WaitingOnServiceCall_State = IPTCPPORTChannel.<CONNECT>->ReadCallData_State
 		  ReadCallData_State = ReadCallData /_\ (SourceProductEventChannel.<INTERUPT>->WaitingOnServiceCall_State [] IPTCPPORTChannel.<DISCONNECT> ->WaitingOnServiceCall_State)   
-		  ReadCallData = (IPTCPChannel?x5->LocalInterfaceChannel!x5->LocalInterfaceChannel?y2->IPTCPChannel!y2->WaitingOnServiceCall_State) [_> WaitingOnServiceCall_State    
+		  ReadCallData = (IPTCPChannel?x->LocalInterfaceChannel!x->LocalInterfaceChannel?y->IPTCPChannel!y->WaitingOnServiceCall_State) [_> WaitingOnServiceCall_State    
       @ Off_State
   end
   

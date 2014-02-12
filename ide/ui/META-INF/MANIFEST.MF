@@ -2,29 +2,22 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Symphony IDE CML UI
 Bundle-SymbolicName: eu.compassresearch.ide.ui;singleton:=true
-Bundle-Version: 0.2.7.qualifier
+Bundle-Version: 0.2.9.qualifier
 Bundle-Activator: eu.compassresearch.ide.ui.CmlUIPlugin
 Bundle-Vendor: The COMPASS Project
 Eclipse-BundleShape: dir
 Bundle-Localization: plugin
-Export-Package: eu.compassresearch.ide.ui;uses:="org.eclipse.ui.plugin,org.osgi.framework",
- eu.compassresearch.ide.ui.editor.core;
-  uses:="org.eclipse.jface.text,
-   org.eclipse.jface.text.reconciler,
-   org.eclipse.jface.text.source,
-   eu.compassresearch.ide.ui.editor.core.dom,
-   org.eclipse.jface.text.rules,
-   org.eclipse.jface.text.contentassist,
-   org.overture.ide.ui.editor.core",
- eu.compassresearch.ide.ui.editor.syntax;
-  uses:="org.overture.ide.ui.editor.syntax,
-   org.eclipse.ui.views.contentoutline,
-   eu.compassresearch.ide.ui.editor.core.dom,
-   org.eclipse.jface.viewers,
-   org.eclipse.swt.widgets",
- eu.compassresearch.ide.ui.navigator,
- eu.compassresearch.ide.ui.utility,
- eu.compassresearch.ide.ui.wizard
+Export-Package: eu.compassresearch.ide.ui;uses:="org.eclipse.ui.plugin
+ ,org.osgi.framework",eu.compassresearch.ide.ui.editor.core; uses:="or
+ g.eclipse.jface.text,  org.eclipse.jface.text.reconciler,  org.eclips
+ e.jface.text.source,  eu.compassresearch.ide.ui.editor.core.dom,  org
+ .eclipse.jface.text.rules,  org.eclipse.jface.text.contentassist,  or
+ g.overture.ide.ui.editor.core",eu.compassresearch.ide.ui.editor.synta
+ x; uses:="org.overture.ide.ui.editor.syntax,  org.eclipse.ui.views.co
+ ntentoutline,  eu.compassresearch.ide.ui.editor.core.dom,  org.eclips
+ e.jface.viewers,  org.eclipse.swt.widgets",eu.compassresearch.ide.ui.
+ navigator,eu.compassresearch.ide.ui.utility,eu.compassresearch.ide.ui
+ .wizard
 Require-Bundle: org.eclipse.debug.ui,
  org.eclipse.ui.views,
  org.eclipse.ui,

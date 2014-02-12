@@ -146,6 +146,8 @@ public class NewMCActionVisitor extends
 		MCPVarsetExpression chanSetExp = (MCPVarsetExpression) node.getChansetExpression().apply(rootVisitor, question);
 		MCAHidingAction result = new MCAHidingAction(action, chanSetExp);
 		
+		question.setStack.add(chanSetExp);
+		
 		return result;
 	}
 	

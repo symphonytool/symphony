@@ -38,7 +38,7 @@ public class GenPar implements ParallelProcess {
 
 	@Override
 	public String toString() {
-		return this.getLeft().toString() + " " + this.syncSet + " " + this.getRight().toString();
+		return this.getLeft().toString() + " [|" + this.syncSet.trim() + "|] " + this.getRight().toString();
 	}
 
 	@Override
@@ -46,7 +46,8 @@ public class GenPar implements ParallelProcess {
 		boolean result = false;
 		if (obj instanceof GenPar) {
 			GenPar other = (GenPar) obj;
-			result = this.getLeft().equals(other.getLeft())
+			result = this.syncSet.trim().equals(other.getSyncSet().trim())
+					&& this.getLeft().equals(other.getLeft())
 					&& this.getRight().equals(other.getRight());
 		} 
 		return result;

@@ -22,7 +22,7 @@ public class MCAHidingAction implements MCPAction {
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance(); 
 		
 		//it puts the event set in the context so the internal process can access and generate lieIn
-		context.setStack.add(varSetExpression);
+		//context.setStack.add(varSetExpression);
 				
 		// "actions\ {ev}" hide(actions,"{ev}")
 		result.append("hide(");
@@ -34,7 +34,7 @@ public class MCAHidingAction implements MCPAction {
 		result.append(")");
 				
 		//it removes the event set from the context at the end
-		context.setStack.pop();
+		//context.setStack.pop();
 		
 		return result.toString();
 	}

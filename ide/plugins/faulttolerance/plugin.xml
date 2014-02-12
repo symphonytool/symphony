@@ -73,11 +73,11 @@
    <extension
          point="org.eclipse.ui.handlers">
       <handler
-            class="eu.compassresearch.ide.faulttolerance.FaultToleranceVerificationHandler"
+            class="eu.compassresearch.ide.faulttolerance.handlers.FaultToleranceVerificationHandler"
             commandId="eu.compassresearch.ide.faulttolerance.verification.Verify">
       </handler>
       <handler
-            class="eu.compassresearch.ide.faulttolerance.ClearFaultToleranceHandler"
+            class="eu.compassresearch.ide.faulttolerance.handlers.ClearFaultToleranceHandler"
             commandId="eu.compassresearch.ide.faulttolerance.verification.Clear">
       </handler>
    </extension>
@@ -85,6 +85,7 @@
   <extension id="eu.compassresearch.ide.faulttolerance.verification.problem" point="org.eclipse.core.resources.markers">
      <super type="org.eclipse.core.resources.problemmarker"/>
      <persistent value="true"/>
+     <attribute name="processName"/>
   </extension>
   
   <extension point="org.eclipse.ui.ide.markerResolution">

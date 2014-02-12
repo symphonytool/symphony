@@ -19,7 +19,7 @@ public class ThmState extends ThmDecl{
 	@Override
 	public String toString() {
 		return (ThmStateUtil.isaState + " \"" + name + ThmStateUtil.stateEquiv + 
-				ThmStateUtil.mkvar +" \'\'" + name + "\'\' " + ThmStateUtil.typeDelim + type + ThmStateUtil.typeDelim +"\"\n" + tacHook(name));
+				ThmStateUtil.mkvar +" \'\'" + name + "\'\' " + ThmStateUtil.typeDelim + type + ThmStateUtil.typeDelim +"\"\n" + tactic(name, state));
 	}
 
 }

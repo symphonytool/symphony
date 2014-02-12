@@ -103,9 +103,9 @@
               label="CML-POG">
 				<command
             commandId="eu.compassresearch.ide.pog.generatepos"
-            label="Generate Proof Obligations"
+            label="Quick check Proof Obligations"
             style="push"
-            tooltip="Generate Proof Obligations for selected Project">
+            tooltip="Generate and inspect temporary POs for selected Project">
 				</command>
 				<visibleWhen>
 					<iterate ifEmpty="false" >
