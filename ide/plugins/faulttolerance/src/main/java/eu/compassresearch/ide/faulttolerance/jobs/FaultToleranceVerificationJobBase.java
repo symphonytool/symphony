@@ -14,9 +14,11 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.core.runtime.jobs.MultiRule;
+import org.eclipse.ui.progress.IProgressConstants;
 
 import eu.compassresearch.ide.faulttolerance.IFaultToleranceVerificationRequest;
 import eu.compassresearch.ide.faulttolerance.IFaultToleranceVerificationResponse;
+import eu.compassresearch.ide.faulttolerance.Image;
 import eu.compassresearch.ide.faulttolerance.Message;
 
 /**
@@ -38,6 +40,8 @@ public abstract class FaultToleranceVerificationJobBase extends WorkspaceJob {
 		this.request = request;
 		this.response = response;
 		this.preRequisites = new LinkedList<>();
+		setProperty(IProgressConstants.ICON_PROPERTY,
+				Image.FAULT_TOLERANCE_JOB_ICON.getImageDescriptor());
 	}
 
 	public void add(IFaultToleranceVerificationPreRequisite preRequisite) {

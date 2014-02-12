@@ -108,7 +108,7 @@ public class FilesPreparationJob extends FaultToleranceVerificationJobBase {
 			}
 			return createFormulaFiles(definitions, request, response,
 					new SubProgressMonitor(monitor, 1));
-		} catch (IOException | AnalysisException e) {
+		} catch (IOException | AnalysisException | RuntimeException e) {
 			response.setException(e);
 			return Status.OK_STATUS;
 		} finally {
@@ -123,7 +123,7 @@ public class FilesPreparationJob extends FaultToleranceVerificationJobBase {
 		try {
 			String folderName = formatSystemName(Message.FOLDER_NAME);
 			monitor.beginTask(Message.CREATE_FOLDER.format(
-					request.getSystemName(), folderName), 4);
+					request.getSystemName(), folderName), 5);
 			IContainer container = request.getSourceUnit().getProject()
 					.getModelBuildPath().getOutput();
 			IFolder folder = container.getFolder(new Path(folderName));
@@ -137,8 +137,10 @@ public class FilesPreparationJob extends FaultToleranceVerificationJobBase {
 				folder.getParent().refreshLocal(IResource.DEPTH_ONE,
 						new SubProgressMonitor(monitor, 1));
 				folder.create(false, false, new SubProgressMonitor(monitor, 1));
+				folder.getParent().refreshLocal(IResource.DEPTH_ONE,
+						new SubProgressMonitor(monitor, 1));
 			} else {
-				monitor.worked(2);
+				monitor.worked(3);
 			}
 			response.setFolder(folder);
 		} finally {
@@ -188,10 +190,10 @@ public class FilesPreparationJob extends FaultToleranceVerificationJobBase {
 			monitor.beginTask(
 					formatSystemName(Message.FIND_PARSE_LIST_DEFINITIONS_TASK_NAME),
 					cmlProject.getSourceUnits().size() + 2);
-			response.getFolder().refreshLocal(IResource.DEPTH_INFINITE,
+			response.getFolder().refreshLocal(IResource.DEPTH_ONE,
 					new SubProgressMonitor(monitor, 1));
 			request.getSourceUnit().getProject().getModel()
-					.refresh(true, new SubProgressMonitor(monitor, 1));
+					.refresh(false, new SubProgressMonitor(monitor, 1));
 			for (ICmlSourceUnit su : cmlProject.getSourceUnits()) {
 				definitions.addAll(su.getParseListDefinitions());
 				monitor.worked(1);
@@ -521,11 +523,12 @@ public class FilesPreparationJob extends FaultToleranceVerificationJobBase {
 				return Status.CANCEL_STATUS;
 			}
 			createFormulaFile(definitions, response.getFullFaultTolerance(),
+					request, response, new SubProgressMonitor(monitor, 1));
 
-			request, response, new SubProgressMonitor(monitor, 1));
-
-			request.getSourceUnit().getProject().getModel()
-					.refresh(true, new SubProgressMonitor(monitor, 1));
+			response.getFolder()
+					.getParent()
+					.refreshLocal(IResource.DEPTH_ONE,
+							new SubProgressMonitor(monitor, 1));
 			return Status.OK_STATUS;
 		} finally {
 			monitor.done();

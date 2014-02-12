@@ -3,6 +3,9 @@
  */
 package eu.compassresearch.ide.faulttolerance.jobs;
 
+import java.util.Set;
+import java.util.TreeSet;
+
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -28,6 +31,37 @@ public class MarkerUpdaterJob extends FaultToleranceVerificationJobBase
 		super(Message.MARKER_UPDATER_JOB_NAME, request, response);
 	}
 
+	class MarkerData implements Comparable<MarkerData> {
+		private final String message;
+		private final int severity;
+		private final boolean success;
+
+		public MarkerData(boolean success, int severity, String message) {
+			this.success = success;
+			this.severity = severity;
+			this.message = message;
+		}
+
+		@Override
+		public int compareTo(MarkerData that) {
+			int r = ((Integer) that.severity).compareTo(this.severity);
+			if (r != 0) {
+				return r;
+			}
+			r = this.success == that.success ? 0 : (this.success ? 1 : -1);
+			if (r != 0) {
+				return r;
+			}
+			return this.message.compareTo(that.message);
+		}
+
+		@Override
+		public String toString() {
+			return "MarkerData [success=" + success + ", severity=" + severity
+					+ ", message=" + message + "]";
+		}
+	}
+
 	@Override
 	protected IStatus runInWorkspace(
 			IFaultToleranceVerificationRequest request,
@@ -36,8 +70,15 @@ public class MarkerUpdaterJob extends FaultToleranceVerificationJobBase
 		try {
 			monitor.beginTask(
 					formatSystemName(Message.MARKER_UPDATER_TASK_NAME), 4);
-			handleExceptionAndUserCancelation(request, response);
-			handleCases(request, response);
+			MarkerCleaner.clearMarkers(request.getSourceUnit().getFile(),
+					request.getSystemName());
+			Set<MarkerData> markerDataSet = new TreeSet<>();
+			handleExceptionAndUserCancelation(markerDataSet, request, response);
+			handleCases(markerDataSet, request, response);
+
+			for (MarkerData markerData : markerDataSet) {
+				renewMarker(markerData, request, response);
+			}
 			return Status.OK_STATUS;
 		} finally {
 			monitor.done();
@@ -45,40 +86,44 @@ public class MarkerUpdaterJob extends FaultToleranceVerificationJobBase
 	}
 
 	private void handleExceptionAndUserCancelation(
+			Set<MarkerData> markerDataSet,
 			IFaultToleranceVerificationRequest request,
 			IFaultToleranceVerificationResponse response) {
 
 		if (response.getException() != null) {
-			renewMarker(
-					IMarker.SEVERITY_ERROR,
-					Message.EXCEPTION_OCCURRED.format(request.getSystemName(),
-							"-", response.getException().getLocalizedMessage()),
-					request, response);
+			markerDataSet
+					.add(new MarkerData(false, IMarker.SEVERITY_ERROR,
+							Message.EXCEPTION_OCCURRED.format(request
+									.getSystemName(), "-", response
+									.getException().getLocalizedMessage())));
 		} else {
 			for (FaultToleranceProperty property : response.properties()) {
-				handleExceptionAndUserCancelation(property, request, response);
+				handleExceptionAndUserCancelation(property, markerDataSet,
+						request, response);
 			}
 		}
 	}
 
 	private void handleExceptionAndUserCancelation(
-			FaultToleranceProperty property,
+			FaultToleranceProperty property, Set<MarkerData> markerDataSet,
 			IFaultToleranceVerificationRequest request,
 			IFaultToleranceVerificationResponse response) {
-		if (property.isCanceledByUser()) {
-			renewMarker(IMarker.SEVERITY_INFO, Message.CANCELED_BY_USER.format(
-					request.getSystemName(), property.format()), request,
-					response);
-		} else if (property.getException() != null) {
-			renewMarker(IMarker.SEVERITY_ERROR,
+		if (property.getException() != null) {
+			markerDataSet.add(new MarkerData(false, IMarker.SEVERITY_ERROR,
 					Message.EXCEPTION_OCCURRED.format(request.getSystemName(),
-							property.format(), property.getException()
-									.getLocalizedMessage()), request, response);
+							property.getType().formattedName(), property
+									.getException().getLocalizedMessage())));
+		} else if (!property.isChecked()) {
+			markerDataSet.add(new MarkerData(false, IMarker.SEVERITY_INFO,
+					Message.CANCELED_BY_USER.format(request.getSystemName(),
+							property.getType().formattedName())));
+
 		}
 
 	}
 
-	private void handleCases(IFaultToleranceVerificationRequest request,
+	private void handleCases(Set<MarkerData> markerDataSet,
+			IFaultToleranceVerificationRequest request,
 			IFaultToleranceVerificationResponse response) {
 
 		if (response.getException() != null) {
@@ -86,7 +131,7 @@ public class MarkerUpdaterJob extends FaultToleranceVerificationJobBase
 		}
 
 		for (FaultToleranceProperty property : response.properties()) {
-			if (property.isCanceledByUser() || property.getException() != null) {
+			if (!property.isChecked() || property.getException() != null) {
 				return;
 			}
 		}
@@ -101,29 +146,29 @@ public class MarkerUpdaterJob extends FaultToleranceVerificationJobBase
 		case 5:
 		case 9:
 		case 13:
-			markerSemifair(request, response);
+			markerSemifair(markerDataSet, request, response);
 			break;
 		case 2:
 		case 6:
 		case 10:
 		case 14:
-			markerDivergenceFree(request, response);
+			markerDivergenceFree(markerDataSet, request, response);
 			break;
 		case 3:
 		case 7:
-			markerLimitedFaultTolerant(request, response);
+			markerLimitedFaultTolerant(markerDataSet, request, response);
 			break;
 		case 0:
 		case 4:
 		case 8:
 		case 12:
-			markerDivergenceFreeSemifair(request, response);
+			markerDivergenceFreeSemifair(markerDataSet, request, response);
 			break;
 		case 11:
-			markerAllGood(request, response);
+			markerAllGood(markerDataSet, request, response);
 			break;
 		case 15:
-			markerFullFaultTolerant(request, response);
+			markerFullFaultTolerant(markerDataSet, request, response);
 			break;
 		}
 	}
@@ -148,69 +193,63 @@ public class MarkerUpdaterJob extends FaultToleranceVerificationJobBase
 		return String.format("%d s", total / 1000);
 	}
 
-	private void markerFullFaultTolerant(
+	private void markerFullFaultTolerant(Set<MarkerData> markerDataSet,
 			IFaultToleranceVerificationRequest request,
 			IFaultToleranceVerificationResponse response) {
-		renewMarker(IMarker.SEVERITY_WARNING,
+		markerDataSet.add(new MarkerData(false, IMarker.SEVERITY_WARNING,
 				Message.FULL_FAULT_TOLERANCE_SUCCESS.format(
 						request.getSystemName(),
-						getTotalElapsedTimeFormatted(response)), request,
-				response);
-
+						getTotalElapsedTimeFormatted(response))));
 	}
 
-	private void markerAllGood(IFaultToleranceVerificationRequest request,
+	private void markerAllGood(Set<MarkerData> markerDataSet,
+			IFaultToleranceVerificationRequest request,
 			IFaultToleranceVerificationResponse response) {
-		renewMarker(IMarker.SEVERITY_INFO,
+		markerDataSet.add(new MarkerData(true, IMarker.SEVERITY_INFO,
 				Message.LIMITED_FAULT_TOLERANCE_SUCCESS.format(
 						request.getSystemName(),
 						getLimitExpression(request, response),
-						getTotalElapsedTimeFormatted(response)), request,
-				response);
-
+						getTotalElapsedTimeFormatted(response))));
 	}
 
-	private void markerDivergenceFreeSemifair(
+	private void markerDivergenceFreeSemifair(Set<MarkerData> markerDataSet,
 			IFaultToleranceVerificationRequest request,
 			IFaultToleranceVerificationResponse response) {
-		renewMarker(IMarker.SEVERITY_ERROR,
+		markerDataSet.add(new MarkerData(false, IMarker.SEVERITY_ERROR,
 				Message.DIVERGENCE_FREE_SEMIFAIR_ERROR.format(
 						request.getSystemName(),
-						getTotalElapsedTimeFormatted(response)), request,
-				response);
+						getTotalElapsedTimeFormatted(response))));
 	}
 
-	private void markerLimitedFaultTolerant(
+	private void markerLimitedFaultTolerant(Set<MarkerData> markerDataSet,
 			IFaultToleranceVerificationRequest request,
 			IFaultToleranceVerificationResponse response) {
-		renewMarker(IMarker.SEVERITY_ERROR,
+		markerDataSet.add(new MarkerData(false, IMarker.SEVERITY_ERROR,
 				Message.LIMITED_FAULT_TOLERANCE_ERROR.format(
 						request.getSystemName(),
 						getLimitExpression(request, response),
-						getTotalElapsedTimeFormatted(response)), request,
-				response);
+						getTotalElapsedTimeFormatted(response))));
 
 	}
 
-	private void markerDivergenceFree(
+	private void markerDivergenceFree(Set<MarkerData> markerDataSet,
 			IFaultToleranceVerificationRequest request,
 			IFaultToleranceVerificationResponse response) {
-		renewMarker(IMarker.SEVERITY_ERROR,
+		markerDataSet.add(new MarkerData(false, IMarker.SEVERITY_ERROR,
 				Message.DIVERGENCE_FREE_ERROR.format(request.getSystemName(),
-						getTotalElapsedTimeFormatted(response)), request,
-				response);
+						getTotalElapsedTimeFormatted(response))));
 	}
 
-	private void markerSemifair(IFaultToleranceVerificationRequest request,
+	private void markerSemifair(Set<MarkerData> markerDataSet,
+			IFaultToleranceVerificationRequest request,
 			IFaultToleranceVerificationResponse response) {
-		renewMarker(IMarker.SEVERITY_ERROR,
+		markerDataSet.add(new MarkerData(false, IMarker.SEVERITY_ERROR,
 				Message.SEMIFAIR_ERROR.format(request.getSystemName(),
-						getTotalElapsedTimeFormatted(response)), request,
-				response);
+						getTotalElapsedTimeFormatted(response))));
 
 	}
 
-	private void renewMarker(int severity, String message,
+	private void renewMarker(MarkerData data,
 			IFaultToleranceVerificationRequest request,
 			IFaultToleranceVerificationResponse response) {
 		try {
@@ -218,12 +257,13 @@ public class MarkerUpdaterJob extends FaultToleranceVerificationJobBase
 					.createMarker(MARKERS_ID);
 			marker.setAttribute(IMarker.LOCATION, Message.MARKER_LOCATION
 					.format(request.getLineNumber(), request.getCharStart()));
-			marker.setAttribute(IMarker.SEVERITY, severity);
-			marker.setAttribute(IMarker.MESSAGE, message);
+			marker.setAttribute(IMarker.SEVERITY, data.severity);
+			marker.setAttribute(IMarker.MESSAGE, data.message);
 			marker.setAttribute(IMarker.LINE_NUMBER, request.getLineNumber());
 			marker.setAttribute(IMarker.CHAR_START, request.getCharStart());
 			marker.setAttribute(IMarker.CHAR_END, request.getCharEnd());
 			marker.setAttribute(ATTRIBUTE_SYSTEM_NAME, request.getSystemName());
+			marker.setAttribute(ATTRIBUTE_SUCCESS, data.success);
 
 		} catch (CoreException e) {
 			//

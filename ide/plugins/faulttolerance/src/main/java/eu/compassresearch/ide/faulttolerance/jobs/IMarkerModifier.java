@@ -13,5 +13,6 @@ public interface IMarkerModifier {
 
 	String ATTRIBUTE_SYSTEM_NAME = "systemName";
 	String MARKERS_ID = "eu.compassresearch.ide.faulttolerance.verification.problem";
+	String ATTRIBUTE_SUCCESS = "success";
 
 }

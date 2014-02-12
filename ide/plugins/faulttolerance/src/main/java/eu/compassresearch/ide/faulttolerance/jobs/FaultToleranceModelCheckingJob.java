@@ -33,7 +33,7 @@ public class FaultToleranceModelCheckingJob extends
 			IFaultToleranceVerificationRequest request,
 			IFaultToleranceVerificationResponse response) {
 		super(Message.MODEL_CHECKING_JOB_NAME.format(request.getSystemName(),
-				property.format()), request, response);
+				property.getType().formattedName()), request, response);
 		this.property = property;
 		add(new IFaultToleranceVerificationPreRequisite() {
 			@Override
@@ -90,7 +90,6 @@ public class FaultToleranceModelCheckingJob extends
 					synchronized (property) {
 						if (monitor.isCanceled()) {
 							done = true;
-							property.setCanceledByUser(true);
 							t.interrupt();
 							FormulaIntegrator.getInstance().finalize();
 						} else if (property.isChecked()) {
@@ -100,7 +99,6 @@ public class FaultToleranceModelCheckingJob extends
 				} catch (InterruptedException e) {
 					// TODO log exception
 					done = true;
-					property.setCanceledByUser(true);
 				} catch (Throwable e) {
 					// TODO log exception from FormulaIntegrator
 				} finally {

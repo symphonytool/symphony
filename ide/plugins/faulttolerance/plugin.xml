@@ -82,12 +82,33 @@
       </handler>
    </extension>
    
-  <extension id="eu.compassresearch.ide.faulttolerance.verification.problem" point="org.eclipse.core.resources.markers">
-     <super type="org.eclipse.core.resources.problemmarker"/>
+  <extension id="eu.compassresearch.ide.faulttolerance.verification.problem" 
+    name="%MARKER_TYPE_NAME" point="org.eclipse.core.resources.markers">
+     <!--
+     The type checker clears all problemmarker for files. VanillaCmlTypeChecker.initialise
+     <super type="org.eclipse.core.resources.problemmarker"/>-->
+     <super type="org.eclipse.core.resources.marker"/>
      <persistent value="true"/>
+     <attribute name="location"/>
+     <attribute name="severity"/>
+     <attribute name="message"/>
+     <attribute name="lineNumber"/>
+     <attribute name="charStart"/>
+     <attribute name="charEnd"/>
      <attribute name="systemName"/>
+     <attribute name="success"/>
   </extension>
   
+  <extension
+      point="org.eclipse.ui.ide.markerImageProviders">
+    <imageprovider
+      markertype="eu.compassresearch.ide.faulttolerance.verification.problem"
+      icon="icons/ft.png"
+      id="eu.compassresearch.ide.faulttolerance.markerImageProvider"
+      class="eu.compassresearch.ide.faulttolerance.jobs.MarkerImageProvider">
+    </imageprovider>
+  </extension>
+
   <extension point="org.eclipse.ui.ide.markerResolution">
       <markerResolutionGenerator
          markerType="eu.compassresearch.ide.faulttolerance.verification.problem"

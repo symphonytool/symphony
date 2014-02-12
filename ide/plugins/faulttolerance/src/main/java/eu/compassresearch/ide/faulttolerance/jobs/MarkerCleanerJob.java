@@ -3,7 +3,6 @@
  */
 package eu.compassresearch.ide.faulttolerance.jobs;
 
-import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.WorkspaceJob;
 import org.eclipse.core.runtime.CoreException;
@@ -33,23 +32,8 @@ public class MarkerCleanerJob extends WorkspaceJob implements IMarkerModifier {
 	@Override
 	public IStatus runInWorkspace(IProgressMonitor monitor)
 			throws CoreException {
-		clearMarkers();
+		MarkerCleaner.clearMarkers(resource, systemName);
 		return Status.OK_STATUS;
-	}
-
-	private void clearMarkers() {
-		try {
-			IMarker[] markers = resource.findMarkers(MARKERS_ID, true,
-					IResource.DEPTH_INFINITE);
-			for (IMarker marker : markers) {
-				if (systemName.equals(marker
-						.getAttribute(ATTRIBUTE_SYSTEM_NAME))) {
-					marker.delete();
-				}
-			}
-		} catch (CoreException e) {
-			//
-		}
 	}
 
 }

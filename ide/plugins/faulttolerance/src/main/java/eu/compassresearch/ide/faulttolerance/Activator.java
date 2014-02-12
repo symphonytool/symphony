@@ -46,7 +46,9 @@ public class Activator extends AbstractUIPlugin implements IStartup {
 
 	@Override
 	protected void initializeImageRegistry(ImageRegistry reg) {
-		Image.RELOAD.updateImageDescriptor(reg, "reload.png");
+		for (Image image : Image.values()) {
+			image.updateImageDescriptor(reg);
+		}
 	}
 
 	@Override

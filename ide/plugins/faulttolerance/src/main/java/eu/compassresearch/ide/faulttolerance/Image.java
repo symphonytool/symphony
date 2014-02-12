@@ -19,18 +19,29 @@ import org.osgi.framework.Bundle;
  * 
  */
 public enum Image {
-	RELOAD;
+	FAULT_TOLERANCE_JOB_ICON("ft-graphic.png"), FT_RED("ft-red.png"), FT_BLUE(
+			"ft-blue.png"), FT_GREEN("ft-green.png"), FT_ORANGE("ft-orange.png");
+
+	private String iconFileName;
+
+	private Image(String iconFileName) {
+		this.iconFileName = iconFileName;
+	}
 
 	public ImageDescriptor getImageDescriptor() {
 		return ImageDescriptor.createFromImage(Activator.getDefault()
 				.getImageRegistry().get(name()));
 	}
 
-	public void updateImageDescriptor(ImageRegistry reg, String iconFileName) {
+	public void updateImageDescriptor(ImageRegistry reg) {
 		Bundle bundle = Activator.getDefault().getBundle();
-		IPath path = new Path("icons/" + iconFileName);
+		IPath path = new Path(path());
 		URL url = FileLocator.find(bundle, path, null);
 		ImageDescriptor desc = ImageDescriptor.createFromURL(url);
 		reg.put(name(), desc);
+	}
+
+	public String path() {
+		return "icons/" + iconFileName;
 	}
 }

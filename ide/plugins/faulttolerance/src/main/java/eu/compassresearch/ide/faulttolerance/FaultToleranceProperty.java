@@ -26,7 +26,6 @@ public class FaultToleranceProperty {
 	private double elapsedTime;
 
 	private Exception exception;
-	private boolean canceledByUser;
 
 	public FaultToleranceProperty(FaultToleranceType type) {
 		this.type = type;
@@ -66,14 +65,6 @@ public class FaultToleranceProperty {
 
 	public void setException(Exception exception) {
 		this.exception = exception;
-	}
-
-	public boolean isCanceledByUser() {
-		return canceledByUser;
-	}
-
-	public void setCanceledByUser(boolean canceledByUser) {
-		this.canceledByUser = canceledByUser;
 	}
 
 	public String getImplementationExpression() {
