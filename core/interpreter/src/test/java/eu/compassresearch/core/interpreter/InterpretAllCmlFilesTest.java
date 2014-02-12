@@ -154,13 +154,18 @@ public class InterpretAllCmlFilesTest
 		try
 		{
 			interpreter.initialize();
-			interpreter.execute(new RandomSelectionStrategy());
+			execute(interpreter);
 		} catch (Exception ex)
 		{
 			exception = ex;
 		}
 		ExpectedTestResult testResult = ExpectedTestResult.parseTestResultFile(resultPath);
 		checkResult(testResult, interpreter, exception);
+	}
+
+	protected void execute(CmlInterpreter interpreter) throws AnalysisException, Exception
+	{
+		interpreter.execute(new RandomSelectionStrategy());
 	}
 
 	private void checkResult(ExpectedTestResult testResult,
@@ -230,7 +235,7 @@ public class InterpretAllCmlFilesTest
 		return tests;
 	}
 
-	private static List<Object[]> findAllCmlFiles(String folderPath)
+	protected static List<Object[]> findAllCmlFiles(String folderPath)
 	{
 		List<Object[]> paths = new Vector<Object[]>();
 		File folder = new File(folderPath);
