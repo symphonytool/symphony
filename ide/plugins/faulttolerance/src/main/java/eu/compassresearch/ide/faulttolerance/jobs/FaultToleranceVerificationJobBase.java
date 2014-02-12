@@ -12,7 +12,9 @@ import org.eclipse.core.resources.WorkspaceJob;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
+import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.core.runtime.jobs.MultiRule;
 import org.eclipse.ui.progress.IProgressConstants;
 
@@ -40,8 +42,29 @@ public abstract class FaultToleranceVerificationJobBase extends WorkspaceJob {
 		this.request = request;
 		this.response = response;
 		this.preRequisites = new LinkedList<>();
-		setProperty(IProgressConstants.ICON_PROPERTY,
-				Image.FAULT_TOLERANCE_JOB_ICON.getImageDescriptor());
+		init();
+	}
+
+	private void init() {
+		addJobChangeListener(new JobChangeAdapter() {
+			@Override
+			public void aboutToRun(IJobChangeEvent event) {
+				setProperty(IProgressConstants.ICON_PROPERTY,
+						Image.FAULT_TOLERANCE_JOB_ICON.getImageDescriptor());
+			}
+
+			@Override
+			public void scheduled(IJobChangeEvent event) {
+				setProperty(IProgressConstants.ICON_PROPERTY,
+						Image.FAULT_TOLERANCE_CLOCK_ICON.getImageDescriptor());
+			}
+
+			@Override
+			public void done(IJobChangeEvent event) {
+				setProperty(IProgressConstants.ICON_PROPERTY,
+						Image.FAULT_TOLERANCE_TICK_ICON.getImageDescriptor());
+			}
+		});
 	}
 
 	public void add(IFaultToleranceVerificationPreRequisite preRequisite) {
@@ -55,6 +78,7 @@ public abstract class FaultToleranceVerificationJobBase extends WorkspaceJob {
 		this.request = request;
 		this.response = response;
 		this.preRequisites = new LinkedList<>();
+		init();
 	}
 
 	private void updateSchedulingRules() {

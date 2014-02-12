@@ -20,7 +20,9 @@ import org.osgi.framework.Bundle;
  */
 public enum Image {
 	FAULT_TOLERANCE_JOB_ICON("ft-graphic.png"), FT_RED("ft-red.png"), FT_BLUE(
-			"ft-blue.png"), FT_GREEN("ft-green.png"), FT_ORANGE("ft-orange.png");
+			"ft-blue.png"), FT_GREEN("ft-green.png"), FT_ORANGE("ft-orange.png"), FAULT_TOLERANCE_CLOCK_ICON(
+			"ft-graphic-clock.png"), FAULT_TOLERANCE_TICK_ICON(
+			"ft-graphic-tick.png");
 
 	private String iconFileName;
 

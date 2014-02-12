@@ -9,7 +9,12 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.ILock;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.MultiRule;
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.progress.IProgressConstants;
 
 import eu.compassresearch.core.analysis.modelchecker.api.FormulaIntegrator;
 import eu.compassresearch.core.analysis.modelchecker.api.FormulaResult;
@@ -42,6 +47,38 @@ public class FaultToleranceModelCheckingJob extends
 						.getFormulaScriptFile().exists();
 			}
 		});
+		setProperty(IProgressConstants.ACTION_PROPERTY,
+				createAction(property, request, response));
+		setProperty(IProgressConstants.KEEP_PROPERTY, true);
+	}
+
+	private Action createAction(final FaultToleranceProperty property,
+			final IFaultToleranceVerificationRequest request,
+			final IFaultToleranceVerificationResponse response) {
+		return new Action() {
+			@Override
+			public void run() {
+				if (property.getException() != null) {
+					MessageDialog.openError(new Shell(), getName(),
+							Message.EXCEPTION_OCCURRED.format(request
+									.getSystemName(), property.getType()
+									.formattedName(), property.getException()
+									.getLocalizedMessage()));
+				} else if (property.isChecked()) {
+					MessageDialog.openInformation(new Shell(), getName(),
+							Message.PROPERTY_CHECKED.format(request
+									.getSystemName(), property.getType()
+									.formattedName(), property.isSatisfied(),
+									property.getElapsedTime()));
+				} else if (getState() == Job.RUNNING
+						|| getState() == Job.WAITING) {
+					MessageDialog.openInformation(new Shell(), getName(),
+							Message.PROPERTY_NOT_YET_CHECKED.format(request
+									.getSystemName(), property.getType()
+									.formattedName()));
+				}
+			}
+		};
 	}
 
 	@Override
