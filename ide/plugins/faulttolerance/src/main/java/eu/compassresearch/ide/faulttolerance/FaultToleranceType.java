@@ -13,7 +13,8 @@ public enum FaultToleranceType {
 	DivergenceFreedom(Message.DIVERGENCE_FREEDOM_TYPE_NAME), Semifairness(
 			Message.SEMIFAIRNESS_TYPE_NAME), FullFaultTolerance(
 			Message.FULL_FAULT_TOLERANCE_TYPE_NAME), LimitedFaultTolerance(
-			Message.LIMITED_FAULT_TOLERANCE_TYPE_NAME);
+			Message.LIMITED_FAULT_TOLERANCE_TYPE_NAME), DeadlockFreedom(
+			Message.DEADLOCK_FREEDOM_TYPE_NAME);
 
 	private Message message;
 

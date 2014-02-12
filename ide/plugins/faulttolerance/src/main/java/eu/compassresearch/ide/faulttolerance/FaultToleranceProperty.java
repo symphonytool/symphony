@@ -18,6 +18,8 @@ public class FaultToleranceProperty {
 	private final FaultToleranceType type;
 	private boolean satisfied;
 	private boolean checked;
+	private boolean canceledByUser;
+	private boolean canceledByPreRequisite;
 	private IFile formulaScriptFile;
 	private String modelCheckerProperty;
 	private String implementationExpression;
@@ -114,6 +116,22 @@ public class FaultToleranceProperty {
 
 	public void setElapsedTime(double elapsedTime) {
 		this.elapsedTime = elapsedTime;
+	}
+
+	public boolean isCanceledByUser() {
+		return canceledByUser;
+	}
+
+	public void setCanceledByUser(boolean canceledByUser) {
+		this.canceledByUser = canceledByUser;
+	}
+
+	public boolean isCanceledByPreRequisite() {
+		return canceledByPreRequisite;
+	}
+
+	public void setCanceledByPreRequisite(boolean canceledByPreRequisite) {
+		this.canceledByPreRequisite = canceledByPreRequisite;
 	}
 
 }

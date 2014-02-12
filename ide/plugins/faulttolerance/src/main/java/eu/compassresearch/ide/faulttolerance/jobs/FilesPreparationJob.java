@@ -106,8 +106,12 @@ public class FilesPreparationJob extends FaultToleranceVerificationJobBase {
 			if (monitor.isCanceled()) {
 				return Status.CANCEL_STATUS;
 			}
-			return createFormulaFiles(definitions, request, response,
-					new SubProgressMonitor(monitor, 1));
+			if (response.getDefinitionsMessage() == null) {
+				return createFormulaFiles(definitions, request, response,
+						new SubProgressMonitor(monitor, 1));
+			} else {
+				return Status.OK_STATUS;
+			}
 		} catch (IOException | AnalysisException | RuntimeException e) {
 			response.setException(e);
 			return Status.OK_STATUS;
@@ -502,12 +506,15 @@ public class FilesPreparationJob extends FaultToleranceVerificationJobBase {
 			AnalysisException {
 		try {
 			monitor.beginTask(
-					formatSystemName(Message.CREATE_FORMULA_FILES_TASK_NAME), 5);
+					formatSystemName(Message.CREATE_FORMULA_FILES_TASK_NAME), 6);
 
+			createFormulaFile(definitions, response.getDeadlockFreedom(),
+					request, response, new SubProgressMonitor(monitor, 1));
+			if (monitor.isCanceled()) {
+				return Status.CANCEL_STATUS;
+			}
 			createFormulaFile(definitions, response.getDivergenceFreedom(),
-
-			request, response, new SubProgressMonitor(monitor, 1));
-
+					request, response, new SubProgressMonitor(monitor, 1));
 			if (monitor.isCanceled()) {
 				return Status.CANCEL_STATUS;
 			}
@@ -517,8 +524,7 @@ public class FilesPreparationJob extends FaultToleranceVerificationJobBase {
 				return Status.CANCEL_STATUS;
 			}
 			createFormulaFile(definitions, response.getLimitedFaultTolerance(),
-
-			request, response, new SubProgressMonitor(monitor, 1));
+					request, response, new SubProgressMonitor(monitor, 1));
 			if (monitor.isCanceled()) {
 				return Status.CANCEL_STATUS;
 			}

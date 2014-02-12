@@ -20,6 +20,8 @@ public interface IFaultToleranceVerificationResponse {
 
 	FaultToleranceProperty getFullFaultTolerance();
 
+	FaultToleranceProperty getDeadlockFreedom();
+
 	Iterable<FaultToleranceProperty> properties();
 
 	IFolder getFolder();

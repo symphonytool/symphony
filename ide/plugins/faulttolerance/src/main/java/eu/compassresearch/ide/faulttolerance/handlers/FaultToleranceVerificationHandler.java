@@ -118,6 +118,7 @@ public class FaultToleranceVerificationHandler extends SelectProcessHandler {
 	}
 
 	private class Response implements IFaultToleranceVerificationResponse {
+		private final FaultToleranceProperty deadlockFreedom;
 		private final FaultToleranceProperty divergenceFreedom;
 		private final FaultToleranceProperty semifairness;
 		private final FaultToleranceProperty limitedFaultTolerance;
@@ -128,6 +129,8 @@ public class FaultToleranceVerificationHandler extends SelectProcessHandler {
 		private String definitionsMessage;
 
 		public Response() {
+			deadlockFreedom = new FaultToleranceProperty(
+					FaultToleranceType.DeadlockFreedom);
 			divergenceFreedom = new FaultToleranceProperty(
 					FaultToleranceType.DivergenceFreedom);
 			semifairness = new FaultToleranceProperty(
@@ -136,7 +139,8 @@ public class FaultToleranceVerificationHandler extends SelectProcessHandler {
 					FaultToleranceType.LimitedFaultTolerance);
 			fullFaultTolerance = new FaultToleranceProperty(
 					FaultToleranceType.FullFaultTolerance);
-			this.properties = new ArrayList<>(4);
+			this.properties = new ArrayList<>(5);
+			this.properties.add(deadlockFreedom);
 			this.properties.add(divergenceFreedom);
 			this.properties.add(semifairness);
 			this.properties.add(limitedFaultTolerance);
@@ -198,6 +202,11 @@ public class FaultToleranceVerificationHandler extends SelectProcessHandler {
 			this.definitionsMessage = definitionsMessage;
 		}
 
+		@Override
+		public FaultToleranceProperty getDeadlockFreedom() {
+			return deadlockFreedom;
+		}
+
 	}
 
 	@Override
@@ -219,6 +228,7 @@ public class FaultToleranceVerificationHandler extends SelectProcessHandler {
 
 		prepareFolder(request, response);
 
+		prepareDeadlockFreedom(request, response);
 		prepareDivergenceFreedom(request, response);
 		prepareSemifairness(request, response);
 		prepareLimitedFaultTolerance(request, response);
@@ -246,6 +256,15 @@ public class FaultToleranceVerificationHandler extends SelectProcessHandler {
 		setFile(property,
 				Message.FULL_FAULT_TOLERANCE_FORMULA_SCRIPT_FILE_NAME, request,
 				response);
+	}
+
+	private void prepareDeadlockFreedom(Request request, Response response) {
+		FaultToleranceProperty property = response.getDeadlockFreedom();
+		property.setModelCheckerProperty(MCConstants.DEADLOCK_PROPERTY);
+		setImplementationExpression(property,
+				Message.DEADLOCK_FREEDOM_CHECK_PROCESS_NAME, request);
+		setFile(property, Message.DEADLOCK_FREEDOM_FORMULA_SCRIPT_FILE_NAME,
+				request, response);
 	}
 
 	private void prepareLimitedFaultTolerance(Request request, Response response) {
@@ -306,20 +325,51 @@ public class FaultToleranceVerificationHandler extends SelectProcessHandler {
 		}
 	}
 
+	private void add(int index, Job job, List<Set<Job>> jobsSets) {
+		if (index >= jobsSets.size()) {
+			for (int i = jobsSets.size(); i <= index; i++) {
+				jobsSets.add(new HashSet<Job>());
+			}
+		}
+		Set<Job> jobs = jobsSets.get(index);
+		jobs.add(job);
+	}
+
 	private List<Set<Job>> createJobs(
 			IFaultToleranceVerificationRequest request,
 			final IFaultToleranceVerificationResponse response) {
 		List<Set<Job>> jobsSets = new LinkedList<>();
-		Set<Job> jobs1 = new HashSet<>();
-		jobsSets.add(jobs1);
-		jobs1.add(new FilesPreparationJob(request, response));
 
-		Set<Job> jobs2 = new HashSet<>();
-		jobsSets.add(jobs2);
-		jobs2.add(new FaultToleranceModelCheckingJob(response
-				.getDivergenceFreedom(), request, response));
-		jobs2.add(new FaultToleranceModelCheckingJob(
-				response.getSemifairness(), request, response));
+		Job filesPreparation = new FilesPreparationJob(request, response);
+
+		IFaultToleranceVerificationPreRequisite allDefinitionsOk = new IFaultToleranceVerificationPreRequisite() {
+			@Override
+			public boolean checkPreRequisite() {
+				return response.getDefinitionsMessage() == null;
+			}
+		};
+
+		FaultToleranceModelCheckingJob deadlockFreedom = new FaultToleranceModelCheckingJob(
+				response.getDeadlockFreedom(), request, response);
+
+		deadlockFreedom.add(allDefinitionsOk);
+
+		IFaultToleranceVerificationPreRequisite deadlockFree = new IFaultToleranceVerificationPreRequisite() {
+			@Override
+			public boolean checkPreRequisite() {
+				return response.getDeadlockFreedom().isSatisfied();
+			}
+		};
+
+		FaultToleranceModelCheckingJob divergenceFreedom = new FaultToleranceModelCheckingJob(
+				response.getDivergenceFreedom(), request, response);
+		FaultToleranceModelCheckingJob semifairness = new FaultToleranceModelCheckingJob(
+				response.getSemifairness(), request, response);
+
+		divergenceFreedom.add(deadlockFree);
+		divergenceFreedom.add(allDefinitionsOk);
+		semifairness.add(deadlockFree);
+		semifairness.add(allDefinitionsOk);
 
 		IFaultToleranceVerificationPreRequisite divergenceFreeAndSemifair = new IFaultToleranceVerificationPreRequisite() {
 			@Override
@@ -328,32 +378,38 @@ public class FaultToleranceVerificationHandler extends SelectProcessHandler {
 						&& response.getSemifairness().isSatisfied();
 			}
 		};
-
-		Set<Job> jobs3 = new HashSet<>();
-		jobsSets.add(jobs3);
 		FaultToleranceModelCheckingJob limitedJob = new FaultToleranceModelCheckingJob(
 				response.getLimitedFaultTolerance(), request, response);
 		FaultToleranceModelCheckingJob fullJob = new FaultToleranceModelCheckingJob(
 				response.getFullFaultTolerance(), request, response);
 		limitedJob.add(divergenceFreeAndSemifair);
-		fullJob.add(divergenceFreeAndSemifair);
+		limitedJob.add(deadlockFree);
+		limitedJob.add(allDefinitionsOk);
 		limitedJob.setUser(true);
-		jobs3.add(limitedJob);
-		jobs3.add(fullJob);
+		fullJob.add(divergenceFreeAndSemifair);
+		fullJob.add(deadlockFree);
+		fullJob.add(allDefinitionsOk);
 
-		Set<Job> jobs4 = new HashSet<>();
-		jobsSets.add(jobs4);
+		Job markerJob = new MarkerUpdaterJob(request, response);
+
 		Job cleanupJob = new FaultToleranceVerificationCleanupJob(request,
 				response);
-		jobs4.add(cleanupJob);
 
-		Set<Job> jobs5 = new HashSet<>();
-		jobsSets.add(jobs5);
-		Job markerJob = new MarkerUpdaterJob(request, response);
-		jobs5.add(markerJob);
+		add(0, filesPreparation, jobsSets);
+
+		add(1, deadlockFreedom, jobsSets);
+
+		add(2, divergenceFreedom, jobsSets);
+		add(2, semifairness, jobsSets);
+
+		add(3, limitedJob, jobsSets);
+		add(3, fullJob, jobsSets);
+
+		add(4, cleanupJob, jobsSets);
+
+		add(5, markerJob, jobsSets);
 
 		return jobsSets;
 
 	}
-
 }

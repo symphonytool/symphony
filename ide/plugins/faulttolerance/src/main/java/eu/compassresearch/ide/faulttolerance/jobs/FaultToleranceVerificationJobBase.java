@@ -18,6 +18,7 @@ import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.core.runtime.jobs.MultiRule;
 import org.eclipse.ui.progress.IProgressConstants;
 
+import eu.compassresearch.ide.faulttolerance.Activator;
 import eu.compassresearch.ide.faulttolerance.IFaultToleranceVerificationRequest;
 import eu.compassresearch.ide.faulttolerance.IFaultToleranceVerificationResponse;
 import eu.compassresearch.ide.faulttolerance.Image;
@@ -150,6 +151,19 @@ public abstract class FaultToleranceVerificationJobBase extends WorkspaceJob {
 			}
 		}
 
+		handleShouldRun(should);
+
 		return should;
+	}
+
+	protected void handleShouldRun(boolean should) {
+	}
+
+	@Override
+	public boolean belongsTo(Object family) {
+		if (family instanceof String) {
+			return Activator.FAULT_TOLERANCE_JOB_FAMILY.equals(family);
+		}
+		return super.belongsTo(family);
 	}
 }

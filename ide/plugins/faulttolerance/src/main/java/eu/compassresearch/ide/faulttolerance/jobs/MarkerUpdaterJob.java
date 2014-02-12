@@ -90,7 +90,11 @@ public class MarkerUpdaterJob extends FaultToleranceVerificationJobBase
 			IFaultToleranceVerificationRequest request,
 			IFaultToleranceVerificationResponse response) {
 
-		if (response.getException() != null) {
+		if (response.getDefinitionsMessage() != null) {
+			markerDataSet.add(new MarkerData(false, IMarker.SEVERITY_ERROR,
+					Message.MISSING_DEFINITIONS.format(request.getSystemName(),
+							response.getDefinitionsMessage())));
+		} else if (response.getException() != null) {
 			markerDataSet
 					.add(new MarkerData(false, IMarker.SEVERITY_ERROR,
 							Message.EXCEPTION_OCCURRED.format(request
@@ -113,7 +117,7 @@ public class MarkerUpdaterJob extends FaultToleranceVerificationJobBase
 					Message.EXCEPTION_OCCURRED.format(request.getSystemName(),
 							property.getType().formattedName(), property
 									.getException().getLocalizedMessage())));
-		} else if (!property.isChecked()) {
+		} else if (property.isCanceledByUser()) {
 			markerDataSet.add(new MarkerData(false, IMarker.SEVERITY_INFO,
 					Message.CANCELED_BY_USER.format(request.getSystemName(),
 							property.getType().formattedName())));
@@ -131,46 +135,57 @@ public class MarkerUpdaterJob extends FaultToleranceVerificationJobBase
 		}
 
 		for (FaultToleranceProperty property : response.properties()) {
-			if (!property.isChecked() || property.getException() != null) {
+			if (property.isCanceledByUser() || property.getException() != null) {
 				return;
 			}
 		}
 
-		int cases = (response.getDivergenceFreedom().isSatisfied() ? 1 : 0)
-				| (response.getSemifairness().isSatisfied() ? 2 : 0)
-				| (response.getFullFaultTolerance().isSatisfied() ? 4 : 0)
-				| (response.getLimitedFaultTolerance().isSatisfied() ? 8 : 0);
-		System.out.println("Fault tolerance result: " + cases);
-		switch (cases) {
-		case 1:
-		case 5:
-		case 9:
-		case 13:
-			markerSemifair(markerDataSet, request, response);
-			break;
-		case 2:
-		case 6:
-		case 10:
-		case 14:
-			markerDivergenceFree(markerDataSet, request, response);
-			break;
-		case 3:
-		case 7:
-			markerLimitedFaultTolerant(markerDataSet, request, response);
-			break;
-		case 0:
-		case 4:
-		case 8:
-		case 12:
-			markerDivergenceFreeSemifair(markerDataSet, request, response);
-			break;
-		case 11:
-			markerAllGood(markerDataSet, request, response);
-			break;
-		case 15:
-			markerFullFaultTolerant(markerDataSet, request, response);
-			break;
+		if (!response.getDeadlockFreedom().isSatisfied()) {
+			markerDeadlockFree(markerDataSet, request, response);
+			return;
 		}
+
+		if (response.getDivergenceFreedom().isSatisfied()) {
+			if (!response.getSemifairness().isSatisfied()) {
+				markerSemifair(markerDataSet, request, response);
+				return;
+			}
+		} else {
+			if (response.getSemifairness().isSatisfied()) {
+				markerDivergenceFree(markerDataSet, request, response);
+				return;
+			} else {
+				markerDivergenceFreeSemifair(markerDataSet, request, response);
+				return;
+			}
+		}
+
+		if (!response.getLimitedFaultTolerance().isSatisfied()) {
+			markerLimitedFaultTolerant(markerDataSet, request, response);
+			return;
+		}
+
+		if (response.getFullFaultTolerance().isSatisfied()) {
+			markerFullFaultTolerant(markerDataSet, request, response);
+		} else {
+			markerAllGood(markerDataSet, request, response);
+
+		}
+	}
+
+	/**
+	 * @param markerDataSet
+	 * @param request
+	 * @param response
+	 */
+	private void markerDeadlockFree(Set<MarkerData> markerDataSet,
+			IFaultToleranceVerificationRequest request,
+			IFaultToleranceVerificationResponse response) {
+		markerDataSet.add(new MarkerData(false, IMarker.SEVERITY_WARNING,
+				Message.NOT_DEADLOCK_FREE_SYSTEM.format(
+						request.getSystemName(),
+						getTotalElapsedTimeFormatted(response))));
+
 	}
 
 	private String getLimitExpression(
