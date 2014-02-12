@@ -19,6 +19,8 @@ import org.overture.interpreter.runtime.Stoppoint;
 import org.overture.interpreter.scheduler.BasicSchedulableThread;
 import org.overture.parser.lex.LexException;
 import org.overture.parser.syntax.ParserException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
@@ -54,6 +56,8 @@ public abstract class AbstractCmlInterpreter implements CmlInterpreter
 		}
 	});
 
+	final static Logger logger = LoggerFactory.getLogger("cml-interpreter");
+
 	/**
 	 * A map of the active breakpoints where the key has the following format "<filepath>:<linenumber>"
 	 */
@@ -87,8 +91,7 @@ public abstract class AbstractCmlInterpreter implements CmlInterpreter
 	public AbstractCmlInterpreter(Config config)
 	{
 		this.config = config;
-		
-		
+
 	}
 
 	/**

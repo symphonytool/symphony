@@ -13,7 +13,6 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
-import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -47,7 +46,6 @@ public class InterpretAllCmlFilesTest
 
 	public InterpretAllCmlFilesTest(String filePath, String name)
 	{
-		CmlRuntime.logger().setLevel(Level.OFF);
 		this.filePath = filePath;
 	}
 
@@ -163,7 +161,8 @@ public class InterpretAllCmlFilesTest
 		checkResult(testResult, interpreter, exception);
 	}
 
-	protected void execute(CmlInterpreter interpreter) throws AnalysisException, Exception
+	protected void execute(CmlInterpreter interpreter)
+			throws AnalysisException, Exception
 	{
 		interpreter.execute(new RandomSelectionStrategy());
 	}

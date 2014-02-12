@@ -29,6 +29,7 @@ import eu.compassresearch.core.interpreter.api.behaviour.CmlTrace;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.transitions.ObservableTransition;
+import eu.compassresearch.core.interpreter.api.transitions.TauTransition;
 import eu.compassresearch.core.interpreter.api.transitions.TimedTransition;
 import eu.compassresearch.core.interpreter.api.values.ProcessObjectValue;
 import eu.compassresearch.core.interpreter.debug.Breakpoint;
@@ -268,7 +269,14 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 
 	public CmlTransition resolveChoice(CmlTransitionSet availableEvents)
 	{
-		CmlRuntime.logger().fine("Waiting for environment on : "
+		if (!availableEvents.getObservableEvents().isEmpty())
+		{
+			Console.out.print("Waiting for environment on : ");
+			availableEvents.displayAllAvaliableEvents(Console.out);
+			Console.out.print("\n");
+		}
+
+		logger.trace("Waiting for environment on : "
 				+ availableEvents.getAllEvents());
 
 		logState(availableEvents);
@@ -279,7 +287,14 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		setNewState(CmlInterpreterState.WAITING_FOR_ENVIRONMENT);
 		// Get the environment to select the next transition.
 		// this is potentially a blocking call!!
-		return env.resolveChoice();
+		CmlTransition choice = env.resolveChoice();
+		logger.trace("The environment picked : " + choice);
+
+		if (!(choice instanceof TauTransition))
+		{
+			Console.out.println("Executing: " + choice);
+		}
+		return choice;
 	}
 
 	public void logState(CmlTransitionSet availableEvents)
@@ -302,7 +317,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 				state = context.toString();
 			}
 
-			CmlRuntime.logger().finer("State for " + event + " : " + state);
+			logger.trace("State for " + event + " : " + state);
 		}
 	}
 
@@ -310,21 +325,21 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	{
 		if (trace.getLastTransition() instanceof ObservableTransition)
 		{
-			CmlRuntime.logger().fine("----------------observable step by '"
-					+ behaviour + "'----------------------");
-			CmlRuntime.logger().fine("Observable trace of '" + behaviour
-					+ "': " + trace.getObservableTrace());
-			CmlRuntime.logger().fine("Eval. Status={ "
-					+ behaviour.nextStepToString() + " }");
-			CmlRuntime.logger().fine("-----------------------------------------------------------------");
+			logger.trace("----------------observable step by '" + behaviour
+					+ "'----------------------");
+			logger.trace("Observable trace of '" + behaviour + "': "
+					+ trace.getObservableTrace());
+			logger.trace("Eval. Status={ " + behaviour.nextStepToString()
+					+ " }");
+			logger.trace("-----------------------------------------------------------------");
 		} else
 		{
-			CmlRuntime.logger().finer("----------------Silent step by '"
-					+ behaviour + "'--------------------");
-			CmlRuntime.logger().finer("Trace of '" + behaviour + "': " + trace);
-			CmlRuntime.logger().finer("Eval. Status={ "
-					+ behaviour.nextStepToString() + " }");
-			CmlRuntime.logger().finer("-----------------------------------------------------------------");
+			logger.trace("----------------Silent step by '" + behaviour
+					+ "'--------------------");
+			logger.trace("Trace of '" + behaviour + "': " + trace);
+			logger.trace("Eval. Status={ " + behaviour.nextStepToString()
+					+ " }");
+			logger.trace("-----------------------------------------------------------------");
 		}
 	}
 

@@ -7,15 +7,15 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
-import java.util.logging.Level;
 
 import org.overture.ast.lex.Dialect;
 import org.overture.interpreter.runtime.ValueException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.ConsoleSelectionStrategy;
-import eu.compassresearch.core.interpreter.api.DebugAnimationStrategy;
 import eu.compassresearch.core.interpreter.api.RandomSelectionStrategy;
 import eu.compassresearch.core.interpreter.api.SelectionStrategy;
 import eu.compassresearch.core.interpreter.api.events.CmlInterpreterStateObserver;
@@ -33,6 +33,7 @@ import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 
 public class CMLJ
 {
+	final static Logger logger = LoggerFactory.getLogger("cml-interpreter");
 
 	static InterpreterFactory factory = new VanillaInterpreterFactory();
 
@@ -243,15 +244,13 @@ public class CMLJ
 			public void onStateChanged(Object source,
 					InterpreterStateChangedEvent event)
 			{
-				System.out.println("Simulator status event : "
-						+ event.getStatus());
+				logger.debug("Simulator status event : " + event.getStatus());
 
 			}
 		});
 
 		try
 		{
-			CmlRuntime.logger().setLevel(Level.FINEST);
 			interpreter.initialize();
 			if (remote == null)
 			{

@@ -3,11 +3,12 @@ package eu.compassresearch.core.interpreter.api.values;
 import org.overture.interpreter.values.TupleValue;
 import org.overture.interpreter.values.UndefinedValue;
 import org.overture.interpreter.values.Value;
-
-import eu.compassresearch.core.interpreter.CmlRuntime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AbstractValueInterpreter
 {
+	final static Logger logger = LoggerFactory.getLogger("cml-interpreter");
 
 	public static Value meet(Value val1, Value val2)
 	{
@@ -24,7 +25,7 @@ public class AbstractValueInterpreter
 			// additional constraint expression would do?
 			if (!val1.equals(val2))
 			{
-				CmlRuntime.logger().warning("A Value just descreased in precision");
+				logger.warn("A Value just descreased in precision");
 				// return new AnyValue();
 				return new UndefinedValue();
 			}
