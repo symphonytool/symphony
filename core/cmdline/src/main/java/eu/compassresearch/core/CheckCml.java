@@ -482,11 +482,6 @@ public class CheckCml
 			final IAnalysis empty = new DepthFirstAnalysisCMLAdaptor()
 			{
 
-				/**
-				 * 
-				 */
-				private static final long serialVersionUID = 1L;
-
 			};
 			AnalysisRunAdaptor r = new AnalysisRunAdaptor(empty)
 			{
