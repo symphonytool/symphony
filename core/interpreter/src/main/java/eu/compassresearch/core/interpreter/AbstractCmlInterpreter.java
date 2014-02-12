@@ -16,6 +16,7 @@ import org.overture.config.Settings;
 import org.overture.interpreter.debug.BreakpointManager;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.Stoppoint;
+import org.overture.interpreter.scheduler.BasicSchedulableThread;
 import org.overture.parser.lex.LexException;
 import org.overture.parser.syntax.ParserException;
 
@@ -31,6 +32,7 @@ import eu.compassresearch.core.interpreter.api.events.InterpreterStateChangedEve
 import eu.compassresearch.core.interpreter.assistant.CmlInterpreterAssistantFactory;
 import eu.compassresearch.core.interpreter.debug.Breakpoint;
 import eu.compassresearch.core.interpreter.debug.DebugContext;
+import eu.compassresearch.core.interpreter.utility.CmlInitThread;
 import eu.compassresearch.core.interpreter.utility.FirstLineMatchSearcher;
 
 public abstract class AbstractCmlInterpreter implements CmlInterpreter
@@ -85,6 +87,8 @@ public abstract class AbstractCmlInterpreter implements CmlInterpreter
 	public AbstractCmlInterpreter(Config config)
 	{
 		this.config = config;
+		
+		
 	}
 
 	/**
@@ -130,6 +134,10 @@ public abstract class AbstractCmlInterpreter implements CmlInterpreter
 		Settings.release = Release.VDM_10;
 		// enable debugging in VDM source code
 		Settings.usingDBGP = true;
+		/**
+		 * configure the thread management in the overture interpreter
+		 */
+		BasicSchedulableThread.setInitialThread(new CmlInitThread(Thread.currentThread()));
 		CmlInterpreterAssistantFactory.init(CmlContextFactory.factory);
 	}
 

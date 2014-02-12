@@ -16,7 +16,6 @@ import org.overture.ast.types.PType;
 import org.overture.ast.util.definitions.ClassList;
 import org.overture.interpreter.runtime.ClassInterpreter;
 import org.overture.interpreter.runtime.Context;
-import org.overture.interpreter.scheduler.BasicSchedulableThread;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.definitions.AProcessDefinition;
@@ -34,7 +33,6 @@ import eu.compassresearch.core.interpreter.api.transitions.TimedTransition;
 import eu.compassresearch.core.interpreter.api.values.ProcessObjectValue;
 import eu.compassresearch.core.interpreter.debug.Breakpoint;
 import eu.compassresearch.core.interpreter.debug.DebugContext;
-import eu.compassresearch.core.interpreter.utility.CmlInitThread;
 import eu.compassresearch.core.interpreter.utility.LocationExtractor;
 import eu.compassresearch.core.parser.ParserUtil;
 import eu.compassresearch.core.typechecker.VanillaFactory;
@@ -42,10 +40,6 @@ import eu.compassresearch.core.typechecker.api.ICmlTypeChecker;
 
 class VanillaCmlInterpreter extends AbstractCmlInterpreter
 {
-	static
-	{
-		BasicSchedulableThread.setInitialThread(new CmlInitThread(Thread.currentThread()));
-	}
 
 	/**
 	 * 
