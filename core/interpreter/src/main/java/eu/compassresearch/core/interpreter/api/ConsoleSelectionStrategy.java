@@ -12,7 +12,6 @@ import eu.compassresearch.core.interpreter.api.transitions.AbstractSilentTransit
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.transitions.LabelledTransition;
-import eu.compassresearch.core.interpreter.debug.CmlDebugger;
 
 public class ConsoleSelectionStrategy implements SelectionStrategy
 {
@@ -137,13 +136,6 @@ public class ConsoleSelectionStrategy implements SelectionStrategy
 			System.out.println("The environment picked: " + t);
 			return t;
 		}
-	}
-
-	@Override
-	public void initialize(CmlInterpreter interpreter, CmlDebugger debugger)
-	{
-		// TODO Auto-generated method stub
-
 	}
 
 }

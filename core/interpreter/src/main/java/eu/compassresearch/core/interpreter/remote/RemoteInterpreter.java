@@ -11,6 +11,7 @@ import org.overture.interpreter.scheduler.BasicSchedulableThread;
 import org.overture.interpreter.scheduler.InitThread;
 import org.overture.interpreter.values.Value;
 
+import eu.compassresearch.core.interpreter.Console;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
@@ -28,28 +29,38 @@ import eu.compassresearch.core.interpreter.utility.ValueParser;
 
 public class RemoteInterpreter implements IRemoteInterpreter, SelectionStrategy
 {
-
-	private final CmlDebugger debugger;
-
 	private SynchronousQueue<CmlTransition> selection = new SynchronousQueue<CmlTransition>();
 	private SynchronousQueue<CmlTransitionSet> availableTransitions = new SynchronousQueue<CmlTransitionSet>();
 
 	private CmlInterpreter interpreter;
 	private CmlInterpreterState state;
 
-	public RemoteInterpreter(CmlInterpreter cmlInterpreter, CmlDebugger debugger,boolean daemon)
+	public RemoteInterpreter(final CmlInterpreter cmlInterpreter,
+			final CmlDebugger debugger)
 	{
-		this.debugger = debugger;
+		this(cmlInterpreter, debugger, false);
+	}
+
+	public RemoteInterpreter(final CmlInterpreter cmlInterpreter)
+	{
+		this(cmlInterpreter, null, true);
+	}
+
+	RemoteInterpreter(final CmlInterpreter cmlInterpreter,
+			final CmlDebugger debugger, boolean daemon)
+	{
+		this.interpreter = cmlInterpreter;
 		this.state = cmlInterpreter.getState();
 		cmlInterpreter.onStateChanged().registerObserver(new CmlInterpreterStateObserver()
 		{
 			@Override
-			public void onStateChanged(Object source, InterpreterStateChangedEvent event)
+			public void onStateChanged(Object source,
+					InterpreterStateChangedEvent event)
 			{
-				state =event.getStatus();	
+				state = event.getStatus();
 			}
 		});
-		
+
 		Thread t = new Thread(new Runnable()
 		{
 
@@ -58,7 +69,21 @@ public class RemoteInterpreter implements IRemoteInterpreter, SelectionStrategy
 			{
 				InitThread iniThread = new InitThread(Thread.currentThread());
 				BasicSchedulableThread.setInitialThread(iniThread);
-				RemoteInterpreter.this.debugger.start(RemoteInterpreter.this);
+
+				// Start interpretation with this remote interpreter as the selection strategy
+				if (debugger != null)
+				{
+					debugger.start(RemoteInterpreter.this);
+				} else
+				{
+					try
+					{
+						cmlInterpreter.execute(RemoteInterpreter.this);
+					} catch (AnalysisException e)
+					{
+						e.printStackTrace(Console.err);
+					}
+				}
 			}
 		});
 		t.setDaemon(daemon);
@@ -87,12 +112,6 @@ public class RemoteInterpreter implements IRemoteInterpreter, SelectionStrategy
 		{
 			throw new InterpreterRuntimeException("Unable to take selection provided by selected transition", e);
 		}
-	}
-
-	@Override
-	public void initialize(CmlInterpreter interpreter, CmlDebugger debugger)
-	{
-		this.interpreter = interpreter;
 	}
 
 	public boolean isFinished()
@@ -206,10 +225,10 @@ public class RemoteInterpreter implements IRemoteInterpreter, SelectionStrategy
 	public boolean requireArguments(CmlTransition event)
 	{
 		return event instanceof LabelledTransition
-				&& getArgumentCount(event) >0;
+				&& getArgumentCount(event) > 0;
 
 	}
-	
+
 	private boolean hasArguments(CmlTransition event)
 	{
 		return event instanceof LabelledTransition

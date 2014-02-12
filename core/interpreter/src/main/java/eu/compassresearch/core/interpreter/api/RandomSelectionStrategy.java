@@ -15,7 +15,6 @@ import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.transitions.LabelledTransition;
 import eu.compassresearch.core.interpreter.api.values.AbstractValueInterpreter;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
-import eu.compassresearch.core.interpreter.debug.CmlDebugger;
 
 /**
  * This class implements a random selection CMLCommunicaiton of the alphabet
@@ -127,13 +126,6 @@ public class RandomSelectionStrategy implements SelectionStrategy
 		CmlRuntime.logger().finest("The environment picked : " + selectedComm);
 
 		return selectedComm;
-	}
-
-	@Override
-	public void initialize(CmlInterpreter interpreter, CmlDebugger debugger)
-	{
-		// TODO Auto-generated method stub
-
 	}
 
 }

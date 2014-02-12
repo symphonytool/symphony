@@ -25,12 +25,13 @@ import eu.compassresearch.core.interpreter.Console;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
+import eu.compassresearch.core.interpreter.api.DebugAnimationStrategy;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.api.SelectionStrategy;
 import eu.compassresearch.core.interpreter.api.events.CmlInterpreterStateObserver;
 import eu.compassresearch.core.interpreter.api.events.InterpreterStateChangedEvent;
-import eu.compassresearch.core.interpreter.debug.messaging.CmlRequest;
 import eu.compassresearch.core.interpreter.debug.messaging.AbstractMessage;
+import eu.compassresearch.core.interpreter.debug.messaging.CmlRequest;
 import eu.compassresearch.core.interpreter.debug.messaging.MessageCommunicator;
 import eu.compassresearch.core.interpreter.debug.messaging.MessageContainer;
 import eu.compassresearch.core.interpreter.debug.messaging.RequestMessage;
@@ -439,7 +440,10 @@ public class SocketServerCmlDebugger implements CmlDebugger,
 		{
 			requestSetup();
 
-			strategy.initialize(runningInterpreter, this);
+			if (strategy instanceof DebugAnimationStrategy)
+			{
+				((DebugAnimationStrategy) strategy).initialize(runningInterpreter, this);
+			}
 			runningInterpreter.execute(strategy);
 
 			stopped(CmlInterpreterStateDTO.createCmlInterpreterStateDTO(runningInterpreter));
@@ -493,7 +497,7 @@ public class SocketServerCmlDebugger implements CmlDebugger,
 					sendStatusMessage(CmlInterpreterStateDTO.createCmlInterpreterStateDTO(runningInterpreter, waitingChoices));
 
 				}
-			} else if (status != CmlInterpreterState.FAILED )
+			} else if (status != CmlInterpreterState.FAILED)
 			{
 				Console.debug.println("Debug thread sending Status event to controller: "
 						+ event);
