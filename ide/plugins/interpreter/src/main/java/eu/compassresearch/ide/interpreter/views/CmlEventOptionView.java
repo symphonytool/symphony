@@ -368,6 +368,10 @@ public class CmlEventOptionView extends AbstractCmlDebugView implements
 					viewer.setSelection(new StructuredSelection(transitions.get(0)));
 				}
 				viewer.refresh();
+			}else
+			{
+				viewer.setInput(null);
+				viewer.refresh();
 			}
 		}
 	}
