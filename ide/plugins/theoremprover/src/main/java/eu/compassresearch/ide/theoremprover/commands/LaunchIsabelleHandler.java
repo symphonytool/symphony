@@ -52,8 +52,14 @@ public class LaunchIsabelleHandler extends AbstractHandler implements IHandler {
 			return null;
 		}
 
-		if (CmlTPPlugin.getDefault().getPreferenceStore()
-				.getString(IIsabelleConstants.ATTR_SESSION_DIRS).equals("")) {
+		if (!LaunchIsabelleHandler.isWindowsPlatform() // The theory files are
+														// not set through the
+														// preferece pane in
+														// windows so we must
+														// skip the check
+				&& CmlTPPlugin.getDefault().getPreferenceStore()
+						.getString(IIsabelleConstants.ATTR_SESSION_DIRS)
+						.equals("")) {
 			MessageDialog
 					.openInformation(
 							HandlerUtil.getActiveWorkbenchWindow(event)
@@ -121,7 +127,7 @@ public class LaunchIsabelleHandler extends AbstractHandler implements IHandler {
 					IProject project = ((IResource) ss.getFirstElement())
 							.getProject();
 					wc.setContainer(project);
-					wc.doSave();
+					// wc.doSave(); // no need to save. it's always the same and would just spawn endless dupes
 				}
 			}
 
