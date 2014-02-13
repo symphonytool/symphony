@@ -1,0 +1,98 @@
+types
+  NAT = nat
+    inv i == i in set {1,...,27}
+  INT = int
+    inv i == i in set {-2,...,2}
+  ID = <fav> | <rv>
+  SigID = <End_Recovery_1_S> | <Error_1_detection_S> | <Fault_1_activation_S>
+     | <Service_rescue_S> | <Start_Recovery_1_S> | <Start_rescue_S>
+     | <Target_not_attended_S>
+  OpID = <Allocate_idle_ERU_I> | <Allocate_idle_ERU_O> | <Divert_ERU_I>
+     | <Divert_ERU_O> | <Drop_message_I> | <Drop_message_O>
+     | <Find_idle_ERUs_I> | <Find_idle_ERUs_O> | <Log_diversion_I>
+     | <Log_diversion_O> | <Log_fault_1_I> | <Log_fault_1_O>
+     | <Process_message_I> | <Process_message_O> | <Receive_message_MPS_I>
+     | <Receive_message_MPS_O> | <Receive_message_RS_I> | <Receive_message_RS_O>
+     | <Resend_rescue_info_to_ERU_I> | <Resend_rescue_info_to_ERU_O> | <Send_rescue_info_to_ERU_I>
+     | <Send_rescue_info_to_ERU_O> | <Wait_I> | <Wait_O>
+channels
+  control: NAT
+  endDiagram: ID
+  interrupted: ID*ID*NAT
+  update: NAT*INT
+  clear: NAT
+  wait, inc, dec
+  simultaneous
+  fault: ID
+  error: ID
+  failure: ID
+
+  startActivity_fav: ID
+  endActivity_fav: ID
+  interruptActivity_fav
+  startActivity_rv: ID
+  endActivity_rv: ID
+  interruptActivity_rv
+
+  sendSignal: SigID
+  acceptEvent: SigID
+  operation: OpID
+
+chansets
+    Hidden_fav = {|
+      control, 
+      endDiagram, 
+      interrupted, 
+      update, 
+      clear, 
+      wait, 
+      inc, 
+      dec, 
+      interruptActivity_fav
+    |}
+    Hidden_rv = {|
+      control, 
+      endDiagram, 
+      interrupted, 
+      update, 
+      clear, 
+      wait, 
+      inc, 
+      dec, 
+      interruptActivity_rv
+    |}
+ 
+--values
+--  Fault_1_id: ID = <fav>
+   
+process ad_internal_Initiate_Rescue_Activation___Fault_1 = val Fault_1_id: ID @ 
+begin
+  state
+    nToken: nat := 0
+    
+  actions
+    START_ACTIVITY = startActivity_fav.Fault_1_id -> Skip --      atomic -> ()
+    END_DIAGRAM = endDiagram.<fav> -> Skip
+    InterruptibleRegion_1 = control.22 -> interrupted.<fav>.Fault_1_id.1 -> Skip; InterruptibleRegion_1
+    InterruptibleRegion_2 = control.25 -> interrupted.<fav>.Fault_1_id.2 -> Skip; InterruptibleRegion_2
+    InterruptibleRegions = InterruptibleRegion_1 ||| InterruptibleRegion_2
+    CNode_1 = (update.1!1 -> (control!1 -> Skip); wait -> Skip)
+      /_\ END_DIAGRAM
+    Start_rescue_2 = -- this local variable was removed as it is always true "dcl end_guard: bool := true @"
+      ((control.1 -> Skip);
+       (acceptEvent.<Start_rescue_S> -> Skip);
+       (control.2 -> Skip);
+       Start_rescue_2)
+      /_\ END_DIAGRAM
+    CNode_3 = ([] i in set {2,15} @ control!i -> control.3 -> CNode_3) /_\ END_DIAGRAM
+    Find_idle_ERUs_4 = (dcl end_guard: bool := true @
+      (
+      (control.3 -> Skip);
+      (operation.<Find_idle_ERUs_I> -> inc -> end_guard := false;
+      operation.<Find_idle_ERUs_O> -> dec -> end_guard := true);
+      (control.4 -> Skip);Find_idle_ERUs_4)
+      /_\ [end_guard] & END_DIAGRAM)
+ @ START_ACTIVITY
+end
+
+

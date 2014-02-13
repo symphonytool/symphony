@@ -2,6 +2,7 @@ package eu.compassresearch.core.analysis.modelchecker.ast.auxiliary;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPAction;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAVariableExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 
 public class MCPosGuardDef extends MCGuardDef{
@@ -18,7 +19,11 @@ public class MCPosGuardDef extends MCGuardDef{
 		result.append(" :- State(" + max.toFormula(MCNode.NAMED) + "," + parentAction.toFormula(MCNode.DEFAULT) + ")");
 		if(!ExpressionEvaluator.getInstance().canEvaluate(condition)){
 			result.append(",");
-			result.append(condition.toFormula(option));
+			if(condition instanceof MCAVariableExp){
+				result.append(condition.toFormula(option) + " = " + "true");
+			}else{
+				result.append(condition.toFormula(option));
+			}
 		}
 		result.append(".\n");
 		
