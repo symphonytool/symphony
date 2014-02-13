@@ -14,6 +14,8 @@ import org.overture.interpreter.runtime.ObjectContext;
 import org.overture.interpreter.runtime.StateContext;
 import org.overture.interpreter.runtime.ValueException;
 import org.overture.interpreter.values.Value;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import eu.compassresearch.ast.actions.ADivAction;
 import eu.compassresearch.ast.actions.ASkipAction;
@@ -39,6 +41,8 @@ import eu.compassresearch.core.interpreter.utility.Pair;
 
 class ConcreteCmlBehaviour implements CmlBehaviour
 {
+	final static Logger logger = LoggerFactory.getLogger("cml-interpreter");
+	
 	private static int globalIdCount = 0;
 	private static final long serialVersionUID = -4920762081111266274L;
 
@@ -531,7 +535,7 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	protected void notifyOnStateChange(CmlBehaviorState state)
 	{
 		stateEventhandler.fireEvent(new CmlBehaviorStateEvent(this, state));
-		CmlRuntime.logger().finest(getName() + ":" + state.toString());
+		logger.trace(getName() + ":" + state.toString());
 	}
 
 	@Override

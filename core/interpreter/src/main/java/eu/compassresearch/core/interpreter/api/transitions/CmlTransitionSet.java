@@ -1,5 +1,7 @@
 package eu.compassresearch.core.interpreter.api.transitions;
 
+import java.io.PrintStream;
+import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -130,6 +132,25 @@ public class CmlTransitionSet extends Value
 		allEvents.addAll(silentEvents);
 
 		return allEvents;
+	}
+	
+	public void displayAllAvaliableEvents(PrintStream out)
+	{
+		Iterator<CmlTransition> itr = getAllEvents().iterator();
+		while(itr.hasNext())
+		{
+			CmlTransition event = itr.next();
+			if(event instanceof TauTransition)
+			{
+				out.print("tau");
+			}else{
+				out.print(event);
+			}
+			if(itr.hasNext())
+			{
+				out.print(", ");
+			}
+		}
 	}
 	
 	public int size()

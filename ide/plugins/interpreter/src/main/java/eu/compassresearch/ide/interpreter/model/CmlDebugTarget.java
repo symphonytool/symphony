@@ -53,6 +53,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 	CmlThreadManager threadManager;
 	CmlInterpreterStateDTO lastState = null;
 	private boolean suspendedForSelection;
+	private boolean expectConsoleRead;
 
 	public CmlDebugTarget(ILaunch launch, IProcess process,
 			ICmlProject project, int communicationPort) throws CoreException,
@@ -155,6 +156,8 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 			public boolean handleMessage(CmlDbgStatusMessage message)
 			{
 				lastState = message.getInterpreterStatus();
+				suspendedForSelection = false;
+				expectConsoleRead = false;
 				return true;
 			}
 		});
@@ -385,12 +388,13 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 		fireResumeEvent(0);
 	}
 
-	public void select(TransitionDTO choice)
+	public void select(TransitionDTO choice, boolean expectConsoleRead)
 	{
 		try
 		{
 			this.communicationManager.sendMessage(new CmlDbgCommandMessage(CmlDebugCommand.SET_CHOICE, choice));
-			this.suspendedForSelection = false;
+			this.suspendedForSelection = expectConsoleRead;
+			this.expectConsoleRead = expectConsoleRead;
 		} catch (Exception e)
 		{
 			// TODO Auto-generated catch block
@@ -600,6 +604,11 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 	public CmlInterpreterStateDTO getLastState()
 	{
 		return lastState;
+	}
+
+	public boolean isSuspendedForConsoleRead()
+	{
+		return expectConsoleRead;
 	}
 
 }

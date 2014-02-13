@@ -8,11 +8,14 @@ import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ContextException;
 import org.overture.interpreter.runtime.Interpreter;
 import org.overture.interpreter.values.CPUValue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 
 public class CmlDBGPReader extends DBGPReader
 {
+	final static Logger logger = LoggerFactory.getLogger("cml-interpreter");
 
 	private CmlInterpreter interpreter;
 
@@ -31,7 +34,7 @@ public class CmlDBGPReader extends DBGPReader
 	@Override
 	public void stopped(Context ctxt, Breakpoint bp)
 	{
-		System.out.println("Stopped as " + bp + " location: " + bp.location);
+		logger.debug("Stopped as " + bp + " location: " + bp.location);
 		try
 		{
 			interpreter.setCurrentDebugContext(ctxt, bp.location);
@@ -44,7 +47,7 @@ public class CmlDBGPReader extends DBGPReader
 	@Override
 	public void stopped(Context ctxt, ILexLocation location)
 	{
-		System.out.println("Stopped as " + location);
+		logger.debug("Stopped as " + location);
 	}
 
 	@Override

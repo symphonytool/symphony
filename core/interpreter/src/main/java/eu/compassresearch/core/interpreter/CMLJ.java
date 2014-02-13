@@ -7,12 +7,12 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
-import java.util.logging.Level;
 
 import org.overture.ast.lex.Dialect;
 import org.overture.interpreter.runtime.ValueException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import eu.compassresearch.core.interpreter.api.AnnimationStrategy;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.ConsoleSelectionStrategy;
@@ -22,6 +22,9 @@ import eu.compassresearch.core.interpreter.api.events.CmlInterpreterStateObserve
 import eu.compassresearch.core.interpreter.api.events.InterpreterStateChangedEvent;
 import eu.compassresearch.core.interpreter.cosim.CoSimulationClient;
 import eu.compassresearch.core.interpreter.cosim.CoSimulationServer;
+import eu.compassresearch.core.interpreter.remote.IRemoteControl;
+import eu.compassresearch.core.interpreter.remote.IRemoteInterpreter;
+import eu.compassresearch.core.interpreter.remote.RemoteInterpreter;
 import eu.compassresearch.core.parser.ParserUtil;
 import eu.compassresearch.core.parser.ParserUtil.ParserResult;
 import eu.compassresearch.core.typechecker.VanillaFactory;
@@ -30,6 +33,7 @@ import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 
 public class CMLJ
 {
+	final static Logger logger = LoggerFactory.getLogger("cml-interpreter");
 
 	static InterpreterFactory factory = new VanillaInterpreterFactory();
 
@@ -43,14 +47,18 @@ public class CMLJ
 	 * @param args
 	 * @throws IOException
 	 * @throws CmlInterpreterException
+	 * @throws IllegalAccessException
+	 * @throws InstantiationException
 	 */
+	@SuppressWarnings("unchecked")
 	public static void main(String[] args) throws IOException,
-			CmlInterpreterException
+			CmlInterpreterException, InstantiationException,
+			IllegalAccessException
 	{
 		List<String> largs = Arrays.asList(args);
 		List<File> filenames = new Vector<File>();
 		String processName = null;
-		String remoteClass = null;
+		String remoteName = null;
 		List<String> delegatedProcesses = null;
 		CoSimulationMode mode = CoSimulationMode.Standard;
 		int coSimPort = -1;
@@ -104,7 +112,7 @@ public class CMLJ
 				}
 			} else if (arg.equals("-animate"))
 			{
-				selectionStrategy = new AnnimationStrategy();
+				selectionStrategy = new ConsoleSelectionStrategy();
 			} else if (arg.equals("-simulate"))
 			{
 				selectionStrategy = new RandomSelectionStrategy();
@@ -112,7 +120,7 @@ public class CMLJ
 			{
 				if (i.hasNext())
 				{
-					remoteClass = i.next();
+					remoteName = i.next();
 				} else
 				{
 					usage("-remote option requires a fully qualified java class name");
@@ -148,10 +156,21 @@ public class CMLJ
 			}
 		}
 
-		if (remoteClass != null)
+		Class<IRemoteControl> remoteClass = null;
+		if (remoteName != null)
 		{
-			// TODO
+			try
+			{
+				Class<?> cls = ClassLoader.getSystemClassLoader().loadClass(remoteName);
+				remoteClass = (Class<IRemoteControl>) cls;
+			} catch (ClassNotFoundException e)
+			{
+				usage("Cannot locate " + remoteName + " on the CLASSPATH");
+			}
 		}
+
+		IRemoteControl remote = remoteClass == null ? null
+				: remoteClass.newInstance();
 
 		CoSimulationServer server = null;
 		switch (mode)
@@ -178,7 +197,7 @@ public class CMLJ
 			}
 		}
 
-		execute(selectionStrategy, processName, filenames.toArray(new File[filenames.size()]));
+		execute(remote, selectionStrategy, processName, filenames.toArray(new File[filenames.size()]));
 
 		if (mode == CoSimulationMode.CoSimCoordinator)
 		{
@@ -186,9 +205,9 @@ public class CMLJ
 		}
 	}
 
-	private static void execute(SelectionStrategy selectionStrategy,
-			String processName, File... f) throws IOException,
-			CmlInterpreterException
+	private static void execute(IRemoteControl remote,
+			SelectionStrategy selectionStrategy, String processName, File... f)
+			throws IOException, CmlInterpreterException
 	{
 		ParserResult res = ParserUtil.parse(f);
 
@@ -225,17 +244,22 @@ public class CMLJ
 			public void onStateChanged(Object source,
 					InterpreterStateChangedEvent event)
 			{
-				System.out.println("Simulator status event : "
-						+ event.getStatus());
+				logger.debug("Simulator status event : " + event.getStatus());
 
 			}
 		});
 
 		try
 		{
-			CmlRuntime.logger().setLevel(Level.FINEST);
 			interpreter.initialize();
-			interpreter.execute(selectionStrategy);
+			if (remote == null)
+			{
+				interpreter.execute(selectionStrategy);
+			} else
+			{
+				IRemoteInterpreter remoteInterpreter = new RemoteInterpreter(interpreter);
+				remote.run(remoteInterpreter);
+			}
 		} catch (ValueException e)
 		{
 			System.out.println("With Error : " + e);
