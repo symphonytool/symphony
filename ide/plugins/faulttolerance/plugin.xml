@@ -15,47 +15,34 @@
   </extension>
   <extension
         point="org.eclipse.ui.menus">
-        <menuContribution locationURI="popup:org.eclipse.ui.popup.any?after=additions">
+        <!-- TODO: visible when: AProcessDefinition -->
+        <menuContribution locationURI="popup:eu.compassresearch.ide.ui.CmlNavigator?after=additions">
             <menu id="eu.compassresearch.ide.faulttolerance.verification" 
               label="%FAULT_TOLERANCE" mnemonic="%FAULT_TOLERANCE_MNEMONIC"
               icon="icons/ft-graphic.png">
                 <command
-                    commandId="eu.compassresearch.ide.faulttolerance.verification.Verify"
-                    id="eu.compassresearch.ide.faulttolerance.verification.Verify"
-                    icon="icons/ft-graphic-run.png"
-                    mnemonic="%VERIFY_FAULT_TOLERANCE_MNEMONIC">
-                      <visibleWhen>
-                     <with variable="activeEditorId">
-                      <equals value="eu.compassresearch.ide.ui.editor"/>
-                     </with>
-                </visibleWhen>
+                    commandId="eu.compassresearch.ide.faulttolerance.verification.Verify">
               </command>
               <command
-                    commandId="eu.compassresearch.ide.faulttolerance.verification.Clear"
-                    id="eu.compassresearch.ide.faulttolerance.verification.Clear"
-                    mnemonic="%VERIFY_FAULT_TOLERANCE_MNEMONIC">
-                      <visibleWhen>
-                     <with variable="activeEditorId">
-                      <equals value="eu.compassresearch.ide.ui.editor"/>
-                     </with>
-                </visibleWhen>
+                    commandId="eu.compassresearch.ide.faulttolerance.verification.Clear">
               </command>
             </menu>
         </menuContribution>
+        <!-- TODO: editor context menu -->
         <!--
-        <menuContribution
-            locationURI="toolbar:org.eclipse.ui.main.toolbar">
-         <toolbar
-               id="eu.compassresearch.ide.faulttolerance.verification.toolbar">
-            <command
-                  commandId="eu.compassresearch.ide.faulttolerance.verification.Verify"
-                  icon="icons/ft-graphic-run.png"
-                  label="Say Hello"
-                  style="push">
-            </command>
-         </toolbar>
-      </menuContribution>
-      -->
+        <menuContribution locationURI="popup:eu.compassresearch.ide.ui.editor.core.CmlEditor?after=additions">
+            <menu id="eu.compassresearch.ide.faulttolerance.verification" 
+              label="%FAULT_TOLERANCE" mnemonic="%FAULT_TOLERANCE_MNEMONIC"
+              icon="icons/ft-graphic.png">
+              <command
+                    commandId="eu.compassresearch.ide.faulttolerance.verification.Verify">
+              </command>
+              <command
+                    commandId="eu.compassresearch.ide.faulttolerance.verification.Clear">
+              </command>
+            </menu>
+        </menuContribution>
+        -->
   </extension>
   
    <extension
@@ -68,6 +55,10 @@
             id="eu.compassresearch.ide.faulttolerance.verification.Clear"
             name="%CLEAR_FAULT_TOLERANCE_VERIFICATIONS">
       </command>
+   </extension>
+   
+   <extension point="org.eclipse.ui.commandImages">
+    <image commandId="eu.compassresearch.ide.faulttolerance.verification.Verify" icon="icons/ft-graphic-run.png"/>
    </extension>
    
    <extension
