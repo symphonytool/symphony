@@ -1,0 +1,7 @@
+channels 
+a:int
+
+process A = 
+begin 
+	@ a?x -> Skip
+end

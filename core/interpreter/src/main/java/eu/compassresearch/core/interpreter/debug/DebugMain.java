@@ -19,9 +19,9 @@ import eu.compassresearch.core.interpreter.Config;
 import eu.compassresearch.core.interpreter.Console;
 import eu.compassresearch.core.interpreter.InterpreterFactory;
 import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
-import eu.compassresearch.core.interpreter.api.AnnimationStrategy;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
+import eu.compassresearch.core.interpreter.api.DebugAnimationStrategy;
 import eu.compassresearch.core.interpreter.api.RandomSelectionStrategy;
 import eu.compassresearch.core.interpreter.api.SelectionStrategy;
 import eu.compassresearch.core.interpreter.cosim.CoSimulationClient;
@@ -190,7 +190,7 @@ public class DebugMain
 					switch (interpreterExecutionMode)
 					{
 						case ANIMATE:
-							strategy = new AnnimationStrategy();
+							strategy = new DebugAnimationStrategy();
 							break;
 						case SIMULATE:
 						default:
@@ -202,7 +202,7 @@ public class DebugMain
 					debugger.start(strategy);
 				} else
 				{
-					IRemoteInterpreter interpreter = new RemoteInterpreter(debugger);
+					IRemoteInterpreter interpreter = new RemoteInterpreter(cmlInterpreter, debugger);
 					remote.run(interpreter);
 				}
 			} else

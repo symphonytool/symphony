@@ -18,7 +18,6 @@ import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.Level;
 
 import org.antlr.runtime.ANTLRInputStream;
 import org.overture.ast.analysis.AnalysisException;
@@ -63,7 +62,9 @@ public class CheckCml
 
 			// inputs
 			if ((inp = checkInput(args)) == null)
+			{
 				return;
+			}
 
 			// Two modes of operation, Interactive or Batch mode on files.
 			if (inp.isSwitchOn(Switch.INTER))
@@ -172,10 +173,13 @@ public class CheckCml
 		public static Switch fromString(String arg, StringBuilder error)
 		{
 			if (!arg.startsWith("-"))
+			{
 				return null;
+			}
 			String swandval = arg.substring(1);
 			String[] swval = swandval.split("=");
 			for (Switch sw : Switch.values())
+			{
 				if (sw.sw.equals(swval[0]))
 				{
 					// The switch exists, requies an argument and there is an
@@ -183,9 +187,12 @@ public class CheckCml
 					if (swval.length > 1 && sw.expectsValue)
 					{
 						if (sw.value == null)
+						{
 							sw.value = swval[1];
-						else
+						} else
+						{
 							sw.value += swval[1];
+						}
 						return sw;
 					} else
 					// The switch exists, requires no argument and there is none
@@ -204,6 +211,7 @@ public class CheckCml
 					}
 
 				}
+			}
 			error.append("No such switch :" + swval[0]);
 			return null;
 		}
@@ -212,13 +220,17 @@ public class CheckCml
 		{
 			List<String> toStrs = new LinkedList<String>();
 			for (Switch sw : Switch.values())
+			{
 				toStrs.add(sw.toString());
+			}
 
 			Collections.sort(toStrs);
 
 			StringBuilder sb = new StringBuilder();
 			for (String sw : toStrs)
+			{
 				sb.append("\t" + sw + "\n");
+			}
 			return sb.toString();
 		}
 	};
@@ -271,8 +283,9 @@ public class CheckCml
 				// it must be a file
 				File f = new File(arg);
 				if (f.canRead())
+				{
 					r.sourceFiles.add(f);
-				else
+				} else
 				{
 					return null;
 				}
@@ -298,7 +311,9 @@ public class CheckCml
 	{
 		String res = "";
 		if (a == null)
+		{
 			return res;
+		}
 
 		res = a.getClass().getCanonicalName();
 		try
@@ -354,17 +369,17 @@ public class CheckCml
 	private static abstract class AnalysisRunAdaptor
 	{
 
-//		private Object analysis;
+		// private Object analysis;
 
 		public AnalysisRunAdaptor(Object o)
 		{
-//			this.analysis = o;
+			// this.analysis = o;
 		}
 
-//		public String getAnalysisName()
-//		{
-//			return CheckCml.getAnalysisName(analysis);
-//		}
+		// public String getAnalysisName()
+		// {
+		// return CheckCml.getAnalysisName(analysis);
+		// }
 
 		public abstract void apply(INode node) throws AnalysisException;
 	};
@@ -423,7 +438,9 @@ public class CheckCml
 	{
 		// Check The Parse Only Switch
 		if (input.isSwitchOn(Switch.PARSE_ONLY))
+		{
 			return;
+		}
 
 		// Inform parsing went well and analysis has begun
 		System.out.println(sources.size()
@@ -439,10 +456,12 @@ public class CheckCml
 				public void apply(INode root) throws AnalysisException
 				{
 
-					if (!(typeChecker.typeCheck()))
+					if (!typeChecker.typeCheck())
 					{
 						for (ITypeIssueHandler.CMLTypeError e : issueHandler.getTypeErrors())
+						{
 							System.out.println("\t" + e);
+						}
 					} else
 					{
 						System.out.println("[model types are ok]");
@@ -454,17 +473,14 @@ public class CheckCml
 
 		// Check The Type Check Only Switch
 		if (input.isSwitchOn(Switch.TYPE_CHECK_ONLY))
+		{
 			return;
+		}
 
 		if (input.isSwitchOn(Switch.EMPTY))
 		{
 			final IAnalysis empty = new DepthFirstAnalysisCMLAdaptor()
 			{
-
-				/**
-				 * 
-				 */
-				private static final long serialVersionUID = 1L;
 
 			};
 			AnalysisRunAdaptor r = new AnalysisRunAdaptor(empty)
@@ -532,8 +548,9 @@ public class CheckCml
 		if (input.isSwitchOn(Switch.EXEC))
 		{
 			if (input.isSwitchOn(Switch.NOTC))
+			{
 				System.out.println("You can only interpret typechecked models!");
-			else
+			} else
 			{
 
 				try
@@ -547,7 +564,6 @@ public class CheckCml
 						{
 							try
 							{
-								CmlRuntime.logger().setLevel(Level.FINE);
 								CmlRuntime.expandHiddenEvents(true);
 								interpreter.setDefaultName(Switch.EXEC.getValue());
 

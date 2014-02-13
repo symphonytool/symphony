@@ -2,7 +2,6 @@ package eu.compassresearch.core.interpreter.api;
 
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
-import eu.compassresearch.core.interpreter.debug.CmlDebugger;
 
 /**
  * Implements a specific strategy for selecting a CMLtransition from a CMLAlphabet
@@ -23,10 +22,5 @@ public interface SelectionStrategy
 	 * @return the next transition
 	 */
 	public CmlTransition resolveChoice();
-
-	/**
-	 * Initializes the strategy
-	 */
-	public void initialize(CmlInterpreter interpreter, CmlDebugger debugger);
 
 }

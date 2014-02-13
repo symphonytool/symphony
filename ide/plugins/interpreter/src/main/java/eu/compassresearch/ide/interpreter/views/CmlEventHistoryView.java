@@ -110,7 +110,7 @@ public class CmlEventHistoryView extends AbstractCmlDebugView implements
 		if (isAvailable() && target != null)
 		{
 			CmlInterpreterStateDTO lastState = target.getLastState();
-			if (lastState != null)
+			if (lastState != null && lastState.getToplevelProcess()!=null)
 			{
 				viewer.setInput(lastState.getToplevelProcess().getTrace());
 			}
