@@ -103,7 +103,7 @@
       point="org.eclipse.ui.ide.markerImageProviders">
     <imageprovider
       markertype="eu.compassresearch.ide.faulttolerance.verification.problem"
-      icon="icons/ft.png"
+      icon="icons/ft-blue.png"
       id="eu.compassresearch.ide.faulttolerance.markerImageProvider"
       class="eu.compassresearch.ide.faulttolerance.jobs.MarkerImageProvider">
     </imageprovider>

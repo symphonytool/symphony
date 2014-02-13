@@ -201,11 +201,11 @@ public class MarkerUpdaterJob extends FaultToleranceVerificationJobBase
 
 	private String getTotalElapsedTimeFormatted(
 			IFaultToleranceVerificationResponse response) {
-		long total = 0;
+		double total = 0;
 		for (FaultToleranceProperty property : response.properties()) {
 			total += property.getElapsedTime();
 		}
-		return String.format("%d s", total / 1000);
+		return String.format("%.0f s", total);
 	}
 
 	private void markerFullFaultTolerant(Set<MarkerData> markerDataSet,
