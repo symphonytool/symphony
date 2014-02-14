@@ -351,7 +351,13 @@ public class FaultToleranceVerificationHandler extends SelectProcessHandler {
 
 		FaultToleranceModelCheckingJob deadlockFreedom = new FaultToleranceModelCheckingJob(
 				response.getDeadlockFreedom(), request, response);
+		FaultToleranceModelCheckingJob divergenceFreedom = new FaultToleranceModelCheckingJob(
+				response.getDivergenceFreedom(), request, response);
+		FaultToleranceModelCheckingJob semifairness = new FaultToleranceModelCheckingJob(
+				response.getSemifairness(), request, response);
 
+		divergenceFreedom.add(allDefinitionsOk);
+		semifairness.add(allDefinitionsOk);
 		deadlockFreedom.add(allDefinitionsOk);
 
 		IFaultToleranceVerificationPreRequisite deadlockFree = new IFaultToleranceVerificationPreRequisite() {
@@ -360,16 +366,6 @@ public class FaultToleranceVerificationHandler extends SelectProcessHandler {
 				return response.getDeadlockFreedom().isSatisfied();
 			}
 		};
-
-		FaultToleranceModelCheckingJob divergenceFreedom = new FaultToleranceModelCheckingJob(
-				response.getDivergenceFreedom(), request, response);
-		FaultToleranceModelCheckingJob semifairness = new FaultToleranceModelCheckingJob(
-				response.getSemifairness(), request, response);
-
-		divergenceFreedom.add(deadlockFree);
-		divergenceFreedom.add(allDefinitionsOk);
-		semifairness.add(deadlockFree);
-		semifairness.add(allDefinitionsOk);
 
 		IFaultToleranceVerificationPreRequisite divergenceFreeAndSemifair = new IFaultToleranceVerificationPreRequisite() {
 			@Override
@@ -399,15 +395,15 @@ public class FaultToleranceVerificationHandler extends SelectProcessHandler {
 
 		add(1, deadlockFreedom, jobsSets);
 
-		add(2, divergenceFreedom, jobsSets);
-		add(2, semifairness, jobsSets);
+		add(1, divergenceFreedom, jobsSets);
+		add(1, semifairness, jobsSets);
 
-		add(3, limitedJob, jobsSets);
-		add(3, fullJob, jobsSets);
+		add(2, limitedJob, jobsSets);
+		add(2, fullJob, jobsSets);
 
-		add(4, cleanupJob, jobsSets);
+		add(3, cleanupJob, jobsSets);
 
-		add(5, markerJob, jobsSets);
+		add(4, markerJob, jobsSets);
 
 		return jobsSets;
 

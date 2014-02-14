@@ -95,12 +95,15 @@ public abstract class SelectProcessHandler extends AbstractHandler implements
 
 	private void doOnSelectedProject(MarkerItem markerItem, CmlEditor editor,
 			ICmlProject proj, Shell shell) throws ExecutionException {
-		String processName = markerItem.getAttributeValue(
-				ATTRIBUTE_SYSTEM_NAME, null);
+		String systemName = markerItem.getAttributeValue(ATTRIBUTE_SYSTEM_NAME,
+				null);
+		if (systemName == null) {
+			return;
+		}
 		boolean done = false;
 		for (ICmlSourceUnit su : proj.getModel().getSourceUnits()) {
 			for (PDefinition def : su.getParseListDefinitions()) {
-				if (def.getName().getFullName().equals(processName)) {
+				if (def.getName().getFullName().equals(systemName)) {
 					doOnSelectedProcess(su, def, shell);
 					done = true;
 					break;

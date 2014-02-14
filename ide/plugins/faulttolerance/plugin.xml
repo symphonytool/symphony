@@ -52,6 +52,21 @@
               </command>
             </menu>
         </menuContribution>
+        <menuContribution locationURI="popup:org.eclipse.ui.views.AllMarkersView?after=additions">
+          <command commandId="eu.compassresearch.ide.faulttolerance.verification.Clear" 
+            label="%CLEAR_FAULT_TOLERANCE_VERIFICATIONS_MARKERS_VIEW">
+          <!--
+              <visibleWhen>
+                <with variable="selection">
+                  <count value="1"/>
+                  <iterate ifEmpty="false">
+                    <instanceof value="eu.compassresearch.ast.definitions.AProcessDefinition"/>
+                  </iterate>
+                </with>
+              </visibleWhen>
+              -->
+          </command>
+        </menuContribution>
   </extension>
   
    <extension
