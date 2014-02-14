@@ -60,7 +60,7 @@ public class NewCMLModelcheckerContext {
 	public Binding maximalBinding = new NullBinding();
 	public HashMap<MCPCMLExp, LinkedList<MCGuardDef>> guardDefs;
 	public HashMap<MCPCMLExp, LinkedList<NewMCGuardDef>> stmGuardDefs;
-	public ArrayList<MCAssignDef> assignDefs;
+	public ArrayListSet<MCAssignDef> assignDefs;
 	public LinkedList<MCAChannelDefinition> channelDefs;
 	public ArrayListSet<MCSCmlOperationDefinition> operations;
 	public ArrayList<MCSFunctionDefinition> functions;
@@ -218,7 +218,7 @@ public class NewCMLModelcheckerContext {
 		typeDefinitions = new LinkedList<MCATypeDefinition>();
 		guardDefs = new HashMap<MCPCMLExp, LinkedList<MCGuardDef>>();
 		stmGuardDefs = new HashMap<MCPCMLExp, LinkedList<NewMCGuardDef>>();
-		assignDefs = new ArrayList<MCAssignDef>();
+		assignDefs = new ArrayListSet<MCAssignDef>();
 		channelDefs = new LinkedList<MCAChannelDefinition>();
 		processDefinitions = new ArrayListSet<MCAProcessDefinition>();
 		actionOrProcessDefStack = new Stack<INode>(); 

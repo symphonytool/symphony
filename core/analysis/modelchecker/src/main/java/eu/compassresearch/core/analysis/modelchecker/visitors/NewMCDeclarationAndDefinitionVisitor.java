@@ -39,6 +39,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPParametrisation;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ExpressionEvaluator;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCAssignDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCAExpressionSingleDeclaration;
 import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCATypeSingleDeclaration;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAActionClassDefinition;
@@ -177,23 +178,26 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 			NewCMLModelcheckerContext question) throws AnalysisException {
 		
 		MCPCMLType type = (MCPCMLType) node.getType().apply(rootVisitor, question);;
-		MCPCMLExp expr = null;
+		MCPCMLExp expression = null;
 		if(node.getExpression() != null) {
-			expr = (MCPCMLExp) node.getExpression().apply(rootVisitor, question);
+			expression = (MCPCMLExp) node.getExpression().apply(rootVisitor, question);
 		}
 				
 		String varName = node.getName().toString();
 		MCPCMLExp varValue = new MCVoidValue();
-		if(expr != null){
-			//this has to be improved to instantiate values of the suitable type of the expression.
-			ExpressionEvaluator evaluator = new ExpressionEvaluator();
-			//varValue = evaluator.instantiateMCType(expr);
-			////PPPPPPPPPP
-			//from type we have to get the correct type instantiation
+		if(expression != null){
+			varValue = expression;
+			if(expression instanceof MCAUndefinedExp){
+				//this has to be improved to instantiate values of the suitable type of the expression.
+				ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
+				varValue = evaluator.getDefaultValue(type);
+			} 
 		}
 		question.maximalBinding = question.maximalBinding.addBinding("nP", varName, varValue);
 		
-		return new MCAAssignmentDefinition(varName, expr, type);
+		MCAAssignmentDefinition result = new MCAAssignmentDefinition(varName, expression, type);
+				
+		return result;
 	}
 
 	@Override
