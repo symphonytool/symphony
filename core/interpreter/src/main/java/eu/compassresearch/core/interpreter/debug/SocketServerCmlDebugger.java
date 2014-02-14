@@ -12,23 +12,25 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ContextException;
 import org.overture.interpreter.runtime.ValueException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import eu.compassresearch.core.interpreter.CmlRuntime;
 import eu.compassresearch.core.interpreter.Console;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
+import eu.compassresearch.core.interpreter.api.DebugAnimationStrategy;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.api.SelectionStrategy;
 import eu.compassresearch.core.interpreter.api.events.CmlInterpreterStateObserver;
 import eu.compassresearch.core.interpreter.api.events.InterpreterStateChangedEvent;
+import eu.compassresearch.core.interpreter.debug.messaging.AbstractMessage;
 import eu.compassresearch.core.interpreter.debug.messaging.CmlRequest;
 import eu.compassresearch.core.interpreter.debug.messaging.MessageCommunicator;
 import eu.compassresearch.core.interpreter.debug.messaging.MessageContainer;
@@ -44,6 +46,8 @@ import eu.compassresearch.core.interpreter.utility.LocationExtractor;
 public class SocketServerCmlDebugger implements CmlDebugger,
 		CmlInterpreterStateObserver
 {
+
+	final static Logger logger = LoggerFactory.getLogger("cml-interpreter");
 
 	/**
 	 * The communication socket
@@ -86,7 +90,7 @@ public class SocketServerCmlDebugger implements CmlDebugger,
 				requestSocket.shutdownInput();
 			} catch (IOException e)
 			{
-				CmlRuntime.logger().log(Level.WARNING, "", e);
+				logger.warn("", e);
 			}
 		}
 
@@ -100,14 +104,14 @@ public class SocketServerCmlDebugger implements CmlDebugger,
 				do
 				{
 					messageContainer = recvMessage();
-					CmlRuntime.logger().finest("Debug event thread received a message: "
+					logger.trace("Debug event thread received a message: "
 							+ messageContainer.toString());
 				} while (!stopped && processMessage(messageContainer));
 
 			} catch (IOException e)
 			{
 				stopped();
-				CmlRuntime.logger().log(Level.WARNING, "", e);
+				logger.warn("", e);
 			}
 		}
 	}
@@ -168,20 +172,34 @@ public class SocketServerCmlDebugger implements CmlDebugger,
 				Console.err.println(error);
 			}
 		}
-		sendStatusMessage(status);
+		try
+		{
+			sendStatusMessage(status);
+		} catch (IOException e)
+		{
+			throw new InterpreterRuntimeException("Failed to send status message", e);
+		}
 		commandDispatcher.stop();
 	}
 
 	private void sendStatusMessage(CmlInterpreterStateDTO interpreterStatus)
+			throws IOException
 	{
 		CmlDbgStatusMessage dm = new CmlDbgStatusMessage(interpreterStatus);
-		CmlRuntime.logger().finest("Sending status message : " + dm.toString());
+		logger.trace("Sending status message : " + dm.toString());
+		sendMessage(requestOS, dm);
+	}
+
+	static void sendMessage(OutputStream requestOS, AbstractMessage dm)
+			throws IOException
+	{
 		MessageCommunicator.sendMessage(requestOS, dm);
 	}
 
 	private ResponseMessage sendRequestSynchronous(RequestMessage message)
+			throws IOException
 	{
-		MessageCommunicator.sendMessage(requestOS, message);
+		sendMessage(requestOS, message);
 		ResponseMessage responseMessage = null;
 		try
 		{
@@ -193,11 +211,6 @@ public class SocketServerCmlDebugger implements CmlDebugger,
 		}
 
 		return responseMessage;
-	}
-
-	private void sendResponse(ResponseMessage message)
-	{
-		MessageCommunicator.sendMessage(requestOS, message);
 	}
 
 	/**
@@ -308,7 +321,13 @@ public class SocketServerCmlDebugger implements CmlDebugger,
 						}
 					}
 					ResponseMessage responseMessage = new ResponseMessage(message.getRequestId(), CmlRequest.GET_STACK_FRAMES, stackframes);
-					sendResponse(responseMessage);
+					try
+					{
+						sendMessage(requestOS, responseMessage);
+					} catch (IOException e)
+					{
+						throw new InterpreterRuntimeException("Unable to send message", e);
+					}
 
 					return true;
 				}
@@ -336,7 +355,13 @@ public class SocketServerCmlDebugger implements CmlDebugger,
 					}
 
 					ResponseMessage responseMessage = new ResponseMessage(message.getRequestId(), CmlRequest.GET_CONTEXT_PROPERTIES, VariableDTO.extractVariables(contexts.get(level - 1)));
-					sendResponse(responseMessage);
+					try
+					{
+						sendMessage(requestOS, responseMessage);
+					} catch (IOException e)
+					{
+						throw new InterpreterRuntimeException("Unable to send message", e);
+					}
 
 					return true;
 				}
@@ -400,7 +425,13 @@ public class SocketServerCmlDebugger implements CmlDebugger,
 
 	private void requestSetup()
 	{
-		sendRequestSynchronous(new RequestMessage(CmlRequest.SETUP));
+		try
+		{
+			sendRequestSynchronous(new RequestMessage(CmlRequest.SETUP));
+		} catch (IOException e)
+		{
+			throw new InterpreterRuntimeException("Unable to send request sync setup message", e);
+		}
 	}
 
 	@Override
@@ -411,7 +442,10 @@ public class SocketServerCmlDebugger implements CmlDebugger,
 		{
 			requestSetup();
 
-			strategy.initialize(runningInterpreter, this);
+			if (strategy instanceof DebugAnimationStrategy)
+			{
+				((DebugAnimationStrategy) strategy).initialize(runningInterpreter, this);
+			}
 			runningInterpreter.execute(strategy);
 
 			stopped(CmlInterpreterStateDTO.createCmlInterpreterStateDTO(runningInterpreter));
@@ -450,24 +484,32 @@ public class SocketServerCmlDebugger implements CmlDebugger,
 	@Override
 	public void onStateChanged(Object source, InterpreterStateChangedEvent event)
 	{
-		// Only send this if status is not FAILED, this will be handled in the start method
-		// which appends the correct errors to the status
-		if (event.getStatus() == CmlInterpreterState.WAITING_FOR_ENVIRONMENT)
+		try
 		{
-			if (!waitingChoices.isEmpty())
+			// Only send this if status is not FAILED, this will be handled in the start method
+			// which appends the correct errors to the status
+			CmlInterpreterState status = event.getStatus();
+			if (status == CmlInterpreterState.WAITING_FOR_ENVIRONMENT)
+			{
+				if (!waitingChoices.isEmpty())
+				{
+					Console.debug.println("Debug thread sending Status event to controller: "
+							+ event);
+
+					sendStatusMessage(CmlInterpreterStateDTO.createCmlInterpreterStateDTO(runningInterpreter, waitingChoices));
+
+				}
+			} else if (status != CmlInterpreterState.FAILED)
 			{
 				Console.debug.println("Debug thread sending Status event to controller: "
 						+ event);
 				sendStatusMessage(CmlInterpreterStateDTO.createCmlInterpreterStateDTO(runningInterpreter, waitingChoices));
 			}
-		} else if (event.getStatus() != CmlInterpreterState.FAILED)
+			logger.trace(status.toString());
+		} catch (IOException e)
 		{
-			Console.debug.println("Debug thread sending Status event to controller: "
-					+ event);
-			sendStatusMessage(CmlInterpreterStateDTO.createCmlInterpreterStateDTO(runningInterpreter, waitingChoices));
+			throw new InterpreterRuntimeException("Unable to send message", e);
 		}
-		CmlRuntime.logger().fine(event.getStatus().toString());
-
 	}
 
 }

@@ -40,7 +40,7 @@ public class ThmTypeUtil {
 	public static String isaErrTBT= "@unknownBaseType";
  	
 	public static String notHandled = "(*type not yet handled*)";
-	public static String isaUndefined = "undefined";
+	public static String isaUndefined = "undef";
 	public static String isaFuncBar = "|";
 	public static String isaFuncLambda = "lambda";
 	public static String isaFuncLambdaPost = "iota";

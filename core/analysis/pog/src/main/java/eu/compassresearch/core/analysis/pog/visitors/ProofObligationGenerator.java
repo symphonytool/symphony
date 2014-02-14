@@ -69,7 +69,6 @@ public class ProofObligationGenerator extends
 	 * number the POs correctly. <br>
 	 * Use {@link PogPubUtil} methods instead.
 	 */
-	private static final long serialVersionUID = -4538022323752020155L;
 
 	private final static String ANALYSIS_NAME = "Proof Obligation Generator";
 
@@ -88,12 +87,13 @@ public class ProofObligationGenerator extends
 
 	private void initialize()
 	{
+		assistantFactory = new CmlPogAssistantFactory();
 		expressionVisitor = new POGExpressionVisitor(this);
 		statementVisitor = new POGStatementVisitor(this);
 		processVisitor = new POGProcessVisitor(this);
-		declAndDefVisitor = new POGDeclAndDefVisitor(this);
+		declAndDefVisitor = new POGDeclAndDefVisitor(this,assistantFactory);
 		actionVisitor = new POGActionVisitor(this);
-		assistantFactory = new CmlPogAssistantFactory();
+		
 	}
 
 	// ---------------------------------------------
@@ -183,10 +183,10 @@ public class ProofObligationGenerator extends
 
 		CmlProofObligationList obligations = new CmlProofObligationList();
 
-		question.push(new POCaseContext(node.getPattern(), node.getType(), node.getCexp()));
+		question.push(new POCaseContext(node.getPattern(), node.getType(), node.getCexp(),assistantFactory));
 		obligations.addAll(node.getResult().apply(this.expressionVisitor, question));
 		question.pop();
-		question.push(new PONotCaseContext(node.getPattern(), node.getType(), node.getCexp()));
+		question.push(new PONotCaseContext(node.getPattern(), node.getType(), node.getCexp(),assistantFactory));
 
 		return obligations;
 	}

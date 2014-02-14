@@ -65,7 +65,10 @@ public class FormulaIntegrator implements IFormulaIntegrator {
 	
 	@Override
 	public void finalize() throws Throwable {
-		executor.finalizeProcess();
+		if(executor!=null)
+		{
+			executor.finalizeProcess();
+		}
 		super.finalize();
 	}
 

@@ -16,7 +16,6 @@ import eu.compassresearch.ast.definitions.AProcessDefinition;
 public class CmlDefinitionCollector extends AbstractCmlDefinitionCollector
 {
 
-
 	public CmlDefinitionCollector(ITypeCheckerAssistantFactory af)
 	{
 		super(af);
@@ -56,7 +55,7 @@ public class CmlDefinitionCollector extends AbstractCmlDefinitionCollector
 	{
 		return addSelf(node);
 	}
-	
+
 	@Override
 	public List<PDefinition> caseANamesetDefinition(ANamesetDefinition node)
 			throws AnalysisException

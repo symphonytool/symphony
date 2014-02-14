@@ -14,6 +14,8 @@ import org.overture.interpreter.runtime.ObjectContext;
 import org.overture.interpreter.runtime.StateContext;
 import org.overture.interpreter.runtime.ValueException;
 import org.overture.interpreter.values.Value;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import eu.compassresearch.ast.actions.ADivAction;
 import eu.compassresearch.ast.actions.ASkipAction;
@@ -39,6 +41,8 @@ import eu.compassresearch.core.interpreter.utility.Pair;
 
 class ConcreteCmlBehaviour implements CmlBehaviour
 {
+	final static Logger logger = LoggerFactory.getLogger("cml-interpreter");
+	
 	private static int globalIdCount = 0;
 	private static final long serialVersionUID = -4920762081111266274L;
 
@@ -55,7 +59,7 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	 * Name of the instance
 	 */
 	protected BehaviourName name;
-	
+
 	/**
 	 * A factory for creating new Cmlbehavior instances
 	 */
@@ -99,8 +103,8 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	 */
 	Pair<INode, Context> next;
 	/**
-	 * This pair contains pre-constructed contexts for the child behaviors.
-	 * They are only used when the child behaviors are created
+	 * This pair contains pre-constructed contexts for the child behaviors. They are only used when the child behaviors
+	 * are created
 	 */
 	Pair<Context, Context> preConstructedChildContexts = null;
 
@@ -110,13 +114,11 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	// Denotational semantics
 
 	/**
-	 * This contains the current trace of this behavior.
-	 * This corresponds to the observation tr' in the CML semantics
+	 * This contains the current trace of this behavior. This corresponds to the observation tr' in the CML semantics
 	 */
 	protected final CmlTrace trPrime = new CmlTrace();
 	/**
-	 * This is true when the process is started. 
-	 * This corresponds to the observation ok in the CML semantics
+	 * This is true when the process is started. This corresponds to the observation ok in the CML semantics
 	 */
 	protected boolean ok = false;
 	/**
@@ -153,7 +155,8 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	 * @param parent
 	 *            set the parent here if any else set to null
 	 */
-	private ConcreteCmlBehaviour(CmlBehaviour parent, BehaviourName name, CmlBehaviorFactory cmlBehaviorFactory)
+	private ConcreteCmlBehaviour(CmlBehaviour parent, BehaviourName name,
+			CmlBehaviorFactory cmlBehaviorFactory)
 	{
 
 		this.parent = parent;
@@ -211,17 +214,16 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 		inspectionVisitor = new CmlInspectionVisitor(this, this.cmlBehaviorFactory, visitorAccess);
 	}
 
-	ConcreteCmlBehaviour(INode action, Context context,
-			CmlBehaviour parent,
+	ConcreteCmlBehaviour(INode action, Context context, CmlBehaviour parent,
 			CmlBehaviorFactory cmlBehaviorFactory) throws AnalysisException
 	{
 		this(parent, new BehaviourName("Child of " + parent.getName()), cmlBehaviorFactory);
 		setNext(new Pair<INode, Context>(action, context));
 	}
 
-	ConcreteCmlBehaviour(INode action, Context context,
-			BehaviourName name, CmlBehaviour parent,
-			CmlBehaviorFactory cmlBehaviorFactory) throws AnalysisException
+	ConcreteCmlBehaviour(INode action, Context context, BehaviourName name,
+			CmlBehaviour parent, CmlBehaviorFactory cmlBehaviorFactory)
+			throws AnalysisException
 	{
 		this(parent, name, cmlBehaviorFactory);
 		setNext(new Pair<INode, Context>(action, context));
@@ -533,7 +535,7 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	protected void notifyOnStateChange(CmlBehaviorState state)
 	{
 		stateEventhandler.fireEvent(new CmlBehaviorStateEvent(this, state));
-		CmlRuntime.logger().finest(getName() + ":" + state.toString());
+		logger.trace(getName() + ":" + state.toString());
 	}
 
 	@Override
@@ -691,13 +693,13 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 		return newCurrent;
 	}
 
-	@Override
-	public void updateName(ILexNameToken name)
-	{
-		this.name.addProcess(name.getName());
-		// this.name = new CmlLexNameToken(name.getModule(), this.name.getName()+" -> "+name.getName(),
-		// name.getLocation());
-	}
+	// @Override
+	// public void updateName(ILexNameToken name)
+	// {
+	// this.name.addProcess(name.getName());
+	// // this.name = new CmlLexNameToken(name.getModule(), this.name.getName()+" -> "+name.getName(),
+	// // name.getLocation());
+	// }
 
 	@Override
 	public int compareTo(CmlBehaviour o)

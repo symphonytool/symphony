@@ -46,15 +46,17 @@ public class CollectingIssueHandler implements ITypeIssueHandler
 	}
 
 	@Override
-	public void addTypeError(INode offendingSubtree, TypeErrorMessages message, String... arguments)
+	public void addTypeError(INode offendingSubtree, TypeErrorMessages message,
+			String... arguments)
 	{
-		CMLTypeError error = new CMLTypeError(offendingSubtree, message.number,message.customizeMessage(arguments));
+		CMLTypeError error = new CMLTypeError(offendingSubtree, message.number, message.customizeMessage(arguments));
 		this.errors.add(error);
 		// addIssueToRegistryForNode(offendingSubtree, registry, error);
 	}
 
 	@Override
-	public void addTypeWarning(INode hazardousSubtree, TypeWarningMessages message)
+	public void addTypeWarning(INode hazardousSubtree,
+			TypeWarningMessages message)
 	{
 		addTypeWarning(hazardousSubtree, message, "");
 	}
@@ -80,7 +82,7 @@ public class CollectingIssueHandler implements ITypeIssueHandler
 	@Override
 	public void addTypeError(INode parent, ILexLocation location, String message)
 	{
-		CMLTypeError typeError = new CMLTypeError(parent,0,location, message);
+		CMLTypeError typeError = new CMLTypeError(parent, 0, location, message);
 		typeError.setLocation(location);
 		this.errors.add(typeError);
 	}
@@ -95,7 +97,7 @@ public class CollectingIssueHandler implements ITypeIssueHandler
 	@Override
 	public void warning(VDMWarning warning)
 	{
-		CMLTypeWarning typeError = new CMLTypeWarning(null,warning.number, warning.toProblemString());
+		CMLTypeWarning typeError = new CMLTypeWarning(null, warning.number, warning.toProblemString());
 		typeError.setLocation(warning.location);
 		this.warnings.add(typeError);
 	}
@@ -120,7 +122,7 @@ public class CollectingIssueHandler implements ITypeIssueHandler
 	public void addTypeWarning(INode hazardousSubtree,
 			TypeWarningMessages message, String... arguments)
 	{
-		CMLTypeWarning warning = new CMLTypeWarning(hazardousSubtree,0, message.customizeMessage(arguments));
+		CMLTypeWarning warning = new CMLTypeWarning(hazardousSubtree, 0, message.customizeMessage(arguments));
 		this.warnings.add(warning);
 	}
 

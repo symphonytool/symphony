@@ -1,15 +1,19 @@
 package eu.compassresearch.core.interpreter.debug.messaging;
 
-public abstract class Message
+public abstract class AbstractMessage implements JsonMessage
 {
 
-	// sessions id current debugging session
+	/**
+	 * sessions id current debugging session
+	 */
 	// TODO: this is not currently used
 	protected String sessionId;
-	// message content
+	/**
+	 * message content
+	 */
 	protected Object content;
 
-	public Message()
+	public AbstractMessage()
 	{
 		this.setSessionId("");
 	}
@@ -29,6 +33,7 @@ public abstract class Message
 		this.content = value;
 	}
 
+	@SuppressWarnings("unchecked")
 	public <T> T getContent()
 	{
 		// Gson gson = new Gson();

@@ -13,7 +13,6 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
-import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -33,7 +32,6 @@ import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.RandomSelectionStrategy;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
-import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.parser.ParserUtil;
 import eu.compassresearch.core.parser.ParserUtil.ParserResult;
 import eu.compassresearch.core.typechecker.VanillaFactory;
@@ -48,7 +46,6 @@ public class InterpretAllCmlFilesTest
 
 	public InterpretAllCmlFilesTest(String filePath, String name)
 	{
-		CmlRuntime.logger().setLevel(Level.OFF);
 		this.filePath = filePath;
 	}
 
@@ -149,19 +146,25 @@ public class InterpretAllCmlFilesTest
 			return;
 		}
 
-		CmlInterpreter interpreter = VanillaInterpreterFactory.newInterpreter(res.definitions);
+		CmlInterpreter interpreter = new VanillaInterpreterFactory().newInterpreter(res.definitions);
 
 		Exception exception = null;
 		try
 		{
 			interpreter.initialize();
-			interpreter.execute(new RandomSelectionStrategy());
+			execute(interpreter);
 		} catch (Exception ex)
 		{
 			exception = ex;
 		}
 		ExpectedTestResult testResult = ExpectedTestResult.parseTestResultFile(resultPath);
 		checkResult(testResult, interpreter, exception);
+	}
+
+	protected void execute(CmlInterpreter interpreter)
+			throws AnalysisException, Exception
+	{
+		interpreter.execute(new RandomSelectionStrategy());
 	}
 
 	private void checkResult(ExpectedTestResult testResult,
@@ -208,7 +211,7 @@ public class InterpretAllCmlFilesTest
 	public static Collection<Object[]> getCmlfilePaths()
 	{
 
-		final String initialPath = "src/test/resources";
+		final String initialPath = "src/test/resources/standard";
 		List<Object[]> paths = findAllCmlFiles(initialPath);
 
 		// List<Object[]> paths = findAllCmlFiles("src/test/resources/action/parallel-composition");
@@ -231,7 +234,7 @@ public class InterpretAllCmlFilesTest
 		return tests;
 	}
 
-	private static List<Object[]> findAllCmlFiles(String folderPath)
+	protected static List<Object[]> findAllCmlFiles(String folderPath)
 	{
 		List<Object[]> paths = new Vector<Object[]>();
 		File folder = new File(folderPath);

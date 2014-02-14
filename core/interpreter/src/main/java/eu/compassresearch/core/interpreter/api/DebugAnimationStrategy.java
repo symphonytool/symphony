@@ -18,7 +18,7 @@ import eu.compassresearch.core.interpreter.debug.SocketServerCmlDebugger;
 import eu.compassresearch.core.interpreter.debug.TransitionDTO;
 import eu.compassresearch.core.interpreter.utility.LocationExtractor;
 
-public class AnnimationStrategy implements SelectionStrategy
+public class DebugAnimationStrategy implements SelectionStrategy
 {
 	private RandomSelectionStrategy rndSelect = new RandomSelectionStrategy();
 	CmlTransitionSet availableChannelEvents;
@@ -136,7 +136,9 @@ public class AnnimationStrategy implements SelectionStrategy
 		return convertedTransitionObjs;
 	}
 
-	@Override
+	/**
+	 * Initializes the strategy
+	 */
 	public void initialize(CmlInterpreter interpreter, CmlDebugger debugger)
 	{
 		interpreter.setSuspendBeforeTermination(true);

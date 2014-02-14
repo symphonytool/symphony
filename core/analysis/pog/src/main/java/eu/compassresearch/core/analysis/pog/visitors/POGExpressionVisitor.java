@@ -17,10 +17,10 @@ import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligationList;
 public class POGExpressionVisitor extends
 	QuestionAnswerCMLAdaptor<IPOContextStack, CmlProofObligationList> {
 
-    private static final long serialVersionUID = -8208272656463333796L;
     final private QuestionAnswerAdaptor<IPOContextStack, CmlProofObligationList> rootVisitor;
     final private PogParamExpVisitor<IPOContextStack, CmlProofObligationList> overtureVisitor;
 
+    //FIXME passe down factory
     public POGExpressionVisitor(
 	    QuestionAnswerAdaptor<IPOContextStack, CmlProofObligationList> parentVisitor) {
 	this.rootVisitor = parentVisitor;

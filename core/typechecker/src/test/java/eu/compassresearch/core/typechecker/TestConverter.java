@@ -18,7 +18,7 @@ public class TestConverter
 			return;
 		}
 
-		convert(path, name, (tcok ? "-pos" : "-neg"), index, content);
+		convert(path, name, tcok ? "-pos" : "-neg", index, content);
 	}
 
 	public static void convert(String path, String name, String postFix,

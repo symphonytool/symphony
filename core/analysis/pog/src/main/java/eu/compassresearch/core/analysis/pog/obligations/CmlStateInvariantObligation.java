@@ -6,25 +6,26 @@ import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.definitions.SClassDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.pog.pub.IPOContextStack;
-import org.overture.typechecker.assistant.definition.SClassDefinitionAssistantTC;
+
+import eu.compassresearch.core.analysis.pog.visitors.CmlPogAssistantFactory;
 
 public class CmlStateInvariantObligation extends CmlProofObligation {
 
 	private static final long serialVersionUID = 1L;
 
-	public CmlStateInvariantObligation(AExplicitOperationDefinition def,
+	public CmlStateInvariantObligation(CmlPogAssistantFactory af, AExplicitOperationDefinition def,
 			IPOContextStack ctxt) {
 		
 		super(def, CmlPOType.STATE_INVARIANT, ctxt, def.getLocation());
-		valuetree.setPredicate(ctxt.getPredWithContext(invDefs(def.getClassDefinition().clone())));
+		valuetree.setPredicate(ctxt.getPredWithContext(invDefs(af,def.getClassDefinition().clone())));
 
 	}
 	
-	private PExp invDefs(SClassDefinition def)
+	private PExp invDefs(CmlPogAssistantFactory af, SClassDefinition def)
 	{
 		PExp root = null;
 		
-		for (PDefinition d: SClassDefinitionAssistantTC.getInvDefs(def))
+		for (PDefinition d: af.createSClassDefinitionAssistant().getInvDefs(def))
 		{
 			AClassInvariantDefinition cid = (AClassInvariantDefinition)d;
 			root = makeAnd(root, cid.getExpression());

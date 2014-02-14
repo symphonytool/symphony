@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -57,7 +58,6 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 	private static final int FROM_PORT = 10000;
 	private static final int TO_PORT = 50000;
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public void launch(ILaunchConfiguration configuration, String mode,
 			ILaunch launch, IProgressMonitor monitor) throws CoreException
@@ -87,26 +87,7 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 			// set launch encoding to UTF-8. Mainly used to set console encoding.
 			launch.setAttribute(DebugPlugin.ATTR_CONSOLE_ENCODING, "UTF-8");
 
-			// Write out the launch configuration to the interpreter runner
-			Map configurationMap = new HashMap();
-			configurationMap.put(CmlInterpreterArguments.PROCESS_NAME.key, configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_PROCESS_NAME, ""));
-			configurationMap.put(CmlInterpreterArguments.CML_SOURCES_PATH.key, getSources(configuration));
-			configurationMap.put(CmlInterpreterArguments.CML_EXEC_MODE.key, configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_IS_ANIMATION, true));
-
-			configurationMap.put(CmlInterpreterArguments.HOST.key, "localhost");
-			configurationMap.put(CmlInterpreterArguments.PORT.key, port);
-			
-			configurationMap.put(CmlInterpreterArguments.AUTO_FILTER_TOCK_EVENTS.key, CmlDebugPlugin.getDefault().getPreferenceStore().getString(ICmlDebugConstants.PREFERENCES_AUTO_FILTER_TOCK_EVENTS));
-			
-
-			if (configuration.hasAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_REMOTE_INTERPRETER_CLASS))
-			{
-				String remoteClass = configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_REMOTE_INTERPRETER_CLASS, "");
-				if (!remoteClass.trim().isEmpty())
-				{
-					configurationMap.put(CmlInterpreterArguments.REMOTE_NAME.toString(), remoteClass);
-				}
-			}
+			Map<String, Object> configurationMap = createDebuggerArgumentMap(configuration, port);
 
 			if (mode.equals(ILaunchManager.DEBUG_MODE))
 			{
@@ -141,6 +122,32 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 			monitor.done();
 		}
 
+	}
+
+	protected Map<String, Object> createDebuggerArgumentMap(
+			ILaunchConfiguration configuration, int port) throws CoreException,
+			IOException
+	{
+		// Write out the launch configuration to the interpreter runner
+		Map<String, Object> configurationMap = new HashMap<String, Object>();
+		configurationMap.put(CmlInterpreterArguments.PROCESS_NAME.key, configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_PROCESS_NAME, ""));
+		configurationMap.put(CmlInterpreterArguments.CML_SOURCES_PATH.key, getSources(configuration));
+		configurationMap.put(CmlInterpreterArguments.CML_EXEC_MODE.key, configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_IS_ANIMATION, true));
+
+		configurationMap.put(CmlInterpreterArguments.HOST.key, "localhost");
+		configurationMap.put(CmlInterpreterArguments.PORT.key, port);
+
+		configurationMap.put(CmlInterpreterArguments.AUTO_FILTER_TOCK_EVENTS.key, CmlDebugPlugin.getDefault().getPreferenceStore().getString(ICmlDebugConstants.PREFERENCES_AUTO_FILTER_TOCK_EVENTS));
+
+		if (configuration.hasAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_REMOTE_INTERPRETER_CLASS))
+		{
+			String remoteClass = configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_REMOTE_INTERPRETER_CLASS, "");
+			if (!remoteClass.trim().isEmpty())
+			{
+				configurationMap.put(CmlInterpreterArguments.REMOTE_NAME.toString(), remoteClass);
+			}
+		}
+		return configurationMap;
 	}
 
 	private List<String> getSources(ILaunchConfiguration configuration)
@@ -199,13 +206,29 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 
 		commandArray.add("java");
 		// commandArray.addAll(getClassPath());
-		commandArray.addAll(VdmProjectClassPathCollector.getClassPath(getProject(configuration), collectRequiredBundleIds(ICmlDebugConstants.ID_CML_PLUGIN_NAME), new String[] {}));
+		List<String> additionalCpEntries = new Vector<String>();
+
+		if (true/* logging disabled */)
+		{
+			String defaultLog4JProperties = getDefaultLog4JProperties();
+			if (defaultLog4JProperties != null)
+			{
+				additionalCpEntries.add(defaultLog4JProperties);
+			}
+		}
+
+		Collection<? extends String> classPath = removeDublicateLogAppenders(VdmProjectClassPathCollector.getClassPath(getProject(configuration), collectRequiredBundleIds(ICmlDebugConstants.ID_CML_PLUGIN_NAME), additionalCpEntries.toArray(new String[] {})));
+		commandArray.addAll(Arrays.asList(new String[] { "-cp",
+				VdmProjectClassPathCollector.toCpCliArgument(classPath) }));
 		commandArray.add(ICmlDebugConstants.DEBUG_ENGINE_CLASS);
 		commandArray.addAll(1, getVmArguments(configuration));
 		commandArray.add(config);
 
 		// Execute in a new JVM process
 		ProcessBuilder pb = new ProcessBuilder(commandArray);
+
+		pb.directory(getProject(configuration).getLocation().toFile());
+
 		Process process = null;
 		if (!configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_REMOTE_DEBUG, false))
 		{
@@ -226,8 +249,57 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 
 		return iprocess;
 	}
-	
-	
+
+	private Collection<? extends String> removeDublicateLogAppenders(
+			List<String> list)
+	{
+		boolean found = false;
+		List<String> res = new Vector<String>();
+		for (String f : list)
+		{
+			if (f.indexOf("slf4j-log4j12.jar") > 0)
+			{
+				if (!found)
+				{
+					res.add(f);
+					found = true;
+				}
+
+				continue;
+			}
+			res.add(f);
+		}
+
+		return res;
+	}
+
+	private String getDefaultLog4JProperties()
+	{
+		final Bundle bundle = Platform.getBundle(CmlDebugPlugin.PLUGIN_ID);
+		if (bundle != null)
+		{
+			URL buildInfoUrl = FileLocator.find(bundle, new Path("log4j.properties"), null);
+
+			try
+			{
+				if (buildInfoUrl != null)
+				{
+					URL buildInfofileUrl = FileLocator.toFileURL(buildInfoUrl);
+					if (buildInfofileUrl != null)
+					{
+						File file = new File(buildInfofileUrl.getFile());
+
+						return file.getParentFile().getAbsolutePath();
+					}
+
+				}
+			} catch (IOException e)
+			{
+			}
+		}
+		return null;
+	}
+
 	private Collection<? extends String> getVmArguments(
 			ILaunchConfiguration configuration) throws CoreException
 	{
@@ -244,6 +316,15 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 					options.add(o);
 				}
 			}
+		}
+
+		// is logging of?
+		if (configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_ENABLE_LOGGING, false))
+		{
+			options.add("-Dlog4j.configuration=log4j-on.properties");
+		} else
+		{
+			options.add("-Dlog4j.configuration=log4j-off.properties");
 		}
 
 		if (VdmDebugPlugin.getDefault().getPreferenceStore().getBoolean(IDebugPreferenceConstants.PREF_DBGP_ENABLE_EXPERIMENTAL_MODELCHECKER))
@@ -326,13 +407,12 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 					bundleIds.add(value);
 				}
 			}
-			
-			
+
 			if (VdmDebugPlugin.getDefault().getPreferenceStore().getBoolean(IDebugPreferenceConstants.PREF_DBGP_ENABLE_EXPERIMENTAL_MODELCHECKER))
 			{
 				bundleIds.add(VdmLaunchConfigurationDelegate.ORG_OVERTURE_IDE_PLUGINS_PROBRUNTIME);
 			}
-			
+
 		} catch (BundleException e)
 		{
 			return null;

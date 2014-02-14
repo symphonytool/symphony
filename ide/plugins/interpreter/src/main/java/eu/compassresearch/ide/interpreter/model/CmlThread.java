@@ -210,6 +210,7 @@ public class CmlThread extends CmlDebugElement implements IThread
 	public void updateInfo(CmlProcessDTO t)
 	{
 		this.info = t;
+		stack.update(false);
 		DebugEventHelper.fireChangeEvent(this);
 	}
 

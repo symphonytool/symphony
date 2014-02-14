@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.SortedSet;
-import java.util.TreeSet;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.node.INode;
@@ -20,7 +19,7 @@ import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
 
-class ObservableLabelledTransition extends AbstractLabelledTransition implements
+public class ObservableLabelledTransition extends AbstractLabelledTransition implements
 		ObservableTransition
 {
 
@@ -28,6 +27,13 @@ class ObservableLabelledTransition extends AbstractLabelledTransition implements
 	 * 
 	 */
 	private static final long serialVersionUID = -2217645151439301812L;
+
+	/**
+	 * Added for json construction
+	 */
+	protected ObservableLabelledTransition()
+	{
+	}
 
 	public ObservableLabelledTransition(CmlBehaviour source,
 			ChannelNameValue channelName)
@@ -41,6 +47,19 @@ class ObservableLabelledTransition extends AbstractLabelledTransition implements
 		super(sources, channelName);
 	}
 
+	/**
+	 * Synchronized constructor
+	 * 
+	 * @param baseEvent
+	 * @param syncEvent
+	 * @param meetValue
+	 */
+	public ObservableLabelledTransition(CmlTransition baseEvent,
+			CmlTransition otherComEvent, ChannelNameValue meetValue)
+	{
+		super(baseEvent, otherComEvent, meetValue);
+	}
+
 	@Override
 	public String toString()
 	{
@@ -50,7 +69,6 @@ class ObservableLabelledTransition extends AbstractLabelledTransition implements
 	@Override
 	public int hashCode()
 	{
-
 		return this.eventSources.hashCode() + channelName.hashCode();
 	}
 
@@ -93,10 +111,7 @@ class ObservableLabelledTransition extends AbstractLabelledTransition implements
 
 		if (meetValue.isConstraintValid())
 		{
-			SortedSet<CmlBehaviour> sources = new TreeSet<CmlBehaviour>();
-			sources.addAll(this.getEventSources());
-			sources.addAll(otherComEvent.getEventSources());
-			return new ObservableLabelledTransition(sources, meetValue);
+			return new ObservableLabelledTransition(this, otherComEvent, meetValue);
 		} else
 		{
 			return null;
@@ -118,6 +133,12 @@ class ObservableLabelledTransition extends AbstractLabelledTransition implements
 		// e.printStackTrace();
 		// return new LinkedList<ChannelEvent>();
 		// }
+	}
+	
+	@Override
+	public LabelledTransition rename(ChannelNameValue value)
+	{
+		return new ObservableLabelledTransition(this.eventSources, this.channelName.rename(value.getChannel()));
 	}
 
 	class EventExpander extends AnswerCMLAdaptor<List<LabelledTransition>>
@@ -181,14 +202,12 @@ class ObservableLabelledTransition extends AbstractLabelledTransition implements
 		@Override
 		public List<LabelledTransition> createNewReturnValue(INode node)
 		{
-			// TODO Auto-generated method stub
 			return null;
 		}
 
 		@Override
 		public List<LabelledTransition> createNewReturnValue(Object node)
 		{
-			// TODO Auto-generated method stub
 			return null;
 		}
 	}

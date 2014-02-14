@@ -11,6 +11,8 @@ import org.overture.interpreter.runtime.ObjectContext;
 import org.overture.interpreter.runtime.RootContext;
 import org.overture.interpreter.runtime.StateContext;
 import org.overture.interpreter.runtime.ValueException;
+import org.overture.interpreter.values.ObjectValue;
+import org.overture.interpreter.values.ReferenceValue;
 import org.overture.interpreter.values.UpdatableValue;
 import org.overture.interpreter.values.Value;
 
@@ -73,38 +75,89 @@ class CmlBehaviourUtility
 
 		return result;
 	}
-
-	public static Context mergeAndReplaceState(Context dst, Context src)
-			throws ValueException
+	
+	
+	private static void replaceObjectMembers(ObjectValue srcObj, ObjectValue dstObj, Context dstContext) throws ValueException
 	{
-		Context newCurrent = dst;
-		// Find the root context, this is the current process object root context
-		RootContext copyRoot = src.getRoot();
-		RootContext currentRoot = dst.getRoot();
-
-		// replace all the members values with the chosen choice node
-		for (Entry<ILexNameToken, Value> entry : copyRoot.getSelf().getMemberValues().entrySet())
+		for (Entry<ILexNameToken, Value> srcEntry : srcObj.getMemberValues().entrySet())
+		{
+			Value srcVal = srcEntry.getValue();
+			if (srcVal instanceof UpdatableValue)
+			{
+				dstObj.getMemberValues().get(srcEntry.getKey()).set(dstContext.location, srcVal.deref(), dstContext);
+			}
+			else if(srcVal instanceof ObjectValue)
+			{
+				replaceObjectMembers((ObjectValue)srcVal,(ObjectValue)dstObj.getMemberValues().get(srcEntry.getKey()).deref(), dstContext);
+			}
+		}
+	}
+	
+	private static void replaceMembers(ObjectValue srcObj, Context dstContext) throws ValueException
+	{
+		for (Entry<ILexNameToken, Value> entry : srcObj.getMemberValues().entrySet())
 		{
 			Value val = entry.getValue();
 			if (val instanceof UpdatableValue)
 			{
-				currentRoot.check(entry.getKey()).set(dst.location, entry.getValue().deref(), dst);
+				dstContext.check(entry.getKey()).set(dstContext.location, entry.getValue().deref(), dstContext);
 			}
+			else if(val instanceof ObjectValue)
+			{
+				ObjectValue srcObjMember = (ObjectValue)val;
+				ObjectValue dstObjMember = dstContext.check(entry.getKey()).objectValue(dstContext);
+				replaceObjectMembers(srcObjMember,dstObjMember,dstContext);
+				
+			}
+//			else if(val instanceof ReferenceValue)
+//			{
+//				System.out.print("ref !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+//			}
 		}
+	}
+
+	public static Context mergeAndReplaceState(Context dstContext, Context srcContext)
+			throws ValueException
+	{
+		// Find the root context, this is the current process object root context
+		RootContext srcRootContext = srcContext.getRoot();
+		ObjectValue srcRootObj = srcRootContext.getSelf();
+		RootContext dstRootContext = dstContext.getRoot();
+
+		// replace all the members values with the chosen choice node
+		replaceMembers(srcRootObj, dstRootContext);
+//		for (Entry<ILexNameToken, Value> entry : srcRootObj.getMemberValues().entrySet())
+//		{
+//			Value val = entry.getValue();
+//			if (val instanceof UpdatableValue)
+//			{
+//				dstRootContext.check(entry.getKey()).set(dstRootContext.location, entry.getValue().deref(), dstRootContext);
+//			}
+////			else if(val instanceof ObjectValue)
+////			{
+////				ObjectValue objectInstant = (ObjectValue)val;
+////				objectInstant.getMemberValues()
+////				System.out.print("object !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+////			}
+////			else if(val instanceof ReferenceValue)
+////			{
+////				System.out.print("ref !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+////			}
+//		}
 
 		// now we collect all the context below the RootContext for both the copy and the current
 		// First we collect the copy contexts
 		List<Context> copyContexts = new LinkedList<Context>();
-		Context tmp = src;
-		while (!tmp.equals(copyRoot))
+		Context tmp = srcContext;
+		while (!tmp.equals(srcRootContext))
 		{
 			copyContexts.add(0, tmp);
 			tmp = tmp.outer;
 		}
 		// Next we collect the current contexts
 		List<Context> contexts = new LinkedList<Context>();
-		tmp = dst;
-		while (!tmp.equals(currentRoot))
+		tmp = dstContext;
+		while (!tmp.equals(dstRootContext))
 		{
 			contexts.add(0, tmp);
 			tmp = tmp.outer;
@@ -121,7 +174,7 @@ class CmlBehaviourUtility
 				Context iCurrent = contexts.get(i);
 				for (Entry<ILexNameToken, Value> entry : iCopy.entrySet())
 				{
-					Value val = entry.getValue();
+					// Value val = entry.getValue();
 					// if(val instanceof UpdatableValue)
 					iCurrent.put(entry.getKey(), entry.getValue());
 				}
@@ -136,22 +189,22 @@ class CmlBehaviourUtility
 					throw new InterpreterRuntimeException("Not yet implemented!");
 				} else if (iCopy instanceof ObjectContext)
 				{
-					newCurrent = CmlContextFactory.newObjectContext(iCopy.location, iCopy.title, newCurrent, iCopy.getSelf());
+					dstContext = CmlContextFactory.newObjectContext(iCopy.location, iCopy.title, dstContext, iCopy.getSelf());
 				} else if (iCopy instanceof StateContext)
 				{
 					throw new InterpreterRuntimeException("Trying to merge a StateContext, this should never happen!");
 				} else
 				{
-					newCurrent = CmlContextFactory.newContext(iCopy.location, iCopy.title, newCurrent);
+					dstContext = CmlContextFactory.newContext(iCopy.location, iCopy.title, dstContext);
 				}
 
 				for (Entry<ILexNameToken, Value> entry : iCopy.entrySet())
 				{
-					newCurrent.put(entry.getKey(), entry.getValue());
+					dstContext.put(entry.getKey(), entry.getValue());
 				}
 			}
 		}
 
-		return newCurrent;
+		return dstContext;
 	}
 }

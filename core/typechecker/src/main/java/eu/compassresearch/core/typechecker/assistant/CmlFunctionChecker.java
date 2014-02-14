@@ -11,7 +11,6 @@ public class CmlFunctionChecker extends AbstractCmlFunctionChecker
 		super(af);
 	}
 
-
 	@Override
 	public Boolean createNewReturnValue(INode node)
 	{

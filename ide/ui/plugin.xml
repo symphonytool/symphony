@@ -29,9 +29,9 @@
                relative="org.eclipse.ui.editorss"
                visible="true">
 			</view>
-			<newWizardShortcut
+			<!--newWizardShortcut
            id="eu.compassresearch.ide.ui.newcmlfilewizard">
-			</newWizardShortcut>
+			</newWizardShortcut-->
 		</perspectiveExtension>
 	</extension>
 
@@ -78,7 +78,7 @@
 		<wizard
             category="compass_eu.compassresearch.ide.ui.category"
             class="eu.compassresearch.ide.ui.wizard.NewCmlClassWizard"
-            icon="icons/cview16/cml_file_icon.png"
+            icon="platform:/plugin/org.overture.ide.ui/icons/obj16/class_obj.gif"
             id="eu.compassresearch.ide.ui.newcmlclasswizard"
 
             name="CML Class">
@@ -88,7 +88,7 @@
 		<wizard
             category="compass_eu.compassresearch.ide.ui.category"
             class="eu.compassresearch.ide.ui.wizard.NewCmlProcessWizard"
-            icon="icons/cview16/cml_file_icon.png"
+            icon="icons/obj16/process_obj2.gif"
             id="eu.compassresearch.ide.ui.newcmlprocesswizard"
             name="CML Process">
 		</wizard>
@@ -174,19 +174,89 @@
 				</or>
 			</possibleChildren> 
 
-			<commonWizard
-     				 type="new"
-  				 wizardId="eu.compassresearch.ide.ui.newcmlfilewizard">
-				<enablement>
-					<or>
-						<adapt type="org.eclipse.core.resources.IFile" /> 
-						<adapt type="org.eclipse.core.resources.IFolder" />
-						<adapt type="org.eclipse.core.resources.IProject" /> 
-						<adapt type="org.eclipse.core.resources.IWorkspaceRoot" /> 
-					</or>
-				</enablement>
-			</commonWizard>     
+			 
 
+ <commonWizard
+      		associatedExtensionId="eu.compassresearch.ide.ui.perspective"
+            menuGroupId="eu.compassresearch.ide.cml"
+            type="new"
+            wizardId="eu.compassresearch.ide.CmlProjectWizard">
+    <enablement></enablement>
+      </commonWizard>
+      
+      
+          <commonWizard
+          associatedExtensionId="eu.compassresearch.ide.ui.perspective"
+            menuGroupId="eu.compassresearch.ide.cml"
+            type="new"
+            wizardId="eu.compassresearch.ide.ui.newcmlfilewizard">
+         <enablement>
+            <or>
+               <adapt
+                     type="org.overture.ide.core.resources.IVdmProject">
+                  <test
+                        property="org.overture.ide.core.resources.dialect"
+                        value="CML">
+                  </test>
+               </adapt>
+               <adapt
+                     type="org.eclipse.core.resources.IFolder">
+                  <test
+                        property="org.overture.ide.core.resources.dialect"
+                        value="CML">
+                  </test>
+               </adapt>
+            </or></enablement>
+      </commonWizard>
+      
+                <commonWizard
+          associatedExtensionId="eu.compassresearch.ide.ui.perspective"
+            menuGroupId="eu.compassresearch.ide.cml"
+            type="new"
+            wizardId="eu.compassresearch.ide.ui.newcmlclasswizard">
+         <enablement>
+            <or>
+               <adapt
+                     type="org.overture.ide.core.resources.IVdmProject">
+                  <test
+                        property="org.overture.ide.core.resources.dialect"
+                        value="CML">
+                  </test>
+               </adapt>
+               <adapt
+                     type="org.eclipse.core.resources.IFolder">
+                  <test
+                        property="org.overture.ide.core.resources.dialect"
+                        value="CML">
+                  </test>
+               </adapt>
+            </or></enablement>
+      </commonWizard>
+      
+                <commonWizard
+          associatedExtensionId="eu.compassresearch.ide.ui.perspective"
+            menuGroupId="eu.compassresearch.ide.cml"
+            type="new"
+            wizardId="eu.compassresearch.ide.ui.newcmlprocesswizard">
+         <enablement>
+            <or>
+               <adapt
+                     type="org.overture.ide.core.resources.IVdmProject">
+                  <test
+                        property="org.overture.ide.core.resources.dialect"
+                        value="CML">
+                  </test>
+               </adapt>
+               <adapt
+                     type="org.eclipse.core.resources.IFolder">
+                  <test
+                        property="org.overture.ide.core.resources.dialect"
+                        value="CML">
+                  </test>
+               </adapt>
+            </or></enablement>
+      </commonWizard>
+      
 		</navigatorContent>      
 
 	</extension>

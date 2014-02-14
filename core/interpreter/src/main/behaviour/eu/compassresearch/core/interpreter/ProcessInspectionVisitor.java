@@ -25,6 +25,8 @@ import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.lex.CmlLexNameToken;
 import eu.compassresearch.ast.process.AActionProcess;
 import eu.compassresearch.ast.process.AAlphabetisedParallelismProcess;
+import eu.compassresearch.ast.process.AChannelRenamingProcess;
+import eu.compassresearch.ast.process.AEndDeadlineProcess;
 import eu.compassresearch.ast.process.AExternalChoiceProcess;
 import eu.compassresearch.ast.process.AGeneralisedParallelismProcess;
 import eu.compassresearch.ast.process.AHidingProcess;
@@ -33,6 +35,7 @@ import eu.compassresearch.ast.process.AInternalChoiceProcess;
 import eu.compassresearch.ast.process.AInterruptProcess;
 import eu.compassresearch.ast.process.AReferenceProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
+import eu.compassresearch.ast.process.AStartDeadlineProcess;
 import eu.compassresearch.ast.process.ATimedInterruptProcess;
 import eu.compassresearch.ast.process.ATimeoutProcess;
 import eu.compassresearch.ast.process.AUntimedTimeoutProcess;
@@ -52,8 +55,7 @@ import eu.compassresearch.core.interpreter.utility.Pair;
 public class ProcessInspectionVisitor extends CommonInspectionVisitor
 {
 	public ProcessInspectionVisitor(CmlBehaviour ownerProcess,
-			VisitorAccess visitorAccess,
-			CmlBehaviorFactory cmlBehaviorFactory,
+			VisitorAccess visitorAccess, CmlBehaviorFactory cmlBehaviorFactory,
 			QuestionAnswerCMLAdaptor<Context, Inspection> parentVisitor)
 	{
 		super(ownerProcess, visitorAccess, cmlBehaviorFactory, parentVisitor);
@@ -130,10 +132,10 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 				AProcessDefinition processDefinition = node.getAncestor(AProcessDefinition.class);
 				if (question.title.equals(CmlContextFactory.PARAMETRISED_PROCESS_CONTEXT_NAME))
 				{
-					tmpContext = CmlContextFactory.newObjectContext(node.getLocation(), "Tmp Action Process Context", question.outer, new ProcessObjectValue(processDefinition, node.getActionDefinition(), valueMap, null, null));
+					tmpContext = CmlContextFactory.newObjectContext(node.getLocation(), "Tmp Action Process Context", question.outer, new ProcessObjectValue(question.assistantFactory,processDefinition, node.getActionDefinition(), valueMap, null, null));
 				} else
 				{
-					tmpContext = CmlContextFactory.newObjectContext(node.getLocation(), "Tmp Action Process Context", question, new ProcessObjectValue(processDefinition, node.getActionDefinition(), valueMap, null, null));
+					tmpContext = CmlContextFactory.newObjectContext(node.getLocation(), "Tmp Action Process Context", question, new ProcessObjectValue(question.assistantFactory,processDefinition, node.getActionDefinition(), valueMap, null, null));
 				}
 
 				// Evaluate and add paragraph definitions and add the result to the state
@@ -157,7 +159,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 					}
 				}
 
-				ProcessObjectValue self = new ProcessObjectValue(processDefinition, node.getActionDefinition(), valueMap, question.getSelf(), processInv);
+				ProcessObjectValue self = new ProcessObjectValue(question.assistantFactory,processDefinition, node.getActionDefinition(), valueMap, question.getSelf(), processInv);
 				ObjectContext processObjectContext = null;
 
 				// If params is defined in the above context them we need to add them to the created processContext
@@ -351,6 +353,14 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 
 		}
 	}
+		
+	@Override
+	public Inspection caseAChannelRenamingProcess(
+			AChannelRenamingProcess node, Context question)
+			throws AnalysisException
+	{
+		return caseChannelRenaming(node, question);
+	}
 
 	// FIXME the operator string is only a tmp solution
 	private void caseParallelProcessBegin(PProcess node, PProcess left,
@@ -413,7 +423,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 	public Inspection caseAReferenceProcess(final AReferenceProcess node,
 			final Context question) throws AnalysisException
 	{
-
+		//TODO: This should be a lookup in a map name -> definition instead of it attached to the AST node directly
 		return newInspection(createTauTransitionWithoutTime(node.getProcessDefinition().getProcess()), new CmlCalculationStep()
 		{
 
@@ -457,7 +467,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 				// if not then we create a new process object
 				else
 				{
-					ProcessObjectValue self = new ProcessObjectValue(node.getProcessDefinition(), evaluatedArgs, question.getSelf());
+					ProcessObjectValue self = new ProcessObjectValue(question.assistantFactory,node.getProcessDefinition(), evaluatedArgs, question.getSelf());
 					nextContext = CmlContextFactory.newObjectContext(node.getLocation(), "Process Context", question, self);
 				}
 
@@ -476,6 +486,23 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 			throws AnalysisException
 	{
 		return caseASequentialComposition(node, node.getLeft(), node.getRight(), question);
+	}
+	
+	/**
+	 * see {@link CommonInspectionVisitor#caseStartDeadline(INode, INode, PExp, Context) }
+	 */
+	@Override
+	public Inspection caseAStartDeadlineProcess(final AStartDeadlineProcess node,
+			final Context question) throws AnalysisException
+	{
+		return caseStartDeadline(node, node.getLeft(), node.getExpression(), question);
+	}
+	
+	@Override
+	public Inspection caseAEndDeadlineProcess(AEndDeadlineProcess node,
+			Context question) throws AnalysisException
+	{
+		return caseEndDeadline(node, node.getLeft(), node.getExpression(), question);
 	}
 
 	@Override

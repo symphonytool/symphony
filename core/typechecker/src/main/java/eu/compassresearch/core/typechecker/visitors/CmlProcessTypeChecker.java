@@ -131,7 +131,7 @@ public class CmlProcessTypeChecker extends
 			types.add(iNode.apply(THIS, question));
 		}
 
-		return TypeCheckerUtil.generateUnionType(location, types);
+		return TypeCheckerUtil.generateUnionType(question.assistantFactory, location, types);
 	}
 
 	@Override
@@ -434,36 +434,44 @@ public class CmlProcessTypeChecker extends
 
 		return getVoidType(node);
 	}
-
-	@Override
-	public PType caseAStartDeadlineProcess(AStartDeadlineProcess node,
+	
+	
+	private PType caseDeadlineProcess(PProcess node, PProcess leftProcess,
+			PExp expression,
 			org.overture.typechecker.TypeCheckInfo question)
 			throws AnalysisException
 	{
 
-		PProcess left = node.getLeft();
+		PProcess left = leftProcess;
 
-		PExp timeExp = node.getExpression();
+		PExp timeExp = expression;
 
 		PType leftType = left.apply(THIS, question);
 
 		PType timeExpType = timeExp.apply(THIS, question);
 
-		if (!TypeComparator.isSubType(timeExpType, new ANatNumericBasicType()))
+		if (!TypeComparator.isSubType(timeExpType, new ANatNumericBasicType(), question.assistantFactory))
 		{
 			issueHandler.addTypeError(timeExp, TypeErrorMessages.TIME_UNIT_EXPRESSION_MUST_BE_NAT, node
 					+ "", timeExpType + "");
 		}
 
 		return getVoidType(node);
+	} 
+
+	@Override
+	public PType caseAStartDeadlineProcess(AStartDeadlineProcess node,
+			org.overture.typechecker.TypeCheckInfo question)
+			throws AnalysisException
+	{
+		return caseDeadlineProcess(node, node.getLeft(), node.getExpression(), question);
 	}
 
 	@Override
 	public PType caseAEndDeadlineProcess(AEndDeadlineProcess node,
 			TypeCheckInfo question) throws AnalysisException
 	{
-		// TODO RWL Make this complete
-		return getVoidType(node);
+		return caseDeadlineProcess(node, node.getLeft(), node.getExpression(), question);
 	}
 
 	@Override
@@ -538,7 +546,7 @@ public class CmlProcessTypeChecker extends
 		PType rightType = right.apply(THIS, question);
 
 		PType expType = node.getTimeExpression().apply(THIS, question);
-		if (!TypeComparator.isSubType(expType, new ANatNumericBasicType()))
+		if (!TypeComparator.isSubType(expType, new ANatNumericBasicType(), question.assistantFactory))
 		{
 			issueHandler.addTypeError(node.getTimeExpression(), TypeErrorMessages.TIME_UNIT_EXPRESSION_MUST_BE_NAT, node.getTimeExpression()
 					+ "");

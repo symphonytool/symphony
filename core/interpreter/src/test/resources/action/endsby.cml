@@ -1,0 +1,8 @@
+channels 
+a b
+
+process A = 
+begin 
+
+	@ (a -> Skip endsby 4) ; b -> Skip 
+end

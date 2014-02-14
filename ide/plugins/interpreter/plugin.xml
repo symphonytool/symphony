@@ -45,6 +45,19 @@
         sourcePathComputerId="eu.compassresearch.ide.interpreter.sourcePathComputer">
 		</launchConfigurationType>
 	</extension>
+	
+	<!-- Declare launch configuration type cosim-->
+	<extension point="org.eclipse.debug.core.launchConfigurationTypes">
+		<launchConfigurationType
+        delegate="eu.compassresearch.ide.interpreter.launch.CmlCoSimLaunchConfigurationDelegate"
+        id="eu.compassresearch.ide.interpreter.launchConfigurationTypeCoSim"
+        modes="debug,run"
+        name="CML Co-Simulation Model"
+        public="true"
+        sourceLocatorId="eu.compassresearch.ide.interpreter.sourceLocator"
+        sourcePathComputerId="eu.compassresearch.ide.interpreter.sourcePathComputer">
+		</launchConfigurationType>
+	</extension>
 
 	
 
@@ -55,6 +68,25 @@
 			description="Symphony Launch Tab" 
 			id="eu.compassresearch.ide.interpreter.launchConfigurationTabGroup"
 			type="eu.compassresearch.ide.interpreter.launchConfigurationType">
+			<launchMode 
+                  mode="debug"
+                  perspective="org.eclipse.debug.ui.DebugPerspective"
+                  description="Debugs a CML Model">
+			</launchMode>
+			<launchMode
+                  mode="run"
+                  description="Runs a CML Model">
+			</launchMode>
+		</launchConfigurationTabGroup>
+	</extension>
+	
+		<!-- Add the launch config group to the launch dialog (cosim)-->
+	<extension point="org.eclipse.debug.ui.launchConfigurationTabGroups">
+		<launchConfigurationTabGroup
+			class="eu.compassresearch.ide.interpreter.launching.CmlLaunchConfigurationTabGroupCoSim"
+			description="Symphony Co-Sim Launch Tab" 
+			id="eu.compassresearch.ide.interpreter.launchConfigurationTabGroupCoSim"
+			type="eu.compassresearch.ide.interpreter.launchConfigurationTypeCoSim">
 			<launchMode 
                   mode="debug"
                   perspective="org.eclipse.debug.ui.DebugPerspective"
@@ -91,6 +123,7 @@
 					<with variable="selection">
 						<count value="1"/>
 						<iterate>
+						<or>
 						<!-- wrap the next part in something that is not a project -->
 							<adapt type="org.eclipse.core.resources.IFile">
 								<and>
@@ -98,6 +131,14 @@
            	    	value="eu.compassresearch.ide.core.content-type-cml"/>
 								</and>
 							</adapt>
+							<adapt
+                     type="org.overture.ide.core.resources.IVdmProject">
+                  <test
+                        property="org.overture.ide.core.resources.dialect"
+                        value="CML">
+                  </test>
+               </adapt>
+							</or>
 						</iterate>
 					</with>
 				</enablement>
@@ -154,11 +195,19 @@
           name="Simulator">
     </page>
  </extension>
+ 
+ <!-- launch config icon-->
  <extension
        point="org.eclipse.debug.ui.launchConfigurationTypeImages">
     <launchConfigurationTypeImage
           configTypeID="eu.compassresearch.ide.interpreter.launchConfigurationType"
           icon="icons/cview16/cml_file_icon.png"
+          id="eu.compassresearch.ide.interpreter.launchConfigurationTypeImage1">
+    </launchConfigurationTypeImage>
+    
+     <launchConfigurationTypeImage
+          configTypeID="eu.compassresearch.ide.interpreter.launchConfigurationTypeCoSim"
+          icon="icons/cview16/cml_cosim_icon.png"
           id="eu.compassresearch.ide.interpreter.launchConfigurationTypeImage1">
     </launchConfigurationTypeImage>
  </extension>

@@ -2,6 +2,7 @@ package eu.compassresearch.core.interpreter.remote;
 
 import java.util.Set;
 
+import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 
 public interface IRemoteInterpreter
@@ -31,12 +32,12 @@ public interface IRemoteInterpreter
 	public void select(CmlTransition event, String... arguments);
 
 	/**
-	 * Checks if an event has arguments
+	 * Checks if an event requires arguments
 	 * 
 	 * @param event
 	 * @return
 	 */
-	public boolean hasArguments(CmlTransition event);
+	public boolean requireArguments(CmlTransition event);
 
 	/**
 	 * Gets the count of arguments for the event
@@ -52,4 +53,10 @@ public interface IRemoteInterpreter
 	 * @return
 	 */
 	public boolean isFinished();
+	
+	/**
+	 * Gets the current state of the interpreter
+	 * @return {@link CmlInterpreterState#FAILED} if an error occurred otherwise any of the available states.
+	 */
+	public CmlInterpreterState getState();
 }

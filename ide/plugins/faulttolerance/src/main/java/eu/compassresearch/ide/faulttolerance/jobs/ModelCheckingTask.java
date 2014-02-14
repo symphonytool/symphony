@@ -3,6 +3,7 @@
  */
 package eu.compassresearch.ide.faulttolerance.jobs;
 
+import eu.compassresearch.core.analysis.modelchecker.api.FormulaIntegrationException;
 import eu.compassresearch.core.analysis.modelchecker.api.FormulaIntegrator;
 import eu.compassresearch.core.analysis.modelchecker.api.FormulaResult;
 
@@ -15,6 +16,9 @@ public class ModelCheckingTask implements Runnable {
 	private final String processName;
 	private final String absolutePath;
 	private final IModelCheckingTaskListener listener;
+
+	private static Object modelCheckingLock = new Object() {
+	};
 
 	public ModelCheckingTask(String processName, String absolutePath,
 			IModelCheckingTaskListener listener) {
@@ -30,20 +34,21 @@ public class ModelCheckingTask implements Runnable {
 			results.setProcessName(processName);
 			results.setFormulaScriptAbsolutePath(absolutePath);
 			performModelCheckingCall(results);
+		} catch (Exception e) {
+			results.setException(e);
+			results.setSuccess(false);
 		} finally {
 			listener.done(results);
 		}
 	}
 
-	private void performModelCheckingCall(ModelCheckingResult results) {
-		try {
+	private void performModelCheckingCall(ModelCheckingResult results)
+			throws FormulaIntegrationException, Exception {
+		synchronized (modelCheckingLock) {
 			FormulaResult formulaResult = FormulaIntegrator.getInstance()
 					.analyseFile(absolutePath);
 			results.setSuccess(!formulaResult.isSatisfiable());
 			results.setFormulaResult(formulaResult);
-		} catch (Exception e) {
-			results.setException(e);
-			results.setSuccess(false);
 		}
 	}
 }

@@ -15,11 +15,6 @@ import eu.compassresearch.ast.process.AActionProcess;
 public class ClonerProcessState extends AnswerCMLAdaptor<List<AAssignmentDefinition>>
 {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
 	@Override
 	public List<AAssignmentDefinition> createNewReturnValue(INode node)
 			throws AnalysisException

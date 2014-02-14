@@ -7,8 +7,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import eu.compassresearch.core.typechecker.AbstractResultBasedCmlTypeCheckerTestCase;
-
 @RunWith(value = Parameterized.class)
 public class TicketsCmlTypeCheckerTests extends
 		AbstractResultBasedCmlTypeCheckerTestCase

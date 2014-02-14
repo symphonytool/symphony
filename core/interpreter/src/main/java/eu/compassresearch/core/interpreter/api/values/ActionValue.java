@@ -7,6 +7,10 @@ import eu.compassresearch.ast.definitions.AActionDefinition;
 public class ActionValue extends Value
 {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private final AActionDefinition actionDefinition;
 
 	public ActionValue(AActionDefinition actionDefinition)

@@ -3,9 +3,8 @@ package eu.compassresearch.core.interpreter.utility;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.junit.Assert;
-
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.overture.interpreter.values.IntegerValue;
