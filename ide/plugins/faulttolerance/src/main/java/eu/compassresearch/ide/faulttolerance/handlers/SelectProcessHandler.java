@@ -129,7 +129,7 @@ public abstract class SelectProcessHandler extends AbstractHandler implements
 		boolean done = false;
 		for (ICmlSourceUnit su : cmlProj.getModel().getSourceUnits()) {
 			for (PDefinition def : su.getParseListDefinitions()) {
-				if (def.equals(apd)) {
+				if (def.getName().equals(apd.getName())) {
 					doOnSelectedProcess(su, apd, shell);
 					done = true;
 					break;

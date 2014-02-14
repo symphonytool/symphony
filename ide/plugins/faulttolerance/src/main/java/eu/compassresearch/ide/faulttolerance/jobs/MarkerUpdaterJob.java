@@ -271,12 +271,14 @@ public class MarkerUpdaterJob extends FaultToleranceVerificationJobBase
 			IMarker marker = request.getSourceUnit().getFile()
 					.createMarker(MARKERS_ID);
 			marker.setAttribute(IMarker.LOCATION, Message.MARKER_LOCATION
-					.format(request.getLineNumber(), request.getCharStart()));
+					.format(request.getSystemName(), request.getLineNumber(), request.getCharStart()));
+			marker.setAttribute(IMarker.PRIORITY, IMarker.PRIORITY_NORMAL);
 			marker.setAttribute(IMarker.SEVERITY, data.severity);
 			marker.setAttribute(IMarker.MESSAGE, data.message);
 			marker.setAttribute(IMarker.LINE_NUMBER, request.getLineNumber());
 			marker.setAttribute(IMarker.CHAR_START, request.getCharStart());
 			marker.setAttribute(IMarker.CHAR_END, request.getCharEnd());
+			//marker.setAttribute(IMarker.USER_EDITABLE, false);
 			marker.setAttribute(ATTRIBUTE_SYSTEM_NAME, request.getSystemName());
 			marker.setAttribute(ATTRIBUTE_SUCCESS, data.success);
 

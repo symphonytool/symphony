@@ -34,7 +34,7 @@ public enum Image {
 		return ImageDescriptor.createFromImage(Activator.getDefault()
 				.getImageRegistry().get(name()));
 	}
-
+	
 	public void updateImageDescriptor(ImageRegistry reg) {
 		Bundle bundle = Activator.getDefault().getBundle();
 		IPath path = new Path(path());
