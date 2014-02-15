@@ -56,6 +56,18 @@ public class MCAssignDef implements MCNode {
 		return result.toString();
 	}
 
+	
+
+	@Override
+	public boolean equals(Object arg0) {
+		boolean result = false;
+		
+		if(arg0 instanceof MCAssignDef){
+			result = this.counterId == ((MCAssignDef) arg0).getCounterId();
+		}
+		return result;
+	}
+
 
 	public Binding getMax() {
 		return max;

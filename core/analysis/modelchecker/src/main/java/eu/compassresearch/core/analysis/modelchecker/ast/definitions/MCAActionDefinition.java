@@ -116,6 +116,15 @@ public class MCAActionDefinition implements MCPCMLDefinition {
 		return result.toString();
 	}
 
+	
+
+	@Override
+	public String toString() {
+		
+		return this.name;
+	}
+
+
 
 	public LinkedList<MCPParametrisation> getDeclarations() {
 		return declarations;
