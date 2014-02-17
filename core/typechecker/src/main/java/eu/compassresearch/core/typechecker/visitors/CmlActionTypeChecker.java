@@ -110,7 +110,6 @@ public class CmlActionTypeChecker extends
 	 */
 	private final QuestionAnswerAdaptor<TypeCheckInfo, PType> nameSetChecker;
 
-	@SuppressWarnings("deprecation")
 	public CmlActionTypeChecker(IQuestionAnswer<TypeCheckInfo, PType> root,
 			ITypeIssueHandler issueHandler,
 			QuestionAnswerAdaptor<TypeCheckInfo, PType> channelSetChecker,
@@ -742,7 +741,6 @@ public class CmlActionTypeChecker extends
 		return setType(question.assistantFactory, node, leftType, rightType);
 	}
 
-	@SuppressWarnings("static-access")
 	@Override
 	public PType caseAReferenceAction(AReferenceAction node,
 			org.overture.typechecker.TypeCheckInfo question)

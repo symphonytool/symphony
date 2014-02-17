@@ -70,7 +70,6 @@ public class CmlProcessTypeChecker extends
 	 */
 	private final QuestionAnswerAdaptor<TypeCheckInfo, PType> channelSetChecker;
 
-	@SuppressWarnings("deprecation")
 	public CmlProcessTypeChecker(IQuestionAnswer<TypeCheckInfo, PType> root,
 			ITypeIssueHandler issueHandler,
 			QuestionAnswerAdaptor<TypeCheckInfo, PType> channelSetChecker)

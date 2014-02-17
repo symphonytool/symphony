@@ -34,7 +34,6 @@ public class CmlChannelExpressionTypeChecker extends
 
 	private final ITypeIssueHandler issueHandler;// = VanillaFactory.newCollectingIssueHandle();
 
-	@SuppressWarnings("deprecation")
 	public CmlChannelExpressionTypeChecker(
 			IQuestionAnswer<TypeCheckInfo, PType> root,
 			ITypeIssueHandler issueHandler)

@@ -291,7 +291,6 @@ public class CmlVarSetExpressionTypeChecker extends
 
 	}
 
-	@SuppressWarnings("static-access")
 	public boolean validateChannelNameDefinition(TypeCheckInfo question,
 			ANameChannelExp chanName, PDefinition idDef)
 	{

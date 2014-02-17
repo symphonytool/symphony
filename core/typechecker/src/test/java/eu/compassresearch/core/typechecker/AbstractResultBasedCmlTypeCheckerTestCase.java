@@ -256,7 +256,7 @@ public abstract class AbstractResultBasedCmlTypeCheckerTestCase extends
 	@Override
 	public Boolean decodeResult(Node node)
 	{
-		return null;
+		return false;
 	}
 
 	@Override

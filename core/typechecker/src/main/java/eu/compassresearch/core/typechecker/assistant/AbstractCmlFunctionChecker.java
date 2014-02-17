@@ -855,14 +855,14 @@ public class AbstractCmlFunctionChecker extends FunctionChecker implements
 	public Boolean caseAActionStm(AActionStm node) throws AnalysisException
 	{
 
-		return null;
+		return false;
 	}
 
 	@Override
 	public Boolean caseAStmAction(AStmAction node) throws AnalysisException
 	{
 
-		return null;
+		return false;
 	}
 
 	@Override
@@ -870,14 +870,14 @@ public class AbstractCmlFunctionChecker extends FunctionChecker implements
 			AUnresolvedStateDesignator node) throws AnalysisException
 	{
 
-		return null;
+		return false;
 	}
 
 	@Override
 	public Boolean caseANewStm(ANewStm node) throws AnalysisException
 	{
 
-		return null;
+		return false;
 	}
 
 	@Override
@@ -885,7 +885,7 @@ public class AbstractCmlFunctionChecker extends FunctionChecker implements
 			throws AnalysisException
 	{
 
-		return null;
+		return false;
 	}
 
 	@Override
@@ -893,7 +893,7 @@ public class AbstractCmlFunctionChecker extends FunctionChecker implements
 			throws AnalysisException
 	{
 
-		return null;
+		return false;
 	}
 
 	@Override
@@ -901,7 +901,7 @@ public class AbstractCmlFunctionChecker extends FunctionChecker implements
 			throws AnalysisException
 	{
 
-		return null;
+		return false;
 	}
 
 	@Override
@@ -922,13 +922,13 @@ public class AbstractCmlFunctionChecker extends FunctionChecker implements
 	public Boolean caseACallAction(ACallAction node) throws AnalysisException
 	{
 
-		return null;
+		return false;
 	}
 
 	@Override
 	public Boolean caseAChannelType(AChannelType node) throws AnalysisException
 	{
-		return null;
+		return false;
 	}
 
 }
