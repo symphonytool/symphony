@@ -3,10 +3,9 @@
  */
 package eu.compassresearch.ide.faulttolerance;
 
-import java.io.Serializable;
+import org.eclipse.core.resources.IFile;
 
-import eu.compassresearch.core.analysis.modelchecker.api.FormulaResult;
-import eu.compassresearch.ide.faulttolerance.jobs.ModelCheckingResult;
+import eu.compassresearch.ide.modelchecker.MCConstants;
 
 /**
  * @author Andr&eacute; Didier (<a href=
@@ -14,15 +13,21 @@ import eu.compassresearch.ide.faulttolerance.jobs.ModelCheckingResult;
  *         >alrd@cin.ufpe.br</a>)
  * 
  */
-public class FaultToleranceProperty implements Serializable {
-	private static final long serialVersionUID = -4233877393072129545L;
+public class FaultToleranceProperty {
 
 	private final FaultToleranceType type;
 	private boolean satisfied;
-	private FormulaResult formulaResult;
-	private String formulaScriptAbsolutePathName;
+	private boolean checked;
+	private boolean canceledByUser;
+	private boolean canceledByPreRequisite;
+	private IFile formulaScriptFile;
 	private String modelCheckerProperty;
-	private String processName;
+	private String implementationExpression;
+	private String specificationExpression;
+
+	private double elapsedTime;
+
+	private Exception exception;
 
 	public FaultToleranceProperty(FaultToleranceType type) {
 		this.type = type;
@@ -36,25 +41,8 @@ public class FaultToleranceProperty implements Serializable {
 		return satisfied;
 	}
 
-	public FormulaResult getFormulaResult() {
-		return formulaResult;
-	}
-
-	public String getFormulaScriptAbsolutePathName() {
-		return formulaScriptAbsolutePathName;
-	}
-
 	public void setSatisfied(boolean satisfied) {
 		this.satisfied = satisfied;
-	}
-
-	public void setFormulaResult(FormulaResult formulaResult) {
-		this.formulaResult = formulaResult;
-	}
-
-	public void setFormulaScriptAbsolutePathName(
-			String formulaScriptAbsolutePathName) {
-		this.formulaScriptAbsolutePathName = formulaScriptAbsolutePathName;
 	}
 
 	public String getModelCheckerProperty() {
@@ -65,18 +53,85 @@ public class FaultToleranceProperty implements Serializable {
 		this.modelCheckerProperty = modelCheckerProperty;
 	}
 
-	public String getProcessName() {
-		return processName;
+	public boolean isChecked() {
+		return checked;
 	}
 
-	public void setProcessName(String processName) {
-		this.processName = processName;
+	public Exception getException() {
+		return exception;
 	}
 
-	public void update(ModelCheckingResult results) {
-		setFormulaResult(results.getFormulaResult());
-		setFormulaScriptAbsolutePathName(results.getFormulaScriptAbsolutePath());
-		setProcessName(results.getProcessName());
-		setSatisfied(results.isSuccess());
+	public void setChecked(boolean checked) {
+		this.checked = checked;
 	}
+
+	public void setException(Exception exception) {
+		this.exception = exception;
+	}
+
+	public String getImplementationExpression() {
+		return implementationExpression;
+	}
+
+	public String getSpecificationExpression() {
+		return specificationExpression;
+	}
+
+	public void setImplementationExpression(String implementationExpression) {
+		this.implementationExpression = implementationExpression;
+	}
+
+	public void setSpecificationExpression(String specificationExpression) {
+		this.specificationExpression = specificationExpression;
+	}
+
+	public IFile getFormulaScriptFile() {
+		return formulaScriptFile;
+	}
+
+	public void setFormulaScriptFile(IFile formulaScriptFile) {
+		this.formulaScriptFile = formulaScriptFile;
+	}
+
+	@Override
+	public String toString() {
+		return format();
+	}
+
+	public String format() {
+		String formatted;
+		if (modelCheckerProperty.equals(MCConstants.DEADLOCK_PROPERTY)) {
+			formatted = Message.DEADLOCK_CHECK.format(implementationExpression);
+		} else if (modelCheckerProperty.equals(MCConstants.LIVELOCK_PROPERTY)) {
+			formatted = Message.LIVELOCK_CHECK.format(implementationExpression);
+		} else {
+			formatted = "?";
+		}
+		return formatted;
+	}
+
+	public double getElapsedTime() {
+		return elapsedTime;
+	}
+
+	public void setElapsedTime(double elapsedTime) {
+		this.elapsedTime = elapsedTime;
+	}
+
+	public boolean isCanceledByUser() {
+		return canceledByUser;
+	}
+
+	public void setCanceledByUser(boolean canceledByUser) {
+		this.canceledByUser = canceledByUser;
+	}
+
+	public boolean isCanceledByPreRequisite() {
+		return canceledByPreRequisite;
+	}
+
+	public void setCanceledByPreRequisite(boolean canceledByPreRequisite) {
+		this.canceledByPreRequisite = canceledByPreRequisite;
+	}
+
 }

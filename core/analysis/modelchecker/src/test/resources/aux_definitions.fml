@@ -36,7 +36,7 @@
 	// User defined types
 	//USER_DEF_TYPES
 	
-	Type ::= VOID + Integer + Natural + String + Real + SeqType + SetType + ProdType /*INCLUDE USER_DEF_TYPES*/.
+	Type ::= VOID + Boolean + Integer + Natural + String + Real + SeqType + SetType + ProdType /*INCLUDE USER_DEF_TYPES*/.
 
 	// Bindings 
     NullBind            ::= {nBind}. 

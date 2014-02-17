@@ -23,7 +23,7 @@ import eu.compassresearch.ide.core.resources.ICmlProject;
 import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
 import eu.compassresearch.ide.faulttolerance.Message;
 import eu.compassresearch.ide.faulttolerance.UnableToRunFaultToleranceVerificationException;
-import eu.compassresearch.ide.faulttolerance.markers.MarkerManager;
+import eu.compassresearch.ide.faulttolerance.jobs.IMarkerModifier;
 import eu.compassresearch.ide.ui.editor.core.CmlEditor;
 
 /**
@@ -32,7 +32,8 @@ import eu.compassresearch.ide.ui.editor.core.CmlEditor;
  *         >alrd@cin.ufpe.br</a>)
  * 
  */
-public abstract class SelectProcessHandler extends AbstractHandler {
+public abstract class SelectProcessHandler extends AbstractHandler implements
+		IMarkerModifier {
 
 	private static IProject getCurrentlySelectedProject(ExecutionEvent event)
 			throws UnableToRunFaultToleranceVerificationException {
@@ -73,7 +74,7 @@ public abstract class SelectProcessHandler extends AbstractHandler {
 	}
 
 	private void doOnCmlEditor(ISelection selection, CmlEditor editor,
-			ICmlProject proj, Shell shell) {
+			ICmlProject proj, Shell shell) throws ExecutionException {
 		if (selection instanceof ITextSelection) {
 			doOnSelectedProject((ITextSelection) selection, editor, proj, shell);
 		} else if (selection instanceof ITreeSelection) {
@@ -82,7 +83,8 @@ public abstract class SelectProcessHandler extends AbstractHandler {
 	}
 
 	private void doOnSelectedProject(ITreeSelection selection,
-			CmlEditor editor, ICmlProject proj, Shell shell) {
+			CmlEditor editor, ICmlProject proj, Shell shell)
+			throws ExecutionException {
 		Object o = selection.getFirstElement();
 		if (o instanceof MarkerItem) {
 			doOnSelectedProject((MarkerItem) o, editor, proj, shell);
@@ -92,13 +94,16 @@ public abstract class SelectProcessHandler extends AbstractHandler {
 	}
 
 	private void doOnSelectedProject(MarkerItem markerItem, CmlEditor editor,
-			ICmlProject proj, Shell shell) {
-		String processName = markerItem.getAttributeValue(
-				MarkerManager.ATTRIBUTE_PROCESS_NAME, null);
+			ICmlProject proj, Shell shell) throws ExecutionException {
+		String systemName = markerItem.getAttributeValue(ATTRIBUTE_SYSTEM_NAME,
+				null);
+		if (systemName == null) {
+			return;
+		}
 		boolean done = false;
 		for (ICmlSourceUnit su : proj.getModel().getSourceUnits()) {
 			for (PDefinition def : su.getParseListDefinitions()) {
-				if (def.getName().getFullName().equals(processName)) {
+				if (def.getName().getFullName().equals(systemName)) {
 					doOnSelectedProcess(su, def, shell);
 					done = true;
 					break;
@@ -111,7 +116,8 @@ public abstract class SelectProcessHandler extends AbstractHandler {
 	}
 
 	private void doOnSelectedProject(ITextSelection selection,
-			CmlEditor editor, ICmlProject proj, Shell shell) {
+			CmlEditor editor, ICmlProject proj, Shell shell)
+			throws ExecutionException {
 		INode o = editor.getElementAt(selection.getOffset());
 
 		if (o instanceof AProcessDefinition) {
@@ -121,12 +127,12 @@ public abstract class SelectProcessHandler extends AbstractHandler {
 	}
 
 	private void doOnSelectedProcess(ICmlProject cmlProj,
-			AProcessDefinition apd, Shell shell) {
+			AProcessDefinition apd, Shell shell) throws ExecutionException {
 
 		boolean done = false;
 		for (ICmlSourceUnit su : cmlProj.getModel().getSourceUnits()) {
 			for (PDefinition def : su.getParseListDefinitions()) {
-				if (def.equals(apd)) {
+				if (def.getName().equals(apd.getName())) {
 					doOnSelectedProcess(su, apd, shell);
 					done = true;
 					break;
@@ -139,6 +145,7 @@ public abstract class SelectProcessHandler extends AbstractHandler {
 	}
 
 	protected abstract void doOnSelectedProcess(ICmlSourceUnit sourceUnit,
-			PDefinition processDefinition, Shell shell);
+			PDefinition processDefinition, Shell shell)
+			throws ExecutionException;
 
 }

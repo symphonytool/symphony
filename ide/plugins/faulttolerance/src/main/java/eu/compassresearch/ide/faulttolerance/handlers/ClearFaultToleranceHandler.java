@@ -3,11 +3,12 @@
  */
 package eu.compassresearch.ide.faulttolerance.handlers;
 
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.widgets.Shell;
 import org.overture.ast.definitions.PDefinition;
 
 import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
-import eu.compassresearch.ide.faulttolerance.markers.MarkerManager;
+import eu.compassresearch.ide.faulttolerance.jobs.MarkerCleanerJob;
 
 /**
  * @author Andr&eacute; Didier (<a href=
@@ -20,8 +21,9 @@ public class ClearFaultToleranceHandler extends SelectProcessHandler {
 	@Override
 	protected void doOnSelectedProcess(ICmlSourceUnit su,
 			PDefinition processDefinition, Shell shell) {
-		MarkerManager.clearMarkers(processDefinition.getName().getFullName(),
-				su.getFile());
+		Job job = new MarkerCleanerJob(processDefinition.getName()
+				.getFullName(), su.getFile());
+		job.schedule();
 	}
 
 }

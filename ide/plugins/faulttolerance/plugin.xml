@@ -15,47 +15,58 @@
   </extension>
   <extension
         point="org.eclipse.ui.menus">
-        <menuContribution locationURI="popup:org.eclipse.ui.popup.any?after=additions">
-            <menu id="eu.compassresearch.ide.faulttolerance.verification" 
+        <menuContribution locationURI="popup:eu.compassresearch.ide.ui.CmlNavigator?after=additions">
+            <menu id="eu.compassresearch.ide.faulttolerance.verification.cmlnavigator" 
               label="%FAULT_TOLERANCE" mnemonic="%FAULT_TOLERANCE_MNEMONIC"
               icon="icons/ft-graphic.png">
-                <command
-                    commandId="eu.compassresearch.ide.faulttolerance.verification.Verify"
-                    id="eu.compassresearch.ide.faulttolerance.verification.Verify"
-                    icon="icons/ft-graphic-run.png"
-                    mnemonic="%VERIFY_FAULT_TOLERANCE_MNEMONIC">
-                      <visibleWhen>
-                     <with variable="activeEditorId">
-                      <equals value="eu.compassresearch.ide.ui.editor"/>
-                     </with>
-                </visibleWhen>
+              <visibleWhen>
+                <with variable="selection">
+                  <count value="1"/>
+                  <iterate ifEmpty="false">
+                    <instanceof value="eu.compassresearch.ast.definitions.AProcessDefinition"/>
+                  </iterate>
+                </with>
+              </visibleWhen>
+	          <command
+                    commandId="eu.compassresearch.ide.faulttolerance.verification.Verify">
               </command>
               <command
-                    commandId="eu.compassresearch.ide.faulttolerance.verification.Clear"
-                    id="eu.compassresearch.ide.faulttolerance.verification.Clear"
-                    mnemonic="%VERIFY_FAULT_TOLERANCE_MNEMONIC">
-                      <visibleWhen>
-                     <with variable="activeEditorId">
-                      <equals value="eu.compassresearch.ide.ui.editor"/>
-                     </with>
-                </visibleWhen>
+                    commandId="eu.compassresearch.ide.faulttolerance.verification.Clear">
               </command>
             </menu>
         </menuContribution>
-        <!--
-        <menuContribution
-            locationURI="toolbar:org.eclipse.ui.main.toolbar">
-         <toolbar
-               id="eu.compassresearch.ide.faulttolerance.verification.toolbar">
-            <command
-                  commandId="eu.compassresearch.ide.faulttolerance.verification.Verify"
-                  icon="icons/ft-graphic-run.png"
-                  label="Say Hello"
-                  style="push">
-            </command>
-         </toolbar>
-      </menuContribution>
-      -->
+        <menuContribution locationURI="popup:#TextEditorContext?after=additions">
+            <menu id="eu.compassresearch.ide.faulttolerance.verification.editorcontext" 
+              label="%FAULT_TOLERANCE" mnemonic="%FAULT_TOLERANCE_MNEMONIC"
+              icon="icons/ft-graphic.png">
+              <visibleWhen>
+                <with variable="activeEditorId">
+                   <equals value="eu.compassresearch.ide.ui.editor"/>
+                </with>
+              </visibleWhen>
+              <command
+                    commandId="eu.compassresearch.ide.faulttolerance.verification.Verify">
+              </command>
+              <command
+                    commandId="eu.compassresearch.ide.faulttolerance.verification.Clear">
+              </command>
+            </menu>
+        </menuContribution>
+        <menuContribution locationURI="popup:org.eclipse.ui.views.AllMarkersView?after=additions">
+          <command commandId="eu.compassresearch.ide.faulttolerance.verification.Clear" 
+            label="%CLEAR_FAULT_TOLERANCE_VERIFICATIONS_MARKERS_VIEW">
+          <!--
+              <visibleWhen>
+                <with variable="selection">
+                  <count value="1"/>
+                  <iterate ifEmpty="false">
+                    <instanceof value="eu.compassresearch.ast.definitions.AProcessDefinition"/>
+                  </iterate>
+                </with>
+              </visibleWhen>
+              -->
+          </command>
+        </menuContribution>
   </extension>
   
    <extension
@@ -70,6 +81,10 @@
       </command>
    </extension>
    
+   <extension point="org.eclipse.ui.commandImages">
+    <image commandId="eu.compassresearch.ide.faulttolerance.verification.Verify" icon="icons/ft-graphic-run.png"/>
+   </extension>
+   
    <extension
          point="org.eclipse.ui.handlers">
       <handler
@@ -82,16 +97,39 @@
       </handler>
    </extension>
    
-  <extension id="eu.compassresearch.ide.faulttolerance.verification.problem" point="org.eclipse.core.resources.markers">
-     <super type="org.eclipse.core.resources.problemmarker"/>
+  <extension id="faulttolerancemarker" 
+    name="%MARKER_TYPE_NAME" point="org.eclipse.core.resources.markers">
+     <!--
+     The type checker (VanillaCmlTypeChecker.initialise) or other component clears
+     all problemmarkers.
+     <super type="org.eclipse.core.resources.problemmarker"/>-->
+     <super type="org.eclipse.core.resources.textmarker"/>
      <persistent value="true"/>
-     <attribute name="processName"/>
+     <attribute name="location"/>
+     <attribute name="severity"/>
+     <attribute name="message"/>
+     <attribute name="lineNumber"/>
+     <attribute name="charStart"/>
+     <attribute name="charEnd"/>
+     <attribute name="systemName"/>
+     <attribute name="success"/>
   </extension>
   
+  <extension
+      point="org.eclipse.ui.ide.markerImageProviders">
+    <imageprovider
+      markertype="eu.compassresearch.ide.faulttolerance.faulttolerancemarker"
+      icon="icons/ft-blue.png"
+      id="eu.compassresearch.ide.faulttolerance.markerImageProvider"
+      class="eu.compassresearch.ide.faulttolerance.jobs.MarkerImageProvider">
+    </imageprovider>
+  </extension>
+
   <extension point="org.eclipse.ui.ide.markerResolution">
       <markerResolutionGenerator
-         markerType="eu.compassresearch.ide.faulttolerance.verification.problem"
-         class="eu.compassresearch.ide.faulttolerance.marker.FaultToleranceFixer"/>
+         markerType="eu.compassresearch.ide.faulttolerance.faulttolerancemarker"
+         class="eu.compassresearch.ide.faulttolerance.marker.FaultToleranceFixer">
+      </markerResolutionGenerator>
    </extension>
    
 </plugin>

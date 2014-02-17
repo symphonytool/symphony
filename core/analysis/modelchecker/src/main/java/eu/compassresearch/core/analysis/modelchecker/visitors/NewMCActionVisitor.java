@@ -63,7 +63,6 @@ import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAInterruptAct
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAReferenceAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCASequentialCompositionAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCASequentialCompositionReplicatedAction;
-import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCASingleGeneralAssignmentStatementAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCASkipAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAStmAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAStopAction;

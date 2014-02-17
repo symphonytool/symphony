@@ -5,6 +5,7 @@ package eu.compassresearch.ide.faulttolerance;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.ui.IStartup;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -18,6 +19,7 @@ import org.osgi.framework.BundleContext;
  */
 public class Activator extends AbstractUIPlugin implements IStartup {
 	public static final String ID = "eu.compassresearch.ide.faulttolerance";
+	public static final String FAULT_TOLERANCE_JOB_FAMILY = "eu.compassresearch.ide.faulttolerance.jobfamily";
 	private static Activator plugin;
 
 	public Activator() {
@@ -32,6 +34,7 @@ public class Activator extends AbstractUIPlugin implements IStartup {
 
 	@Override
 	public void stop(BundleContext context) throws Exception {
+		Job.getJobManager().cancel(FAULT_TOLERANCE_JOB_FAMILY);
 		plugin = null;
 		super.stop(context);
 	}
@@ -46,7 +49,9 @@ public class Activator extends AbstractUIPlugin implements IStartup {
 
 	@Override
 	protected void initializeImageRegistry(ImageRegistry reg) {
-		Image.RELOAD.updateImageDescriptor(reg, "reload.png");
+		for (Image image : Image.values()) {
+			image.updateImageDescriptor(reg);
+		}
 	}
 
 	@Override

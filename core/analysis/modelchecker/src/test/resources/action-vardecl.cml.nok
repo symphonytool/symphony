@@ -5,3 +5,13 @@ process A =
 begin 
 	@ (dcl x : int @ x := 0;Skip)
 end
+
+process B = 
+begin 
+	@ (dcl y : int := 0 @ x := 2;Skip)
+end
+
+process C = 
+begin 
+	@ (dcl z : bool @ z := true; Skip)
+end

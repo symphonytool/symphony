@@ -59,3 +59,6 @@ process LazyLimit_NFTBasic =
 begin
 	@ ((FT_NFTBasic_H [| E |] Limit_NFTBasic) [| E |] CHAOS_E) \\ E 
 end
+
+process FT_NFTBasic_LazyLimit = NoFaults_NFTBasic [| Alpha_NFTBasic |] LazyLimit_NFTBasic
+

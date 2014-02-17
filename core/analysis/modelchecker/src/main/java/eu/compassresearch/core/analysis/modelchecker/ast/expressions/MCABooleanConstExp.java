@@ -14,8 +14,8 @@ public class MCABooleanConstExp implements MCBooleanExp {
 
 	@Override
 	public String toFormula(String option) {
-		// TODO Auto-generated method stub
-		return null;
+		
+		return String.valueOf(this.value);
 	}
 
 	public boolean isValue() {
@@ -28,8 +28,8 @@ public class MCABooleanConstExp implements MCBooleanExp {
 
 	@Override
 	public MCPCMLExp copy() {
-		// TODO Auto-generated method stub
-		return null;
+		
+		return new MCABooleanConstExp(this.value);
 	}
 
 	@Override

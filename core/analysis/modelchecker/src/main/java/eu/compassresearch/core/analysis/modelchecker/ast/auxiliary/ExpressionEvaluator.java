@@ -17,6 +17,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCALocalDef
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCATypeDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAValueDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAApplyExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCABooleanConstExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAEqualsBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAGreaterEqualNumericBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAGreaterNumericBinaryExp;
@@ -33,6 +34,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAVariable
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCAIdentifierPattern;
 import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCPCMLPattern;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCABooleanBasicType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAIntNumericBasicType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANamedInvariantType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANatNumericBasicType;
@@ -384,6 +386,8 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 			if(values.size() > 0){
 				result = values.getFirst();
 			}
+		} else if(type instanceof MCABooleanBasicType){
+			result = new MCABooleanConstExp(false);
 		}
 		
 		return result;
