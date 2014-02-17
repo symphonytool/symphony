@@ -25,12 +25,12 @@ public class ExternalProcessTest
 
 		public abstract void match(String line);
 
-		public abstract boolean matched();
+		public abstract boolean isMatched();
 
 	}
 
 	protected static final int DEFAULT_TIMEOUT = 60 * 1000;
-	protected boolean quit = false;
+	protected boolean quiet = false;
 	protected Set<Process> processes = new HashSet<Process>();
 	protected Integer port = null;
 	Set<IConsoleWatcher> watched = new HashSet<IConsoleWatcher>();
@@ -90,13 +90,12 @@ public class ExternalProcessTest
 		boolean result = true;
 		for (IConsoleWatcher watch : watched)
 		{
-			result &= watch.matched();
+			result &= watch.isMatched();
 		}
 		return result;
 	}
 
-	protected static void startAutoRead(Process serverProcess, final String name,
-			final IConsoleWatcher watch, final boolean quit)
+	protected static void startAutoRead(Process serverProcess, final String name, final boolean quiet,final IConsoleWatcher... watch)
 	{
 		InputStream stdout = serverProcess.getInputStream();
 		final BufferedReader reader = new BufferedReader(new InputStreamReader(stdout));
@@ -111,12 +110,16 @@ public class ExternalProcessTest
 				{
 					while ((line = reader.readLine()) != null)
 					{
-						if (!quit)
+						if (!quiet)
 						{
 							System.out.println("Stdout(" + name + "): " + line);
 						}
 	
-						watch.match(line);
+						for (IConsoleWatcher w : watch)
+						{
+							w.match(line);
+						}
+						
 						
 					}
 				} catch (IOException e)

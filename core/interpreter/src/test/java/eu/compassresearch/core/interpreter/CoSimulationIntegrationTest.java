@@ -1,9 +1,12 @@
 package eu.compassresearch.core.interpreter;
 
 import java.io.File;
+import java.util.concurrent.TimeoutException;
 
 import org.junit.Assert;
 import org.junit.Test;
+
+import eu.compassresearch.core.interpreter.cosim.communication.Utils;
 
 public class CoSimulationIntegrationTest extends ExternalProcessTest
 {
@@ -14,9 +17,22 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 				mainProcess, "-delegatedprocessed", delegatedProcesses,
 				"-mode", "server", "-cosimport", port.toString(), "-simulate",
 				file.replace('/', File.separatorChar) });
-		ConsoleWatcher watch = new ConsoleWatcher("coordinator");
+		ConsoleWatcher watch = new ConsoleWatcher("coordinator",ConsoleWatcher.FINISHED_MATCH_TEXT);
+		ConsoleWatcher listningWatch = new ConsoleWatcher("coordinator","Waiting for clients...");
 		this.watched.add(watch);
-		startAutoRead(process, "server", watch, quit);
+		startAutoRead(process, "server", quiet,watch,listningWatch );
+		
+		int time = 0;
+		final int RETRY_WAIT = 200;
+		while(!listningWatch.isMatched())
+		{
+			if(time*1000 == DEFAULT_TIMEOUT)
+			{
+				throw new TimeoutException("Server never started to listen for clients");
+			}
+			Utils.milliPause(RETRY_WAIT);
+			time +=RETRY_WAIT ;
+		}
 		return process;
 
 	}
@@ -29,9 +45,9 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 				mainProcess, "-mode", "client", "-cosimport", port.toString(),
 				"-simulate", file.replace('/', File.separatorChar) });
 		String name = "client:" + mainProcess;
-		ConsoleWatcher watch = new ConsoleWatcher(name);
+		ConsoleWatcher watch = new ConsoleWatcher(name,ConsoleWatcher.FINISHED_MATCH_TEXT);
 		this.watched.add(watch);
-		startAutoRead(process, name, watch, quit);
+		startAutoRead(process, name, quiet,watch);
 		return process;
 	}
 
@@ -40,15 +56,18 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 	
 	protected static class ConsoleWatcher implements IConsoleWatcher
 	{
-		public final String FINISHED_MATCH_TEXT = "Simulator status event : FINISHED";
+		public static final String FINISHED_MATCH_TEXT = "Simulator status event : FINISHED";
 
-		public boolean finished;
+		public boolean matched;
 
 		private String name;
+		
+		private final String matchString;
 
-		public ConsoleWatcher(String name)
+		public ConsoleWatcher(String name, String matchString)
 		{
 			this.name = name;
+			this.matchString = matchString;
 		}
 
 		@Override
@@ -63,19 +82,19 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 		@Override
 		public void match(String line)
 		{
-			if (line.contains(FINISHED_MATCH_TEXT))
+			if (line.contains(matchString))
 			{
-				finished = true;
+				matched = true;
 			}	
 		}
 		
 		/* (non-Javadoc)
-		 * @see eu.compassresearch.core.interpreter.IConsoleWatcher#matched()
+		 * @see eu.compassresearch.core.interpreter.IConsoleWatcher#isMatched()
 		 */
 		@Override
-		public boolean matched()
+		public boolean isMatched()
 		{
-			return finished;
+			return matched;
 		}
 
 	}
