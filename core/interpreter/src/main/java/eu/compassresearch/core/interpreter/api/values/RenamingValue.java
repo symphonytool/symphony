@@ -3,10 +3,7 @@ package eu.compassresearch.core.interpreter.api.values;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.interpreter.values.Value;
-
-import eu.compassresearch.core.interpreter.api.CmlChannel;
 
 public class RenamingValue extends Value
 {

@@ -120,11 +120,11 @@ public class DelegatedCmlBehaviour implements CmlBehaviour
 		if (t instanceof AbstractLabelledTransition)
 		{
 			ChannelNameValue channelNameValue = ((AbstractLabelledTransition) t).getChannelName();
-			
+
 			updateConstraints(channelNameValue);
-			
+
 			Value channel = next.second.lookup(channelNameValue.getChannel().name);
-			if(channel instanceof CMLChannelValue)
+			if (channel instanceof CMLChannelValue)
 			{
 				Field channelField = null;
 
@@ -141,7 +141,11 @@ public class DelegatedCmlBehaviour implements CmlBehaviour
 
 				try
 				{
-					channelField.set(channelNameValue,(CMLChannelValue) channel);
+					if (channelField == null)
+					{
+						throw new InterpreterRuntimeException("Unable to access field channel on CmlTransition");
+					}
+					channelField.set(channelNameValue, (CMLChannelValue) channel);
 				} catch (IllegalArgumentException | IllegalAccessException e)
 				{
 					// TODO Auto-generated catch block
@@ -153,7 +157,7 @@ public class DelegatedCmlBehaviour implements CmlBehaviour
 
 	private void updateConstraints(ChannelNameValue channelNameValue)
 	{
-		Field channelField = null;
+		Field constraintsField = null;
 
 		List<Field> fields = Node.getAllFields(new Vector<Field>(), channelNameValue.getClass());
 		for (Field field : fields)
@@ -161,33 +165,38 @@ public class DelegatedCmlBehaviour implements CmlBehaviour
 			if (field.getName().equals("constraints"))
 			{
 				field.setAccessible(true);
-				channelField = field;
+				constraintsField = field;
 				break;
 			}
 		}
 
 		try
 		{
-			@SuppressWarnings("unchecked")
-			List<ValueConstraint> constraints=	(List<ValueConstraint>) channelField.get(channelNameValue);
-			
-			if(constraints==null)
+			if (constraintsField == null)
 			{
-				
+				throw new InterpreterRuntimeException("Unable to access field constraints on "
+						+ channelNameValue.getClass().getName());
+			}
+			@SuppressWarnings("unchecked")
+			List<ValueConstraint> constraints = (List<ValueConstraint>) constraintsField.get(channelNameValue);
+
+			if (constraints == null)
+			{
+
 				constraints = new LinkedList<ValueConstraint>();
 				for (int i = 0; i < channelNameValue.getValues().size(); i++)
 				{
 					constraints.add(new NoConstraint());
 				}
 			}
-			
-			channelField.set(channelNameValue,constraints);
+
+			constraintsField.set(channelNameValue, constraints);
 		} catch (IllegalArgumentException | IllegalAccessException e)
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 	}
 
 	public static void setEventSources(CmlTransition t,
@@ -215,6 +224,11 @@ public class DelegatedCmlBehaviour implements CmlBehaviour
 			}
 		}
 
+		if (eventSourcesField == null)
+		{
+			throw new InterpreterRuntimeException("Unable to access field eventSources on CmlTransition");
+		}
+
 		eventSourcesField.set(t, eventSources);
 	}
 
@@ -232,6 +246,11 @@ public class DelegatedCmlBehaviour implements CmlBehaviour
 				activeTransitionIdField = field;
 				break;
 			}
+		}
+
+		if (activeTransitionIdField == null)
+		{
+			throw new InterpreterRuntimeException("Unable to access field activeTransitionsId on CmlTransition");
 		}
 
 		activeTransitionIdField.set(t, id);

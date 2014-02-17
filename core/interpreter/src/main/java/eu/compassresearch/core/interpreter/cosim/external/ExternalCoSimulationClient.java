@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.Vector;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.SynchronousQueue;
 
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
@@ -20,13 +21,13 @@ import eu.compassresearch.core.interpreter.cosim.DelegatedCmlBehaviour;
 import eu.compassresearch.core.interpreter.cosim.IProcessDelegate;
 import eu.compassresearch.core.interpreter.cosim.MessageManager;
 import eu.compassresearch.core.interpreter.cosim.communication.DisconnectMessage;
+import eu.compassresearch.core.interpreter.cosim.communication.ExecuteCompletedMessage;
 import eu.compassresearch.core.interpreter.cosim.communication.ExecuteMessage;
 import eu.compassresearch.core.interpreter.cosim.communication.FinishedReplyMessage;
 import eu.compassresearch.core.interpreter.cosim.communication.FinishedRequestMessage;
 import eu.compassresearch.core.interpreter.cosim.communication.InspectMessage;
 import eu.compassresearch.core.interpreter.cosim.communication.InspectReplyMessage;
 import eu.compassresearch.core.interpreter.cosim.communication.RegisterSubSystemMessage;
-import eu.compassresearch.core.interpreter.cosim.communication.Utils;
 import eu.compassresearch.core.interpreter.debug.messaging.JsonMessage;
 
 /**
@@ -51,7 +52,7 @@ public class ExternalCoSimulationClient extends Thread
 	 */
 	private SynchronousQueue<CmlTransition> availableTransitions = new SynchronousQueue<CmlTransition>();
 
-	private Boolean executionPending = false;
+	Semaphore systemLock = new Semaphore(1);
 
 	CmlTransitionSet transitions = null;
 
@@ -127,11 +128,14 @@ public class ExternalCoSimulationClient extends Thread
 
 			try
 			{
-				while (executionPending)
+				try
 				{
-					Utils.milliPause(10);
+					systemLock.acquire();
+					transitions = subsystem.inspect();
+				} finally
+				{
+					systemLock.release();
 				}
-				transitions = subsystem.inspect();
 			} catch (Exception e)
 			{
 				throw new InterpreterRuntimeException("Interpreter inspection failed in co-simulation client", e);
@@ -145,17 +149,15 @@ public class ExternalCoSimulationClient extends Thread
 		} else if (message instanceof ExecuteMessage)
 		{
 			final ExecuteMessage executeMessage = (ExecuteMessage) message;
-			synchronized (executionPending)
+			try
 			{
-				executionPending = true;
-				try
-				{
-					availableTransitions.put(remapTransitionIds((ObservableTransition) executeMessage.getTransition()));
-				} catch (InterruptedException e)
-				{
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				systemLock.acquire();
+				availableTransitions.put(remapTransitionIds((ObservableTransition) executeMessage.getTransition()));
+				comm.send(new ExecuteCompletedMessage());
+			} catch (InterruptedException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 
 		} else if (message instanceof FinishedRequestMessage)
@@ -178,10 +180,7 @@ public class ExternalCoSimulationClient extends Thread
 
 	public void executionCompleted()
 	{
-		synchronized (executionPending)
-		{
-			executionPending = false;
-		}
+		systemLock.release();
 	}
 
 	private static CmlTransition remapTransitionIds(CmlTransition transition)

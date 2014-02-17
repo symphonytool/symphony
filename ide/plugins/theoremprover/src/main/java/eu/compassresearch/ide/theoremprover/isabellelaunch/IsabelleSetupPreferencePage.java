@@ -18,28 +18,29 @@ public class IsabelleSetupPreferencePage extends FieldEditorPreferencePage
 	public IsabelleSetupPreferencePage()
 	{
 		super();
-	    setDescription("Setup values for using the Symphony theorem proving support");
-	    setTitle("Theorem Prover Setup");
+		setDescription("Setup values for using the Symphony theorem proving support");
+		setTitle("Theorem Prover Setup");
 	}
-	
+
 	@Override
 	public void init(IWorkbench workbench)
 	{
-	    setDescription("Setup values for using the Symphony theorem proving support");
-	    setTitle("Theorem Prover Setup");
+		setDescription("Setup values for using the Symphony theorem proving support");
+		setTitle("Theorem Prover Setup");
 	}
 
 	@Override
 	protected void createFieldEditors()
 	{
-		if(LaunchIsabelleHandler.isMacPlatform()){
+		if (LaunchIsabelleHandler.isMacPlatform())
+		{
 			addField(new StringFieldEditor(IIsabelleConstants.ATTR_LOCATION, "Isabelle application location", getFieldEditorParent()));
-		}
-		else
+		} else
 		{
 			addField(new DirectoryFieldEditor(IIsabelleConstants.ATTR_LOCATION, "Isabelle application location", getFieldEditorParent()));
 		}
-		if(! LaunchIsabelleHandler.isWindowsPlatform()){
+		if (!LaunchIsabelleHandler.isWindowsPlatform())
+		{
 			addField(new DirectoryFieldEditor(IIsabelleConstants.ATTR_SESSION_DIRS, "CML theory location", getFieldEditorParent()));
 		}
 		addField(new BooleanFieldEditor(IIsabelleConstants.Z3_NON_COMMERCIAL, "Check box if theorem prover is for non commercial use", getFieldEditorParent()));
@@ -56,11 +57,12 @@ public class IsabelleSetupPreferencePage extends FieldEditorPreferencePage
 	{
 		IPreferenceStore store = getPreferenceStore();
 		store.setDefault(IIsabelleConstants.ATTR_LOCATION, "");
-		if(! LaunchIsabelleHandler.isWindowsPlatform()){
+		if (!LaunchIsabelleHandler.isWindowsPlatform())
+		{
 			store.setDefault(IIsabelleConstants.ATTR_SESSION_DIRS, "");
 		}
 		store.setDefault(IIsabelleConstants.Z3_NON_COMMERCIAL, false);
-		super.performDefaults();		
+		super.performDefaults();
 	}
 
 }

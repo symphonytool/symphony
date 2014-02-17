@@ -226,7 +226,7 @@ public class CMLJ
 		cmlTC.typeCheck();
 		if (issueHandler.hasErrors())
 		{
-			System.out.println("Failed to type check: " + f.toString());
+			System.out.println("Failed to type check: " + Arrays.toString(f));
 			System.out.println(issueHandler.getTypeErrors());
 			return;
 		}
@@ -268,7 +268,7 @@ public class CMLJ
 			e.printStackTrace();
 		} catch (Exception ex)
 		{
-			System.out.println("Failed to interpret: " + f.toString());
+			System.out.println("Failed to interpret: " + Arrays.toString(f));
 			System.out.println("With Error : " + ex.getMessage());
 			System.out.println("With stack trace : ");
 			ex.printStackTrace();

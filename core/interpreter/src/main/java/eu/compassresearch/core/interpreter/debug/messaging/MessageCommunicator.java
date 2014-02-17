@@ -103,21 +103,22 @@ public class MessageCommunicator
 
 			}
 
-			mapper = new ObjectMapper();
+			ObjectMapper	m = new ObjectMapper();
 			MyModule module = new MyModule();
 			// module.addAbstractTypeMapping(org.overture.ast.intf.lex.ILexNameToken.class,DefaultCmlLexNameToken.class);
 			// module.a.addAbstractTypeMapping(org.overture.ast.node.NodeList.class, NodeListJsonWrapper.class);
 
-			mapper.enableDefaultTyping();
-			mapper.registerModule(module);
-			mapper.enableDefaultTyping();
-			mapper.configure(MapperFeature.AUTO_DETECT_GETTERS, false);
-			mapper.configure(MapperFeature.AUTO_DETECT_IS_GETTERS, false);
-			mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
-			mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-			mapper.configure(Feature.FLUSH_PASSED_TO_STREAM, false);
-			mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-			mapper.configure(Feature.AUTO_CLOSE_TARGET, false);
+			m.enableDefaultTyping();
+			m.registerModule(module);
+			m.enableDefaultTyping();
+			m.configure(MapperFeature.AUTO_DETECT_GETTERS, false);
+			m.configure(MapperFeature.AUTO_DETECT_IS_GETTERS, false);
+			m.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
+			m.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+			m.configure(Feature.FLUSH_PASSED_TO_STREAM, false);
+			m.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+			m.configure(Feature.AUTO_CLOSE_TARGET, false);
+			mapper = m;
 
 		}
 
