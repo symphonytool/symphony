@@ -286,7 +286,30 @@ public class CmlCspTypeChecker extends
 	public PType caseAActionClassDefinition(AActionClassDefinition node,
 			TypeCheckInfo question) throws AnalysisException
 	{
+		// Must be two pass.
 
+		// 1) Resolve action names
+		for (PDefinition def : node.getDefinitions())
+		{
+			if (def instanceof AActionDefinition
+					&& def.getName().getTypeQualifier() != null)
+			{
+				System.out.println(def.getName());
+				for (PType type : def.getName().getTypeQualifier())
+				{
+					System.out.println(type);
+					try
+					{
+						question.assistantFactory.createPTypeAssistant().typeResolve(type, null, vdmChecker, question);
+					} catch (TypeCheckException te)
+					{
+						TypeChecker.report(3427, te.getMessage(), te.location);
+					}
+				}
+			}
+		}
+
+		// 2) TC
 		for (PDefinition def : node.getDefinitions())
 		{
 			if (def instanceof AActionDefinition)
