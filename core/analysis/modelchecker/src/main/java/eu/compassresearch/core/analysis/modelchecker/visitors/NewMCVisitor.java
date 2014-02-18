@@ -348,7 +348,7 @@ public class NewMCVisitor extends
 		//String cml_file = "src/test/resources/simpler-minimondex.cml";
 		//String cml_file = "src/test/resources/set-manipulation.cml";
 		//String cml_file = "src/test/resources/action-prefix-stop.cml";
-		String cml_file = "src/test/resources/action-vardecl.cml.nok";
+		String cml_file = "src/test/resources/action-vardecl.cml";
 		//String cml_file = "src/test/resources/simpler-register.cml";
 		//String cml_file = "src/test/resources/Dphils.cml";
 		//String cml_file = "src/test/resources/BeoAVDeviceDiscovery-final-version-model-checker.cml";
@@ -373,7 +373,7 @@ public class NewMCVisitor extends
 		//String mainProcessName = "RegisterProc";
 		//String mainProcessName = "N_LAZY_Q";
 		//String mainProcessName = "ad_internal_Initiate_Rescue_Activation___Fault_1";
-		String mainProcessName = "B";
+		String mainProcessName = "C";
 		
 		
 		String formulaCode = visitor1.generateFormulaScript(source1.getParagraphs(),Utilities.DEADLOCK_PROPERTY,mainProcessName);

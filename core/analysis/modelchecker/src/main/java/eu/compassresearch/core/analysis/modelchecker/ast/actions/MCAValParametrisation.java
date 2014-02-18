@@ -20,7 +20,7 @@ public class MCAValParametrisation implements MCPParametrisation {
 		//question.getScriptContent().append("Int(");
 		//question.getScriptContent().append(node.getDeclaration().getIdentifiers().getFirst().toString());
 		//question.getScriptContent().append(")");
-		return null;
+		return this.declaration.toFormula(option);
 	}
 
 	

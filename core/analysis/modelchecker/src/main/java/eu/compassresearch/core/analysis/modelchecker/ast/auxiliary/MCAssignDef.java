@@ -44,7 +44,7 @@ public class MCAssignDef implements MCNode {
 		String newValueVarName = varName + "_";
 		MCPCMLExp newVarValue = new MCAVariableExp(newValueVarName);
 		maxCopy.updateBinding(varName,newVarValue); 
-		result.append(maxCopy.toFormula(MCNode.DEFAULT)); 
+		result.append(maxCopy.toFormula(MCNode.NAMED)); 
 		
 		//THE EXPRESSION OF THE ASSIGNMENT
 		result.append(", ");
