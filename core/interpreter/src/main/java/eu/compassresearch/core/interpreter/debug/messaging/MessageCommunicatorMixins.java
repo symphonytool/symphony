@@ -10,9 +10,14 @@ import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.node.Node;
 import org.overture.ast.types.PType;
+import org.overture.interpreter.values.BooleanValue;
 import org.overture.interpreter.values.CharacterValue;
 import org.overture.interpreter.values.IntegerValue;
 import org.overture.interpreter.values.NaturalOneValue;
+import org.overture.interpreter.values.NaturalValue;
+import org.overture.interpreter.values.QuoteValue;
+import org.overture.interpreter.values.RationalValue;
+import org.overture.interpreter.values.RealValue;
 import org.overture.interpreter.values.Value;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
@@ -89,7 +94,32 @@ public class MessageCommunicatorMixins
 	}
 
 	// values
+	static abstract class QuoteValueMixIn
+	{
+		QuoteValueMixIn(@JsonProperty("value") String value)
+		{
+		}
 
+	}
+	
+	static abstract class BooleanValueMixIn
+	{
+		BooleanValueMixIn(@JsonProperty("value") boolean value)
+		{
+		}
+
+	}
+	
+	static abstract class NaturalValueMixIn
+	{
+		NaturalValueMixIn(@JsonProperty("longVal") long value)
+		{
+		}
+
+		@JsonIgnore
+		public double value;
+	}
+	
 	static abstract class NaturalOneValueMixIn
 	{
 		NaturalOneValueMixIn(@JsonProperty("longVal") long value)
@@ -108,6 +138,22 @@ public class MessageCommunicatorMixins
 		
 		@JsonIgnore
 		 double value;
+	}
+	
+	static abstract class RationalValueMixIn
+	{
+		RationalValueMixIn(@JsonProperty("value") double value)
+		{
+		}
+		
+	}
+	
+	static abstract class RealValueMixIn
+	{
+		RealValueMixIn(@JsonProperty("value") double value)
+		{
+		}
+		
 	}
 
 	static abstract class TokenValueMixIn
@@ -174,7 +220,12 @@ public class MessageCommunicatorMixins
 		ctxt.setMixInAnnotations(CmlProcessDTO.class, CmlProcessDTOMixIn.class);
 
 		// Cosim
+		ctxt.setMixInAnnotations(QuoteValue.class, QuoteValueMixIn.class);
+		ctxt.setMixInAnnotations(BooleanValue.class, BooleanValueMixIn.class);
+		ctxt.setMixInAnnotations(NaturalValue.class, NaturalValueMixIn.class);
 		ctxt.setMixInAnnotations(NaturalOneValue.class, NaturalOneValueMixIn.class);
+		ctxt.setMixInAnnotations(RationalValue.class, RationalValueMixIn.class);
+		ctxt.setMixInAnnotations(RealValue.class, RealValueMixIn.class);
 		ctxt.setMixInAnnotations(org.overture.interpreter.values.TokenValue.class, TokenValueMixIn.class);
 		ctxt.setMixInAnnotations(CharacterValue.class, CharacterValueMixIn.class);
 		ctxt.setMixInAnnotations(CMLChannelValue.class, CMLChannelValueMixIn.class);
