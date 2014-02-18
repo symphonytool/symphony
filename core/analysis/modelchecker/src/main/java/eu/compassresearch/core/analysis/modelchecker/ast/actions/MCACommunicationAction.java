@@ -134,7 +134,7 @@ public class MCACommunicationAction implements MCPAction {
 		return result.toString();
 	}
 
-	private String buildIOCommActualParams(String option){
+	public String buildIOCommActualParams(String option){
 	
 		StringBuilder result = new StringBuilder();
 		ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();

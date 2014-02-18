@@ -1,5 +1,6 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.auxiliary;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 
 import org.overture.ast.expressions.AVariableExp;
@@ -54,10 +55,13 @@ public class MCIOCommDef implements MCNode {
 		Binding maxCopy = max.copy();
 		//we must update all communication variables in the binding with new valueNames so that the new values will come form the involved communication variables
 		if(parentAction.getCommunicationParameters().size() > 0){
-			String varName = ""; 
-			String newValueVarName = varName + "_";
-			MCPCMLExp newVarValue = new MCAVariableExp(newValueVarName);
-			maxCopy.updateBinding(varName,newVarValue); //we must perform an update of all values in the bindings.
+			//for (MCPCommunicationParameter var : parentAction.getCommunicationParameters()) {
+			//	String varName = var.toFormula(option); 
+			//	String newValueVarName = varName + "_";
+			//	MCPCMLExp newVarValue = new MCAVariableExp(newValueVarName);
+			//	maxCopy.updateBinding(varName,newVarValue); //we must perform an update of all values in the bindings.
+			//}
+			
 			//result.append(maxCopy.toFormula(MCNode.GENERIC));
 			//for the moment communication variables are not put into the bindings until we resolve the link between inputs in formula
 			result.append(maxCopy.toFormula(MCNode.NAMED));
@@ -75,6 +79,20 @@ public class MCIOCommDef implements MCNode {
 		//result.append(this.parentAction.toFormula(MCNode.NAMED));
 		result.append(")");
 
+		if(parentAction.getCommunicationParameters().size() > 0){
+			Iterator<MCPCommunicationParameter> parameters = parentAction.getCommunicationParameters().iterator();
+			while (parameters.hasNext()) {
+				result.append(", ");
+				MCPCommunicationParameter communicationParam = (MCPCommunicationParameter) parameters.next();
+				String varName = communicationParam.toString();
+				result.append(varName);
+				result.append(" = ");
+				//String value = parentAction.buildIOCommActualParams(option);
+				String value = buildIOCommActualParam(communicationParam, option);
+				result.append(value);
+			}
+			
+		}
 		result.append(".");
 		//we still have to generate the modified binding containing values (parameters) communicated
 		//result.append(",");
@@ -82,7 +100,20 @@ public class MCIOCommDef implements MCNode {
 		
 		return result.toString();
 	}
+	
+	public String buildIOCommActualParam(MCPCommunicationParameter communicationParam, String option){
+		
+		StringBuilder result = new StringBuilder();
+		ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
+		MCPCMLType type = evaluator.getTypeFor(communicationParam);
 
+		result.append(type.toFormula(option));
+		
+		return result.toString();
+	}
+
+	//private void replaceCommunicatedValues(Binding binding, )
+	
 	private void replaceParamValues(Binding binding){
 		if(parentAction != null){
 			LinkedList<MCPCommunicationParameter> parameters = parentAction.getCommunicationParameters();

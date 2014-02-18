@@ -77,7 +77,7 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 		return result;
 	}
 	
-	private MCPCMLType getTypeFor(MCPCommunicationParameter param){
+	public MCPCMLType getTypeFor(MCPCommunicationParameter param){
 		MCPCMLType result = null;
 		if(param instanceof MCASignalCommunicationParameter){
 			result = this.getTypeFor((MCASignalCommunicationParameter)param);
@@ -382,7 +382,17 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 		} else if(type instanceof MCANamedInvariantType){
 			NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 			MCATypeDefinition typeDef = context.getTypeDefinition(((MCANamedInvariantType) type).getName());
-			LinkedList<MCPCMLExp> values = this.getValues(typeDef.getInvExpression());
+			LinkedList<MCPCMLExp> values = new LinkedList<MCPCMLExp>();
+			if(typeDef.getInvExpression() != null){
+				values = this.getValues(typeDef.getInvExpression());
+			} else {
+				TypeManipulator typeHandler = TypeManipulator.getInstance();
+				LinkedList<TypeValue> typeValues = typeHandler.getValues(typeDef.getType());
+				for (TypeValue typeValue : typeValues) {
+					MCPCMLExp newExp = new MCAVariableExp(typeValue.toFormula(MCNode.DEFAULT));
+					values.add(newExp);
+				}
+			}
 			if(values.size() > 0){
 				result = values.getFirst();
 			}

@@ -33,6 +33,10 @@ public class MCAIntLiteralExp implements MCNumericExp {
 		return result;
 	}
 
+	@Override
+	public String toString() {
+		return this.value;
+	}
 
 	public String getValue() {
 		return value;

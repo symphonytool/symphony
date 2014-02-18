@@ -49,6 +49,10 @@ public class MCAVariableExp implements MCNumericExp {
 		return result.toString();
 	}
 
+	@Override
+	public String toString() {
+		return this.name;
+	}
 
 
 	public String getName() {

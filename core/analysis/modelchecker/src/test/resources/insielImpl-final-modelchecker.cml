@@ -260,8 +260,8 @@ begin
  @ MAIN
 end
 
-process ad_Initiate_Rescue_Activation___Fault_1 = val Fault_1_id_1: ID @
-  ad_internal_Initiate_Rescue_Activation___Fault_1(Fault_1_id_1)
+process ad_Initiate_Rescue_Activation___Fault_1 = 
+  ad_internal_Initiate_Rescue_Activation___Fault_1(<fav>)
 
 process ad_internal_Recovery_1 = val Fault_1_id_2: ID @ begin
   state
@@ -341,8 +341,8 @@ process ad_internal_Recovery_1 = val Fault_1_id_2: ID @ begin
     @ MAIN_2
 end
 
-process ad_Recovery_1 = val Fault_1_id_2: ID @
-  ad_internal_Recovery_1(Fault_1_id_2)
+process ad_Recovery_1 = 
+  ad_internal_Recovery_1(<rv>)
 
 process SIGNAL_BUFFER =
 begin

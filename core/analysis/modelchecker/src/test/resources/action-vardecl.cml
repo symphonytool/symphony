@@ -25,9 +25,9 @@ end
 
 process D = B(2)
 
---process E =
---begin 
---  actions 
---    P1 = val p1x:int @ comm.p1x -> Skip
--- @ P1(2)
---end
+process E =
+begin 
+  actions 
+    P1 = val p1x:MYID @ comm.p1x -> Skip
+ @ P1(2)
+end
