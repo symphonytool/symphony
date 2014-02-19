@@ -86,7 +86,7 @@ public class DelegatedCmlBehaviour implements CmlBehaviour
 			this.delegate.execute(selectedTransition);
 		} catch (Exception e)
 		{
-			throw new InterpreterRuntimeException("Failed to invoke execute on delegate", e);
+			throw new InterpreterRuntimeException("Failed to invoke execute on delegate \""+delegate.getProcessName()+"\"", e);
 		}
 	}
 
@@ -111,7 +111,7 @@ public class DelegatedCmlBehaviour implements CmlBehaviour
 			return transitions;
 		} catch (Exception e)
 		{
-			throw new InterpreterRuntimeException("Failed to invoke inspect on delegate", e);
+			throw new InterpreterRuntimeException("Failed to invoke inspect on delegate \""+delegate.getProcessName()+"\"", e);
 		}
 	}
 
@@ -341,7 +341,7 @@ public class DelegatedCmlBehaviour implements CmlBehaviour
 			return finished;
 		} catch (Exception e)
 		{
-			throw new InterpreterRuntimeException("Failed to invoke isFinished on delegate", e);
+			throw new InterpreterRuntimeException("Failed to invoke isFinished on delegate \""+delegate.getProcessName()+"\"", e);
 		}
 	}
 
