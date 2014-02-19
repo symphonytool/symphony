@@ -18,8 +18,13 @@ public class MCAIdentifierStateDesignator implements MCPStateDesignator {
 
 	@Override
 	public String toFormula(String option) {
-		// TODO Auto-generated method stub
-		return null;
+		return name;
+	
+	}
+
+	@Override
+	public String toString() {
+		return name;
 	
 	}
 

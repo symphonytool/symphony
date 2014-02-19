@@ -1,0 +1,64 @@
+channels
+	a,
+	b,
+	c,
+	fault,
+	error,
+	failure
+
+chansets
+	E = {| fault, error, failure |}
+	F = {| fault |}
+	H = {| c |}
+	Alpha_NFTBasic = {| a,b |}
+	
+process RunE = 
+begin	
+	@ [] e: E @ e -> RunE
+end
+
+process CHAOS_E = 
+begin
+  actions
+    CHAOS = Stop |~| ([] ev: E @ ev -> CHAOS)
+ @ CHAOS [| E |] RunE
+end
+
+process NFTBasic = 
+begin
+	actions
+		NOMINAL_NFTBasic = a -> ((b -> NOMINAL_NFTBasic) [] FAULT_NFTBasic)
+		FAULT_NFTBasic = fault -> NOMINAL_NFTBasic
+	@ NOMINAL_NFTBasic
+end
+
+process FT_NFTBasic_H = NFTBasic \\ H
+
+process FT_NFTBasic_E = NFTBasic \\ E
+
+process Lazy_NFTBasic = 
+begin
+	@ (FT_NFTBasic_H [| E |] CHAOS_E) \\ E 
+end
+
+process NoFaults_NFTBasic = 
+begin
+	@ FT_NFTBasic_H [| E |] Stop 
+end
+
+process FT_NFTBasic_Lazy = NoFaults_NFTBasic [| Alpha_NFTBasic |] Lazy_NFTBasic
+
+process Limit_NFTBasic = 
+begin
+	actions
+		 Limit = [] e: F @ e -> Limit
+	@ Limit
+end
+
+process LazyLimit_NFTBasic = 
+begin
+	@ ((FT_NFTBasic_H [| E |] Limit_NFTBasic) [| E |] CHAOS_E) \\ E 
+end
+
+process FT_NFTBasic_LazyLimit = NoFaults_NFTBasic [| Alpha_NFTBasic |] LazyLimit_NFTBasic
+

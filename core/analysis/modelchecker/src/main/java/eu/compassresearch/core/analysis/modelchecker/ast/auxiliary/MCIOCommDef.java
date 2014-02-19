@@ -43,8 +43,10 @@ public class MCIOCommDef implements MCNode {
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 		StringBuilder result = new StringBuilder();
 		ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
+		this.max = context.maximalBinding;
 		
 		result.append("  IOCommDef(" + this.counterId + ",");
+		//precisa ter um instantiateMCTypeFromCommParamsForIoCommDef para instanciar tipos com nomes modificados varOld 
 		result.append(evaluator.instantiateMCTypeFromCommParams(parentAction.getCommunicationParameters()).toFormula(option));
 		result.append(",");
 		Binding maxOldCopy = max.copy();
