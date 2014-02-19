@@ -55,6 +55,7 @@ public class ConnectionThread extends Thread
 	private Map<String, SynchronousQueue<Boolean>> isFinishedMap = new HashMap<String, SynchronousQueue<Boolean>>();
 
 	Semaphore executingSem = new Semaphore(0);
+	private String registeredProcessName;
 	
 	public ConnectionThread(ThreadGroup group, Socket conn, boolean principal,
 			IProcessBehaviourDelegationManager delegationManager)
@@ -107,6 +108,7 @@ public class ConnectionThread extends Thread
 			// Caused by die(), and CDMJ death
 			if (connected)
 			{
+				System.err.println("Error in connection thread for: "+registeredProcessName);
 				e.printStackTrace();
 			}
 		} catch (IOException e)
@@ -140,7 +142,8 @@ public class ConnectionThread extends Thread
 		{
 			for (String processName : ((RegisterSubSystemMessage) message).getProcesses())
 			{
-				this.delegationManager.addDelegate(new ProcessDelegate(processName, this));
+				this.registeredProcessName = processName;
+				this.delegationManager.addDelegate(new ProcessDelegate(registeredProcessName, this));
 				availableTransitionsMap.put(processName, new SynchronousQueue<CmlTransitionSet>());
 			}
 		} else if (message instanceof InspectReplyMessage)
