@@ -138,13 +138,18 @@ public class MCACommunicationAction implements MCPAction {
 	
 		StringBuilder result = new StringBuilder();
 		ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
-		MCPCMLType type = evaluator.instantiateMCTypeFromCommParams(this.communicationParameters);
-
-		result.append(type.toFormula(option));
-		
+	
+		if(option.equals(MCNode.MINIMAL_GENERIC)){
+			MCPCMLType type = evaluator.instantiateMCTypeFromCommParamsForIOCommDef(this.communicationParameters,"");
+			result.append(type.toFormula(option));
+		}else{
+			MCPCMLType type = evaluator.instantiateMCTypeFromCommParams(this.communicationParameters);
+			result.append(type.toFormula(option));
+		}
 		return result.toString();
 	}
-
+	
+	
 	public String getIdentifier() {
 		return identifier;
 	}

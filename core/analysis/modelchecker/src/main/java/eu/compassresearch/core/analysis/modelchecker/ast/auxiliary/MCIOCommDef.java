@@ -25,16 +25,13 @@ public class MCIOCommDef implements MCNode {
 	protected Binding max;
 	protected int counterId;
 	protected MCACommunicationAction parentAction;
-	protected LinkedList<MCAChannelDefinition> channels;
 	
 	
-	public MCIOCommDef(int counterId, MCACommunicationAction parentAction,
-			LinkedList<MCAChannelDefinition> channels) {
+	public MCIOCommDef(int counterId, MCACommunicationAction parentAction) {
 		super();
 		this.max = NewCMLModelcheckerContext.getInstance().maximalBinding;
 		this.counterId = counterId;
 		this.parentAction = parentAction;
-		this.channels = channels;
 	}
 
 
@@ -47,7 +44,7 @@ public class MCIOCommDef implements MCNode {
 		
 		result.append("  IOCommDef(" + this.counterId + ",");
 		//precisa ter um instantiateMCTypeFromCommParamsForIoCommDef para instanciar tipos com nomes modificados varOld 
-		result.append(evaluator.instantiateMCTypeFromCommParams(parentAction.getCommunicationParameters()).toFormula(option));
+		result.append(evaluator.instantiateMCTypeFromCommParamsForIOCommDef(parentAction.getCommunicationParameters(), "Old").toFormula(option));
 		result.append(",");
 		Binding maxOldCopy = max.copy();
 		replaceParamValues(maxOldCopy);
@@ -77,11 +74,13 @@ public class MCIOCommDef implements MCNode {
 		//result.append(max.toFormula(MCNode.NAMED));
 		result.append(maxOldCopy.toFormula(MCNode.NAMED));
 		result.append(",");
+		
 		result.append(this.parentAction.toFormula(MCNode.MINIMAL_GENERIC));
 		//result.append(this.parentAction.toFormula(MCNode.NAMED));
 		result.append(")");
 
 		if(parentAction.getCommunicationParameters().size() > 0){
+			
 			Iterator<MCPCommunicationParameter> parameters = parentAction.getCommunicationParameters().iterator();
 			while (parameters.hasNext()) {
 				result.append(", ");
@@ -89,9 +88,11 @@ public class MCIOCommDef implements MCNode {
 				String varName = communicationParam.toString();
 				result.append(varName);
 				result.append(" = ");
-				//String value = parentAction.buildIOCommActualParams(option);
-				String value = buildIOCommActualParam(communicationParam, option);
-				result.append(value);
+				//String value = buildIOCommActualParam(communicationParam, option);
+				//result.append(value);
+				result.append(varName);
+				
+				
 			}
 			
 		}
@@ -107,9 +108,14 @@ public class MCIOCommDef implements MCNode {
 		
 		StringBuilder result = new StringBuilder();
 		ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
-		MCPCMLType type = evaluator.getTypeFor(communicationParam);
-
-		result.append(type.toFormula(option));
+			
+		if(option.equals(MCNode.MINIMAL_GENERIC)){
+			MCPCMLType type = evaluator.getTypeForIOComm(communicationParam);
+			result.append(type.toFormula(option));
+		}else{
+			MCPCMLType type = evaluator.getTypeFor(communicationParam);
+			result.append(type.toFormula(option));
+		}
 		
 		return result.toString();
 	}
@@ -146,7 +152,7 @@ public class MCIOCommDef implements MCNode {
 	@Override
 	public String toString() {
 		return "MCIOCommDef [counterId=" + counterId + ", parentAction="
-				+ parentAction + ", channels=" + channels + "]";
+				+ parentAction + "]";
 	}
 
 
@@ -170,14 +176,6 @@ public class MCIOCommDef implements MCNode {
 	}
 
 
-	public LinkedList<MCAChannelDefinition> getChannels() {
-		return channels;
-	}
-
-
-	public void setChannels(LinkedList<MCAChannelDefinition> channels) {
-		this.channels = channels;
-	}
-
+	
 	
 }
