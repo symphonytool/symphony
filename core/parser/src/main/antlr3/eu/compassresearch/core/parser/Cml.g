@@ -1490,7 +1490,7 @@ actionbase returns[PAction action]
     : 'Skip'            { $action = new ASkipAction(); }
     | 'Stop'            { $action = new AStopAction(); }
     | 'Chaos'           { $action = new AChaosAction(); }
-    | 'Div'             { $action = new ADivAction(); }
+    | 'Diverge'             { $action = new ADivAction(); }
     | 'Wait' expression { $action = new AWaitAction(null, $expression.exp); }
     | ('return' expression)=>'return' expression
         {
