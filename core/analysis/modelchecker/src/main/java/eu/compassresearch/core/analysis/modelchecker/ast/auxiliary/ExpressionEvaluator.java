@@ -39,6 +39,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAIntNumericBasi
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANamedInvariantType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANatNumericBasicType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAProductType;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAQuoteType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCVoidType;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
@@ -90,7 +91,7 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 	private MCPCMLType getTypeForIOComm(MCAQuoteLiteralExp exp){
 		MCPCMLType result = null;
 		
-		result = new MCANamedInvariantType(exp.getValue());
+		result = new MCAQuoteType(exp.getValue());
 		
 		return result;
 	}
@@ -256,7 +257,7 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 			LinkedList<MCPCMLType> types = new LinkedList<MCPCMLType>();
 			for (MCPCommunicationParameter param : params) {
 				MCPCMLType type = instantiateMCTypeForIOCommDef(param, suffix);
-				addSuffixToVarName(type,suffix);
+				//addSuffixToVarName(type,suffix);
 				types.add(type);
 			}
 			result = new MCAProductType(types);
@@ -269,7 +270,7 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 	private void addSuffixToVarName(MCPCMLType type,String suffix){
 		if(type instanceof MCANamedInvariantType){
 			((MCANamedInvariantType) type).setName(((MCANamedInvariantType) type).getName() + suffix);
-		}
+		} 
 	}
 	
 	public MCPCMLType instantiateMCTypeFromDefs(LinkedList<MCALocalDefinition> defs){
@@ -420,7 +421,14 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 	private MCPCMLType getTypeForIOComm(MCAReadCommunicationParameter param){
 		MCPCMLType result = null;
 		
-		result = getTypeFor((MCAIdentifierPattern)param.getPattern());
+		result = getTypeForIOComm((MCAIdentifierPattern)param.getPattern());
+		
+		return result;
+	}
+	private MCPCMLType getTypeForIOComm(MCAWriteCommunicationParameter param){
+		MCPCMLType result = null;
+		
+		result = getTypeForIOComm(param.getExpression());
 		
 		return result;
 	}

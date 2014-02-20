@@ -51,7 +51,7 @@ public class MCIOCommDef implements MCNode {
 		//result.append(max.toFormula(MCNode.PARAM_RENAMED)); //with variable names
 		result.append(maxOldCopy.toFormula(MCNode.NAMED)); //with variable names
 		result.append(",");
-		Binding maxCopy = max.copy();
+		//Binding maxCopy = max.copy();
 		//we must update all communication variables in the binding with new valueNames so that the new values will come form the involved communication variables
 		if(parentAction.getCommunicationParameters().size() > 0){
 			//for (MCPCommunicationParameter var : parentAction.getCommunicationParameters()) {
@@ -63,9 +63,9 @@ public class MCIOCommDef implements MCNode {
 			
 			//result.append(maxCopy.toFormula(MCNode.GENERIC));
 			//for the moment communication variables are not put into the bindings until we resolve the link between inputs in formula
-			result.append(maxCopy.toFormula(MCNode.NAMED));
+			result.append(max.toFormula(MCNode.NAMED));
 		} else{
-			result.append(max.toFormula(MCNode.NAMED)); //with variable names
+			result.append(maxOldCopy.toFormula(MCNode.NAMED)); //with variable names
 		}
 		result.append(")");
 		

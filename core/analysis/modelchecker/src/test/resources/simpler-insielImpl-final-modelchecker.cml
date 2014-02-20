@@ -62,7 +62,85 @@ chansets
       interruptActivity_rv
     |}
  
+process ad_internal_Recovery_1 = val Fault_1_id_2: ID @ begin
+  state
+    nToken_1: nat := 0
+  actions
+    START_ACTIVITY_1 = startActivity_rv.Fault_1_id_2 -> Skip   --      atomic -> ()
+    END_DIAGRAM_1 = endDiagram.<rv> -> Skip
+    CNode_1_2 = (update.1!1 -> (control!1 -> Skip); wait -> Skip)
+      /_\ END_DIAGRAM_1
+    Start_Recovery_1_2 = (dcl end_guard_1_2: bool := true @
+      (
+      (control.1 -> Skip);
+      (acceptEvent.<Start_Recovery_1_S> -> Skip);
+      (control.2 -> Skip);Start_Recovery_1_2)
+      /_\ [end_guard_1_2] & END_DIAGRAM_1)
+    Log_fault_1_3 = (dcl end_guard_1_3: bool := true @
+      (
+      (control.2 -> Skip);
+      (operation.<Log_fault_1_I> -> inc -> end_guard_1_3 := false;
+      operation.<Log_fault_1_O> -> dec -> end_guard_1_3 := true);
+      (control.3 -> Skip);Log_fault_1_3)
+      /_\ [end_guard_1_3] & END_DIAGRAM_1)
+    Resend_rescue_info_to_ERU_4 = (dcl end_guard_2_4: bool := true @
+      (
+      (control.3 -> Skip);
+      (operation.<Resend_rescue_info_to_ERU_I> -> inc -> end_guard_2_4 := false;
+      operation.<Resend_rescue_info_to_ERU_O> -> dec -> end_guard_2_4 := true);
+      (control.4 -> Skip);Resend_rescue_info_to_ERU_4)
+      /_\ [end_guard_2_4] & END_DIAGRAM_1)
+    Process_message_5 = (dcl end_guard_2_5: bool := true @ 
+      (
+      (control.4 -> Skip);
+      (operation.<Process_message_I> -> inc -> end_guard_2_5 := false;
+      operation.<Process_message_O> -> dec -> end_guard_2_5 := true);
+      (control.5 -> Skip);Process_message_5)
+      /_\ [end_guard_2_5] & END_DIAGRAM_1)
+     Receive_message_MPS_6 = (dcl end_guard_2_6: bool := true @
+      (
+      (control.5 -> Skip);
+      (operation.<Receive_message_MPS_I> -> inc -> end_guard_2_6 := false;
+      operation.<Receive_message_MPS_O> -> dec -> end_guard_2_6 := true);
+      (control.6 -> Skip);Receive_message_MPS_6)
+      /_\ [end_guard_2_6] & END_DIAGRAM_1)
+    End_Recovery_1_7 = (dcl end_guard_1_7: bool := true @
+      (
+      (control.6 -> Skip);
+      (sendSignal.<End_Recovery_1_S> -> Skip);
+      (control.7 -> Skip);End_Recovery_1_7)
+      /_\ [end_guard_1_7] & END_DIAGRAM_1)
+    CNode_8 = (control.7 -> clear.8 -> wait -> Skip)
+      /_\ END_DIAGRAM_1
+    Nodes_2 =
+      ((((((CNode_1_2 [| {| endDiagram.<rv>, control.1 |} |] Start_Recovery_1_2)
+      [| {| endDiagram.<rv>, control.2 |} |] Log_fault_1_3)
+      [| {| endDiagram.<rv>, control.3 |} |] Resend_rescue_info_to_ERU_4)
+      [| {| endDiagram.<rv>, control.4 |} |] Process_message_5)
+      [| {| endDiagram.<rv>, control.5 |} |] Receive_message_MPS_6)
+      [| {| endDiagram.<rv>, control.6 |} |] End_Recovery_1_7)
+      [| {| control.7, endDiagram.<rv> |} |] CNode_8
+    TOKEN_MANAGER_2 = update?o?x -> STARTED_TOKEN_MANAGER_2(x)
+    STARTED_TOKEN_MANAGER_2 = val nTokens_2 : INT @ (
+    update?o2?x2 -> nTokens_2 := nTokens_2 + x2; STARTED_TOKEN_MANAGER_2(nTokens_2)
+    []
+    clear?o2 -> nTokens_2 := 0; endDiagram.<rv> -> Skip)
+    []
+    [nTokens_2 = 0] & endDiagram.<rv> -> Skip
+    INT_ACT_MANAGER_2 = STARTED_INT_ACT_MANAGER_2(0)
+    STARTED_INT_ACT_MANAGER_2 = val i_2: NAT @ (
+    inc -> i_2 := i_2 + 1; STARTED_INT_ACT_MANAGER_2(i_2)
+    []
+    dec -> i_2 := i_2 - 1; STARTED_INT_ACT_MANAGER_2(i_2)
+    []
+    [i_2 = 0] & interruptActivity_rv -> Skip)
+    MAIN_2 =  ((
+    (START_ACTIVITY_1; ((Nodes_2 [| {|update, clear, wait, endDiagram |} |] TOKEN_MANAGER_2));
+      endActivity_rv.Fault_1_id_2 -> Skip); MAIN_2) /_\ interruptActivity_rv -> MAIN_2) [| {| inc, dec, interruptActivity_rv|} |] INT_ACT_MANAGER_2 \\ Hidden_rv
+    @ MAIN_2
+end
 
+-- process ad_Recovery_1 = ad_internal_Recovery_1(<rv>)
 
 process SIGNAL_BUFFER =
 begin
