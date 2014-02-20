@@ -3,5 +3,5 @@ i a
 
 process A = 
 begin 
-	@ Div;a -> Skip /_\ i -> Skip
+	@ Diverge;a -> Skip /_\ i -> Skip
 end
