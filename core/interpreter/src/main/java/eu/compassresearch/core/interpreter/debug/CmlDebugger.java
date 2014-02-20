@@ -19,6 +19,8 @@ public interface CmlDebugger extends Remote
 			throws AnalysisException;
 
 	public void start(SelectionStrategy strategy);
+	
+	public void dicsonnect();
 
 	// public void stop();
 

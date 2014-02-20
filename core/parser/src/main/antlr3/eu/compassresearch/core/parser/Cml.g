@@ -1490,7 +1490,7 @@ actionbase returns[PAction action]
     : 'Skip'            { $action = new ASkipAction(); }
     | 'Stop'            { $action = new AStopAction(); }
     | 'Chaos'           { $action = new AChaosAction(); }
-    | 'Div'             { $action = new ADivAction(); }
+    | 'Diverge'             { $action = new ADivAction(); }
     | 'Wait' expression { $action = new AWaitAction(null, $expression.exp); }
     | ('return' expression)=>'return' expression
         {
@@ -2160,9 +2160,9 @@ functionDefinition returns[SFunctionDefinition def]
             if ($expl.tail != null) {
                 $def = $expl.tail;
                 if ( !$IDENTIFIER.getText().equals($def.getName().getName()) ) {
-                    System.out.println("Mismatch in function definition.  Signature has " + $IDENTIFIER.getText() + ", definition has " + $def.getName().getName());
-                    // FIXME --- here we need some sort of exception (probably RecognitionException) to note the mismatch
-
+                    //fixes bug 172
+			         String msg = "Mismatch in function definition.  Signature has " + $IDENTIFIER.getText() + ", definition has " + $def.getName().getName();
+			         errors.add(new CmlParserError(msg, new RecognitionException(), sourceFileName, $IDENTIFIER));
 
                 }
             } else {
@@ -2412,11 +2412,17 @@ qualOperationDef returns[SOperationDefinition def]
 operationDef returns[SOperationDefinition def]
 @after { $def.setLocation(extractLexLocation($start, $stop)); }
     : id=IDENTIFIER
-        ( ':' opType IDENTIFIER parameterGroup '==' operationBody ('pre' pre=expression)? ('post' post=expression)?
+        ( ':' opType secondId=IDENTIFIER parameterGroup '==' operationBody ('pre' pre=expression)? ('post' post=expression)?
             {
                 // FIXME --- check that the IDENTIFIERs match and
                 // throw a MismatchedTokenException (if that's the
                 // right exception)
+				if(!$id.getText().equals($secondId.getText()))
+				{
+					 //relates to bug 172
+			         String msg = "Mismatch in operation definition.  Signature has " + $id.getText() + ", definition has " + $secondId.getText();
+			         errors.add(new CmlParserError(msg, new RecognitionException(), sourceFileName, $secondId));
+				}
 
                 AActionStm bodyWrapper = new AActionStm();
 				bodyWrapper.setAction($operationBody.body);

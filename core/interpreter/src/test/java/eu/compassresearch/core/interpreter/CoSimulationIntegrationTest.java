@@ -111,6 +111,34 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 		Assert.assertTrue("Simulators did not finish successfully", isFinished());
 
 	}
+	
+	@Test
+	public void testSkip() throws Exception
+	{
+		String source = "src/test/resources/cosim/skip.cml";
+		Process coordinator = setUpCoordinator(source, "P", "A");
+		setUpClient(source, "A");
+
+		waitForCompletion(coordinator, DEFAULT_TIMEOUT);
+
+		Assert.assertFalse("Simulators did not finish successfully", isFinished());
+
+	}
+	
+	@Test
+	public void testSkipDual() throws Exception
+	{
+		String source = "src/test/resources/cosim/skip.cml";
+		Process coordinator = setUpCoordinator(source, "P", "A,B");
+		setUpClient(source, "A");
+		setUpClient(source, "B");
+
+		waitForCompletion(coordinator, DEFAULT_TIMEOUT);
+
+		Assert.assertFalse("Simulators did not finish successfully", isFinished());
+
+	}
+	
 
 	@Test
 	public void testMainTwoClients() throws Exception
