@@ -3,6 +3,6 @@
 process A =
 begin
 
-@ Div
+@ Diverge
 
 end

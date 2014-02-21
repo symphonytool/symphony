@@ -30,10 +30,22 @@ public class MCActionCall extends MCGenericCall {
 
 		//we must get first the process definition in the context
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
-		MCAActionDefinition actionDef = context.getActionByName(this.name);
-
+		
 		//the parameter list
-		LinkedList<MCPParametrisation> parameters = actionDef.getDeclarations();
+		LinkedList<MCPParametrisation> parameters = null;
+		
+		MCAActionDefinition actionDef = context.getActionByName(this.name);
+		//Action calls can also refer to process calls
+		if(actionDef != null){
+			parameters = actionDef.getDeclarations();
+		} else {
+			MCAProcessDefinition procDef = context.getProcessByName(this.name);
+			if(procDef != null){
+				parameters = procDef.getLocalState();
+			}
+		}
+		
+		
 		
 		if(parameters.size() == 0){
 			result.append("proc(\"" + this.name + "\"");

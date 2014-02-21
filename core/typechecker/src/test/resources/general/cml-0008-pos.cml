@@ -1,0 +1,30 @@
+
+
+
+
+channels
+a
+
+
+class A = 
+begin 
+
+types
+  
+ 
+  DwarfType :: a:int
+  
+     
+  DwarfSignal = DwarfType
+ 
+	state
+		sg : DwarfSignal
+	
+	operations
+		Init : () ==> ()
+  		Init() ==   sg := mk_DwarfType(1)-- no constructor exists for DwarfSignal
+		 
+		 
+		
+//@ Init(); a -> Skip
+end

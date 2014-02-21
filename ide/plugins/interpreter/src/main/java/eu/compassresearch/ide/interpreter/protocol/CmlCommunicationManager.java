@@ -40,6 +40,8 @@ import eu.compassresearch.ide.interpreter.model.CmlThread;
 
 public class CmlCommunicationManager extends Thread
 {
+	final MessageContainer DEFAULT_MESSAGE = new MessageContainer(new CmlDbgStatusMessage(CmlInterpreterState.TERMINATED_BY_USER));
+
 	private Map<String, MessageEventHandler<RequestMessage>> requestHandlers;
 	private Map<String, MessageEventHandler<CmlDbgStatusMessage>> statusHandlers;
 	private Map<UUID, ResponseMessage> responses;
@@ -135,7 +137,8 @@ public class CmlCommunicationManager extends Thread
 	 */
 	public MessageContainer receiveMessage() throws IOException
 	{
-		return MessageCommunicator.receiveMessage(fRequestReader, new MessageContainer(new CmlDbgStatusMessage(CmlInterpreterState.TERMINATED_BY_USER)));
+
+		return MessageCommunicator.receiveMessage(fRequestReader, DEFAULT_MESSAGE);
 	}
 
 	/**
@@ -160,28 +163,6 @@ public class CmlCommunicationManager extends Thread
 		return result;
 	}
 
-	// private <H extends Message> boolean dispatchMessageHandler(final
-	// Map<String, MessageEventHandler<H>> handlers,final H message)
-	// {
-	// boolean result = false;
-	//
-	// if (handlers.containsKey(message.getKey()))
-	// {
-	// result =true;
-	// new Thread(new Runnable()
-	// {
-	//
-	// @Override
-	// public void run()
-	// {
-	// handlers.get(message.getKey()).handleMessage(message);
-	// }
-	// }).start();
-	//
-	// }
-	//
-	// return result;
-	// }
 
 	/**
 	 * Dispatches the message from messageContainer to the assigned handler of this message type
@@ -193,23 +174,26 @@ public class CmlCommunicationManager extends Thread
 	{
 		boolean result = false;
 
-		switch (messageContainer.getType())
+		if (messageContainer != DEFAULT_MESSAGE)
 		{
-			case STATUS:
-				return dispatchMessageHandler(statusHandlers, (CmlDbgStatusMessage) messageContainer.getMessage());
-			case REQUEST:
-				return dispatchMessageHandler(requestHandlers, (RequestMessage) messageContainer.getMessage());
-			case RESPONSE:
-				synchronized (incommingResponseSignal)
-				{
-					ResponseMessage rm = (ResponseMessage) messageContainer.getMessage();
-					responses.put(rm.getRequestId(), rm);
-					incommingResponseSignal.notifyAll();
-				}
-				return true;
-			default:
-				System.err.println("Unkown message");
-				break;
+			switch (messageContainer.getType())
+			{
+				case STATUS:
+					return dispatchMessageHandler(statusHandlers, (CmlDbgStatusMessage) messageContainer.getMessage());
+				case REQUEST:
+					return dispatchMessageHandler(requestHandlers, (RequestMessage) messageContainer.getMessage());
+				case RESPONSE:
+					synchronized (incommingResponseSignal)
+					{
+						ResponseMessage rm = (ResponseMessage) messageContainer.getMessage();
+						responses.put(rm.getRequestId(), rm);
+						incommingResponseSignal.notifyAll();
+					}
+					return true;
+				default:
+					System.err.println("Unkown message");
+					break;
+			}
 		}
 
 		return result;

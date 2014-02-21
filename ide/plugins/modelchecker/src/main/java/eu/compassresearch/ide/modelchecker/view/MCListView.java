@@ -84,10 +84,11 @@ public class MCListView extends ViewPart {
 							
 							//save the graphviz code to a file
 							IContainer mcFolder = data.get(viewer.getTable().getSelectionIndex()).getFormulaResult().getMcFolder();
-							ICmlSourceUnit selectedUnit = data.get(viewer.getTable().getSelectionIndex()).getFormulaResult().getSelectedUnit();
+							//ICmlSourceUnit selectedUnit = data.get(viewer.getTable().getSelectionIndex()).getFormulaResult().getSelectedUnit();
 							//IFile dotFile = writeDotContentToFile(mcFolder,selectedUnit,dotContent);
-							String name = selectedUnit.getFile().getName();
-							String dotFileName = name.substring(0,name.length()-selectedUnit.getFile().getFileExtension().length()-1)+ "-" + propertyToCheck + ".gv";
+							IFile factsFile = data.get(viewer.getTable().getSelectionIndex()).getFormulaResult().getFactsFile();
+							String name = factsFile.getName();
+							String dotFileName = name.substring(0,name.length()-factsFile.getFileExtension().length()-1)+ "-" + propertyToCheck + ".gv";
 							IFile dotFile = ((IFolder)mcFolder).getFile(dotFileName);
 							
 							try{

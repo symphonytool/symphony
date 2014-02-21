@@ -27,7 +27,7 @@ public class CmlKeywords implements IVdmKeywords
 			"#req", "#waiting", "abs", "all", "always", "and", "async",
 			"atomic",
 			/* "be", */"bool", "by", "card", "cases", "char", "class", "comp",
-			"compose", "conc", "dcl", "def", "dinter", "div", "do", "dom",
+			"compose", "conc", "dcl", "def", "dinter", "Diverge","div", "do", "dom",
 			"dunion", "elems", "else", "elseif", /* "error", */"errs", "exists",
 			"exists1","extends", "exit", /* "ext", */"false", "floor", "for", "forall",
 			"from", "functions", "hd", "if", "in", "inds", "inmap", "instance",

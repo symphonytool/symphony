@@ -53,7 +53,7 @@ begin
 	
 	operations
 		Init : () ==> ()
-  		Init() ==   sg := mk_DwarfSignal(dark, 
+  		Init() ==   sg := mk_DwarfType(dark, -- no constructor exists for DwarfSignal
 				         	  {}, 
 				    	      stop, 
 				    	      dark, 

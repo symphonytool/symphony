@@ -105,7 +105,7 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 			}
 
 			// Execute in a new JVM process
-			CmlDebugTarget target = new CmlDebugTarget(launch, launchExternalProcess(launch, configuration, JSONObject.toJSONString(configurationMap), "CML Debugger"), project, port);
+			CmlDebugTarget target = new CmlDebugTarget(launch, launchExternalProcess(launch, configuration, JSONObject.toJSONString(configurationMap), "CML Debugger"), project, port, shouldAutoTerminate());
 			launch.addDebugTarget(target);
 
 		} catch (CoreException e)
@@ -122,6 +122,11 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 			monitor.done();
 		}
 
+	}
+
+	protected boolean shouldAutoTerminate()
+	{
+		return true;
 	}
 
 	protected Map<String, Object> createDebuggerArgumentMap(

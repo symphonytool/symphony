@@ -15,7 +15,6 @@ import org.overture.ide.builders.vdmj.IBuilderVdmjConstants;
 import org.overture.ide.core.IVdmModel;
 import org.overture.ide.core.builder.AbstractVdmBuilder;
 import org.overture.ide.core.utility.FileUtility;
-import org.overture.parser.messages.VDMError;
 import org.overture.parser.messages.VDMWarning;
 import org.overture.typechecker.TypeCheckException;
 
@@ -39,7 +38,7 @@ public class BuilderCml extends AbstractVdmBuilder
 	@Override
 	public IStatus buildModel(IVdmModel rooList)
 	{
-		List<VDMError> errors = new ArrayList<VDMError>();
+		// List<VDMError> errors = new ArrayList<VDMError>();
 		List<VDMWarning> warnings = new ArrayList<VDMWarning>();
 
 		ICmlModel model = (ICmlModel) rooList.getAdapter(ICmlModel.class);
@@ -52,32 +51,36 @@ public class BuilderCml extends AbstractVdmBuilder
 			CmlTypeCheckerAssistantFactory.init(new CmlTypeCheckerAssistantFactory());
 			typeChecker.typeCheck();
 
-			List<CMLTypeError> errorsThatMatter = issueHandler.getTypeErrors();
-			for (final CMLTypeError error : errorsThatMatter)
-			{
-				addErrorMarker(error);
-			}
-
-			// set warning markers
-			for (CMLTypeWarning warning : issueHandler.getTypeWarnings())
-			{
-				warnings.add(new VDMWarning(0, warning.getMessage(), warning.getLocation()));
-			}
 		} catch (TypeCheckException e)
 		{
-			issueHandler.addTypeError(e.node, e.location, e.getMessage());
+			// it is the type checkers responsibility to report all errors, this is just to indicate that it stopped
+			// without completion
 		} catch (Exception e)
 		{
 			e.printStackTrace();
 			return new Status(IStatus.ERROR, IBuilderVdmjConstants.PLUGIN_ID, 0, "not typechecked, internal error", e);
 		}
 
-		return setMarkers(errors, warnings);
+		List<CMLTypeError> errorsThatMatter = issueHandler.getTypeErrors();
+
+		// set warning markers
+		for (CMLTypeWarning warning : issueHandler.getTypeWarnings())
+		{
+			warnings.add(new VDMWarning(0, warning.getMessage(), warning.getLocation()));
+		}
+
+		return setMarkers(errorsThatMatter, warnings);
 	}
 
-	private IStatus setMarkers(List<VDMError> errors, List<VDMWarning> warnings)
+	private IStatus setMarkers(List<CMLTypeError> errors,
+			List<VDMWarning> warnings)
 	{
 		boolean typeCheckFailed = !errors.isEmpty();
+
+		for (CMLTypeError error : errors)
+		{
+			addErrorMarker(error);
+		}
 
 		if (!getProject().hasSuppressWarnings())
 		{
@@ -106,25 +109,21 @@ public class BuilderCml extends AbstractVdmBuilder
 		addErrorMarker(error.getLocation().getFile(), error.getMessage(), error.getLocation(), IBuilderVdmjConstants.PLUGIN_ID);
 	}
 
-
 	private void addWarningMarker(VDMWarning error)
 	{
 		addWarningMarker(error.location.getFile(), error.toProblemString(), error.location, IBuilderVdmjConstants.PLUGIN_ID);
 	}
-	
-	
-	
-	
-	protected void addWarningMarker(File file, String message, ILexLocation location,
-			String sourceId)
+
+	protected void addWarningMarker(File file, String message,
+			ILexLocation location, String sourceId)
 	{
-		FileUtility.addMarker(getProject().findIFile( file),message,location,IMarker.SEVERITY_WARNING,sourceId);
+		FileUtility.addMarker(getProject().findIFile(file), message, location, IMarker.SEVERITY_WARNING, sourceId);
 	}
-	
-	protected void addErrorMarker(File file, String message, ILexLocation location,
-			String sourceId)
+
+	protected void addErrorMarker(File file, String message,
+			ILexLocation location, String sourceId)
 	{
-		FileUtility.addMarker(getProject().findIFile(file), message, location, IMarker.SEVERITY_ERROR,sourceId);
+		FileUtility.addMarker(getProject().findIFile(file), message, location, IMarker.SEVERITY_ERROR, sourceId);
 	}
 
 }
