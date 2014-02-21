@@ -33,6 +33,7 @@ Import-Package: eu.compassresearch.ast.actions,
  org.eclipse.ui.handlers,
  org.eclipse.ui.part,
  org.eclipse.ui.plugin,
+ org.eclipse.ui.services,
  org.osgi.framework,
  org.overture.ast.analysis,
  org.overture.ast.analysis.intf,
@@ -57,12 +58,13 @@ Import-Package: eu.compassresearch.ast.actions,
  org.overture.pog.utility,
  org.overture.pog.visitors,
  org.overture.typechecker,
+ org.overture.typechecker.assistant,
  org.overture.typechecker.assistant.definition,
- org.overture.typechecker.assistant.type,
- org.overture.typechecker.assistant
+ org.overture.typechecker.assistant.type
 Export-Package: eu.compassresearch.core.analysis.pog.obligations,
- eu.compassresearch.core.analysis.pog.utility, 
+ eu.compassresearch.core.analysis.pog.utility,
  eu.compassresearch.ide.pog,
+ eu.compassresearch.ide.pog.commands,
  eu.compassresearch.ide.pog.view
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Eclipse-BuddyPolicy: registered

@@ -31,7 +31,8 @@ public class GeneratePosHandler extends AbstractHandler {
 		
 		PogPluginRunner doer = new PogPluginRunner(window, HandlerUtil.getActiveWorkbenchWindow(event).getActivePage().getActivePart().getSite(), cmlProj);
 		doer.runPog();
-
+		
+		PogPluginUtils.disableAllPosIcon(event);
 
 		return null;
 	}
