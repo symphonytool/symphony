@@ -1,0 +1,374 @@
+-- CML model of Leader Election derived from CSP version 2.2
+-- Jeremy Bryans
+-- 30-09-2013
+
+types
+
+  IO = <inn>|<out>
+  CLAIM = <leader> | <follower> | <undecided> | <off> | <minusone> -- minus one added to the type just for bus 
+                                                                   -- to signal "no data"
+  NODES_IDS = nat
+    inv n == n in set {0,...,N}
+  DIST = nat
+    inv d == d in set {0,...,UPPER_LIMIT_PET}
+  
+  -- new type needed, bacause channels must be types
+  
+  N_RANGE = nat
+    inv n == n in set {0,...,NODES}
+ 
+values
+  
+  NODES : nat = 4      -- number of nodes
+  N : nat = NODES-1    -- useful abbreviation
+  LOWER_LIMIT_PET : nat = 0
+  UPPER_LIMIT_PET : nat = 1
+    
+channels
+
+  cp_pack : IO * NODES_IDS * NODES_IDS * CLAIM * DIST
+  cp_pack_bus : IO * NODES_IDS * NODES_IDS * CLAIM * DIST
+  heartbeat : IO * NODES_IDS * NODES_IDS
+  commTimeout : IO * NODES_IDS * NODES_IDS
+  offTarget : IO * NODES_IDS * NODES_IDS
+  
+  
+  setPack : NODES_IDS * NODES_IDS * CLAIM * DIST
+  setCellPack, getCellPack :  NODES_IDS * NODES_IDS * CLAIM * DIST
+  nleaders : NODES_IDS * N_RANGE
+  hpetition : NODES_IDS * DIST
+  hpetitionid : NODES_IDS * NODES_IDS
+  
+  process Ram =   
+  begin
+    
+  functions
+  
+  getNewHighestPetition: DIST * DIST -> DIST
+  getNewHighestPetition(hp,vnp) == 
+    (
+    if hp < vnp then vnp
+    else hp
+    )
+    
+  getNewHighestPetitionId: DIST * DIST * NODES_IDS * NODES_IDS -> NODES_IDS
+  getNewHighestPetitionId(hp,vnp,id,hpid) ==
+   (
+    if hp < vnp then id 
+    else hpid
+   )
+     
+  getNewLeaders: CLAIM * NODES_IDS * CLAIM -> nat
+  getNewLeaders(voc,l,vnc) ==
+  (
+   if voc <> <leader> and vnc = <leader> then l+1
+   else l  
+  )
+  
+  setdiff: NODES_IDS -> set of NODES_IDS
+  setdiff(id) == 
+   (
+    {n | n : NODES_IDS @ n<>id}
+   )
+   
+  actions
+       -- have idN as separate parameter
+       -- chSet = setCellPack.idN
+       -- chGet = getCellPack.idN
+       -- idd - id destination node?
+       -- c is initially off
+       -- not sure what 0 is
+       --  vald is off.0
+       
+   -- let within is not a CML expression
+   -- The definition for Cell is not needed
+   CellPack = idN : NODES_IDS, idd : NODES_IDS, c : CLAIM, d : DIST @
+        (
+         setCellPack.idN.idd?valc?vald -> CellPack(idN,idd,valc,vald) -- receive two new values on valc and vald : these equate to val in CSP model
+         []
+         getCellPack.idN.idd!c!d -> CellPack(idN,idd,c,d) -- output the two  values c and d: these equate to val in CSP model
+        ) 
+               
+    -- cells_ids contains NODES_IDS \ {idN}
+    
+    StatePack = idN : NODES_IDS, cells_ids : set of NODES_IDS @   
+      ||| id : NODES_IDS @ [{}] CellPack(idN,id,<off>,0)  -- empty nameset; because empty state!
+ -- not allowed to parameterise ||| with a set; it has to be a type. a fix here is to use NODES_IDS
+ --     ||| id :cells_ids @ [{}] CellPack(idN,id,<off>,0) 
+       
+    ControllerPack = idN : NODES_IDS, cells_ids : (set of NODES_IDS), highest_petition : DIST, highest_petition_id : NODES_IDS, leaders : N_RANGE @ 
+       [leaders < NODES and leaders >= 0] &
+         (
+         setPack.idN?id?valNewClaim?valNewPet ->
+          getCellPack.idN.id?valOldClaim?valOldPet ->
+           setCellPack.idN.id.valNewClaim.valNewPet ->
+            (dcl newHighestPetition : DIST       := getNewHighestPetition(highest_petition,valNewPet), 
+                newHighestPetitionId : NODES_IDS := getNewHighestPetitionId(highest_petition,valNewPet,id,highest_petition_id),
+                newLeaders : nat                 := getNewLeaders(valOldClaim,leaders,valNewClaim) @ 
+                   ControllerPack(idN,cells_ids,newHighestPetition,newHighestPetitionId,newLeaders)
+             )
+         )
+      []
+      [leaders < NODES and leaders >= 0] & nleaders.idN!leaders -> 
+        	ControllerPack(idN,cells_ids,highest_petition,highest_petition_id,leaders)
+      []
+      [leaders < NODES and leaders >= 0] & hpetition.idN!highest_petition -> 
+            ControllerPack(idN,cells_ids,highest_petition,highest_petition_id,leaders)
+      []
+      [leaders < NODES and leaders >= 0] & hpetitionid.idN!highest_petition_id -> 
+            ControllerPack(idN,cells_ids,highest_petition,highest_petition_id,leaders)    
+                
+ -- The overall Claims memory
+                  
+    MemePack = id: NODES_IDS,cells_ids : set of NODES_IDS @ 
+     (ControllerPack(id,cells_ids, 0, 0, 0) [|{|getCellPack, setCellPack|}|]
+      StatePack(id,cells_ids)
+     ) \\ {|getCellPack, setCellPack|} 
+       
+      
+    RAM = id : NODES_IDS @
+          (
+           dcl diff : set of NODES_IDS := setdiff(id) @ MemePack(id,diff)
+          )
+          
+    @ 
+      ||| i : NODES_IDS @ [{}] (RAM(i)) -- initialise all RAM(i) -- no synchronisation between each other. 
+                                        -- do we need an init channel here?
+end
+       
+  
+types
+  
+  STtype :: sour : NODES_IDS
+            dest : NODES_IDS
+    inv st == st.sour <> st.dest
+    
+  
+process Bus =
+  
+  begin -- no state
+  
+  actions
+  
+    BusCellOn = idSource: NODES_IDS , idTarget: NODES_IDS , c:CLAIM , d:DIST @ 
+                                                            -- don't need to pass parameters chIn and chOut
+                                                            -- because they do not vary.
+                                                            -- cp_pack_bus.<in>  = chIn
+                                                            -- cp_pack_bus.<out> = chOut           
+                cp_pack_bus.<inn>.idSource.idTarget.c.d -> BusCellOn(idSource,idTarget,c,d)
+                []
+                [c <> <minusone>] & cp_pack_bus.<out>.idSource.idTarget!c!d -> BusCellOn(idSource,idTarget,c,d)
+                []
+                heartbeat.<inn>.idSource.idTarget -> BusCellOn(idSource,idTarget,c,d)
+                []
+                offTarget.<inn>.idSource.idTarget -> BusCellIdle(idSource,idTarget,c,d)
+    
+    BusCellIdle = idSource: NODES_IDS , idTarget: NODES_IDS , c:CLAIM , d:DIST @ 
+                  commTimeout.<out>.idSource.idTarget -> BusCellIdle(idSource,idTarget,c,d) -- ignore timeouts if off
+                  []
+                  heartbeat.<inn>.idSource.idTarget -> BusCellOn(idSource,idTarget,<minusone>,d) -- turn on with c = <minusone>
+                  []
+                  offTarget.<inn>.idSource.idTarget -> BusCellIdle(idSource,idTarget,c,d) -- ignore off messages if off  
+                  []
+                  cp_pack_bus.<inn>.idSource.idTarget?c?d -> BusCellIdle(idSource,idTarget,c,d)   -- ignore input if idle       
+   
+    -- Parameterised BUS
+        
+--    Bus =  ||| s:NODES_IDS,t:NODES_IDS  @ [{}] BusCellIdle((s),(t),<minusone>,0)
+    
+  BusProc =  ||| s:NODES_IDS,t:NODES_IDS  @ [{}] BusCellIdle((s),(t),<minusone>,0)
+    
+    DBus = ||| st:STtype @ [{}] BusCellIdle((st.sour),(st.dest),<minusone>,0)    -- what claim and distribution should this be initialised with?
+    
+   @
+     DBus                                   
+end
+
+values 
+ 
+ SEQ_NEIGHBOURS : seq of NODES_IDS = [i| i in set {0,...,N}]
+
+channels 
+  switchOn  : NODES_IDS
+  switchOff : NODES_IDS
+
+process Nodes =  -- i : NODES_IDS @
+ 
+begin
+ 
+  functions
+  
+  -- returning NODES_IDS would be better, from meAndAbove
+   
+   meAndAbove: NODES_IDS -> seq of nat
+   meAndAbove(id) == [i|i in set {id,...,N}]
+    
+  getNewHighestPetition: DIST * DIST -> DIST
+  getNewHighestPetition(hp,vnp) == 
+    (
+    if hp < vnp then vnp
+    else hp
+    )
+
+  getMinPetition: DIST * DIST -> DIST
+  getMinPetition(ulp,p) == 
+   (
+    if ulp<p then ulp
+    else p
+   )
+   
+-- get the next node id from SEQ_NEIGHBOURS
+  next: NODES_IDS -> NODES_IDS 
+  next(s) == SEQ_NEIGHBOURS((s+1) mod NODES)
+    
+  actions
+   -- BraodCastControl split into BCOffTarget and BCHeartbeat
+
+  OffNode = id : DIST, prior: DIST @ 
+     (BroadCastControlOffTarget(id); 
+       (switchOn!id -> 
+          (
+           dcl mx : DIST @ mx := getNewHighestPetition(LOWER_LIMIT_PET,prior-1);OnNode(id,mx)
+          )
+       )   
+     )
+  
+  OnNode = id : DIST, prior: DIST @
+    (Init(id,prior) /_\ (switchOff!id -> OffNode(id,prior)))
+
+
+   -- don't know if I can use hd and tl like this
+   -- may have to use dcl local variable
+   
+   BroadCastControlOffTarget = id : DIST @ BroadCastControlOffTargetAux(id,SEQ_NEIGHBOURS)
+  
+   BroadCastControlOffTargetAux = id : DIST, s : seq of NODES_IDS @
+   if (s = []) then Skip
+   elseif (id = hd(s)) then -- don't broadcast to myself
+      BroadCastControlOffTargetAux(id,tl(s))
+   else (offTarget.<out>.(hd(s)).id ->  BroadCastControlOffTargetAux(id,tl(s)))   
+        
+        
+   BroadCastControlHeartbeat = id : DIST @ BroadCastControlHeartbeatAux(id,SEQ_NEIGHBOURS)
+   
+   BroadCastControlHeartbeatAux = id : DIST, s : seq of NODES_IDS @
+   if (s = []) then Skip
+   elseif (id = hd(s)) then -- don't broadcast to myself
+      BroadCastControlHeartbeatAux(id,tl(s))
+   else (heartbeat.<out>.(hd(s)).id ->  BroadCastControlHeartbeatAux(id,tl(s)))        
+    
+--------------------------
+-- Initialization
+--------------------------
+-- Once a process join the network, it randomly chooses a petition and moves on
+-- Here, it chooses 0
+
+   Init = id : DIST, prior : DIST @ (BroadCastControlHeartbeat(id);Node(id,meAndAbove(id),<undecided>,0))
+   
+------------------------------------------------
+-- Node Initial Behaviour After Initialisation
+------------------------------------------------
+  Node = id : DIST, s : seq of NODES_IDS, c :CLAIM, p : DIST @  
+    if (s = []) then Node(id,SEQ_NEIGHBOURS,c,p) 
+    elseif (hd(s)=id) then (BroadCastData(id,s,c,p);Node(id,tl(s),c,p)) -- my turn to broadcast
+    else (
+          cp_pack.<inn>.(hd(s)).id?valC?valP -> -- receive values for the claim and petition from hd(s)
+           setPack.id.(hd(s))!valC!valP ->      -- send received values to RAM
+            Choice(id,s,c,p)                    -- make choice with my claim nad petition (c and p)
+         )
+         []
+         (commTimeout.<inn>.id.(hd(s)) ->
+           setPack.id.(hd(s))!<off>!0 ->
+            Choice(id,s,c,p)
+         )      
+ 
+------------------------------------------------
+-- Broadcast
+------------------------------------------------
+-- Broadcast can either communicate, or if a timeout is reached 
+-- it can only pass and try to send a message to the next peer.
+
+  BroadCastData = id : DIST, s : seq of NODES_IDS, c:CLAIM, p:DIST @
+    if (s = []) then Skip
+    elseif (hd(s)=id) then BroadCastData(id,tl(s),c,p)
+    else cp_pack.<out>.id.(hd(s))!c!p -> BroadCastData(id,tl(s),c,p)
+    
+------------------------------------------------
+-- Choice
+------------------------------------------------
+-- Choice and Undecided both have a new argument called timeout, 
+-- this argument is set to true if an election timeout occurs.
+
+  Choice = id : DIST, s : seq of NODES_IDS, c : CLAIM, p : DIST @
+    if (c=<undecided>) then Undecided(id,s,p)
+    elseif (c=<leader>) then Leader(id,s,p)
+    elseif (c=<follower>) then Follower(id,tl(s),p)
+    else Stop
+    
+------------------------------------------------
+-- Follower
+------------------------------------------------
+
+  Follower = id : DIST, s :seq of NODES_IDS, p:DIST @
+    nleaders.id?valLeaders ->
+      if (valLeaders = 0) then Node(id,s,<undecided>,p)
+      else Node(id,s,<follower>,p)
+              
+------------------------------------------------
+-- Leader
+------------------------------------------------
+
+  Leader = id : DIST, s : seq of NODES_IDS, p:DIST @
+     nleaders.id?valLeaders ->
+      if (valLeaders > 0) then Node(id,s,<undecided>,p)
+      else (
+            if (id=next(hd(s))) then 
+               (
+                dcl mn : DIST @ mn := getMinPetition(UPPER_LIMIT_PET,p+1);Node(id,tl(s),<leader>,mn)
+               )
+            else Node(id,s,<leader>,p) 
+           )
+           
+------------------------------------------------
+-- Undecided
+------------------------------------------------
+
+  Undecided = id : DIST, s : seq of NODES_IDS,p:DIST @
+    nleaders.id?valLeaders ->
+	  hpetition.id?highest ->
+		hpetitionid.id?highestid ->
+        (
+          dcl c:CLAIM @ 
+            (
+              if valLeaders>0 then c:= <follower>
+              else if id=next(hd(s)) then   
+                     (
+                      if (((highest=p) and (highestid<id)) or (highest<p)) 
+                      then c:= <leader>
+                      else c:= <follower>
+                     )
+                   else c:= <undecided>  
+             );Node(id,tl(s),c,p)
+        )
+   
+   -- All the nodes and nothing else
+                                                                                                                                                                                                                                                                      
+ @ ||| id : NODES_IDS @ [{}] OffNode(id,LOWER_LIMIT_PET)
+   
+end
+
+-- the final model is nodes and bus and ram
+process NodesAndRam = (Nodes [|{|nleaders,hpetition,hpetitionid,setPack|}|]Ram) \\ {|nleaders,hpetition,hpetitionid,setPack|}
+
+process NodesAndRamAndBus = NodesAndRam [|{|cp_pack_bus|}|] Bus
+
+
+
+
+
+
+
+
+
+
+             
