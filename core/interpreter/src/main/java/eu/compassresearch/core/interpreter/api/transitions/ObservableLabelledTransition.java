@@ -96,6 +96,16 @@ public class ObservableLabelledTransition extends AbstractLabelledTransition
 		LabelledTransition otherChannelEvent = (LabelledTransition) other;
 		return channelName.isComparable(otherChannelEvent.getChannelName());
 	}
+	
+	@Override
+	public boolean isSynchronizableWith(ObservableTransition other)
+	{
+		LabelledTransition otherLT = (LabelledTransition)other;
+	
+		return isComparable(other) && 
+				(this.getChannelName().isGTEQPrecise(otherLT.getChannelName())
+				|| otherLT.getChannelName().isGTEQPrecise(this.getChannelName()));
+	}
 
 	@Override
 	public ObservableTransition synchronizeWith(ObservableTransition syncEvent)

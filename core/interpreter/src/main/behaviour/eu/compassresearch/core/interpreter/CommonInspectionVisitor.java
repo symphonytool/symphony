@@ -216,17 +216,10 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 			{
 				for (ObservableTransition rightTrans : rightSync.getTransitionsOfType(ObservableTransition.class))
 				{
-					if (leftTrans.isComparable(rightTrans))
+
+					if (leftTrans.isSynchronizableWith(rightTrans))
 					{
-
-						LabelledTransition leftChannelEvent = (LabelledTransition) leftTrans;
-						LabelledTransition rightChannelEvent = (LabelledTransition) rightTrans;
-
-						if (leftChannelEvent.getChannelName().isGTEQPrecise(rightChannelEvent.getChannelName())
-								|| rightChannelEvent.getChannelName().isGTEQPrecise(leftChannelEvent.getChannelName()))
-						{
-							syncEvents.add(leftTrans.synchronizeWith(rightTrans));
-						}
+						syncEvents.add(leftTrans.synchronizeWith(rightTrans));
 					}
 				}
 			}
@@ -481,20 +474,12 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		{
 			for (ObservableTransition rightTrans : rightSync.getTransitionsOfType(ObservableTransition.class))
 			{
-				if (leftTrans.isComparable(rightTrans))
+				if(leftTrans.isSynchronizableWith(rightTrans))
 				{
-
-					LabelledTransition leftChannelEvent = (LabelledTransition) leftTrans;
-					LabelledTransition rightChannelEvent = (LabelledTransition) rightTrans;
-
-					if (leftChannelEvent.getChannelName().isGTEQPrecise(rightChannelEvent.getChannelName())
-							|| rightChannelEvent.getChannelName().isGTEQPrecise(leftChannelEvent.getChannelName()))
+					ObservableTransition result = leftTrans.synchronizeWith(rightTrans);
+					if (result != null)
 					{
-						ObservableTransition result = leftTrans.synchronizeWith(rightTrans);
-						if (result != null)
-						{
-							syncEvents.add(result);
-						}
+						syncEvents.add(result);
 					}
 				}
 			}

@@ -262,6 +262,14 @@ public class TestMessageCommunicator
 						// TODO Auto-generated method stub
 						return 0;
 					}
+
+					@Override
+					public boolean isSynchronizableWith(
+							ObservableTransition other)
+					{
+						// TODO Auto-generated method stub
+						return false;
+					}
 				});
 
 				return trace;
