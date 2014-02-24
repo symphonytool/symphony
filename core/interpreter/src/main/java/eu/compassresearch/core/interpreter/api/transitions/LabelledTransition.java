@@ -4,7 +4,7 @@ import java.util.List;
 
 import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
 
-public interface LabelledTransition extends CmlTransition
+public interface LabelledTransition extends ObservableTransition
 {
 
 	/**

@@ -5,6 +5,8 @@ import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import javax.management.RuntimeErrorException;
+
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.core.interpreter.api.values.ChannelNameSetValue;
@@ -15,7 +17,7 @@ import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
  * 
  * @author akm
  */
-public class CmlTransitionSet extends Value
+public class CmlTransitionSet extends Value implements Iterable<CmlTransition>
 {
 
 	/**
@@ -23,120 +25,115 @@ public class CmlTransitionSet extends Value
 	 */
 	private static final long serialVersionUID = 5192258370825756900L;
 
-	// This contains the observable events
-	private final SortedSet<ObservableTransition> _observableEvents;
-	// This contains all the special events like tau
-	private final SortedSet<AbstractSilentTransition> silentEvents;
+	private final SortedSet<CmlTransition> transitions;
 
 	public CmlTransitionSet()
 	{
-		this.silentEvents = new TreeSet<AbstractSilentTransition>();
-		this._observableEvents = new TreeSet<ObservableTransition>();
+		transitions = new TreeSet<CmlTransition>();
 	}
 
-	public CmlTransitionSet(ObservableTransition obsEvent)
+	public CmlTransitionSet(CmlTransition transition)
 	{
-		this.silentEvents = new TreeSet<AbstractSilentTransition>();
-		this._observableEvents = new TreeSet<ObservableTransition>();
-		this._observableEvents.add(obsEvent);
+		transitions = new TreeSet<CmlTransition>();
+		transitions.add(transition);
 	}
 
-	public CmlTransitionSet(AbstractSilentTransition tauEvent)
+	public CmlTransitionSet(CmlTransition transition1, CmlTransition transition2)
 	{
-		this.silentEvents = new TreeSet<AbstractSilentTransition>();
-		this._observableEvents = new TreeSet<ObservableTransition>();
-		this.silentEvents.add(tauEvent);
+		transitions = new TreeSet<CmlTransition>();
+		transitions.add(transition1);
+		transitions.add(transition2);
+		
 	}
 
-	public CmlTransitionSet(ObservableTransition obs,
-			AbstractSilentTransition tauEvent)
+	public CmlTransitionSet(SortedSet<CmlTransition> transitions)
 	{
-		this.silentEvents = new TreeSet<AbstractSilentTransition>();
-		this.silentEvents.add(tauEvent);
-		this._observableEvents = new TreeSet<ObservableTransition>();
-		this._observableEvents.add(obs);
+		this.transitions = new TreeSet<CmlTransition>(transitions);
+		
+		if( getTransitionsOfType(TimedTransition.class).size() > 1)
+			throw new RuntimeException();
 	}
 
-	public CmlTransitionSet(SortedSet<ObservableTransition> comms,
-			SortedSet<AbstractSilentTransition> specialEvents)
+	public <T extends CmlTransition> SortedSet<T> getTransitionsOfType(Class<T> type)
 	{
-		this.silentEvents = new TreeSet<AbstractSilentTransition>(specialEvents);
-		this._observableEvents = new TreeSet<ObservableTransition>(comms);
+		TreeSet<T> foundTransitions = new TreeSet<T>();
+		
+		for(CmlTransition t : this.transitions)
+			if(type.isInstance(t))
+				foundTransitions.add((T)t);
+		
+		return foundTransitions;
 	}
-
-	public CmlTransitionSet(SortedSet<CmlTransition> events)
+	
+	public <T extends CmlTransition> boolean hasTransitionsOfType(Class<T> type)
 	{
-		this.silentEvents = new TreeSet<AbstractSilentTransition>();
-		this._observableEvents = new TreeSet<ObservableTransition>();
-
-		for (CmlTransition e : events)
-		{
-			if (e instanceof AbstractSilentTransition)
-			{
-				this.silentEvents.add((AbstractSilentTransition) e);
-			} else if (e instanceof ObservableTransition)
-			{
-				_observableEvents.add((ObservableTransition) e);
-			}
-		}
+		for(CmlTransition t : this.transitions)
+			if(type.isInstance(t))
+				return true;
+		
+		return false;
 	}
-
-	/**
-	 * Returns all the observable events in the alphabet
-	 * 
-	 * @return
-	 */
-	public SortedSet<ObservableTransition> getObservableEvents()
+	
+	public <T extends CmlTransition> T getTransitionOfType(Class<T> type)
 	{
-		return new TreeSet<ObservableTransition>(_observableEvents);
+		for(CmlTransition t : this.transitions)
+			if(type.isInstance(t))
+				return (T)t;
+		
+		return null;
 	}
-
-	public SortedSet<ObservableTransition> getObservableChannelEvents()
+	
+	
+	public <T extends CmlTransition> CmlTransitionSet removeByType(Class<T> type)
 	{
-		SortedSet<ObservableTransition> observableChannelEvents = new TreeSet<ObservableTransition>();
-		for (ObservableTransition obsEvent : _observableEvents)
-		{
-			if (obsEvent instanceof LabelledTransition)
-			{
-				observableChannelEvents.add(obsEvent);
-			}
-		}
-
-		return observableChannelEvents;
+		TreeSet<CmlTransition> result = new TreeSet<CmlTransition>();
+		for(CmlTransition t : this.transitions)
+			if(!type.isInstance(t))
+				result.add(t);
+		
+		return new CmlTransitionSet(result);
 	}
-
-	/**
-	 * Returns all the special events in the alphabet
-	 * 
-	 * @return
-	 */
-	public SortedSet<AbstractSilentTransition> getSilentTransitionsAsSet()
+	
+	public <T extends CmlTransition> CmlTransitionSet filterTransitionsOfType(Class<T> type)
 	{
-		return new TreeSet<AbstractSilentTransition>(silentEvents);
+		TreeSet<CmlTransition> foundTransitions = new TreeSet<CmlTransition>();
+		
+		for(CmlTransition t : this.transitions)
+			if(type.isInstance(t))
+				foundTransitions.add(t);
+		
+		return new CmlTransitionSet(foundTransitions);
 	}
+	
 
-	public CmlTransitionSet getSilentTransitions()
-	{
-		return new CmlTransitionSet(new TreeSet<CmlTransition>(silentEvents));
-	}
+//	/**
+//	 * Returns all the special events in the alphabet
+//	 * 
+//	 * @return
+//	 */
+//	public SortedSet<AbstractSilentTransition> getSilentTransitionsAsSet()
+//	{
+//		return new TreeSet<AbstractSilentTransition>(silentEvents);
+//	}
+//
+//	public CmlTransitionSet getSilentTransitions()
+//	{
+//		return new CmlTransitionSet(new TreeSet<CmlTransition>(silentEvents));
+//	}
 
 	/**
 	 * Returns all the observable and special events in the alphabet as a set.
 	 * 
 	 * @return all the observable and special events.
 	 */
-	public SortedSet<CmlTransition> getAllEvents()
+	public SortedSet<CmlTransition> getTransitionsAsSet()
 	{
-		SortedSet<CmlTransition> allEvents = new TreeSet<CmlTransition>();
-		allEvents.addAll(_observableEvents);
-		allEvents.addAll(silentEvents);
-
-		return allEvents;
+		return new TreeSet<CmlTransition>(this.transitions);
 	}
 	
 	public void displayAllAvaliableEvents(PrintStream out)
 	{
-		Iterator<CmlTransition> itr = getAllEvents().iterator();
+		Iterator<CmlTransition> itr = this.transitions.iterator();
 		while(itr.hasNext())
 		{
 			CmlTransition event = itr.next();
@@ -155,7 +152,7 @@ public class CmlTransitionSet extends Value
 	
 	public int size()
 	{
-		return _observableEvents.size() + silentEvents.size();  
+		return transitions.size();  
 	}
 
 	/**
@@ -166,9 +163,8 @@ public class CmlTransitionSet extends Value
 	 */
 	public CmlTransitionSet union(CmlTransitionSet other)
 	{
-		SortedSet<CmlTransition> resultSet = this.getAllEvents();
-		resultSet.addAll(other.getAllEvents());
-
+		SortedSet<CmlTransition> resultSet = new TreeSet<CmlTransition>(this.transitions);
+		resultSet.addAll(other.transitions);
 		return new CmlTransitionSet(resultSet);
 	}
 
@@ -180,7 +176,7 @@ public class CmlTransitionSet extends Value
 	 */
 	public CmlTransitionSet union(CmlTransition event)
 	{
-		SortedSet<CmlTransition> resultSet = this.getAllEvents();
+		SortedSet<CmlTransition> resultSet = getTransitionsAsSet();
 		resultSet.add(event);
 
 		return new CmlTransitionSet(resultSet);
@@ -199,14 +195,21 @@ public class CmlTransitionSet extends Value
 	{
 		SortedSet<CmlTransition> resultSet = new TreeSet<CmlTransition>();
 
-		for (ObservableTransition thisEvent : _observableEvents)
+		for (CmlTransition thisEvent : this.transitions)
 		{
-			for (ObservableTransition otherEvent : other._observableEvents)
+			if(thisEvent instanceof ObservableTransition)
 			{
-				if (thisEvent.isComparable(otherEvent)
-						&& thisEvent.isSourcesSubset(otherEvent))
+			
+				for (CmlTransition otherEvent : other.transitions)
 				{
-					resultSet.add(thisEvent);
+					if(otherEvent instanceof ObservableTransition)
+					{
+						if (((ObservableTransition)thisEvent).isComparable((ObservableTransition)otherEvent)
+								&& thisEvent.isSourcesSubset(otherEvent))
+						{
+							resultSet.add(thisEvent);
+						}
+					}
 				}
 			}
 		}
@@ -214,16 +217,19 @@ public class CmlTransitionSet extends Value
 		return new CmlTransitionSet(resultSet);
 	}
 
-	public CmlTransitionSet intersect(ObservableTransition other)
+	public CmlTransitionSet intersectWithObservable(ObservableTransition other)
 	{
 		SortedSet<CmlTransition> resultSet = new TreeSet<CmlTransition>();
 
-		for (ObservableTransition thisEvent : _observableEvents)
+		for (CmlTransition thisEvent : transitions)
 		{
-			if (thisEvent.isComparable(other)
-					&& thisEvent.isSourcesSubset(other))
+			if(thisEvent instanceof ObservableTransition)
 			{
-				resultSet.add(thisEvent);
+				if (((ObservableTransition)thisEvent).isComparable(other)
+						&& thisEvent.isSourcesSubset(other))
+				{
+					resultSet.add(thisEvent);
+				}
 			}
 		}
 
@@ -235,41 +241,16 @@ public class CmlTransitionSet extends Value
 	{
 		SortedSet<CmlTransition> resultSet = new TreeSet<CmlTransition>();
 
-		for (ObservableTransition obsTransition : _observableEvents)
+		for (CmlTransition obsTransition : transitions)
 		{
-			if (!(obsTransition instanceof LabelledTransition))
+			if(obsTransition instanceof LabelledTransition)
 			{
-				continue;
-			}
+				//			if (!(obsTransition instanceof LabelledTransition))
+				//			{
+				//				continue;
+				//			}
 
-			LabelledTransition obsChannelEvent = (LabelledTransition) obsTransition;
-			if (obsChannelEvent.getChannelName().isComparable(channelNameValue)
-					&& channelNameValue.isGTEQPrecise(obsChannelEvent.getChannelName()))
-			{
-				resultSet.add(obsTransition);
-			}
-		}
-
-		return new CmlTransitionSet(resultSet);
-	}
-
-	public CmlTransitionSet retainByChannelNameSet(
-			ChannelNameSetValue channelNameSetValue)
-	{
-		SortedSet<CmlTransition> resultSet = new TreeSet<CmlTransition>();
-
-		for (ObservableTransition obsTransition : _observableEvents)
-		{
-			if (!(obsTransition instanceof LabelledTransition))
-			{
-				continue;
-			}
-
-			LabelledTransition obsChannelEvent = (LabelledTransition) obsTransition;
-
-			for (ChannelNameValue channelNameValue : channelNameSetValue)
-			{
-
+				LabelledTransition obsChannelEvent = (LabelledTransition) obsTransition;
 				if (obsChannelEvent.getChannelName().isComparable(channelNameValue)
 						&& channelNameValue.isGTEQPrecise(obsChannelEvent.getChannelName()))
 				{
@@ -281,84 +262,127 @@ public class CmlTransitionSet extends Value
 		return new CmlTransitionSet(resultSet);
 	}
 
+	public CmlTransitionSet retainByChannelNameSet(
+			ChannelNameSetValue channelNameSetValue)
+	{
+		SortedSet<CmlTransition> resultSet = new TreeSet<CmlTransition>();
+
+		for (CmlTransition obsTransition : transitions)
+		{
+//			if (!(obsTransition instanceof LabelledTransition))
+//			{
+//				continue;
+//			}
+			if(obsTransition instanceof LabelledTransition)
+			{
+				LabelledTransition obsChannelEvent = (LabelledTransition) obsTransition;
+
+				for (ChannelNameValue channelNameValue : channelNameSetValue)
+				{
+
+					if (obsChannelEvent.getChannelName().isComparable(channelNameValue)
+							&& channelNameValue.isGTEQPrecise(obsChannelEvent.getChannelName()))
+					{
+						resultSet.add(obsTransition);
+					}
+				}
+			}
+		}
+
+		return new CmlTransitionSet(resultSet);
+	}
+
 	public CmlTransitionSet removeByChannelName(
 			ChannelNameValue channelNameValue)
 	{
-		SortedSet<ObservableTransition> resultSet = new TreeSet<ObservableTransition>();
+		SortedSet<CmlTransition> resultSet = new TreeSet<CmlTransition>();
 
-		for (ObservableTransition obsTransition : _observableEvents)
+		for (CmlTransition obsTransition : transitions)
 		{
-			if (!(obsTransition instanceof LabelledTransition))
+			if (obsTransition instanceof LabelledTransition)
 			{
-				continue;
+				LabelledTransition obsChannelEvent = (LabelledTransition) obsTransition;
+				if (!(obsChannelEvent.getChannelName().isComparable(channelNameValue) && channelNameValue.isGTEQPrecise(obsChannelEvent.getChannelName())))
+				{
+					resultSet.add(obsTransition);
+				}
 			}
-
-			LabelledTransition obsChannelEvent = (LabelledTransition) obsTransition;
-			if (!(obsChannelEvent.getChannelName().isComparable(channelNameValue) && channelNameValue.isGTEQPrecise(obsChannelEvent.getChannelName())))
+			else
 			{
 				resultSet.add(obsTransition);
 			}
 		}
 
-		return new CmlTransitionSet(resultSet, silentEvents);
+		return new CmlTransitionSet(resultSet);
 	}
 
+	/**
+	 * Returns a new CmlTransitionSet where all the LabelledTransitions with a channel in channelNameSetValue
+	 * are removed 
+	 * 
+	 * @param channelNameSetValue
+	 * @return
+	 */
 	public CmlTransitionSet removeByChannelNameSet(
 			ChannelNameSetValue channelNameSetValue)
 	{
-		SortedSet<ObservableTransition> resultSet = new TreeSet<ObservableTransition>();
+		SortedSet<CmlTransition> resultSet = new TreeSet<CmlTransition>();
 
-		for (ObservableTransition obsTransition : _observableEvents)
+		for (CmlTransition obsTransition : transitions)
 		{
-			if (!(obsTransition instanceof LabelledTransition))
+			if (obsTransition instanceof LabelledTransition)
 			{
-				continue;
-			}
 
-			boolean retaintIt = true;
+				boolean retaintIt = true;
 
-			for (ChannelNameValue channelNameValue : channelNameSetValue)
-			{
-				LabelledTransition obsChannelEvent = (LabelledTransition) obsTransition;
-				if (obsChannelEvent.getChannelName().isComparable(channelNameValue)
-						&& channelNameValue.isGTEQPrecise(obsChannelEvent.getChannelName()))
+				for (ChannelNameValue channelNameValue : channelNameSetValue)
 				{
-					retaintIt = false;
-					break;
+					LabelledTransition obsChannelEvent = (LabelledTransition) obsTransition;
+					if (obsChannelEvent.getChannelName().isComparable(channelNameValue)
+							&& channelNameValue.isGTEQPrecise(obsChannelEvent.getChannelName()))
+					{
+						retaintIt = false;
+						break;
+					}
+
 				}
 
+				if (retaintIt)
+				{
+					resultSet.add(obsTransition);
+				}
 			}
-
-			if (retaintIt)
+			//TODO: this should be there
+			else if(!(obsTransition instanceof TimedTransition))
 			{
 				resultSet.add(obsTransition);
 			}
 		}
 
-		return new CmlTransitionSet(resultSet, silentEvents);
+		return new CmlTransitionSet(resultSet);
 	}
 
-	public TimedTransition getTockEvent()
-	{
-
-		TimedTransition tock = null;
-
-		for (ObservableTransition obs : _observableEvents)
-		{
-			if (obs instanceof TimedTransition)
-			{
-				tock = (TimedTransition) obs;
-				break;
-			}
-		}
-
-		return tock;
-	}
-
-	public boolean hasTockEvent()
-	{
-		return getTockEvent() != null;
-	}
+//	public TimedTransition getTockEvent()
+//	{
+//
+//		TimedTransition tock = null;
+//
+//		for (ObservableTransition obs : _observableEvents)
+//		{
+//			if (obs instanceof TimedTransition)
+//			{
+//				tock = (TimedTransition) obs;
+//				break;
+//			}
+//		}
+//
+//		return tock;
+//	}
+//
+//	public boolean hasTockEvent()
+//	{
+//		return getTockEvent() != null;
+//	}
 
 	/**
 	 * Subtract other from this
@@ -368,35 +392,20 @@ public class CmlTransitionSet extends Value
 	 */
 	public CmlTransitionSet subtract(CmlTransitionSet other)
 	{
-		SortedSet<ObservableTransition> newReferenceEvents = new TreeSet<ObservableTransition>();
-		newReferenceEvents.addAll(_observableEvents);
-		newReferenceEvents.removeAll(other.getObservableEvents());
+		SortedSet<CmlTransition> newReferenceEvents = new TreeSet<CmlTransition>();
+		newReferenceEvents.addAll(transitions);
+		newReferenceEvents.removeAll(other.transitions);
 
-		return new CmlTransitionSet(newReferenceEvents, silentEvents);
+		return new CmlTransitionSet(newReferenceEvents);
 	}
 
-	public CmlTransitionSet subtract(ObservableTransition other)
+	public CmlTransitionSet subtract(CmlTransition other)
 	{
-		SortedSet<ObservableTransition> newReferenceEvents = new TreeSet<ObservableTransition>();
-		newReferenceEvents.addAll(_observableEvents);
+		SortedSet<CmlTransition> newReferenceEvents = new TreeSet<CmlTransition>();
+		newReferenceEvents.addAll(transitions);
 		newReferenceEvents.remove(other);
 
-		return new CmlTransitionSet(newReferenceEvents, silentEvents);
-	}
-
-	/**
-	 * Subtract other from this
-	 * 
-	 * @param other
-	 * @return An alphabet containing all the events that are this
-	 */
-	public CmlTransitionSet subtractImprecise(CmlTransitionSet other)
-	{
-		SortedSet<ObservableTransition> newReferenceEvents = new TreeSet<ObservableTransition>();
-		newReferenceEvents.addAll(_observableEvents);
-		newReferenceEvents.removeAll(this.intersect(other).getObservableEvents());
-
-		return new CmlTransitionSet(newReferenceEvents, silentEvents);
+		return new CmlTransitionSet(newReferenceEvents);
 	}
 
 	/**
@@ -407,7 +416,7 @@ public class CmlTransitionSet extends Value
 	public boolean contains(CmlTransition event)
 	{
 		if (event instanceof ObservableTransition
-				&& !intersect((ObservableTransition) event).isEmpty())
+				&& !intersectWithObservable((ObservableTransition) event).isEmpty())
 		{
 			return true;
 		} else if (event instanceof AbstractSilentTransition)
@@ -415,13 +424,13 @@ public class CmlTransitionSet extends Value
 			return containsSilentTransition((AbstractSilentTransition) event);
 		} else
 		{
-			return _observableEvents.contains(event);
+			return transitions.contains(event);
 		}
 	}
 
 	private boolean containsSilentTransition(AbstractSilentTransition transition)
 	{
-		for (CmlTransition thisTransition : getAllEvents())
+		for (CmlTransition thisTransition : transitions)
 		{
 			if (thisTransition.isSourcesSubset(transition))
 			{
@@ -434,13 +443,13 @@ public class CmlTransitionSet extends Value
 
 	public boolean isEmpty()
 	{
-		return _observableEvents.isEmpty() && silentEvents.isEmpty();
+		return transitions.isEmpty();
 	}
 
 	@Override
 	public String toString()
 	{
-		return getAllEvents().toString();
+		return transitions.toString();
 	}
 
 	@Override
@@ -452,13 +461,13 @@ public class CmlTransitionSet extends Value
 			return false;
 		}
 
-		return getAllEvents().equals(((CmlTransitionSet) other).getAllEvents());
+		return transitions.equals(((CmlTransitionSet) other).transitions);
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return getAllEvents().hashCode();
+		return transitions.hashCode();
 	}
 
 	@Override
@@ -478,7 +487,7 @@ public class CmlTransitionSet extends Value
 	{
 		SortedSet<CmlTransition> eventSet = new TreeSet<CmlTransition>();
 
-		for (CmlTransition ev : getAllEvents())
+		for (CmlTransition ev : transitions)
 		{
 			if (ev instanceof LabelledTransition)
 			{
@@ -496,7 +505,12 @@ public class CmlTransitionSet extends Value
 	@Override
 	public Object clone()
 	{
+		return new CmlTransitionSet(new TreeSet<CmlTransition>(transitions));
+	}
 
-		return new CmlTransitionSet(new TreeSet<ObservableTransition>(_observableEvents), new TreeSet<AbstractSilentTransition>(silentEvents));
+	@Override
+	public Iterator<CmlTransition> iterator()
+	{
+		return transitions.iterator();
 	}
 }

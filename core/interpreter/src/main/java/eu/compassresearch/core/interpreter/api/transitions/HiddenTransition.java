@@ -1,10 +1,13 @@
 package eu.compassresearch.core.interpreter.api.transitions;
 
+import java.util.List;
+
 import org.overture.ast.node.INode;
 
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
+import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
 
-public class HiddenTransition extends AbstractSilentTransition
+public class HiddenTransition extends TauTransition //implements LabelledTransition
 {
 
 	/**
@@ -14,12 +17,12 @@ public class HiddenTransition extends AbstractSilentTransition
 	private final LabelledTransition hiddenEvent;
 
 	public HiddenTransition(CmlBehaviour eventSource, INode transitionDstNode,
-			LabelledTransition hiddenEvent)
+			LabelledTransition hiddenTransition)
 	{
 		// super(eventSource, hiddenEvent.getChannelName());
 		super(eventSource, transitionDstNode, "hidden");
-		this.hiddenEvent = hiddenEvent;
-		this.eventSources.addAll(hiddenEvent.getEventSources());
+		this.hiddenEvent = hiddenTransition;
+		this.eventSources.addAll(hiddenTransition.getEventSources());
 	}
 
 	@Override
@@ -47,4 +50,22 @@ public class HiddenTransition extends AbstractSilentTransition
 	{
 		return hiddenEvent;
 	}
+
+//	@Override
+//	public ChannelNameValue getChannelName()
+//	{
+//		return hiddenEvent.getChannelName();
+//	}
+//
+//	@Override
+//	public List<LabelledTransition> expand()
+//	{
+//		return hiddenEvent.expand();
+//	}
+//
+//	@Override
+//	public LabelledTransition rename(ChannelNameValue value)
+//	{
+//		return hiddenEvent.rename(value);
+//	}
 }

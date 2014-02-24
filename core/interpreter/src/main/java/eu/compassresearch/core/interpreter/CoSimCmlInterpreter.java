@@ -83,7 +83,7 @@ private Thread executionThread = null;
 	protected synchronized CmlTransitionSet extractSilentTransitions(
 			CmlTransitionSet availableEvents, CmlTransitionSet transitions)
 	{
-		for (AbstractSilentTransition transition : availableEvents.getSilentTransitionsAsSet())
+		for (AbstractSilentTransition transition : availableEvents.getTransitionsOfType(AbstractSilentTransition.class))
 		{
 			if (transition instanceof AbstractSilentTransition)
 			{

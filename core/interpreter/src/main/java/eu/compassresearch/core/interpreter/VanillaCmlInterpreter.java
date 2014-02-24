@@ -269,7 +269,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 
 	public CmlTransition resolveChoice(CmlTransitionSet availableEvents)
 	{
-		if (!availableEvents.getObservableEvents().isEmpty())
+		if (availableEvents.hasTransitionsOfType(ObservableTransition.class))
 		{
 			Console.out.print("Waiting for environment on : ");
 			availableEvents.displayAllAvaliableEvents(Console.out);
@@ -277,7 +277,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		}
 
 		logger.trace("Waiting for environment on : "
-				+ availableEvents.getAllEvents());
+				+ availableEvents.getTransitionsAsSet());
 
 		logState(availableEvents);
 
@@ -299,7 +299,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 
 	public void logState(CmlTransitionSet availableEvents)
 	{
-		for (CmlTransition event : availableEvents.getAllEvents())
+		for (CmlTransition event : availableEvents.getTransitionsAsSet())
 		{
 			// TODO this should be handled differently
 			Context context = event.getEventSources().iterator().next().getNextState().second;
@@ -373,15 +373,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			return availableEvents;
 		}
 
-		SortedSet<CmlTransition> events = new TreeSet<CmlTransition>();
-		for (CmlTransition event : availableEvents.getAllEvents())
-		{
-			if (!(event instanceof TimedTransition))
-			{
-				events.add(event);
-			}
-		}
-		return new CmlTransitionSet(events);
+		return availableEvents.removeByType(TimedTransition.class);
 	}
 
 	@Override

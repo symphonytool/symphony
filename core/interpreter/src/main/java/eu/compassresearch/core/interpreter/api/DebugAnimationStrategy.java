@@ -13,6 +13,7 @@ import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.transitions.LabelledTransition;
+import eu.compassresearch.core.interpreter.api.transitions.TauTransition;
 import eu.compassresearch.core.interpreter.debug.CmlDebugger;
 import eu.compassresearch.core.interpreter.debug.SocketServerCmlDebugger;
 import eu.compassresearch.core.interpreter.debug.TransitionDTO;
@@ -39,13 +40,13 @@ public class DebugAnimationStrategy implements SelectionStrategy
 
 	private boolean isSystemSelect(CmlTransitionSet availableChannelEvents)
 	{
-		return availableChannelEvents.getSilentTransitionsAsSet().size() > 0;
+		return availableChannelEvents.hasTransitionsOfType(TauTransition.class);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private CmlTransition systemSelect()
 	{
-		this.rndSelect.choices(new CmlTransitionSet((SortedSet) this.availableChannelEvents.getSilentTransitionsAsSet()));
+		this.rndSelect.choices(this.availableChannelEvents.filterTransitionsOfType(TauTransition.class));
 		return rndSelect.resolveChoice();
 	}
 
@@ -56,7 +57,7 @@ public class DebugAnimationStrategy implements SelectionStrategy
 
 		CmlTransition selectedEvent = null;
 		// For now we just search naively to find the event
-		for (CmlTransition transition : this.availableChannelEvents.getAllEvents())
+		for (CmlTransition transition : this.availableChannelEvents)
 		{
 			if (System.identityHashCode(transition) == choice.getTransitionObjectId())
 			{
@@ -120,7 +121,7 @@ public class DebugAnimationStrategy implements SelectionStrategy
 	{
 		List<TransitionDTO> convertedTransitionObjs = new LinkedList<TransitionDTO>();
 
-		for (CmlTransition transition : this.availableChannelEvents.getAllEvents())
+		for (CmlTransition transition : this.availableChannelEvents)
 		{
 			// First find all the locations of the transition sources
 			List<ILexLocation> locations = new LinkedList<ILexLocation>();

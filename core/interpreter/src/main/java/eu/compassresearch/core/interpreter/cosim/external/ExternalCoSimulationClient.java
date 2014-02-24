@@ -141,7 +141,7 @@ public class ExternalCoSimulationClient extends Thread
 				throw new InterpreterRuntimeException("Interpreter inspection failed in co-simulation client", e);
 			}
 
-			for (ObservableTransition t : transitions.getObservableChannelEvents())
+			for (ObservableTransition t : transitions.getTransitionsOfType(ObservableTransition.class))
 			{
 				System.out.println("Offering event: " + t.getTransitionId());
 			}
@@ -219,7 +219,7 @@ public class ExternalCoSimulationClient extends Thread
 		{
 
 			List<CmlBehaviour> list = new Vector<CmlBehaviour>();
-			for (CmlTransition t : transitions.getAllEvents())
+			for (CmlTransition t : transitions)
 			{
 				list.addAll(t.getEventSources());
 			}

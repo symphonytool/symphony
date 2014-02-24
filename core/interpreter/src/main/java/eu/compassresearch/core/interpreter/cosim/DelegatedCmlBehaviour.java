@@ -101,7 +101,7 @@ public class DelegatedCmlBehaviour implements CmlBehaviour
 		{
 			CmlTransitionSet transitions = this.delegate.inspect();
 
-			for (CmlTransition t : transitions.getAllEvents())
+			for (CmlTransition t : transitions)
 			{
 				setEventSources(t, this);
 

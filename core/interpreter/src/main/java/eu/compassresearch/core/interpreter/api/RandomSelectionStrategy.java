@@ -56,10 +56,10 @@ public class RandomSelectionStrategy implements SelectionStrategy
 		// TODO This is probably not the best thing to do
 		if (!availableChannelEvents.isEmpty())
 		{
-			int nElems = availableChannelEvents.getAllEvents().size();
+			int nElems = availableChannelEvents.size();
 
 			// pick a random but deterministic choice
-			List<CmlTransition> transitions = new ArrayList<CmlTransition>(availableChannelEvents.getAllEvents());
+			List<CmlTransition> transitions = new ArrayList<CmlTransition>(availableChannelEvents.getTransitionsAsSet());
 			selectedComm = transitions.get(rndChoice.nextInt(nElems));
 
 			// If the selected transition contains a channelname that are not precise then we

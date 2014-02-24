@@ -211,7 +211,7 @@ public class InterpretAllCmlFilesTest
 	public static Collection<Object[]> getCmlfilePaths()
 	{
 
-		final String initialPath = "src/test/resources/standard";
+		final String initialPath = "src/test/resources/standard/action";
 		List<Object[]> paths = findAllCmlFiles(initialPath);
 
 		// List<Object[]> paths = findAllCmlFiles("src/test/resources/action/parallel-composition");

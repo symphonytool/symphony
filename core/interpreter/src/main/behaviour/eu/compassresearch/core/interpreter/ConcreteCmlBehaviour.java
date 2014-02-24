@@ -513,13 +513,13 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 			CmlTransitionSet alpha = inspect();
 
 			// A Process is deadlocked if its immediate alphabet is only tock with no limit
-			if (alpha.getAllEvents().isEmpty())
+			if (alpha.isEmpty())
 			{
 				return true;
-			} else if (alpha.getAllEvents().size() == 1
-					&& alpha.getObservableEvents().size() == 1)
+			} else if (alpha.size() == 1
+					&& alpha.getTransitionsOfType(ObservableTransition.class).size() == 1)
 			{
-				ObservableTransition obsEvent = alpha.getObservableEvents().iterator().next();
+				ObservableTransition obsEvent = alpha.getTransitionsOfType(ObservableTransition.class).first();
 				return obsEvent instanceof TimedTransition
 						&& !((TimedTransition) obsEvent).hasTimeLimit();
 			} else

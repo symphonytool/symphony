@@ -197,7 +197,7 @@ public class CoSimulationClient extends Thread
 		{
 
 			List<CmlBehaviour> list = new Vector<CmlBehaviour>();
-			for (CmlTransition t : transitions.getAllEvents())
+			for (CmlTransition t : transitions)
 			{
 				list.addAll(t.getEventSources());
 			}

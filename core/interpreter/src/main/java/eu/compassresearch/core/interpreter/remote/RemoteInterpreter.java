@@ -130,17 +130,17 @@ public class RemoteInterpreter implements IRemoteInterpreter, SelectionStrategy
 			while (!userSelectableEventsFound)
 			{
 				tmp = availableTransitions.take();
-				if (tmp.getAllEvents().size() == 1
-						&& tmp.getAllEvents().iterator().next() instanceof TauTransition)
+				if (tmp.size() == 1
+						&& tmp.getTransitionsAsSet().first() instanceof TauTransition)
 				{
-					selection.put(tmp.getAllEvents().iterator().next());
+					selection.put(tmp.getTransitionsAsSet().first());
 				} else
 				{
 					userSelectableEventsFound = true;
 				}
 			}
 
-			return tmp.getAllEvents();
+			return tmp.getTransitionsAsSet();
 		} catch (InterruptedException e)
 		{
 			throw new InterpreterRuntimeException(e);
