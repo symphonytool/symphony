@@ -19,7 +19,8 @@ import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
 
-public class ObservableLabelledTransition extends AbstractLabelledTransition
+public class ObservableLabelledTransition extends AbstractCmlTransition
+implements LabelledTransition
 		
 {
 
@@ -27,26 +28,31 @@ public class ObservableLabelledTransition extends AbstractLabelledTransition
 	 * 
 	 */
 	private static final long serialVersionUID = -2217645151439301812L;
-
+	final protected ChannelNameValue channelName;
 	/**
 	 * Added for json construction
 	 */
 	protected ObservableLabelledTransition()
 	{
+		channelName = null;
 	}
 
 	public ObservableLabelledTransition(CmlBehaviour source,
 			ChannelNameValue channelName)
 	{
-		super(source, channelName);
+		super(source);
+		this.channelName = channelName;
+		
 	}
 
 	private ObservableLabelledTransition(SortedSet<CmlBehaviour> sources,
 			ChannelNameValue channelName)
 	{
-		super(sources, channelName);
+		super(sources);
+		this.channelName = channelName;
 	}
-
+	
+	
 	/**
 	 * Synchronized constructor
 	 * 
@@ -57,7 +63,14 @@ public class ObservableLabelledTransition extends AbstractLabelledTransition
 	public ObservableLabelledTransition(CmlTransition baseEvent,
 			CmlTransition otherComEvent, ChannelNameValue meetValue)
 	{
-		super(baseEvent, otherComEvent, meetValue);
+		super(baseEvent, otherComEvent);
+		this.channelName = meetValue;
+	}
+	
+	@Override
+	public ChannelNameValue getChannelName()
+	{
+		return channelName;
 	}
 
 	@Override
@@ -76,13 +89,30 @@ public class ObservableLabelledTransition extends AbstractLabelledTransition
 	public boolean equals(Object obj)
 	{
 
-		if (!(obj instanceof ObservableLabelledTransition))
+		LabelledTransition other = null;
+
+		if (!(obj instanceof LabelledTransition))
 		{
 			return false;
 		}
 
-		return super.equals(obj);
+		other = (LabelledTransition) obj;
+
+		return other.getChannelName().equals(getChannelName())
+				&& super.equals(obj);
 	}
+	
+//	@Override
+//	public boolean equals(Object obj)
+//	{
+//
+//		if (!(obj instanceof ObservableLabelledTransition))
+//		{
+//			return false;
+//		}
+//
+//		return super.equals(obj);
+//	}
 
 	@Override
 	public boolean isComparable(ObservableTransition other)
@@ -101,10 +131,21 @@ public class ObservableLabelledTransition extends AbstractLabelledTransition
 	public boolean isSynchronizableWith(ObservableTransition other)
 	{
 		LabelledTransition otherLT = (LabelledTransition)other;
-	
-		return isComparable(other) && 
+		
+		if( isComparable(other) && 
 				(this.getChannelName().isGTEQPrecise(otherLT.getChannelName())
-				|| otherLT.getChannelName().isGTEQPrecise(this.getChannelName()));
+				|| otherLT.getChannelName().isGTEQPrecise(this.getChannelName())))
+		{
+			ChannelNameValue meetValue = this.getChannelName().meet(otherLT.getChannelName());
+			try
+			{
+				return meetValue != null && meetValue.isConstraintValid();
+			} catch (AnalysisException e)
+			{
+				return false;
+			}
+		}
+		else return false;
 	}
 
 	@Override

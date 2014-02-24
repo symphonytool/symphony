@@ -22,10 +22,10 @@ import eu.compassresearch.core.interpreter.api.behaviour.CmlTrace;
 import eu.compassresearch.core.interpreter.api.events.CmlBehaviorStateObserver;
 import eu.compassresearch.core.interpreter.api.events.EventSource;
 import eu.compassresearch.core.interpreter.api.events.TraceObserver;
-import eu.compassresearch.core.interpreter.api.transitions.AbstractLabelledTransition;
 import eu.compassresearch.core.interpreter.api.transitions.AbstractSilentTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
+import eu.compassresearch.core.interpreter.api.transitions.LabelledTransition;
 import eu.compassresearch.core.interpreter.api.transitions.TimedTransition;
 import eu.compassresearch.core.interpreter.api.values.CMLChannelValue;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
@@ -117,9 +117,9 @@ public class DelegatedCmlBehaviour implements CmlBehaviour
 
 	private void typeSetChannelValue(CmlTransition t)
 	{
-		if (t instanceof AbstractLabelledTransition)
+		if (t instanceof LabelledTransition)
 		{
-			ChannelNameValue channelNameValue = ((AbstractLabelledTransition) t).getChannelName();
+			ChannelNameValue channelNameValue = ((LabelledTransition) t).getChannelName();
 
 			updateConstraints(channelNameValue);
 

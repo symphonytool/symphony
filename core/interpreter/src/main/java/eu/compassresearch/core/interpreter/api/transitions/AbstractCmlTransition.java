@@ -150,15 +150,12 @@ abstract class AbstractCmlTransition implements CmlTransition
 	public boolean equals(Object obj)
 	{
 
-		CmlTransition other = null;
-
 		if (!(obj instanceof CmlTransition))
 		{
 			return false;
 		}
 
-		other = (CmlTransition) obj;
-		return eventSources.equals(other.getEventSources());
+		return eventSources.equals(((CmlTransition) obj).getEventSources());
 	}
 
 	@Override
@@ -185,11 +182,5 @@ abstract class AbstractCmlTransition implements CmlTransition
 	public int compareTo(CmlTransition o)
 	{
 		return Integer.compare(transitionsId, o.getTransitionId());
-		// if(!this.equals(o) && this.eventSources.first().compareTo(o.getEventSources().first()) == 0)
-		// return Integer.compare(transitionsId, o.getTransitionId());
-		// else
-		// {
-		// return this.eventSources.first().compareTo(o.getEventSources().first());
-		// }
 	}
 }

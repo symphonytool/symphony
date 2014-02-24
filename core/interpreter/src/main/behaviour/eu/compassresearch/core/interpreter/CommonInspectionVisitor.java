@@ -216,7 +216,6 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 			{
 				for (ObservableTransition rightTrans : rightSync.getTransitionsOfType(ObservableTransition.class))
 				{
-
 					if (leftTrans.isSynchronizableWith(rightTrans))
 					{
 						syncEvents.add(leftTrans.synchronizeWith(rightTrans));
@@ -418,8 +417,6 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 			PVarsetExpression chansetExp, final Context question)
 			throws AnalysisException
 	{
-		// TODO: This only implements the "A [| cs |] B (no state)" and not "A [| ns1 | cs | ns2 |] B"
-
 		// if true this means that this is the first time here, so the Parallel Begin rule is invoked.
 		if (!owner.hasChildren())
 		{
@@ -476,11 +473,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 			{
 				if(leftTrans.isSynchronizableWith(rightTrans))
 				{
-					ObservableTransition result = leftTrans.synchronizeWith(rightTrans);
-					if (result != null)
-					{
-						syncEvents.add(result);
-					}
+					syncEvents.add(leftTrans.synchronizeWith(rightTrans));
 				}
 			}
 		}

@@ -299,7 +299,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 
 	public void logState(CmlTransitionSet availableEvents)
 	{
-		for (CmlTransition event : availableEvents.getTransitionsAsSet())
+		for (CmlTransition event : availableEvents)
 		{
 			// TODO this should be handled differently
 			Context context = event.getEventSources().iterator().next().getNextState().second;

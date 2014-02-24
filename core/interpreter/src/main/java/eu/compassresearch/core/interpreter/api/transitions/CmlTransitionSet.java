@@ -104,22 +104,6 @@ public class CmlTransitionSet extends Value implements Iterable<CmlTransition>
 		
 		return new CmlTransitionSet(foundTransitions);
 	}
-	
-
-//	/**
-//	 * Returns all the special events in the alphabet
-//	 * 
-//	 * @return
-//	 */
-//	public SortedSet<AbstractSilentTransition> getSilentTransitionsAsSet()
-//	{
-//		return new TreeSet<AbstractSilentTransition>(silentEvents);
-//	}
-//
-//	public CmlTransitionSet getSilentTransitions()
-//	{
-//		return new CmlTransitionSet(new TreeSet<CmlTransition>(silentEvents));
-//	}
 
 	/**
 	 * Returns all the observable and special events in the alphabet as a set.
@@ -182,59 +166,59 @@ public class CmlTransitionSet extends Value implements Iterable<CmlTransition>
 		return new CmlTransitionSet(resultSet);
 	}
 
-	/**
-	 * Calculates the intersection with imprecision between this and other. Meaning that two events might intersect even
-	 * though their value is not equal E.g. Assume that we have the following two alphabets A = {a.3,b} and B = {a.?}
-	 * then the result after invoking this function would be A.intersectImprecise(B) == {a.3,a.?} As a.3 and a.?
-	 * intersects even though a.? can be any value of the type of 'a'.
-	 * 
-	 * @param other
-	 * @return
-	 */
-	public CmlTransitionSet intersect(CmlTransitionSet other)
-	{
-		SortedSet<CmlTransition> resultSet = new TreeSet<CmlTransition>();
+//	/**
+//	 * Calculates the intersection with imprecision between this and other. Meaning that two events might intersect even
+//	 * though their value is not equal E.g. Assume that we have the following two alphabets A = {a.3,b} and B = {a.?}
+//	 * then the result after invoking this function would be A.intersectImprecise(B) == {a.3,a.?} As a.3 and a.?
+//	 * intersects even though a.? can be any value of the type of 'a'.
+//	 * 
+//	 * @param other
+//	 * @return
+//	 */
+//	public CmlTransitionSet intersect(CmlTransitionSet other)
+//	{
+//		SortedSet<CmlTransition> resultSet = new TreeSet<CmlTransition>();
+//
+//		for (CmlTransition thisEvent : this.transitions)
+//		{
+//			if(thisEvent instanceof ObservableTransition)
+//			{
+//			
+//				for (CmlTransition otherEvent : other.transitions)
+//				{
+//					if(otherEvent instanceof ObservableTransition)
+//					{
+//						if (((ObservableTransition)thisEvent).isComparable((ObservableTransition)otherEvent)
+//								&& thisEvent.isSourcesSubset(otherEvent))
+//						{
+//							resultSet.add(thisEvent);
+//						}
+//					}
+//				}
+//			}
+//		}
+//
+//		return new CmlTransitionSet(resultSet);
+//	}
 
-		for (CmlTransition thisEvent : this.transitions)
-		{
-			if(thisEvent instanceof ObservableTransition)
-			{
-			
-				for (CmlTransition otherEvent : other.transitions)
-				{
-					if(otherEvent instanceof ObservableTransition)
-					{
-						if (((ObservableTransition)thisEvent).isComparable((ObservableTransition)otherEvent)
-								&& thisEvent.isSourcesSubset(otherEvent))
-						{
-							resultSet.add(thisEvent);
-						}
-					}
-				}
-			}
-		}
-
-		return new CmlTransitionSet(resultSet);
-	}
-
-	public CmlTransitionSet intersectWithObservable(ObservableTransition other)
-	{
-		SortedSet<CmlTransition> resultSet = new TreeSet<CmlTransition>();
-
-		for (CmlTransition thisEvent : transitions)
-		{
-			if(thisEvent instanceof ObservableTransition)
-			{
-				if (((ObservableTransition)thisEvent).isComparable(other)
-						&& thisEvent.isSourcesSubset(other))
-				{
-					resultSet.add(thisEvent);
-				}
-			}
-		}
-
-		return new CmlTransitionSet(resultSet);
-	}
+//	public CmlTransitionSet intersectWithObservable(ObservableTransition other)
+//	{
+//		SortedSet<CmlTransition> resultSet = new TreeSet<CmlTransition>();
+//
+//		for (CmlTransition thisEvent : transitions)
+//		{
+//			if(thisEvent instanceof ObservableTransition)
+//			{
+//				if (((ObservableTransition)thisEvent).isComparable(other)
+//						&& thisEvent.isSourcesSubset(other))
+//				{
+//					resultSet.add(thisEvent);
+//				}
+//			}
+//		}
+//
+//		return new CmlTransitionSet(resultSet);
+//	}
 
 	public CmlTransitionSet retainByChannelName(
 			ChannelNameValue channelNameValue)
@@ -245,11 +229,6 @@ public class CmlTransitionSet extends Value implements Iterable<CmlTransition>
 		{
 			if(obsTransition instanceof LabelledTransition)
 			{
-				//			if (!(obsTransition instanceof LabelledTransition))
-				//			{
-				//				continue;
-				//			}
-
 				LabelledTransition obsChannelEvent = (LabelledTransition) obsTransition;
 				if (obsChannelEvent.getChannelName().isComparable(channelNameValue)
 						&& channelNameValue.isGTEQPrecise(obsChannelEvent.getChannelName()))
@@ -269,17 +248,12 @@ public class CmlTransitionSet extends Value implements Iterable<CmlTransition>
 
 		for (CmlTransition obsTransition : transitions)
 		{
-//			if (!(obsTransition instanceof LabelledTransition))
-//			{
-//				continue;
-//			}
 			if(obsTransition instanceof LabelledTransition)
 			{
 				LabelledTransition obsChannelEvent = (LabelledTransition) obsTransition;
 
 				for (ChannelNameValue channelNameValue : channelNameSetValue)
 				{
-
 					if (obsChannelEvent.getChannelName().isComparable(channelNameValue)
 							&& channelNameValue.isGTEQPrecise(obsChannelEvent.getChannelName()))
 					{
@@ -362,28 +336,6 @@ public class CmlTransitionSet extends Value implements Iterable<CmlTransition>
 		return new CmlTransitionSet(resultSet);
 	}
 
-//	public TimedTransition getTockEvent()
-//	{
-//
-//		TimedTransition tock = null;
-//
-//		for (ObservableTransition obs : _observableEvents)
-//		{
-//			if (obs instanceof TimedTransition)
-//			{
-//				tock = (TimedTransition) obs;
-//				break;
-//			}
-//		}
-//
-//		return tock;
-//	}
-//
-//	public boolean hasTockEvent()
-//	{
-//		return getTockEvent() != null;
-//	}
-
 	/**
 	 * Subtract other from this
 	 * 
@@ -392,47 +344,40 @@ public class CmlTransitionSet extends Value implements Iterable<CmlTransition>
 	 */
 	public CmlTransitionSet subtract(CmlTransitionSet other)
 	{
-		SortedSet<CmlTransition> newReferenceEvents = new TreeSet<CmlTransition>();
-		newReferenceEvents.addAll(transitions);
-		newReferenceEvents.removeAll(other.transitions);
+		SortedSet<CmlTransition> result = new TreeSet<CmlTransition>();
+		result.addAll(transitions);
+		result.removeAll(other.transitions);
 
-		return new CmlTransitionSet(newReferenceEvents);
+		return new CmlTransitionSet(result);
 	}
 
 	public CmlTransitionSet subtract(CmlTransition other)
 	{
-		SortedSet<CmlTransition> newReferenceEvents = new TreeSet<CmlTransition>();
-		newReferenceEvents.addAll(transitions);
-		newReferenceEvents.remove(other);
+		SortedSet<CmlTransition> result = new TreeSet<CmlTransition>();
+		result.addAll(transitions);
+		result.remove(other);
 
-		return new CmlTransitionSet(newReferenceEvents);
+		return new CmlTransitionSet(result);
 	}
 
 	/**
-	 * This determines whether the alphabet contains an observable event.
+	 * This determines whether the alphabet contains the given transition.
 	 * 
-	 * @return true if the observable event is contained else false
+	 * @return true if the given is contained else false
 	 */
-	public boolean contains(CmlTransition event)
-	{
-		if (event instanceof ObservableTransition
-				&& !intersectWithObservable((ObservableTransition) event).isEmpty())
-		{
-			return true;
-		} else if (event instanceof AbstractSilentTransition)
-		{
-			return containsSilentTransition((AbstractSilentTransition) event);
-		} else
-		{
-			return transitions.contains(event);
-		}
-	}
-
-	private boolean containsSilentTransition(AbstractSilentTransition transition)
+	public boolean contains(CmlTransition transition)
 	{
 		for (CmlTransition thisTransition : transitions)
 		{
-			if (thisTransition.isSourcesSubset(transition))
+			if(thisTransition.equals(transition))
+			{
+				return true;
+			}
+			else if(transition instanceof ObservableTransition && 
+					thisTransition instanceof ObservableTransition &&
+					((ObservableTransition)thisTransition).isComparable((ObservableTransition)transition)
+					&& thisTransition.isSourcesSubset(transition)
+					)
 			{
 				return true;
 			}
@@ -440,6 +385,7 @@ public class CmlTransitionSet extends Value implements Iterable<CmlTransition>
 
 		return false;
 	}
+
 
 	public boolean isEmpty()
 	{
