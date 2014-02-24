@@ -288,7 +288,7 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 		/*
 		 * If the selected event is valid and is in the immediate alphabet of the process then we can continue.
 		 */
-		if (lastInspection.getTransitions().contains(selectedTransition))
+		if (lastInspection.getTransitions().containsEqualOrSyncPart(selectedTransition))
 		{
 			// If the selected event is tock then we need to execute the children as well to make
 			// time tick in the entire process tree

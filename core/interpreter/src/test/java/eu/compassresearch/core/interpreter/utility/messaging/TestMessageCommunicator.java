@@ -270,6 +270,13 @@ public class TestMessageCommunicator
 						// TODO Auto-generated method stub
 						return false;
 					}
+
+					@Override
+					public boolean isSynchronizedBy(ObservableTransition other)
+					{
+						// TODO Auto-generated method stub
+						return false;
+					}
 				});
 
 				return trace;

@@ -15,6 +15,8 @@ public interface ObservableTransition extends CmlTransition
 			throws AnalysisException;
 
 	
+	public boolean isSynchronizedBy(ObservableTransition other);
+	
 	public boolean isSynchronizableWith(ObservableTransition other);
 	/**
 	 * Two Observable events are comparable if they are a tock events or if the are occurring on the same channel and

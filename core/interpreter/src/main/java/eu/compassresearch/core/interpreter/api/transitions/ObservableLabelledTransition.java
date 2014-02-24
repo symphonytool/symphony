@@ -128,6 +128,12 @@ implements LabelledTransition
 	}
 	
 	@Override
+	public boolean isSynchronizedBy(ObservableTransition other)
+	{
+		return  this.isComparable(other) && this.isSourcesSubset(other);
+	}
+	
+	@Override
 	public boolean isSynchronizableWith(ObservableTransition other)
 	{
 		LabelledTransition otherLT = (LabelledTransition)other;

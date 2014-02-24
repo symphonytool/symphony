@@ -238,7 +238,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 				{
 					for (CmlBehaviour child : children())
 					{
-						if (child.inspect().contains(selectedTransition))
+						if (child.inspect().containsEqualOrSyncPart(selectedTransition))
 						{
 							// first we execute the child
 							child.execute(selectedTransition);

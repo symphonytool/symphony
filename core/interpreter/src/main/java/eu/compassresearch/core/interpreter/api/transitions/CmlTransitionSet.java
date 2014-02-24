@@ -5,24 +5,21 @@ import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import javax.management.RuntimeErrorException;
-
-import org.overture.interpreter.values.Value;
-
 import eu.compassresearch.core.interpreter.api.values.ChannelNameSetValue;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
 
 /**
- * This represents a CML alphabet containing both silent and observable events
+ * This represents a set of CmlTransition objects
  * 
  * @author akm
  */
-public class CmlTransitionSet extends Value implements Iterable<CmlTransition>
+public class CmlTransitionSet implements Iterable<CmlTransition>
 {
 
 	/**
 	 * 
 	 */
+	@SuppressWarnings("unused")
 	private static final long serialVersionUID = 5192258370825756900L;
 
 	private final SortedSet<CmlTransition> transitions;
@@ -54,6 +51,7 @@ public class CmlTransitionSet extends Value implements Iterable<CmlTransition>
 			throw new RuntimeException();
 	}
 
+	@SuppressWarnings("unchecked")
 	public <T extends CmlTransition> SortedSet<T> getTransitionsOfType(Class<T> type)
 	{
 		TreeSet<T> foundTransitions = new TreeSet<T>();
@@ -74,6 +72,7 @@ public class CmlTransitionSet extends Value implements Iterable<CmlTransition>
 		return false;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public <T extends CmlTransition> T getTransitionOfType(Class<T> type)
 	{
 		for(CmlTransition t : this.transitions)
@@ -361,11 +360,12 @@ public class CmlTransitionSet extends Value implements Iterable<CmlTransition>
 	}
 
 	/**
-	 * This determines whether the alphabet contains the given transition.
+	 * This determines whether the alphabet contains the given transition or
+	 * a transition that is part of a synchronization.
 	 * 
 	 * @return true if the given is contained else false
 	 */
-	public boolean contains(CmlTransition transition)
+	public boolean containsEqualOrSyncPart(CmlTransition transition)
 	{
 		for (CmlTransition thisTransition : transitions)
 		{
@@ -375,8 +375,7 @@ public class CmlTransitionSet extends Value implements Iterable<CmlTransition>
 			}
 			else if(transition instanceof ObservableTransition && 
 					thisTransition instanceof ObservableTransition &&
-					((ObservableTransition)thisTransition).isComparable((ObservableTransition)transition)
-					&& thisTransition.isSourcesSubset(transition)
+					((ObservableTransition)thisTransition).isSynchronizedBy((ObservableTransition)transition) 
 					)
 			{
 				return true;
@@ -416,12 +415,6 @@ public class CmlTransitionSet extends Value implements Iterable<CmlTransition>
 		return transitions.hashCode();
 	}
 
-	@Override
-	public String kind()
-	{
-		return "CmlAlphabetValue";
-	}
-
 	/**
 	 * This expands all the expandable events in the alphabet. E.g. if we have types switch = <ON> | <OFF> channels a :
 	 * switch process Test = begin @ a?x -> Skip end then the immediate alphabet would be {a.AnyValue} when expanded
@@ -446,12 +439,6 @@ public class CmlTransitionSet extends Value implements Iterable<CmlTransition>
 
 		return new CmlTransitionSet(eventSet);
 
-	}
-
-	@Override
-	public Object clone()
-	{
-		return new CmlTransitionSet(new TreeSet<CmlTransition>(transitions));
 	}
 
 	@Override

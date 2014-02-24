@@ -239,15 +239,15 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 						throws AnalysisException
 				{
 					// if both contains the selected event it must be a sync event
-					if (leftChildAlpha.contains(selectedTransition)
-							&& rightChildAlpha.contains(selectedTransition))
+					if (leftChildAlpha.containsEqualOrSyncPart(selectedTransition)
+							&& rightChildAlpha.containsEqualOrSyncPart(selectedTransition))
 					{
 						owner.getLeftChild().execute(selectedTransition);
 						owner.getRightChild().execute(selectedTransition);
-					} else if (leftChildAlpha.contains(selectedTransition))
+					} else if (leftChildAlpha.containsEqualOrSyncPart(selectedTransition))
 					{
 						owner.getLeftChild().execute(selectedTransition);
-					} else if (rightChildAlpha.contains(selectedTransition))
+					} else if (rightChildAlpha.containsEqualOrSyncPart(selectedTransition))
 					{
 						owner.getRightChild().execute(selectedTransition);
 					} else
@@ -350,7 +350,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 
 					for (CmlBehaviour child : children())
 					{
-						if (child.inspect().contains(selectedTransition))
+						if (child.inspect().containsEqualOrSyncPart(selectedTransition))
 						{
 							// first we execute the child
 							child.execute(selectedTransition);
@@ -396,10 +396,10 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		CmlBehaviour rightChild = owner.getRightChild();
 		CmlTransitionSet rightChildAlpha = rightChild.inspect();
 
-		if (leftChildAlpha.contains(selectedTransition))
+		if (leftChildAlpha.containsEqualOrSyncPart(selectedTransition))
 		{
 			leftChild.execute(selectedTransition);
-		} else if (rightChildAlpha.contains(selectedTransition))
+		} else if (rightChildAlpha.containsEqualOrSyncPart(selectedTransition))
 		{
 			rightChild.execute(selectedTransition);
 		} else
@@ -500,15 +500,15 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 					throws AnalysisException
 			{
 				// if both contains the selected event it must be a sync event
-				if (leftChildAlphabet.contains(selectedTransition)
-						&& rightChildAlphabet.contains(selectedTransition))
+				if (leftChildAlphabet.containsEqualOrSyncPart(selectedTransition)
+						&& rightChildAlphabet.containsEqualOrSyncPart(selectedTransition))
 				{
 					leftChild.execute(selectedTransition);
 					rightChild.execute(selectedTransition);
-				} else if (leftChildAlphabet.contains(selectedTransition))
+				} else if (leftChildAlphabet.containsEqualOrSyncPart(selectedTransition))
 				{
 					leftChild.execute(selectedTransition);
-				} else if (rightChildAlphabet.contains(selectedTransition))
+				} else if (rightChildAlphabet.containsEqualOrSyncPart(selectedTransition))
 				{
 					rightChild.execute(selectedTransition);
 				} else
@@ -616,7 +616,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 				{
 
 					if (selectedTransition instanceof HiddenTransition
-							&& alpha.contains(((HiddenTransition) selectedTransition).getHiddenEvent()))
+							&& alpha.containsEqualOrSyncPart(((HiddenTransition) selectedTransition).getHiddenEvent()))
 					{
 						selectedTransition = ((HiddenTransition) selectedTransition).getHiddenEvent();
 					}
