@@ -13,7 +13,7 @@
   <name>Symphony Core CML Abstract Syntax Tree</name>
 
   <properties>
-    <astcreator.version>1.6.1</astcreator.version>
+    <astcreator.version>1.6.4</astcreator.version>
   </properties>
 
   <dependencies>
@@ -27,7 +27,7 @@
   <build>
     <plugins>
       <plugin>
-	<groupId>org.overture.astcreator</groupId>
+	<groupId>org.overturetool.astcreator</groupId>
 	<artifactId>astcreator-plugin</artifactId>
 	<version>${astcreator.version}</version>
 	<executions>
@@ -95,7 +95,7 @@
 	      <pluginExecutions>
 		<pluginExecution>
 		  <pluginExecutionFilter>
-		    <groupId>org.overture.astcreator</groupId>
+		    <groupId>org.overturetool.astcreator</groupId>
 		    <artifactId>astcreator-plugin</artifactId>
 		    <versionRange>${astcreator.version}</versionRange>
 		    <goals>

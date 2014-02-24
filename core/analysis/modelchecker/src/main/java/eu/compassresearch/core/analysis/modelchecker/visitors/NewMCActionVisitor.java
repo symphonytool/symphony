@@ -406,7 +406,7 @@ public class NewMCActionVisitor extends
 		MCACommunicationAction result = new MCACommunicationAction(identifier, mcParameters, action);
 		
 		//fr the moment iocomm do not depend on channel. This means that formula wont instantiate communicated values
-		MCIOCommDef ioCommDef = new MCIOCommDef(result.getCounterId(), result, null);
+		MCIOCommDef ioCommDef = new MCIOCommDef(result.getCounterId(), result);
 
 		question.ioCommDefs.add(ioCommDef);
 		

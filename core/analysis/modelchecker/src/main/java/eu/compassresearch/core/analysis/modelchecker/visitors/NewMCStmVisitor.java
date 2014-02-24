@@ -100,10 +100,9 @@ public class NewMCStmVisitor extends
 					question.assignDefs.add(assignDef);
 				}
 			} else{
-				MCAAssignmentStm stm = new MCAAssignmentStm(expression, target);
-				stm.setCounterId(result.getCounterId());
+				
 				MCAVariableExp name = new MCAVariableExp(target.toFormula(MCNode.DEFAULT));
-				assignDef = new MCAssignDef(result.getCounterId(), expression, name, stm);
+				assignDef = new MCAssignDef(result.getCounterId(), expression, name, result);
 				question.assignDefs.add(assignDef);
 			}
 		}

@@ -1,0 +1,16 @@
+<project name="interpreter" default="copy" basedir=".">
+	<description>
+        Update the interpreter plugin with a new interpreter jar
+	</description>
+	
+	<target name="mvn package">
+		<exec executable="cmd" >
+			<arg line="/c mvn package -Dmaven.test.skip=true -Dmaven.javadoc.skip=true -o" />
+		</exec>
+	</target>
+	
+	<target name="copy" depends="mvn package">
+	<copy file="target/interpreter-0.2.9-SNAPSHOT.jar" tofile="../../ide/plugins/interpreter/jars/interpreter.jar"/>
+	</target>
+
+</project>

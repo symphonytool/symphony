@@ -19,10 +19,17 @@ public class CmlCoSimLaunchConfigurationDelegate extends
 	{
 		Map<String, Object> map = super.createDebuggerArgumentMap(configuration, port);
 
-		map.put(CmlInterpreterArguments.COSIM_MODE.key, configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_COSIM_IS_COORDINATOR, true)?"server":"client");
+		map.put(CmlInterpreterArguments.COSIM_MODE.key, configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_COSIM_IS_COORDINATOR, true) ? "server"
+				: "client");
 		map.put(CmlInterpreterArguments.COSIM_EXTERNAL_PROCESSES.key, configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_COSIM_EXTERNAL_PROCESSES, ""));
 		map.put(CmlInterpreterArguments.COSIM_HOST.key, configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_COSIM_HOST, ""));
-		
+
 		return map;
+	}
+
+	@Override
+	protected boolean shouldAutoTerminate()
+	{
+		return false;
 	}
 }

@@ -12,8 +12,11 @@ import java.util.Vector;
 import java.util.concurrent.SynchronousQueue;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import eu.compassresearch.core.interpreter.CoSimCmlInterpreter;
+import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
@@ -27,7 +30,6 @@ import eu.compassresearch.core.interpreter.cosim.communication.FinishedRequestMe
 import eu.compassresearch.core.interpreter.cosim.communication.InspectMessage;
 import eu.compassresearch.core.interpreter.cosim.communication.InspectReplyMessage;
 import eu.compassresearch.core.interpreter.cosim.communication.RegisterSubSystemMessage;
-import eu.compassresearch.core.interpreter.cosim.communication.Utils;
 import eu.compassresearch.core.interpreter.debug.messaging.JsonMessage;
 
 /**
@@ -37,6 +39,8 @@ import eu.compassresearch.core.interpreter.debug.messaging.JsonMessage;
  */
 public class CoSimulationClient extends Thread
 {
+	final static Logger logger = LoggerFactory.getLogger(CoSimulationClient.class);
+
 	private Socket socket;
 
 	MessageManager comm;
@@ -94,7 +98,7 @@ public class CoSimulationClient extends Thread
 			e.printStackTrace();
 		} catch (IOException e)
 		{
-			System.out.println("Connection exception: " + e.getMessage());
+			logger.debug("Connection exception", e);
 
 		} finally
 		{
@@ -107,6 +111,7 @@ public class CoSimulationClient extends Thread
 	{
 		try
 		{
+			logger.debug("Closing client socket");
 			connected = false;
 			comm.close();
 			socket.close();
@@ -132,10 +137,10 @@ public class CoSimulationClient extends Thread
 				throw new InterpreterRuntimeException("Interpreter inspection failed in co-simulation client", e);
 			}
 
-//			for (ObservableTransition t : transitions.getObservableChannelEvents())
-//			{
-//				System.out.println("Offering event: " + t.getTransitionId());
-//			}
+			// for (ObservableTransition t : transitions.getObservableChannelEvents())
+			// {
+			// System.out.println("Offering event: " + t.getTransitionId());
+			// }
 			comm.send(new InspectReplyMessage(inspectMessage.getProcess(), transitions));
 		} else if (message instanceof ExecuteMessage)
 		{
@@ -145,7 +150,8 @@ public class CoSimulationClient extends Thread
 		} else if (message instanceof FinishedRequestMessage)
 		{
 			FinishedRequestMessage finishedRequest = (FinishedRequestMessage) message;
-			comm.send(new FinishedReplyMessage(finishedRequest.getProcess(), interpreter.getTopLevelProcess().finished()));
+			comm.send(new FinishedReplyMessage(finishedRequest.getProcess(), interpreter.getState() == CmlInterpreterState.FINISHED
+					|| interpreter.getState() == CmlInterpreterState.TERMINATED_BY_USER));
 		} else if (message instanceof DisconnectMessage)
 		{
 			this.connected = false;
@@ -224,11 +230,4 @@ public class CoSimulationClient extends Thread
 		this.interpreter = interpreter;
 	}
 
-	public void waitForDiconnect()
-	{
-		while(connected)
-		{
-			Utils.milliPause(10);
-		}
-	}
 }
