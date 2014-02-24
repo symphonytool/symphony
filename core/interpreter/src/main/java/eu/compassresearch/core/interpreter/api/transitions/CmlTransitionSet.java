@@ -72,8 +72,13 @@ public class CmlTransitionSet implements Iterable<CmlTransition>
 		return false;
 	}
 	
+	/**
+	 * Return the first element of type T
+	 * @param type
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
-	public <T extends CmlTransition> T getTransitionOfType(Class<T> type)
+	public <T extends CmlTransition> T firstOfType(Class<T> type)
 	{
 		for(CmlTransition t : this.transitions)
 			if(type.isInstance(t))
@@ -83,7 +88,7 @@ public class CmlTransitionSet implements Iterable<CmlTransition>
 	}
 	
 	
-	public <T extends CmlTransition> CmlTransitionSet removeByType(Class<T> type)
+	public <T extends CmlTransition> CmlTransitionSet filterOutByType(Class<T> type)
 	{
 		TreeSet<CmlTransition> result = new TreeSet<CmlTransition>();
 		for(CmlTransition t : this.transitions)
@@ -98,13 +103,15 @@ public class CmlTransitionSet implements Iterable<CmlTransition>
 	{
 		return new CmlTransitionSet((SortedSet<CmlTransition>)filterByTypeAsSet(type));
 	}
+	
+	
 
 	/**
 	 * Returns all the observable and special events in the alphabet as a set.
 	 * 
 	 * @return all the observable and special events.
 	 */
-	public SortedSet<CmlTransition> getTransitionsAsSet()
+	public SortedSet<CmlTransition> asSet()
 	{
 		return new TreeSet<CmlTransition>(this.transitions);
 	}
@@ -145,6 +152,16 @@ public class CmlTransitionSet implements Iterable<CmlTransition>
 		resultSet.addAll(other.transitions);
 		return new CmlTransitionSet(resultSet);
 	}
+	
+	public CmlTransitionSet dunion(CmlTransitionSet... others)
+	{
+		SortedSet<CmlTransition> resultSet = new TreeSet<CmlTransition>(this.transitions);
+		
+		for(CmlTransitionSet other : others)
+			resultSet.addAll(other.transitions);
+		
+		return new CmlTransitionSet(resultSet);
+	}
 
 	/**
 	 * Calculates the union of this alphabet and the given event.
@@ -154,7 +171,7 @@ public class CmlTransitionSet implements Iterable<CmlTransition>
 	 */
 	public CmlTransitionSet union(CmlTransition event)
 	{
-		SortedSet<CmlTransition> resultSet = getTransitionsAsSet();
+		SortedSet<CmlTransition> resultSet = asSet();
 		resultSet.add(event);
 
 		return new CmlTransitionSet(resultSet);
@@ -180,30 +197,28 @@ public class CmlTransitionSet implements Iterable<CmlTransition>
 
 		return new CmlTransitionSet(resultSet);
 	}
-
-	public CmlTransitionSet retainByChannelNameSet(
-			ChannelNameSetValue channelNameSetValue)
+	
+	public CmlTransitionSet filter(Filter<CmlTransition> filter)
 	{
 		SortedSet<CmlTransition> resultSet = new TreeSet<CmlTransition>();
 
-		for (CmlTransition obsTransition : transitions)
-		{
-			if(obsTransition instanceof LabelledTransition)
-			{
-				LabelledTransition obsChannelEvent = (LabelledTransition) obsTransition;
-
-				for (ChannelNameValue channelNameValue : channelNameSetValue)
-				{
-					if (obsChannelEvent.getChannelName().isComparable(channelNameValue)
-							&& channelNameValue.isGTEQPrecise(obsChannelEvent.getChannelName()))
-					{
-						resultSet.add(obsTransition);
-					}
-				}
-			}
-		}
-
+		for (CmlTransition t : transitions)
+			if(filter.apply(t))
+				resultSet.add(t);
+		
 		return new CmlTransitionSet(resultSet);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public <T extends CmlTransition> SortedSet<T> filterWithType(Filter<T> filter)
+	{
+		SortedSet<T> resultSet = new TreeSet<T>();
+
+		for (CmlTransition t : transitions)
+			if(filter.apply((T)t))
+				resultSet.add((T)t);
+		
+		return resultSet;
 	}
 
 	public CmlTransitionSet removeByChannelName(
@@ -240,7 +255,7 @@ public class CmlTransitionSet implements Iterable<CmlTransition>
 	 * from this instance with a channel value that are equally or more 
 	 * precise than the channelNameValue instances in channelNameSetValue are removed. 
 	 */
-	public CmlTransitionSet removeByChannelNameSet(
+	public CmlTransitionSet filterOutByChannelNameSet(
 			ChannelNameSetValue channelNameSetValue)
 	{
 		SortedSet<CmlTransition> resultSet = new TreeSet<CmlTransition>();

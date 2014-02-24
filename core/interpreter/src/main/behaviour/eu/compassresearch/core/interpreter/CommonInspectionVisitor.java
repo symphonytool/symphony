@@ -19,9 +19,7 @@ import org.overture.interpreter.runtime.ValueException;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.CmlAstFactory;
-import eu.compassresearch.ast.actions.AChannelRenamingAction;
 import eu.compassresearch.ast.actions.ASkipAction;
-import eu.compassresearch.ast.actions.AStartDeadlineAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
 import eu.compassresearch.ast.expressions.ANameChannelExp;
@@ -34,6 +32,7 @@ import eu.compassresearch.core.interpreter.api.behaviour.CmlCalculationStep;
 import eu.compassresearch.core.interpreter.api.behaviour.Inspection;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
+import eu.compassresearch.core.interpreter.api.transitions.RetainByChannelNameSetFilter;
 import eu.compassresearch.core.interpreter.api.transitions.HiddenTransition;
 import eu.compassresearch.core.interpreter.api.transitions.LabelledTransition;
 import eu.compassresearch.core.interpreter.api.transitions.ObservableTransition;
@@ -82,14 +81,14 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 				&& rightChildAlphabet.hasType(TimedTransition.class))
 		{
 			// get the tocks
-			TimedTransition leftTock = leftChildAlphabet.getTransitionOfType(TimedTransition.class);
-			TimedTransition rightTock = rightChildAlphabet.getTransitionOfType(TimedTransition.class);
+			TimedTransition leftTock = leftChildAlphabet.firstOfType(TimedTransition.class);
+			TimedTransition rightTock = rightChildAlphabet.firstOfType(TimedTransition.class);
 
 			// sync them
 			CmlTransitionSet returnAlpha = new CmlTransitionSet(leftTock.synchronizeWith(rightTock));
 
 			// remove the old tocks and add the synced one to the result
-			return returnAlpha.union(leftChildAlphabet.subtract(leftTock).union(rightChildAlphabet.subtract(rightTock)));
+			return returnAlpha.dunion(leftChildAlphabet.subtract(leftTock), rightChildAlphabet.subtract(rightTock));
 		}
 		// else we just joins all the event from both
 		else
@@ -201,14 +200,14 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 			 * This is calculated by taking the each child alphabet and first retain corresponding 
 			 * channel set and then remove the intersection.
 			 */
-			CmlTransitionSet leftIndependentTransitions = leftChildAlpha.retainByChannelNameSet(leftChanset).
-					removeByChannelNameSet(intersectionChanset).union(leftChildAlpha.filterByType(TauTransition.class));
-			CmlTransitionSet rightIndependentTransitions = rightChildAlpha.retainByChannelNameSet(rightChanset).
-					removeByChannelNameSet(intersectionChanset).union(rightChildAlpha.filterByType(TauTransition.class));
+			CmlTransitionSet leftIndependentTransitions = leftChildAlpha.filter(new RetainByChannelNameSetFilter(leftChanset)).
+					filterOutByChannelNameSet(intersectionChanset).union(leftChildAlpha.filterByType(TauTransition.class));
+			CmlTransitionSet rightIndependentTransitions = rightChildAlpha.filter(new RetainByChannelNameSetFilter(rightChanset)).
+					filterOutByChannelNameSet(intersectionChanset).union(rightChildAlpha.filterByType(TauTransition.class));
 
 			// combine all the common channel events that are in the channel set
-			CmlTransitionSet leftSync = leftChildAlpha.retainByChannelNameSet(intersectionChanset);
-			CmlTransitionSet rightSync = rightChildAlpha.retainByChannelNameSet(intersectionChanset);
+			CmlTransitionSet leftSync = leftChildAlpha.filter(new RetainByChannelNameSetFilter(intersectionChanset));
+			CmlTransitionSet rightSync = rightChildAlpha.filter(new RetainByChannelNameSetFilter(intersectionChanset));
 			SortedSet<CmlTransition> syncEvents = new TreeSet<CmlTransition>();
 			// Find the intersection between the child alphabets and the channel set and join them.
 			// Then if both left and right have them the next step will combine them.
@@ -462,8 +461,8 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		final CmlTransitionSet rightChildAlphabet = rightChild.inspect();
 
 		// combine all the common channel events that are in the channel set
-		CmlTransitionSet leftSync = leftChildAlphabet.retainByChannelNameSet(cs);
-		CmlTransitionSet rightSync = rightChildAlphabet.retainByChannelNameSet(cs);
+		CmlTransitionSet leftSync = leftChildAlphabet.filter(new RetainByChannelNameSetFilter(cs));
+		CmlTransitionSet rightSync = rightChildAlphabet.filter(new RetainByChannelNameSetFilter(cs));
 		SortedSet<CmlTransition> syncEvents = new TreeSet<CmlTransition>();
 		// Find the intersection between the child alphabets and the channel set and join them.
 		// Then if both left and right have them the next step will combine them.
@@ -478,8 +477,8 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 			}
 		}
 
-		TimedTransition leftTock = leftChildAlphabet.getTransitionOfType(TimedTransition.class);
-		TimedTransition rightTock = rightChildAlphabet.getTransitionOfType(TimedTransition.class);
+		TimedTransition leftTock = leftChildAlphabet.firstOfType(TimedTransition.class);
+		TimedTransition rightTock = rightChildAlphabet.firstOfType(TimedTransition.class);
 		if (leftTock != null && rightTock != null)
 		{
 			syncEvents.add(leftTock.synchronizeWith(rightTock));
@@ -489,8 +488,8 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		 * Finally we create the returned alphabet by joining all the Synchronized events together with all the event of
 		 * the children that are not in the channel set.
 		 */
-		CmlTransitionSet resultAlpha = new CmlTransitionSet(syncEvents).union(leftChildAlphabet.removeByChannelNameSet(cs).removeByType(TimedTransition.class));
-		resultAlpha = resultAlpha.union(rightChildAlphabet.removeByChannelNameSet(cs).removeByType(TimedTransition.class));
+		CmlTransitionSet resultAlpha = new CmlTransitionSet(syncEvents).union(leftChildAlphabet.filterOutByChannelNameSet(cs).filterOutByType(TimedTransition.class));
+		resultAlpha = resultAlpha.union(rightChildAlphabet.filterOutByChannelNameSet(cs).filterOutByType(TimedTransition.class));
 
 		return newInspection(resultAlpha, new CmlCalculationStep()
 		{
@@ -597,7 +596,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 			// next we inspect the action to get the current available transitions
 			final CmlTransitionSet alpha = owner.getLeftChild().inspect();
 			// Intersect the two to find which transitions should be converted to silents transitions
-			CmlTransitionSet hiddenEvents = alpha.retainByChannelNameSet(cs);
+			CmlTransitionSet hiddenEvents = alpha.filter(new RetainByChannelNameSetFilter(cs));
 			// remove the events that has to be silent
 			CmlTransitionSet resultAlpha = alpha.subtract(hiddenEvents);
 			// convert them into silent events and add the again
@@ -842,7 +841,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 			// If time can pass in the left, we need to put the remaining time of the timeout
 			if (leftAlpha.hasType(TimedTransition.class))
 			{
-				TimedTransition leftTimeTransition = leftAlpha.getTransitionOfType(TimedTransition.class);
+				TimedTransition leftTimeTransition = leftAlpha.firstOfType(TimedTransition.class);
 				resultAlpha = leftAlpha.subtract(leftTimeTransition);
 				long limit = val - (owner.getCurrentTime() - startTimeVal);
 				resultAlpha = resultAlpha.union(leftTimeTransition.synchronizeWith(new TimedTransition(owner, limit)));
@@ -920,7 +919,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 			// If time can pass in the left, we need to put the remaining time of the timeout
 			if (leftAlpha.hasType(TimedTransition.class))
 			{
-				TimedTransition leftTimeTransition = leftAlpha.getTransitionOfType(TimedTransition.class);
+				TimedTransition leftTimeTransition = leftAlpha.firstOfType(TimedTransition.class);
 				resultAlpha = leftAlpha.subtract(leftTimeTransition);
 				long limit = val - (owner.getCurrentTime() - startTimeVal);
 				resultAlpha = resultAlpha.union(leftTimeTransition.synchronizeWith(new TimedTransition(owner, limit)));
@@ -999,7 +998,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 			// If time can pass in the left, we need to put the remaining time of the timeout
 			if (leftAlpha.hasType(TimedTransition.class))
 			{
-				TimedTransition leftTimeTransition = leftAlpha.getTransitionOfType(TimedTransition.class);
+				TimedTransition leftTimeTransition = leftAlpha.firstOfType(TimedTransition.class);
 				resultAlpha = leftAlpha.subtract(leftTimeTransition);
 				long limit = val - (owner.getCurrentTime() - startTimeVal);
 				resultAlpha = resultAlpha.union(leftTimeTransition.synchronizeWith(new TimedTransition(owner, limit)));

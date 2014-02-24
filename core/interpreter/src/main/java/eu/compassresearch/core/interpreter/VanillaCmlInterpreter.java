@@ -277,7 +277,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		}
 
 		logger.trace("Waiting for environment on : "
-				+ availableEvents.getTransitionsAsSet());
+				+ availableEvents.asSet());
 
 		logState(availableEvents);
 
@@ -373,7 +373,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			return availableEvents;
 		}
 
-		return availableEvents.removeByType(TimedTransition.class);
+		return availableEvents.filterOutByType(TimedTransition.class);
 	}
 
 	@Override

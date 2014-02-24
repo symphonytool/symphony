@@ -65,7 +65,7 @@ public class ConsoleSelectionStrategy implements SelectionStrategy
 
 	private CmlTransition userSelect(CmlTransitionSet availableChannelEvents)
 	{
-		List<CmlTransition> events = new ArrayList<CmlTransition>(availableChannelEvents.getTransitionsAsSet());
+		List<CmlTransition> events = new ArrayList<CmlTransition>(availableChannelEvents.asSet());
 
 		int choiceNumber = -1;
 		while (choiceNumber < 0 || choiceNumber >= events.size())

@@ -59,7 +59,7 @@ public class RandomSelectionStrategy implements SelectionStrategy
 			int nElems = availableChannelEvents.size();
 
 			// pick a random but deterministic choice
-			List<CmlTransition> transitions = new ArrayList<CmlTransition>(availableChannelEvents.getTransitionsAsSet());
+			List<CmlTransition> transitions = new ArrayList<CmlTransition>(availableChannelEvents.asSet());
 			selectedComm = transitions.get(rndChoice.nextInt(nElems));
 
 			// If the selected transition contains a channelname that are not precise then we
