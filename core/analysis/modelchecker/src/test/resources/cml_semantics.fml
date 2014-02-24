@@ -186,7 +186,7 @@
                                                                trans(State(stQ,Q),tock,State(stQ,Q_)).
 															   
     // Call reusing state
-    trans(n,tau,State(st,PBody)) :- n is State(st,proc(P,pPar)), ProcDef(P,pP,PBody).
+    trans(n,tau,State(st,PBody)) :- n is State(st,proc(P,pPar)), ProcDef(P,pPar,PBody).
 
     // operations
     trans(n,tau,State(st_,Skip)) :- n is State(st,operation(schN,opPar)), preOpOk(schN,opPar,st), operationDef(schN,opPar,st,st_).

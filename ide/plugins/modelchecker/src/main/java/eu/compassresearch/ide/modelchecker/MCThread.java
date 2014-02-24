@@ -63,9 +63,11 @@ public class MCThread extends Thread{
 			mc = FormulaIntegrator.getInstance();
 			String absolutePath = file.getLocation().toPortableString();
 			this.result = mc.analyseFile(absolutePath);
-			this.writeFormulaOutputTofile(selectedUnit, mcFolder, result);
-			this.fmw = new FormulaResultWrapper(result, null, propertyToCheck, mcFolder, selectedUnit, analysedProcess);
-			MCPluginDoStuff mcp = new MCPluginDoStuff(window.getActivePage().getActivePart().getSite(), cmlFile, this.fmw);
+			//this.writeFormulaOutputTofile(selectedUnit, mcFolder, result);
+			IFile factsFile = this.writeFormulaOutputTofile(file, mcFolder, result);
+			this.fmw = new FormulaResultWrapper(result, null, propertyToCheck, mcFolder, selectedUnit, analysedProcess, factsFile);
+			//MCPluginDoStuff mcp = new MCPluginDoStuff(window.getActivePage().getActivePart().getSite(), cmlFile, this.fmw);
+			MCPluginDoStuff mcp = new MCPluginDoStuff(window.getActivePage().getActivePart().getSite(), file, this.fmw);
 			mcp.run();
 			registry.store(selectedUnit.getParseNode(), fmw);
 		} catch (FormulaIntegrationException e) {
@@ -80,9 +82,10 @@ public class MCThread extends Thread{
 		this.status = MCStatus.FINISHED;
 	}
 
-	private void writeFormulaOutputTofile(ICmlSourceUnit selectedCmlSourceUnit, IFolder mcFolder, FormulaResult result){
-		String name = selectedCmlSourceUnit.getFile().getName();
-		String formulaFileName = name.substring(0,name.length()-selectedCmlSourceUnit.getFile().getFileExtension().length())+"facts";
+	private IFile writeFormulaOutputTofile(IFile selectedCmlSourceUnit, IFolder mcFolder, FormulaResult result){
+		//String name = selectedCmlSourceUnit.getFile().getName();
+		String name = selectedCmlSourceUnit.getName();
+		String formulaFileName = name.substring(0,name.length()-selectedCmlSourceUnit.getFileExtension().length())+"facts";
 		IFile outputFile = mcFolder.getFile(formulaFileName);
 		
 		try{
@@ -94,6 +97,8 @@ public class MCThread extends Thread{
 		}catch(CoreException e){
 			Activator.log(e);
 		}
+		
+		return outputFile;
 	} 
 	
 	public synchronized MCStatus getStatus(){

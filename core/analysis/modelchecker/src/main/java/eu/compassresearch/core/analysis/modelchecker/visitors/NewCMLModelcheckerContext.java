@@ -112,6 +112,18 @@ public class NewCMLModelcheckerContext {
 		return result;
 	}
 	
+	public MCAActionDefinition getActionByName(String name){
+		MCAActionDefinition result = null;
+		for (MCAActionDefinition action : localActions) {
+			if (action.getName().equals(name)) {
+				result = action;
+				break;
+			}
+		}
+		
+		return result;
+	}
+	
 	public MCAProcessDefinition getProcessByName(String name){
 		MCAProcessDefinition result = null;
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();

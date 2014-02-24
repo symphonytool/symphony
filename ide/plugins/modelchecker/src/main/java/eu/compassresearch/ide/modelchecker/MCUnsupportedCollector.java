@@ -1132,7 +1132,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseAExternalChoiceReplicatedProcess(
 			AExternalChoiceReplicatedProcess node) throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseAExternalChoiceReplicatedProcess(node);
