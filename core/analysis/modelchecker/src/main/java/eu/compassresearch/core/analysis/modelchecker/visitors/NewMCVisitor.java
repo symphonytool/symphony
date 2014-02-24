@@ -345,7 +345,7 @@ public class NewMCVisitor extends
 		//String cml_file = "src/test/resources/recursion.cml";
 		//String cml_file = "src/test/resources/action-prefix-stop.cml";
 		//String cml_file = "src/test/resources/minimondex-incomplete.cml.nok";
-		//String cml_file = "src/test/resources/simpler-minimondex.cml";
+		String cml_file = "src/test/resources/simpler-minimondex.cml";
 		//String cml_file = "src/test/resources/set-manipulation.cml";
 		//String cml_file = "src/test/resources/action-prefix-stop.cml";
 		//String cml_file = "src/test/resources/action-vardecl.cml";
@@ -353,7 +353,7 @@ public class NewMCVisitor extends
 		//String cml_file = "src/test/resources/Dphils.cml";
 		//String cml_file = "src/test/resources/BeoAVDeviceDiscovery-final-version-model-checker.cml";
 		//String cml_file = "src/test/resources/cmlfile5.cml";
-		String cml_file = "src/test/resources/simpler-insielImpl-final-modelchecker.cml";
+		//String cml_file = "src/test/resources/simpler-insielImpl-final-modelchecker.cml";
 		//String cml_file = "src/test/resources/action-prefix-skip.cml";
 		//System.out.println("Testing on " + cml_file);
 		PSource source1 = Utilities.makeSourceFromFile(cml_file);
@@ -373,7 +373,7 @@ public class NewMCVisitor extends
 		//String mainProcessName = "RegisterProc";
 		//String mainProcessName = "N_LAZY_Q";
 		//String mainProcessName = "ad_Initiate_Rescue_Activation___Fault_1";
-		String mainProcessName = "SIGNAL_BUFFER";
+		String mainProcessName = "OneCard";
 		
 		
 		String formulaCode = visitor1.generateFormulaScript(source1.getParagraphs(),Utilities.DEADLOCK_PROPERTY,mainProcessName);
