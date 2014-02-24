@@ -40,13 +40,13 @@ public class DebugAnimationStrategy implements SelectionStrategy
 
 	private boolean isSystemSelect(CmlTransitionSet availableChannelEvents)
 	{
-		return availableChannelEvents.hasTransitionsOfType(TauTransition.class);
+		return availableChannelEvents.hasType(TauTransition.class);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private CmlTransition systemSelect()
 	{
-		this.rndSelect.choices(this.availableChannelEvents.filterTransitionsOfType(TauTransition.class));
+		this.rndSelect.choices(this.availableChannelEvents.filterByType(TauTransition.class));
 		return rndSelect.resolveChoice();
 	}
 

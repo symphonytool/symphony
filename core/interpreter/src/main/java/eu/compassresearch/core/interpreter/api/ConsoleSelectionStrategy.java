@@ -34,11 +34,11 @@ public class ConsoleSelectionStrategy implements SelectionStrategy
 	private boolean isSystemSelect(CmlTransitionSet availableChannelEvents)
 	{
 
-		Set<AbstractSilentTransition> silentTransitions = availableChannelEvents.getTransitionsOfType(AbstractSilentTransition.class);
+		CmlTransitionSet silentTransitions = availableChannelEvents.filterByType(AbstractSilentTransition.class);
 		// don't let the system run the divergent processes since it will never stop
 		int count = 0;
 
-		for (AbstractSilentTransition st : silentTransitions)
+		for (CmlTransition st : silentTransitions)
 		{
 			count = st.getEventSources().iterator().next().isDivergent() ? count + 1
 					: count;
@@ -50,7 +50,7 @@ public class ConsoleSelectionStrategy implements SelectionStrategy
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private CmlTransition systemSelect(CmlTransitionSet availableChannelEvents)
 	{
-		rndSelect.choices(availableChannelEvents.filterTransitionsOfType(AbstractSilentTransition.class));
+		rndSelect.choices(availableChannelEvents.filterByType(AbstractSilentTransition.class));
 		return rndSelect.resolveChoice();
 	}
 

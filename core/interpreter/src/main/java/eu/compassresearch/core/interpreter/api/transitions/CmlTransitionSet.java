@@ -47,12 +47,12 @@ public class CmlTransitionSet implements Iterable<CmlTransition>
 	{
 		this.transitions = new TreeSet<CmlTransition>(transitions);
 		
-		if( getTransitionsOfType(TimedTransition.class).size() > 1)
+		if( filterByTypeAsSet(TimedTransition.class).size() > 1)
 			throw new RuntimeException();
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T extends CmlTransition> SortedSet<T> getTransitionsOfType(Class<T> type)
+	public <T extends CmlTransition> SortedSet<T> filterByTypeAsSet(Class<T> type)
 	{
 		TreeSet<T> foundTransitions = new TreeSet<T>();
 		
@@ -63,7 +63,7 @@ public class CmlTransitionSet implements Iterable<CmlTransition>
 		return foundTransitions;
 	}
 	
-	public <T extends CmlTransition> boolean hasTransitionsOfType(Class<T> type)
+	public <T extends CmlTransition> boolean hasType(Class<T> type)
 	{
 		for(CmlTransition t : this.transitions)
 			if(type.isInstance(t))
@@ -93,15 +93,10 @@ public class CmlTransitionSet implements Iterable<CmlTransition>
 		return new CmlTransitionSet(result);
 	}
 	
-	public <T extends CmlTransition> CmlTransitionSet filterTransitionsOfType(Class<T> type)
+	@SuppressWarnings("unchecked")
+	public <T extends CmlTransition> CmlTransitionSet filterByType(Class<T> type)
 	{
-		TreeSet<CmlTransition> foundTransitions = new TreeSet<CmlTransition>();
-		
-		for(CmlTransition t : this.transitions)
-			if(type.isInstance(t))
-				foundTransitions.add(t);
-		
-		return new CmlTransitionSet(foundTransitions);
+		return new CmlTransitionSet((SortedSet<CmlTransition>)filterByTypeAsSet(type));
 	}
 
 	/**
@@ -165,60 +160,6 @@ public class CmlTransitionSet implements Iterable<CmlTransition>
 		return new CmlTransitionSet(resultSet);
 	}
 
-//	/**
-//	 * Calculates the intersection with imprecision between this and other. Meaning that two events might intersect even
-//	 * though their value is not equal E.g. Assume that we have the following two alphabets A = {a.3,b} and B = {a.?}
-//	 * then the result after invoking this function would be A.intersectImprecise(B) == {a.3,a.?} As a.3 and a.?
-//	 * intersects even though a.? can be any value of the type of 'a'.
-//	 * 
-//	 * @param other
-//	 * @return
-//	 */
-//	public CmlTransitionSet intersect(CmlTransitionSet other)
-//	{
-//		SortedSet<CmlTransition> resultSet = new TreeSet<CmlTransition>();
-//
-//		for (CmlTransition thisEvent : this.transitions)
-//		{
-//			if(thisEvent instanceof ObservableTransition)
-//			{
-//			
-//				for (CmlTransition otherEvent : other.transitions)
-//				{
-//					if(otherEvent instanceof ObservableTransition)
-//					{
-//						if (((ObservableTransition)thisEvent).isComparable((ObservableTransition)otherEvent)
-//								&& thisEvent.isSourcesSubset(otherEvent))
-//						{
-//							resultSet.add(thisEvent);
-//						}
-//					}
-//				}
-//			}
-//		}
-//
-//		return new CmlTransitionSet(resultSet);
-//	}
-
-//	public CmlTransitionSet intersectWithObservable(ObservableTransition other)
-//	{
-//		SortedSet<CmlTransition> resultSet = new TreeSet<CmlTransition>();
-//
-//		for (CmlTransition thisEvent : transitions)
-//		{
-//			if(thisEvent instanceof ObservableTransition)
-//			{
-//				if (((ObservableTransition)thisEvent).isComparable(other)
-//						&& thisEvent.isSourcesSubset(other))
-//				{
-//					resultSet.add(thisEvent);
-//				}
-//			}
-//		}
-//
-//		return new CmlTransitionSet(resultSet);
-//	}
-
 	public CmlTransitionSet retainByChannelName(
 			ChannelNameValue channelNameValue)
 	{
@@ -275,7 +216,8 @@ public class CmlTransitionSet implements Iterable<CmlTransition>
 			if (obsTransition instanceof LabelledTransition)
 			{
 				LabelledTransition obsChannelEvent = (LabelledTransition) obsTransition;
-				if (!(obsChannelEvent.getChannelName().isComparable(channelNameValue) && channelNameValue.isGTEQPrecise(obsChannelEvent.getChannelName())))
+				if (!(obsChannelEvent.getChannelName().isComparable(channelNameValue) && 
+						channelNameValue.isGTEQPrecise(obsChannelEvent.getChannelName())))
 				{
 					resultSet.add(obsTransition);
 				}
@@ -290,11 +232,13 @@ public class CmlTransitionSet implements Iterable<CmlTransition>
 	}
 
 	/**
-	 * Returns a new CmlTransitionSet where all the LabelledTransitions with a channel in channelNameSetValue
-	 * are removed 
+	 * Calculates a new CmlTransitionSet as described in return
 	 * 
-	 * @param channelNameSetValue
-	 * @return
+	 * @param channelNameSetValue Contains the names that
+	 * 		should by removed from the returned CmlTransitionSet
+	 * @return Returns a new CmlTransitionSet where all the LabelledTransitions 
+	 * from this instance with a channel value that are equally or more 
+	 * precise than the channelNameValue instances in channelNameSetValue are removed. 
 	 */
 	public CmlTransitionSet removeByChannelNameSet(
 			ChannelNameSetValue channelNameSetValue)
@@ -325,8 +269,7 @@ public class CmlTransitionSet implements Iterable<CmlTransition>
 					resultSet.add(obsTransition);
 				}
 			}
-			//TODO: this should be there
-			else if(!(obsTransition instanceof TimedTransition))
+			else 
 			{
 				resultSet.add(obsTransition);
 			}

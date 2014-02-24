@@ -269,7 +269,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 
 	public CmlTransition resolveChoice(CmlTransitionSet availableEvents)
 	{
-		if (availableEvents.hasTransitionsOfType(ObservableTransition.class))
+		if (availableEvents.hasType(ObservableTransition.class))
 		{
 			Console.out.print("Waiting for environment on : ");
 			availableEvents.displayAllAvaliableEvents(Console.out);

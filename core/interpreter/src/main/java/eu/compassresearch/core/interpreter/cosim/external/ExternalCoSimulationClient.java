@@ -141,7 +141,7 @@ public class ExternalCoSimulationClient extends Thread
 				throw new InterpreterRuntimeException("Interpreter inspection failed in co-simulation client", e);
 			}
 
-			for (ObservableTransition t : transitions.getTransitionsOfType(ObservableTransition.class))
+			for (CmlTransition t : transitions.filterByType(ObservableTransition.class))
 			{
 				System.out.println("Offering event: " + t.getTransitionId());
 			}

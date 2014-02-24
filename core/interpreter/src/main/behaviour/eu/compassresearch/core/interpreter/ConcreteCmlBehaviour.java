@@ -517,11 +517,9 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 			{
 				return true;
 			} else if (alpha.size() == 1
-					&& alpha.getTransitionsOfType(ObservableTransition.class).size() == 1)
+					&& alpha.filterByType(TimedTransition.class).size() == 1)
 			{
-				ObservableTransition obsEvent = alpha.getTransitionsOfType(ObservableTransition.class).first();
-				return obsEvent instanceof TimedTransition
-						&& !((TimedTransition) obsEvent).hasTimeLimit();
+				return !((TimedTransition) alpha.filterByTypeAsSet(ObservableTransition.class).first()).hasTimeLimit();
 			} else
 			{
 				return false;
