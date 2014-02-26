@@ -323,12 +323,6 @@ public class DelegatedCmlBehaviour implements CmlBehaviour
 	}
 
 	@Override
-	public boolean started()
-	{
-		return false;
-	}
-
-	@Override
 	public synchronized boolean finished()
 	{
 		if (finished)

@@ -113,13 +113,6 @@ public class TestMessageCommunicator
 			}
 
 			@Override
-			public boolean started()
-			{
-
-				return false;
-			}
-
-			@Override
 			public void replaceState(Context context) throws ValueException
 			{
 

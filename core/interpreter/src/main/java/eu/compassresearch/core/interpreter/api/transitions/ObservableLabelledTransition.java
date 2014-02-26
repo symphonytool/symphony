@@ -136,9 +136,9 @@ implements LabelledTransition
 	@Override
 	public boolean isSynchronizableWith(ObservableTransition other)
 	{
-		LabelledTransition otherLT = (LabelledTransition)other;
+		LabelledTransition otherLT = other instanceof LabelledTransition?(LabelledTransition)other : null;
 		
-		if( isComparable(other) && 
+		if( isComparable(otherLT) && 
 				(this.getChannelName().isGTEQPrecise(otherLT.getChannelName())
 				|| otherLT.getChannelName().isGTEQPrecise(this.getChannelName())))
 		{

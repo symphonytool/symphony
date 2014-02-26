@@ -20,6 +20,12 @@ public class ChannelNameSetValue extends Value implements Set<ChannelNameValue>
 	{
 		this.channelNames = new HashSet<ChannelNameValue>(channelNames);
 	}
+	
+	public ChannelNameSetValue(ChannelNameValue channelName)
+	{
+		this.channelNames = new HashSet<ChannelNameValue>();
+		this.channelNames.add(channelName);
+	}
 
 	@Override
 	public String toString()

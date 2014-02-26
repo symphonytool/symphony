@@ -3,17 +3,17 @@ package eu.compassresearch.core.interpreter.api.transitions;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameSetValue;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
 
-public class RetainByChannelNameSetFilter implements Filter<CmlTransition>
+public class RetainChannelNames implements Filter
 {
 	private final ChannelNameSetValue channelNameSetValue;
 	
-	public RetainByChannelNameSetFilter(ChannelNameSetValue channelNameSetValue)
+	public RetainChannelNames(ChannelNameSetValue channelNameSetValue)
 	{
 		this.channelNameSetValue = channelNameSetValue;
 	}
 
 	@Override
-	public boolean apply(CmlTransition transition)
+	public boolean isAccepted(CmlTransition transition)
 	{
 		if(transition instanceof LabelledTransition)
 		{

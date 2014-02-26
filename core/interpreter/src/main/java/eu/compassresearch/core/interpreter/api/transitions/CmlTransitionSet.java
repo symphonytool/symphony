@@ -5,7 +5,6 @@ import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import eu.compassresearch.core.interpreter.api.values.ChannelNameSetValue;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
 
 /**
@@ -88,7 +87,7 @@ public class CmlTransitionSet implements Iterable<CmlTransition>
 	}
 	
 	
-	public <T extends CmlTransition> CmlTransitionSet filterOutByType(Class<T> type)
+	public <T extends CmlTransition> CmlTransitionSet removeAllType(Class<T> type)
 	{
 		TreeSet<CmlTransition> result = new TreeSet<CmlTransition>();
 		for(CmlTransition t : this.transitions)
@@ -198,101 +197,39 @@ public class CmlTransitionSet implements Iterable<CmlTransition>
 		return new CmlTransitionSet(resultSet);
 	}
 	
-	public CmlTransitionSet filter(Filter<CmlTransition> filter)
+	public CmlTransitionSet filter(Filter... filters)
 	{
 		SortedSet<CmlTransition> resultSet = new TreeSet<CmlTransition>();
 
 		for (CmlTransition t : transitions)
-			if(filter.apply(t))
+		{
+			boolean filterResult = true;
+			for (Filter filter  : filters)
+				if(!(filterResult &= filter.isAccepted(t)))
+					break;
+			if(filterResult)
 				resultSet.add(t);
+		}
 		
 		return new CmlTransitionSet(resultSet);
 	}
 	
-	@SuppressWarnings("unchecked")
-	public <T extends CmlTransition> SortedSet<T> filterWithType(Filter<T> filter)
+	public CmlTransitionSet map(MapOperation... mapOps)
 	{
-		SortedSet<T> resultSet = new TreeSet<T>();
+		SortedSet<CmlTransition> resultSet = new TreeSet<CmlTransition>();
 
 		for (CmlTransition t : transitions)
-			if(filter.apply((T)t))
-				resultSet.add((T)t);
+		{
+			CmlTransition mapResult = t;
+			for (MapOperation mapOp  : mapOps)
+				mapResult = mapOp.apply(mapResult);
+			
+			resultSet.add(mapResult);
+		}
 		
-		return resultSet;
-	}
-
-	public CmlTransitionSet removeByChannelName(
-			ChannelNameValue channelNameValue)
-	{
-		SortedSet<CmlTransition> resultSet = new TreeSet<CmlTransition>();
-
-		for (CmlTransition obsTransition : transitions)
-		{
-			if (obsTransition instanceof LabelledTransition)
-			{
-				LabelledTransition obsChannelEvent = (LabelledTransition) obsTransition;
-				if (!(obsChannelEvent.getChannelName().isComparable(channelNameValue) && 
-						channelNameValue.isGTEQPrecise(obsChannelEvent.getChannelName())))
-				{
-					resultSet.add(obsTransition);
-				}
-			}
-			else
-			{
-				resultSet.add(obsTransition);
-			}
-		}
-
 		return new CmlTransitionSet(resultSet);
 	}
-
-	/**
-	 * Calculates a new CmlTransitionSet as described in return
-	 * 
-	 * @param channelNameSetValue Contains the names that
-	 * 		should by removed from the returned CmlTransitionSet
-	 * @return Returns a new CmlTransitionSet where all the LabelledTransitions 
-	 * from this instance with a channel value that are equally or more 
-	 * precise than the channelNameValue instances in channelNameSetValue are removed. 
-	 */
-	public CmlTransitionSet filterOutByChannelNameSet(
-			ChannelNameSetValue channelNameSetValue)
-	{
-		SortedSet<CmlTransition> resultSet = new TreeSet<CmlTransition>();
-
-		for (CmlTransition obsTransition : transitions)
-		{
-			if (obsTransition instanceof LabelledTransition)
-			{
-
-				boolean retaintIt = true;
-
-				for (ChannelNameValue channelNameValue : channelNameSetValue)
-				{
-					LabelledTransition obsChannelEvent = (LabelledTransition) obsTransition;
-					if (obsChannelEvent.getChannelName().isComparable(channelNameValue)
-							&& channelNameValue.isGTEQPrecise(obsChannelEvent.getChannelName()))
-					{
-						retaintIt = false;
-						break;
-					}
-
-				}
-
-				if (retaintIt)
-				{
-					resultSet.add(obsTransition);
-				}
-			}
-			else 
-			{
-				resultSet.add(obsTransition);
-			}
-		}
-
-		return new CmlTransitionSet(resultSet);
-	}
-
+	
 	/**
 	 * Subtract other from this
 	 * 

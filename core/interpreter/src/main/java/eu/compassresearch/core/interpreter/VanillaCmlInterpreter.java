@@ -204,11 +204,11 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	protected void executeTopProcess(CmlBehaviour behaviour)
 			throws AnalysisException, InterruptedException
 	{
+		CmlTransitionSet availableEvents = inspect(behaviour);
+		
 		// continue until the top process is not finished and not deadlocked
 		while (!behaviour.finished() && !behaviour.deadlocked())
 		{
-			CmlTransitionSet availableEvents = inspect(behaviour);
-
 			selectedEvent = resolveChoice(availableEvents);
 
 			// if its null we terminate and assume that this happened because of a user interrupt
@@ -227,6 +227,8 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			CmlTrace trace = behaviour.getTraceModel();
 
 			logTransition(behaviour, trace);
+			
+			availableEvents = inspect(behaviour);
 
 		}
 
@@ -373,7 +375,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			return availableEvents;
 		}
 
-		return availableEvents.filterOutByType(TimedTransition.class);
+		return availableEvents.removeAllType(TimedTransition.class);
 	}
 
 	@Override

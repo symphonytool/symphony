@@ -1,6 +1,6 @@
 package eu.compassresearch.core.interpreter.api.transitions;
 
-public interface Filter<T extends CmlTransition>
+public interface Filter
 {
-	public boolean apply(CmlTransition transition);
+	public boolean isAccepted(CmlTransition transition);
 }

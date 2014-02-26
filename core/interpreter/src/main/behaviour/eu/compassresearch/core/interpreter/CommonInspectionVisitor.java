@@ -32,10 +32,15 @@ import eu.compassresearch.core.interpreter.api.behaviour.CmlCalculationStep;
 import eu.compassresearch.core.interpreter.api.behaviour.Inspection;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
-import eu.compassresearch.core.interpreter.api.transitions.RetainByChannelNameSetFilter;
+import eu.compassresearch.core.interpreter.api.transitions.Filter;
 import eu.compassresearch.core.interpreter.api.transitions.HiddenTransition;
 import eu.compassresearch.core.interpreter.api.transitions.LabelledTransition;
+import eu.compassresearch.core.interpreter.api.transitions.MapOperation;
 import eu.compassresearch.core.interpreter.api.transitions.ObservableTransition;
+import eu.compassresearch.core.interpreter.api.transitions.RemoveChannelNames;
+import eu.compassresearch.core.interpreter.api.transitions.RemoveTock;
+import eu.compassresearch.core.interpreter.api.transitions.RetainChannelNames;
+import eu.compassresearch.core.interpreter.api.transitions.RetainChannelNamesAndTime;
 import eu.compassresearch.core.interpreter.api.transitions.TauTransition;
 import eu.compassresearch.core.interpreter.api.transitions.TimedTransition;
 import eu.compassresearch.core.interpreter.api.values.CMLChannelValue;
@@ -112,13 +117,12 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
  			{
  				CmlTransitionSet transitionsToBeRenamed  = childTransitions.retainByChannelName(pair.getKey());
  				//if this is true then we have remove the from channel and need to add the
- 				for(ObservableTransition toBeRenamed : transitionsToBeRenamed.filterByTypeAsSet(ObservableTransition.class))
+ 				for(LabelledTransition toBeRenamed : transitionsToBeRenamed.filterByTypeAsSet(LabelledTransition.class))
  				{
- 					LabelledTransition tbr = (LabelledTransition)toBeRenamed;
- 					childTransitions = childTransitions.removeByChannelName(pair.getKey());
- 					LabelledTransition renamedtransition = tbr.rename(pair.getValue());
+ 					childTransitions = childTransitions.filter(new RemoveChannelNames(pair.getKey()));
+ 					LabelledTransition renamedtransition = toBeRenamed.rename(pair.getValue());
  					childTransitions = childTransitions.union(renamedtransition);
- 					newtoOld.put(renamedtransition, tbr);
+ 					newtoOld.put(renamedtransition, toBeRenamed);
  				}
  			}
  			
@@ -200,14 +204,14 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 			 * This is calculated by taking the each child alphabet and first retain corresponding 
 			 * channel set and then remove the intersection.
 			 */
-			CmlTransitionSet leftIndependentTransitions = leftChildAlpha.filter(new RetainByChannelNameSetFilter(leftChanset)).
-					filterOutByChannelNameSet(intersectionChanset).union(leftChildAlpha.filterByType(TauTransition.class));
-			CmlTransitionSet rightIndependentTransitions = rightChildAlpha.filter(new RetainByChannelNameSetFilter(rightChanset)).
-					filterOutByChannelNameSet(intersectionChanset).union(rightChildAlpha.filterByType(TauTransition.class));
+			CmlTransitionSet leftIndependentTransitions = leftChildAlpha.filter(new RetainChannelNames(leftChanset), 
+					new RemoveChannelNames(intersectionChanset)).union(leftChildAlpha.filterByType(TauTransition.class));
+			CmlTransitionSet rightIndependentTransitions = rightChildAlpha.filter(new RetainChannelNames(rightChanset),
+					new RemoveChannelNames(intersectionChanset)).union(rightChildAlpha.filterByType(TauTransition.class));
 
 			// combine all the common channel events that are in the channel set
-			CmlTransitionSet leftSync = leftChildAlpha.filter(new RetainByChannelNameSetFilter(intersectionChanset));
-			CmlTransitionSet rightSync = rightChildAlpha.filter(new RetainByChannelNameSetFilter(intersectionChanset));
+			CmlTransitionSet leftSync = leftChildAlpha.filter(new RetainChannelNames(intersectionChanset));
+			CmlTransitionSet rightSync = rightChildAlpha.filter(new RetainChannelNames(intersectionChanset));
 			SortedSet<CmlTransition> syncEvents = new TreeSet<CmlTransition>();
 			// Find the intersection between the child alphabets and the channel set and join them.
 			// Then if both left and right have them the next step will combine them.
@@ -454,16 +458,16 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		// convert the channel set of the current node to a alphabet
 		ChannelNameSetValue cs = eval(chansetExp, question);
 
-		// Get all the child alphabets and add the events that are not in the channelset
+		// Get all the child alphabets and add the events that are not in the channel set
 		final CmlBehaviour leftChild = owner.getLeftChild();
 		final CmlTransitionSet leftChildAlphabet = leftChild.inspect();
 		final CmlBehaviour rightChild = owner.getRightChild();
 		final CmlTransitionSet rightChildAlphabet = rightChild.inspect();
 
 		// combine all the common channel events that are in the channel set
-		CmlTransitionSet leftSync = leftChildAlphabet.filter(new RetainByChannelNameSetFilter(cs));
-		CmlTransitionSet rightSync = rightChildAlphabet.filter(new RetainByChannelNameSetFilter(cs));
-		SortedSet<CmlTransition> syncEvents = new TreeSet<CmlTransition>();
+		CmlTransitionSet leftSync = leftChildAlphabet.filter(new RetainChannelNamesAndTime(cs));
+		CmlTransitionSet rightSync = rightChildAlphabet.filter(new RetainChannelNamesAndTime(cs));
+		SortedSet<CmlTransition> synchonizedTransitions = new TreeSet<CmlTransition>();
 		// Find the intersection between the child alphabets and the channel set and join them.
 		// Then if both left and right have them the next step will combine them.
 		for (ObservableTransition leftTrans : leftSync.filterByTypeAsSet(ObservableTransition.class))
@@ -472,24 +476,18 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 			{
 				if(leftTrans.isSynchronizableWith(rightTrans))
 				{
-					syncEvents.add(leftTrans.synchronizeWith(rightTrans));
+					synchonizedTransitions.add(leftTrans.synchronizeWith(rightTrans));
 				}
 			}
-		}
-
-		TimedTransition leftTock = leftChildAlphabet.firstOfType(TimedTransition.class);
-		TimedTransition rightTock = rightChildAlphabet.firstOfType(TimedTransition.class);
-		if (leftTock != null && rightTock != null)
-		{
-			syncEvents.add(leftTock.synchronizeWith(rightTock));
 		}
 
 		/*
 		 * Finally we create the returned alphabet by joining all the Synchronized events together with all the event of
 		 * the children that are not in the channel set.
 		 */
-		CmlTransitionSet resultAlpha = new CmlTransitionSet(syncEvents).union(leftChildAlphabet.filterOutByChannelNameSet(cs).filterOutByType(TimedTransition.class));
-		resultAlpha = resultAlpha.union(rightChildAlphabet.filterOutByChannelNameSet(cs).filterOutByType(TimedTransition.class));
+		CmlTransitionSet resultAlpha = new CmlTransitionSet(synchonizedTransitions).
+				dunion(leftChildAlphabet.filter(new RemoveChannelNames(cs), new RemoveTock()),
+						rightChildAlphabet.filter(new RemoveChannelNames(cs), new RemoveTock()));
 
 		return newInspection(resultAlpha, new CmlCalculationStep()
 		{
@@ -585,25 +583,33 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 	 * @throws AnalysisException
 	 */
 	protected Inspection caseHiding(final INode node,
-			PVarsetExpression chansetExpression, final Context question)
+			final PVarsetExpression chansetExpression, final Context question)
 			throws AnalysisException
 	{
 		// We do the hiding behavior as long as the Action is not terminated
 		if (!owner.getLeftChild().finished())
 		{
-			// first we convert the channelset expression into a channelNameSetValue
-			ChannelNameSetValue cs = eval(chansetExpression, question);
 			// next we inspect the action to get the current available transitions
-			final CmlTransitionSet alpha = owner.getLeftChild().inspect();
-			// Intersect the two to find which transitions should be converted to silents transitions
-			CmlTransitionSet hiddenEvents = alpha.filter(new RetainByChannelNameSetFilter(cs));
-			// remove the events that has to be silent
-			CmlTransitionSet resultAlpha = alpha.subtract(hiddenEvents);
-			// convert them into silent events and add the again
-			for (LabelledTransition obsEvent : hiddenEvents.filterByTypeAsSet(LabelledTransition.class))
+			final CmlTransitionSet childTransitions = owner.getLeftChild().inspect();
+			CmlTransitionSet resultAlpha = childTransitions.map(new MapOperation()
 			{
-				resultAlpha = resultAlpha.union(new HiddenTransition(owner, node, obsEvent));
-			}
+				//evaluate the hidden channel set and initialize the filter with it which
+				//determine whether a given transition is covered by the hidden channel set or not
+				Filter filter = new RetainChannelNames(eval(chansetExpression, question));
+				@Override
+				public CmlTransition apply(CmlTransition transition)
+				{
+					/*
+					 * determine if this is in the hidden channel set and if so we 
+					 * convert it into a hiddenTransition otherwise we just keep it
+					 * as it is
+					*/
+					if(filter.isAccepted(transition))
+						return new HiddenTransition(owner, node, (LabelledTransition)transition);
+					else
+						return transition;
+				}
+			});
 
 			return newInspection(resultAlpha, new CmlCalculationStep()
 			{
@@ -615,7 +621,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 				{
 
 					if (selectedTransition instanceof HiddenTransition
-							&& alpha.containsEqualOrSyncPart(((HiddenTransition) selectedTransition).getHiddenEvent()))
+							&& childTransitions.containsEqualOrSyncPart(((HiddenTransition) selectedTransition).getHiddenEvent()))
 					{
 						selectedTransition = ((HiddenTransition) selectedTransition).getHiddenEvent();
 					}

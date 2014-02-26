@@ -281,7 +281,7 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 		// this.env= env;
 
 		// inspect if there are any immediate events
-		inspect();
+		//inspect();
 
 		ok = true;
 
@@ -465,11 +465,6 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	/**
 	 * State related methods
 	 */
-	@Override
-	public boolean started()
-	{
-		return ok;
-	}
 
 	@Override
 	public boolean waiting()
@@ -500,19 +495,15 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	{
 		return !hasChildren()
 				&& (next.first instanceof ASkipAction || next.first instanceof ASkipStm);
-		// ||
-		// next.first instanceof ASingleGeneralAssignmentStatementAction);
 	}
 
 	@Override
 	public boolean deadlocked() throws AnalysisException
 	{
-
 		if (!finished())
 		{
-			CmlTransitionSet alpha = inspect();
-
-			// A Process is deadlocked if its immediate alphabet is only tock with no limit
+			CmlTransitionSet alpha = lastInspection.getTransitions();
+			
 			if (alpha.isEmpty())
 			{
 				return true;

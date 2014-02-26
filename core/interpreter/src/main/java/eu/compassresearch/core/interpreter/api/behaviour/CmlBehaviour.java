@@ -257,9 +257,9 @@ public interface CmlBehaviour extends Serializable, Comparable<CmlBehaviour>
 			throws AnalysisException;
 
 	/**
-	 * Returns the immediate alphabet of the process, meaning the next possible cml event including tau
+	 * Calculates and returns the possible transitions of the behavior,
 	 * 
-	 * @return The immediate alphabet of the process
+	 * @return The immediate transitions of the behavior
 	 */
 	public CmlTransitionSet inspect() throws AnalysisException;
 
@@ -324,7 +324,6 @@ public interface CmlBehaviour extends Serializable, Comparable<CmlBehaviour>
 	 * 
 	 * @return true if the process has been started, meaning the start method has been invoked else false
 	 */
-	public boolean started();
 
 	public boolean finished();
 
@@ -349,12 +348,7 @@ public interface CmlBehaviour extends Serializable, Comparable<CmlBehaviour>
 	 */
 	public CmlBehaviorState getState();
 
-	/**
-	 * Register or unregister for the State Changed event
-	 * 
-	 * @return The appropriate EventSource for event registration
-	 */
-	public EventSource<CmlBehaviorStateObserver> onStateChanged();
+	
 
 	/**
 	 * Denotational Semantics Information
@@ -367,7 +361,18 @@ public interface CmlBehaviour extends Serializable, Comparable<CmlBehaviour>
 	public long getCurrentTime();
 
 	/**
+	 * Events
+	 */
+	
+	/**
 	 * Register or unregister for the State Changed event
+	 * 
+	 * @return The appropriate EventSource for event registration
+	 */
+	public EventSource<CmlBehaviorStateObserver> onStateChanged();
+	
+	/**
+	 * Register or unregister for the Trace Changed event
 	 * 
 	 * @return The appropriate EventSource for event registration
 	 */
