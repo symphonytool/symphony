@@ -38,10 +38,8 @@ import eu.compassresearch.core.interpreter.api.transitions.LabelledTransition;
 import eu.compassresearch.core.interpreter.api.transitions.MapOperation;
 import eu.compassresearch.core.interpreter.api.transitions.ObservableTransition;
 import eu.compassresearch.core.interpreter.api.transitions.RemoveChannelNames;
-import eu.compassresearch.core.interpreter.api.transitions.RemoveTock;
 import eu.compassresearch.core.interpreter.api.transitions.RetainChannelNames;
-import eu.compassresearch.core.interpreter.api.transitions.RetainChannelNamesAndTime;
-import eu.compassresearch.core.interpreter.api.transitions.TauTransition;
+import eu.compassresearch.core.interpreter.api.transitions.RetainChannelNamesAndTau;
 import eu.compassresearch.core.interpreter.api.transitions.TimedTransition;
 import eu.compassresearch.core.interpreter.api.values.CMLChannelValue;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameSetValue;
@@ -202,10 +200,10 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 			 * This is calculated by taking the each child alphabet and first retain corresponding 
 			 * channel set and then remove the intersection.
 			 */
-			CmlTransitionSet leftIndependentTransitions = leftChildAlpha.filter(new RetainChannelNames(leftChanset), 
-					new RemoveChannelNames(intersectionChanset)).union(leftChildAlpha.filterByType(TauTransition.class));
-			CmlTransitionSet rightIndependentTransitions = rightChildAlpha.filter(new RetainChannelNames(rightChanset),
-					new RemoveChannelNames(intersectionChanset)).union(rightChildAlpha.filterByType(TauTransition.class));
+			CmlTransitionSet leftIndependentTransitions = leftChildAlpha.filter(new RetainChannelNamesAndTau(leftChanset), 
+					new RemoveChannelNames(intersectionChanset));
+			CmlTransitionSet rightIndependentTransitions = rightChildAlpha.filter(new RetainChannelNamesAndTau(rightChanset),
+					new RemoveChannelNames(intersectionChanset));
 
 			// combine all the common channel events that are in the channel set
 			CmlTransitionSet leftSync = leftChildAlpha.filter(new RetainChannelNames(intersectionChanset));
@@ -228,8 +226,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 			 * Finally we create the returned alphabet by joining all the Synchronized events together with all the
 			 * event of the children that are not in the channel set.
 			 */
-			CmlTransitionSet resultAlpha = new CmlTransitionSet(syncEvents).union(leftIndependentTransitions);
-			resultAlpha = resultAlpha.union(rightIndependentTransitions);
+			CmlTransitionSet resultAlpha = new CmlTransitionSet(syncEvents).dunion(leftIndependentTransitions, rightIndependentTransitions);
 
 			return newInspection(resultAlpha, new CmlCalculationStep()
 			{
