@@ -41,6 +41,7 @@ import eu.compassresearch.core.interpreter.api.transitions.RemoveChannelNames;
 import eu.compassresearch.core.interpreter.api.transitions.RetainChannelNames;
 import eu.compassresearch.core.interpreter.api.transitions.RetainChannelNamesAndTau;
 import eu.compassresearch.core.interpreter.api.transitions.TimedTransition;
+import eu.compassresearch.core.interpreter.api.transitions.UpdateTimeLimit;
 import eu.compassresearch.core.interpreter.api.values.CMLChannelValue;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameSetValue;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
@@ -65,37 +66,16 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 	}
 
 	/**
-	 * This synchronizes any tock event from the children if both are running an and joins all the rest of the events
+	 * This returns a new CmlTransitionSet calculated from the current child behaviors. 
+	 * If possible it synchronizes tock transitions but just joins the others.
 	 * 
-	 * @return The joined transitions of the children syncing on tock if possible
+	 * @return The joined child transitions where tock is synched if possible
 	 * @throws AnalysisException
 	 */
-	protected CmlTransitionSet syncOnTockAndJoinChildren()
+	protected CmlTransitionSet syncOnTimeAndJoinChildren()
 			throws AnalysisException
 	{
-		// Get all the child alphabets
-		CmlTransitionSet leftChildAlphabet = owner.getLeftChild().inspect();
-		CmlTransitionSet rightChildAlphabet = owner.getRightChild().inspect();
-		return leftChildAlphabet.synchronizeOn(rightChildAlphabet, new ChannelNameSetValue(), true);
-//		// if both are running and they both have tock event we sync them
-//		if (leftChildAlphabet.hasType(TimedTransition.class)
-//				&& rightChildAlphabet.hasType(TimedTransition.class))
-//		{
-//			// get the tocks
-//			TimedTransition leftTock = leftChildAlphabet.firstOfType(TimedTransition.class);
-//			TimedTransition rightTock = rightChildAlphabet.firstOfType(TimedTransition.class);
-//
-//			// sync them
-//			CmlTransitionSet returnAlpha = new CmlTransitionSet(leftTock.synchronizeWith(rightTock));
-//
-//			// remove the old tocks and add the synced one to the result
-//			return returnAlpha.dunion(leftChildAlphabet.subtract(leftTock), rightChildAlphabet.subtract(rightTock));
-//		}
-//		// else we just joins all the event from both
-//		else
-//		{
-//			return leftChildAlphabet.union(rightChildAlphabet);
-//		}
+		return owner.getLeftChild().inspect().synchronizeOn(owner.getRightChild().inspect(), new ChannelNameSetValue(), true);
 	}
 	
 	protected Inspection caseChannelRenaming(final INode node,
@@ -337,7 +317,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 			// else we join the childrens alphabets
 		} else
 		{
-			return newInspection(syncOnTockAndJoinChildren(), new CmlCalculationStep()
+			return newInspection(syncOnTimeAndJoinChildren(), new CmlCalculationStep()
 			{
 
 				@Override
@@ -782,8 +762,8 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 			final Context question) throws AnalysisException
 	{
 		// Evaluate the expression into a natural number
-		long val = timeExpression.apply(cmlExpressionVisitor, question).natValue(question);
-		long startTimeVal = question.lookup(NamespaceUtility.getStartsByTimeName()).natValue(question);
+		final long val = timeExpression.apply(cmlExpressionVisitor, question).natValue(question);
+		final long startTimeVal = question.lookup(NamespaceUtility.getStartsByTimeName()).natValue(question);
 		
 		// If the left is Skip then the whole process becomes skip with the state of the left child
 		if (owner.getLeftChild().finished())
@@ -814,20 +794,9 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 			//
 			final CmlBehaviour leftBehavior = owner.getLeftChild();
 
-			CmlTransitionSet resultAlpha = null;
-			CmlTransitionSet leftAlpha = leftBehavior.inspect();
 			// If time can pass in the left, we need to put the remaining time of the timeout
-			if (leftAlpha.hasType(TimedTransition.class))
-			{
-				TimedTransition leftTimeTransition = leftAlpha.firstOfType(TimedTransition.class);
-				resultAlpha = leftAlpha.subtract(leftTimeTransition);
-				long limit = val - (owner.getCurrentTime() - startTimeVal);
-				resultAlpha = resultAlpha.union(leftTimeTransition.synchronizeWith(new TimedTransition(owner, limit)));
-			} else
-			{
-				resultAlpha = leftAlpha;
-			}
-
+			CmlTransitionSet resultAlpha = leftBehavior.inspect().map(new UpdateTimeLimit(owner,val,startTimeVal));
+			
 			return newInspection(resultAlpha, new CmlCalculationStep()
 			{
 				@Override
@@ -860,8 +829,8 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 			final Context question) throws AnalysisException
 	{
 		// Evaluate the expression into a natural number
-		long val = timeExpression.apply(cmlExpressionVisitor, question).natValue(question);
-		long startTimeVal = question.lookup(NamespaceUtility.getEndsByTimeName()).natValue(question);
+		final long val = timeExpression.apply(cmlExpressionVisitor, question).natValue(question);
+		final long startTimeVal = question.lookup(NamespaceUtility.getEndsByTimeName()).natValue(question);
 		
 		// If the left is Skip then the whole process becomes skip with the state of the left child
 		if (owner.getLeftChild().finished())
@@ -892,19 +861,8 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 			//
 			final CmlBehaviour leftBehavior = owner.getLeftChild();
 
-			CmlTransitionSet resultAlpha = null;
-			CmlTransitionSet leftAlpha = leftBehavior.inspect();
 			// If time can pass in the left, we need to put the remaining time of the timeout
-			if (leftAlpha.hasType(TimedTransition.class))
-			{
-				TimedTransition leftTimeTransition = leftAlpha.firstOfType(TimedTransition.class);
-				resultAlpha = leftAlpha.subtract(leftTimeTransition);
-				long limit = val - (owner.getCurrentTime() - startTimeVal);
-				resultAlpha = resultAlpha.union(leftTimeTransition.synchronizeWith(new TimedTransition(owner, limit)));
-			} else
-			{
-				resultAlpha = leftAlpha;
-			}
+			CmlTransitionSet resultAlpha = leftBehavior.inspect().map(new UpdateTimeLimit(owner,val,startTimeVal));
 
 			return newInspection(resultAlpha, new CmlCalculationStep()
 			{
@@ -1050,7 +1008,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 			});
 		} else
 		{
-			return newInspection(syncOnTockAndJoinChildren(),
+			return newInspection(syncOnTimeAndJoinChildren(),
 
 			new CmlCalculationStep()
 			{

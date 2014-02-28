@@ -228,7 +228,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 			});
 		} else
 		{
-			return newInspection(syncOnTockAndJoinChildren(), new CmlCalculationStep()
+			return newInspection(syncOnTimeAndJoinChildren(), new CmlCalculationStep()
 			{
 
 				@Override
@@ -336,7 +336,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 
 		} else
 		{
-			return newInspection(syncOnTockAndJoinChildren(), new CmlCalculationStep()
+			return newInspection(syncOnTimeAndJoinChildren(), new CmlCalculationStep()
 			{
 
 				@Override

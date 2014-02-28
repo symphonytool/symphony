@@ -403,7 +403,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 			return newInspection(createTauTransitionWithoutTime(dstNode, "End"), caseParallelEnd(dstNode, question));
 		} else
 		{
-			return newInspection(syncOnTockAndJoinChildren(), new CmlCalculationStep()
+			return newInspection(syncOnTimeAndJoinChildren(), new CmlCalculationStep()
 			{
 
 				@Override
