@@ -1,6 +1,5 @@
 package eu.compassresearch.core.interpreter.api.transitions;
 
-import org.overture.ast.analysis.AnalysisException;
 
 public interface ObservableTransition extends CmlTransition
 {
@@ -11,8 +10,7 @@ public interface ObservableTransition extends CmlTransition
 	 * @param other
 	 * @return The synchronized event
 	 */
-	public ObservableTransition synchronizeWith(ObservableTransition other)
-			throws AnalysisException;
+	public ObservableTransition synchronizeWith(ObservableTransition other);
 
 	
 	public boolean isSynchronizedBy(ObservableTransition other);

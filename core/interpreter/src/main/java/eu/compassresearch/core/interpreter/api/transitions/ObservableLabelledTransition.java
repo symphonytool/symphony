@@ -156,24 +156,26 @@ implements LabelledTransition
 
 	@Override
 	public ObservableTransition synchronizeWith(ObservableTransition syncEvent)
-			throws AnalysisException
 	{
 		ObservableLabelledTransition otherComEvent = (ObservableLabelledTransition) syncEvent;
 		ChannelNameValue meetValue = this.getChannelName().meet(((LabelledTransition) otherComEvent).getChannelName());
 
-		if (meetValue == null)
+//		if (meetValue == null)
+//		{
+//			throw new CmlInterpreterException(InterpretationErrorMessages.SYNC_OF_NONCOMPARABLE_EVENTS.customizeMessage(this.toString(), syncEvent.toString()));
+//		}
+
+		try
 		{
-			throw new CmlInterpreterException(InterpretationErrorMessages.SYNC_OF_NONCOMPARABLE_EVENTS.customizeMessage(this.toString(), syncEvent.toString()));
+			if (meetValue.isConstraintValid())
+			{
+				return new ObservableLabelledTransition(this, otherComEvent, meetValue);
+			} 
+		} catch (AnalysisException e)
+		{
 		}
 
-		if (meetValue.isConstraintValid())
-		{
-			return new ObservableLabelledTransition(this, otherComEvent, meetValue);
-		} else
-		{
-			return null;
-		}
-
+		return null;
 	}
 
 	// TODO implement the expanding!

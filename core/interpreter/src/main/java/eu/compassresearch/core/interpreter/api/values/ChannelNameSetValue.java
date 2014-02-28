@@ -16,6 +16,11 @@ public class ChannelNameSetValue extends Value implements Set<ChannelNameValue>
 	private static final long serialVersionUID = 1L;
 	Set<ChannelNameValue> channelNames;
 
+	public ChannelNameSetValue()
+	{
+		this.channelNames = new HashSet<ChannelNameValue>();
+	}
+	
 	public ChannelNameSetValue(Set<ChannelNameValue> channelNames)
 	{
 		this.channelNames = new HashSet<ChannelNameValue>(channelNames);

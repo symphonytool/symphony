@@ -11,6 +11,12 @@ public class RetainChannelNames implements Filter
 	{
 		this.channelNameSetValue = channelNameSetValue;
 	}
+	
+	public RetainChannelNames(ChannelNameValue channelNameValue)
+	{
+		this.channelNameSetValue = new ChannelNameSetValue(channelNameValue);
+		
+	} 
 
 	@Override
 	public boolean isAccepted(CmlTransition transition)

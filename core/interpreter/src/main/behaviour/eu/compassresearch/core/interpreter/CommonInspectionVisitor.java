@@ -78,28 +78,26 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		// Get all the child alphabets
 		CmlTransitionSet leftChildAlphabet = owner.getLeftChild().inspect();
 		CmlTransitionSet rightChildAlphabet = owner.getRightChild().inspect();
-
-		// if both are running and they both have tock event we sync them
-		if (!owner.getLeftChild().finished()
-				&& !owner.getRightChild().finished()
-				&& leftChildAlphabet.hasType(TimedTransition.class)
-				&& rightChildAlphabet.hasType(TimedTransition.class))
-		{
-			// get the tocks
-			TimedTransition leftTock = leftChildAlphabet.firstOfType(TimedTransition.class);
-			TimedTransition rightTock = rightChildAlphabet.firstOfType(TimedTransition.class);
-
-			// sync them
-			CmlTransitionSet returnAlpha = new CmlTransitionSet(leftTock.synchronizeWith(rightTock));
-
-			// remove the old tocks and add the synced one to the result
-			return returnAlpha.dunion(leftChildAlphabet.subtract(leftTock), rightChildAlphabet.subtract(rightTock));
-		}
-		// else we just joins all the event from both
-		else
-		{
-			return leftChildAlphabet.union(rightChildAlphabet);
-		}
+		return leftChildAlphabet.synchronizeOn(rightChildAlphabet, new ChannelNameSetValue(), true);
+//		// if both are running and they both have tock event we sync them
+//		if (leftChildAlphabet.hasType(TimedTransition.class)
+//				&& rightChildAlphabet.hasType(TimedTransition.class))
+//		{
+//			// get the tocks
+//			TimedTransition leftTock = leftChildAlphabet.firstOfType(TimedTransition.class);
+//			TimedTransition rightTock = rightChildAlphabet.firstOfType(TimedTransition.class);
+//
+//			// sync them
+//			CmlTransitionSet returnAlpha = new CmlTransitionSet(leftTock.synchronizeWith(rightTock));
+//
+//			// remove the old tocks and add the synced one to the result
+//			return returnAlpha.dunion(leftChildAlphabet.subtract(leftTock), rightChildAlphabet.subtract(rightTock));
+//		}
+//		// else we just joins all the event from both
+//		else
+//		{
+//			return leftChildAlphabet.union(rightChildAlphabet);
+//		}
 	}
 	
 	protected Inspection caseChannelRenaming(final INode node,
@@ -115,7 +113,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 			final HashMap<CmlTransition, CmlTransition> newtoOld = new HashMap<CmlTransition, CmlTransition>();
  			for(Entry<ChannelNameValue, ChannelNameValue> pair : rv.renamingMap().entrySet())
  			{
- 				CmlTransitionSet transitionsToBeRenamed  = childTransitions.retainByChannelName(pair.getKey());
+ 				CmlTransitionSet transitionsToBeRenamed  = childTransitions.filter(new RetainChannelNames(pair.getKey()));
  				//if this is true then we have remove the from channel and need to add the
  				for(LabelledTransition toBeRenamed : transitionsToBeRenamed.filterByTypeAsSet(LabelledTransition.class))
  				{
@@ -464,31 +462,8 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		final CmlBehaviour rightChild = owner.getRightChild();
 		final CmlTransitionSet rightChildAlphabet = rightChild.inspect();
 
-		// combine all the common channel events that are in the channel set
-		CmlTransitionSet leftSync = leftChildAlphabet.filter(new RetainChannelNamesAndTime(cs));
-		CmlTransitionSet rightSync = rightChildAlphabet.filter(new RetainChannelNamesAndTime(cs));
-		SortedSet<CmlTransition> synchonizedTransitions = new TreeSet<CmlTransition>();
-		// Find the intersection between the child alphabets and the channel set and join them.
-		// Then if both left and right have them the next step will combine them.
-		for (ObservableTransition leftTrans : leftSync.filterByTypeAsSet(ObservableTransition.class))
-		{
-			for (ObservableTransition rightTrans : rightSync.filterByTypeAsSet(ObservableTransition.class))
-			{
-				if(leftTrans.isSynchronizableWith(rightTrans))
-				{
-					synchonizedTransitions.add(leftTrans.synchronizeWith(rightTrans));
-				}
-			}
-		}
-
-		/*
-		 * Finally we create the returned alphabet by joining all the Synchronized events together with all the event of
-		 * the children that are not in the channel set.
-		 */
-		CmlTransitionSet resultAlpha = new CmlTransitionSet(synchonizedTransitions).
-				dunion(leftChildAlphabet.filter(new RemoveChannelNames(cs), new RemoveTock()),
-						rightChildAlphabet.filter(new RemoveChannelNames(cs), new RemoveTock()));
-
+		CmlTransitionSet resultAlpha = leftChildAlphabet.synchronizeOn(rightChildAlphabet, cs);
+		
 		return newInspection(resultAlpha, new CmlCalculationStep()
 		{
 

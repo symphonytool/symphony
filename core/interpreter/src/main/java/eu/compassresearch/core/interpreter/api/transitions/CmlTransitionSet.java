@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import eu.compassresearch.core.interpreter.api.values.ChannelNameSetValue;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
 
 /**
@@ -175,27 +176,64 @@ public class CmlTransitionSet implements Iterable<CmlTransition>
 
 		return new CmlTransitionSet(resultSet);
 	}
-
-	public CmlTransitionSet retainByChannelName(
-			ChannelNameValue channelNameValue)
+	
+	public CmlTransitionSet synchronizeOn(CmlTransitionSet other, ChannelNameSetValue cs)
 	{
-		SortedSet<CmlTransition> resultSet = new TreeSet<CmlTransition>();
-
-		for (CmlTransition obsTransition : transitions)
+		return synchronizeOn(other, cs, false);
+	}
+	
+	public CmlTransitionSet synchronizeOn(final CmlTransitionSet other, ChannelNameSetValue cs, final boolean allowNonSynchedTime)
+	{
+		//create a filter that only accepts the cs channels or time
+		final Filter f = new RetainChannelNamesAndTime(cs);
+		
+		CmlTransitionSet synchedAndThisAllowed = this.map(new MapOperation()
 		{
-			if(obsTransition instanceof LabelledTransition)
+			CmlTransitionSet remainingOther = other;
+			
+			@Override
+			public CmlTransition apply(CmlTransition transition)
 			{
-				LabelledTransition obsChannelEvent = (LabelledTransition) obsTransition;
-				if (obsChannelEvent.getChannelName().isComparable(channelNameValue)
-						&& channelNameValue.isGTEQPrecise(obsChannelEvent.getChannelName()))
+				
+				if(f.isAccepted(transition))
 				{
-					resultSet.add(obsTransition);
+					//since got through the filter, we now its at least observable
+					ObservableTransition thisOT = (ObservableTransition)transition;
+					//So go through all the other transitions and see if they can be
+					//synched on
+					for(CmlTransition otherT : remainingOther)
+						if(otherT instanceof ObservableTransition &&
+								thisOT.isSynchronizableWith((ObservableTransition) otherT))
+						{
+							//remove the synched element so we dont need to check it again
+							remainingOther = remainingOther.subtract(otherT);
+							return thisOT.synchronizeWith((ObservableTransition)otherT);
+						}
+					
+					//If we allow time to pass without synching then we add it independently
+					if(allowNonSynchedTime && (transition instanceof TimedTransition))
+						return transition;
+					//else we take it out since the transition are not allowed to be
+					//performed if it cannot be synced and is in cs
+					else		
+						return null;
+				}
+				else
+				{
+					//just return the same transition if not in cs
+					return transition;
 				}
 			}
-		}
-
-		return new CmlTransitionSet(resultSet);
+		});
+		
+		//again if we allow nonsynched time then we need to keep it only if
+		//synchedAndThisAllowed does not have it
+		if(allowNonSynchedTime && !synchedAndThisAllowed.hasType(TimedTransition.class))
+			return synchedAndThisAllowed.union(other.filter(new RemoveChannelNames(cs)));
+		else
+			return synchedAndThisAllowed.union(other.filter(new RemoveChannelNames(cs), new RemoveTock()));
 	}
+
 	
 	public CmlTransitionSet filter(Filter... filters)
 	{
@@ -224,7 +262,8 @@ public class CmlTransitionSet implements Iterable<CmlTransition>
 			for (MapOperation mapOp  : mapOps)
 				mapResult = mapOp.apply(mapResult);
 			
-			resultSet.add(mapResult);
+			if(mapResult != null)
+				resultSet.add(mapResult);
 		}
 		
 		return new CmlTransitionSet(resultSet);
