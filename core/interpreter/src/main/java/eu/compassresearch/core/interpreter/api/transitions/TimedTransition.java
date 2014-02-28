@@ -75,21 +75,15 @@ public class TimedTransition extends AbstractCmlTransition implements
 	}
 
 	@Override
-	public boolean isComparable(ObservableTransition other)
-	{
-		return other instanceof TimedTransition;
-	}
-	
-	@Override
 	public boolean isSynchronizedBy(ObservableTransition other)
 	{
-		return this.isComparable(other) && this.isSourcesSubset(other);
+		return isSynchronizableWith(other) && this.isSourcesSubset(other);
 	}
 	
 	@Override
 	public boolean isSynchronizableWith(ObservableTransition other)
 	{
-		return isComparable(other);
+		return other instanceof TimedTransition;
 	}
 
 	public long getTimeLimit()

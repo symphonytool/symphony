@@ -102,20 +102,8 @@ implements LabelledTransition
 				&& super.equals(obj);
 	}
 	
-//	@Override
-//	public boolean equals(Object obj)
-//	{
-//
-//		if (!(obj instanceof ObservableLabelledTransition))
-//		{
-//			return false;
-//		}
-//
-//		return super.equals(obj);
-//	}
 
-	@Override
-	public boolean isComparable(ObservableTransition other)
+	private boolean isChannelsComparable(ObservableTransition other)
 	{
 
 		if (!(other instanceof LabelledTransition))
@@ -130,7 +118,7 @@ implements LabelledTransition
 	@Override
 	public boolean isSynchronizedBy(ObservableTransition other)
 	{
-		return  this.isComparable(other) && this.isSourcesSubset(other);
+		return  isChannelsComparable(other) && this.isSourcesSubset(other);
 	}
 	
 	@Override
@@ -138,7 +126,7 @@ implements LabelledTransition
 	{
 		LabelledTransition otherLT = other instanceof LabelledTransition?(LabelledTransition)other : null;
 		
-		if( isComparable(otherLT) && 
+		if( isChannelsComparable(otherLT) && 
 				(this.getChannelName().isGTEQPrecise(otherLT.getChannelName())
 				|| otherLT.getChannelName().isGTEQPrecise(this.getChannelName())))
 		{

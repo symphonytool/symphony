@@ -202,13 +202,6 @@ public class TestMessageCommunicator
 					}
 
 					@Override
-					public boolean isComparable(ObservableTransition other)
-					{
-
-						return false;
-					}
-
-					@Override
 					public String toString()
 					{
 						return "a";
