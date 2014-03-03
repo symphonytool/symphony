@@ -1,0 +1,79 @@
+channels
+  sendRescueInfoToEru
+  processMessage
+  receiveMessage
+  serviceRescue
+  startRecovery1
+  endRecovery1
+  logFault1
+  resendRescueInfoToEru
+  fault: nat
+  error: nat
+  failure: nat
+
+chansets
+  E = {| fault, error, failure |}
+  F = {| fault |}
+  H = {| startRecovery1, endRecovery1, logFault1, resendRescueInfoToEru |}
+  Alpha = {| sendRescueInfoToEru, processMessage, receiveMessage, 
+             serviceRescue, startRecovery1, endRecovery1, 
+             logFault1, resendRescueInfoToEru |}
+  Alpha_LFTSimple = Alpha
+  Alpha_NFTSimple = Alpha
+  Alpha_DLSimple = Alpha
+  Alpha_FFTSimple = Alpha
+
+-- Fault tolerant (limit).
+process LFTSimple =
+begin
+  actions
+    NOMINAL_LFTSimple = sendRescueInfoToEru -> 
+      ((processMessage -> RECEIVE_LFTSimple) [] FAULT_LFTSimple)
+    RECEIVE_LFTSimple = receiveMessage -> serviceRescue -> NOMINAL_LFTSimple
+    FAULT_LFTSimple = fault.1 -> (RECOVERY_LFTSimple [] (error.1 -> failure.1 -> Skip))
+    RECOVERY_LFTSimple = 
+      startRecovery1 -> logFault1 -> resendRescueInfoToEru -> 
+      processMessage -> receiveMessage -> endRecovery1 -> NOMINAL_LFTSimple
+  @ NOMINAL_LFTSimple
+end
+
+-- Not fault tolerant
+process NFTSimple = 
+begin
+  actions
+    NOMINAL_NFTSimple = sendRescueInfoToEru -> 
+      ((processMessage -> RECEIVE_NFTSimple) [] FAULT_NFTSimple)
+    RECEIVE_NFTSimple = receiveMessage -> serviceRescue -> NOMINAL_NFTSimple
+    FAULT_NFTSimple = fault.1 -> (RECOVERY_NFTSimple [] (error.1 -> failure.1 -> Skip))
+    RECOVERY_NFTSimple = 
+      startRecovery1 -> endRecovery1 -> NOMINAL_NFTSimple
+  @ NOMINAL_NFTSimple
+end
+
+-- Deadlocked system
+process DLSimple =
+begin
+  actions
+    NOMINAL_DLSimple = sendRescueInfoToEru -> 
+      ((processMessage -> RECEIVE_DLSimple) [] FAULT_DLSimple)
+    RECEIVE_DLSimple = receiveMessage -> serviceRescue -> Stop
+    FAULT_DLSimple = fault.1 -> (RECOVERY_DLSimple [] (error.1 -> failure.1 -> Skip))
+    RECOVERY_DLSimple = 
+      startRecovery1 -> logFault1 -> resendRescueInfoToEru -> 
+      processMessage -> receiveMessage -> endRecovery1 -> Stop
+  @ NOMINAL_DLSimple
+end
+
+-- Full fault tolerant
+process FFTSimple =
+begin
+  actions
+    NOMINAL_FFTSimple = sendRescueInfoToEru -> 
+      ((processMessage -> RECEIVE_FFTSimple) [] FAULT_FFTSimple)
+    RECEIVE_FFTSimple = receiveMessage -> serviceRescue -> NOMINAL_FFTSimple
+    FAULT_FFTSimple = fault.1 -> RECOVERY_FFTSimple
+    RECOVERY_FFTSimple = 
+      startRecovery1 -> logFault1 -> resendRescueInfoToEru -> 
+      processMessage -> receiveMessage -> endRecovery1 -> NOMINAL_FFTSimple
+  @ NOMINAL_FFTSimple
+end
