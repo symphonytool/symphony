@@ -1,15 +1,8 @@
 channels
-  sendRescueInfoToEru
-  processMessage
-  receiveMessage
-  serviceRescue
-  startRecovery1
-  endRecovery1
-  logFault1
-  resendRescueInfoToEru
-  fault: nat
-  error: nat
-  failure: nat
+  sendRescueInfoToEru, processMessage,
+  receiveMessage, serviceRescue, startRecovery1,
+  endRecovery1, logFault1, resendRescueInfoToEru
+  fault, error, failure: nat
 
 chansets
   E = {| fault, error, failure |}
@@ -33,7 +26,8 @@ begin
     FAULT_LFTSimple = fault.1 -> (RECOVERY_LFTSimple [] (error.1 -> failure.1 -> Skip))
     RECOVERY_LFTSimple = 
       startRecovery1 -> logFault1 -> resendRescueInfoToEru -> 
-      processMessage -> receiveMessage -> endRecovery1 -> NOMINAL_LFTSimple
+      processMessage -> receiveMessage -> endRecovery1 -> 
+      serviceRescue -> NOMINAL_LFTSimple
   @ NOMINAL_LFTSimple
 end
 
