@@ -40,7 +40,8 @@ begin
     RECEIVE_NFTSimple = receiveMessage -> serviceRescue -> NOMINAL_NFTSimple
     FAULT_NFTSimple = fault.1 -> (RECOVERY_NFTSimple [] (error.1 -> failure.1 -> Skip))
     RECOVERY_NFTSimple = 
-      startRecovery1 -> endRecovery1 -> NOMINAL_NFTSimple
+      startRecovery1 -> endRecovery1 -> 
+      serviceRescue -> NOMINAL_NFTSimple
   @ NOMINAL_NFTSimple
 end
 
@@ -54,7 +55,8 @@ begin
     FAULT_DLSimple = fault.1 -> (RECOVERY_DLSimple [] (error.1 -> failure.1 -> Skip))
     RECOVERY_DLSimple = 
       startRecovery1 -> logFault1 -> resendRescueInfoToEru -> 
-      processMessage -> receiveMessage -> endRecovery1 -> Stop
+      processMessage -> receiveMessage -> endRecovery1 -> 
+      serviceRescue -> Stop
   @ NOMINAL_DLSimple
 end
 
@@ -68,6 +70,7 @@ begin
     FAULT_FFTSimple = fault.1 -> RECOVERY_FFTSimple
     RECOVERY_FFTSimple = 
       startRecovery1 -> logFault1 -> resendRescueInfoToEru -> 
-      processMessage -> receiveMessage -> endRecovery1 -> NOMINAL_FFTSimple
+      processMessage -> receiveMessage -> endRecovery1 -> 
+      serviceRescue -> NOMINAL_FFTSimple
   @ NOMINAL_FFTSimple
 end

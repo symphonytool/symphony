@@ -16,7 +16,7 @@ channel sendRescueInfoToEru, processMessage,
   receiveMessage, serviceRescue, startRecovery1,
   endRecovery1, logFault1, resendRescueInfoToEru
 
-channel fault, error, failure: {1}
+channel fault, error, failure: {1..5}
 
 E = {| fault, error, failure |}
 F = {| fault |}
