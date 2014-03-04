@@ -347,6 +347,10 @@ public class FaultToleranceVerificationHandler extends SelectProcessHandler {
 			public boolean checkPreRequisite() {
 				return response.getDefinitionsMessage() == null;
 			}
+
+			@Override
+			public void postCheckPreRequisite(boolean checkResult) {
+			}
 		};
 
 		FaultToleranceModelCheckingJob deadlockFreedom = new FaultToleranceModelCheckingJob(
@@ -365,6 +369,10 @@ public class FaultToleranceVerificationHandler extends SelectProcessHandler {
 			public boolean checkPreRequisite() {
 				return response.getDeadlockFreedom().isSatisfied();
 			}
+
+			@Override
+			public void postCheckPreRequisite(boolean checkResult) {
+			}
 		};
 
 		IFaultToleranceVerificationPreRequisite divergenceFreeAndSemifair = new IFaultToleranceVerificationPreRequisite() {
@@ -372,6 +380,41 @@ public class FaultToleranceVerificationHandler extends SelectProcessHandler {
 			public boolean checkPreRequisite() {
 				return response.getDivergenceFreedom().isSatisfied()
 						&& response.getSemifairness().isSatisfied();
+			}
+
+			@Override
+			public void postCheckPreRequisite(boolean checkResult) {
+			}
+		};
+
+		IFaultToleranceVerificationPreRequisite notFullFaultTolerant = new IFaultToleranceVerificationPreRequisite() {
+			@Override
+			public void postCheckPreRequisite(boolean checkResult) {
+				if (!checkResult) {
+					response.getLimitedFaultTolerance().setChecked(true);
+					response.getLimitedFaultTolerance().setSatisfied(true);
+				}
+			}
+
+			@Override
+			public boolean checkPreRequisite() {
+				return !response.getFullFaultTolerance().isChecked()
+						|| !response.getFullFaultTolerance().isSatisfied();
+			}
+		};
+		IFaultToleranceVerificationPreRequisite limitedFaultTolerant = new IFaultToleranceVerificationPreRequisite() {
+			@Override
+			public void postCheckPreRequisite(boolean checkResult) {
+				if (!checkResult) {
+					response.getFullFaultTolerance().setChecked(true);
+					response.getFullFaultTolerance().setSatisfied(false);
+				}
+			}
+
+			@Override
+			public boolean checkPreRequisite() {
+				return !response.getLimitedFaultTolerance().isChecked()
+						|| response.getLimitedFaultTolerance().isSatisfied();
 			}
 		};
 		FaultToleranceModelCheckingJob limitedJob = new FaultToleranceModelCheckingJob(
@@ -381,10 +424,12 @@ public class FaultToleranceVerificationHandler extends SelectProcessHandler {
 		limitedJob.add(divergenceFreeAndSemifair);
 		limitedJob.add(deadlockFree);
 		limitedJob.add(allDefinitionsOk);
+		limitedJob.add(notFullFaultTolerant);
 		limitedJob.setUser(true);
 		fullJob.add(divergenceFreeAndSemifair);
 		fullJob.add(deadlockFree);
 		fullJob.add(allDefinitionsOk);
+		fullJob.add(limitedFaultTolerant);
 
 		Job markerJob = new MarkerUpdaterJob(request, response);
 

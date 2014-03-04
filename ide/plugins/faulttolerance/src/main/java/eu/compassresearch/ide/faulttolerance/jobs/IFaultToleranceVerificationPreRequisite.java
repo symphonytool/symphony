@@ -11,4 +11,6 @@ package eu.compassresearch.ide.faulttolerance.jobs;
  */
 public interface IFaultToleranceVerificationPreRequisite {
 	boolean checkPreRequisite();
+
+	void postCheckPreRequisite(boolean checkResult);
 }

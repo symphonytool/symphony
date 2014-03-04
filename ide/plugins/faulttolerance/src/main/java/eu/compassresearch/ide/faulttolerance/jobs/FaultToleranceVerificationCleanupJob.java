@@ -38,6 +38,10 @@ public class FaultToleranceVerificationCleanupJob extends
 				return FaultToleranceVerificationCleanupJob.this.folder
 						.exists();
 			}
+
+			@Override
+			public void postCheckPreRequisite(boolean checkResult) {
+			}
 		});
 	}
 
