@@ -2,11 +2,11 @@ channels
   sendRescueInfoToEru, processMessage,
   receiveMessage, serviceRescue, startRecovery1,
   endRecovery1, logFault1, resendRescueInfoToEru
-  fault, error, failure: nat
+  fault1, error1, failure1
 
 chansets
-  E = {| fault, error, failure |}
-  F = {| fault |}
+  E = {| fault1, error1, failure1 |}
+  F = {| fault1 |}
   H = {| startRecovery1, endRecovery1, logFault1, resendRescueInfoToEru |}
   Alpha = {| sendRescueInfoToEru, processMessage, receiveMessage, 
              serviceRescue, startRecovery1, endRecovery1, 
@@ -23,7 +23,7 @@ begin
     NOMINAL_LFTSimple = sendRescueInfoToEru -> 
       ((processMessage -> RECEIVE_LFTSimple) [] FAULT_LFTSimple)
     RECEIVE_LFTSimple = receiveMessage -> serviceRescue -> NOMINAL_LFTSimple
-    FAULT_LFTSimple = fault.1 -> (RECOVERY_LFTSimple [] (error.1 -> failure.1 -> Skip))
+    FAULT_LFTSimple = fault1 -> (RECOVERY_LFTSimple [] (error1 -> failure1 -> Skip))
     RECOVERY_LFTSimple = 
       startRecovery1 -> logFault1 -> resendRescueInfoToEru -> 
       processMessage -> receiveMessage -> endRecovery1 -> 
@@ -38,7 +38,7 @@ begin
     NOMINAL_NFTSimple = sendRescueInfoToEru -> 
       ((processMessage -> RECEIVE_NFTSimple) [] FAULT_NFTSimple)
     RECEIVE_NFTSimple = receiveMessage -> serviceRescue -> NOMINAL_NFTSimple
-    FAULT_NFTSimple = fault.1 -> (RECOVERY_NFTSimple [] (error.1 -> failure.1 -> Skip))
+    FAULT_NFTSimple = fault1 -> (RECOVERY_NFTSimple [] (error1 -> failure1 -> Skip))
     RECOVERY_NFTSimple = 
       startRecovery1 -> endRecovery1 -> 
       serviceRescue -> NOMINAL_NFTSimple
@@ -52,7 +52,7 @@ begin
     NOMINAL_DLSimple = sendRescueInfoToEru -> 
       ((processMessage -> RECEIVE_DLSimple) [] FAULT_DLSimple)
     RECEIVE_DLSimple = receiveMessage -> serviceRescue -> Stop
-    FAULT_DLSimple = fault.1 -> (RECOVERY_DLSimple [] (error.1 -> failure.1 -> Skip))
+    FAULT_DLSimple = fault1 -> (RECOVERY_DLSimple [] (error1 -> failure1 -> Skip))
     RECOVERY_DLSimple = 
       startRecovery1 -> logFault1 -> resendRescueInfoToEru -> 
       processMessage -> receiveMessage -> endRecovery1 -> 
@@ -67,7 +67,7 @@ begin
     NOMINAL_FFTSimple = sendRescueInfoToEru -> 
       ((processMessage -> RECEIVE_FFTSimple) [] FAULT_FFTSimple)
     RECEIVE_FFTSimple = receiveMessage -> serviceRescue -> NOMINAL_FFTSimple
-    FAULT_FFTSimple = fault.1 -> RECOVERY_FFTSimple
+    FAULT_FFTSimple = fault1 -> RECOVERY_FFTSimple
     RECOVERY_FFTSimple = 
       startRecovery1 -> logFault1 -> resendRescueInfoToEru -> 
       processMessage -> receiveMessage -> endRecovery1 -> 

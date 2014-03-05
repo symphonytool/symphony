@@ -6,11 +6,11 @@ ChaosE =
 
 Limit = [] e: F @ e -> Limit
 
-NoFaults(P) = P \ H [| E |] STOP
+NoFaults(P) = (P [| E |] STOP) \ H
 
-Lazy(P) = (P \ H [| E |] ChaosE) \ E
+Lazy(P) = (P [| E |] ChaosE) \ union(E, H)
 
-LazyLimit(P) = ((P \ H [| E |] Limit) [| E |] ChaosE) \ E
+LazyLimit(P) = ((P [| E |] Limit) [| E |] ChaosE) \ union(E, H)
 -----
 channel sendRescueInfoToEru, processMessage,
   receiveMessage, serviceRescue, startRecovery1,
