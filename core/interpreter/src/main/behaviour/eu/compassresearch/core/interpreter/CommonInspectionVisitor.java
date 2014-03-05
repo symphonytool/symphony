@@ -398,7 +398,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		// if true this means that this is the first time here, so the Parallel Begin rule is invoked.
 		if (!owner.hasChildren())
 		{
-			return newInspection(createTauTransitionWithTime(node, "Begin"),
+			return newInspection(createTauTransitionWithoutTime(node, "Begin"),
 
 			new CmlCalculationStep()
 			{
