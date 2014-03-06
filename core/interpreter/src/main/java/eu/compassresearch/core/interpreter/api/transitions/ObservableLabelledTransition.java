@@ -19,7 +19,7 @@ import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
 
-class ObservableLabelledTransition extends AbstractCmlTransition
+public class ObservableLabelledTransition extends AbstractCmlTransition
 implements LabelledTransition
 		
 {
