@@ -27,7 +27,7 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.overture.core</groupId>
+			<groupId>org.overturetool.core</groupId>
 			<artifactId>typechecker</artifactId>
 			<version>${overture.version}</version>
 		</dependency>

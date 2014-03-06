@@ -18,7 +18,7 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.overture.core</groupId>
+      <groupId>org.overturetool.core</groupId>
       <artifactId>ast</artifactId>
       <version>${overture.version}</version>
     </dependency>
@@ -57,7 +57,7 @@
 	  <useSrcOutput>false</useSrcOutput>
 
 
-	  <extendedAstGroupId>org.overture.core</extendedAstGroupId>
+	  <extendedAstGroupId>org.overturetool.core</extendedAstGroupId>
 	  <extendedAstArtifactId>ast</extendedAstArtifactId>
 	</configuration>
       </plugin>

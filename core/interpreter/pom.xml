@@ -28,12 +28,12 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.overture.core</groupId>
+			<groupId>org.overturetool.core</groupId>
 			<artifactId>typechecker</artifactId>
 			<version>${overture.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.overture.core</groupId>
+			<groupId>org.overturetool.core</groupId>
 			<artifactId>interpreter</artifactId>
 			<version>${overture.version}</version>
 		</dependency>
