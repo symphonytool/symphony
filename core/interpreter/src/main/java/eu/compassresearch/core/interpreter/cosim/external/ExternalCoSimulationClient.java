@@ -12,6 +12,9 @@ import java.util.Vector;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.SynchronousQueue;
 
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
@@ -20,6 +23,7 @@ import eu.compassresearch.core.interpreter.api.transitions.ObservableTransition;
 import eu.compassresearch.core.interpreter.cosim.DelegatedCmlBehaviour;
 import eu.compassresearch.core.interpreter.cosim.IProcessDelegate;
 import eu.compassresearch.core.interpreter.cosim.MessageManager;
+import eu.compassresearch.core.interpreter.cosim.communication.AbortMessage;
 import eu.compassresearch.core.interpreter.cosim.communication.DisconnectMessage;
 import eu.compassresearch.core.interpreter.cosim.communication.ExecuteCompletedMessage;
 import eu.compassresearch.core.interpreter.cosim.communication.ExecuteMessage;
@@ -250,5 +254,10 @@ public class ExternalCoSimulationClient extends Thread
 	public void setSubSystem(IProcessDelegate subsystem)
 	{
 		this.subsystem = subsystem;
+	}
+
+	public void abort(int error, String message) throws JsonGenerationException, JsonMappingException, IOException
+	{
+		comm.send(new AbortMessage(error,message));
 	}
 }
