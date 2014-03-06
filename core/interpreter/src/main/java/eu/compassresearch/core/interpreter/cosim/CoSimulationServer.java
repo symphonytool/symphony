@@ -7,7 +7,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Vector;
 
+import eu.compassresearch.core.interpreter.Console;
 import eu.compassresearch.core.interpreter.cosim.communication.ConnectionListener;
+import eu.compassresearch.core.interpreter.cosim.communication.ConnectionThread;
 import eu.compassresearch.core.interpreter.cosim.communication.Utils;
 
 /**
@@ -105,6 +107,14 @@ public class CoSimulationServer implements IProcessBehaviourDelegationManager
 		}
 
 		return false;
+	}
+
+	
+	@Override
+	public void abortedBy(ConnectionThread connectionThread,
+			String registeredProcessName, int errorCode, String message)
+	{
+		Console.out.println(registeredProcessName+" aborted with error:"+errorCode+ " "+message);
 	}
 
 }
