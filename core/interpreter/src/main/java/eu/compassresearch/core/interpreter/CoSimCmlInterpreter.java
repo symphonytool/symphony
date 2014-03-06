@@ -10,9 +10,9 @@ import org.overture.ast.definitions.PDefinition;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
-import eu.compassresearch.core.interpreter.api.transitions.AbstractSilentTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
+import eu.compassresearch.core.interpreter.api.transitions.TauTransition;
 import eu.compassresearch.core.interpreter.cosim.CoSimulationClient;
 import eu.compassresearch.core.interpreter.cosim.communication.Utils;
 
@@ -83,7 +83,7 @@ private Thread executionThread = null;
 	protected synchronized CmlTransitionSet extractSilentTransitions(
 			CmlTransitionSet availableEvents, CmlTransitionSet transitions)
 	{
-		for (CmlTransition transition : availableEvents.filterByType(AbstractSilentTransition.class))
+		for (CmlTransition transition : availableEvents.filterByType(TauTransition.class))
 		{
 			runningInternalExecution = true;
 			transitions = new CmlTransitionSet(transition);

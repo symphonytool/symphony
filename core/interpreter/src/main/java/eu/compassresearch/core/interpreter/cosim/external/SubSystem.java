@@ -16,8 +16,8 @@ import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.core.interpreter.NamespaceUtility;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
+import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionFactory;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
-import eu.compassresearch.core.interpreter.api.transitions.ObservableLabelledTransition;
 import eu.compassresearch.core.interpreter.api.transitions.ObservableTransition;
 import eu.compassresearch.core.interpreter.api.values.CMLChannelValue;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
@@ -47,7 +47,7 @@ public class SubSystem implements IProcessDelegate
 	{
 		CMLChannelValue channel = createChannelValue(name);
 		ChannelNameValue channelName = new ChannelNameValue(channel, new LinkedList<Value>(), null);
-		ObservableTransition transition = new ObservableLabelledTransition(null, channelName);
+		ObservableTransition transition = CmlTransitionFactory.newLabelledTransition(null, channelName);
 		return transition;
 	}
 
@@ -65,7 +65,7 @@ public class SubSystem implements IProcessDelegate
 		// constraints.add(new NoConstraint());
 
 		ChannelNameValue channelName = new ChannelNameValue(channel, values, null);
-		ObservableTransition transition = new ObservableLabelledTransition(null, channelName);
+		ObservableTransition transition = CmlTransitionFactory.newLabelledTransition(null, channelName);
 		return transition;
 	}
 
@@ -79,7 +79,7 @@ public class SubSystem implements IProcessDelegate
 		}
 
 		ChannelNameValue channelName = new ChannelNameValue(channel, values, null);
-		ObservableTransition transition = new ObservableLabelledTransition(null, channelName);
+		ObservableTransition transition = CmlTransitionFactory.newLabelledTransition(null, channelName);
 		return transition;
 	}
 

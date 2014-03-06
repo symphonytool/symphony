@@ -1,6 +1,7 @@
 package eu.compassresearch.core.interpreter.api.transitions;
 
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
+import eu.compassresearch.core.interpreter.api.transitions.ops.MapOperation;
 
 public class UpdateTimeLimit implements MapOperation
 {

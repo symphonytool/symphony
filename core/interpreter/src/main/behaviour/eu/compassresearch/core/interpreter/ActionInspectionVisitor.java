@@ -253,7 +253,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 			}
 		}
 
-		ObservableTransition observableEvent = CmlTransitionFactory.newObservableChannelEvent(owner, new ChannelNameValue(chanValue, values, constraints));
+		ObservableTransition observableEvent = CmlTransitionFactory.newLabelledTransition(owner, new ChannelNameValue(chanValue, values, constraints));
 		comset.add(observableEvent);
 
 		return newInspection(new CmlTransitionSet(comset).union(new TimedTransition(owner)), new CmlCalculationStep()

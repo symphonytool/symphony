@@ -1,10 +1,184 @@
 %%% Add [final] option to the report class to switch between draft and final version of the report
 %%% Use [narrowmargin] to enable narrow margins - this may impair readability.
-\documentclass[a4paper, 12pt]{include/compassreport}   %Or compasslargereport if chapters are required.
+\documentclass[a4paper, 10pt]{include/compassreport}   %Or compasslargereport if chapters are required.
+
+\usepackage{times}
+\usepackage{graphicx,caption}
+
+\graphicspath{{figures/}}
+
+\usepackage[cmex10]{amsmath}
+\usepackage{amssymb}
+%\usepackage{amsfonts}
+%\fontencoding{T4}
+%\usepackage{marvosym}
+%\usepackage{wasysym}
+\usepackage{ifthen}
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage{listings}
+\usepackage{wrapfig}
+\usepackage{cmllisting}
+\usepackage{subcaption}
+
+%remove red boxes on links
+\hypersetup{%
+    pdfborder = {0 0 0}
+}
+
+%%Figures
+\usepackage{tikz,bm,color}
+\usetikzlibrary{shapes,arrows}
+\usetikzlibrary{positioning,fit,calc}
+\usetikzlibrary{arrows}
+\usetikzlibrary{decorations.pathreplacing,patterns}
+%\usepackage{color}
+%\usepackage{float}
+%\restylefloat{table}
+% correct bad hyphenation here
+%\hyphenation{op-tical net-works semi-conduc-tor}
+
+\def\sectionautorefname{Section}
+\def\subsectionautorefname{Subsection}
+\def\subsubsectionautorefname{Subsection}
+
+\DeclareMathSymbol{\B}{\mathalpha}{AMSb}{"42}
+\DeclareMathSymbol{\I}{\mathalpha}{AMSb}{"49}
+\DeclareMathSymbol{\N}{\mathalpha}{AMSb}{"4E}
+\DeclareMathSymbol{\Pwr}{\mathalpha}{AMSb}{"50}
+\DeclareMathSymbol{\Q}{\mathalpha}{AMSb}{"51}
+\DeclareMathSymbol{\R}{\mathalpha}{AMSb}{"52}
+\DeclareMathSymbol{\Z}{\mathalpha}{AMSb}{"5A}
+\DeclareMathSymbol{\Sol}{\mathalpha}{AMSb}{"53}
+
+\newcommand{\obsv}[1]{{\cal O}(#1)}
+\newcommand{\ctrl}[1]{{\cal C}(#1)}
+\newcommand{\vdot}[1]{\stackrel{.}{#1}}
+\newcommand{\power}{\mathbf{P}}
+
+\newcommand{\HS}{{\mathcal H}}
+
+\newcommand{\Interval}{\I}
+
+\newcommand{\ist}{\mbox{{\tt true}}}
+\newcommand{\isf}{\mbox{{\tt false}}}
+\newcommand{\emptytrace}{\langle~\rangle}
+\newcommand{\abegin}{\mathbf{begin}}
+\newcommand{\aend}{\mathbf{end}}
+\newcommand{\alet}{\mathbf{let}}
+\newcommand{\aendlet}{\mathbf{endlet}}
+\newcommand{\ain}{\mathbf{in}}
+\newcommand{\afor}{\mathbf{for}}
+\newcommand{\adownto}{\mathbf{downto}}
+\newcommand{\aforall}{\mathbf{foreach}}
+\newcommand{\awhile}{\mathbf{while}}
+\newcommand{\ado}{\mathbf{do}}
+\newcommand{\aenddo}{\mathbf{enddo}}
+\newcommand{\acontinue}{\mathbf{continue}}
+\newcommand{\aif}{\mathbf{if}}
+\newcommand{\athen}{\mathbf{then}}
+\newcommand{\aelse}{\mathbf{else}}
+\newcommand{\aelseif}{\mathbf{elseif}}
+\newcommand{\aendif}{\mathbf{endif}}
+\newcommand{\ainout}{\mathbf{inout}}
+\newcommand{\aout}{\mathbf{out}}
+\newcommand{\aprocedure}{\mathbf{procedure}}
+\newcommand{\afunction}{\mathbf{function}}
+\newcommand{\abreak}{\mathbf{break}}
+\newcommand{\Sup}[1]{\overline{#1}}
+\newcommand{\Inf}[1]{\underline{#1}}
+
+
+\newcommand{\taba}{\hspace*{3mm}}
+\newcommand{\tabb}{\hspace*{6mm}}
+\newcommand{\tabc}{\hspace*{9mm}}
+\newcommand{\tabd}{\hspace*{12mm}}
+\newcommand{\tabe}{\hspace*{15mm}}
+\newcommand{\tabf}{\hspace*{18mm}}
+\newcommand{\tabg}{\hspace*{21mm}}
+
+\newcommand{\gca}[1]{{{#1}^{\vartriangleright}}}
+\newcommand{\gcb}[1]{{{#1}^{\vartriangleleft}}}
+\newcommand{\gclr}{{{\vartriangleleft\atop\longleftarrow}\atop
+                   {\longrightarrow\atop\vartriangleright}}}
+
+\newcommand{\dontshow}[1]{}
+
+
+\newcommand{\Nat}{{\mathbb N}}
+\newcommand{\Real}{{\mathbb R}}
+
+\newcommand{\trans}{\longrightarrow}
+\newcommand{\transp}{\longrightarrow_{\power}}
+\newcommand{\transl}{\longrightarrow_{L}}
+\newcommand{\transg}{\longrightarrow_{G}}
+\newcommand{\transcfg}[1]{\stackrel{#1}{\longrightarrow}_{CFG}}
+\newcommand{\isdefd}{=_{\mbox{\footnotesize def}}}
+\newcommand{\equivdef}{\equiv_{\mbox{\footnotesize def}}}
+\newcommand{\mitem}{\mbox{\em M-Item}}
+\newcommand{\fun}{\rightarrow}
+\newcommand{\pfun}{\not\rightarrow}
+\newcommand{\currt}{\hat{t}}
+
+\newcommand{\dom}{\mbox{dom}}
+\newcommand{\ran}{\text{ran}}
+
+\newcommand{\sigmaa}{\sigma_A}
+\newcommand{\strictimplies}{\stackrel{\bullet}{\Rightarrow}}
+
+
+\newtheorem{definition}{Definition}
+\newtheorem{property}{Property}
+\newtheorem{lemma}{Lemma}
+\newtheorem{theorem}{Theorem}
+
+\newcommand{\todo}[2]{\marginpar{\textbf{#1:} #2}}
+
+\newboolean{showcomments}
+%\setboolean{showcomments}{true}
+\setboolean{showcomments}{false}
+
+\newcommand{\com}[1]{\ifthenelse{\boolean{showcomments}}{
+           \bigskip
+           \noindent
+           \framebox
+       {\parbox{\textwidth}{
+           {\sf #1}
+           }}}{}}
+           
+
+\newcounter{examplectr}[section]
+\newenvironment{example}[1] 
+{
+{\refstepcounter{examplectr}
+\bf Example~\thesection.\theexamplectr.\label{#1}}
+}
+{
+
+}
+
+\lstdefinestyle{shstyle}{basicstyle=\footnotesize\ttfamily,
+			frame=trbl, 
+			showstringspaces=false,  
+			captionpos=b,
+			frameround=tttt, 
+			aboveskip=5mm, 
+			belowskip=5mm,
+			breaklines=true,
+			tabsize=4,
+			framexleftmargin=0mm, 
+			framexrightmargin=0mm}
+\lstnewenvironment{shell}{\lstset{style=shstyle}\lstset{language=sh}}{}
+
+
+\def\draftnote#1{\smallskip\noindent\hspace*{-3em}\framebox{\color{red}\begin{minipage}{\textwidth}#1\end{minipage}}\smallskip\par}
+
+\def\filepath{\nolinkurl}
+
 
 \reportnumber{DXX}
-\reporttitle{Simulator/Animator Design Document}
-\shortreporttitle{Simulator/Animator Design}  %To use if report title is too long for header
+\reporttitle{CML Interpreter Design Document}
+\shortreporttitle{Simulator/Animator}  %To use if report title is too long for header
 
 %%% Set document release class as appropriate
 %%% e.g. Public, Restricted, Programme Participant
@@ -33,6 +207,7 @@
 % #3: author
 % #4: description
 \addversion{0.1}{25-04-2013}{Anders Kaels Malmos}{Initial document version}
+\addversion{0.2}{06-03-2014}{Anders Kaels Malmos}{Added introduction and domain description}
 % \addversion{0.2}{dd-mm-yyyy}{Richard Payne}{Second version}
 
 \begin{document}
@@ -55,36 +230,87 @@ targeting developers.
 
 %%%% Document Content %%%% 
 %% \chapter{Chapter Title} %% if compasslargereport is in use
-\section{Preface}
+\section{Introduction}\label{sec:introduction}
 This document is targeted at developers and describes the overall
-strucure and design of the CML simulator, it is not a detailed
-description of each component. This kind of documentation is done in
-Javadoc and can be generated automatically from the code. It is
-assumed that common design patterns are known like \ref{GOF}.
+design of the CML simulator, it is not a detailed description of each
+component. This kind of documentation is done in Javadoc and can be
+generated automatically from the code. It is assumed that common
+design patterns are known like \ref{GOF}.
 
-% \section{Introduction}
-% \label{sec:introduction}
+\subsection{Problem Domain}
+The goal of the interpreter is to enable simulation/animation of a
+given CML \ref{cml syntax} model and be able to visualize this in the
+Eclipse IDE Debugger. CML has a formal semantics defined in \ref{cml semantics}
+which strictly dictates how the interpretation progresses describes in
+the semantic framework UTP. The overall goal of the CML interpreter is
+therefore to adhere to semantic rules defined in those
+documents and somehow visualize this in Eclipse.
 
-\section{Overall Structure}
-\label{sec:introduction}
-This section describes the overall source code structure of the CML
-interpreter. At the top level the code can be split up in two separate
-components:
+In order to understand how CML is interpreted without understanding
+all the details of the semantics, a small example is given below. In
+figure
+
+\begin{cml}[caption=Coordinating a reader and writer process,tabsize=2, label={lbl:process:B}]
+channels
+start 
+input : int
+output : int
+
+process Writer = 
+begin
+ @ start -> input.1 -> Skip 
+end
+
+process Reader = 
+begin
+ @ start -> input? x -> output!x -> Skip 
+end
+
+process System = Writer [|{start, input}|] Reader
+\end{cml}
+
+\draftnote{Write about the example in the same manner as D32.2 description}
+
+
+\subsection{Definitions}
+\begin{description}
+\item[CML] Compass Modelling Language
+\item[UTP] Unified Theory of Programming
+\item[Simulation] Simulation is when the interpreter runs without
+  any form of user interaction other than starting and stoppping.
+\item[Animation] Animation is when the user are involved in taking
+  the decisions when interpreting the CML model
+\end{description}
+
+\section{Software Layers}
+\label{sec:software_layers}
+This section describes the layers of the CML
+interpreter. As depicted in figure \ref{fig:layers} two highlevel layers exists.
+
+\begin{figure}[ht!]
+  \begin{center}
+    \includegraphics[width=1\textwidth]{figures/layers}
+    \caption{The layers of the CML Interpreter}
+    \label{fig:layers}
+  \end{center}
+\end{figure}
 
 \begin{description}
-\item[Core component] Implements the operational semantics that are
-  defined in \cite{D23.3} and is located in the java package named
+\item[Core layer] Has the responsibility of interpreting a CML model
+  as described in the operational semantics that are defined in
+  \cite{D23.4} and is located in the java package named
   \emph{eu.compassresearch.core.interpreter}
 
-\item[IDE component] Exposes the core component to the Eclipse
-  framework as an integrated debugger. It is located in the
-  \emph{eu.compassresearch.ide.cml.interpreter\_plugin} package.
+\item[IDE layer] Has the responsibility of visualizing the outputs of
+  a running interpretation a CML model in the Eclipse Debugger. It is
+  located in the \emph{eu.compassresearch.ide.cml.interpreter\_plugin}
+  package.
 \end{description}
 
 Each of these components will be described in further detail in the
 following sections.
 
-\subsection{The Core Structure}
+\subsection{The Core Layer}
 
 The design philosophy of the top-level structure is to encapsulate all
 the classes and interfaces that makes up the implementation of the
@@ -112,13 +338,14 @@ The following packages defines the top level structure of the core:
 
 \item[eu.compassresearch.core.interpreter.api.events] This package
   contains all the public components that enable users of the
-  interpreter to listen on event from both \textbf{CmlIntepreter} and
+  interpreter to subscribe to multiple on events (this it not CML
+  channel events) from both \textbf{CmlIntepreter} and
   \textbf{CmlBehaviour} instances.
 
 \item[eu.compassresearch.core.interpreter.api.transitions] This
   package contains all the possible types of transitions that a
   \textbf{CmlBehaviour} instance can make. This will be explained in
-  more detail in section \ref{sec:transition_structure}.
+  more detail in section \ref{sec:transition_model}.
 
 \item[eu.compassresearch.core.interpreter.api.values] This package
   contains all the values used in the CML interpreter. Values are used
@@ -162,7 +389,7 @@ following folders are present
 \item[...]
 \end{description}
 
-\subsection{The IDE Structure}
+\subsection{The IDE Layer}
 
 The IDE part is integrating the interpreter into Eclipse, enabling CML
 models to be debugged/simulated/animated through the Eclipse
@@ -216,11 +443,13 @@ TBD...
 % \subsection{Subsection}
 % \label{sec:subsection-1.1}
 
-\section{Simulation/Animation}
+\section{Layer design and Implementation}
 This section describes the static and dynamic structure of the
 components involved in simulating/animating a CML model.
 
-\subsection{Static Structure}
+\subsection{Core Layer}
+
+\subsubsection{Static Model}
 \label{sec:static_structure}
 The top level interface of the interpreter is depicted in figure
 \ref{fig:interpreter_topLevelStructure}, followed by a short
@@ -274,8 +503,8 @@ and it's child behaviours defines. So in effect, the CmlInterpreter
 controls every transition that any CmlBehaviour makes through the top
 level behaviour.
 
-\subsubsection{Transition Structure}
-\label{sec:transition_structure}
+\subsubsection{Transition Model}
+\label{sec:transition_model}
 
 As described in the previous section a CML model is represented by a
 binary tree of CmlBehaviour instances and each of these has a set of
@@ -283,13 +512,17 @@ possible transitions that they can make. A class diagram of all the
 classes and interfaces that makes up transitions are shown in figure
 \ref{fig:events}, followed by a description of each of the elements.
 
-A transition can be either observable or silent. An observable
-transition occurs either when time passes or a
-communication/synchronization takes place on a channel. All of these
-transitions are captured in the ObservableEvent interface. 
-A silent transitions is captured by the SilentTransition interface and
-can either mark the occurrence of a hidden event or an internal
-transition.
+A transition taken by a CmlBehavior is represented by a
+CMLTransition. This represent a possible next step in the model which can be either observable or silent (also called a tau
+transition). 
+
+An observable transition represents either that time passes or that a
+communication/synchronization event takes place on a given
+channel. All of these transitions are captured in the
+ObservableTransition interface.  A silent transitions is captured by
+the TauTransition and HiddenTransition class and can respectively
+marks the occurrence of a an internal transition of a behavior or a
+hidden channel transition.
 
 \begin{figure}[ht!]
   \begin{center}
@@ -301,18 +534,19 @@ transition.
 
 \begin{description}
 \item[CmlTransition] Represents any possible transition.
-\item[ObservableEvent] This represents any observable transition.
-\item[ChannelEvent] This represents any event that occurs on a channel.
-\item[CmlTock] This represents a Tock event marking the passage of a time unit.
-\item[CommunicationEvent] This represents a communication event on a
-  specific channel and carries a value to be communicated.
-\item[SynchronizationEvent] This represents a synchronization event on
-  a specific channel and carries no value.
-\item[SilentTransition] This represents any non-observable transition.
-\item[HiddenEvent] This represents an observable event that has been hidden by the hiding operator.
-\item[InternalTransition] This represents any transition that are
-  internal to a process, like assignemnt, the invocation of a method and
-  etc.
+\item[CmlTransitionSet] Represents a set of CmlTransition objects.  
+\item[ObservableTransition] This represents any observable transition.
+\item[LabelledTransition] This represents any transition that results
+  in a observable channel event
+\item[TimedTransition] This represents a tock event marking the
+  passage of a time unit.
+\item[ObservableLabelledTransition] This represents the occurrence of
+  a observable channel event which can be either a communication event
+  or a synchronization event.
+\item[TauTransition] This represents any non-observable transitions
+  that can be taken in a behavior.
+\item[HiddenEvent] This represents the occurrence of a hidden
+  channel event in the form of a tau transition.
 \end{description}
 
 \subsubsection{Action/Process Structure}
@@ -374,7 +608,7 @@ either a \textbf{ActionEvaluationVisitor} and
 \textbf{ProcessEvaluationVisitor} etc.
 
 
-\subsection{Dynamic Structure}
+\subsubsection{Dynamic Model}
 \label{sec:dynamic_structure}
 
 The previous section described the high-level static structure, this
@@ -421,7 +655,7 @@ process is either successfully terminated or deadlocked. For each
 As explained in section \ref{} the CmlBehavior instances forms a binary tree at runtime. 
 
 
-\section{The User Interface}
+\subsection{The IDE Layer}
 \label{sec:user_interface}
 
 %%%% Bibliography %%%%

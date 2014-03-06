@@ -5,6 +5,11 @@ import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import eu.compassresearch.core.interpreter.api.transitions.ops.Filter;
+import eu.compassresearch.core.interpreter.api.transitions.ops.MapOperation;
+import eu.compassresearch.core.interpreter.api.transitions.ops.RemoveChannelNames;
+import eu.compassresearch.core.interpreter.api.transitions.ops.RemoveTock;
+import eu.compassresearch.core.interpreter.api.transitions.ops.RetainChannelNamesAndTime;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameSetValue;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
 
