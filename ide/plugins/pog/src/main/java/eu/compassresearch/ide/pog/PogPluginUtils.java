@@ -2,6 +2,7 @@ package eu.compassresearch.ide.pog;
 
 import java.util.List;
 
+import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IAdaptable;
@@ -13,6 +14,8 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.WorkbenchException;
+import org.eclipse.ui.handlers.HandlerUtil;
+import org.eclipse.ui.services.ISourceProviderService;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.node.INode;
 import org.overture.pog.obligation.ProofObligationList;
@@ -20,6 +23,7 @@ import org.overture.pog.pub.IProofObligationList;
 
 import eu.compassresearch.core.analysis.pog.obligations.CmlPOContextStack;
 import eu.compassresearch.core.analysis.pog.visitors.ProofObligationGenerator;
+import eu.compassresearch.ide.pog.commands.CommandState;
 import eu.compassresearch.ide.pog.view.PoListView;
 
 public abstract class PogPluginUtils {
@@ -49,6 +53,25 @@ public abstract class PogPluginUtils {
 			e.printStackTrace();
 		}
 	}
+	
+	public static void enableAllPOsIcon(ExecutionEvent event){	
+		ISourceProviderService sourceProviderService = (ISourceProviderService) HandlerUtil
+				.getActiveWorkbenchWindow(event).getService(
+						ISourceProviderService.class);
+		CommandState commandStateService = (CommandState) sourceProviderService
+				.getSourceProvider(CommandState.MY_STATE);
+		commandStateService.enabled();
+	}
+	
+	public static void disableAllPosIcon(ExecutionEvent event){	
+		ISourceProviderService sourceProviderService = (ISourceProviderService) HandlerUtil
+				.getActiveWorkbenchWindow(event).getService(
+						ISourceProviderService.class);
+		CommandState commandStateService = (CommandState) sourceProviderService
+				.getSourceProvider(CommandState.MY_STATE);
+		commandStateService.disable();
+	}
+
 
 	public static PoListView getMainView() throws PartInitException {
 		PoListView view = (PoListView) PlatformUI.getWorkbench()

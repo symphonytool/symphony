@@ -10,9 +10,11 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.handlers.HandlerUtil;
+import org.eclipse.ui.services.ISourceProviderService;
 
 import eu.compassresearch.ide.core.resources.ICmlProject;
 import eu.compassresearch.ide.pog.PogPluginUtils;
+import eu.compassresearch.ide.pog.commands.CommandState;
 import eu.compassresearch.ide.pog.view.PoListView;
 import eu.compassresearch.ide.theoremprover.TPConstants;
 import eu.compassresearch.ide.theoremprover.TPPluginDoStuff;
@@ -54,6 +56,8 @@ public class GenPosDevHandler extends AbstractHandler {
 				e.printStackTrace();
 			}
 		}
+	
+	
 
 		IWorkbenchPage page = HandlerUtil.getActiveWorkbenchWindow(event)
 				.getActivePage();
@@ -61,9 +65,11 @@ public class GenPosDevHandler extends AbstractHandler {
 				HandlerUtil.getActiveWorkbenchWindow(event), page
 						.getActivePart().getSite());
 		doer.genPOsDev(proj);
+		// enable discharge all command
+		PogPluginUtils.enableAllPOsIcon(event);
+	
 		
-
-
+		
 		return null;
 	}
 }
