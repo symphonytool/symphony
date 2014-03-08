@@ -13,10 +13,11 @@ public class MCASetType implements MCPCMLType {
 
 	@Override
 	public String toFormula(String option) {
-		//TODO
-		return null;
+		return "emptySet";
 	}
 
+	
+	
 	@Override
 	public MCPCMLType copy() {
 		

@@ -345,7 +345,9 @@ public class NewMCVisitor extends
 		//String cml_file = "src/test/resources/recursion.cml";
 		//String cml_file = "src/test/resources/action-prefix-stop.cml";
 		//String cml_file = "src/test/resources/minimondex-incomplete.cml.nok";
-		String cml_file = "src/test/resources/simpler-minimondex.cml";
+		//String cml_file = "src/test/resources/simpler-minimondex.cml";
+		//String cml_file = "src/test/resources/LE-derived-CSP-modelchecker.cml";
+		String cml_file = "src/test/resources/beo-spec.cml";
 		//String cml_file = "src/test/resources/set-manipulation.cml";
 		//String cml_file = "src/test/resources/action-prefix-stop.cml";
 		//String cml_file = "src/test/resources/action-vardecl.cml";
@@ -373,7 +375,7 @@ public class NewMCVisitor extends
 		//String mainProcessName = "RegisterProc";
 		//String mainProcessName = "N_LAZY_Q";
 		//String mainProcessName = "ad_Initiate_Rescue_Activation___Fault_1";
-		String mainProcessName = "OneCard";
+		String mainProcessName = "Spec";
 		
 		
 		String formulaCode = visitor1.generateFormulaScript(source1.getParagraphs(),Utilities.DEADLOCK_PROPERTY,mainProcessName);

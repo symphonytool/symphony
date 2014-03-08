@@ -48,6 +48,26 @@ public class MCASetEnumSetExp implements MCPCMLExp {
 		return result.toString();
 	}
 
+	
+
+	@Override
+	public String toString() {
+		StringBuilder result = new StringBuilder();
+		
+		result.append("{");
+		 
+		for (Iterator<MCPCMLExp> iterator = members.iterator(); iterator.hasNext();) {
+			MCPCMLExp member = (MCPCMLExp) iterator.next();
+			result.append(member.toString());
+			if(iterator.hasNext()){
+				result.append(",");
+			}
+		}
+		result.append("}");
+		
+		return result.toString();
+	}
+
 
 	public LinkedList<MCPCMLExp> getMembers() {
 		return members;

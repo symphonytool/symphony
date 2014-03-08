@@ -107,7 +107,6 @@ public class MCAProcessDefinition implements MCPCMLDefinition {
 			MCPCMLType decls =  evaluator.instantiateMCTypeFromParams(this.localState);
 			result.append(decls.toFormula(MCNode.NAMED));
 			result.append(",");
-			
 			result.append(this.process.toFormula(option));
 			result.append(")");
 			
