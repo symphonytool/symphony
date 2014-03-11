@@ -5,19 +5,28 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.overture.ast.definitions.AClassClassDefinition;
+import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.node.Node;
+import org.overture.ast.types.AClassType;
+import org.overture.ast.types.ARecordInvariantType;
 import org.overture.ast.types.PType;
+import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.BooleanValue;
 import org.overture.interpreter.values.CharacterValue;
+import org.overture.interpreter.values.FieldMap;
+import org.overture.interpreter.values.FieldValue;
+import org.overture.interpreter.values.FunctionValue;
 import org.overture.interpreter.values.IntegerValue;
 import org.overture.interpreter.values.NaturalOneValue;
 import org.overture.interpreter.values.NaturalValue;
 import org.overture.interpreter.values.QuoteValue;
 import org.overture.interpreter.values.RationalValue;
 import org.overture.interpreter.values.RealValue;
+import org.overture.interpreter.values.RecordValue;
 import org.overture.interpreter.values.Value;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
@@ -169,6 +178,25 @@ public class MessageCommunicatorMixins
 		{
 		}
 	}
+	
+	static abstract class RecordValueMixIn
+	{
+		RecordValueMixIn(@JsonProperty("type") ARecordInvariantType type,@JsonProperty("fieldmap")	FieldMap mapvalues,@JsonProperty("invariant") FunctionValue invariant)
+		{
+		
+		}
+		@JsonIgnore
+		FunctionValue invariant;
+	}
+	
+	static abstract class FieldValueMixIn
+	{
+		FieldValueMixIn(@JsonProperty("name") String name,@JsonProperty("value") Value value,@JsonProperty("comparable") boolean comparable)
+		{
+		
+		}
+		
+	}
 
 	static abstract class CMLChannelValueMixIn
 	{
@@ -200,6 +228,10 @@ public class MessageCommunicatorMixins
 
 	static
 	{
+		ignore.put(AClassType.class, new String[] { "_classdef" });
+		ignore.put(ATypeDefinition.class, new String[]{"_classDefinition","_invdef"});
+		ignore.put(AClassClassDefinition.class, new String[]{"_definitions"});
+		ignore.put(ARecordInvariantType.class, new String[]{"_invDef"});
 		ignore.put(PType.class, new String[] { "_definitions","_location","_resolved" });
 		ignore.put(CmlTransitionSet.class, new String[] { "silentEvents" });
 		ignore.put(CMLChannelValue.class, new String[] { "selectObservers" });
@@ -228,6 +260,8 @@ public class MessageCommunicatorMixins
 		ctxt.setMixInAnnotations(RealValue.class, RealValueMixIn.class);
 		ctxt.setMixInAnnotations(org.overture.interpreter.values.TokenValue.class, TokenValueMixIn.class);
 		ctxt.setMixInAnnotations(CharacterValue.class, CharacterValueMixIn.class);
+		ctxt.setMixInAnnotations(RecordValue.class, RecordValueMixIn.class);
+		ctxt.setMixInAnnotations(FieldValue.class, FieldValueMixIn.class);
 		ctxt.setMixInAnnotations(CMLChannelValue.class, CMLChannelValueMixIn.class);
 		ctxt.setMixInAnnotations(LatticeTopValue.class, LatticeTopValueMixIn.class);
 		ctxt.setMixInAnnotations(MultiConstraint.class, MultiConstraintMixIn.class);
