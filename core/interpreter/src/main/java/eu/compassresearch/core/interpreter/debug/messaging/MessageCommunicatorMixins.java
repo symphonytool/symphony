@@ -231,7 +231,7 @@ public class MessageCommunicatorMixins
 		ignore.put(AClassType.class, new String[] { "_classdef" });
 		ignore.put(ATypeDefinition.class, new String[]{"_classDefinition","_invdef"});
 		ignore.put(AClassClassDefinition.class, new String[]{"_definitions"});
-		ignore.put(ARecordInvariantType.class, new String[]{"_invDef"});
+		ignore.put(ARecordInvariantType.class, new String[]{"_invDef","_fields"});
 		ignore.put(PType.class, new String[] { "_definitions","_location","_resolved" });
 		ignore.put(CmlTransitionSet.class, new String[] { "silentEvents" });
 		ignore.put(CMLChannelValue.class, new String[] { "selectObservers" });
