@@ -68,6 +68,7 @@ public class NewCMLModelcheckerContext {
 	
 	
 	
+	
 	public static int CHANTYPE_COUNTER;
 	protected int numberOfFetchFacts = 1;
 	protected int numberOfUpdFacts = 1;

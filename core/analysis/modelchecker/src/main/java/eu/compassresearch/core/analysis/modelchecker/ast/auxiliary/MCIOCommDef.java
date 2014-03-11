@@ -12,6 +12,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCASignalCommun
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAWriteCommunicationParameter;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPCommunicationParameter;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAChannelDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAValueDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAVariableExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCAIdentifierPattern;
@@ -83,16 +84,17 @@ public class MCIOCommDef implements MCNode {
 			
 			Iterator<MCPCommunicationParameter> parameters = parentAction.getCommunicationParameters().iterator();
 			while (parameters.hasNext()) {
-				result.append(", ");
 				MCPCommunicationParameter communicationParam = (MCPCommunicationParameter) parameters.next();
 				String varName = communicationParam.toString();
-				result.append(varName);
-				result.append(" = ");
-				//String value = buildIOCommActualParam(communicationParam, option);
-				//result.append(value);
-				result.append(varName);
-				
-				
+				MCAValueDefinition valueDef =  context.getValueDefinition(varName);
+				if(valueDef == null){
+					result.append(", ");
+					result.append(varName);
+					result.append(" = ");
+					//String value = buildIOCommActualParam(communicationParam, option);
+					//result.append(value);
+					result.append(varName);
+					}
 			}
 			
 		}

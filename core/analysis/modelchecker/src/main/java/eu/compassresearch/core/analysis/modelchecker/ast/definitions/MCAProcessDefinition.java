@@ -62,7 +62,6 @@ public class MCAProcessDefinition implements MCPCMLDefinition {
 		//probably we have to generate more than one procdef because of the arguments
 		//the argument has a type. for all values of such a type we generate a procdef
 		if(this.localState.size() > 0){
-			ExpressionEvaluator expEvaluator = ExpressionEvaluator.getInstance();
 			TypeManipulator typeHandler = TypeManipulator.getInstance();
 			
 			//for the moment we assume that processes have only one parameter
@@ -70,7 +69,7 @@ public class MCAProcessDefinition implements MCPCMLDefinition {
 			    ((MCAValParametrisation)this.getLocalState().getFirst()).getDeclaration().getType();
 			LinkedList<TypeValue> values = typeHandler.getValues(paramType);
 			String variableName = ((MCAValParametrisation)this.getLocalState().getFirst()).getDeclaration().getName(); 
-			NameValue mapping = new NameValue(variableName,null);
+			NameValue mapping = new NameValue(variableName,null,((MCAValParametrisation)this.getLocalState().getFirst()).getDeclaration().getType());
 			for (TypeValue typeValue : values) {
 				mapping.setVariableValue(typeValue.toFormula(option));
 				context.localVariablesMapping.add(mapping);

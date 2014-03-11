@@ -36,6 +36,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCAIdentifierPattern;
 import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCPCMLPattern;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCABooleanBasicType;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAFixedInvariantType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAIntNumericBasicType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANamedInvariantType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANatNumericBasicType;
@@ -68,6 +69,8 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 			result = this.getTypeFor((MCAQuoteLiteralExp)exp);
 		} else if(exp instanceof MCASetEnumSetExp){
 			result = this.getTypeFor((MCASetEnumSetExp)exp);
+		}  else if(exp instanceof MCABooleanConstExp){
+			result = this.getTypeFor((MCABooleanConstExp)exp);
 		}
 		
 		return result;
@@ -81,6 +84,8 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 			result = this.getTypeForIOComm((MCAVariableExp)exp);
 		} else if(exp instanceof MCAQuoteLiteralExp){
 			result = this.getTypeForIOComm((MCAQuoteLiteralExp)exp);
+		} else if(exp instanceof MCABooleanConstExp){
+			result = this.getTypeForIOComm((MCABooleanConstExp)exp);
 		}
 		
 		return result;
@@ -88,7 +93,19 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 	
 	private MCPCMLType getTypeForIOComm(MCAVariableExp exp){
 		MCPCMLType result = null;
-		result = new MCANamedInvariantType(exp.getName());
+		
+		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
+		MCAValueDefinition valueDef = context.getValueDefinition(exp.getName());
+		String realValue = "";
+		if(valueDef != null){
+			realValue = valueDef.getExpression().toFormula(MCNode.DEFAULT);
+			result = new MCAFixedInvariantType(realValue);
+		}else{
+			realValue = exp.getName();
+			result = new MCANamedInvariantType(realValue);
+		}
+		
+		
 		return result;
 	}
 	
@@ -96,6 +113,13 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 		MCPCMLType result = null;
 		
 		result = new MCAQuoteType(exp.getValue());
+		
+		return result;
+	}
+	private MCPCMLType getTypeForIOComm(MCABooleanConstExp exp){
+		MCPCMLType result = null;
+		
+		result = new MCABooleanBasicType(exp.isValue());
 		
 		return result;
 	}
@@ -380,6 +404,13 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 		MCPCMLType result = null;
 		
 		result = new MCASetType(null);
+		
+		return result;
+	}
+	private MCPCMLType getTypeFor(MCABooleanConstExp exp){
+		MCPCMLType result = null;
+		
+		result = new MCABooleanBasicType(exp.isValue());
 		
 		return result;
 	}
@@ -784,6 +815,8 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 			if(valueDef != null){
 				result = this.getValues(valueDef.getExpression());
 			}
+		} else if(expression.getRight() instanceof MCASetEnumSetExp){
+			result = ((MCASetEnumSetExp) expression.getRight()).getMembers(); 
 		}
 		
 		return result; 
@@ -825,6 +858,12 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 		
 		if(expression.getRight() instanceof MCASetRangeSetExp){
 			result = this.getValueSet((MCASetRangeSetExp)expression.getRight()); 
+		} else if (expression.getRight() instanceof MCAVariableExp){
+			NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
+			MCAValueDefinition valueDef = context.getValueDefinition(((MCAVariableExp) expression.getRight()).getName());
+			if(valueDef != null){
+				result = this.getValueSet(valueDef.getExpression());
+			}
 		}
 		
 		return result; 
