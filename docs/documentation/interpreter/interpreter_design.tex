@@ -240,42 +240,178 @@ design patterns are known like \ref{GOF}.
 \subsection{Problem Domain}
 The goal of the interpreter is to enable simulation/animation of a
 given CML \ref{cml syntax} model and be able to visualize this in the
-Eclipse IDE Debugger. CML has a formal semantics defined in \ref{cml semantics}
-which strictly dictates how the interpretation progresses describes in
-the semantic framework UTP. The overall goal of the CML interpreter is
-therefore to adhere to semantic rules defined in those
-documents and somehow visualize this in Eclipse.
+Eclipse IDE Debugger. CML has a UTP semantics defined in \ref{cml
+semantics} which dictates how the interpretation progresses. Therefore, the
+overall goal of the CML interpreter is to adhere to the semantic
+rules defined in those documents and to somehow visualize this in the
+Eclipse Debugger.
 
-In order to understand how CML is interpreted without understanding
-all the details of the semantics, a small example is given below. In
-figure
+In order to get a high level understanding of how CML is interpreted
+without knowing all the details of the semantics and the
+implementation of it. A short illustration of how the interpreter
+represents and progresses a CML model is given below. 
 
-\begin{cml}[caption=Coordinating a reader and writer process,tabsize=2, label={lbl:process:B}]
+In listing \ref{lst:cmlexample} a CML model consisting of three CML
+processes is given. It has a R (Reader) process which reads a value from
+the input channel and writes it on the output channel. The W (Writer)
+process writes the value 1 to the input channel and finishes. The
+S (System) process is a parallel composition of these two processes where
+they must synchronize all events on the input channel.
+
+\begin{cml}[caption=Coordinating a reader and writer process,tabsize=2, label={lst:cmlexample}]
 channels
-start 
-input : int
-output : int
+inp : int
+out : int
 
-process Writer = 
+process W = 
 begin
- @ start -> input.1 -> Skip 
+ @ inp!1 -> Skip 
 end
 
-process Reader = 
+process R = 
 begin
- @ start -> input? x -> output!x -> Skip 
+ @ inp?x -> out!x -> Skip 
 end
 
-process System = Writer [|{start, input}|] Reader
+process S = W [|{inp}|] R
 \end{cml}
 
 \draftnote{Write about the example in the same manner as D32.2 description}
+
+The interpretation of a CML model is done through a series of
+steps/transitions starting from a given entry point. In figure \ref{}
+which shows the first step, we assume that the System process is given
+as a starting point, it is represented as a circle along with its
+current position in the model. Each step of the interpretation can be
+split up into two phases, the inspection phase and the execution
+phase.
+
+ \begin{minipage}{1\linewidth} 
+  \centering %
+\begin{tikzpicture}[every text node part/.style={align=center}]
+\tikzset{myFont/.style={font=\footnotesize}}
+\tikzset{myBox/.style={draw,minimum height=1cm,myFont,text width=2.8cm}}
+\tikzset{myGray/.style={fill=gray!10}}
+
+\node[draw=none] (env) {};
+\node[draw,circle,right=2cm of env] (parallel1) {$W[|\{inp\}|]R$};
+\path[draw,dashed,-open triangle 60] (env) edge node[above]{inspect} node[below]{\{tau(begin)\}} (parallel1);
+
+\node[draw,circle, right=4cm of parallel1] (parallel2) {$[|\{inp\}|]$};
+\node[draw,circle,below left=1.5cm and .2 cm of parallel2] (W) {$W$};
+\node[draw,circle,below right=1.5cm and .2 cm of parallel2] (R) {$R$};
+\path[draw,dotted,-open triangle 60] (parallel2) edge node[left] {create} (W);
+\path[draw,dotted, -open triangle 60] (parallel2) edge node[right] {create} (R);
+
+\path[draw,dashed,-open triangle 60] (parallel1) edge node[above=0.3cm]{execute(tau(begin))} (parallel2);
+\end{tikzpicture}
+\captionof{figure}{Initial step of \autoref{lst:cmlexample} with process S as entry point.}
+\label{fig:internal-int:p}
+ \end{minipage} 
+
+ \begin{minipage}{1\linewidth} 
+  \centering %
+\begin{tikzpicture}[every text node part/.style={align=center}]
+\tikzset{myFont/.style={font=\footnotesize}}
+\tikzset{myBox/.style={draw,minimum height=1cm,myFont,text width=2.8cm}}
+\tikzset{myGray/.style={fill=gray!10}}
+
+\node[draw=none] (env) {};
+\node[draw,circle,right=2cm of env] (parallel1) {$[|\{in\}|]$};
+\node[draw,circle,below left=1.5cm and .2 cm of parallel1] (W1) {$inp!1$};
+\node[draw,circle,below right=1.5cm and .2 cm of parallel1] (R1) {$inp?x$};
+\path[draw,dotted,-open triangle 60] (parallel1) edge (W1);
+\path[draw,dotted,-open triangle 60] (parallel1) edge (R1);
+
+\path[draw,dashed,-open triangle 60] (env) edge node[above]{inspect} (parallel1);
+\path[draw,dashed,-open triangle 60] (env) edge node[above]{inspect} node[below]{\{inp.1\}} (parallel1);
+
+\node[draw,circle, right=4cm of parallel1] (parallel2) {$[|\{in\}|]$};
+\node[draw,circle,below left=1.5cm and .2 cm of parallel2] (W2) {$inp!1$};
+\node[draw,circle,below right=1.5cm and .2 cm of parallel2] (R2) {$inp?x$};
+\path[draw,dotted,-open triangle 60] (parallel2) edge node[left]{execute($inp.1$)} (W2);
+\path[draw,dotted,-open triangle 60] (parallel2) edge node[right]{execute($inp.1$)} (R2);
+
+\path[draw,dashed,-open triangle 60] (parallel1) edge node[above]{execute($inp.1$)} (parallel2);
+\end{tikzpicture}
+\captionof{figure}{Second step of \autoref{lst:cmlexample} with S as entry point.}
+\label{fig:internal-int:p}
+ \end{minipage} 
+
+ \begin{minipage}{1\linewidth} 
+  \centering %
+\begin{tikzpicture}[every text node part/.style={align=center}]
+\tikzset{myFont/.style={font=\footnotesize}}
+\tikzset{myBox/.style={draw,minimum height=1cm,myFont,text width=2.8cm}}
+\tikzset{myGray/.style={fill=gray!10}}
+
+\node[draw=none] (env) {};
+\node[draw,circle,right=2cm of env] (parallel1) {$[|\{in\}|]$};
+\node[draw,circle,below left=1.5cm and .2 cm of parallel1] (W1) {$Skip$};
+\node[draw,circle,below right=1.5cm and .2 cm of parallel1] (R1) {$out!1$};
+\path[draw,dotted,-open triangle 60] (parallel1) edge node[above left] {inspect} (W1);
+\path[draw,dotted,-open triangle 60] (parallel1) edge node[left] {$\{\}$} (W1);
+\path[draw,dotted,-open triangle 60] (parallel1) edge node[above right] {inspect} (R1);
+\path[draw,dotted,-open triangle 60] (parallel1) edge node[right] {$\{out.1\}$} (R1);
+
+\path[draw,dashed,-open triangle 60] (env) edge node[above]{inspect} (parallel1);
+\path[draw,dashed,-open triangle 60] (env) edge node[above]{inspect} node[below]{\{out.1\}} (parallel1);
+
+
+\node[draw,circle, right=4cm of parallel1] (parallel2) {$[|\{in\}|]$};
+\node[draw,circle,below left=1.5cm and .2 cm of parallel2] (W2) {$Skip$};
+\node[draw,circle,below right=1.5cm and .2 cm of parallel2] (R2) {$out!1$};
+\path[draw,-open triangle 60] (parallel2) edge (W2);
+\path[draw,dotted,-open triangle 60] (parallel2) edge node[right]{execute($out.1$)} (R2);
+
+\path[draw,dashed,-open triangle 60] (parallel1) edge node[above]{execute($out.1$)} (parallel2);
+
+\end{tikzpicture}
+\captionof{figure}{Third step of \autoref{lst:cmlexample} with S as entry point}
+\label{fig:internal-int:p}
+ \end{minipage} 
+
+ \begin{minipage}{1\linewidth} 
+  \centering %
+\begin{tikzpicture}[every text node part/.style={align=center}]
+\tikzset{myFont/.style={font=\footnotesize}}
+\tikzset{myBox/.style={draw,minimum height=1cm,myFont,text width=2.8cm}}
+\tikzset{myGray/.style={fill=gray!10}}
+
+\node[draw=none] (env) {};
+\node[draw,circle,right=1.5cm of env] (parallel1) {$[|\{in\}|]$};
+\node[draw,circle,below left=1.5cm and .2 cm of parallel1] (W1) {$Skip$};
+\node[draw,circle,below right=1.5cm and .2 cm of parallel1] (R1) {$Skip$};
+\path[draw,dotted,-open triangle 60] (parallel1) edge (W1);
+\path[draw,dotted,-open triangle 60] (parallel1) edge (R1);
+
+\path[draw,dashed,-open triangle 60] (env) edge node[above]{inspect} (parallel1);
+\path[draw,dashed,-open triangle 60] (env) edge node[above]{inspect} node[below=0.2cm]{\{tau(end)\}} (parallel1);
+
+
+\node[draw,circle, right=3cm of parallel1] (parallel2) {$[|\{in\}|]$};
+\node[draw,circle,below left=1.5cm and .2 cm of parallel2] (W2) {$Skip$};
+\node[draw,circle,below right=1.5cm and .2 cm of parallel2] (R2) {$Skip$};
+\path[draw,dotted,-open triangle 60] (parallel2) edge node[left]{remove} (W2);
+\path[draw,dotted,-open triangle 60] (parallel2) edge node[right]{remove} (R2);
+
+\path[draw,dashed,-open triangle 60] (parallel1) edge node[above]{execute($tau(end)$)} (parallel2);
+
+\node[draw,circle, right=1.5cm of parallel2] (parallel3) {$Skip$};
+
+\path[draw,dashed,-open triangle 60] (parallel2) edge node[above]{result} (parallel3);
+
+
+\end{tikzpicture}
+\captionof{figure}{Final step of \autoref{lst:cmlexample} where the parallel composition collapses unto a Skip process}
+\label{fig:internal-int:p}
+ \end{minipage} 
 
 
 \subsection{Definitions}
 \begin{description}
 \item[CML] Compass Modelling Language
-\item[UTP] Unified Theory of Programming
+\item[UTP] Unified Theory of Programming, a semantic framework.
 \item[Simulation] Simulation is when the interpreter runs without
   any form of user interaction other than starting and stoppping.
 \item[Animation] Animation is when the user are involved in taking
