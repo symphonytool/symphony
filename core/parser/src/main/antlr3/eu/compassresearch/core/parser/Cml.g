@@ -2648,7 +2648,7 @@ field returns[AFieldField field]
         {
             ILexLocation loc = $type.type.getLocation();
             CmlLexNameToken name = new CmlLexNameToken("", new LexIdentifierToken("",false,loc));
-            $field = new AFieldField(null, name, null, $type.type, false);
+            $field = new AFieldField(null, name, "", $type.type, false);
         }
     | IDENTIFIER ( ':' | eqAbs=':-' ) type
         {
