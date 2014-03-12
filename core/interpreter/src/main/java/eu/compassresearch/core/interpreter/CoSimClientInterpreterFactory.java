@@ -4,9 +4,9 @@ import java.util.List;
 
 import org.overture.ast.definitions.PDefinition;
 
+import eu.compassresearch.core.interpreter.api.CmlBehaviorFactory;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorFactory;
 import eu.compassresearch.core.interpreter.cosim.CoSimulationClient;
 
 /**

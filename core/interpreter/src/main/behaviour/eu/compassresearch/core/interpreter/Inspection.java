@@ -1,8 +1,9 @@
-package eu.compassresearch.core.interpreter.api.behaviour;
+package eu.compassresearch.core.interpreter;
 
+import eu.compassresearch.core.interpreter.api.CmlTrace;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
 
-public class Inspection
+class Inspection
 {
 	private final CmlTrace trace;
 	private final CmlTransitionSet transitions;

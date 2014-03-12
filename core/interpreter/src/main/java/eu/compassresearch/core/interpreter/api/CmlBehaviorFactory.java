@@ -1,10 +1,10 @@
-package eu.compassresearch.core.interpreter.api.behaviour;
+package eu.compassresearch.core.interpreter.api;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
 
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour.BehaviourName;
+import eu.compassresearch.core.interpreter.api.CmlBehaviour.BehaviourName;
 
 public interface CmlBehaviorFactory
 {

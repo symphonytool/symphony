@@ -1,6 +1,6 @@
 package eu.compassresearch.core.interpreter.api.transitions;
 
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
+import eu.compassresearch.core.interpreter.api.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
 
 public class CmlTransitionFactory

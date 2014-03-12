@@ -273,7 +273,7 @@ begin
  @ inp?x -> out!x -> Skip 
 end
 
-process S = W [|{inp}|] R
+process S = W [|{$inp$}|] R
 \end{cml}
 
 The interpretation of a CML model is done through a series of
@@ -294,10 +294,10 @@ the operation e.g a human user or another process) initiating the phase.
 \tikzset{myGray/.style={fill=gray!10}}
 
 \node[draw=none] (env) {};
-\node[draw,circle,right=2.2cm of env] (parallel1) {$W[|\{inp\}|]R$};
+\node[draw,circle,right=2.2cm of env] (parallel1) {S\\$W[|\{inp\}|]R$};
 \path[draw,dashed,-open triangle 60] (env) edge node[above]{inspect} node[below]{\{tau(par-begin)\}} (parallel1);
 
-\node[draw,circle, right=4cm of parallel1] (parallel2) {$[|\{inp\}|]$};
+\node[draw,circle, right=4cm of parallel1] (parallel2) {S\\$[|\{inp\}|]$};
 \node[draw,circle,below left=1.5cm and .2 cm of parallel2] (W) {$W$};
 \node[draw,circle,below right=1.5cm and .2 cm of parallel2] (R) {$R$};
 \path[draw,dotted,-open triangle 60] (parallel2) edge node[left] {create} (W);
@@ -314,26 +314,28 @@ available in the next step of execution. The result of the inspection
 is shown as a set of transitions below ``inspect''. As seen on figure
 \autoref{fig:cmlmodel_first_step} process P starts out by pointing to
 the parallel composition constructs, this construct has a semantic
-begin rule which does the initialization needed. In the figure that
-rule is named tau(par-begin) and is therefore returned from the
-inspection. The reason for the name tau(..) is that transitions can be
-observable or silent, so in principle any tau transition is not seen
-from the outside of the process. In the interpreter however all
-transitions flows out of the inspection. When the inspection phase has
-completed, the execution phase begins. The execution phase executes
-one of the transitions returned from the inspection phase. In this
-case, only a single transition is available so the tau(par-begin)) is
-executed which creates the two child processes. The result of each of
-the shown steps are the first configuration shown in the next step. So
-in this case the resulting process configuration is shown in figure
+begin rule which does the initialization needed. In the figure
+\autoref{fig:cmlmodel_first_step} that rule is named tau(par-begin)
+and is therefore returned from the inspection. The reason for the name
+tau(..) is that transitions can be either observable or silent, so in
+principle any tau transition is not observable from the outside of the
+process. However, in the interpreter all transitions flows out of the
+inspection phase. When the inspection phase has completed, the
+execution phase begins. The execution phase executes one of the
+transitions returned from the inspection phase. In this case, only a
+single transition is available so the tau(par-begin)) is executed
+which creates the two child processes. The result of each of the shown
+steps are the first configuration shown in the next step. So in this
+case the resulting process configuration of
+\autoref{fig:cmlmodel_first_step} is shown in figure
 \autoref{fig:cmlmodel_second_step}.
 
 
-The second step shown in \autoref{fig:cmlmodel_second_step} has a
-little more interesting inspection phase. According to the parallel
-composition rule for this construct, we have that any event on the inp
-channel must be synchronized, meaning that W and R must perform any
-transition that involves event on the inp channel synchronously. 
+The second step on \autoref{fig:cmlmodel_second_step} has a more
+interesting inspection phase. According to the parallel composition
+rule, we have that any event on the $inp$ channel must be
+synchronized, meaning that W and R must only perform transition that
+involves $inp$ channel events synchronously.
 
 
  \begin{minipage}{1\linewidth} 
@@ -344,9 +346,9 @@ transition that involves event on the inp channel synchronously.
 \tikzset{myGray/.style={fill=gray!10}}
 
 \node[draw=none] (env) {};
-\node[draw,circle,right=2cm of env] (parallel1) {$[|\{in\}|]$};
-\node[draw,circle,below left=1.5cm and .2 cm of parallel1] (W1) {$inp!1$};
-\node[draw,circle,below right=1.5cm and .2 cm of parallel1] (R1) {$inp?x$};
+\node[draw,circle,right=2cm of env] (parallel1) {S\\$[|\{in\}|]$};
+\node[draw,circle,below left=1.5cm and .2 cm of parallel1] (W1) {W\\$inp!1$};
+\node[draw,circle,below right=1.5cm and .2 cm of parallel1] (R1) {R\\$inp?x$};
 \path[draw,dotted,-open triangle 60] (parallel1) edge node[above left] {inspect} (W1);
 \path[draw,dotted,-open triangle 60] (parallel1) edge node[left] {$\{inp.1\}$} (W1);
 \path[draw,dotted,-open triangle 60] (parallel1) edge node[above right] {inspect} (R1);
@@ -355,9 +357,9 @@ transition that involves event on the inp channel synchronously.
 \path[draw,dashed,-open triangle 60] (env) edge node[above]{inspect} (parallel1);
 \path[draw,dashed,-open triangle 60] (env) edge node[above]{inspect} node[below]{\{inp.1\}} (parallel1);
 
-\node[draw,circle, right=4cm of parallel1] (parallel2) {$[|\{in\}|]$};
-\node[draw,circle,below left=1.5cm and .2 cm of parallel2] (W2) {$inp!1$};
-\node[draw,circle,below right=1.5cm and .2 cm of parallel2] (R2) {$inp?x$};
+\node[draw,circle, right=4cm of parallel1] (parallel2) {S\\$[|\{in\}|]$};
+\node[draw,circle,below left=1.5cm and .2 cm of parallel2] (W2) {W\\$inp!1$};
+\node[draw,circle,below right=1.5cm and .2 cm of parallel2] (R2) {R\\$inp?x$};
 \path[draw,dotted,-open triangle 60] (parallel2) edge node[left]{execute($inp.1$)} (W2);
 \path[draw,dotted,-open triangle 60] (parallel2) edge node[right]{execute($inp.1$)} (R2);
 
@@ -371,10 +373,10 @@ Therefore, when P is inspected it must inspect its child processes to
 determine the possible transitions. In this case W can perform the
 $inp.1$ event and R can perform any event on $inp$ and therefore, the
 only possible transition is the one that performs the $inp.1$
-event. This is then given to the execution phase which performs this
-event and moves both child processes into the next state.
+event. This is then given to the execution phase which result in the
+$inp.1$ event and moves both child processes into their next state.
 
- \begin{minipage}{1\linewidth} 
+\begin{minipage}{1\linewidth} 
   \centering %
 \begin{tikzpicture}[every text node part/.style={align=center}]
 \tikzset{myFont/.style={font=\footnotesize}}
@@ -382,9 +384,9 @@ event and moves both child processes into the next state.
 \tikzset{myGray/.style={fill=gray!10}}
 
 \node[draw=none] (env) {};
-\node[draw,circle,right=2cm of env] (parallel1) {$[|\{in\}|]$};
-\node[draw,circle,below left=1.5cm and .2 cm of parallel1] (W1) {$Skip$};
-\node[draw,circle,below right=1.5cm and .2 cm of parallel1] (R1) {$out!1$};
+\node[draw,circle,right=2cm of env] (parallel1) {S\\$[|\{in\}|]$};
+\node[draw,circle,below left=1.5cm and .2 cm of parallel1] (W1) {W\\$Skip$};
+\node[draw,circle,below right=1.5cm and .2 cm of parallel1] (R1) {R\\$out!1$};
 \path[draw,dotted,-open triangle 60] (parallel1) edge node[above left] {inspect} (W1);
 \path[draw,dotted,-open triangle 60] (parallel1) edge node[left] {$\{\}$} (W1);
 \path[draw,dotted,-open triangle 60] (parallel1) edge node[above right] {inspect} (R1);
@@ -394,9 +396,9 @@ event and moves both child processes into the next state.
 \path[draw,dashed,-open triangle 60] (env) edge node[above]{inspect} node[below]{\{out.1\}} (parallel1);
 
 
-\node[draw,circle, right=4cm of parallel1] (parallel2) {$[|\{in\}|]$};
-\node[draw,circle,below left=1.5cm and .2 cm of parallel2] (W2) {$Skip$};
-\node[draw,circle,below right=1.5cm and .2 cm of parallel2] (R2) {$out!1$};
+\node[draw,circle, right=4cm of parallel1] (parallel2) {S\\$[|\{in\}|]$};
+\node[draw,circle,below left=1.5cm and .2 cm of parallel2] (W2) {W\\$Skip$};
+\node[draw,circle,below right=1.5cm and .2 cm of parallel2] (R2) {R\\$out!1$};
 \path[draw,-open triangle 60] (parallel2) edge (W2);
 \path[draw,dotted,-open triangle 60] (parallel2) edge node[right]{execute($out.1$)} (R2);
 
@@ -404,8 +406,15 @@ event and moves both child processes into the next state.
 
 \end{tikzpicture}
 \captionof{figure}{Third step of \autoref{lst:cmlexample} with S as entry point}
-\label{fig:internal-int:p}
+\label{fig:cmlmodel_third_step}
  \end{minipage} 
+
+In the third step on figure \autoref{fig:cmlmodel_third_step} W is now
+Skip which means that it is successfully terminated. The inspection
+for W therefore results in an empty set of possible transitions. R is
+now waiting for the $out.1$ event after 1 was writting to $x$ in the
+last step and therefore returns this transition. The execution phase
+is a little different and S now knows only to execute R.
 
  \begin{minipage}{1\linewidth} 
   \centering %
@@ -415,9 +424,9 @@ event and moves both child processes into the next state.
 \tikzset{myGray/.style={fill=gray!10}}
 
 \node[draw=none] (env) {};
-\node[draw,circle,right=2cm of env] (parallel1) {$[|\{in\}|]$};
-\node[draw,circle,below left=1.5cm and .2 cm of parallel1] (W1) {$Skip$};
-\node[draw,circle,below right=1.5cm and .2 cm of parallel1] (R1) {$Skip$};
+\node[draw,circle,right=2cm of env] (parallel1) {S\\$[|\{in\}|]$};
+\node[draw,circle,below left=1.5cm and .2 cm of parallel1] (W1) {W\\$Skip$};
+\node[draw,circle,below right=1.5cm and .2 cm of parallel1] (R1) {R\\$Skip$};
 \path[draw,dotted,-open triangle 60] (parallel1) edge (W1);
 \path[draw,dotted,-open triangle 60] (parallel1) edge (R1);
 
@@ -425,24 +434,27 @@ event and moves both child processes into the next state.
 \path[draw,dashed,-open triangle 60] (env) edge node[above]{inspect} node[below=0.2cm]{\{tau(par-end)\}} (parallel1);
 
 
-\node[draw,circle, right=3cm of parallel1] (parallel2) {$[|\{in\}|]$};
-\node[draw,circle,below left=1.5cm and .2 cm of parallel2] (W2) {$Skip$};
-\node[draw,circle,below right=1.5cm and .2 cm of parallel2] (R2) {$Skip$};
+\node[draw,circle, right=3cm of parallel1] (parallel2) {S\\$[|\{in\}|]$};
+\node[draw,circle,below left=1.5cm and .2 cm of parallel2] (W2) {W\\$Skip$};
+\node[draw,circle,below right=1.5cm and .2 cm of parallel2] (R2) {R\\$Skip$};
 \path[draw,dotted,-open triangle 60] (parallel2) edge node[left]{remove} (W2);
 \path[draw,dotted,-open triangle 60] (parallel2) edge node[right]{remove} (R2);
 
 \path[draw,dashed,-open triangle 60] (parallel1) edge node[above]{execute(tau(par-end))} (parallel2);
 
-\node[draw,circle, right=1.5cm of parallel2] (parallel3) {$Skip$};
+\node[draw,circle, right=1.5cm of parallel2] (parallel3) {S\\$Skip$};
 
 \path[draw,dashed,-open triangle 60] (parallel2) edge node[above]{result} (parallel3);
 
-
 \end{tikzpicture}
 \captionof{figure}{Final step of \autoref{lst:cmlexample} where the parallel composition collapses unto a Skip process}
-\label{fig:internal-int:p}
+\label{fig:cmlmodel_fourth_step}
  \end{minipage} 
 
+The fourth and final step shown in \autoref{fig:cmlmodel_fourth_step}
+of the interpretation starts out with both W and R as Skip, this
+triggeres the parallel end rules, which evolves into Skip. S therefore
+returns the silent transition the triggers this end rule.
 
 \subsection{Definitions}
 \begin{description}
@@ -505,8 +517,8 @@ The following packages defines the top level structure of the core:
 \item[eu.compassresearch.core.interpreter.api.behaviour] This package
   contains all the components that define any CML behavior. A CML
   behaviour is either an observable event like a channel synchronization
-  or a internal event like a change of state. The main interface is
-  \textbf{CmlBehaviour}.
+  or a internal event like a change of state. The main interface here is
+  \textbf{CmlBehaviour} which can represent both a CML process and action.
 
 \item[eu.compassresearch.core.interpreter.api.events] This package
   contains all the public components that enable users of the
@@ -539,10 +551,9 @@ The following packages defines the top level structure of the core:
 \item[eu.compassresearch.core.interpreter] This package contains all
   the internal classes and interfaces that defines the core
   functionality of the interpreter. There is one important public class
-  in the package, namely the \textbf{VanillaInterpreteFactory} faactory
+  in the package, namely the \textbf{VanillaInterpreteFactory} factory
   class, that any user of the interpreter must invoke to use the
   interpreter. This can creates \textbf{CmlInterpreter} instances.
-
 \end{description}
 
 The \textbf{eu.compassresearch.core.interpreter} package are split into several
