@@ -237,7 +237,7 @@ component. This kind of documentation is done in Javadoc and can be
 generated automatically from the code. It is assumed that common
 design patterns are known like \ref{GOF}.
 
-\subsection{Problem Domain}
+\subsection{Problem Domain}\label{sec:problem_domain}
 The goal of the interpreter is to enable simulation/animation of a
 given CML \ref{cml syntax} model and be able to visualize this in the
 Eclipse IDE Debugger. CML has a UTP semantics defined in \ref{cml
@@ -479,46 +479,50 @@ interpreter. As depicted in figure \ref{fig:layers} two highlevel layers exists.
   \end{center}
 \end{figure}
 
-\begin{description}
-\item[Core layer] Has the responsibility of interpreting a CML model
-  as described in the operational semantics that are defined in
-  \cite{D23.4} and is located in the java package named
-  \emph{eu.compassresearch.core.interpreter}
-
-\item[IDE layer] Has the responsibility of visualizing the outputs of
-  a running interpretation a CML model in the Eclipse Debugger. It is
-  located in the \emph{eu.compassresearch.ide.cml.interpreter\_plugin}
-  package.
-\end{description}
-
 Each of these components will be described in further detail in the
 following sections.
 
 \subsection{The Core Layer}
-
-The design philosophy of the top-level structure is to encapsulate all
-the classes and interfaces that makes up the implementation of the
-core functionality and only expose those that are needed to utilize
-the interpreter. This provides a clean separation between the
-implementation and interface and makes it clear for both the users,
-which not necessarily wants to know about the implementation details,
-and developers which parts they need to work with.
+This layer has the overall responsibility of interpreting a CML model
+as described in the operational semantics that are defined in
+\cite{D23.4} and is located in the java package named
+\emph{eu.compassresearch.core.interpreter}. The design philosophy of
+the top-level structure is to encapsulate all the classes and
+interfaces that makes up the implementation of the core functionality
+and only expose those that are needed to utilize the interpreter. This
+provides a clean separation between the implementation and interface
+and makes it clear for both the users, which not necessarily wants to
+know about the implementation details, and developers which parts they
+need to work with.
 
 The following packages defines the top level structure of the core:
 \begin{description}
+
+\item[eu.compassresearch.core.interpreter] This package contains all
+  the internal classes and interfaces that defines the core
+  functionality of the interpreter. There is one important public class
+  in the package, namely the \textbf{VanillaInterpreteFactory} factory
+  class, that any user of the interpreter must invoke to use the
+  interpreter. This can creates instances of the \textbf{CmlInterpreter}
+  interface.
+  
 \item[eu.compassresearch.core.interpreter.api] This package and
   sub-packages contains all the public classes and interfaces that
   defines the API of the interpreter. This package includes the main
-  interpreter interface \textbf{CmlInterpreter} along with additional
-  interfaces.
-  The api sub-packages groups the rest of the API classes and
-  interfaces according to the responsibility they have.
+  interpreter interface \textbf{CmlInterpreter} along with the interface
+  \textbf{CmlBehaviour} that represents any process or action, it
+  corrosponds to the circles in \autoref{sec:problem_domain}
 
-\item[eu.compassresearch.core.interpreter.api.behaviour] This package
-  contains all the components that define any CML behavior. A CML
+
+
+
+all the components that e any CML behavior. A CML
   behaviour is either an observable event like a channel synchronization
   or a internal event like a change of state. The main interface here is
   \textbf{CmlBehaviour} which can represent both a CML process and action.
+
+  The api sub-packages groups the rest of the API classes and
+  interfaces according to the responsibility they have.
 
 \item[eu.compassresearch.core.interpreter.api.events] This package
   contains all the public components that enable users of the
@@ -548,12 +552,6 @@ The following packages defines the top level structure of the core:
 \item[eu.compassresearch.core.interpreter.utility.messaging] This
   package contains general components to pass message along a stream.
 
-\item[eu.compassresearch.core.interpreter] This package contains all
-  the internal classes and interfaces that defines the core
-  functionality of the interpreter. There is one important public class
-  in the package, namely the \textbf{VanillaInterpreteFactory} factory
-  class, that any user of the interpreter must invoke to use the
-  interpreter. This can creates \textbf{CmlInterpreter} instances.
 \end{description}
 
 The \textbf{eu.compassresearch.core.interpreter} package are split into several
@@ -565,15 +563,14 @@ following folders are present
   interfaces that implements the CmlBehaviors. The Cml behaviors will be
   described in more detail in in section \ref{sec:static_structure}, but
   they are bassically implemented by CML AST visitor classes.
-\item[factories] This folder contains all the factories in the
-  package, both the public \textbf{VanillaInterpreteFactory} that
-  creates the interpreter and package internal ones.
-\item[utility]
-\item[...]
 \end{description}
 
 \subsection{The IDE Layer}
 
+Has the responsibility of visualizing the outputs of
+  a running interpretation a CML model in the Eclipse Debugger. It is
+  located in the \emph{eu.compassresearch.ide.plugins.interpreter}
+  package.
 The IDE part is integrating the interpreter into Eclipse, enabling CML
 models to be debugged/simulated/animated through the Eclipse
 interface. In \autoref{fig:interpreter_debuggerDeployment} a
