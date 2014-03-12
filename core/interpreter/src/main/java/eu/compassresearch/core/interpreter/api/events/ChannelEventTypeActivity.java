@@ -1,11 +1,11 @@
 package eu.compassresearch.core.interpreter.api.events;
 
 /**
- * This represents the activites that a CmlChannel can participate in
+ * This represents the types of events that a CmlChannel can participate in
  * 
  * @author akm
  */
-public enum ChannelActivity
+public enum ChannelEventTypeActivity
 {
 	/**
 	 * An input communication is occurring.
@@ -18,9 +18,5 @@ public enum ChannelActivity
 	/**
 	 * A synchronization is occurring.
 	 */
-	SIGNAL,
-	/**
-	 * The channel has been selected by the supervisor environment
-	 */
-	SELECT
+	SYNC,
 }

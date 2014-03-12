@@ -5,7 +5,7 @@ import java.util.List;
 import org.overture.ast.node.INode;
 
 import eu.compassresearch.core.interpreter.api.CmlBehaviour;
-import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
+import eu.compassresearch.core.interpreter.api.values.ChannelValue;
 
 public class HiddenTransition extends TauTransition //implements LabelledTransition
 {

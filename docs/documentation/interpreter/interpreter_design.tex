@@ -219,8 +219,8 @@
 \label{sec:abstract}
 
 This document describes the overall design of the CML
-simulator/animator and provides an overview of the code structure
-targeting developers.
+interpreter and provides an overview of the code structure
+targeting developers. It assume a basic knowledge of CML.
 
 \newpage
 
@@ -232,10 +232,11 @@ targeting developers.
 %% \chapter{Chapter Title} %% if compasslargereport is in use
 \section{Introduction}\label{sec:introduction}
 This document is targeted at developers and describes the overall
-design of the CML simulator, it is not a detailed description of each
-component. This kind of documentation is done in Javadoc and can be
-generated automatically from the code. It is assumed that common
-design patterns are known like \ref{GOF}.
+design of the CML simulator, it is not a detailed description of every
+part of the source code. This kind of documentation is done in Javadoc
+and can be generated automatically from the code. It is assumed that
+common design patterns are known like \ref{GOF} and a basic
+understaning of CML.
 
 \subsection{Problem Domain}\label{sec:problem_domain}
 The goal of the interpreter is to enable simulation/animation of a
@@ -480,7 +481,9 @@ interpreter. As depicted in figure \ref{fig:layers} two highlevel layers exists.
 \end{figure}
 
 Each of these components will be described in further detail in the
-following sections.
+following sections. The major reason behind this layering is that the
+implementation of the interpreter should be independent of the view
+showing the results.
 
 \subsection{The Core Layer}
 This layer has the overall responsibility of interpreting a CML model
@@ -508,21 +511,11 @@ The following packages defines the top level structure of the core:
   
 \item[eu.compassresearch.core.interpreter.api] This package and
   sub-packages contains all the public classes and interfaces that
-  defines the API of the interpreter. This package includes the main
-  interpreter interface \textbf{CmlInterpreter} along with the interface
-  \textbf{CmlBehaviour} that represents any process or action, it
-  corrosponds to the circles in \autoref{sec:problem_domain}
-
-
-
-
-all the components that e any CML behavior. A CML
-  behaviour is either an observable event like a channel synchronization
-  or a internal event like a change of state. The main interface here is
-  \textbf{CmlBehaviour} which can represent both a CML process and action.
-
-  The api sub-packages groups the rest of the API classes and
-  interfaces according to the responsibility they have.
+  defines the API of the interpreter. Some of the most important
+  entities of this package includes the main interpreter interface
+  \textbf{CmlInterpreter} along with the \textbf{CmlBehaviour} interface
+  that represents a CML process or action. It corrosponds to the circles
+  in the figures of \autoref{sec:problem_domain}.
 
 \item[eu.compassresearch.core.interpreter.api.events] This package
   contains all the public components that enable users of the
@@ -536,21 +529,26 @@ all the components that e any CML behavior. A CML
   more detail in section \ref{sec:transition_model}.
 
 \item[eu.compassresearch.core.interpreter.api.values] This package
-  contains all the values used in the CML interpreter. Values are used
-  to represent the the result of an expression or the current state of a
-  variable.
+  contains all the values used by the CML interpreter. They represent
+  the values of variables and constants in a context.
 
-\item[eu.compassresearch.core.interpreter.debug] TBD
+\item[eu.compassresearch.core.interpreter.cosim] Has the responsiblity
+  of running a co-simulation. A co-simulation can be either between
+  multiple instances of the CML intepreter co-simulating a CML model, or
+  a CML intepreter instance co-simulating a CML model with a real live
+  system.
+
+\item[eu.compassresearch.core.interpreter.remote] This has the
+  responsiblilty of exposing the CML interpreter to be remote
+  controlled.
+
+\item[eu.compassresearch.core.interpreter.debug] Has the
+  responsibility of controlling a debugging sessions either from the console
+  or in our case the Eclipse debugger.
 
 \item[eu.compassresearch.core.interpreter.utility] The utility
   packages contains components that generally reusable classes and
   interfaces. 
-
-\item[eu.compassresearch.core.interpreter.utility.events] This package
-  contains components helps to implement the Observer pattern. 
-
-\item[eu.compassresearch.core.interpreter.utility.messaging] This
-  package contains general components to pass message along a stream.
 
 \end{description}
 
@@ -567,11 +565,10 @@ following folders are present
 
 \subsection{The IDE Layer}
 
-Has the responsibility of visualizing the outputs of
-  a running interpretation a CML model in the Eclipse Debugger. It is
-  located in the \emph{eu.compassresearch.ide.plugins.interpreter}
-  package.
-The IDE part is integrating the interpreter into Eclipse, enabling CML
+Has the overall responsibility of visualizing the outputs of a running
+interpretation a CML model in the Eclipse Debugger. It is located in
+the \emph{eu.compassresearch.ide.plugins.interpreter} package.  The
+IDE part is integrating the interpreter into Eclipse, enabling CML
 models to be debugged/simulated/animated through the Eclipse
 interface. In \autoref{fig:interpreter_debuggerDeployment} a
 deployment diagram of the debugging structure is shown.
@@ -592,7 +589,7 @@ Before explaining the steps involved in a debugging session, there are
 two important classes worth mentioning:
 
 \begin{itemize}
-\item \textbf{CmlInterpreterController}: This is responsible for
+\item \textbf{CmlDebugger}: This is responsible for
   controlling the CmlInterpreter execution in the debugger JVM.  All
   communications to and from the interpreter handled in this class.
   
@@ -619,9 +616,6 @@ A debugging session has the following steps:
 \item This continues until \textbf{CmlInterpreterController} sends the STOPPED message
 \end{enumerate}
 
-TBD...
-% \subsection{Subsection}
-% \label{sec:subsection-1.1}
 
 \section{Layer design and Implementation}
 This section describes the static and dynamic structure of the
@@ -629,11 +623,17 @@ components involved in simulating/animating a CML model.
 
 \subsection{Core Layer}
 
+The core layer is responsible for the overall interpretation of a
+given CML model. In the following section both the static and dynamic
+model will be described in details.
+
 \subsubsection{Static Model}
 \label{sec:static_structure}
+
 The top level interface of the interpreter is depicted in figure
 \ref{fig:interpreter_topLevelStructure}, followed by a short
 description of each the depicted components.
+
 \begin{figure}[ht!]
   \begin{center}
     \includegraphics[width=1\textwidth]{figures/toplevelStructure}
@@ -643,11 +643,12 @@ description of each the depicted components.
 \end{figure}
 
 \begin{description}
-\item[CmlInterpreter] The main interface exposed by
-  the interpreter component. This interface has the overall
-  responsibility of interpreting. It exposes methods to execute, listen
-  on interpreter events and get the current state of the interpreter. It
-  is implemented by the \textbf{VanillaCmlInterpreter} class.
+\item[CmlInterpreter] The interface exposing the functionality of the
+  interpreter component. This interface has the overall responsibility
+  of interpreting. It exposes methods to execute, listen on interpreter
+  events and get the current state of the interpreter. It is implemented
+  by the \textbf{VanillaCmlInterpreter} class in the default simulation
+  settings.
 \item[CmlBehaviour] Interface that represents a behaviour specified by
   either a CML process or action. It exposes two methods: \emph{inspect}
   which calculates the immediate set of possible transitions that the

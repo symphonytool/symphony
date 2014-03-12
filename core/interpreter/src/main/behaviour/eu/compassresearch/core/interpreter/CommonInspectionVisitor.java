@@ -40,9 +40,9 @@ import eu.compassresearch.core.interpreter.api.transitions.ops.MapOperation;
 import eu.compassresearch.core.interpreter.api.transitions.ops.RemoveChannelNames;
 import eu.compassresearch.core.interpreter.api.transitions.ops.RetainChannelNames;
 import eu.compassresearch.core.interpreter.api.transitions.ops.RetainChannelNamesAndTau;
-import eu.compassresearch.core.interpreter.api.values.CMLChannelValue;
+import eu.compassresearch.core.interpreter.api.values.CmlChannel;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameSetValue;
-import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
+import eu.compassresearch.core.interpreter.api.values.ChannelValue;
 import eu.compassresearch.core.interpreter.api.values.NamesetValue;
 import eu.compassresearch.core.interpreter.api.values.RenamingValue;
 import eu.compassresearch.core.interpreter.utility.LocationExtractor;
@@ -87,7 +87,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 			RenamingValue rv = (RenamingValue)question.lookup(NamespaceUtility.getRenamingValueName());
  			CmlTransitionSet childTransitions = leftChild.inspect();
 			final HashMap<CmlTransition, CmlTransition> newtoOld = new HashMap<CmlTransition, CmlTransition>();
- 			for(Entry<ChannelNameValue, ChannelNameValue> pair : rv.renamingMap().entrySet())
+ 			for(Entry<ChannelValue, ChannelValue> pair : rv.renamingMap().entrySet())
  			{
  				CmlTransitionSet transitionsToBeRenamed  = childTransitions.filter(new RetainChannelNames(pair.getKey()));
  				//if this is true then we have remove the from channel and need to add the
@@ -521,7 +521,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 			return (ChannelNameSetValue) val;
 		} else if (val instanceof Set && ((Set) val).isEmpty())
 		{
-			return new ChannelNameSetValue(new HashSet<ChannelNameValue>());
+			return new ChannelNameSetValue(new HashSet<ChannelValue>());
 		}
 
 		throw new CmlInterpreterException(chansetExpression, InterpretationErrorMessages.FATAL_ERROR.customizeMessage("Failed to evaluate chanset expression"));
@@ -1038,7 +1038,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		// Get all the channel name exps objects
 		for (Entry<ILexNameToken, Value> entry : globalContext.entrySet())
 		{
-			if (entry.getValue() instanceof CMLChannelValue)
+			if (entry.getValue() instanceof CmlChannel)
 			{
 				channelNames.add(CmlAstFactory.newANameChannelExp(entry.getKey().getLocation(), entry.getKey().clone(), new LinkedList<PExp>()));
 			}

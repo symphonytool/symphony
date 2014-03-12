@@ -27,8 +27,8 @@ import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.transitions.LabelledTransition;
 import eu.compassresearch.core.interpreter.api.transitions.TauTransition;
 import eu.compassresearch.core.interpreter.api.transitions.TimedTransition;
-import eu.compassresearch.core.interpreter.api.values.CMLChannelValue;
-import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
+import eu.compassresearch.core.interpreter.api.values.CmlChannel;
+import eu.compassresearch.core.interpreter.api.values.ChannelValue;
 import eu.compassresearch.core.interpreter.api.values.NoConstraint;
 import eu.compassresearch.core.interpreter.api.values.ValueConstraint;
 import eu.compassresearch.core.interpreter.utility.Pair;
@@ -119,12 +119,12 @@ public class DelegatedCmlBehaviour implements CmlBehaviour
 	{
 		if (t instanceof LabelledTransition)
 		{
-			ChannelNameValue channelNameValue = ((LabelledTransition) t).getChannelName();
+			ChannelValue channelNameValue = ((LabelledTransition) t).getChannelName();
 
 			updateConstraints(channelNameValue);
 
 			Value channel = next.second.lookup(channelNameValue.getChannel().name);
-			if (channel instanceof CMLChannelValue)
+			if (channel instanceof CmlChannel)
 			{
 				Field channelField = null;
 
@@ -145,7 +145,7 @@ public class DelegatedCmlBehaviour implements CmlBehaviour
 					{
 						throw new InterpreterRuntimeException("Unable to access field channel on CmlTransition");
 					}
-					channelField.set(channelNameValue, (CMLChannelValue) channel);
+					channelField.set(channelNameValue, (CmlChannel) channel);
 				} catch (IllegalArgumentException | IllegalAccessException e)
 				{
 					// TODO Auto-generated catch block
@@ -155,7 +155,7 @@ public class DelegatedCmlBehaviour implements CmlBehaviour
 		}
 	}
 
-	private void updateConstraints(ChannelNameValue channelNameValue)
+	private void updateConstraints(ChannelValue channelNameValue)
 	{
 		Field constraintsField = null;
 

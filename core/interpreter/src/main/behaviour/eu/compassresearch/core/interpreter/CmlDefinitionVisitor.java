@@ -36,7 +36,7 @@ import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.lex.CmlLexNameToken;
 import eu.compassresearch.core.interpreter.api.values.ActionValue;
-import eu.compassresearch.core.interpreter.api.values.CMLChannelValue;
+import eu.compassresearch.core.interpreter.api.values.CmlChannel;
 import eu.compassresearch.core.interpreter.api.values.LatticeTopValue;
 import eu.compassresearch.core.interpreter.api.values.ProcessObjectValue;
 
@@ -281,7 +281,7 @@ class CmlDefinitionVisitor extends
 	{
 		NameValuePairList vpl = new NameValuePairList();
 		ILexNameToken name = NamespaceUtility.createChannelName(node.getName());
-		vpl.add(new NameValuePair(name, new CMLChannelValue(node.getType(), name)));
+		vpl.add(new NameValuePair(name, new CmlChannel(node.getType(), name)));
 		return vpl;
 	}
 
