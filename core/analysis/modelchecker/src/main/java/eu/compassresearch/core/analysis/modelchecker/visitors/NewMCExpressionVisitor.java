@@ -9,15 +9,18 @@ import org.overture.ast.expressions.ABooleanConstExp;
 import org.overture.ast.expressions.AEqualsBinaryExp;
 import org.overture.ast.expressions.AGreaterEqualNumericBinaryExp;
 import org.overture.ast.expressions.AGreaterNumericBinaryExp;
+import org.overture.ast.expressions.AIfExp;
 import org.overture.ast.expressions.AInSetBinaryExp;
 import org.overture.ast.expressions.AIntLiteralExp;
 import org.overture.ast.expressions.ALessEqualNumericBinaryExp;
 import org.overture.ast.expressions.ALessNumericBinaryExp;
+import org.overture.ast.expressions.AModNumericBinaryExp;
 import org.overture.ast.expressions.ANotEqualBinaryExp;
 import org.overture.ast.expressions.ANotInSetBinaryExp;
 import org.overture.ast.expressions.ANotUnaryExp;
 import org.overture.ast.expressions.APlusNumericBinaryExp;
 import org.overture.ast.expressions.AQuoteLiteralExp;
+import org.overture.ast.expressions.ASeqCompSeqExp;
 import org.overture.ast.expressions.ASeqEnumSeqExp;
 import org.overture.ast.expressions.ASetEnumSetExp;
 import org.overture.ast.expressions.ASetRangeSetExp;
@@ -44,6 +47,8 @@ import eu.compassresearch.ast.expressions.AUnionVOpVarsetExpression;
 import eu.compassresearch.ast.expressions.PCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ExpressionEvaluator;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.GuardDefGenerator;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.NewMCGuardDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAApplyExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCABooleanConstExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAEnumVarsetExpression;
@@ -53,16 +58,19 @@ import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAFatEnumV
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAGreaterEqualNumericBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAGreaterNumericBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAIdentifierVarsetExpression;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAIfExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAInSetBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAIntLiteralExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCALessEqualNumericBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCALessNumericBinaryExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAModNumericBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANameChannelExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANotEqualsBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANotInSetBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANotUnaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAPlusNumericBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAQuoteLiteralExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASeqCompSeqExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASeqEnumSeqExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASetEnumSetExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASetRangeSetExp;
@@ -76,7 +84,9 @@ import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAVariable
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPVarsetExpression;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCVoidValue;
+import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCASetBind;
 import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCPMultipleBind;
+import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCAIfStm;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 
 public class NewMCExpressionVisitor extends
@@ -260,6 +270,32 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 		
 	}
 	
+	
+	
+	@Override
+	public MCNode caseASeqCompSeqExp(ASeqCompSeqExp node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		
+		MCPCMLExp first = (MCPCMLExp) node.getFirst().apply(rootVisitor, question);
+		MCASetBind setBind = (MCASetBind) node.getSetBind().apply(rootVisitor, question);
+		MCASeqCompSeqExp result = new MCASeqCompSeqExp(first,setBind);
+		
+		return result;
+	}
+
+
+	@Override
+	public MCNode caseAModNumericBinaryExp(AModNumericBinaryExp node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		
+		MCPCMLExp left = (MCPCMLExp) node.getLeft().apply(rootVisitor, question);
+		MCPCMLExp right = (MCPCMLExp) node.getRight().apply(rootVisitor, question);
+		MCAModNumericBinaryExp result = new MCAModNumericBinaryExp(left, right);
+				
+		return result;
+	}
+
+
 	@Override
 	public MCNode caseAFatEnumVarsetExpression(
 			AFatEnumVarsetExpression node, NewCMLModelcheckerContext question)
@@ -393,6 +429,25 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 		
 		return node.getExpression().apply(rootVisitor,question);
 	}
+
+	
+	@Override
+	public MCNode caseAIfExp(AIfExp node, NewCMLModelcheckerContext question)
+			throws AnalysisException {
+		MCPCMLExp test = (MCPCMLExp) node.getTest().apply(rootVisitor, question);
+		MCPCMLExp thenExp = (MCPCMLExp) node.getThen().apply(rootVisitor, question);
+		MCPCMLExp elseExp = null;
+		if(node.getElse() != null){
+			elseExp = (MCPCMLExp) node.getElse().apply(rootVisitor, question);
+		}
+		MCAIfExp result = new MCAIfExp(test, thenExp, elseExp);
+
+		//LinkedList<NewMCGuardDef> guarDefs = GuardDefGenerator.generateGuardDefs(test, result.getCounterId(), result);
+		//question.stmGuardDefs.put(test, guarDefs);
+		
+		return result;
+	}
+
 
 	@Override
 	public MCNode caseANameChannelExp(ANameChannelExp node,

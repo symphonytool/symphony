@@ -1,7 +1,7 @@
     //Types
     VOID                    ::= {void}.
     primitive Seq           ::= (v:SeqType).
-    EmptySeq                ::= { empty }.
+    EmptySeq                ::= { emptySeq }.
     primitive NonEmptySeq   ::= ( first: Type, rest: SeqType ).
     SeqType                 ::= EmptySeq + NonEmptySeq.
     DerivableSeq            ::= (SeqType).     
@@ -30,6 +30,26 @@
     union(NonEmptySet(x, S), NonEmptySet(y, emptySet), X) :- NonEmptySet(x, S), NonEmptySet(y, emptySet), x < y, union(S, NonEmptySet(y, emptySet), X_), X = NonEmptySet(x, X_).
     union(S, NonEmptySet(x, T), X_)    :- T != emptySet, NonEmptySet(x, T), union(S, NonEmptySet(x, emptySet), X), union(X, T, X_).
 
+	//Operations and rules over sequences
+    primitive SeqBound	::= (Natural).
+    card	::= (seqX: SeqType, c: Natural).
+    card(emptySeq, 0).
+    card(NonEmptySeq(x, S), n_) :- NonEmptySeq(x, S), card(S, n), n_ = n + 1, n_ <= L, SeqBound(L).
+
+    // The head of a sequence
+    head	::= (seqX: SeqType, h: Type).
+    head(NonEmptySeq(x, S), x) :- NonEmptySeq(x, S).
+
+    // The tail of a sequence
+    tail	::= (seqX: SeqType, seqT: SeqType).
+    tail(NonEmptySeq(x, S), S) :- NonEmptySeq(x, S).
+
+    // Sequence concatenation
+    conc	::= (seqX: SeqType, seqR: SeqType, seqT: SeqType, c: Natural).
+    conc(emptySeq, NonEmptySeq(x, S), NonEmptySeq(x, S), n) :- NonEmptySeq(x, S), card(NonEmptySeq(x, S), n), n <= L, SeqBound(L).
+    conc(NonEmptySeq(x, S), emptySeq, NonEmptySeq(x, S), n) :- NonEmptySeq(x, S), card(NonEmptySeq(x, S), n), n <= L, SeqBound(L).
+
+	
 	//A representation for product type
 	primitive ProdType ::= (first: Type, second: Type).
 	 

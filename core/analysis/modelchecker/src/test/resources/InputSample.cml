@@ -1,0 +1,15 @@
+types
+  NUMBERS = nat 
+    inv i == i in set {1,...,2}
+
+channels
+  input : NUMBERS
+    
+process InputSample = 
+begin
+  actions
+    Main = val v:NUMBERS @ input.v -> Skip
+@ (Main(1) [] Main(2))
+--@ []k:NUMBERS @ Main(k)
+
+end
