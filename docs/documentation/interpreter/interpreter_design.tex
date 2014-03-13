@@ -459,12 +459,14 @@ returns the silent transition the triggers this end rule.
 
 \subsection{Definitions}
 \begin{description}
+\item[Animation] Animation is when the user are involved in taking
+  the decisions when interpreting the CML model
+
 \item[CML] Compass Modelling Language
 \item[UTP] Unified Theory of Programming, a semantic framework.
 \item[Simulation] Simulation is when the interpreter runs without
   any form of user interaction other than starting and stoppping.
-\item[Animation] Animation is when the user are involved in taking
-  the decisions when interpreting the CML model
+\item[trace] A sequence of observable events performed by a behavior.
 \end{description}
 
 \section{Software Layers}
@@ -514,7 +516,7 @@ The following packages defines the top level structure of the core:
   defines the API of the interpreter. Some of the most important
   entities of this package includes the main interpreter interface
   \textbf{CmlInterpreter} along with the \textbf{CmlBehaviour} interface
-  that represents a CML process or action. It corrosponds to the circles
+  that represents a CML process or action. It corresponds to the circles
   in the figures of \autoref{sec:problem_domain}.
 
 \item[eu.compassresearch.core.interpreter.api.events] This package
@@ -634,6 +636,18 @@ The top level interface of the interpreter is depicted in figure
 \ref{fig:interpreter_topLevelStructure}, followed by a short
 description of each the depicted components.
 
+Before going into detals with each element on figure
+\ref{fig:interpreter_topLevelStructure} a few things needs
+mentioning. First of all, any CML model has a top level
+Process. Because of this, the interpreter need only to interact with
+the top level CmlBehaviour instance. This explains the one-to-one
+correspondence between the CmlInterpreter and the
+CMLBehaviour. However, the behavior of top level CmlBehaviour is
+determined by the binary tree of CmlBehaviour instances that itself
+and it's child behaviours defines. So in effect, the CmlInterpreter
+along with the selection strategy controls every observable transition
+that any CmlBehaviour makes.
+
 \begin{figure}[ht!]
   \begin{center}
     \includegraphics[width=1\textwidth]{figures/toplevelStructure}
@@ -645,57 +659,59 @@ description of each the depicted components.
 \begin{description}
 \item[CmlInterpreter] The interface exposing the functionality of the
   interpreter component. This interface has the overall responsibility
-  of interpreting. It exposes methods to execute, listen on interpreter
-  events and get the current state of the interpreter. It is implemented
-  by the \textbf{VanillaCmlInterpreter} class in the default simulation
-  settings.
-\item[CmlBehaviour] Interface that represents a behaviour specified by
-  either a CML process or action. It exposes two methods: \emph{inspect}
-  which calculates the immediate set of possible transitions that the
-  current behaviour allows and \emph{execute} which takes one of the
-  possible transitions determined by the supervisor. A specific
-  behaviour can for instance be the prefix action ``a -> P'', where the
-  only possible transition is to interact in the a event.  in any
-\item [CmlSupervisorEnvironment] Interface with the responsibility of
-  acting as the supervisor environment for CML processes and actions. A
-  supervisor environment selects and exposes the next transition/event
-  that should occur to its pupils (All the CmlBehaviors under its
-  supervision). It also resolves possible backtracking issues which
-  may occur in the internal choice operator. 
-\item[SelectionStrategy] This interface has the responsibility
-  of choosing an event from a given CmlAlphabet. This responsibility is
-  delegated by the CmlSupervisorEnvironment interface.
-\item[CmlTransition] Interface that represents any kind of transition that
-  a CmlBehavior can make. This structure will be described in more
-  detail in section \ref{sec:event_structure}.
-\item[CmlAlphabet] This class is a set of CmlTransitions. It exposes
-  convenient methods for manipulating the set.
+  of interpreting. It exposes methods to inspect and execute and it is
+  implemented by the \textbf{VanillaCmlInterpreter} class in the default
+  simulation settings.
+
+\item[CmlBehavior] Interface that represents a behavior specified by
+  either a CML process or action. Most importantly it exposes the two
+  methods: \emph{inspect} which calculates the immediate set of possible
+  transitions that it currently allows and \emph{execute} which takes
+  one of the possible transitions determined by it's supervisor. This
+  process is described in \autoref{sec:problem_domain} where a
+  CmlBehavior is represented as a circle in the figures. As seen both in
+  \autoref{sec:problem_domain} and
+  \autoref{fig:interpreter_topLevelStructure} associations between
+  CmlBehavior instances are structured as a binary tree, where a parent
+  supervises its child behaviors. In this context supervises means that
+  they control the flow of possible transitions and determines when to
+  execute them. The reason for this is that is corresponds nicely to
+  the structure of the CML semantics.
+
+\item[SelectionStrategy] This interface has the responsibility of
+  choosing a CmlTransition from a given CmlTransitionSet. This could be
+  seen as the last chain in the supervisor hierarchy, since this is
+  where all the possible transitions flows to and the decision of which
+  one to execute next is taken here. The purpose of this interface is to
+  allow different kinds of strategies for choosing the next
+  transition. e.g there is a strategy that picks one at random 
+  and another that enables a user to pick.
+
+\item[CmlTransition] Interface that represents any kind of transition
+  that a CmlBehavior can make. They are not all depicted here and will
+  be described in greater details in \autoref{sec:event_structure}. But
+  overall, only transitions that implements the ObservableTransition
+  interface can produce an observable trace of a behavior.
+
+\item[CmlTransitionSet] This is an immutable set of CmlTransition
+  objects and is the return value of the inspect method on a
+  CmlBehavior. The reason for it being immutable is to ensure that
+  calculations never change the input sets.
+
 \end{description}
 
-To gain a better understanding of figure
-\ref{fig:interpreter_topLevelStructure} a few things needs
-mentioning. First of all any CML model (at least for now) has a top
-level Process. Because of this, the interpreter need only to interact
-with the top level CmlBehaviour instance. This explains the one-to-one
-correspondence between the CmlInterpreter and the
-CMLBehaviour. However, the behavior of top level CmlBehaviour is
-determined by the binary tree of CmlBehaviour instances that itself
-and it's child behaviours defines. So in effect, the CmlInterpreter
-controls every transition that any CmlBehaviour makes through the top
-level behaviour.
-
-\subsubsection{Transition Model}
+\subsubsection{Transitions Model}
 \label{sec:transition_model}
 
-As described in the previous section a CML model is represented by a
+As described in the previous sections a CML model is represented by a
 binary tree of CmlBehaviour instances and each of these has a set of
 possible transitions that they can make. A class diagram of all the
 classes and interfaces that makes up transitions are shown in figure
 \ref{fig:events}, followed by a description of each of the elements.
 
 A transition taken by a CmlBehavior is represented by a
-CMLTransition. This represent a possible next step in the model which can be either observable or silent (also called a tau
-transition). 
+CmlTransition. This represent a possible next step in the model which
+can be either observable or silent (also called a tau transition).
 
 An observable transition represents either that time passes or that a
 communication/synchronization event takes place on a given
@@ -730,7 +746,7 @@ hidden channel transition.
   channel event in the form of a tau transition.
 \end{description}
 
-\subsubsection{Action/Process Structure}
+\subsubsection{Structure of the default Implementation of CmlBehavior}
 \label{sec:action_process_structure}
 Actions and processes are both represented by the CmlBehaviour
 interface. A class diagram of the important classes that implements
