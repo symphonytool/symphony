@@ -14,7 +14,7 @@
   <groupId>eu.compassresearch</groupId>
   <artifactId>root</artifactId>
   <name>The Symphony IDE Top-Level</name>
-  <version>0.2.9-SNAPSHOT</version>
+  <version>0.3.1-SNAPSHOT</version>
 
   <modules>
     <module>tools</module>
@@ -23,7 +23,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <overture.version>2.0.4</overture.version>
+    <overture.version>2.0.5-SNAPSHOT</overture.version>
   </properties>
 
   <dependencies>
@@ -61,7 +61,7 @@
         <!--
             This plugin allows you to run
 
-            $ mvn versions:set -Dtycho.mode=maven -PWith-IDE -DnewVersion=1.6.1
+            $ mvn versions:set -DnewVersion=1.6.1
 
             and get all the maven version numbers updated nearly for
             free.  The tycho bit on the end just tells tycho (used in
