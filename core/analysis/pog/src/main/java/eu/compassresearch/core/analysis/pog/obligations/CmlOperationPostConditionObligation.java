@@ -56,7 +56,7 @@ public class CmlOperationPostConditionObligation extends CmlProofObligation{
 	{
 		if (errs == null || errs.isEmpty())
 		{
-			return postexp;
+			return postexp.clone();
 		} else
 		{// handled prepost or errors
 			AOrBooleanBinaryExp orExp = new AOrBooleanBinaryExp();
@@ -74,12 +74,12 @@ public class CmlOperationPostConditionObligation extends CmlProofObligation{
 		{
 			// (preexp and postexp)
 			AAndBooleanBinaryExp andExp = new AAndBooleanBinaryExp();
-			andExp.setLeft(preexp);
-			andExp.setRight(postexp);
+			andExp.setLeft(preexp.clone());
+			andExp.setRight(postexp.clone());
 			return andExp;
 		} else
 		{
-			return postexp;
+			return postexp.clone();
 		}
 	}
 
@@ -87,8 +87,8 @@ public class CmlOperationPostConditionObligation extends CmlProofObligation{
 	{
 		// (errlet and errright)
 		AAndBooleanBinaryExp andExp = new AAndBooleanBinaryExp();
-		andExp.setLeft(err.getLeft());
-		andExp.setRight(err.getRight());
+		andExp.setLeft(err.getLeft().clone());
+		andExp.setRight(err.getRight().clone());
 		return andExp;
 	}
 	
