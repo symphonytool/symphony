@@ -240,19 +240,18 @@ understaning of CML.
 
 \subsection{Problem Domain}\label{sec:problem_domain}
 The goal of the interpreter is to enable simulation/animation of a
-given CML \ref{cml syntax} model and be able to visualize this in the
-Eclipse IDE Debugger. CML has a UTP semantics defined in \ref{cml
-semantics} which dictates how the interpretation progresses. Therefore, the
+given CML \cite{cml syntax} model and be able to visualize this in the
+Eclipse IDE Debugger. CML has a UTP semantics defined in \cite{cml
+semantics} which dictates the interpretation. Therefore, the
 overall goal of the CML interpreter is to adhere to the semantic
-rules defined in those documents and to somehow visualize this in the
+rules defined in those documents and to visualize this in the
 Eclipse Debugger.
 
 In order to get a high level understanding of how CML is interpreted
-without knowing all the details of the semantics and the
-implementation of it. A short illustration of how the interpreter
-represents and progresses a CML model is given below. 
+without knowing all the details, a short illustration of how the interpreter
+represents and evovles a CML model is given below. 
 
-In listing \ref{lst:cmlexample} a CML model consisting of three CML
+In \autoref{lst:cmlexample} a CML model consisting of three CML
 processes is given. It has a R (Reader) process which reads a value from
 the inp channel and writes it on the out channel. The W (Writer)
 process writes the value 1 to the inp channel and finishes. The
@@ -463,7 +462,7 @@ returns the silent transition the triggers this end rule.
   the decisions when interpreting the CML model
 
 \item[CML] Compass Modelling Language
-\item[UTP] Unified Theory of Programming, a semantic framework.
+\item[UTP] Unified Theory of Programming (a semantic framework)
 \item[Simulation] Simulation is when the interpreter runs without
   any form of user interaction other than starting and stoppping.
 \item[trace] A sequence of observable events performed by a behavior.
@@ -484,13 +483,13 @@ interpreter. As depicted in figure \ref{fig:layers} two highlevel layers exists.
 
 Each of these components will be described in further detail in the
 following sections. The major reason behind this layering is that the
-implementation of the interpreter should be independent of the view
+implementation of the semantics should be independent of the view
 showing the results.
 
 \subsection{The Core Layer}
 This layer has the overall responsibility of interpreting a CML model
 as described in the operational semantics that are defined in
-\cite{D23.4} and is located in the java package named
+\cite{D23.4} and is located in the package
 \emph{eu.compassresearch.core.interpreter}. The design philosophy of
 the top-level structure is to encapsulate all the classes and
 interfaces that makes up the implementation of the core functionality
@@ -509,7 +508,17 @@ The following packages defines the top level structure of the core:
   in the package, namely the \textbf{VanillaInterpreteFactory} factory
   class, that any user of the interpreter must invoke to use the
   interpreter. This can creates instances of the \textbf{CmlInterpreter}
-  interface.
+  interface. Furthermore, this package is split into two
+  seperate source folders, each representing a different logical component. The
+  following folders are present:
+  \begin{description}
+  \item[src/main/java] This folder contains all public classes and
+    interfaces as described above.
+  \item[src/main/behavior] This folder contains all the internal
+    classes and interfaces that the default interpreter implementation is
+    comprised of. This will be described in more details in
+    \autoref{sec:static_structure}.
+  \end{description}
   
 \item[eu.compassresearch.core.interpreter.api] This package and
   sub-packages contains all the public classes and interfaces that
@@ -521,7 +530,7 @@ The following packages defines the top level structure of the core:
 
 \item[eu.compassresearch.core.interpreter.api.events] This package
   contains all the public components that enable users of the
-  interpreter to subscribe to multiple on events (this it not CML
+  interpreter to subscribe to multiple events (this it not CML
   channel events) from both \textbf{CmlIntepreter} and
   \textbf{CmlBehaviour} instances.
 
@@ -534,7 +543,7 @@ The following packages defines the top level structure of the core:
   contains all the values used by the CML interpreter. They represent
   the values of variables and constants in a context.
 
-\item[eu.compassresearch.core.interpreter.cosim] Has the responsiblity
+\item[eu.compassresearch.core.interpreter.cosim] Has the responsibility
   of running a co-simulation. A co-simulation can be either between
   multiple instances of the CML intepreter co-simulating a CML model, or
   a CML intepreter instance co-simulating a CML model with a real live
@@ -545,24 +554,13 @@ The following packages defines the top level structure of the core:
   controlled.
 
 \item[eu.compassresearch.core.interpreter.debug] Has the
-  responsibility of controlling a debugging sessions either from the console
-  or in our case the Eclipse debugger.
+  responsibility of controlling a debugging sessions, which only
+  includes the Eclipse debugger at this point.
 
 \item[eu.compassresearch.core.interpreter.utility] The utility
-  packages contains components that generally reusable classes and
-  interfaces. 
+  packages contains reusable classes and interfaces that are use across
+  packages.
 
-\end{description}
-
-The \textbf{eu.compassresearch.core.interpreter} package are split into several
-folders, each representing a different logical component. The
-following folders are present
-
-\begin{description}
-\item[behavior] This folder contains all the internal classes and
-  interfaces that implements the CmlBehaviors. The Cml behaviors will be
-  described in more detail in in section \ref{sec:static_structure}, but
-  they are bassically implemented by CML AST visitor classes.
 \end{description}
 
 \subsection{The IDE Layer}
