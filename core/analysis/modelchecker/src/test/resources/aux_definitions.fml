@@ -30,6 +30,26 @@
     union(NonEmptySet(x, S), NonEmptySet(y, emptySet), X) :- NonEmptySet(x, S), NonEmptySet(y, emptySet), x < y, union(S, NonEmptySet(y, emptySet), X_), X = NonEmptySet(x, X_).
     union(S, NonEmptySet(x, T), X_)    :- T != emptySet, NonEmptySet(x, T), union(S, NonEmptySet(x, emptySet), X), union(X, T, X_).
 
+	// intersection: X \cap Y = Z => inter(X, Y, Z)
+    inter                       ::= (setX: SetType, setY: SetType, setZ: SetType).
+    inter(emptySet, Sy, emptySet) :- Sy is NonEmptySet(_, _).
+    inter(Sy, emptySet, emptySet) :- Sy is NonEmptySet(_, _).
+    inter(NonEmptySet(x, S), NonEmptySet(x, emptySet), NonEmptySet(x, emptySet)) :- NonEmptySet(x, S), NonEmptySet(x, emptySet).
+    inter(NonEmptySet(x, emptySet), NonEmptySet(x, S), NonEmptySet(x, emptySet)) :- NonEmptySet(x, S), NonEmptySet(x, emptySet).
+    inter(NonEmptySet(x, emptySet), NonEmptySet(y, emptySet), emptySet) :- NonEmptySet(x, emptySet), NonEmptySet(y, emptySet), x != y.
+    inter(NonEmptySet(x, S), NonEmptySet(y, emptySet), X) :- S != emptySet, NonEmptySet(x, S), NonEmptySet(y, emptySet), inter(NonEmptySet(x, emptySet), NonEmptySet(y, emptySet), X1), inter(S, NonEmptySet(y, emptySet), X2), union(X1, X2, X).
+    inter(S, NonEmptySet(x, T), X)     :- S != emptySet, T != emptySet, NonEmptySet(x, T), inter(S, NonEmptySet(x, emptySet), X1), inter(S, T, X2), union(X1, X2, X).
+
+    // set difference: X \minus Y = Z => diff(X, Y, Z)
+    diff                       ::= (setX: SetType, setY: SetType, setZ: SetType).
+    diff(emptySet, emptySet, emptySet).
+    diff(emptySet, Sy, emptySet)     :- Sy is NonEmptySet(_, _).
+    diff(Sx, emptySet, Sx)     :- Sx is NonEmptySet(_, _).
+    diff(NonEmptySet(x, S), NonEmptySet(x, emptySet), S) :- NonEmptySet(x, S), NonEmptySet(x, emptySet).
+    diff(NonEmptySet(x, S), NonEmptySet(y, emptySet), NonEmptySet(x, X)) :- NonEmptySet(x, S), NonEmptySet(y, emptySet), x != y, diff(S, NonEmptySet(y, emptySet), X).
+    diff(S, NonEmptySet(x, T), X)     :- S != emptySet, T != emptySet, NonEmptySet(x, T), diff(S, NonEmptySet(x, emptySet), X1), diff(S, T, X2), inter(X1, X2, X).
+
+	
 	//Operations and rules over sequences
     primitive SeqBound	::= (Natural).
     card	::= (seqX: SeqType, c: Natural).

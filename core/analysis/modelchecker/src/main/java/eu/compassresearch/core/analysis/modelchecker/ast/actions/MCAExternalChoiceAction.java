@@ -28,6 +28,7 @@ public class MCAExternalChoiceAction implements MCPAction {
 			result.append(this.right.toFormula(option));
 			result.append(")");
 			
+			
 			break;
 
 		case MCNode.SEMANTIC_NAMED:

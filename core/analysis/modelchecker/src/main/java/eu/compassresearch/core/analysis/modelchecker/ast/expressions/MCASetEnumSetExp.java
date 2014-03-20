@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.EmptySet;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.PatternValue;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.Set;
@@ -23,28 +24,32 @@ public class MCASetEnumSetExp implements MCPCMLExp {
 	public String toFormula(String option) {
 		StringBuilder result = new StringBuilder();
 
+		if(option.equals(MCNode.EXTENSION)){
+			result.append("{");
+			 
+			for (Iterator<MCPCMLExp> iterator = members.iterator(); iterator.hasNext();) {
+				MCPCMLExp member = (MCPCMLExp) iterator.next();
+				result.append(member.toFormula(option));
+				if(iterator.hasNext()){
+					result.append(",");
+				}
+			}
+			result.append("}");	
+		}else{
 		//set of values can be converted explicitely or in terms of formula sets (embedding).
-		if(members.size() == 0){
-			result.append("emptySet");
-		} else{
-			Set set = new EmptySet(); 
-			for (MCPCMLExp elem : members) {
-				set = set.addElement(elem);
-			}
-			result.append(set.toFormula(option));
-		}
-		/*
-		result.append("{");
-		 
-		for (Iterator<MCPCMLExp> iterator = members.iterator(); iterator.hasNext();) {
-			MCPCMLExp member = (MCPCMLExp) iterator.next();
-			result.append(member.toFormula(option));
-			if(iterator.hasNext()){
-				result.append(",");
+			if(members.size() == 0){
+				result.append("emptySet");
+			} else{
+				Set set = new EmptySet(); 
+				for (MCPCMLExp elem : members) {
+					set = set.addElement(elem);
+				}
+				result.append(set.toFormula(option));
 			}
 		}
-		result.append("}");
-		*/
+		
+		
+		
 		return result.toString();
 	}
 

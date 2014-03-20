@@ -2,6 +2,7 @@ package eu.compassresearch.core.analysis.modelchecker.ast.definitions;
 
 import org.overture.ast.definitions.AExplicitFunctionDefinition;
 
+import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAInSetBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
@@ -31,7 +32,7 @@ public class MCATypeDefinition implements MCPCMLDefinition {
 		result.append(this.name + " ::= ");
 		if(this.invExpression != null){
 			if (invExpression instanceof MCAInSetBinaryExp){
-				result.append(((MCAInSetBinaryExp) this.invExpression).getRight().toFormula(option));
+				result.append(((MCAInSetBinaryExp) this.invExpression).getRight().toFormula(MCNode.EXTENSION));
 			}else{
 				result.append(this.invExpression.toFormula(option));
 			}

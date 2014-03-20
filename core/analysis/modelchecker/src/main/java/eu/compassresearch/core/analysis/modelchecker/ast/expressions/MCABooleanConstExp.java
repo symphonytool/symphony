@@ -18,6 +18,13 @@ public class MCABooleanConstExp implements MCBooleanExp {
 		return String.valueOf(this.value);
 	}
 
+	
+	@Override
+	public String toString() {
+		
+		return String.valueOf(this.value);
+	}
+
 	public boolean isValue() {
 		return value;
 	}

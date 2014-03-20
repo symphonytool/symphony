@@ -6,6 +6,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ExpressionEvaluator;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCValueDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAIntLiteralExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASetRangeSetExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCATimesNumericBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
@@ -45,7 +46,13 @@ public class MCAValueDefinition implements MCPCMLDefinition {
 		result.append("{");
 		//ExpressionEvaluator expEvaluator = ExpressionEvaluator.getInstance();
 		//expEvaluator.obtainValue(expression)
-		result.append(this.expression.toFormula(option));
+		if(this.expression instanceof MCASetRangeSetExp){
+			String values = this.expression.toFormula(option);
+			values = values.substring(1, values.length()-1);
+			result.append(values);
+		}else{
+			result.append(this.expression.toFormula(option));
+		}
 		result.append("}");
 		result.append(".");
 		

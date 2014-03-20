@@ -10,7 +10,7 @@
     timeout : nat = 1 -- generic IP timeout
     sourceBroadcastTime : nat = 2 -- timeouts for the source product
     targetBroadcastTime : nat = 2 -- timout for the targte product  these values can be used for playing with the wait time for the processes
-    ServiceCallDataERROR:ServiceCallData = 0  -- error return value to the application layer
+    ServiceCallDataERROR:ServiceCallData = 1  -- error return value to the application layer
   
   functions
    IsDeviceInSet:Device_Record * set of Device_Record -> bool -- helper function 

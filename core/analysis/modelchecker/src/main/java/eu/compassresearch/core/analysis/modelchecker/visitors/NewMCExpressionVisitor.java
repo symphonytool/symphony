@@ -22,6 +22,7 @@ import org.overture.ast.expressions.APlusNumericBinaryExp;
 import org.overture.ast.expressions.AQuoteLiteralExp;
 import org.overture.ast.expressions.ASeqCompSeqExp;
 import org.overture.ast.expressions.ASeqEnumSeqExp;
+import org.overture.ast.expressions.ASetDifferenceBinaryExp;
 import org.overture.ast.expressions.ASetEnumSetExp;
 import org.overture.ast.expressions.ASetRangeSetExp;
 import org.overture.ast.expressions.ASetUnionBinaryExp;
@@ -72,6 +73,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAPlusNume
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAQuoteLiteralExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASeqCompSeqExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASeqEnumSeqExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASetDifferenceBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASetEnumSetExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASetRangeSetExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASetUnionBinaryExp;
@@ -524,6 +526,18 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 	}
 
 	
+
+	@Override
+	public MCNode caseASetDifferenceBinaryExp(ASetDifferenceBinaryExp node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		MCPCMLExp left = (MCPCMLExp) node.getLeft().apply(rootVisitor,question);
+		MCPCMLExp right = (MCPCMLExp) node.getRight().apply(rootVisitor,question);
+		
+		MCASetDifferenceBinaryExp result = new MCASetDifferenceBinaryExp(left, right);
+		
+		return result;
+	}
+
 
 	@Override
 	public MCNode caseANotInSetBinaryExp(ANotInSetBinaryExp node,

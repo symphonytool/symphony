@@ -11,6 +11,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAEnumVars
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAFatEnumVarsetExpression;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANameChannelExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAUnionVOpVarsetExpression;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAVariableExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPVarsetExpression;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
@@ -33,7 +34,46 @@ public class MCACommunicationAction implements MCPAction {
 		this.communicationParameters = communicationParameters;
 		this.action = action;
 	}
+	
+	private MCACommunicationAction(int counterId, String identifier,
+			LinkedList<MCPCommunicationParameter> communicationParameters,
+			MCPAction action) {
+		this.counterId = counterId;
+		this.identifier = identifier;
+		this.communicationParameters = communicationParameters;
+		this.action = action;
+	}
 
+	public MCACommunicationAction copy(){
+		MCACommunicationAction result = new MCACommunicationAction(this.counterId, this.identifier, (LinkedList<MCPCommunicationParameter>)communicationParameters.clone(), this.action);
+		
+		return result;
+	}
+
+	public void setParameter(String name, MCPCMLExp expValue){
+		for (MCPCommunicationParameter param : communicationParameters) {
+			if(param instanceof MCAReadCommunicationParameter){
+				if(((MCAReadCommunicationParameter) param).getPattern().toFormula(MCNode.DEFAULT).equals(name)){
+					((MCAReadCommunicationParameter) param).setExpression(expValue);
+				}
+			} else if (param instanceof MCAWriteCommunicationParameter){
+				
+				if(((MCAWriteCommunicationParameter) param).getExpression() instanceof MCAVariableExp){
+					MCAVariableExp paramExp = (MCAVariableExp) ((MCAWriteCommunicationParameter)param).getExpression();
+					if(paramExp.getName().equals(name)){
+						paramExp.setName(expValue.toFormula(MCNode.DEFAULT));
+					}
+				}
+			} else if (param instanceof MCASignalCommunicationParameter){
+				if(((MCASignalCommunicationParameter) param).getExpression() instanceof MCAVariableExp){
+					MCAVariableExp paramExp = (MCAVariableExp) ((MCASignalCommunicationParameter)param).getExpression();
+					if(paramExp.getName().equals(name)){
+						paramExp.setName(expValue.toFormula(MCNode.DEFAULT));
+					}
+				}
+			}
+		}
+	}
 
 
 	@Override
@@ -148,6 +188,8 @@ public class MCACommunicationAction implements MCPAction {
 		}
 		return result.toString();
 	}
+	
+	
 	
 	
 	public String getIdentifier() {
