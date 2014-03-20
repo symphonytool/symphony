@@ -142,7 +142,7 @@
     <!--   <layout>p2</layout> -->
     <!-- </repository> -->
     <repository>
-      <id>overture.au.dk-p2</id>
+      <id>overture-p2</id>
       <url>http://overture.au.dk/p2/symphony-overture-development/</url>
       <layout>p2</layout>
     </repository>

@@ -1,0 +1,42 @@
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
+
+  <profiles>
+    <profile>
+      <id>overture-development-dependency</id>
+      <properties>
+        <overture.version>2.0.5-SNAPSHOT</overture.version>
+      </properties>
+      <repositories>
+        <repository>
+          <id>overture-p2</id>
+          <url>http://overture.au.dk/p2/symphony-overture-development/</url>
+          <layout>p2</layout>
+        </repository>
+      </repositories>
+    </profile>
+  </profiles>
+
+  <activeProfiles>
+    <activeProfile>overture-development-dependency</activeProfile>
+  </activeProfiles>
+
+  <!-- You will only need the two Sonatype server entries if you plan
+       to either deploy snapshots to the sonatype servers or perform
+       full releases.
+  -->
+  <servers>
+    <server>
+      <id>sonatype-nexus-snapshots</id>
+      <username>your-sonatype-username</username>
+      <password>your-sonatype-password</password>
+    </server>
+
+    <server>
+      <id>sonatype-nexus-staging</id>
+      <username>your-sonatype-username</username>
+      <password>your-sonatype-password</password>
+    </server>
+  </servers>
+</settings>
