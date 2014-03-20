@@ -744,45 +744,50 @@ hidden channel transition.
   channel event in the form of a tau transition.
 \end{description}
 
-\subsubsection{Structure of the default Implementation of CmlBehavior}
+\subsubsection{The default Implementation of CmlBehavior}
 \label{sec:action_process_structure}
 Actions and processes are both represented by the CmlBehaviour
 interface. A class diagram of the important classes that implements
-this interface is shown in figure \ref{fig:cmlbehaviors}
+this interface is shown in \autoref{fig:concrete_behavior}
 \begin{figure}[ht!]
   \begin{center}
-    \includegraphics[width=0.9\textwidth]{figures/CmlBehaviors}
-    \caption{The implementing classes of the CmlBehavior interface}
-    \label{fig:cmlbehaviors}
+    \includegraphics[width=0.9\textwidth]{figures/defaultCmlBehaviorImpl}
+    \caption{The classes and interfaces making up the default implementation the CmlBehavior interface}
+    \label{fig:concrete_behavior}
   \end{center}
 \end{figure}
 
 As shown the \textbf{ConcreteCmlBehavior} is the implementing class of
 the CmlBehavior interface. However, it delegates a large part of its
 responsibility to other classes. The actual behavior of a
-ConcreteCmlBehavior instance is decided by its current instance of the
-INode interface, so when a ConcreteCmlBehavior instance is created a
-INode instance must be given. The INode interface is implemented by
-all the CML AST nodes and can therefore be any CML process or action.
-The actual implementation of the behavior of any process/action is
-delegated to three different kinds of visitors all extending a
-generated abstract visitor that have the infrastructure to visit any
-CML AST node.
+ConcreteCmlBehavior instance is decided by its current INode instance,
+so when a ConcreteCmlBehavior instance is created a INode instance
+must be given. The INode interface is implemented by all the CML AST
+nodes and can therefore be any CML process or action.  The actual
+implementation of the behavior of any process/action is delegated to
+two visitors, the AbstractInspectionVisitor and the
+AbstractSetupVisitor, all extending a generated abstract visitor that
+have the infrastructure to visit any CML AST node.
 
-The following three visitors are used:  
 \begin{description}
 \item[AbstractSetupVisitor] This has the responsibility of performing
-  any required setup for every behavior. This visitor is invoked
+  any required setup for a behavior. This visitor is invoked
   whenever a new INode instance is loaded.
 
-\item[AbstractEvaluationVisitor] This has the responsibility of
-  performing the actual behavior and is invoked inside the \textbf{execute}
-  method. This involves taking one of the possible transitions.
+\item[AbstractAlphabetVisitor] This has the responsibility of creating
+  an Inspection object given the a INode and context, which represents
+  the current state of the behavior.
+ 
+\item[Inspection] Contains the next possible transitions (in a
+  CmlTransitionSet) along with a transition function in the form of a
+  CmlCalculationStep. 
 
-\item[AbstractAlphabetVisitor] This has the responsibility of
-  calculating the alphabet of the current behavior and is invoked in the
-  \textbf{inspect} method.
-\end{description}
+\item[CmlCalculationStep] Responsible for executing the actual
+  behavior that occurs in a transition from one state to another. This
+  is where the actual implementation of the semantics is.
+\end{description} 
+
+
 
 In figure \ref{fig:visitors} a more detailed look at the evaluation visitor structure is given.  
 
