@@ -347,6 +347,9 @@ public class RttMbtClient {
 		// check if file exists in local file system
 		File localFile = new File(filename);
 		if (!localFile.exists()) {
+			if (getVerboseLogging()) {
+				addLogMessage("note: local file " + filename + " does not exist - no upload possible!");
+			}
 			return false;
 		}
 		
@@ -473,7 +476,14 @@ public class RttMbtClient {
 		// check if local directory exists
 		File folder = new File(directory);
 		if (folder.isFile()) {
-			System.err.println("[FAIL]: '" + directory + "' already exists and is a file!");
+			addErrorMessage("'" + directory + "' already exists and is a file!");
+			return false;
+		}
+		if (!folder.exists()) {
+			folder.mkdirs();
+		}
+		if (!folder.isDirectory()) {
+			addErrorMessage("'" + directory + "' does not exists and could not be created!");
 			return false;
 		}
 
@@ -610,7 +620,7 @@ public class RttMbtClient {
 		// check if local project directory exists
 		File folder = new File(getRttProjectPath());
 		if (folder.isFile()) {
-			System.err.println("[FAIL]: '" + project + "' already exists and is a file!");
+			addErrorMessage("'" + project + "' already exists and is a file!");
 			return false;
 		}
 
@@ -620,7 +630,7 @@ public class RttMbtClient {
 			success = folder.mkdirs();
 			if (!success) {
 				// Directory creation failed
-				System.err.println("[FAIL]: creating local directory '" + project + "' failed!");
+				addErrorMessage("creating local directory '" + project + "' failed!");
 				return false;
 			}
 		}
@@ -632,15 +642,17 @@ public class RttMbtClient {
 			String templatesDir = getWorkspacePath() + File.separator + "templates";
 			File templates = new File(templatesDir);
 			if (!templates.isDirectory()) {
-				System.err.println("[FAIL]: local templates directory " + templatesDir + " does not exist!");
+				addErrorMessage("local templates directory " + templatesDir + " does not exist!");
 				return false;
 			}
 			File archive = new File(templates, "_Project_compass.zip");
-			System.out.println("unzipping archive '" + archive.getPath() + "' into directory '" + getRttProjectPath() + "'");
+			if (getVerboseLogging()) {
+				addLogMessage("unzipping archive '" + archive.getAbsolutePath() + "' into directory '" + getRttProjectPath() + "'");
+			}
 			success = unzipArchive(archive.getPath(), getRttProjectPath());
 			if (!success) {
 				// extracting project template failed
-				System.err.println("[FAIL]: creating project structure failed!");
+				addErrorMessage("creating project structure failed!");
 				return false;
 			}
 		}
@@ -839,7 +851,7 @@ public class RttMbtClient {
 		File projectRoot = new File(getRttProjectPath());
 		try {
 			if (!projectRoot.isDirectory()) {
-				System.err.println("[FAIL]: project directory '" + getRttProjectPath() + "' does not exist!");
+				addErrorMessage("project directory '" + getRttProjectPath() + "' does not exist!");
 				return false;
 			}
 			File modelDir = new File(projectRoot, "model");
@@ -847,12 +859,12 @@ public class RttMbtClient {
 				modelDir.mkdir();
 			}
 			if (!modelDir.isDirectory()) {
-				System.err.println("[FAIL]: model directory '" + modelDir.getPath() + "' does not exist!");
+				addErrorMessage("model directory '" + modelDir.getPath() + "' does not exist!");
 				return false;
 			}
 			File inputModel = new File(modelFileName);
 			if (!inputModel.isFile()) {
-				System.err.println("[FAIL]: model file '" + modelFileName + "' does not exist!");
+				addErrorMessage("model file '" + modelFileName + "' does not exist!");
 				return false;
 			}
 			File outputModel = new File(modelDir, "model_dump.xml");
@@ -870,7 +882,7 @@ public class RttMbtClient {
 		    toModel.close();
 		}
 		catch (IOException e) {
-			System.err.println("[FAIL]: unable to copy model file '" + modelFileName + "' to project '" + getRttProjectName() + "'!");
+			addErrorMessage("unable to copy model file '" + modelFileName + "' to project '" + getRttProjectName() + "'!");
 		}
 		addCompletedTaskItems(1);
 		if (isCurrentTaskCanceled()) {
@@ -884,7 +896,7 @@ public class RttMbtClient {
 		if (uploadFile(modelDirName + "model_dump.xml")) {
 			System.out.println("[PASS]: upload model file '" + modelDirName + "model_dump.xml" + "'!");
 		} else {
-			System.err.println("[FAIL]: unable to upload model file '" + modelDirName + "model_dump.xml" + "'!");
+			addErrorMessage("unable to upload model file '" + modelDirName + "model_dump.xml" + "'!");
 		}
 		addCompletedTaskItems(1);
 		if (isCurrentTaskCanceled()) {
@@ -900,7 +912,7 @@ public class RttMbtClient {
 		storeModel.setModelFile(modelFileName);
 		storeModel.executeCommand();
 		if (!storeModel.executedSuccessfully()) {
-			System.err.println("[FAIL]: unable to store model file '" + modelFileName + "' on RTT-MBT server!");
+			addErrorMessage("unable to store model file '" + modelFileName + "' on RTT-MBT server!");
 			return false;
 		}
 		addCompletedTaskItems(1);
@@ -910,24 +922,25 @@ public class RttMbtClient {
 
 		// unpack _P1.zip
 		setSubTaskName("extract test procedure generation context template");
-		String templatesDir = getWorkspacePath() + File.separator + "templates";
+		String templatesDir = getFilesystemWorkspacePath() + File.separator + "templates";
 		File templates = new File(templatesDir);
-		if (!templates.isDirectory()) {
-			System.err.println("[FAIL]: local templates directory " + templatesDir + " does not exist!");
+		downloadDirectory(templatesDir);
+		File archive = new File(templates, "_P1_compass.zip");
+		if (!archive.isFile()) {
+			addErrorMessage("'" + archive.getAbsolutePath() + "' does not exist or is not a regular file!");
 			return false;
 		}
-		File archive = new File(templates, "_P1_compass.zip");
 		File testProcs = new File(projectRoot, getRttMbtTProcGenCtxFolderName());
 		if (!testProcs.exists()) {
 			testProcs.mkdir();
 		}
 		if (!testProcs.isDirectory()) {
-			System.err.println("[FAIL]: '" + testProcs.toString() + "' is not a directory!");
+			addErrorMessage("'" + testProcs.toString() + "' is not a directory!");
 			return false;
 		}
 		success = unzipArchive(archive.getPath(), testProcs.getPath());
 		if (!success) {
-			addErrorMessage("[FAIL]: unpacking of template test procedure _P1 failed!");
+			addErrorMessage("unpacking of template test procedure _P1 failed!");
 			return false;
 		}
 		addCompletedTaskItems(1);
@@ -944,7 +957,7 @@ public class RttMbtClient {
 		checkModel.setModelId(modelVersion);
 		checkModel.executeCommand();
 		if (!checkModel.executedSuccessfully()) {
-			System.err.println("[FAIL]: livelock check of model '" + modelName + "', version '" + modelVersion + "' on RTT-MBT server failed!");
+			addErrorMessage("livelock check of model '" + modelName + "', version '" + modelVersion + "' on RTT-MBT server failed!");
 			return false;
 		}
 		addCompletedTaskItems(1);
@@ -961,7 +974,7 @@ public class RttMbtClient {
 		config.setTestProcName("_P1");
 		config.executeCommand();
 		if (!config.executedSuccessfully()) {
-			System.err.println("[FAIL]: creating empty configuration for model '" + modelName + "', version '" + modelVersion + "' on RTT-MBT server failed!");
+			addErrorMessage("creating empty configuration for model '" + modelName + "', version '" + modelVersion + "' on RTT-MBT server failed!");
 			return false;
 		}
 		addCompletedTaskItems(1);
@@ -978,7 +991,7 @@ public class RttMbtClient {
 		sigmap.setTestProcName("_P1");
 		sigmap.executeCommand();
 		if (!sigmap.executedSuccessfully()) {
-			System.err.println("[FAIL]: creating initial signal map for model '" + modelName + "', version '" + modelVersion + "' on RTT-MBT server failed!");
+			addErrorMessage("creating initial signal map for model '" + modelName + "', version '" + modelVersion + "' on RTT-MBT server failed!");
 			return false;
 		}
 		addCompletedTaskItems(1);
@@ -993,11 +1006,11 @@ public class RttMbtClient {
 		try {
 			File folder = new File(targetDirectory);
 			if (!folder.exists()) {
-				System.err.println("[FAIL]: target directory '" + targetDirectory + "' does not exist!");
+				addErrorMessage("target directory '" + targetDirectory + "' does not exist!");
 				return false;
 			}
 			if (!folder.isDirectory()) {
-				System.err.println("[FAIL]: '" + targetDirectory + "' is not a directory!");
+				addErrorMessage("'" + targetDirectory + "' is not a directory!");
 				return false;
 			}
 			File zipfile = new File(archiveName);
@@ -1035,10 +1048,10 @@ public class RttMbtClient {
 	        }
 	    	stream.close();
 		} catch (FileNotFoundException e) {
-			System.err.println("[FAIL]: template archive '" + archiveName + "' does not exist!");
+			addErrorMessage("template archive '" + archiveName + "' does not exist!");
 			return false;
 		} catch (IOException e) {
-			System.err.println("[FAIL]: unable to extract files from template archive '_Project_compass.zip'!");
+			addErrorMessage("unable to extract files from template archive '_Project_compass.zip'!");
 			return false;
 		}
 		return success;
@@ -2124,7 +2137,8 @@ public class RttMbtClient {
 		// no more replacement is performed.
 		if (!(localFilename.startsWith(getWorkspaceProjectName()))) {
 			System.err.println("*** warning: the path does not start with the local workspace project");
-			return localFilename;
+			System.out.println("add workspace path: " + localFilename);
+			return getFilesystemWorkspacePath() + localFilename;
 		}
 
 		// replace local workspace project name with
