@@ -9,7 +9,7 @@ String = seq of char
 values
 I : set of ID = {0,1,2}
 
-nats: set of nat = {-1,1}
+nats: set of int = {-1,1}
 
 channels
 a:nat
