@@ -2125,6 +2125,10 @@ public class RttMbtClient {
 		// check argument
 		if (filepath == null) return filepath;
 		System.out.println("addLocalWorkspace(" + filepath + ")");
+		if ((localFilename.substring(1, 3)).compareTo(":\\") == 0) {
+			localFilename = "/" + filepath.replace('\\', '/');
+		}
+		System.out.println("addLocalWorkspace(" + localFilename + ")");
 
 		// remove prefix of the project in the current workspace
 		if ((getWorkspaceProjectPrefix() != null) &&
@@ -2178,17 +2182,24 @@ public class RttMbtClient {
 
 		// check argument
 		if (filepath == null) return null;
+
+		// check for windows path that has to be transfomed into unix style path
 		System.out.println("removeLocalWorkspace(" + filepath + ")");
+		String localFilename = filepath;
+		if (filepath.substring(1, 3).compareTo(":\\") == 0) {
+			localFilename = "/" + filepath.replace('\\', '/');
+		}
+		System.out.println("removeLocalWorkspace(" + localFilename + ")");
 
 		// if the file or dir does not start with the workspace prefix,
 		// no more replacement is performed.
-		if (!(filepath.startsWith(getFilesystemWorkspacePath()))) {
+		if (!(localFilename.startsWith(getFilesystemWorkspacePath()))) {
 			System.err.println("*** warning: the file or dir does not start with the workspace path '" + getFilesystemWorkspacePath() + "'");
 			return filepath;
 		}
 
 		// substitute context folder names
-		serverFilename = substituteContextFolderNamesLocal2Server(filepath);
+		serverFilename = substituteContextFolderNamesLocal2Server(localFilename);
 		System.out.println("substitute context folder names: " + serverFilename);
 
 		// remove workspace path (path in the file system to the project folder)

@@ -734,14 +734,12 @@ public class jsonCommand {
 
 		try{
 			// check if parent directory exists (and create it if not)
-			int pos = filename.lastIndexOf(File.separator);
-			if (pos > 0) { 
-				File dir = new File(filename.substring(0, pos));
-				if (!dir.exists()) {
-					if (!dir.mkdirs()) {
-						System.err.println("*** error: problem writing content to file " + filename + ": unable to create parent directory");
-						return false;
-					}
+			File target = new File(filename);
+			File dir = target.getParentFile();
+			if ((dir != null) && (!dir.exists())) {
+				if (!dir.mkdirs()) {
+					client.addErrorMessage("problem writing content to file " + filename + ": unable to create parent directory " + dir.getAbsolutePath());
+					return false;
 				}
 			}
 			File file = new File(filename);

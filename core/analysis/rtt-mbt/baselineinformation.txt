@@ -3,6 +3,8 @@ RTTPLUGIN_0.3.1
 
 Changes:
 
+- added workaround for different forms of absolute path names on windows ("c:\" and "/c:/").
+- adjusted code (for windows path names) that generates parent directories of files to be created.
 - added new actions to (generate and) execute test procedures in one go.
 - fixed download of templates for import and new project.
 - fixed bug in enabling/disabling rtt-mbt actions for multiple selected objects.
