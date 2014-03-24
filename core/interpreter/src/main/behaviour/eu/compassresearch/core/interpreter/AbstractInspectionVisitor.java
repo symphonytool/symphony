@@ -57,7 +57,7 @@ public abstract class AbstractInspectionVisitor extends
 	/**
 	 * Evaluator for expressions
 	 */
-	protected final CmlExpressionVisitor cmlExpressionVisitor = new CmlExpressionVisitor();
+	protected final QuestionAnswerCMLAdaptor<Context, Value> cmlExpressionVisitor = new CmlExpressionVisitor();
 
 	/**
 	 * Used for making random but deterministic decisions
