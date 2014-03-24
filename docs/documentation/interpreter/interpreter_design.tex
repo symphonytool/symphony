@@ -843,19 +843,19 @@ multi-threaded interpreter, but for matters such
 as the testing and deterministic behaviour a single threaded
 interpreter is much easier to handle and comprehend.
 
-To start a simulation/animation of a CML model, you first of all need
-an instance of the \textbf{CmlInterpreter} interface. This is created
-through the \textbf{VanillaInterpreterFactory} by invoking the
-\textbf{newInterpreter} method with a typechecked AST of the CML
-model. The currently returned implementation is the
-\textbf{VanillaCmlInterpreter} class. Once a \textbf{CmlInterpreter}
-is instantiated the interpretation of the CML model is started
-by invoking the \textbf{execute} method given a
-\textbf{CmlSupervisorEnvironment}.
+\subsubsection{The Top Execution Loop}
 
-In figure \ref{fig:dynamic_toplevel} a high level sequence diagram of
-the \textbf{execute} method on the \textbf{VanillaCmlInterpreter}
-class is depicted.
+To start a simulation/animation of a CML model, you first of all need
+an instance of the CmlInterpreter interface. This is created
+through the VanillaInterpreterFactory by invoking the
+newInterpreter method with a typechecked AST of the CML
+model. The default returned instance is the
+VanillaCmlInterpreter class. Once a CmlInterpreter
+is instantiated the interpretation of the CML model is started by
+invoking the execute method.
+
+In figure \ref{fig:dynamic_toplevel} a sequence diagram of the execute
+method on the VanillaCmlInterpreter class is depicted.
 
 \begin{figure}[ht!]
   \begin{center}
@@ -865,12 +865,28 @@ class is depicted.
   \end{center}
 \end{figure}
 
-As seen in the figure the model is executed until the top level
-process is either successfully terminated or deadlocked. For each
+As seen in the figure the execution continues until the top level
+process is either successfully terminated or deadlocked. Each round
+taken in this loop is one step taken in the model, where the meaning
+of a step is explained in \autoref{sec:problem_domain} with an
+inspection and execution phase. The actual decision of which
+transition to be taken next is decided by the given SelectionStrategy
+instance to the execute method. This decision is delegated to the two
+methods setChoices and resolveChoice.
+\draftnote{I can't remember the reason behind the two methods instead of one, find out!} 
 
-\subsubsection{CmlBehaviors}
+\subsubsection{ConcreteCmlBehavior}
 
-As explained in section \ref{} the CmlBehavior instances forms a binary tree at runtime.
+As mentioned multiple times the ConcreteCmlBehavior class is the
+default realization of the CmlBehavior interface and is the only one
+explained in details. To understand the dynamic model we need to see
+what happens in the inspect and execute methods, as these together
+determines the possible transitions at the top level show in the last
+section.
+
+
+
+
 
 
 \subsection{The IDE Layer}
