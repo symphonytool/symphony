@@ -145,10 +145,10 @@
        {\parbox{\textwidth}{
            {\sf #1}
            }}}{}}
-           
+
 
 \newcounter{examplectr}[section]
-\newenvironment{example}[1] 
+\newenvironment{example}[1]
 {
 {\refstepcounter{examplectr}
 \bf Example~\thesection.\theexamplectr.\label{#1}}
@@ -158,15 +158,15 @@
 }
 
 \lstdefinestyle{shstyle}{basicstyle=\footnotesize\ttfamily,
-			frame=trbl, 
-			showstringspaces=false,  
+			frame=trbl,
+			showstringspaces=false,
 			captionpos=b,
-			frameround=tttt, 
-			aboveskip=5mm, 
+			frameround=tttt,
+			aboveskip=5mm,
 			belowskip=5mm,
 			breaklines=true,
 			tabsize=4,
-			framexleftmargin=0mm, 
+			framexleftmargin=0mm,
 			framexrightmargin=0mm}
 \lstnewenvironment{shell}{\lstset{style=shstyle}\lstset{language=sh}}{}
 
@@ -185,7 +185,7 @@
 \reportstatus{Public}
 
 
-%%% If document is a deliverable, this flag should be commented out 
+%%% If document is a deliverable, this flag should be commented out
 %%% e.g. %\technotetrue
 %%% If report is a technical report, leave uncommented
 %%% e.g. \technotetrue
@@ -193,7 +193,7 @@
 
 \submissiondate{Month Year}
 \contributors{
-  Anders Kaels Malmos, AU 
+  Anders Kaels Malmos, AU
 }
 \editors{
   Peter Gorm Larsen, AU
@@ -201,7 +201,7 @@
 \reviewers{}
 
 
-%% Version details  
+%% Version details
 % #1: version
 % #2: date
 % #3: author
@@ -214,7 +214,7 @@
 \maketitle
 
 
-%%%% Document abstract page %%%% 
+%%%% Document abstract page %%%%
 \section*{Abstract}
 \label{sec:abstract}
 
@@ -224,11 +224,11 @@ targeting developers. It assume a basic knowledge of CML.
 
 \newpage
 
-%%%% Document table of contents page %%%% 
+%%%% Document table of contents page %%%%
 \tableofcontents
 \newpage
 
-%%%% Document Content %%%% 
+%%%% Document Content %%%%
 %% \chapter{Chapter Title} %% if compasslargereport is in use
 \section{Introduction}\label{sec:introduction}
 This document is targeted at developers and describes the overall
@@ -249,7 +249,7 @@ Eclipse Debugger.
 
 In order to get a high level understanding of how CML is interpreted
 without knowing all the details, a short illustration of how the interpreter
-represents and evovles a CML model is given below. 
+represents and evovles a CML model is given below.
 
 In \autoref{lst:cmlexample} a CML model consisting of three CML
 processes is given. It has a R (Reader) process which reads a value from
@@ -263,14 +263,14 @@ channels
 inp : int
 out : int
 
-process W = 
+process W =
 begin
- @ inp!1 -> Skip 
+ @ inp!1 -> Skip
 end
 
-process R = 
+process R =
 begin
- @ inp?x -> out!x -> Skip 
+ @ inp?x -> out!x -> Skip
 end
 
 process S = W [|{$inp$}|] R
@@ -286,7 +286,7 @@ in two phases, the inspection phase and the execution phase. The
 dashed lines represents the environment (another actor that invokes
 the operation e.g a human user or another process) initiating the phase.
 
- \begin{minipage}{1\linewidth} 
+ \begin{minipage}{1\linewidth}
   \centering %
 \begin{tikzpicture}[every text node part/.style={align=center}]
 \tikzset{myFont/.style={font=\footnotesize}}
@@ -307,7 +307,7 @@ the operation e.g a human user or another process) initiating the phase.
 \end{tikzpicture}
 \captionof{figure}{Initial step of \autoref{lst:cmlexample} with process S as entry point.}
 \label{fig:cmlmodel_first_step}
- \end{minipage} 
+ \end{minipage}
 
 The inspection phase determines the possible transitions that are
 available in the next step of execution. The result of the inspection
@@ -338,7 +338,7 @@ synchronized, meaning that W and R must only perform transition that
 involves $inp$ channel events synchronously.
 
 
- \begin{minipage}{1\linewidth} 
+ \begin{minipage}{1\linewidth}
   \centering %
 \begin{tikzpicture}[every text node part/.style={align=center}]
 \tikzset{myFont/.style={font=\footnotesize}}
@@ -367,7 +367,7 @@ involves $inp$ channel events synchronously.
 \end{tikzpicture}
 \captionof{figure}{Second step of \autoref{lst:cmlexample} with S as entry point.}
 \label{fig:cmlmodel_second_step}
- \end{minipage} 
+ \end{minipage}
 
 Therefore, when P is inspected it must inspect its child processes to
 determine the possible transitions. In this case W can perform the
@@ -376,7 +376,7 @@ only possible transition is the one that performs the $inp.1$
 event. This is then given to the execution phase which result in the
 $inp.1$ event and moves both child processes into their next state.
 
-\begin{minipage}{1\linewidth} 
+\begin{minipage}{1\linewidth}
   \centering %
 \begin{tikzpicture}[every text node part/.style={align=center}]
 \tikzset{myFont/.style={font=\footnotesize}}
@@ -407,7 +407,7 @@ $inp.1$ event and moves both child processes into their next state.
 \end{tikzpicture}
 \captionof{figure}{Third step of \autoref{lst:cmlexample} with S as entry point}
 \label{fig:cmlmodel_third_step}
- \end{minipage} 
+ \end{minipage}
 
 In the third step on figure \autoref{fig:cmlmodel_third_step} W is now
 Skip which means that it is successfully terminated. The inspection
@@ -416,7 +416,7 @@ now waiting for the $out.1$ event after 1 was writting to $x$ in the
 last step and therefore returns this transition. The execution phase
 is a little different and S now knows only to execute R.
 
- \begin{minipage}{1\linewidth} 
+ \begin{minipage}{1\linewidth}
   \centering %
 \begin{tikzpicture}[every text node part/.style={align=center}]
 \tikzset{myFont/.style={font=\footnotesize}}
@@ -449,7 +449,7 @@ is a little different and S now knows only to execute R.
 \end{tikzpicture}
 \captionof{figure}{Final step of \autoref{lst:cmlexample} where the parallel composition collapses unto a Skip process}
 \label{fig:cmlmodel_fourth_step}
- \end{minipage} 
+ \end{minipage}
 
 The fourth and final step shown in \autoref{fig:cmlmodel_fourth_step}
 of the interpretation starts out with both W and R as Skip, this
@@ -519,7 +519,7 @@ The following packages defines the top level structure of the core:
     comprised of. This will be described in more details in
     \autoref{sec:static_structure}.
   \end{description}
-  
+
 \item[eu.compassresearch.core.interpreter.api] This package and
   sub-packages contains all the public classes and interfaces that
   defines the API of the interpreter. Some of the most important
@@ -583,7 +583,7 @@ deployment diagram of the debugging structure is shown.
 
 An Eclipse debugging session involves two JVMs, the one that the Eclipse
 platform is executing in and one where only the Core executes in. All
-communication between them is done via a TCP connection. 
+communication between them is done via a TCP connection.
 
 Before explaining the steps involved in a debugging session, there are
 two important classes worth mentioning:
@@ -592,7 +592,7 @@ two important classes worth mentioning:
 \item \textbf{CmlDebugger}: This is responsible for
   controlling the CmlInterpreter execution in the debugger JVM.  All
   communications to and from the interpreter handled in this class.
-  
+
 \item \textbf{CmlDebugTarget}: This class is part of the Eclipse
   debugging model. It has the responsiblity of representing a running
   interpreter on the Eclipse JVM side. All communications to and from
@@ -682,7 +682,7 @@ that any CmlBehaviour makes.
   where all the possible transitions flows to and the decision of which
   one to execute next is taken here. The purpose of this interface is to
   allow different kinds of strategies for choosing the next
-  transition. e.g there is a strategy that picks one at random 
+  transition. e.g there is a strategy that picks one at random
   and another that enables a user to pick.
 
 \item[CmlTransition] Interface that represents any kind of transition
@@ -729,7 +729,7 @@ hidden channel transition.
 
 \begin{description}
 \item[CmlTransition] Represents any possible transition.
-\item[CmlTransitionSet] Represents a set of CmlTransition objects.  
+\item[CmlTransitionSet] Represents a set of CmlTransition objects.
 \item[ObservableTransition] This represents any observable transition.
 \item[LabelledTransition] This represents any transition that results
   in a observable channel event
@@ -756,39 +756,51 @@ this interface is shown in \autoref{fig:concrete_behavior}
     \label{fig:concrete_behavior}
   \end{center}
 \end{figure}
+When the interpreter runs in the default operation mode, meaning where
+only a single interpreter instance runs (opposed to the co-simulation
+modes where multiple instances of the interpreter might run or
+connected to an externally running system). Then all CmlBehavior
+instances will be in the form of the ConcreteCmlBehavior class. As
+described above a CmlBehavior has the responsibility to behave as a
+given action or process. However, as shown in
+\autoref{fig:concrete_behavior} the ConcreteCmlBehavior class
+delegates a large part of its responsibility to other classes. The
+actual behavior of a ConcreteCmlBehavior instance is decided by its
+current INode instance, so when a ConcreteCmlBehavior instance is
+created a INode instance must be given. The INode interface is
+implemented by all the CML AST nodes and can therefore be any CML
+process or action.  The actual implementation of the behavior of any
+process/action is delegated to internal visitor classes as depicted in
+\autoref{fig:concrete_behavior}. The used visitors are all extending
+generated abstract visitors that have the infrastructure to visit any
+CML AST node. The reason for this structure is to be able to utilize
+the already generated visitors by the AST-creator \cite{} that enables
+traversing of CML AST's.
 
-As shown the \textbf{ConcreteCmlBehavior} is the implementing class of
-the CmlBehavior interface. However, it delegates a large part of its
-responsibility to other classes. The actual behavior of a
-ConcreteCmlBehavior instance is decided by its current INode instance,
-so when a ConcreteCmlBehavior instance is created a INode instance
-must be given. The INode interface is implemented by all the CML AST
-nodes and can therefore be any CML process or action.  The actual
-implementation of the behavior of any process/action is delegated to
-two visitors, the AbstractInspectionVisitor and the
-AbstractSetupVisitor, all extending a generated abstract visitor that
-have the infrastructure to visit any CML AST node.
-
+Here a brief description of each new element depicted in \autoref{fig:concrete_behavior}:
 \begin{description}
+\item[CmlExpressionVisitor] This has the responsibility to evaluate
+  CML expressions given a Context.
+
 \item[AbstractSetupVisitor] This has the responsibility of performing
   any required setup for a behavior. This visitor is invoked
   whenever a new INode instance is loaded.
 
 \item[AbstractAlphabetVisitor] This has the responsibility of creating
-  an Inspection object given the a INode and context, which represents
-  the current state of the behavior.
- 
+  an Inspection object given the current state of the behavior, which is
+  represented by a INode and a Context object.
+
 \item[Inspection] Contains the next possible transitions (in a
   CmlTransitionSet) along with a transition function in the form of a
-  CmlCalculationStep. 
+  CmlCalculationStep.
 
 \item[CmlCalculationStep] Responsible for executing the actual
   behavior that occurs in a transition from one state to another. This
   is where the actual implementation of the semantics is.
-\end{description} 
+\end{description}
 
 
-In figure \ref{fig:visitors} a more detailed look at the evaluation visitor structure is given.  
+In figure \ref{fig:visitors} a more detailed look at the inspection visitor structure is given.
 
 \begin{figure}[ht!]
   \begin{center}
@@ -799,13 +811,19 @@ In figure \ref{fig:visitors} a more detailed look at the evaluation visitor stru
 \end{figure}
 
 As depicted the visitors are split into several visitors that handle
-different parts of the languages. The sole reason for doing this is to
-avoid having one large visitor that handles all the cases. At run-time
-the visitors are setup in a tree structure where the top most visitor
-is a \textbf{CmlEvaluationVisitor} instance which then delegates to
-either a \textbf{ActionEvaluationVisitor} and
-\textbf{ProcessEvaluationVisitor} etc.
+different parts of the CML language. The sole reason for doing this is
+to avoid having one large visitor that handles all the cases. At
+run-time the visitors are setup in a tree structure. For the
+inspection the top most visitor is the CmlInspectionVisitor which then
+delegates to either ActionInspectionVisitor or
+ProcessEvaluationVisitor depending on the given INode. This structures
+resembles the structure of the setup visitors.
 
+The CmlExpressionVisitor is however a little different from the
+others. It takes care of all CML expressions, but delegates the entire
+subset of VDM expression constructs that are contained in CML to the
+DelegateExpressionEvaluator overture class, which can evaluate VDM
+expressions. The reason for doing this is of course reuse.
 
 \subsubsection{Dynamic Model}
 \label{sec:dynamic_structure}
@@ -813,16 +831,17 @@ either a \textbf{ActionEvaluationVisitor} and
 The previous section described the high-level static structure, this
 section will describe the high-level dynamic structure.
 
-First of all, the entire CML interpreter runs in a single thread. This
-is mainly due to the inherent complexity of concurrent
-programming. You could argue that since a large part of COMPASS is
-about modelling complex concurrent systems, we also need a concurrent
-interpretation of the models. However, the semantics is perfectly
-implementable in a single thread which makes a multi-threaded
-interpreter optional. There are of course benefits to a multi-threaded
-interpreter such as performance, but for matters such as the testing
-and deterministic behaviour a single threaded interpreter is much
-easier to handle and comprehend.
+First of all, in the default operation mode (as mentioned above a
+single running instance of the interpreter) the entire CML interpreter
+runs in a single thread. This is mainly due to the inherent complexity
+of concurrent programming. You could argue that since a large part of
+COMPASS is about modelling complex concurrent systems, we also need a
+concurrent interpretation of the models. However, the semantics is
+perfectly implementable in a single thread which makes a
+multi-threaded interpreter optional. There are of course benefits to a
+multi-threaded interpreter, but for matters such
+as the testing and deterministic behaviour a single threaded
+interpreter is much easier to handle and comprehend.
 
 To start a simulation/animation of a CML model, you first of all need
 an instance of the \textbf{CmlInterpreter} interface. This is created
@@ -836,7 +855,7 @@ by invoking the \textbf{execute} method given a
 
 In figure \ref{fig:dynamic_toplevel} a high level sequence diagram of
 the \textbf{execute} method on the \textbf{VanillaCmlInterpreter}
-class is depicted. 
+class is depicted.
 
 \begin{figure}[ht!]
   \begin{center}
@@ -847,11 +866,11 @@ class is depicted.
 \end{figure}
 
 As seen in the figure the model is executed until the top level
-process is either successfully terminated or deadlocked. For each 
+process is either successfully terminated or deadlocked. For each
 
 \subsubsection{CmlBehaviors}
 
-As explained in section \ref{} the CmlBehavior instances forms a binary tree at runtime. 
+As explained in section \ref{} the CmlBehavior instances forms a binary tree at runtime.
 
 
 \subsection{The IDE Layer}
@@ -860,8 +879,8 @@ As explained in section \ref{} the CmlBehavior instances forms a binary tree at 
 %%%% Bibliography %%%%
 \newpage
 \bibliographystyle{alpha}
-\bibliography{bibliography} 
+\bibliography{bibliography}
 \label{ch:bib} %label to refer to
 
 
-\end{document}  
+\end{document}
