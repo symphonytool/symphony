@@ -922,7 +922,7 @@ public class RttMbtClient {
 
 		// unpack _P1.zip
 		setSubTaskName("extract test procedure generation context template");
-		String templatesDir = getFilesystemWorkspacePath() + File.separator + "templates";
+		String templatesDir = getFilesystemWorkspacePath() + "templates";
 		File templates = new File(templatesDir);
 		downloadDirectory(templatesDir);
 		File archive = new File(templates, "_P1_compass.zip");
