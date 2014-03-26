@@ -248,7 +248,7 @@ public abstract class AbstractResultBasedCmlTypeCheckerTestCase extends
 	}
 
 	@Override
-	public void encondeResult(Boolean result, Document doc,
+	public void encodeResult(Boolean result, Document doc,
 			Element resultElement)
 	{
 	}
