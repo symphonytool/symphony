@@ -958,7 +958,10 @@ public class RttMbtClient {
 		checkModel.executeCommand();
 		if (!checkModel.executedSuccessfully()) {
 			addErrorMessage("livelock check of model '" + modelName + "', version '" + modelVersion + "' on RTT-MBT server failed!");
+			showLogMessagesFromFile(modelDirName + "LivelockReport.log");
 			return false;
+		} else {
+			showLogMessagesFromFile(modelDirName + "LivelockReport.log");
 		}
 		addCompletedTaskItems(1);
 		if (isCurrentTaskCanceled()) {
@@ -2274,7 +2277,10 @@ public class RttMbtClient {
 		// upload all conf, inc, spec, stubs folders on the path
 		String currentDir = "";
 		String remainingPath = testProcedurePath;
-		int pos = testProcedurePath.indexOf(File.separator);
+		int pos1 = testProcedurePath.indexOf(File.separator);
+		int pos2 = testProcedurePath.indexOf("/");
+		int pos = pos1;
+		if ((pos2 < pos1 && pos2 != -1) || (pos1 == -1)) pos = pos2;
 		while (pos != -1) {
 			// upload conf, inc, spec, stubs folders
 			currentDir = currentDir + File.separator + remainingPath.substring(0, pos);
@@ -2290,7 +2296,10 @@ public class RttMbtClient {
 			
 			// prepare next loop
 			remainingPath = remainingPath.substring(pos + 1);
-			pos = remainingPath.indexOf(File.separator);
+			pos1 = remainingPath.indexOf(File.separator);
+			pos2 = remainingPath.indexOf("/");
+			pos = pos1;
+			if ((pos2 < pos1 && pos2 != -1) || (pos1 == -1)) pos = pos2;
 		}
 
 		// upload conf, inc, spec, stubs folders from test procedure
