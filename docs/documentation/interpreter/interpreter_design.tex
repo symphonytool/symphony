@@ -884,8 +884,14 @@ what happens in the inspect and execute methods, as these together
 determines the possible transitions at the top level show in the last
 section.
 
-
-
+On \autoref{fig:behavior_inspect_seq} the general inspect dynamics is depicted. When inspect is called on a ConcreteCmlBehavior it uses its nextNode (in the java source nextNode and nextContext is actually a Pair<INode, Context> call)
+\begin{figure}[ht!]
+  \begin{center}
+    \includegraphics[width=1\textwidth]{figures/behavior-inspect-seq}
+    \caption{The top level dynamics}
+    \label{fig:behavior_inspect_seq}
+  \end{center}
+\end{figure}
 
 
 
