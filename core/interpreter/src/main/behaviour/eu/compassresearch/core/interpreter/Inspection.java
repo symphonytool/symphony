@@ -7,13 +7,13 @@ class Inspection
 {
 	private final CmlTrace trace;
 	private final CmlTransitionSet transitions;
-	private final CmlCalculationStep nextStep;
+	private final CmlCalculationStep transitionFunction;
 
 	public Inspection(CmlTrace trace, CmlTransitionSet transitions)
 	{
 		this.trace = trace;
 		this.transitions = transitions;
-		this.nextStep = null;
+		this.transitionFunction = null;
 	}
 
 	public Inspection(CmlTrace trace, CmlTransitionSet transitions,
@@ -21,7 +21,7 @@ class Inspection
 	{
 		this.trace = trace;
 		this.transitions = transitions;
-		this.nextStep = nextStep;
+		this.transitionFunction = nextStep;
 	}
 
 	public CmlTransitionSet getTransitions()
@@ -34,8 +34,8 @@ class Inspection
 		return trace;
 	}
 
-	public CmlCalculationStep getNextStep()
+	public CmlCalculationStep getTransitionFunction()
 	{
-		return nextStep;
+		return transitionFunction;
 	}
 }

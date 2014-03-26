@@ -969,10 +969,10 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 			throws AnalysisException
 	{
 
-		// If the left child is Skip then the while interrupt construct is Skip
+		// If the left child is Skip then the interrupt construct is Skip
 		if (owner.getLeftChild().finished())
 		{
-			return newInspection(createTauTransitionWithTime(owner.getLeftChild().getNextState().first),
+			return newInspection(createTauTransitionWithoutTime(owner.getLeftChild().getNextState().first),
 
 			new CmlCalculationStep()
 			{
@@ -987,11 +987,10 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 				}
 			});
 		}
-		// If the right action has taken a labelled transition then the whole becomes the right action
-		else if (owner.getRightChild().getTraceModel().getLastTransition() instanceof ObservableTransition
-				&& owner.getRightChild().getTraceModel().getLastTransition() instanceof LabelledTransition)
+		// If the right action has taken a labeled transition then the whole becomes the right action
+		else if (owner.getRightChild().getTraceModel().getLastTransition() instanceof LabelledTransition)
 		{
-			return newInspection(createTauTransitionWithTime(owner.getRightChild().getNextState().first),
+			return newInspection(createTauTransitionWithoutTime(owner.getRightChild().getNextState().first),
 
 			new CmlCalculationStep()
 			{

@@ -249,22 +249,22 @@ public interface CmlBehaviour extends Serializable, Comparable<CmlBehaviour>
 	}
 
 	/**
-	 * Executes the behaviour of this process
+	 * Executes the given transition which must be contained 
+	 * in the CmlTransitionSet returned by the inspect method.
 	 * 
-	 * @return
+	 * @param selectedTransition The executed transtions, 
+	 * this transition must be contained in the possible transitions
+	 * returned from the inspect method. If not then the behavior is not guaranteed!
 	 */
 	public void execute(CmlTransition selectedTransition)
 			throws AnalysisException;
 
 	/**
-	 * Calculates and returns the possible transitions of the behavior,
+	 * Calculates and returns the possible set of transitions of the behavior.
 	 * 
-	 * @return The immediate transitions of the behavior
+	 * @return The next immediate transitions of the behavior.
 	 */
 	public CmlTransitionSet inspect() throws AnalysisException;
-
-	// public Reason abortReason();
-	// public void setAbort(Reason reason);
 
 	/**
 	 * Returns the current execution state of the process
@@ -274,9 +274,6 @@ public interface CmlBehaviour extends Serializable, Comparable<CmlBehaviour>
 	public Pair<INode, Context> getNextState();
 
 	public void replaceState(Context context) throws ValueException;
-
-	// public Pair<INode,Context> getPostCondition();
-	// public setPostCondition(Pair<INode,Context> postcondition);
 
 	/**
 	 * Name of the process
@@ -302,17 +299,30 @@ public interface CmlBehaviour extends Serializable, Comparable<CmlBehaviour>
 	 */
 	public long level();
 
+	/**
+	 * The parent behavior
+	 * @return parent behavior
+	 */
 	public CmlBehaviour parent();
 
+	/**
+	 * Return the child object as a list, with ranging from 0-2 children.
+	 * @return child behaviors
+	 */
 	public List<CmlBehaviour> children();
 
+	/**
+	 * Left child
+	 * @return Left child
+	 */
 	public CmlBehaviour getLeftChild();
 
+	/**
+	 * Right child
+	 * @return Right child
+	 */
 	public CmlBehaviour getRightChild();
 
-	// public CMLAlphabet childInspectedAlphabet(CMLProcessNew child);
-	// public void setChildInspectedAlphabet(CMLProcessNew child, CMLAlphabet alpha);
-	// public boolean hasChild(CMLProcess child, boolean recursive);
 	public boolean hasChildren();
 
 	/**
@@ -349,19 +359,26 @@ public interface CmlBehaviour extends Serializable, Comparable<CmlBehaviour>
 	public CmlBehaviorState getState();
 
 	
-
-	/**
+	/*
 	 * Denotational Semantics Information
+	 */
+	
+	/**
+	 * The current trace of the behavior, which is a
+	 * list of the executed transitions
+	 * @return
 	 */
 	public CmlTrace getTraceModel();
 
-	// public CSPFailures failuresModel();
-	// public CSPDivergencies divergenciesModel();
-	// public CSPFailuresDivergencies failuresDivergenciesModel();
+	/**
+	 * Returns the current time passed by counting 
+	 * the TimedTransitions in the current trace
+	 * @return Current time passed
+	 */
 	public long getCurrentTime();
 
 	/**
-	 * Events
+	 * Instance events
 	 */
 	
 	/**
