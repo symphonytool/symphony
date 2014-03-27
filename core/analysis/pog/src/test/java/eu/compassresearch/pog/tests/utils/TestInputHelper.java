@@ -1,6 +1,7 @@
 package eu.compassresearch.pog.tests.utils;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -56,7 +57,10 @@ public class TestInputHelper
 		ITypeIssueHandler errors = VanillaFactory.newCollectingIssueHandle();
 		ICmlTypeChecker cmlTC = VanillaFactory.newTypeChecker(ast.getParagraphs(), errors);
 		boolean tcResult = cmlTC.typeCheck();
-		assertTrue("Test failed while typechecking " + name, tcResult);
+		// Probably want to ignore warnings
+		// assertFalse("Test failed with typechecker warnings", errors.hasWarnings());
+		assertFalse("Test failed with typechecker errors", errors.hasErrors());
+		assertTrue("Test somehow failed while typechecking " + name, tcResult);
 
 		List<INode> r = new LinkedList<INode>();
 		for (INode n : ast.getParagraphs())

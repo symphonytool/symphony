@@ -1,18 +1,19 @@
-package eu.compassresearch.core.interpreter.api.behaviour;
+package eu.compassresearch.core.interpreter;
 
+import eu.compassresearch.core.interpreter.api.CmlTrace;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
 
-public class Inspection
+class Inspection
 {
 	private final CmlTrace trace;
 	private final CmlTransitionSet transitions;
-	private final CmlCalculationStep nextStep;
+	private final CmlCalculationStep transitionFunction;
 
 	public Inspection(CmlTrace trace, CmlTransitionSet transitions)
 	{
 		this.trace = trace;
 		this.transitions = transitions;
-		this.nextStep = null;
+		this.transitionFunction = null;
 	}
 
 	public Inspection(CmlTrace trace, CmlTransitionSet transitions,
@@ -20,7 +21,7 @@ public class Inspection
 	{
 		this.trace = trace;
 		this.transitions = transitions;
-		this.nextStep = nextStep;
+		this.transitionFunction = nextStep;
 	}
 
 	public CmlTransitionSet getTransitions()
@@ -33,8 +34,8 @@ public class Inspection
 		return trace;
 	}
 
-	public CmlCalculationStep getNextStep()
+	public CmlCalculationStep getTransitionFunction()
 	{
-		return nextStep;
+		return transitionFunction;
 	}
 }

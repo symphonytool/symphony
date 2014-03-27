@@ -1,4 +1,4 @@
-package eu.compassresearch.core.interpreter.api.behaviour;
+package eu.compassresearch.core.interpreter.api;
 
 /**
  * This possible states that a CmlBehavior can be in at any given time.

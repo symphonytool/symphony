@@ -1,4 +1,4 @@
-package eu.compassresearch.core.interpreter.api.behaviour;
+package eu.compassresearch.core.interpreter.api;
 
 import java.util.Iterator;
 import java.util.LinkedList;

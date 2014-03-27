@@ -9,7 +9,7 @@ import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 
-public class ChannelNameValue extends Value
+public class ChannelValue extends Value
 {
 
 	/**
@@ -17,11 +17,11 @@ public class ChannelNameValue extends Value
 	 */
 	private static final long serialVersionUID = -2916244711082591555L;
 
-	private final CMLChannelValue channel;
+	private final CmlChannel channel;
 	private final List<Value> values;
 	private final List<ValueConstraint> constraints;
 
-	public ChannelNameValue(CMLChannelValue channel, List<Value> values,
+	public ChannelValue(CmlChannel channel, List<Value> values,
 			List<ValueConstraint> constraints)
 	{
 		this.channel = channel;
@@ -29,7 +29,7 @@ public class ChannelNameValue extends Value
 		this.constraints = constraints;
 	}
 
-	public ChannelNameValue(CMLChannelValue channel, List<Value> values)
+	public ChannelValue(CmlChannel channel, List<Value> values)
 	{
 		this(channel, values, new LinkedList<ValueConstraint>());
 		for (int i = 0; i < values.size(); i++)
@@ -38,7 +38,7 @@ public class ChannelNameValue extends Value
 		}
 	}
 
-	public ChannelNameValue(CMLChannelValue channel)
+	public ChannelValue(CmlChannel channel)
 	{
 		this(channel, new LinkedList<Value>(), new LinkedList<ValueConstraint>());
 	}
@@ -46,7 +46,7 @@ public class ChannelNameValue extends Value
 	/*
 	 * Copy constructor
 	 */
-	protected ChannelNameValue(ChannelNameValue other)
+	protected ChannelValue(ChannelValue other)
 	{
 		this.channel = other.channel;
 		this.values = new LinkedList<Value>(other.values);
@@ -71,14 +71,14 @@ public class ChannelNameValue extends Value
 	public boolean equals(Object other)
 	{
 
-		ChannelNameValue otherChannelName = null;
+		ChannelValue otherChannelName = null;
 
-		if (!(other instanceof ChannelNameValue))
+		if (!(other instanceof ChannelValue))
 		{
 			return false;
 		}
 
-		otherChannelName = (ChannelNameValue) other;
+		otherChannelName = (ChannelValue) other;
 
 		return otherChannelName.getChannel().equals(this.getChannel())
 				&& otherChannelName.getValues().equals(this.getValues());
@@ -99,7 +99,7 @@ public class ChannelNameValue extends Value
 	@Override
 	public Object clone()
 	{
-		return new ChannelNameValue(channel, new LinkedList<Value>(values));
+		return new ChannelValue(channel, new LinkedList<Value>(values));
 	}
 
 	/**
@@ -107,7 +107,7 @@ public class ChannelNameValue extends Value
 	 * 
 	 * @return
 	 */
-	public CMLChannelValue getChannel()
+	public CmlChannel getChannel()
 	{
 		return channel;
 	}
@@ -132,7 +132,7 @@ public class ChannelNameValue extends Value
 		return AbstractValueInterpreter.isValueMostPrecise(this);
 	}
 
-	public ChannelNameValue meet(ChannelNameValue other)
+	public ChannelValue meet(ChannelValue other)
 	{
 		List<Value> meetValues = new LinkedList<Value>();
 		List<ValueConstraint> meetConstraints = new LinkedList<ValueConstraint>();
@@ -148,22 +148,22 @@ public class ChannelNameValue extends Value
 			meetConstraints.add(MultiConstraint.combine(this.constraints.get(i), other.constraints.get(i)));
 		}
 
-		return new ChannelNameValue(this.channel, meetValues, meetConstraints);
+		return new ChannelValue(this.channel, meetValues, meetConstraints);
 	}
 
 	
-	public ChannelNameValue rename(CMLChannelValue channel)
+	public ChannelValue rename(CmlChannel channel)
 	{
-		return new ChannelNameValue(channel, values, constraints);
+		return new ChannelValue(channel, values, constraints);
 	}
 	
-	public boolean isComparable(ChannelNameValue channelNameValue)
+	public boolean isComparable(ChannelValue channelNameValue)
 	{
 		return this.getChannel().equals(channelNameValue.channel)
 				&& isValuesComparable(channelNameValue);
 	}
 
-	private boolean isValuesComparable(ChannelNameValue channelNameValue)
+	private boolean isValuesComparable(ChannelValue channelNameValue)
 	{
 		for (Iterator<Value> thisIt = values.listIterator(), otherIt = channelNameValue.values.listIterator(); thisIt.hasNext()
 				&& otherIt.hasNext();)
@@ -184,7 +184,7 @@ public class ChannelNameValue extends Value
 		return true;
 	}
 
-	public boolean isGTEQPrecise(ChannelNameValue other)
+	public boolean isGTEQPrecise(ChannelValue other)
 	{
 		boolean res = true;
 		for (int i = 0; i < values.size(); i++)

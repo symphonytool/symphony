@@ -7,7 +7,7 @@ import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.debug.core.model.IThread;
 import org.overture.ide.debug.core.model.DebugEventHelper;
 
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorState;
+import eu.compassresearch.core.interpreter.api.CmlBehaviorState;
 import eu.compassresearch.core.interpreter.debug.CmlProcessDTO;
 import eu.compassresearch.ide.interpreter.protocol.CmlCommunicationManager;
 import eu.compassresearch.ide.interpreter.protocol.CmlThreadManager;

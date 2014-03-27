@@ -2,7 +2,7 @@ package eu.compassresearch.core.interpreter;
 
 import org.overture.interpreter.runtime.Context;
 
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
+import eu.compassresearch.core.interpreter.api.CmlBehaviour;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
 /**

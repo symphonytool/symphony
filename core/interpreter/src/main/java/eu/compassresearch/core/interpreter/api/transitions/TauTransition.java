@@ -3,7 +3,7 @@ package eu.compassresearch.core.interpreter.api.transitions;
 import org.overture.ast.node.INode;
 
 import eu.compassresearch.core.interpreter.CmlRuntime;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
+import eu.compassresearch.core.interpreter.api.CmlBehaviour;
 
 public class TauTransition extends AbstractCmlTransition
 {

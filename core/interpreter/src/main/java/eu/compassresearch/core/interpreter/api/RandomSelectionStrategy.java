@@ -13,7 +13,7 @@ import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.transitions.LabelledTransition;
 import eu.compassresearch.core.interpreter.api.values.AbstractValueInterpreter;
-import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
+import eu.compassresearch.core.interpreter.api.values.ChannelValue;
 
 /**
  * This class implements a random selection CMLCommunicaiton of the alphabet
@@ -68,7 +68,7 @@ public class RandomSelectionStrategy implements SelectionStrategy
 					&& !((LabelledTransition) selectedComm).getChannelName().isPrecise())
 			{
 				LabelledTransition chosenChannelEvent = (LabelledTransition) selectedComm;
-				ChannelNameValue channnelName = chosenChannelEvent.getChannelName();
+				ChannelValue channnelName = chosenChannelEvent.getChannelName();
 
 				for (int i = 0; i < channnelName.getValues().size(); i++)
 				{

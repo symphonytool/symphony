@@ -7,28 +7,28 @@ import java.util.Set;
 
 import org.overture.interpreter.values.Value;
 
-public class ChannelNameSetValue extends Value implements Set<ChannelNameValue>
+public class ChannelNameSetValue extends Value implements Set<ChannelValue>
 {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	Set<ChannelNameValue> channelNames;
+	Set<ChannelValue> channelNames;
 
 	public ChannelNameSetValue()
 	{
-		this.channelNames = new HashSet<ChannelNameValue>();
+		this.channelNames = new HashSet<ChannelValue>();
 	}
 	
-	public ChannelNameSetValue(Set<ChannelNameValue> channelNames)
+	public ChannelNameSetValue(Set<ChannelValue> channelNames)
 	{
-		this.channelNames = new HashSet<ChannelNameValue>(channelNames);
+		this.channelNames = new HashSet<ChannelValue>(channelNames);
 	}
 	
-	public ChannelNameSetValue(ChannelNameValue channelName)
+	public ChannelNameSetValue(ChannelValue channelName)
 	{
-		this.channelNames = new HashSet<ChannelNameValue>();
+		this.channelNames = new HashSet<ChannelValue>();
 		this.channelNames.add(channelName);
 	}
 
@@ -82,7 +82,7 @@ public class ChannelNameSetValue extends Value implements Set<ChannelNameValue>
 	}
 
 	@Override
-	public Iterator<ChannelNameValue> iterator()
+	public Iterator<ChannelValue> iterator()
 	{
 		return channelNames.iterator();
 	}
@@ -100,7 +100,7 @@ public class ChannelNameSetValue extends Value implements Set<ChannelNameValue>
 	}
 
 	@Override
-	public boolean add(ChannelNameValue e)
+	public boolean add(ChannelValue e)
 	{
 		return channelNames.add(e);
 	}
@@ -118,7 +118,7 @@ public class ChannelNameSetValue extends Value implements Set<ChannelNameValue>
 	}
 
 	@Override
-	public boolean addAll(Collection<? extends ChannelNameValue> c)
+	public boolean addAll(Collection<? extends ChannelValue> c)
 	{
 		return channelNames.addAll(c);
 	}
