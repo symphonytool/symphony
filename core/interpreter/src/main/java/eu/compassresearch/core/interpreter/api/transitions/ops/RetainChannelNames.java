@@ -3,7 +3,7 @@ package eu.compassresearch.core.interpreter.api.transitions.ops;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.LabelledTransition;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameSetValue;
-import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
+import eu.compassresearch.core.interpreter.api.values.ChannelValue;
 
 public class RetainChannelNames implements Filter
 {
@@ -14,7 +14,7 @@ public class RetainChannelNames implements Filter
 		this.channelNameSetValue = channelNameSetValue;
 	}
 	
-	public RetainChannelNames(ChannelNameValue channelNameValue)
+	public RetainChannelNames(ChannelValue channelNameValue)
 	{
 		this.channelNameSetValue = new ChannelNameSetValue(channelNameValue);
 		
@@ -27,7 +27,7 @@ public class RetainChannelNames implements Filter
 		{
 			LabelledTransition obsChannelEvent = (LabelledTransition) transition;
 
-			for (ChannelNameValue channelNameValue : channelNameSetValue)
+			for (ChannelValue channelNameValue : channelNameSetValue)
 			{
 				if (obsChannelEvent.getChannelName().isComparable(channelNameValue)
 						&& channelNameValue.isGTEQPrecise(obsChannelEvent.getChannelName()))

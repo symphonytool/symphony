@@ -18,12 +18,10 @@ import org.overture.interpreter.values.RecordValue;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorFactory;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour.BehaviourName;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlCalculationStep;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlTrace;
-import eu.compassresearch.core.interpreter.api.behaviour.Inspection;
+import eu.compassresearch.core.interpreter.api.CmlBehaviorFactory;
+import eu.compassresearch.core.interpreter.api.CmlBehaviour;
+import eu.compassresearch.core.interpreter.api.CmlTrace;
+import eu.compassresearch.core.interpreter.api.CmlBehaviour.BehaviourName;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.transitions.TauTransition;
 import eu.compassresearch.core.interpreter.api.transitions.TimedTransition;
@@ -59,7 +57,7 @@ public abstract class AbstractInspectionVisitor extends
 	/**
 	 * Evaluator for expressions
 	 */
-	protected final CmlExpressionVisitor cmlExpressionVisitor = new CmlExpressionVisitor();
+	protected final QuestionAnswerCMLAdaptor<Context, Value> cmlExpressionVisitor = new CmlExpressionVisitor();
 
 	/**
 	 * Used for making random but deterministic decisions

@@ -8,7 +8,7 @@ import java.util.TreeSet;
 
 import org.overture.ast.node.INode;
 
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
+import eu.compassresearch.core.interpreter.api.CmlBehaviour;
 
 abstract class AbstractCmlTransition implements CmlTransition
 {

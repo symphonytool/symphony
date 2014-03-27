@@ -20,12 +20,12 @@ import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.lex.CmlLexNameToken;
+import eu.compassresearch.core.interpreter.api.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
+import eu.compassresearch.core.interpreter.api.CmlTrace;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.SelectionStrategy;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlTrace;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.transitions.ObservableTransition;

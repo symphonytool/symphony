@@ -11,7 +11,7 @@ import eu.compassresearch.core.interpreter.api.transitions.ops.RemoveChannelName
 import eu.compassresearch.core.interpreter.api.transitions.ops.RemoveTock;
 import eu.compassresearch.core.interpreter.api.transitions.ops.RetainChannelNamesAndTime;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameSetValue;
-import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
+import eu.compassresearch.core.interpreter.api.values.ChannelValue;
 
 /**
  * This represents a set of CmlTransition objects
