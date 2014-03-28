@@ -235,17 +235,17 @@ This document is targeted at developers and describes the overall
 design of the CML simulator, it is not a detailed description of every
 part of the source code. This kind of documentation is done in Javadoc
 and can be generated automatically from the code. It is assumed that
-common design patterns are known like \ref{GOF} and a basic
+common design patterns are known like \cite{gof&94} and a basic
 understaning of CML.
 
 \subsection{Problem Domain}\label{sec:problem_domain}
 The goal of the interpreter is to enable simulation/animation of a
-given CML \cite{cml syntax} model and be able to visualize this in the
-Eclipse IDE Debugger. CML has a UTP semantics defined in \cite{cml
-semantics} which dictates the interpretation. Therefore, the
-overall goal of the CML interpreter is to adhere to the semantic
-rules defined in those documents and to visualize this in the
-Eclipse Debugger.
+given CML \nocite{cmlsyntax:online} model and be able to visualize this in the
+Eclipse IDE Debugger. CML has a UTP semantics defined in
+\cite{Bryans&12} which dictates the interpretation. Therefore, the
+overall goal of the CML interpreter is to adhere to the semantic rules
+defined in those documents and to visualize this in the Eclipse
+Debugger.
 
 In order to get a high level understanding of how CML is interpreted
 without knowing all the details, a short illustration of how the interpreter
@@ -489,7 +489,7 @@ showing the results.
 \begin{description}
 \item[Core Layer] This layer has the overall responsibility of interpreting a CML model
 as described in the operational semantics that are defined in
-\cite{D23.4} and is located in the package
+\cite{Bryans&12} and is located in the package
 \emph{eu.compassresearch.core.interpreter}
 
 \item[IDE Layer] Has the overall responsibility of visualizing the outputs of a running
@@ -736,7 +736,8 @@ process/action is delegated to internal visitor classes as depicted in
 \autoref{fig:concrete_behavior}. The used visitors are all extending
 generated abstract visitors that have the infrastructure to visit any
 CML AST node. The reason for this structure is to be able to utilize
-the already generated visitors by the AST-creator \cite{} that enables
+the already generated visitors by the AST-creator (located at
+\url{https://github.com/overturetool/astcreator}) that enables
 traversing of CML AST's.
 
 Here a brief description of each new element depicted in \autoref{fig:concrete_behavior}:
@@ -889,9 +890,50 @@ cases the context needs to be updated before the inspection phase is
 commenced.
 
 \subsection{The IDE Layer}
+This section will explain the IDE layer very breifly and only go
+through the very top level structure.
+
+\subsubsection{Static Model}
+
+\subsubsection*{Packages}
+
+The following packages defines the top level structure of the IDE:
+\begin{description}
+\item[eu.compassresearch.ide.interpreter.model] Contains all the
+classes that implements the Eclipse debug model
+\cite{Wright:2004:Online}
+
+\item[eu.compassresearch.ide.interpreter.launching] Classes that deals
+with launching a debugging session.
+\item[eu.compassresearch.ide.interpreter.protocol] Classes that deals
+with the communication between the Eclipe CML debugger and a CML
+interpreter instance. 
+
+\item[eu.compassresearch.ide.interpreter.view] Contains the custom
+views of the Eclipse CML debugger.
+
+\end{description}
+
+Before explaining the steps involved in a debugging session, there are
+some important classes worth mentioning:
+
+\begin{description}
+\item[CmlDebugger] Interface with the responsibility of
+  controlling the CmlInterpreter execution in a debugging session.
+\item[SocketServerDebugger] Realization of the CmlDebugger interface
+that enables controlling the debugging session over a tcp connection. 
+\item[DebugMain] Class that contains the main method that initializes
+the core component on the debugger JVM side. This involves
+\item[CmlDebugTarget] This class is part of the Eclipse
+  debugging model. It has the responsiblity of representing a running
+  interpreter on the Eclipse side. All communications to and from
+  the Eclipse debugger are handled in this class.
+\end{description}
 
 \subsubsection{Deployment Model}
-In order to get the big picture of how the IDE layer works together with the Core, a deployment view of the IDE is shown in \autoref{fig:interpreter_debuggerDeployment}.
+In order to get the big picture of how the IDE layer works together
+with the Core, a deployment view of the IDE is shown in
+\autoref{fig:interpreter_debuggerDeployment}.
 
 \begin{figure}[ht!]
   \begin{center}
@@ -909,44 +951,6 @@ TCP connection.
 
 \draftnote{The JSON protocol need to be defined}
 
-\subsubsection{Static Model}
-
-\subsubsection*{Packages}
-
-The following packages defines the top level structure of the IDE:
-\begin{description}
-\item[eu.compassresearch.ide.interpreter.model] Contains all the
-classes that implements the Eclipse debug model
-\cite{http://www.eclipse.org/articles/Article-Debugger/how-to.html}
-
-\item[eu.compassresearch.ide.interpreter.launching] Classes that deals
-with launching a debugging session.
-\item[eu.compassresearch.ide.interpreter.protocol] Classes that deals
-with the communication between the Eclipe CML debugger and a CML
-interpreter instance. 
-
-\item[eu.compassresearch.ide.interpreter.view] Contains the custom
-views of the Eclipse CML debugger.
-
-\end{description}
-
-
-Before explaining the steps involved in a debugging session, there are
-two important classes worth mentioning:
-
-\begin{description}
-\item[CmlDebugger] Interface with the responsibility of
-  controlling the CmlInterpreter execution in a debugging session.
-\item[SocketServerDebugger] Realization of the CmlDebugger interface
-that enables controlling the debugging session over a tcp connection. 
-\item[DebugMain] Class that contains the main method that initializes
-the core component on the debugger JVM side. This involves
-\item[CmlDebugTarget] This class is part of the Eclipse
-  debugging model. It has the responsiblity of representing a running
-  interpreter on the Eclipse side. All communications to and from
-  the Eclipse debugger are handled in this class.
-\end{description}
-
 A debugging session has the following steps:
 \begin{enumerate}
 \item The user launches a debug session
@@ -957,10 +961,10 @@ A debugging session has the following steps:
   created connection from step 2.
 \item When the connection is established, the SocketServerDebugger
   will send a STARTING status message along with additional details
-\item The \textbf{CmlDebugTarget} updates the GUI accordingly.
+\item The CmlDebugTarget updates the GUI accordingly.
 \item When the interpreter is running, status messages will be sent
   from SocketServerDebugger and commands and request messages are sent
-  from \textbf{CmlDebugTarget}
+  from CmlDebugTarget.
 \item This continues until either the CML model successfully terminates or the user stops.
 \end{enumerate}
 
