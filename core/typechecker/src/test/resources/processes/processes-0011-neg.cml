@@ -12,7 +12,7 @@ types
 
 functions
 
- g:int -> aunion g(a) == if (a = 0) then <None> else a
+ g:int -> int g(a) == a
 
 end
 

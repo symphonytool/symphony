@@ -1,4 +1,26 @@
 -----------------------------------------------------------
+RTTPLUGIN_0.3.1
+
+Changes:
+
+- fixed download of templates for import and new project.
+- added log message for non-existing local files in case of uploads if verbose logging is active.
+- added support for file permissions when sending files to server cache.
+- fixed bug in download path for doc-test action.
+
+Revision: in progress
+Released: in progress
+-----------------------------------------------------------
+RTTPLUGIN_0.3.0
+
+Synchronisation with Symphony release
+
+-----------------------------------------------------------
+RTTPLUGIN_0.2.9
+
+no merge from local development to symphony development in this version
+
+-----------------------------------------------------------
 RTTMBTPLUGIN_0.2.7
 
 merge from local rtt-plugin development into symphony

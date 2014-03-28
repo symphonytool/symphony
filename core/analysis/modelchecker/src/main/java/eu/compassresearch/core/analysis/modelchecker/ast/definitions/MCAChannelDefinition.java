@@ -9,6 +9,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.TypeManipulat
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.TypeValue;
 import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCATypeSingleDeclaration;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCABooleanBasicType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAChannelType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAIntNumericBasicType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANamedInvariantType;
@@ -114,7 +115,7 @@ public class MCAChannelDefinition implements MCPCMLDefinition {
 			//MCAIntNumericBasicType, MCANatNumericBasicType are infinite, so we let formula to instantiate them
 			
 			//we check if named types have been previously defined and get all possible values for them
-			if(realType instanceof MCANamedInvariantType || realType instanceof MCAProductType){ 
+			if(realType instanceof MCANamedInvariantType || realType instanceof MCAProductType || realType instanceof MCABooleanBasicType){ 
 				TypeManipulator typeManipulator = TypeManipulator.getInstance();
 				result = typeManipulator.getValues(realType);
 			}

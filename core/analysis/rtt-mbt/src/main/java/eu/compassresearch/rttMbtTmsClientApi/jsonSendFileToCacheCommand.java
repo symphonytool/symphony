@@ -3,6 +3,7 @@
  */
 package eu.compassresearch.rttMbtTmsClientApi;
 
+import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -30,6 +31,17 @@ public class jsonSendFileToCacheCommand extends jsonCommand {
 		params.put("content", getBase64StringFileContent(filename, true));
 		params.put("size", getFileSizeString(filename));
 		params.put("checksum", getSHA256Checksum(filename));
+		// get local permissions
+		String readable = "true", writeable = "true", executable = "false";
+		File file = new File(filename);
+		if (file.isFile()) {
+			if (!file.canRead()) { readable = "false"; }
+			if (!file.canWrite()) { writeable = "false"; }
+			if (file.canExecute()) { executable = "true"; }
+		}
+		params.put("readable", readable);
+		params.put("writeable", writeable);
+		params.put("executable", executable);
 		// create command
 		JSONObject cmd = new JSONObject();
 		cmd.put("send-file-to-cache-command", params);
