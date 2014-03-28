@@ -21,6 +21,7 @@ import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.core.interpreter.api.CmlBehaviorFactory;
 import eu.compassresearch.core.interpreter.api.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.CmlTrace;
+import eu.compassresearch.core.interpreter.api.TransitionEvent;
 import eu.compassresearch.core.interpreter.api.CmlBehaviour.BehaviourName;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.transitions.TauTransition;
@@ -112,9 +113,9 @@ public abstract class AbstractInspectionVisitor extends
 		return new Inspection(new CmlTrace(owner.getTraceModel()), transitions, step);
 	}
 
-	protected void setWaiting()
+	protected void newTransitionEvent(TransitionEvent event)
 	{
-		visitorAccess.setWaiting();
+		visitorAccess.newTransitionEvent(event);
 	}
 
 	protected void clearLeftChild()

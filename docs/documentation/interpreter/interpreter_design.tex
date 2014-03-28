@@ -208,7 +208,7 @@
 % #4: description
 \addversion{0.1}{25-04-2013}{Anders Kaels Malmos}{Initial document version}
 \addversion{0.2}{06-03-2014}{Anders Kaels Malmos}{Added introduction and domain description}
-% \addversion{0.2}{dd-mm-yyyy}{Richard Payne}{Second version}
+\addversion{0.3}{26-03-2014}{Anders Kaels Malmos}{Added draft of static and dynamic structure for the core interpreter}
 
 \begin{document}
 \maketitle
@@ -486,18 +486,45 @@ following sections. The major reason behind this layering is that the
 implementation of the semantics should be independent of the view
 showing the results.
 
-\subsection{The Core Layer}
-This layer has the overall responsibility of interpreting a CML model
+\begin{description}
+\item[Core Layer] This layer has the overall responsibility of interpreting a CML model
 as described in the operational semantics that are defined in
 \cite{D23.4} and is located in the package
-\emph{eu.compassresearch.core.interpreter}. The design philosophy of
-the top-level structure is to encapsulate all the classes and
-interfaces that makes up the implementation of the core functionality
-and only expose those that are needed to utilize the interpreter. This
-provides a clean separation between the implementation and interface
-and makes it clear for both the users, which not necessarily wants to
-know about the implementation details, and developers which parts they
-need to work with.
+\emph{eu.compassresearch.core.interpreter}
+
+\item[IDE Layer] Has the overall responsibility of visualizing the outputs of a running
+interpretation a CML model in the Eclipse Debugger. It is located in
+the \emph{eu.compassresearch.ide.plugins.interpreter} package.  The
+IDE part is integrating the interpreter into Eclipse, enabling CML
+models to be debugged through the Eclipse
+debugger. 
+
+\end{description}
+
+\section{Layer design and Implementation}
+This section describes the static and dynamic structure of the
+components involved in interpreting a CML model.
+
+\subsection{The Core Layer}
+The core layer is responsible for the overall interpretation of a
+given CML model. To understand some of the choice made, the design
+philosophy needs a short word. The design philosophy of the top-level
+structure is to encapsulate all the classes and interfaces (hence make
+elements package accessible only when appropriate) that makes up the
+implementation of the core functionality and only expose those that
+are needed to utilize the interpreter. This provides a clean
+separation between the implementation and interface and makes it clear
+for both the users, which not necessarily wants to know about the
+implementation details, and developers which parts they need to work
+with. 
+
+In the following section both the static and dynamic
+model will be described in more details.
+
+\subsubsection{The Static Model}
+\label{sec:static_structure}
+
+\subsubsection*{Packages}
 
 The following packages defines the top level structure of the core:
 \begin{description}
@@ -563,76 +590,11 @@ The following packages defines the top level structure of the core:
 
 \end{description}
 
-\subsection{The IDE Layer}
+\subsubsection*{The Top Level Elements}
 
-Has the overall responsibility of visualizing the outputs of a running
-interpretation a CML model in the Eclipse Debugger. It is located in
-the \emph{eu.compassresearch.ide.plugins.interpreter} package.  The
-IDE part is integrating the interpreter into Eclipse, enabling CML
-models to be debugged/simulated/animated through the Eclipse
-interface. In \autoref{fig:interpreter_debuggerDeployment} a
-deployment diagram of the debugging structure is shown.
-
-\begin{figure}[ht!]
-  \begin{center}
-    \includegraphics[width=1\textwidth]{figures/DebuggerDeploymentView}
-    \caption{Deployment diagram of the debugger}
-    \label{fig:interpreter_debuggerDeployment}
-   \end{center}
-\end{figure}
-
-An Eclipse debugging session involves two JVMs, the one that the Eclipse
-platform is executing in and one where only the Core executes in. All
-communication between them is done via a TCP connection.
-
-Before explaining the steps involved in a debugging session, there are
-two important classes worth mentioning:
-
-\begin{itemize}
-\item \textbf{CmlDebugger}: This is responsible for
-  controlling the CmlInterpreter execution in the debugger JVM.  All
-  communications to and from the interpreter handled in this class.
-
-\item \textbf{CmlDebugTarget}: This class is part of the Eclipse
-  debugging model. It has the responsiblity of representing a running
-  interpreter on the Eclipse JVM side. All communications to and from
-  the Eclipse debugger are handled in this class.
-\end{itemize}
-
-A debugging session has the following steps:
-\begin{enumerate}
-\item The user launches a debug session
-\item On the Eclipse JVM a \textbf{CmlDebugTarget} instance is
-  created, which listens for an incomming TCP connection.
-\item A Debugger JVM is spawned and a
-  \textbf{CmlInterpreterController} instance is created.
-\item The \textbf{CmlInterpreterController} tries to connect to the
-  created connection.
-\item When the connection is established, the
-  \textbf{CmlInterpreterController} instance will send a STARTING status
-  message along with additional details
-\item The \textbf{CmlDebugTarget} updates the GUI accordingly.
-\item When the interpreter is running, status messages will be sent from \textbf{CmlInterpreterController} and commands and request messages are sent from \textbf{CmlDebugTarget}
-\item This continues until \textbf{CmlInterpreterController} sends the STOPPED message
-\end{enumerate}
-
-
-\section{Layer design and Implementation}
-This section describes the static and dynamic structure of the
-components involved in simulating/animating a CML model.
-
-\subsection{Core Layer}
-
-The core layer is responsible for the overall interpretation of a
-given CML model. In the following section both the static and dynamic
-model will be described in details.
-
-\subsubsection{Static Model}
-\label{sec:static_structure}
-
-The top level interface of the interpreter is depicted in figure
-\ref{fig:interpreter_topLevelStructure}, followed by a short
-description of each the depicted components.
+The top level interfaces and classes of the interpreter structure is
+depicted in \autoref{fig:interpreter_topLevelStructure}, followed by a
+short description of each the depicted components.
 
 Before going into detals with each element on figure
 \ref{fig:interpreter_topLevelStructure} a few things needs
@@ -698,7 +660,7 @@ that any CmlBehaviour makes.
 
 \end{description}
 
-\subsubsection{Transitions Model}
+\subsubsection*{The Transitions Model}
 \label{sec:transition_model}
 
 As described in the previous sections a CML model is represented by a
@@ -744,7 +706,7 @@ hidden channel transition.
   channel event in the form of a tau transition.
 \end{description}
 
-\subsubsection{The default Implementation of CmlBehavior}
+\subsubsection*{The Default CmlBehavior Implementation}
 \label{sec:action_process_structure}
 Actions and processes are both represented by the CmlBehaviour
 interface. A class diagram of the important classes that implements
@@ -799,6 +761,7 @@ Here a brief description of each new element depicted in \autoref{fig:concrete_b
   is where the actual implementation of the semantics is.
 \end{description}
 
+\subsubsection*{The Visitors}
 
 In figure \ref{fig:visitors} a more detailed look at the inspection visitor structure is given.
 
@@ -825,25 +788,22 @@ subset of VDM expression constructs that are contained in CML to the
 DelegateExpressionEvaluator overture class, which can evaluate VDM
 expressions. The reason for doing this is of course reuse.
 
-\subsubsection{Dynamic Model}
+\subsection{The Dynamic Model}
 \label{sec:dynamic_structure}
-
-The previous section described the high-level static structure, this
-section will describe the high-level dynamic structure.
-
-First of all, in the default operation mode (as mentioned above a
-single running instance of the interpreter) the entire CML interpreter
-runs in a single thread. This is mainly due to the inherent complexity
-of concurrent programming. You could argue that since a large part of
+This section will describe the high-level dynamic model. First of
+all, in the default operation mode (as mentioned above a single
+running instance of the interpreter) the entire CML interpreter runs
+in a single thread. This is mainly due to the inherent complexity of
+concurrent programming. You could argue that since a large part of
 COMPASS is about modelling complex concurrent systems, we also need a
 concurrent interpretation of the models. However, the semantics is
 perfectly implementable in a single thread which makes a
 multi-threaded interpreter optional. There are of course benefits to a
-multi-threaded interpreter, but for matters such
-as the testing and deterministic behaviour a single threaded
-interpreter is much easier to handle and comprehend.
+multi-threaded interpreter, but for matters such as the testing and
+deterministic behaviour a single threaded interpreter is much easier
+to handle and comprehend.
 
-\subsubsection{The Top Execution Loop}
+\subsubsection*{The Top Execution Loop}
 
 To start a simulation/animation of a CML model, you first of all need
 an instance of the CmlInterpreter interface. This is created
@@ -873,18 +833,24 @@ inspection and execution phase. The actual decision of which
 transition to be taken next is decided by the given SelectionStrategy
 instance to the execute method. This decision is delegated to the two
 methods setChoices and resolveChoice.
-\draftnote{I can't remember the reason behind the two methods instead of one, find out!} 
 
-\subsubsection{ConcreteCmlBehavior}
+\subsubsection*{Dynamics of the ConcreteCmlBehavior}
 
 As mentioned multiple times the ConcreteCmlBehavior class is the
 default realization of the CmlBehavior interface and is the only one
-explained in details. To understand the dynamic model we need to see
-what happens in the inspect and execute methods, as these together
-determines the possible transitions at the top level show in the last
-section.
+of them explained in details in this report. To understand the dynamic
+model we need to see what happens in the inspect and execute methods,
+as these together determines the possible transitions at the top level
+shown in the last section.
 
-On \autoref{fig:behavior_inspect_seq} the general inspect dynamics is depicted. When inspect is called on a ConcreteCmlBehavior it uses its nextNode (in the java source nextNode and nextContext is actually a Pair<INode, Context> call)
+In \autoref{fig:behavior_inspect_seq} the general inspect dynamics is
+depicted. When the inspect method is called on a ConcreteCmlBehavior
+it uses its nextNode (in the java source nextNode and nextContext is
+actually a Pair<INode, Context>) to delegate the actual inspection to
+the CmlInspectionVisitor. The CmlInspectionVisitor contains a method
+case<INode instance name> for every CML AST node. So e.g. if nextNode
+is a AInterleavingAction then the visitor method
+caseAInterleavingAction(..) method is called with the nextContext.
 \begin{figure}[ht!]
   \begin{center}
     \includegraphics[width=1\textwidth]{figures/behavior-inspect-seq}
@@ -892,19 +858,112 @@ On \autoref{fig:behavior_inspect_seq} the general inspect dynamics is depicted. 
     \label{fig:behavior_inspect_seq}
   \end{center}
 \end{figure}
+The called case method will return a Inspection which contains the
+next possible transtions and a transition function to be called if the
+execute method is to be invoked. The last call in
+\autoref{fig:behavior_inspect_seq} just grabs the CmlTransitionSet
+from the returned Inspection object and return this as the result of
+the inspect call.
 
-
+The execute method, shown in \autoref{fig:behavior_execute_seq}, will
+execute the given transition and must only be called if one the
+returned transitions from the inspect method has been chosen for
+execution. The actual execution is delegated to the CmlCalculationStep
+instance contained in the last calculated Inspection object
+(lastInspection in the figure) in the inspect method.
 \begin{figure}[ht!]
   \begin{center}
     \includegraphics[width=1\textwidth]{figures/behavior-execute-seq}
-    \caption{The general dynamics of the inspect method}
+    \caption{The general dynamics of the execute method}
     \label{fig:behavior_execute_seq}
   \end{center}
 \end{figure}
-
+The instance of a CmlCalculationStep is an anonymous class created in
+a inspection visitor case, so the behavior of the execute method is
+entirely dependent on the current node contained in the next pair. The
+result of the execute method is the next node and context. As seen in
+\autoref{fig:behavior_execute_seq} the setup visitor is called if the
+newly returned pair is different from the current one. This enables
+any case specific setup behavior to be implemented here. E.g in some
+cases the context needs to be updated before the inspection phase is
+commenced.
 
 \subsection{The IDE Layer}
-\label{sec:user_interface}
+
+\subsubsection{Deployment Model}
+In order to get the big picture of how the IDE layer works together with the Core, a deployment view of the IDE is shown in \autoref{fig:interpreter_debuggerDeployment}.
+
+\begin{figure}[ht!]
+  \begin{center}
+    \includegraphics[width=1\textwidth]{figures/DebuggerDeploymentView}
+    \caption{Deployment diagram of the debugger}
+    \label{fig:interpreter_debuggerDeployment}
+   \end{center}
+\end{figure}
+
+An Eclipse debugging session involves two JVM instances, the one that
+the Eclipse platform is executing in and one where only the Core
+executes in. All communication between them is done via JSON through a
+TCP connection.
+
+
+\draftnote{The JSON protocol need to be defined}
+
+\subsubsection{Static Model}
+
+\subsubsection*{Packages}
+
+The following packages defines the top level structure of the IDE:
+\begin{description}
+\item[eu.compassresearch.ide.interpreter.model] Contains all the
+classes that implements the Eclipse debug model
+\cite{http://www.eclipse.org/articles/Article-Debugger/how-to.html}
+
+\item[eu.compassresearch.ide.interpreter.launching] Classes that deals
+with launching a debugging session.
+\item[eu.compassresearch.ide.interpreter.protocol] Classes that deals
+with the communication between the Eclipe CML debugger and a CML
+interpreter instance. 
+
+\item[eu.compassresearch.ide.interpreter.view] Contains the custom
+views of the Eclipse CML debugger.
+
+\end{description}
+
+
+Before explaining the steps involved in a debugging session, there are
+two important classes worth mentioning:
+
+\begin{description}
+\item[CmlDebugger] Interface with the responsibility of
+  controlling the CmlInterpreter execution in a debugging session.
+\item[SocketServerDebugger] Realization of the CmlDebugger interface
+that enables controlling the debugging session over a tcp connection. 
+\item[DebugMain] Class that contains the main method that initializes
+the core component on the debugger JVM side. This involves
+\item[CmlDebugTarget] This class is part of the Eclipse
+  debugging model. It has the responsiblity of representing a running
+  interpreter on the Eclipse side. All communications to and from
+  the Eclipse debugger are handled in this class.
+\end{description}
+
+A debugging session has the following steps:
+\begin{enumerate}
+\item The user launches a debug session
+\item On the Eclipse JVM a CmlDebugTarget instance is
+  created, which listens for an incomming TCP connection.
+\item A Debugger JVM is spawned with the main method in the DebugMain class as starting point.
+\item A SocketServerDebugger instance is created and tries to connect to the
+  created connection from step 2.
+\item When the connection is established, the SocketServerDebugger
+  will send a STARTING status message along with additional details
+\item The \textbf{CmlDebugTarget} updates the GUI accordingly.
+\item When the interpreter is running, status messages will be sent
+  from SocketServerDebugger and commands and request messages are sent
+  from \textbf{CmlDebugTarget}
+\item This continues until either the CML model successfully terminates or the user stops.
+\end{enumerate}
+
 
 %%%% Bibliography %%%%
 \newpage
