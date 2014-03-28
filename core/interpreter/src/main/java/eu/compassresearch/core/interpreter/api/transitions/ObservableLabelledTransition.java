@@ -14,10 +14,10 @@ import org.overture.ast.types.AUnionType;
 import org.overture.ast.types.PType;
 
 import eu.compassresearch.ast.analysis.AnswerCMLAdaptor;
+import eu.compassresearch.core.interpreter.api.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
-import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
+import eu.compassresearch.core.interpreter.api.values.ChannelValue;
 
 public class ObservableLabelledTransition extends AbstractCmlTransition
 implements LabelledTransition
@@ -28,7 +28,7 @@ implements LabelledTransition
 	 * 
 	 */
 	private static final long serialVersionUID = -2217645151439301812L;
-	final protected ChannelNameValue channelName;
+	final protected ChannelValue channelName;
 	/**
 	 * Added for json construction
 	 */
@@ -38,7 +38,7 @@ implements LabelledTransition
 	}
 
 	public ObservableLabelledTransition(CmlBehaviour source,
-			ChannelNameValue channelName)
+			ChannelValue channelName)
 	{
 		super(source);
 		this.channelName = channelName;
@@ -46,7 +46,7 @@ implements LabelledTransition
 	}
 
 	private ObservableLabelledTransition(SortedSet<CmlBehaviour> sources,
-			ChannelNameValue channelName)
+			ChannelValue channelName)
 	{
 		super(sources);
 		this.channelName = channelName;
@@ -61,14 +61,14 @@ implements LabelledTransition
 	 * @param meetValue
 	 */
 	public ObservableLabelledTransition(CmlTransition baseEvent,
-			CmlTransition otherComEvent, ChannelNameValue meetValue)
+			CmlTransition otherComEvent, ChannelValue meetValue)
 	{
 		super(baseEvent, otherComEvent);
 		this.channelName = meetValue;
 	}
 	
 	@Override
-	public ChannelNameValue getChannelName()
+	public ChannelValue getChannelName()
 	{
 		return channelName;
 	}
@@ -130,7 +130,7 @@ implements LabelledTransition
 				(this.getChannelName().isGTEQPrecise(otherLT.getChannelName())
 				|| otherLT.getChannelName().isGTEQPrecise(this.getChannelName())))
 		{
-			ChannelNameValue meetValue = this.getChannelName().meet(otherLT.getChannelName());
+			ChannelValue meetValue = this.getChannelName().meet(otherLT.getChannelName());
 			try
 			{
 				return meetValue != null && meetValue.isConstraintValid();
@@ -146,7 +146,7 @@ implements LabelledTransition
 	public ObservableTransition synchronizeWith(ObservableTransition syncEvent)
 	{
 		ObservableLabelledTransition otherComEvent = (ObservableLabelledTransition) syncEvent;
-		ChannelNameValue meetValue = this.getChannelName().meet(((LabelledTransition) otherComEvent).getChannelName());
+		ChannelValue meetValue = this.getChannelName().meet(((LabelledTransition) otherComEvent).getChannelName());
 
 //		if (meetValue == null)
 //		{
@@ -183,7 +183,7 @@ implements LabelledTransition
 	}
 	
 	@Override
-	public LabelledTransition rename(ChannelNameValue value)
+	public LabelledTransition rename(ChannelValue value)
 	{
 		return new ObservableLabelledTransition(this.eventSources, this.channelName.rename(value.getChannel()));
 	}

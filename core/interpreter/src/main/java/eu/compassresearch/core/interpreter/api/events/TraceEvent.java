@@ -2,7 +2,7 @@ package eu.compassresearch.core.interpreter.api.events;
 
 import java.util.List;
 
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
+import eu.compassresearch.core.interpreter.api.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 
 public class TraceEvent extends Event<CmlBehaviour>

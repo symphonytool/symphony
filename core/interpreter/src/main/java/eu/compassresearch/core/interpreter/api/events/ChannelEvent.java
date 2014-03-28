@@ -1,6 +1,6 @@
 package eu.compassresearch.core.interpreter.api.events;
 
-import eu.compassresearch.core.interpreter.api.values.CMLChannelValue;
+import eu.compassresearch.core.interpreter.api.values.CmlChannel;
 
 /**
  * This represents activity change of CmlInterpreterState in a specific CmlInterpreter instance. This event is fired
@@ -8,23 +8,23 @@ import eu.compassresearch.core.interpreter.api.values.CMLChannelValue;
  * 
  * @author akm
  */
-public class ChannelEvent extends Event<CMLChannelValue>
+public class ChannelEvent extends Event<CmlChannel>
 {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	final private ChannelActivity eventType;
+	final private ChannelEventTypeActivity eventType;
 
-	public ChannelEvent(CMLChannelValue channel, ChannelActivity eventType)
+	public ChannelEvent(CmlChannel channel, ChannelEventTypeActivity eventType)
 	{
 		super(channel);
 		// this.channel = channel;
 		this.eventType = eventType;
 	}
 
-	public ChannelActivity getEventType()
+	public ChannelEventTypeActivity getEventType()
 	{
 		return eventType;
 	}

@@ -9,6 +9,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAChansetD
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCATypeDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANameChannelExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPVarsetExpression;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCABooleanBasicType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAIntNumericBasicType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANamedInvariantType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANatNumericBasicType;
@@ -51,6 +52,8 @@ public class TypeManipulator {
 			result = this.getValues((MCATypeSingleDeclaration)type);
 		} else if(type instanceof MCASetType){
 			result = this.getValues((MCASetType)type);
+		} else if(type instanceof MCABooleanBasicType){
+			result = this.getValues((MCABooleanBasicType)type);
 		}
 		return result;
 	}
@@ -112,6 +115,12 @@ public class TypeManipulator {
 		}
 		
 
+		return result;
+	}
+	public LinkedList<TypeValue> getValues(MCABooleanBasicType type){
+		LinkedList<TypeValue> result = new LinkedList<TypeValue>();
+		result.add(new SingleTypeValue("true"));
+		result.add(new SingleTypeValue("false"));
 		return result;
 	}
 	public LinkedList<TypeValue> getValues(MCAProductType type){

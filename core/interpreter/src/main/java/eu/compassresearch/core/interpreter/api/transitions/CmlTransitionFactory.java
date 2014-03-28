@@ -1,7 +1,7 @@
 package eu.compassresearch.core.interpreter.api.transitions;
 
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
-import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
+import eu.compassresearch.core.interpreter.api.CmlBehaviour;
+import eu.compassresearch.core.interpreter.api.values.ChannelValue;
 
 public class CmlTransitionFactory
 {
@@ -13,7 +13,7 @@ public class CmlTransitionFactory
 	 */
 
 	public static ObservableTransition newLabelledTransition(
-			CmlBehaviour source, ChannelNameValue channelName)
+			CmlBehaviour source, ChannelValue channelName)
 	{
 		return new ObservableLabelledTransition(source, channelName);
 	}

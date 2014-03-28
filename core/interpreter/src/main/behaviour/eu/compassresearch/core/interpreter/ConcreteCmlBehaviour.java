@@ -20,12 +20,11 @@ import org.slf4j.LoggerFactory;
 import eu.compassresearch.ast.actions.ADivAction;
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
+import eu.compassresearch.core.interpreter.api.CmlBehaviorFactory;
+import eu.compassresearch.core.interpreter.api.CmlBehaviorState;
+import eu.compassresearch.core.interpreter.api.CmlBehaviour;
+import eu.compassresearch.core.interpreter.api.CmlTrace;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorFactory;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorState;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlTrace;
-import eu.compassresearch.core.interpreter.api.behaviour.Inspection;
 import eu.compassresearch.core.interpreter.api.events.CmlBehaviorStateEvent;
 import eu.compassresearch.core.interpreter.api.events.CmlBehaviorStateObserver;
 import eu.compassresearch.core.interpreter.api.events.EventFireMediator;
@@ -275,51 +274,33 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	 * Executes the current process behaviour
 	 */
 	@Override
-	public void execute(CmlTransition selectedTransition)
-			throws AnalysisException
+	public void execute(CmlTransition selectedTransition) throws AnalysisException
 	{
-		// this.env= env;
-
-		// inspect if there are any immediate events
-		//inspect();
-
 		ok = true;
-
 		/*
-		 * If the selected event is valid and is in the immediate alphabet of the process then we can continue.
+		 * If the selected transition is tock, then we need to execute the 
+		 * children as well to make time pass in the entire process tree
 		 */
-		if (lastInspection.getTransitions().containsEqualOrSyncPart(selectedTransition))
+		if (selectedTransition instanceof TimedTransition)
 		{
-			// If the selected event is tock then we need to execute the children as well to make
-			// time tick in the entire process tree
-			if (selectedTransition instanceof TimedTransition)
+			if (leftChild != null)
 			{
-				if (leftChild != null)
-				{
-					leftChild.execute(selectedTransition);
-				}
-
-				if (rightChild != null)
-				{
-					rightChild.execute(selectedTransition);
-				}
-			}
-			// If the selected event is not a tock event then we can evaluate
-			else
-			{
-				waitPrime = false;
-				// setNext(next.first.apply(cmlEvaluationVisitor,next.second));
-				setNext(lastInspection.getNextStep().execute(selectedTransition));
+				leftChild.execute(selectedTransition);
 			}
 
-			updateTrace(selectedTransition);
+			if (rightChild != null)
+			{
+				rightChild.execute(selectedTransition);
+			}
 		}
-		// //if no communication is selected by the supervisor or we cannot sync the selected events
-		// //then we go to wait state and wait for channelEvent
-		// else
-		// {
-		// waitPrime = true;
-		// }
+		// If the selected event is not tock then we can evaluate it
+		else
+		{
+			waitPrime = false;
+			setNext(lastInspection.getTransitionFunction().execute(selectedTransition));
+		}
+
+		updateTrace(selectedTransition);
 	}
 
 	@Override
@@ -340,8 +321,7 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	/**
 	 * Update the trace and fires the trace event
 	 * 
-	 * @param The
-	 *            next event in the trace
+	 * @param The recent executed transition
 	 */
 	private void updateTrace(CmlTransition event)
 	{
@@ -354,24 +334,6 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	 */
 
 	@Override
-	public Pair<INode, Context> getNextState()
-	{
-		return next;
-	}
-
-	// @Override
-	// public void setAbort(Reason reason) {
-	//
-	// //abort all the children
-	// for(CmlBehaviour child : children())
-	// child.setAbort(reason);
-	//
-	// aborted = true;
-	//
-	// notifyOnStateChange(CmlBehaviorState.FINISHED);
-	// }
-
-	@Override
 	public BehaviourName getName()
 	{
 		return this.name;
@@ -381,6 +343,12 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	public int getId()
 	{
 		return this.processId;
+	}
+	
+	@Override
+	public int compareTo(CmlBehaviour o)
+	{
+		return Integer.compare(getId(), o.getId());
 	}
 
 	/**
@@ -462,7 +430,7 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 		return leftChild != null || rightChild != null;
 	}
 
-	/**
+	/*
 	 * State related methods
 	 */
 
@@ -533,9 +501,12 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 		return stateEventhandler;
 	}
 
-	/**
-	 * Process state methods
-	 */
+	@Override
+	public Pair<INode, Context> getNextState()
+	{
+		return next;
+	}
+	
 	@Override
 	public CmlBehaviorState getState()
 	{
@@ -556,6 +527,24 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 		} catch (AnalysisException e)
 		{
 			return CmlBehaviorState.ERROR;
+		}
+	}
+	
+	@Override
+	public void replaceState(Context context) throws ValueException
+	{
+
+		// stuck onto the given context
+		next = new Pair<INode, Context>(next.first, attachAdditionalContexts(next.second, context));
+
+		if (leftChild != null)
+		{
+			leftChild.replaceState(next.second);
+		}
+
+		if (rightChild != null)
+		{
+			rightChild.replaceState(next.second);
 		}
 	}
 
@@ -602,24 +591,6 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	/*
 	 * Private methods
 	 */
-
-	@Override
-	public void replaceState(Context context) throws ValueException
-	{
-
-		// stuck onto the given context
-		next = new Pair<INode, Context>(next.first, attachAdditionalContexts(next.second, context));
-
-		if (leftChild != null)
-		{
-			leftChild.replaceState(next.second);
-		}
-
-		if (rightChild != null)
-		{
-			rightChild.replaceState(next.second);
-		}
-	}
 
 	/**
 	 * Copies and attaches any additional contexts from src to dst. Where additional means that if src is deeper than
@@ -680,19 +651,5 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 		}
 
 		return newCurrent;
-	}
-
-	// @Override
-	// public void updateName(ILexNameToken name)
-	// {
-	// this.name.addProcess(name.getName());
-	// // this.name = new CmlLexNameToken(name.getModule(), this.name.getName()+" -> "+name.getName(),
-	// // name.getLocation());
-	// }
-
-	@Override
-	public int compareTo(CmlBehaviour o)
-	{
-		return Integer.compare(getId(), o.getId());
 	}
 }

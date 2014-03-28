@@ -1,9 +1,7 @@
 package eu.compassresearch.core.interpreter;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -64,12 +62,10 @@ import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.lex.CmlLexNameToken;
 import eu.compassresearch.ast.statements.AActionStm;
+import eu.compassresearch.core.interpreter.api.CmlBehaviorFactory;
+import eu.compassresearch.core.interpreter.api.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorFactory;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlCalculationStep;
-import eu.compassresearch.core.interpreter.api.behaviour.Inspection;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionFactory;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
@@ -77,13 +73,12 @@ import eu.compassresearch.core.interpreter.api.transitions.LabelledTransition;
 import eu.compassresearch.core.interpreter.api.transitions.ObservableTransition;
 import eu.compassresearch.core.interpreter.api.transitions.TimedTransition;
 import eu.compassresearch.core.interpreter.api.values.ActionValue;
-import eu.compassresearch.core.interpreter.api.values.CMLChannelValue;
-import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
+import eu.compassresearch.core.interpreter.api.values.ChannelValue;
+import eu.compassresearch.core.interpreter.api.values.CmlChannel;
 import eu.compassresearch.core.interpreter.api.values.ExpressionConstraint;
 import eu.compassresearch.core.interpreter.api.values.LatticeTopValue;
 import eu.compassresearch.core.interpreter.api.values.NamesetValue;
 import eu.compassresearch.core.interpreter.api.values.NoConstraint;
-import eu.compassresearch.core.interpreter.api.values.RenamingValue;
 import eu.compassresearch.core.interpreter.api.values.UnresolvedExpressionValue;
 import eu.compassresearch.core.interpreter.api.values.ValueConstraint;
 import eu.compassresearch.core.interpreter.utility.Pair;
@@ -195,7 +190,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 		// create the channel name
 		ILexNameToken channelName = NamespaceUtility.createChannelName(node.getIdentifier());
 		// find the channel value
-		CMLChannelValue chanValue = (CMLChannelValue) question.lookup(channelName);
+		CmlChannel chanValue = (CmlChannel) question.lookup(channelName);
 
 		SortedSet<CmlTransition> comset = new TreeSet<CmlTransition>();
 		List<Value> values = new LinkedList<Value>();
@@ -253,7 +248,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 			}
 		}
 
-		ObservableTransition observableEvent = CmlTransitionFactory.newLabelledTransition(owner, new ChannelNameValue(chanValue, values, constraints));
+		ObservableTransition observableEvent = CmlTransitionFactory.newLabelledTransition(owner, new ChannelValue(chanValue, values, constraints));
 		comset.add(observableEvent);
 
 		return newInspection(new CmlTransitionSet(comset).union(new TimedTransition(owner)), new CmlCalculationStep()
@@ -264,7 +259,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 					throws AnalysisException
 			{
 				// At this point the supervisor has already given go to the event, or the event is hidden
-				ChannelNameValue channelNameValue = ((LabelledTransition) selectedTransition).getChannelName();
+				ChannelValue channelNameValue = ((LabelledTransition) selectedTransition).getChannelName();
 
 				Context nextContext = question;
 

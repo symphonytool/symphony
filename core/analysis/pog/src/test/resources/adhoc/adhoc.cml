@@ -9,7 +9,7 @@ String = seq of char
 values
 I : set of ID = {0,1,2}
 
-nats: set of nat = {-1,1}
+nats: set of nat = {2,1}
 
 channels
 a:nat
@@ -113,10 +113,10 @@ x:nat := 2
 end
 
 
-process Node = val i:ID @ 
+process Node = val node_i:ID @ 
 begin
    actions
-   writeSetInterleave = mu X @ ((||| j in set I\{i} @ [{ }] debugNat!j->Skip)[_ 1 _> X)
+   writeSetInterleave = mu X @ ((||| j in set I\{node_i} @ [{ }] debugNat!j->Skip)[_ 1 _> X)
    @writeSetInterleave /_\ d->Skip
 end
 
@@ -322,7 +322,7 @@ actions
  @ Main 
 end
 
-process TestNatNumberSet = (||| i in set nats @ TestNatNumber(i,nats))
+process TestNatNumberSet = (||| inter_i in set nats @ TestNatNumber(inter_i,nats))
 
 process TestNatNumberSimpel =  TestNatNumber(0,nats)
 
