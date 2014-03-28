@@ -1939,6 +1939,7 @@ public class RttMbtClient {
 					+ concreteTestProcPath + File.separator
 					+ "testdata" + File.separator;
 			String mappedTestProcPathDocPrefix = mappedTestProcPath.replaceAll(fileSeparatorPattern(), "_");
+			mappedTestProcPathDocPrefix = mappedTestProcPath.replaceAll("/", "_");
 			downloadFile(dirName + mappedTestProcPathDocPrefix + "_testprocedure.pdf");
 			downloadFile(dirName + mappedTestProcPathDocPrefix + "_testreport.pdf");
 			downloadFile(dirName + "signals.dat");
@@ -2186,13 +2187,20 @@ public class RttMbtClient {
 		// check argument
 		if (filepath == null) return null;
 
+		// copy into localFilename
+		String localFilename = filepath;
+
 		// check for windows path that has to be transfomed into unix style path
 		System.out.println("removeLocalWorkspace(" + filepath + ")");
-		String localFilename = filepath;
-		if (filepath.substring(1, 3).compareTo(":\\") == 0) {
-			localFilename = "/" + filepath.replace('\\', '/');
+
+		// if the file or dir does not start with the workspace prefix,
+		// try the unix style path of the file name.
+		if (!(localFilename.startsWith(getFilesystemWorkspacePath()))) {
+			if (filepath.substring(1, 3).compareTo(":\\") == 0) {
+				localFilename = "/" + filepath.replace('\\', '/');
+			}
+			System.out.println("removeLocalWorkspace(" + localFilename + ")");
 		}
-		System.out.println("removeLocalWorkspace(" + localFilename + ")");
 
 		// if the file or dir does not start with the workspace prefix,
 		// no more replacement is performed.
@@ -2515,8 +2523,14 @@ public class RttMbtClient {
 		// iterate from the last pat item to the first and check for RT-Tester project criteria
 		String filesystempath = selectedObjectFilesystemPath;
 		String workspacepath = selectedObjectWorkspacePath;
-		int fpos = filesystempath.lastIndexOf(File.separator);
-		int wpos = workspacepath.lastIndexOf(File.separator);
+		int fpos1 = filesystempath.lastIndexOf(File.separator);
+		int fpos2 = filesystempath.lastIndexOf("/");
+		int wpos1 = workspacepath.lastIndexOf(File.separator);
+		int wpos2 = workspacepath.lastIndexOf("/");
+		int fpos = fpos1;
+		if ((fpos2 < fpos1 && fpos2 != -1) || (fpos1 == -1)) fpos = fpos2;
+		int wpos = wpos1;
+		if ((wpos2 < wpos1 && wpos2 != -1) || (wpos1 == -1)) wpos = wpos2;
 		while ((fpos != -1) && (wpos != -1)) {
 
 			// check that the path does not end with '/'
@@ -2548,8 +2562,14 @@ public class RttMbtClient {
 			// prepare next loop
 			filesystempath = filesystempath.substring(0, fpos);
 			workspacepath = workspacepath.substring(0, wpos);
-			fpos = filesystempath.lastIndexOf(File.separator);
-			wpos = workspacepath.lastIndexOf(File.separator);
+			fpos1 = filesystempath.lastIndexOf(File.separator);
+			fpos2 = filesystempath.lastIndexOf("/");
+			wpos1 = workspacepath.lastIndexOf(File.separator);
+			wpos2 = workspacepath.lastIndexOf("/");
+			fpos = fpos1;
+			if ((fpos2 < fpos1 && fpos2 != -1) || (fpos1 == -1)) fpos = fpos2;
+			wpos = wpos1;
+			if ((wpos2 < wpos1 && wpos2 != -1) || (wpos1 == -1)) wpos = wpos2;
 		}
 
 		// remove selectedObjectWorkspaceProjectName from selectedObjectWorkspaceProjectPrefix
