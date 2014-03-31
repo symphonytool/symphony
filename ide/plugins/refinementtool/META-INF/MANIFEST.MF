@@ -61,7 +61,7 @@ Import-Package: eu.compassresearch.ast.actions,
  org.overture.typechecker.assistant,
  org.overture.typechecker.assistant.definition,
  org.overture.typechecker.assistant.type
-Export-Package: eu.compassresearch.core.analysis.refinementtool
+Export-Package: eu.compassresearch.ide.refinementtool
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Eclipse-BuddyPolicy: registered
 Eclipse-BundleShape: dir

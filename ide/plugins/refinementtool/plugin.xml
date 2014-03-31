@@ -3,4 +3,14 @@
 
 <plugin>
 
+<extension
+         point="org.eclipse.ui.perspectives">
+		<perspective
+            class="eu.compassresearch.ide.refinementtool.PerspectiveFactory"
+            icon="icons/ref_icon.png"
+            id="eu.compassresearch.ide.refinementtool.ref-perspective"
+            name="Refinement">
+		</perspective>
+	</extension>
+
 </plugin>
