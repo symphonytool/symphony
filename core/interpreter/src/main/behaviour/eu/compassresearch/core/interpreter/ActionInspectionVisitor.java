@@ -66,6 +66,7 @@ import eu.compassresearch.core.interpreter.api.CmlBehaviorFactory;
 import eu.compassresearch.core.interpreter.api.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
+import eu.compassresearch.core.interpreter.api.TransitionEvent;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionFactory;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
@@ -184,9 +185,6 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 	public Inspection caseACommunicationAction(final ACommunicationAction node,
 			final Context question) throws AnalysisException
 	{
-
-		setWaiting();
-
 		// create the channel name
 		ILexNameToken channelName = NamespaceUtility.createChannelName(node.getIdentifier());
 		// find the channel value
@@ -287,7 +285,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 						}
 					}
 				}
-
+				newTransitionEvent(TransitionEvent.CHANNEL_EVENT);
 				return new Pair<INode, Context>(node.getAction(), nextContext);
 			}
 		});

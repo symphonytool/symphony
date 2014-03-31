@@ -49,17 +49,6 @@ class ProcessSetupVisitor extends CommonSetupVisitor
 			throws AnalysisException
 	{
 		return caseAlphabetisedParallelism(node, node.getLeftChansetExpression(), node.getRightChansetExpression(), question);
-		// // evaluate the children in the their own context
-		// ChannelNameSetValue leftChanset = eval( node.getLeftChansetExpression(), getChildContexts(question).first);
-		// ChannelNameSetValue rightChanset = eval(node.getRightChansetExpression(),getChildContexts(question).second);
-		//
-		// Context chansetContext = CmlContextFactory.newContext(node.getLocation(),
-		// "Alphabetised parallelism precalcualted channelsets", question);
-		//
-		// chansetContext.put(NamespaceUtility.getLeftPrecalculatedChannetSet(),leftChanset);
-		// chansetContext.put(NamespaceUtility.getRightPrecalculatedChannetSet(),rightChanset);
-		//
-		// return new Pair<INode, Context>(node,chansetContext);
 	}
 
 	@Override
