@@ -5,12 +5,12 @@
   <parent>
     <groupId>eu.compassresearch.core.analysis</groupId>
     <artifactId>analysis</artifactId>
-    <version>0.2.5-SNAPSHOT<!--Replaceable: Main Version--></version>
+    <version>0.3.1-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
   <artifactId>refinementtool</artifactId>
-  <name>Symphony Core Analysis CML Refinement Tool</name>
+  <name>Symphony Core Analysis Refinement Tool</name>
 
   <dependencies>
 
@@ -19,19 +19,13 @@
       <artifactId>ast</artifactId>
       <version>${project.version}</version>
     </dependency>
-
-    <dependency>
-      <groupId>org.overturetool.core</groupId>
-      <artifactId>ast</artifactId>
-      <version>${overture.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>eu.compassresearch.core.analysis</groupId>
-      <artifactId>theoremprover</artifactId>
+    
+	<dependency>
+      <groupId>eu.compassresearch.core</groupId>
+      <artifactId>typechecker</artifactId>
       <version>${project.version}</version>
     </dependency>
-
+    
   </dependencies>
 
 </project>
