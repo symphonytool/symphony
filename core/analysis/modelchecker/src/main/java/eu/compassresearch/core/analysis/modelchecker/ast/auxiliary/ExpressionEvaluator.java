@@ -830,6 +830,8 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 			result = this.getValueSet((MCASetRangeSetExp)expression);
 		} else if(expression instanceof MCAInSetBinaryExp){
 			result = this.getValueSet((MCAInSetBinaryExp)expression);
+		} else if(expression instanceof MCASetEnumSetExp){
+			result = this.getValueSet((MCASetEnumSetExp)expression);
 		}
 			
 		return result;
@@ -853,6 +855,14 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 		return result;
 	}
 	
+	public LinkedList<String> getValueSet(MCASetEnumSetExp expression){
+		LinkedList<String> result = new LinkedList<String>();
+		for (MCPCMLExp exp : expression.getMembers()) {
+			result.add(this.obtainValue(exp));
+		}
+		
+		return result;
+	}
 	public LinkedList<String> getValueSet(MCAInSetBinaryExp expression){
 		LinkedList<String> result = new LinkedList<String>();
 		
@@ -864,6 +874,10 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 			if(valueDef != null){
 				result = this.getValueSet(valueDef.getExpression());
 			}
+		} else if (expression.getRight() instanceof MCASetEnumSetExp){
+			
+			result = this.getValueSet((MCASetEnumSetExp)expression.getRight());
+			
 		}
 		
 		return result; 

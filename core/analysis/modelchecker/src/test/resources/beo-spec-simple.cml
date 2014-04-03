@@ -1,0 +1,58 @@
+values
+  node_ids : set of nat = {0,...,2} -- the set of node identifiers 
+
+types
+  -- NODE_IDs are natural numbers
+  NODE_ID = nat 
+	inv n == n in set node_ids
+	
+  -- For the moment, the model checker is able to deal with finite types. This is the reason for declaring 
+  -- a type wose range of values is a finite set. As the specification uses the type "nat" we create 
+  -- the type MY_NAT. 
+  MY_NAT = nat
+    inv n == n in set {0,1,2,3,4,5} 	
+
+
+channels
+  leaderClaim : NODE_ID * bool
+  on, off : NODE_ID
+  init
+
+process Spec = 
+ begin
+ state  
+
+ q_period : nat := 3 
+ all_nodes : set of NODE_ID := {0,1,2}
+ all_nodes_nat : set of nat := {0,1,2}
+ t : nat := 4
+ alive : set of NODE_ID := {}
+
+  --operations
+  --  unite: set of NODE_ID * set of NODE_ID -> set of NODE_ID
+  --  unite(s1,s2) == s1 union s2
+
+  --  unite: set of NODE_ID * set of NODE_ID ==> set of NODE_ID
+  --  unite(s1,s2) == return s1 union s2
+ 
+ actions
+   --new local variables were inserted.
+   Alive = Skip
+   
+   
+-- leaderClaim.i.true offers a non-deterministic choice between the set of all nodes in alive.  
+-- In the case where a node has previously been leader, we know that the model resolves this implementation by favoring the older node. 
+-- however, is is worth noting that the specification does not require this solution: it is non-detministic here, and any of the available 
+-- cases is a valid implementation. 
+
+   Stable = Skip
+  
+   -- doesn't need timed behaviour
+   LeaderChosen = Skip
+ @ 
+   init -> Skip  -- begin with no nodes on and no time passed 
+end
+
+
+
+

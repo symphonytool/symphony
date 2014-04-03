@@ -11,6 +11,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCATypeSin
 import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCPSingleDeclaration;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAQuoteLiteralExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASeqEnumSeqExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASetDifferenceBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASetEnumSetExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAVariableExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
@@ -27,16 +28,16 @@ public class MCAExternalChoiceReplicatedAction extends MCSReplicatedActionBase {
 
 	@Override
 	public String toFormula(String option) {
-		
+		 
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 		MCPSingleDeclaration sDecl = this.getReplicationDeclaration().getFirst();
 		LinkedList<MCPCMLExp> indexes = new LinkedList<MCPCMLExp>();
 		if (sDecl instanceof MCAExpressionSingleDeclaration) {
 			MCPCMLExp pExp = ((MCAExpressionSingleDeclaration) sDecl).getExpression();
 			if (pExp instanceof MCASetEnumSetExp) {
-				indexes = ((MCASetEnumSetExp) pExp).getMembers();
+				indexes.addAll(((MCASetEnumSetExp) pExp).getMembers());
 			} else if(pExp instanceof MCASeqEnumSeqExp){
-				indexes = ((MCASeqEnumSeqExp) pExp).getMembers();
+				indexes.addAll(((MCASeqEnumSeqExp) pExp).getMembers());
 			} else if(pExp instanceof MCAVariableExp){
 				//values must be picked from a mapping in the context
 				NameValue nameValue = context.getNameValue(((MCAVariableExp) pExp).getName());
@@ -48,6 +49,8 @@ public class MCAExternalChoiceReplicatedAction extends MCSReplicatedActionBase {
 					}
 					//if it is a product type?
 				}
+			}else if(pExp instanceof MCASetDifferenceBinaryExp){
+				//indexes = ((MCASetDifferenceBinaryExp) pExp).getMembers();
 			}
 		} else if (sDecl instanceof MCATypeSingleDeclaration){
 			MCPCMLType type = ((MCATypeSingleDeclaration) sDecl).getType();
@@ -58,7 +61,8 @@ public class MCAExternalChoiceReplicatedAction extends MCSReplicatedActionBase {
 			for (TypeValue typeValue : values) {
 				indexes.add(new MCAQuoteLiteralExp(((SingleTypeValue) typeValue).getValue()));
 			}
-		}
+		} 
+		
 		
 		// building combination of processses based on simple constructs
 		StringBuilder replicatedAction = buildReplicatedAction(context,indexes, option);
@@ -71,6 +75,7 @@ public class MCAExternalChoiceReplicatedAction extends MCSReplicatedActionBase {
 
 		 
 		StringBuilder result = new StringBuilder();
+		MCPAction replicatedAction = this.getReplicatedAction();
 		if(indexes.size() == 1){
 			LinkedList<MCPCMLExp> realArgs = new LinkedList<MCPCMLExp>();
 			MCPCMLExp firstArg = indexes.removeFirst();
@@ -85,7 +90,8 @@ public class MCAExternalChoiceReplicatedAction extends MCSReplicatedActionBase {
 		}else if (indexes.size() > 1) {
 			MCPCMLExp firstArg = indexes.removeFirst();
 			result.append("eChoice(");
-			MCPAction replicatedAction = this.getReplicatedAction();
+			
+			
 			if(replicatedAction instanceof MCAReferenceAction){
 				LinkedList<MCPCMLExp> realArgs = new LinkedList<MCPCMLExp>();
 				realArgs.add(firstArg);

@@ -129,14 +129,14 @@ public class TypeManipulator {
 		//if(type.getTypes().size() > 0){
 			LinkedList<MCPCMLType> typesCopy = new LinkedList<MCPCMLType>();
 			typesCopy.addAll(type.getTypes());
-					
+			
 			LinkedList<TypeValue> firstValues = this.getValues(typesCopy.getFirst());
 			typesCopy.removeFirst();
 			
 			if(typesCopy.size() > 0){
 				MCAProductType remainingTypes = new MCAProductType(typesCopy);
 				LinkedList<TypeValue> remainingValues = this.getValues(remainingTypes);
-				//int k = 0;
+				
 				
 				for (TypeValue fstTypeValue : firstValues) {
 					for (TypeValue sndTypeValue : remainingValues) {

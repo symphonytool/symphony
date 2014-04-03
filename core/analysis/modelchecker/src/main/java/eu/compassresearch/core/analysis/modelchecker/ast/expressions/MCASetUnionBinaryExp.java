@@ -22,17 +22,8 @@ public class MCASetUnionBinaryExp extends MCASBinaryExp {
 	public String toFormula(String option) {
 		StringBuilder result = new StringBuilder();
 		
-		/*
-		result.append("union(");
-		result.append(this.getLeft().toFormula(option));
-		result.append(",");
-		result.append(this.getRight().toFormula(option));
-		result.append(",");
-		result.append(this.newVarName);
-		result.append(")");
-		*/
-		result.append(this.newVarName);
-		result.append(" = ");
+		//result.append(this.newVarName);
+		//result.append(" = ");
 		
 		MCPCMLExp setNameExp = this.getLeft();
 		MCPCMLExp setExp = this.getRight();
