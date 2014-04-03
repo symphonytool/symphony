@@ -23,7 +23,8 @@ Require-Bundle: org.eclipse.debug.ui,
  eu.compassresearch.ide.core,
  eu.compassresearch.ide.ui,
  eu.compassresearch.ide.pog;bundle-version="0.3.1",
- org.overture.ide.plugins.poviewer;bundle-version="2.0.5"
+ org.overture.ide.plugins.poviewer;bundle-version="2.0.5",
+ org.eclipse.ui.workbench
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Eclipse-BuddyPolicy: registered
 Eclipse-BundleShape: dir

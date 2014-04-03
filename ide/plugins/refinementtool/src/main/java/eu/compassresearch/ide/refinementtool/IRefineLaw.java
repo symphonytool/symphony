@@ -6,6 +6,6 @@ public interface IRefineLaw {
 
 	public String getName();
 	public boolean isApplicable(INode node);
-	public IRefinement apply(INode node);
+	public Refinement apply(INode node);
 	
 }
