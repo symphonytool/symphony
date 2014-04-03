@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.RunCmlExamplesTestCase">
+<message column="8" line="1" message="Duplicate definition: RegisterProc." messageType="warning" number="5007" resource="process-action-interleaving.cml"/>
+<message column="8" line="2" message="Duplicate definition: RegisterProc." messageType="warning" number="5007" resource="process-action-interleaving.cml"/>
+<message column="8" line="1" message="Duplicate definition: RegisterProc." messageType="error" number="5007" resource="process-action-interleaving.cml"/>
+<message column="8" line="2" message="Duplicate definition: RegisterProc." messageType="error" number="5007" resource="process-action-interleaving.cml"/>
+<message column="31" line="1" message="The Symbol &quot;A&quot; is undefined." messageType="error" number="3410" resource="process-action-interleaving.cml"/>
+<message column="37" line="1" message="The Symbol &quot;B&quot; is undefined." messageType="error" number="3410" resource="process-action-interleaving.cml"/>
+<message column="31" line="2" message="The Symbol &quot;A&quot; is undefined." messageType="error" number="3410" resource="process-action-interleaving.cml"/>
+<message column="55" line="2" message="The Symbol &quot;B&quot; is undefined." messageType="error" number="3410" resource="process-action-interleaving.cml"/>
+<message column="38" line="2" message="The Symbol &quot;a&quot; is undefined." messageType="error" number="3410" resource="process-action-interleaving.cml"/>
+<message column="40" line="2" message="The Symbol &quot;b&quot; is undefined." messageType="error" number="3410" resource="process-action-interleaving.cml"/>
+<message column="46" line="2" message="The Symbol &quot;a&quot; is undefined." messageType="error" number="3410" resource="process-action-interleaving.cml"/>
+<message column="48" line="2" message="The Symbol &quot;b&quot; is undefined." messageType="error" number="3410" resource="process-action-interleaving.cml"/>
+<result/>
+</testResult>

@@ -1,0 +1,3 @@
+types
+
+ A = inmap int to int inv im == card rng(im) > 0

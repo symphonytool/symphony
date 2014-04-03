@@ -1,0 +1,5 @@
+/*Multiple type defs*/
+
+types
+
+ A = nat B = bool C = bool

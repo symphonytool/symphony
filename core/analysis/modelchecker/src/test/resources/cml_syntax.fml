@@ -1,0 +1,47 @@
+    primitive lieIn         ::= (ev : Sigma, sourceSet: String).
+    primitive Channel       ::= (chN : String, chT: Type).
+    
+    primitive CommEv        ::= (chName: String, chExp: String, val: Type).
+    primitive IOComm        ::= (id: Natural, chName: String, chExp:String, val: Type).
+    IOCommDef               ::= (id: Natural, val: Type, st: Binding, st_: Binding).
+    Sigma                   ::= CommEv + IOComm.
+    Tau                     ::= {tau}.
+	Tock                    ::= {tock}.  
+    SigmaTauTock            ::= Sigma + Tau + Tock.
+    BasicProcess            ::= {Stop, Skip, Chaos, Div}.
+    primitive Prefix        ::= (ev : Sigma, proc : CMLProcess).            //Prefix
+    primitive iChoice       ::= (lProc : CMLProcess, rProc : CMLProcess).   //Internal choice
+    primitive eChoice       ::= (lProc : CMLProcess, rProc : CMLProcess).   //External choice
+	primitive intrpt        ::= (lProc : CMLProcess, rProc : CMLProcess).   //Interrupt
+	primitive uTimeout       ::= (lProc : CMLProcess, rProc : CMLProcess).   //Timeout
+	
+	primitive tIntrpt        ::= (lProc : CMLProcess, t:Natural, rProc : CMLProcess).   //Timed Interrupt 
+    primitive tTimeout       ::= (lProc : CMLProcess, t:Natural, rProc : CMLProcess).   //timed Timeout  
+
+	
+    //The Extra Choice operator of CML. The external choice is transformed into this operator
+    extraChoice   ::= (lSt: Binding, lProc: CMLProcess, rSt: Binding, rProc: CMLProcess).  
+
+    //Conditional choice. Guarded choice are supposed to be mapped to this constructor directly from the CML file    
+    primitive condChoice    ::= (id: Natural, procTrue: CMLProcess, procFalse:CMLProcess).
+    
+    primitive seqC          ::= (lProc : CMLProcess, rProc : CMLProcess).   //Sequential composition
+    primitive hide          ::= (proc : CMLProcess, hideS : String).        //Hiding
+    
+	//Usual generalised parallelism
+    primitive genPar        ::= (lProc: CMLProcess, SyncS : String, rProc: CMLProcess).
+    primitive par           ::= (lSt: Binding, lProc: CMLProcess, SyncS : String, rSt: Binding, rProc: CMLProcess).
+
+    primitive proc          ::= (name : String, param:Type).            //Process call
+    primitive operation     ::= (opName: String,opPar:Type).             //Operation
+    primitive var           ::= (name: String, tName: String, p: CMLProcess).   //Variable declaration
+    primitive let           ::= (name: String, p: CMLProcess).                  //Let process
+    
+    primitive assign        ::= (id: Natural). 				//unnamed schema operation, where the precondition is always true. 				
+    assignDef               ::= (id: Natural, st: Binding, st_: Binding). 
+    preOpOk                 ::= (schN: String, opPar:Type,st: Binding).
+    preOpNOk                ::= (schN: String, opPar:Type,st: Binding).
+    operationDef            ::= (schN: String, opPar:Type,st: Binding, st_: Binding).
+    CMLProcess              ::= BasicProcess + Prefix + iChoice + eChoice + extraChoice + condChoice + seqC + hide + par + 
+								genPar +  proc + var + let + operation + assign + intrpt + uTimeout + tIntrpt + tTimeout.
+    ProcDef                 ::= (name:String, params:Type, proc:CMLProcess).

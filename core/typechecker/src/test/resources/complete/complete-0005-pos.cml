@@ -1,0 +1,13 @@
+channels
+
+ out: nat1
+
+process
+
+ S1 = || k in set {1,2,3} @ [{ }]
+
+begin
+
+ @ out!k -> Skip
+
+end

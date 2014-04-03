@@ -1,0 +1,51 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Symphony IDE CML UI
+Bundle-SymbolicName: eu.compassresearch.ide.ui;singleton:=true
+Bundle-Version: 0.3.1.qualifier
+Bundle-Activator: eu.compassresearch.ide.ui.CmlUIPlugin
+Bundle-Vendor: The COMPASS Project
+Eclipse-BundleShape: dir
+Bundle-Localization: plugin
+Export-Package: eu.compassresearch.ide.ui;uses:="org.eclipse.ui.plugin
+ ,org.osgi.framework",eu.compassresearch.ide.ui.editor.core; uses:="or
+ g.eclipse.jface.text,  org.eclipse.jface.text.reconciler,  org.eclips
+ e.jface.text.source,  eu.compassresearch.ide.ui.editor.core.dom,  org
+ .eclipse.jface.text.rules,  org.eclipse.jface.text.contentassist,  or
+ g.overture.ide.ui.editor.core",eu.compassresearch.ide.ui.editor.synta
+ x; uses:="org.overture.ide.ui.editor.syntax,  org.eclipse.ui.views.co
+ ntentoutline,  eu.compassresearch.ide.ui.editor.core.dom,  org.eclips
+ e.jface.viewers,  org.eclipse.swt.widgets",eu.compassresearch.ide.ui.
+ navigator,eu.compassresearch.ide.ui.utility,eu.compassresearch.ide.ui
+ .wizard
+Require-Bundle: org.eclipse.debug.ui,
+ org.eclipse.ui.views,
+ org.eclipse.ui,
+ eu.compassresearch.ide.core,
+ org.eclipse.ui.ide,
+ org.eclipse.ui.navigator,
+ org.eclipse.ui.navigator.resources
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ActivationPolicy: lazy
+Bundle-ClassPath: .
+Import-Package: org.eclipse.jface.text,
+ org.eclipse.jface.text.contentassist,
+ org.eclipse.jface.text.presentation,
+ org.eclipse.jface.text.reconciler,
+ org.eclipse.jface.text.rules,
+ org.eclipse.jface.text.source,
+ org.eclipse.ui.console,
+ org.eclipse.ui.editors.text,
+ org.eclipse.ui.model,
+ org.eclipse.ui.part,
+ org.eclipse.ui.texteditor,
+ org.eclipse.ui.wizards.newresource,
+ org.overture.ide.ui,
+ org.overture.ide.ui.adapters,
+ org.overture.ide.ui.editor.core,
+ org.overture.ide.ui.editor.syntax,
+ org.overture.ide.ui.internal.viewsupport,
+ org.overture.ide.ui.outline,
+ org.overture.ide.ui.utility,
+ org.overture.ide.ui.wizard,
+ org.overture.ide.ui.wizard.pages

@@ -1,0 +1,8 @@
+channels a b
+process A = 
+begin
+    actions
+    LEFT = a -> Skip
+    RIGHT = b -> Skip  
+	@ LEFT;RIGHT 
+end

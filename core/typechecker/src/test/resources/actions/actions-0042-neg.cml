@@ -1,0 +1,7 @@
+/* End deadline is not ok with non numeric type */
+
+process A = begin
+
+@ Skip endsby false
+
+end

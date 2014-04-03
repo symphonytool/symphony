@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testResult>
+  <exception/>
+  <interpreterState>FINISHED</interpreterState>
+  <trace>
+    <events>a\.4</events>
+    <timedTrace>(tock,)*a\.4</timedTrace>
+  </trace>
+</testResult>

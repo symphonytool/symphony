@@ -5,14 +5,20 @@
 	<parent>
 		<groupId>eu.compassresearch.core.analysis</groupId>
 		<artifactId>analysis</artifactId>
-		<version>0.1.1<!--Replaceable: Main Version--></version>
+		<version>0.3.1-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<artifactId>pog</artifactId>
-	<name>COMPASS Core Analysis Proof Obligation Generator</name>
+	<name>Symphony Core Analysis Proof Obligation Generator</name>
 
 	<dependencies>
+
+		<dependency>
+			<groupId>eu.compassresearch.core</groupId>
+			<artifactId>common</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 
 		<dependency>
 			<groupId>eu.compassresearch.core</groupId>
@@ -24,14 +30,6 @@
 			<groupId>eu.compassresearch.core</groupId>
 			<artifactId>typechecker</artifactId>
 			<version>${project.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>eu.compassresearch.core</groupId>
-			<artifactId>typechecker</artifactId>
-			<version>${project.version}</version>
-			<type>test-jar</type>
-			<scope>test</scope>
 		</dependency>
 
 		<dependency>
@@ -51,6 +49,19 @@
 			<artifactId>pog</artifactId>
 			<version>${overture.version}</version>
 		</dependency>
+
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.11</version>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.4</version>
+		</dependency>
+
 	</dependencies>
 
 
@@ -86,11 +97,10 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<configuration>
-					<testFailureIgnore>true</testFailureIgnore>
-				</configuration>
 			</plugin>
 		</plugins>
 	</build>
+
+
 </project>
 

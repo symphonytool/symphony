@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.GeneralCmlTypeCheckerTests">
+<message column="19" line="15" message="Definition 'g_f_parameter' not used." messageType="warning" number="5000" resource="tc-context-test-model-actions.cml"/>
+<message column="4" line="20" message="Instance variable 'Process_State' is not initialized." messageType="warning" number="5001" resource="tc-context-test-model-actions.cml"/>
+<message column="2" line="54" message="Instance variable 'Global_Class_Instance_Var' is not initialized." messageType="warning" number="5001" resource="tc-context-test-model-actions.cml"/>
+<message column="37" line="15" message="Value is not of the right type. Actual: char Expected: G" messageType="error" number="3327" resource="tc-context-test-model-actions.cml"/>
+<message column="2" line="14" message="Function returns unexpected type. Actual: char Expected: G" messageType="error" number="3018" resource="tc-context-test-model-actions.cml"/>
+<message column="60" line="63" message="Left hand of + is not numeric. Actual: bool" messageType="error" number="3139" resource="tc-context-test-model-actions.cml"/>
+<result/>
+</testResult>

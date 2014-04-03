@@ -1,0 +1,24 @@
+types
+
+ S = seq of char 
+ 
+ RescueDetails::
+ 	k : int
+
+functions
+
+ rescueDetailsToString(r : RescueDetails) s: S post s <> []
+
+process
+
+ P =
+
+begin
+
+
+
+actions
+
+ MERGE2 = val eru: RescueDetails @ (dcl s: S,r:RescueDetails @ s := rescueDetailsToString(r); Skip ) @ Skip
+
+end

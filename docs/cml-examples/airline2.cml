@@ -162,10 +162,10 @@ actions
  
 -- If TakePayment times out after time t, signal failPayment. Otherwise output 
 -- reference r as confirmation. In both cases PAY process continues (so this syntax isn't right) 
---  PAY = payment?mk_(r,c) -> ((TakePayment(r,c) ; (confirmation!r -> PAY)) [( t )> (failPayment -> PAY))
-  PAY = payment?mk_(r,c) -> (TakePayment(r,c) ; confirmation!r -> PAY) [( t )> failPayment -> PAY
+--  PAY = payment?mk_(r,c) -> ((TakePayment(r,c) ; (confirmation!r -> PAY)) [_ t _> (failPayment -> PAY))
+  PAY = payment?mk_(r,c) -> (TakePayment(r,c) ; confirmation!r -> PAY) [_ t _> failPayment -> PAY
    @
-		init -> BOOK || PAY
+		init -> BOOK [|C|] PAY
 
 end
 

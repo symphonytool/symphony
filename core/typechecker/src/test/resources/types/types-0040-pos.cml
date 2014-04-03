@@ -1,0 +1,3 @@
+types
+
+ A = int | token inv a == a > 0

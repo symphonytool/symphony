@@ -1,0 +1,331 @@
+types
+ ID = nat
+ Data = nat
+
+comData = nat * nat
+
+String = seq of char
+
+values
+I : set of ID = {0,1,2}
+
+nats: set of nat = {2,1}
+
+channels
+a:nat
+b:nat
+c:nat
+d
+k
+i
+com:nat * nat
+
+debug:String
+
+debugNat:nat
+debugNatStr:nat*String
+
+stateC:nat
+
+chansets
+
+
+
+ControlSet = {|c|}
+------------------------------------------------------------------------------------------------------------------------------------------
+process P1 =
+begin
+     actions
+     S_rec= mu X @ ((Wait 1; a!1->X) [_ 3 _> X)
+    @ (S_rec /_\d ->Skip)
+end
+
+
+process P2 =
+begin
+   actions
+   R_rec = mu X @ ((Wait 1;a?x->X) [_ 3 _>(X))
+  @ (R_rec /_\ d->Skip)
+end
+
+process SoS = P1[|{a,d}|]P2 
+
+-- check the time out and the mu, run them as one 
+----------------------------------------------------------------------------------------------------------------------------------------------------
+
+process No_rP1 = 
+begin
+   actions
+   Loop = (Send;Wait 1; Loop ) 
+   Send = (c!1->Skip)[_ 2_> Skip 
+  @Loop /_\ a?x->Skip
+end
+
+
+process No_rP2 = 
+begin
+   actions
+   Loop = (Send ;Wait 1; Loop) 
+   Send = (c?x->Skip)[_ 2_> Skip 
+  @ Loop /_\ b?x->a!x->Skip -- this process control the other process
+end
+
+process No_rSoS = No_rP1[|{c, a}|]No_rP2
+
+-- these work super !!!!!!!!!!!!!!!
+----------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+process Mix_P1 = 
+begin
+   actions
+   Loop =  Wait 1; Send 
+   Send = (c!1->Loop)[_ 2_> Loop 
+  @Loop /_\ a?x->Skip
+end
+----- deadlock on wait, never leave wait
+
+process Mix_P2 = 
+begin
+   actions
+   Loop =  Wait 1; (Send /_\ d->Skip) 
+   Send = (c!1->Loop)[_ 2_> Loop 
+  @Loop 
+end
+
+-- check interup semantic regarding re-call of action with a interrupt operator,
+
+process BreakInterupt_P1 =
+begin
+  actions
+      Loop =  d->( Send /_\ k->Skip)[] i->Loop
+      Send =  c!1->Send
+  @ Loop
+end
+
+process ComDataChannelUser =
+begin
+state
+n:nat := 1
+x:nat := 2
+
+ @ mu X @ (com.(n).(x)->X)
+end
+
+
+process Node = val node_i:ID @ 
+begin
+   actions
+   writeSetInterleave = mu X @ ((||| j in set I\{node_i} @ [{ }] debugNat!j->Skip)[_ 1 _> X)
+   @writeSetInterleave /_\ d->Skip
+end
+
+process Start = Node(1) 
+
+
+process TestInterleaveLogic =
+begin
+state
+      syncSet:seq of nat := []
+operations
+updateSet:(nat)==>()
+updateSet(x)== syncSet := syncSet ^[x]
+
+actions
+    reader = mu B @((dcl length:nat @ length := len syncSet; if length >0 then Stop else Wait 2; B))
+    writer = mu X @(c?x->updateSet(x); debugNat!(len syncSet)->X) 
+    @  reader ||| writer
+end
+
+
+process TestInterleaveLogic2 =
+begin
+state
+      syncSet:set of nat :={}
+operations
+updateSet:(nat)==>()
+updateSet(x)== syncSet := syncSet union {x}
+
+actions
+    stateController =  mu S @(stateC?x->updateSet(x);S [] stateC!(card syncSet)->S)
+    reader = mu B @( stateC?x-> if x>0 then debug!"Hello world"->B else Wait 2; B)
+    writer = mu X @(c?x->stateC!x->X) 
+    @  reader [|{stateC}|] writer [|{stateC}|]stateController
+end
+process TestInterleaveLogic3 =
+begin
+state
+      syncSet:set of nat :={}
+operations
+updateSet:(nat)==>()
+updateSet(x)== syncSet := syncSet union {x}
+ 
+actions
+       reader = mu B @((dcl length:nat @ length := card syncSet; if length >0 then Stop else Wait 2; B))
+       writer = mu X @(c?x->updateSet(x); debugNat!(card syncSet)->X) 
+       @ reader [|| {} | {syncSet} ||] writer
+end
+
+
+process TestInterleaveLogic4 =
+begin
+state
+      syncSet:set of nat :={}
+operations
+updateSet:(nat)==>()
+updateSet(x)== syncSet := syncSet union {x}
+ 
+actions
+              mainLoop = mu X @ (readerwriter;X)
+              readerwriter = Wait 2;( dcl length:nat @ length := card syncSet; if length >0 then debugNat!(card syncSet)->Skip else Skip)
+                                []
+                                c?x->updateSet(x);Skip
+                                                           
+                @  mainLoop
+end
+
+
+process TestMapLogic =
+begin
+
+operations
+checkSize:()==>()
+checkSize()== size := card{n|n in set dom mem @ mem(n) = true}
+
+state
+  size:nat := 0
+  mem : map nat to bool := {n |-> false | n in set {1,2,3}}
+ 
+ actions
+      mainlogic =
+      ( 
+          ([size = 0] & mem(size+1):= true;debug!"no node(s) are on"->Skip)
+           []
+          ([size > 0] & debugNatStr!size!" node(s) is on"->mem(size+1):= true;Skip)
+           [] 
+          ([size>1]& Skip)
+      )
+ startLoop = mu X@(checkSize();mainlogic;X)/_\d->Skip 
+ @startLoop
+end
+
+
+process TestMapLogic2 =
+begin
+
+state
+  mem : map nat to bool := {n |-> false | n in set {1,2,3}}
+ 
+ actions
+      mainlogic =
+      ( 
+       dcl size:nat@  size:= card{n|n in set dom mem @ mem(n) = true};
+         (
+           ([size = 0] & mem(size+1):= true;debug!"no node(s) are on"->Skip)
+           []
+           ([size > 0] & debugNatStr!size!" node(s) is on"->mem(size+1):= true;Skip)
+            [] 
+           ([size>2]& Skip)
+          )
+      )
+ startLoop = mu X@(mainlogic;X)/_\d->Skip
+ @startLoop
+end
+
+process TestStateLogic =
+begin
+actions
+   Main = (s1)/_\k->Skip
+   s1 = d-> s2 [] c?n ->s1
+   s2 = d -> s1 [] c?n->s2
+@ Main
+end
+
+process TestMuLogic =
+begin
+state 
+b2:bool := false
+actions
+    initConnect = waitOnConnect  
+    waitOnConnect =  c?n->connected
+    connected = waitOnData 
+    waitOnData = b2 := true ;(a?x->sendReply [_ 2 _> b2:= false; waitOnConnect [] [b2]& d->initConnect)  
+    sendReply  = a!1->waitOnConnect [_ 2 _>waitOnConnect [] d->initConnect
+
+@ initConnect
+end
+
+process ControlChildAction =
+begin
+   actions
+   main = d->startChildAction
+   startChildAction = mainAction [|{|i|}|] childAction 
+   mainAction = (d->i->main) 
+   childAction = mu X @(debug!"Hello world"->Wait 1; X) /_\ i->Skip
+ @ main
+end
+
+process readerWriter =
+begin
+actions
+    reader = mu X @(c?x->X)/_\ d->i->Skip
+    writer = mu X @(c!1->X)/_\ i->Skip
+   @ reader[|{|i|}|] writer 
+end
+
+
+process SyncDataStateTest =
+begin
+
+state
+
+data:nat := 0
+
+setOfnat:set of nat := {0,1,2}
+
+actions
+StartSyncLogic =  ( data:= data+1; c!data-> Skip[_2 _> Skip)
+UpdateIntLogic =  c?x-> data:=x;debugNat!data->Skip 
+
+runMainLogic = StartSyncLogic [|{|c|}|] UpdateIntLogic   
+
+@  runMainLogic
+end 
+
+
+process TestInput =
+begin
+actions
+  main = (c?x->out;step2)
+  step2 = i->Skip 
+  out = d ->Skip[_ 3 _>Skip
+  @ main
+end
+
+process TestOne =
+begin
+    @ c!1->i->Skip
+end
+
+process TestDriver = TestOne [|{|c,i,d|}|]TestInput
+
+
+process TestNatNumber = aug : nat, natSetAug:set of nat @
+begin
+state
+i2:nat := aug
+natSet: set of nat := natSetAug
+actions
+  Main = (MemberTest [] CheckNatSet)  
+  MemberTest =  d->if i2 < 0 then Stop else Skip
+  CheckNatSet =  k->(dcl s:nat @ s :=  card {n | n in set natSet @ n < 0}; if s >0 then Stop else Skip)
+ @ Main 
+end
+
+process TestNatNumberSet = (||| inter_i in set nats @ TestNatNumber(inter_i,nats))
+
+process TestNatNumberSimpel =  TestNatNumber(0,nats)
+
+  
+
+

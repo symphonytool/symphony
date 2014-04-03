@@ -1,9 +1,9 @@
 package eu.compassresearch.core.interpreter.debug;
 
-public class CmlDebugDefaultValues {
+public class CmlDebugDefaultValues
+{
 
-	//debug connections default ports
+	// debug connections default ports
 	public static final int PORT = 9000;
-	
-	
+
 }

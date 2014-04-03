@@ -1,0 +1,13 @@
+class
+
+ test =
+
+begin
+
+
+
+values
+
+ a:set of int = inds [1,2,3,4,5]
+
+end

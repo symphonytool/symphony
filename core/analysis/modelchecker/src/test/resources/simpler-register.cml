@@ -1,0 +1,41 @@
+--The original value for MAX is 255. De to performance questions we use 8
+values
+    MAX : nat = 4
+    
+functions
+   oflow : int*int -> bool
+   oflow(i,j) == i+j > MAX
+
+   uflow : int*int -> bool
+   uflow(i,j) == i-j < 0
+
+
+channels
+   init, overflow, underflow
+   inc, dec : int
+
+process RegisterProc = 
+ begin
+	
+  state 
+  reg : int	:= 0
+
+  operations  
+   INIT : () ==> ()
+   INIT() == reg := MAX - 1
+
+   ADD: int ==> ()
+   ADD(i) == reg := reg + i
+
+   SUB: int ==> ()
+   SUB(i) == reg := reg - i
+   
+  actions
+   
+   REG = 
+     (inc.1 -> [not oflow(reg,1)] & ADD(1);REG)
+     []
+     (dec.1 -> [not uflow(reg,1)] & SUB(1);REG)
+   @
+     init -> INIT(); REG
+ end

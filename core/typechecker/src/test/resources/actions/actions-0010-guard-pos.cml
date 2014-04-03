@@ -1,0 +1,14 @@
+channels 
+a, b
+
+process A = 
+begin 
+	state
+	s : int := 2
+
+	actions
+	INIT = 	([s = 1] & a -> s := s + 1;Skip)
+			[]
+			([s = 2] & b -> s := s + 2;Skip)
+	@ INIT
+end

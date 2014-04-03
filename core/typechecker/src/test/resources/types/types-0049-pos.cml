@@ -1,0 +1,3 @@
+types
+
+ A = map int to int B = A inv b == card dom(b) > 0

@@ -1,0 +1,20 @@
+channels 
+a : int
+
+class A =
+begin
+	state
+		hello : int := 4
+		
+	operations 
+		public A : () ==> A 
+		A() == Skip
+		
+		public getHello : () ==> int
+		getHello() == return hello
+end
+
+process Test = 
+begin 
+	@ (dcl v : A, out : int @ v := new A(); out := v.getHello();a.(out) -> Skip) 
+end

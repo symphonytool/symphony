@@ -1,0 +1,7 @@
+channels 
+i a
+
+process A = 
+begin 
+	@ Diverge;a -> Skip /_\ i -> Skip
+end

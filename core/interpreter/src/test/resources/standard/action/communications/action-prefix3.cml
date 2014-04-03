@@ -1,0 +1,7 @@
+channels 
+a : int * int
+
+process A = 
+begin 
+	@ a.(1).(56) -> Skip
+end

@@ -1,0 +1,17 @@
+channels 
+a
+
+process A = 
+begin 
+	state
+	v : int := 2
+
+	operations
+	
+	Test : () ==> ()
+	Test() == v := v + 3
+
+	actions
+	INIT = Test(); [v = 5] & a -> Skip
+	@ INIT
+end

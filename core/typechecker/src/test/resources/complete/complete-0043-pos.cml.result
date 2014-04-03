@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.CompleteCmlTypeCheckerTests">
+<message column="12" line="11" message="Instance variable 'm' is not initialized." messageType="warning" number="5001" resource="complete-0043-pos.cml"/>
+<result/>
+</testResult>

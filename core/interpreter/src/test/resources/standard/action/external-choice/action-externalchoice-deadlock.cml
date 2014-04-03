@@ -1,0 +1,12 @@
+channels a b c d
+process test = 
+begin
+	
+	state 
+		v : int := 2
+	
+	@ 
+	(a -> [v = 1] & b -> Skip) 
+		[] 
+	(c -> [v = 1] & d -> Skip)
+end

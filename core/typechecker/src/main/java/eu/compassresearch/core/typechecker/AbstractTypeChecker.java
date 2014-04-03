@@ -1,41 +1,20 @@
 package eu.compassresearch.core.typechecker;
 
-import java.util.Collection;
-import java.util.List;
-
-import org.overture.ast.types.PType;
-
-import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
-import eu.compassresearch.ast.program.PSource;
-import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
-import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
+import eu.compassresearch.core.typechecker.api.ICmlTypeChecker;
+import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 
 /**
- * 
- * @author rwl
- * 
- *         Abstract type checker place holder for errors and warnings.
- * 
- *         Additionally, the cleared state is facilitated by providing a cleared
- *         flag. It is up to an implementation to enforce the cleared flag
- *         throwing an IllegalStateException if getTypeErrors or getTypeWarnings
- *         are invoked inappropriately.
- * 
- *         Also a place holder for the sourceForest is provided. However, it is
- *         up to the implementation to actually load and set the sourceForest.
- * 
- *         The constructor is kept package scoped as this class is intimate to
- *         the eu.compassresearch.core.typechecker package.
+ * @author rwl Abstract type checker place holder for errors and warnings. Also a place holder for the sourceForest is
+ *         provided. However, it is up to the implementation to actually load and set the sourceForest. The constructor
+ *         is kept package scoped as this class is intimate to the eu.compassresearch.core.typechecker package.
  */
-@SuppressWarnings("serial")
-abstract class AbstractTypeChecker extends
-		QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType>
-		implements CmlTypeChecker {
-	protected TypeIssueHandler issueHandler;
-	protected boolean cleared;
-	protected Collection<PSource> sourceForest;
+abstract class AbstractTypeChecker implements ICmlTypeChecker
+{
+	protected ITypeIssueHandler issueHandler;
+	protected DefinitionList sourceForest;
 
-	AbstractTypeChecker() {
+	AbstractTypeChecker()
+	{
 		clear();
 	}
 
@@ -43,4 +22,31 @@ abstract class AbstractTypeChecker extends
 	 * Clear out all warnings and errors and resets the type checker.
 	 */
 	abstract void clear();
+
+	public static void abort(int number, String reason)
+	{
+		throw new AbortTypecheck(number, reason);
+	}
+
+	/**
+	 * Get warnings that occurred while type checking. The type check method will return true even though this returns
+	 * an non-empty list.
+	 * 
+	 * @return list of CMLTypeWarnings
+	 */
+
+	public boolean hasErrors()
+	{
+		return issueHandler.hasErrors();
+	}
+
+	public boolean hasWarnings()
+	{
+		return issueHandler.hasWarnings();
+	}
+
+	public boolean hasIssues()
+	{
+		return issueHandler.hasIssues();
+	}
 }

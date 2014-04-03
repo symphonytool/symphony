@@ -1,0 +1,86 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>eu.compassresearch.ide</groupId>
+    <artifactId>ide</artifactId>
+    <version>0.3.1-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+
+  <packaging>eclipse-repository</packaging>
+
+  <artifactId>eu.compassresearch.ide.product</artifactId>
+  <name>Symphony IDE Standalone Product</name>
+
+  <build>
+    <resources>
+      <resource>
+        <targetPath>${basedir}</targetPath>
+        <directory>${basedir}/src/main/resources</directory>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>p2-inf</id>
+            <goals>
+              <goal>resources</goal>
+            </goals>
+            <phase>process-resources</phase>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-p2-director-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>make-products</id>
+            <goals>
+              <goal>materialize-products</goal>
+              <goal>archive-products</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <products>
+            <product>
+              <id>eu.compassresearch.ide.product</id>
+              <archiveFileName>SymphonyIDE-${project.version}</archiveFileName>
+              <rootFolder>SymphonyIDE</rootFolder>
+            </product>
+          </products>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+   <developers>
+<developer>
+      <id>lausdahl</id>
+      <name>Kenneth Lausdahl</name>
+      <email>lausdahl@eng.au.dk</email>
+      <organization>AU</organization>
+      <roles>
+        <role>architect</role>
+        <role>developer</role>
+      </roles>
+      <timezone>+1</timezone>
+    </developer>
+    <developer>
+      <id>ldcouto</id>
+      <name>Luis Diogo Couto</name>
+      <email>ldcouto@eng.au.dk</email>
+      <organization>AU</organization>
+      <roles>
+        <role>developer</role>
+      </roles>
+      <timezone>+1</timezone>
+    </developer>
+  </developers>
+</project>

@@ -1,0 +1,33 @@
+
+types
+  MYID = nat
+    inv i == i in set {1,...,2}
+
+channels 
+ a
+ comm : MYID
+
+    
+process A = 
+begin 
+	@ (dcl x : int @ x := 0;Skip)
+end
+
+process B = val id : MYID @
+begin 
+	@ (dcl y : int := 0 @ x := id;Skip)
+end
+
+process C =  
+begin 
+	@ (dcl z : bool @ z := true; a -> z := false; a -> z := true; Skip)
+end
+
+process D = B(2)
+
+process E =
+begin 
+  actions 
+    P1 = val p1x:MYID @ comm.p1x -> Skip
+ @ P1(2)
+end

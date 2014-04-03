@@ -1,0 +1,23 @@
+class
+
+ processafterclass =
+
+begin
+
+
+
+types
+
+ aunion = nat
+
+functions
+
+ g:int -> int g(a) == a
+
+end
+
+
+
+process
+
+ A = A ; B

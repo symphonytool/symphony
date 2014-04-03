@@ -1,0 +1,79 @@
+types
+  NAT = nat
+    inv i == i in set {1,...,27}
+  INT = int
+    inv i == i in set {-2,...,2}
+  ID = <fav> | <rv>
+  SigID = <End_Recovery_1_S> | <Error_1_detection_S> | <Fault_1_activation_S>
+     | <Service_rescue_S> | <Start_Recovery_1_S> | <Start_rescue_S>
+     | <Target_not_attended_S>
+  OpID = <Allocate_idle_ERU_I> | <Allocate_idle_ERU_O> | <Divert_ERU_I>
+     | <Divert_ERU_O> | <Drop_message_I> | <Drop_message_O>
+     | <Find_idle_ERUs_I> | <Find_idle_ERUs_O> | <Log_diversion_I>
+     | <Log_diversion_O> | <Log_fault_1_I> | <Log_fault_1_O>
+     | <Process_message_I> | <Process_message_O> | <Receive_message_MPS_I>
+     | <Receive_message_MPS_O> | <Receive_message_RS_I> | <Receive_message_RS_O>
+     | <Resend_rescue_info_to_ERU_I> | <Resend_rescue_info_to_ERU_O> | <Send_rescue_info_to_ERU_I>
+     | <Send_rescue_info_to_ERU_O> | <Wait_I> | <Wait_O>
+    
+
+channels
+  control: NAT
+  endDiagram: ID
+  interrupted: ID*ID*NAT
+  update: NAT*INT
+  clear: NAT
+  wait, inc, dec
+  simultaneous
+  fault: ID
+  error: ID
+  failure: ID
+
+  startActivity_fav: ID
+  endActivity_fav: ID
+  interruptActivity_fav
+  startActivity_rv: ID
+  endActivity_rv: ID
+  interruptActivity_rv
+
+  sendSignal: SigID
+  acceptEvent: SigID
+  operation: OpID
+
+chansets
+    Hidden_fav = {|
+      control, 
+      endDiagram, 
+      interrupted, 
+      update, 
+      clear, 
+      wait, 
+      inc, 
+      dec, 
+      interruptActivity_fav
+    |}
+    Hidden_rv = {|
+      control, 
+      endDiagram, 
+      interrupted, 
+      update, 
+      clear, 
+      wait, 
+      inc, 
+      dec, 
+      interruptActivity_rv
+    |}
+
+
+process SIGNAL_BUFFER =
+begin
+  actions
+    SS_UNIT = val id : SigID @ sendSignal.id -> SS_UNIT(id)
+    FULL_UNIT = val id1 : SigID @ sendSignal.id1 -> acceptEvent.id1 -> FULL_UNIT(id1)
+    AE_UNIT = val id2 : SigID @ acceptEvent.id2 -> AE_UNIT(id2)
+    FULL = FULL_UNIT(<Start_rescue_S>) ||| FULL_UNIT(<Start_Recovery_1_S>) ||| FULL_UNIT(<End_Recovery_1_S>)
+    AE = AE_UNIT(<Fault_1_activation_S>) ||| AE_UNIT(<Error_1_detection_S>)
+    SS = SS_UNIT(<Fault_1_activation_S>) ||| SS_UNIT(<Error_1_detection_S>)
+  @  FULL 
+  --||| AE ||| SS
+end

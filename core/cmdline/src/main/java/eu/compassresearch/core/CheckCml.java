@@ -12,110 +12,95 @@ package eu.compassresearch.core;
  *
  */
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.accessibility.AccessibleStreamable;
-
 import org.antlr.runtime.ANTLRInputStream;
-import org.antlr.runtime.CommonTokenStream;
-import org.antlr.runtime.RecognitionException;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.intf.IAnalysis;
+import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.node.INode;
-import org.overture.pog.obligation.POContextStack;
+import org.overture.pog.pub.IPOContextStack;
 
 import eu.compassresearch.ast.analysis.DepthFirstAnalysisCMLAdaptor;
 import eu.compassresearch.ast.preview.DotGraphVisitor;
-import eu.compassresearch.ast.program.AFileSource;
-import eu.compassresearch.ast.program.AInputStreamSource;
-import eu.compassresearch.ast.program.PSource;
-import eu.compassresearch.core.analysis.pog.obligations.CMLPOContextStack;
+import eu.compassresearch.core.analysis.pog.obligations.CmlPOContextStack;
 import eu.compassresearch.core.analysis.pog.visitors.ProofObligationGenerator;
+import eu.compassresearch.core.interpreter.CmlRuntime;
 import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
-import eu.compassresearch.core.interpreter.api.InterpreterException;
-import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
-import eu.compassresearch.core.interpreter.cml.RandomSelectionStrategy;
-import eu.compassresearch.core.interpreter.scheduler.FCFSPolicy;
-import eu.compassresearch.core.interpreter.scheduler.Scheduler;
-import eu.compassresearch.core.parser.CmlLexer;
+import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
+import eu.compassresearch.core.interpreter.api.ConsoleSelectionStrategy;
 import eu.compassresearch.core.parser.CmlParser;
+import eu.compassresearch.core.parser.ParserUtil;
+import eu.compassresearch.core.parser.ParserUtil.ParserResult;
 import eu.compassresearch.core.typechecker.VanillaFactory;
-import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
-import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
-import eu.compassresearch.examples.DivWarnAnalysis;
+import eu.compassresearch.core.typechecker.api.ICmlTypeChecker;
+import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 
-public class CheckCml {
+//import eu.compassresearch.examples.DivWarnAnalysis;
 
-	private static final String HELLO = "COMPASS command line CML Checker";
+public class CheckCml
+{
+
+	private static final String HELLO = "Symphony command line CML Checker";
 
 	// Point of Entry
-	public static void main(String[] args) {
-		try {
+	public static void main(String[] args)
+	{
+		try
+		{
 			Input inp;
-			List<PSource> sourceForest = new LinkedList<PSource>();
+			List<PDefinition> sourceForest = new LinkedList<PDefinition>();
 
 			// Say hello
 			System.out.println(HELLO + " - " + CmlParser.CML_LANG_VERSION);
 
 			// inputs
 			if ((inp = checkInput(args)) == null)
+			{
 				return;
+			}
 
 			// Two modes of operation, Interactive or Batch mode on files.
-			if (inp.isSwitchOn(Switch.INTER)) {
-				AInputStreamSource currentTree = new AInputStreamSource();
-				currentTree.setOrigin("standard input");
-				currentTree.setStream(System.in);
-				
-				ANTLRInputStream in = new ANTLRInputStream(currentTree.getStream());
-				
-				CmlLexer lexer = new CmlLexer(in);
-				CommonTokenStream tokens = new CommonTokenStream(lexer);
-				CmlParser parser = new CmlParser(tokens);
-			
-					try {
-						currentTree.setParagraphs(parser.source());
-					} catch (RecognitionException e) {
-						e.printStackTrace();
-					}
-					
-					sourceForest.add(currentTree);
-				
-			} else
-				// build the forest
-				for (File source : inp.sourceFiles) {
-					System.out.println("Parsing file: " + source);
-					AFileSource currentTree = new AFileSource();
-					currentTree.setName(source.getName());
-					ANTLRInputStream in = new ANTLRInputStream(new FileInputStream(source));
-					CmlLexer lexer = new CmlLexer(in);
-					CmlParser parser = new CmlParser(new CommonTokenStream(lexer));
-					try {
-					currentTree.setParagraphs(parser.source());
-					} catch (RecognitionException e)
-					{
-						e.printStackTrace();
-					}
-					sourceForest.add(currentTree);
+			if (inp.isSwitchOn(Switch.INTER))
+			{
+				ANTLRInputStream in = new ANTLRInputStream(System.in);
+				ParserResult res = ParserUtil.parse(new File("console"), in);
+				if (res.errors.isEmpty())
+				{
+					sourceForest.addAll(res.definitions);
+				} else
+				{
+					res.printErrors(System.err);
 				}
+
+			} else
+			{
+				// build the forest
+				System.out.println("Parsing files: " + inp.sourceFiles);
+
+				ParserResult res = ParserUtil.parse(inp.sourceFiles);
+				if (res.errors.isEmpty())
+				{
+					sourceForest.addAll(res.definitions);
+				} else
+				{
+					res.printErrors(System.err);
+				}
+			}
 
 			// Run the analysis phase
 			runAllAnalysis(inp, sourceForest);
 
 			// Done
 			return;
-		} catch (Exception e) {
+		} catch (Exception e)
+		{
 			System.out.println("Error: " + e.getMessage());
 		}
 	}
@@ -124,7 +109,8 @@ public class CheckCml {
 	 ** Switches and parsing input
 	 *************************************************************/
 	// Register switches the program accepts
-	private enum Switch {
+	private enum Switch
+	{
 		PARSE_ONLY("po", "Parse Only, stop analysis after the parse phase.",
 				false), TYPE_CHECK_ONLY(
 				"tco",
@@ -162,46 +148,59 @@ public class CheckCml {
 		 *            - Switch Description
 		 * @param expectsValue
 		 *            - boolean whether or not the switch requires an argument.
-		 * 
 		 */
-		Switch(String sw, String description, boolean expectsValue) {
+		Switch(String sw, String description, boolean expectsValue)
+		{
 			this.sw = sw;
 			this.description = description;
 			this.expectsValue = expectsValue;
 		}
 
-		public String getSw() {
-			return sw;
-		}
+		// public String getSw() {
+		// return sw;
+		// }
 
-		public String getValue() {
+		public String getValue()
+		{
 			return value;
 		}
 
-		public String toString() {
+		public String toString()
+		{
 			return "-" + sw + " \t - \t " + description;
 		}
 
-		public static Switch fromString(String arg, StringBuilder error) {
+		public static Switch fromString(String arg, StringBuilder error)
+		{
 			if (!arg.startsWith("-"))
+			{
 				return null;
+			}
 			String swandval = arg.substring(1);
 			String[] swval = swandval.split("=");
 			for (Switch sw : Switch.values())
-				if (sw.sw.equals(swval[0])) {
+			{
+				if (sw.sw.equals(swval[0]))
+				{
 					// The switch exists, requies an argument and there is an
 					// arguemtn for it
-					if (swval.length > 1 && sw.expectsValue) {
+					if (swval.length > 1 && sw.expectsValue)
+					{
 						if (sw.value == null)
+						{
 							sw.value = swval[1];
-						else
+						} else
+						{
 							sw.value += swval[1];
+						}
 						return sw;
 					} else
 					// The switch exists, requires no argument and there is none
-					if (swval.length == 1 && !sw.expectsValue) {
+					if (swval.length == 1 && !sw.expectsValue)
+					{
 						return sw;
-					} else {
+					} else
+					{
 						// Expected argument and actual argument not matching up
 						error.append("Switch argument mismatch. The given switch "
 								+ swval[0]
@@ -212,26 +211,34 @@ public class CheckCml {
 					}
 
 				}
+			}
 			error.append("No such switch :" + swval[0]);
 			return null;
 		}
 
-		public static String listSwitches() {
+		public static String listSwitches()
+		{
 			List<String> toStrs = new LinkedList<String>();
 			for (Switch sw : Switch.values())
+			{
 				toStrs.add(sw.toString());
+			}
 
 			Collections.sort(toStrs);
 
 			StringBuilder sb = new StringBuilder();
 			for (String sw : toStrs)
+			{
 				sb.append("\t" + sw + "\n");
+			}
 			return sb.toString();
 		}
 	};
 
-	private static class Input {
-		Input() {
+	private static class Input
+	{
+		Input()
+		{
 			this.sourceFiles = new LinkedList<File>();
 			this.switches = new LinkedList<Switch>();
 		};
@@ -240,45 +247,54 @@ public class CheckCml {
 
 		List<Switch> switches;
 
-		boolean isSwitchOn(Switch s) {
+		boolean isSwitchOn(Switch s)
+		{
 			return switches.contains(s);
 		}
 	};
 
-	private static void printUsage() {
-		System.out
-				.println("\nUsage: cmlc [switches] <file1>, ...,<fileN>\nSwitches:");
+	private static void printUsage()
+	{
+		System.out.println("\nUsage: cmlc [switches] <file1>, ...,<fileN>\nSwitches:");
 		System.out.println(Switch.listSwitches());
 	}
 
-	private static Input checkInput(String[] args) {
+	private static Input checkInput(String[] args)
+	{
 		StringBuilder switchError = new StringBuilder();
 		Input r = new Input();
 
 		// Check args do point at readable files
-		for (String arg : args) {
+		for (String arg : args)
+		{
 			// is it a switch or a file
-			if (arg.startsWith("-")) {
+			if (arg.startsWith("-"))
+			{
 				Switch sw = Switch.fromString(arg, switchError);
-				if (sw == null) {
+				if (sw == null)
+				{
 					System.out.println(switchError.toString());
 					printUsage();
 					return null;
 				}
 				r.switches.add(sw);
-			} else {
+			} else
+			{
 				// it must be a file
 				File f = new File(arg);
 				if (f.canRead())
+				{
 					r.sourceFiles.add(f);
-				else {
+				} else
+				{
 					return null;
 				}
 			}
 		}
 
 		// No files provided
-		if (r.sourceFiles.size() == 0 && !r.isSwitchOn(Switch.INTER)) {
+		if (r.sourceFiles.size() == 0 && !r.isSwitchOn(Switch.INTER))
+		{
 			printUsage();
 			return null;
 		}
@@ -287,58 +303,61 @@ public class CheckCml {
 		return r;
 	}
 
-
-
 	/*************************************************************
-	 * 
 	 * Analysis
-	 * 
-	 * 
 	 ************************************************************/
 
-	private static String getAnalysisName(Object a) {
+	private static String getAnalysisName(Object a)
+	{
 		String res = "";
 		if (a == null)
+		{
 			return res;
+		}
 
 		res = a.getClass().getCanonicalName();
-		try {
+		try
+		{
 			Class<?> clz = a.getClass();
-			Method getAnalysisName = clz.getMethod("getAnalysisName",
-					new Class<?>[] {});
+			Method getAnalysisName = clz.getMethod("getAnalysisName", new Class<?>[] {});
 			getAnalysisName.setAccessible(true);
 			res = (String) getAnalysisName.invoke(a, new Object[] {});
 
-		} catch (Exception e) {
-		    e.printStackTrace();
-			return " e "+res;
+		} catch (Exception e)
+		{
+			e.printStackTrace();
+			return " e " + res;
 		}
 		return res;
 	}
 
 	/**
-	 * 
 	 * Helper methods run analysis controlling propergation of exceptions
-	 * 
 	 */
 
 	private static boolean runAnalysis(Input input,
-			AnalysisRunAdaptor analysis, List<PSource> sources) {
+			AnalysisRunAdaptor analysis, List<PDefinition> sources)
+	{
 		boolean continueOnException = input.isSwitchOn(Switch.COE);
 		boolean silentOnException = input.isSwitchOn(Switch.SOE);
 
-		for (PSource source : sources) {
-			try {
-				System.out.print(" Running " + getAnalysisName(analysis)
+		for (PDefinition source : sources)
+		{
+			try
+			{
+				System.out.println(" Running " + getAnalysisName(analysis)
 						+ " on " + source.toString() + " ");
 				analysis.apply(source);
 				System.out.println();
-			} catch (Exception e) {
-				if (!silentOnException) {
+			} catch (Exception e)
+			{
+				if (!silentOnException)
+				{
 					e.printStackTrace();
 				}
 
-				if (!continueOnException) {
+				if (!continueOnException)
+				{
 					return false;
 				}
 
@@ -347,66 +366,57 @@ public class CheckCml {
 		return true;
 	}
 
-	private static abstract class AnalysisRunAdaptor {
+	private static abstract class AnalysisRunAdaptor
+	{
 
-		private Object analysis;
+		// private Object analysis;
 
-		public AnalysisRunAdaptor(Object o) {
-			this.analysis = o;
+		public AnalysisRunAdaptor(Object o)
+		{
+			// this.analysis = o;
 		}
 
-		public String getAnalysisName() {
-			return CheckCml.getAnalysisName(analysis);
-		}
+		// public String getAnalysisName()
+		// {
+		// return CheckCml.getAnalysisName(analysis);
+		// }
 
 		public abstract void apply(INode node) throws AnalysisException;
 	};
 
-	private static void writeGraphResult(DotGraphVisitor dga, String fileName) {
+	private static void writeGraphResult(DotGraphVisitor dga, String fileName)
+	{
 
-		try {
+		try
+		{
 			File outFile = new File(fileName);
 			FileWriter fw = new FileWriter(outFile);
 			fw.write(dga.getResultString());
 			fw.close();
-		} catch (Exception e) {
+		} catch (Exception e)
+		{
 			System.out.println("\tAnalysis failed to write file: "
 					+ e.getMessage());
 		}
 	}
 
 	/**
-	 * EXTENSION POINT: This is where you want to add more analys phases. That
-	 * is, add a bit of code to the end this method. First we see what inputs
-	 * you have to work with then follows an example.
+	 * EXTENSION POINT: This is where you want to add more analys phases. That is, add a bit of code to the end this
+	 * method. First we see what inputs you have to work with then follows an example.
 	 * 
 	 * @param input
-	 *            - input contains the command line switches and the source
-	 *            files.
-	 * 
+	 *            - input contains the command line switches and the source files.
 	 * @param sources
-	 *            - result from parsing the source files in input. Aka. a forest
-	 *            of ASTs.
-	 * 
-	 *            <b>An Example: </b><br>
-	 *            </br> Supposed you have something called MyAnalysis
-	 *            implementing IAnalysis we can extend this method with:
-	 * 
-	 *            <code>
+	 *            - result from parsing the source files in input. Aka. a forest of ASTs. <b>An Example: </b><br>
+	 *            </br> Supposed you have something called MyAnalysis implementing IAnalysis we can extend this method
+	 *            with: <code>
 	 * if (runAnalysis(input, new MyAnalysis(), sources))
 	 *    System.out.println("MyAnalysis did not throw any exceptions.");
 	 * else
 	 *    System.out.println("MyAnalysis threw exceptions.");
-	 * </code>
-	 * 
-	 *            Then an instance of MyAnalysis will be applied to all source
-	 *            files parsed from command line arguments.
-	 * 
-	 *            Notice it should be possible to disable any phase with a
-	 *            switch, except the parse phase. To add a switch for disabling
-	 *            MyAnalysis we can do:
-	 * 
-	 *            <code>
+	 * </code> Then an instance of MyAnalysis will be applied to all source files parsed from command line arguments.
+	 *            Notice it should be possible to disable any phase with a switch, except the parse phase. To add a
+	 *            switch for disabling MyAnalysis we can do: <code>
 	 * ....
 	 * private enum Switch {
 	 *    .... ,
@@ -423,12 +433,14 @@ public class CheckCml {
 	 * 
 	 * Have fun :)
 	 */
-	private static void runAllAnalysis(Input input, List<PSource> sources)
+	private static void runAllAnalysis(Input input, List<PDefinition> sources)
 
 	{
 		// Check The Parse Only Switch
 		if (input.isSwitchOn(Switch.PARSE_ONLY))
+		{
 			return;
+		}
 
 		// Inform parsing went well and analysis has begun
 		System.out.println(sources.size()
@@ -436,23 +448,24 @@ public class CheckCml {
 
 		if (!input.isSwitchOn(Switch.NOTC)) // check no type checking switch
 		{
-			final TypeIssueHandler issueHandler = VanillaFactory
-					.newCollectingIssueHandle();
-			final CmlTypeChecker typeChecker = VanillaFactory.newTypeChecker(
-					sources, issueHandler);
+			final ITypeIssueHandler issueHandler = VanillaFactory.newCollectingIssueHandle();
+			final ICmlTypeChecker typeChecker = VanillaFactory.newTypeChecker(sources, issueHandler);
 
-			AnalysisRunAdaptor r = new AnalysisRunAdaptor(typeChecker) {
-				public void apply(INode root) throws AnalysisException {
+			AnalysisRunAdaptor r = new AnalysisRunAdaptor(typeChecker)
+			{
+				public void apply(INode root) throws AnalysisException
+				{
 
-					if (!(typeChecker.typeCheck())) {
-						for (TypeIssueHandler.CMLTypeError e : issueHandler
-								.getTypeErrors())
+					if (!typeChecker.typeCheck())
+					{
+						for (ITypeIssueHandler.CMLTypeError e : issueHandler.getTypeErrors())
+						{
 							System.out.println("\t" + e);
-					}
-					else
-					    {
+						}
+					} else
+					{
 						System.out.println("[model types are ok]");
-					    }
+					}
 				}
 			};
 			runAnalysis(input, r, sources);
@@ -460,24 +473,35 @@ public class CheckCml {
 
 		// Check The Type Check Only Switch
 		if (input.isSwitchOn(Switch.TYPE_CHECK_ONLY))
+		{
 			return;
+		}
 
-		if (input.isSwitchOn(Switch.EMPTY)) {
-			final IAnalysis empty = new DepthFirstAnalysisCMLAdaptor();
-			AnalysisRunAdaptor r = new AnalysisRunAdaptor(empty) {
-				public void apply(INode root) throws AnalysisException {
+		if (input.isSwitchOn(Switch.EMPTY))
+		{
+			final IAnalysis empty = new DepthFirstAnalysisCMLAdaptor()
+			{
+
+			};
+			AnalysisRunAdaptor r = new AnalysisRunAdaptor(empty)
+			{
+				public void apply(INode root) throws AnalysisException
+				{
 					root.apply(empty);
 				}
 			};
 			runAnalysis(input, r, sources);
 		}
 
-		if (input.isSwitchOn(Switch.DOTG)) {
+		if (input.isSwitchOn(Switch.DOTG))
+		{
 			final DotGraphVisitor dga = new DotGraphVisitor();
-			AnalysisRunAdaptor r = new AnalysisRunAdaptor(dga) {
+			AnalysisRunAdaptor r = new AnalysisRunAdaptor(dga)
+			{
 
 				@Override
-				public void apply(INode node) throws AnalysisException {
+				public void apply(INode node) throws AnalysisException
+				{
 					node.apply((IAnalysis) dga);
 					writeGraphResult(dga, Switch.DOTG.getValue());
 				}
@@ -486,34 +510,29 @@ public class CheckCml {
 		}
 
 		// Example Analysis DivWarnAnalysis
-		if (input.isSwitchOn(Switch.DWA)) {
-			final DivWarnAnalysis dwa = new DivWarnAnalysis();
-			AnalysisRunAdaptor r = new AnalysisRunAdaptor(dwa) {
-
-				@Override
-				public void apply(INode node) throws AnalysisException {
-					node.apply(dwa);
-				}
-			};
-			runAnalysis(input, r, sources);
-			for (String thing : dwa.getWarnings())
-				System.out.println("\t" + thing);
-		}
+		/*
+		 * // commented out by jwc/6Aug2013; deprecating the divwarn module if (input.isSwitchOn(Switch.DWA)) { final
+		 * DivWarnAnalysis dwa = new DivWarnAnalysis(); AnalysisRunAdaptor r = new AnalysisRunAdaptor(dwa) {
+		 * @Override public void apply(INode node) throws AnalysisException { node.apply(dwa); } }; runAnalysis(input,
+		 * r, sources); for (String thing : dwa.getWarnings()) System.out.println("\t" + thing); }
+		 */
 
 		// POG Analysis
-		if (input.isSwitchOn(Switch.POG)) {
+		if (input.isSwitchOn(Switch.POG))
+		{
 			// define pog object
-			final ProofObligationGenerator pog = new ProofObligationGenerator(
-					sources);
+			final ProofObligationGenerator pog = new ProofObligationGenerator();
 
 			System.out.println(pog.getAnalysisName());
 
 			// create analysis run adaptor object of type AnalysisRunAdaptor,
 			// supplying pog
 			// object.
-			AnalysisRunAdaptor r = new AnalysisRunAdaptor(pog) {
-				public void apply(INode root) throws AnalysisException {
-					POContextStack question = new POContextStack();
+			AnalysisRunAdaptor r = new AnalysisRunAdaptor(pog)
+			{
+				public void apply(INode root) throws AnalysisException
+				{
+					IPOContextStack question = new CmlPOContextStack();
 					root.apply(pog, question);
 				}
 			};
@@ -522,38 +541,46 @@ public class CheckCml {
 			// source files
 			runAnalysis(input, r, sources);
 
-			//pog.getResults();
+			// pog.getResults();
 		}
 
 		// Interpreter
-		if (input.isSwitchOn(Switch.EXEC)) {
+		if (input.isSwitchOn(Switch.EXEC))
+		{
 			if (input.isSwitchOn(Switch.NOTC))
+			{
 				System.out.println("You can only interpret typechecked models!");
-			else {
+			} else
+			{
 
-				try {
+				try
+				{
 
-					final CmlInterpreter interpreter = VanillaInterpreterFactory.newInterpreter(sources);
+					final CmlInterpreter interpreter = new VanillaInterpreterFactory().newInterpreter(sources);
 
-
-					AnalysisRunAdaptor re = new AnalysisRunAdaptor(null) {
-						public void apply(INode root) throws AnalysisException {
-							try {
+					AnalysisRunAdaptor re = new AnalysisRunAdaptor(null)
+					{
+						public void apply(INode root) throws AnalysisException
+						{
+							try
+							{
+								CmlRuntime.expandHiddenEvents(true);
 								interpreter.setDefaultName(Switch.EXEC.getValue());
-								
-								Scheduler scheduler = VanillaInterpreterFactory.newScheduler(new FCFSPolicy());
-								CmlSupervisorEnvironment sve = 
-										VanillaInterpreterFactory.newCmlSupervisorEnvironment(new RandomSelectionStrategy(), scheduler);
-								
-								interpreter.execute(sve,scheduler);
-							} catch (Exception e) {
+
+								interpreter.initialize();
+								interpreter.execute(new ConsoleSelectionStrategy());
+								System.out.println("Terminated with following state: "
+										+ interpreter.getState());
+							} catch (Exception e)
+							{
 
 								e.printStackTrace();
 							}
 						}
 					};
 					runAnalysis(input, re, sources);
-				} catch (InterpreterException e1) {
+				} catch (CmlInterpreterException e1)
+				{
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}

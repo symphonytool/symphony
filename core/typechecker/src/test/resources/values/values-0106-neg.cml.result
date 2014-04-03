@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.ValuesCmlTypeCheckerTests">
+<message column="6" line="11" message="Unable to resolve type name 'donotexists'." messageType="error" number="3427" resource="values-0106-neg.cml"/>
+<message column="20" line="11" message="Unknown type 'donotexists' in constructor." messageType="error" number="3126" resource="values-0106-neg.cml"/>
+<message column="6" line="11" message="Cannot find symbol donotexists." messageType="error" number="2048" resource="values-0106-neg.cml"/>
+<result/>
+</testResult>

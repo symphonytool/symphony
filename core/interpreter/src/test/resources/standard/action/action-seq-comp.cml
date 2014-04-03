@@ -1,0 +1,8 @@
+channels a b
+process Test = 
+begin 
+	actions
+	 A = a -> Skip
+	 B = b -> Skip 
+	@ A;B 
+end

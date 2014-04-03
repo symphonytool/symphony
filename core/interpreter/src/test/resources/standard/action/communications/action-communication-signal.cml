@@ -1,0 +1,10 @@
+channels a : int
+process A = 
+begin 
+	state
+	v : int := 2
+
+	actions
+	INIT = a.(v+2) -> Skip 
+	@ INIT
+end

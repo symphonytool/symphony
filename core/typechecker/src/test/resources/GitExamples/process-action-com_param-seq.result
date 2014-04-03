@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.RunCmlExamplesTestCase">
+<message column="22" line="8" message="Empty set used in bind." messageType="warning" number="3264" resource="process-action-com_param-seq.cml"/>
+<message column="3" line="5" message="Channel init is not declared" messageType="error" number="3431" resource="process-action-com_param-seq.cml"/>
+<message column="3" line="5" message="Communication &quot;init&quot; declared with too many arguments. Actual 1, Expected 0" messageType="error" number="3434" resource="process-action-com_param-seq.cml"/>
+<message column="3" line="5" message="Communication not allowed over untyped channel: init." messageType="error" number="3425" resource="process-action-com_param-seq.cml"/>
+<message column="13" line="5" message="The Symbol &quot;REG&quot; is undefined." messageType="error" number="3410" resource="process-action-com_param-seq.cml"/>
+<message column="3" line="6" message="Channel init is not declared" messageType="error" number="3431" resource="process-action-com_param-seq.cml"/>
+<message column="3" line="6" message="Communication &quot;init&quot; declared with too many arguments. Actual 1, Expected 0" messageType="error" number="3434" resource="process-action-com_param-seq.cml"/>
+<message column="3" line="6" message="Communication not allowed over untyped channel: init." messageType="error" number="3425" resource="process-action-com_param-seq.cml"/>
+<message column="7" line="6" message="Communication parameter missing at index 0 for type ?" messageType="error" number="3432" resource="process-action-com_param-seq.cml"/>
+<message column="14" line="6" message="The Symbol &quot;REG&quot; is undefined." messageType="error" number="3410" resource="process-action-com_param-seq.cml"/>
+<message column="3" line="7" message="Channel init is not declared" messageType="error" number="3431" resource="process-action-com_param-seq.cml"/>
+<message column="3" line="7" message="Communication &quot;init&quot; declared with too many arguments. Actual 1, Expected 0" messageType="error" number="3434" resource="process-action-com_param-seq.cml"/>
+<message column="3" line="7" message="Communication not allowed over untyped channel: init." messageType="error" number="3425" resource="process-action-com_param-seq.cml"/>
+<message column="17" line="7" message="The Symbol &quot;REG&quot; is undefined." messageType="error" number="3410" resource="process-action-com_param-seq.cml"/>
+<message column="3" line="8" message="Channel init is not declared" messageType="error" number="3431" resource="process-action-com_param-seq.cml"/>
+<message column="3" line="8" message="Communication &quot;init&quot; declared with too many arguments. Actual 1, Expected 0" messageType="error" number="3434" resource="process-action-com_param-seq.cml"/>
+<message column="3" line="8" message="Communication not allowed over untyped channel: init." messageType="error" number="3425" resource="process-action-com_param-seq.cml"/>
+<message column="22" line="8" message="Name 'ordered' is not in scope." messageType="error" number="3182" resource="process-action-com_param-seq.cml"/>
+<message column="32" line="8" message="Name 'P(?)' is not in scope." messageType="error" number="3182" resource="process-action-com_param-seq.cml"/>
+<message column="32" line="8" message="Operation 'P' cannot be called in an expression." messageType="error" number="3425" resource="process-action-com_param-seq.cml"/>
+<message column="42" line="8" message="The Symbol &quot;REG&quot; is undefined." messageType="error" number="3410" resource="process-action-com_param-seq.cml"/>
+<result/>
+</testResult>

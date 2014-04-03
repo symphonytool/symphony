@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.RunCmlExamplesTestCase">
+<message column="4" line="3" message="Channel load is not declared" messageType="error" number="3431" resource="process-action-communication-write-numliteral.cml"/>
+<message column="4" line="3" message="Communication &quot;load&quot; declared with too many arguments. Actual 1, Expected 0" messageType="error" number="3434" resource="process-action-communication-write-numliteral.cml"/>
+<message column="4" line="3" message="Communication not allowed over untyped channel: load." messageType="error" number="3425" resource="process-action-communication-write-numliteral.cml"/>
+<result/>
+</testResult>

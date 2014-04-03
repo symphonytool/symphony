@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+
+	<!-- general project -->
+	<extension
+         id="cmlnature"
+         name="CML Project Nature"
+         point="org.eclipse.core.resources.natures">
+		<runtime>
+			<run class ="eu.compassresearch.ide.core.CmlProjectNature" />
+		</runtime>
+	</extension>
+
+	<!-- add a content type for CML files -->
+	<extension
+         point="org.eclipse.core.contenttype.contentTypes">
+		<content-type
+            base-type="org.eclipse.core.runtime.text"
+            file-extensions="cml"
+            id="eu.compassresearch.ide.core.content-type-cml"
+            name="CML Content Type"
+            priority="high">
+		</content-type>
+	</extension>
+
+	<!-- extend the internal project management with the CML language -->
+	<extension
+         point="org.overture.ide.core.language">
+		<Language
+            dialect="CML"
+            name="CML"
+            nature="eu.compassresearch.ide.core.cmlnature">
+			<ContentType
+               id="eu.compassresearch.ide.core.content-type-cml">
+			</ContentType>
+		</Language>
+	</extension>
+
+
+	<!-- CML model management -->
+
+	<extension
+         point="org.eclipse.core.runtime.adapters">
+         
+         <!-- source unit -->
+		<factory
+            adaptableType="org.overture.ide.core.resources.IVdmSourceUnit"
+            class="eu.compassresearch.ide.internal.core.resources.CmlResourceAdapter">
+			<adapter
+               type="eu.compassresearch.ide.core.resources.ICmlSourceUnit">
+			</adapter>
+		</factory>
+		
+		<factory
+            adaptableType="eu.compassresearch.ide.core.resources.ICmlSourceUnit"
+            class="eu.compassresearch.ide.internal.core.resources.CmlResourceAdapter">
+			<adapter
+               type="org.overture.ide.core.resources.IVdmSourceUnit">
+			</adapter>
+		</factory>
+		<factory
+            adaptableType="org.eclipse.core.resources.IFile"
+            class="eu.compassresearch.ide.internal.core.resources.CmlResourceAdapter">
+			<adapter
+               type="eu.compassresearch.ide.core.resources.ICmlSourceUnit">
+			</adapter>
+		</factory>
+		
+		<!-- project -->
+		
+		<factory
+            adaptableType="org.eclipse.core.resources.IProject"
+            class="eu.compassresearch.ide.internal.core.resources.CmlResourceAdapter">
+			<adapter
+               type="eu.compassresearch.ide.core.resources.ICmlProject">
+			</adapter>
+		</factory>
+			<factory
+            adaptableType="org.overture.ide.core.resources.IVdmProject"
+            class="eu.compassresearch.ide.internal.core.resources.CmlResourceAdapter">
+			<adapter
+               type="eu.compassresearch.ide.core.resources.ICmlProject">
+			</adapter>
+		</factory>
+		
+		<factory
+            adaptableType="eu.compassresearch.ide.core.resources.ICmlProject"
+            class="eu.compassresearch.ide.internal.core.resources.CmlResourceAdapter">
+			<adapter
+               type="org.eclipse.core.resources.IProject">
+			</adapter>
+		</factory>
+		<factory
+            adaptableType="eu.compassresearch.ide.core.resources.ICmlProject"
+            class="eu.compassresearch.ide.internal.core.resources.CmlResourceAdapter">
+			<adapter
+               type="org.overture.ide.core.resources.IVdmProject">
+			</adapter>
+		</factory>
+		
+			<!-- model -->
+			<factory
+            adaptableType="org.overture.ide.core.IVdmModel"
+            class="eu.compassresearch.ide.internal.core.resources.CmlResourceAdapter">
+			<adapter
+               type="eu.compassresearch.ide.core.resources.ICmlModel">
+			</adapter>
+		</factory>
+		
+		<factory
+            adaptableType="eu.compassresearch.ide.core.resources.ICmlModel"
+            class="eu.compassresearch.ide.internal.core.resources.CmlResourceAdapter">
+			<adapter
+               type="org.overture.ide.core.IVdmModel">
+			</adapter>
+		</factory>
+		
+	</extension>
+
+
+	<!-- parser hook into overture -->
+	<extension
+         point="org.overture.ide.core.parsePaticipant">
+		<parser
+            class="eu.compassresearch.ide.core.parser.SourceParserCml"
+            nature="eu.compassresearch.ide.core.cmlnature">
+		</parser>
+	</extension>
+	<!-- builder hook into overture -->
+	<extension
+         point="org.overture.ide.core.buildParticipant">
+		<builder
+            class="eu.compassresearch.ide.core.builder.BuilderCml"
+            nature="eu.compassresearch.ide.core.cmlnature">
+		</builder>
+	</extension>
+</plugin>

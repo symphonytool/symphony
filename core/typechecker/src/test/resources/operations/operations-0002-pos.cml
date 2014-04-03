@@ -1,0 +1,17 @@
+class
+
+ d =
+
+begin
+
+
+
+state
+
+ a:int
+
+operations
+
+ c: int ==> () c(v) == a := v
+
+end

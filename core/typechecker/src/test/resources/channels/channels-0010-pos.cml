@@ -1,0 +1,15 @@
+/*test that constraints on input communications*/
+
+channels
+
+ a: int
+
+process
+
+ A =
+
+begin
+
+ @ a? x : (x in set {2,3}) -> Skip
+
+end

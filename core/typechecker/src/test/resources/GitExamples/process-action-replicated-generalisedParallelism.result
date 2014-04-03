@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.RunCmlExamplesTestCase">
+<message column="25" line="1" message="The Symbol &quot;cs&quot; is undefined." messageType="error" number="3410" resource="process-action-replicated-generalisedParallelism.cml"/>
+<message column="23" line="1" message="Symbol &quot;null&quot; is not a Channel Set." messageType="error" number="3412" resource="process-action-replicated-generalisedParallelism.cml"/>
+<result/>
+</testResult>

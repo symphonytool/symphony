@@ -1,0 +1,5 @@
+channels a
+process P = 
+begin 
+	@ a -> Skip 
+end

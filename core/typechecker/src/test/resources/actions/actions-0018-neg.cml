@@ -1,0 +1,11 @@
+/* Communication is not fine if event and channel type do not match*/
+
+channels
+a : int
+
+process A =
+begin
+
+@ a."one" -> Skip
+
+end

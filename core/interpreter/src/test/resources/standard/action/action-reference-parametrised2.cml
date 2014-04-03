@@ -1,0 +1,14 @@
+channels
+ chanA
+ control : nat
+ communicate : nat
+
+process Basic =
+begin
+
+actions
+    A = val x : nat @ chanA -> communicate!x -> Skip
+
+@ control?x -> A(x) [| {| control |} |] control!42 -> Skip
+
+end

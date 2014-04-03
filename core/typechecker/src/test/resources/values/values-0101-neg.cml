@@ -1,0 +1,13 @@
+class
+
+ test =
+
+begin
+
+
+
+values
+
+ a:seq of int = [ 10 + a | a in set {1,2,3} @ unexpectedid > 1 ](1,...,2)
+
+end

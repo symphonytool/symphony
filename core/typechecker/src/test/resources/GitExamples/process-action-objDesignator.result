@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.RunCmlExamplesTestCase">
+<message column="8" line="2" message="Duplicate definition: test." messageType="warning" number="5007" resource="process-action-objDesignator.cml"/>
+<message column="8" line="4" message="Duplicate definition: test." messageType="warning" number="5007" resource="process-action-objDesignator.cml"/>
+<message column="8" line="5" message="Duplicate definition: test." messageType="warning" number="5007" resource="process-action-objDesignator.cml"/>
+<message column="8" line="2" message="Duplicate definition: test." messageType="error" number="5007" resource="process-action-objDesignator.cml"/>
+<message column="8" line="4" message="Duplicate definition: test." messageType="error" number="5007" resource="process-action-objDesignator.cml"/>
+<message column="8" line="5" message="Duplicate definition: test." messageType="error" number="5007" resource="process-action-objDesignator.cml"/>
+<message column="23" line="2" message="Operation a(nat1) is not in scope." messageType="error" number="3213" resource="process-action-objDesignator.cml"/>
+<message column="23" line="4" message="Name 'b' is not in scope." messageType="error" number="3182" resource="process-action-objDesignator.cml"/>
+<message column="23" line="4" message="Member a(nat1) is not in scope." messageType="error" number="3209" resource="process-action-objDesignator.cml"/>
+<message column="23" line="5" message="Name 'A' is not in scope." messageType="error" number="3182" resource="process-action-objDesignator.cml"/>
+<message column="23" line="5" message="Unknown class member name, 'b'." messageType="error" number="3260" resource="process-action-objDesignator.cml"/>
+<message column="23" line="5" message="Member a(nat1) is not in scope." messageType="error" number="3209" resource="process-action-objDesignator.cml"/>
+<result/>
+</testResult>

@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testResult>
+  <exception/>
+  <interpreterState>DEADLOCKED</interpreterState>
+  <trace>
+    <events>(init|State.0),(init|State.0),setPS\.\{\},shine\.\{\},L1.false,L2.false,L3.false</events>
+  </trace>
+</testResult>

@@ -1,0 +1,15 @@
+/* Abstraction is ok referenced chanset */
+
+channels
+a
+
+chansets
+x = {a}
+
+process A =
+begin
+
+@ Skip \\ x 
+
+end
+

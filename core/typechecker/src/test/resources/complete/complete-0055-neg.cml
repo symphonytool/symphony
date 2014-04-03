@@ -1,0 +1,15 @@
+/*Negative test AEnumVarsetExpression*/
+
+channels
+
+ c:int*int
+
+process
+
+ A =
+
+begin
+
+ @ c.(1).(1) -> Skip [| {c.(2).(4).(5)} |] c.(1).(1) -> Skip
+
+end

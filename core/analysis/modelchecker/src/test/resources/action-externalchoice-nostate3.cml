@@ -1,0 +1,13 @@
+channels 
+a, b, c
+d:nat
+
+process MAIN = 
+begin 
+  actions
+	A = a -> Skip
+	B = b -> Skip
+	C = c -> Stop
+	
+	@ A [] B [] C 
+end

@@ -1,0 +1,23 @@
+channels
+on : nat
+i
+
+process Spec = 
+begin
+state
+
+all_nodes_nat : set of nat := {0,1,2}
+
+actions
+
+NEWAlive = alive : set of nat @ 
+  ([] i in set (alive) @ on!i -> NEWAlive(alive))
+
+
+@ 
+NEWAlive(all_nodes_nat) -- begin with no nodes on and no time passed
+end
+
+process interruptable = Spec /_\ begin @ i -> Skip end
+
+process TestDriver = begin @ on.0 -> on.1 -> on.2 -> on.0 -> i -> Skip end [|{|on,i|}|] interruptable

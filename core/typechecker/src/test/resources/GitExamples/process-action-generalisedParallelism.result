@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.RunCmlExamplesTestCase">
+<message column="31" line="1" message="The Symbol &quot;A&quot; is undefined." messageType="error" number="3410" resource="process-action-generalisedParallelism.cml"/>
+<message column="39" line="1" message="The Symbol &quot;B&quot; is undefined." messageType="error" number="3410" resource="process-action-generalisedParallelism.cml"/>
+<message column="35" line="1" message="The Symbol &quot;X&quot; is undefined." messageType="error" number="3410" resource="process-action-generalisedParallelism.cml"/>
+<message column="31" line="2" message="The Symbol &quot;A&quot; is undefined." messageType="error" number="3410" resource="process-action-generalisedParallelism.cml"/>
+<message column="50" line="2" message="The Symbol &quot;B&quot; is undefined." messageType="error" number="3410" resource="process-action-generalisedParallelism.cml"/>
+<message column="36" line="2" message="The Symbol &quot;init&quot; is undefined." messageType="error" number="3410" resource="process-action-generalisedParallelism.cml"/>
+<message column="31" line="3" message="The Symbol &quot;A&quot; is undefined." messageType="error" number="3410" resource="process-action-generalisedParallelism.cml"/>
+<message column="51" line="3" message="The Symbol &quot;B&quot; is undefined." messageType="error" number="3410" resource="process-action-generalisedParallelism.cml"/>
+<message column="41" line="3" message="The Symbol &quot;X&quot; is undefined." messageType="error" number="3410" resource="process-action-generalisedParallelism.cml"/>
+<message column="35" line="3" message="The Symbol &quot;ns1&quot; is undefined." messageType="error" number="3410" resource="process-action-generalisedParallelism.cml"/>
+<message column="35" line="3" message="The Symbol &quot;ns1&quot; is undefined." messageType="error" number="3410" resource="process-action-generalisedParallelism.cml"/>
+<result/>
+</testResult>

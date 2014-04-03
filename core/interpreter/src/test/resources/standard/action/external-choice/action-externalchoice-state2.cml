@@ -1,0 +1,12 @@
+channels a, b, c : int
+process test = 
+begin
+	
+	@ 	a?i -> c.(i) -> Skip
+		[] 
+		 b?i -> c.(i) -> Skip 
+end
+
+process driver = begin @ a!2 -> Skip end
+
+process Main = driver [| {| a,b |} |] test

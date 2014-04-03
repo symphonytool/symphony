@@ -1,0 +1,13 @@
+class
+
+ test =
+
+begin
+
+
+
+values
+
+ a : seq of char = if true then "true" else "false"
+
+end

@@ -5,12 +5,12 @@
   <parent>
     <groupId>eu.compassresearch.core</groupId>
     <artifactId>core</artifactId>
-    <version>0.1.1<!--Replaceable: Main Version--></version>
+    <version>0.3.1-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
   <artifactId>parser</artifactId>
-  <name>COMPASS Core CML Parser</name>
+  <name>Symphony Core CML Parser</name>
 
   <dependencies>
     <dependency>
@@ -54,7 +54,7 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
-          <testFailureIgnore>true</testFailureIgnore>
+          <testFailureIgnore>false</testFailureIgnore>
         </configuration>
       </plugin>
     </plugins>

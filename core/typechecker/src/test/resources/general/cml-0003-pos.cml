@@ -1,0 +1,24 @@
+
+	
+class C =
+	begin
+	
+	state
+	
+	v : int := 3
+	
+	operations
+
+public op1: int ==>int
+op1(a) == return 2
+	
+op2:()==>()
+op2()== 
+	
+		(dcl c :C 
+		@
+			
+				v := op1(1)
+			)	
+			
+	end

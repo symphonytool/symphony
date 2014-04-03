@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.GeneralCmlTypeCheckerTests">
+<message column="2" line="21" message="Instance variable 'sg' is not initialized." messageType="warning" number="5001" resource="cml-0008-pos.cml"/>
+<result/>
+</testResult>

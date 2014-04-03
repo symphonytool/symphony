@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.RunCmlExamplesTestCase">
+<message column="8" line="1" message="Duplicate definition: test." messageType="warning" number="5007" resource="process-action-newstm.cml"/>
+<message column="8" line="2" message="Duplicate definition: test." messageType="warning" number="5007" resource="process-action-newstm.cml"/>
+<message column="8" line="3" message="Duplicate definition: test." messageType="warning" number="5007" resource="process-action-newstm.cml"/>
+<message column="8" line="1" message="Duplicate definition: test." messageType="error" number="5007" resource="process-action-newstm.cml"/>
+<message column="8" line="2" message="Duplicate definition: test." messageType="error" number="5007" resource="process-action-newstm.cml"/>
+<message column="8" line="3" message="Duplicate definition: test." messageType="error" number="5007" resource="process-action-newstm.cml"/>
+<message column="23" line="1" message="Symbol 'a' is not an updatable variable." messageType="error" number="3247" resource="process-action-newstm.cml"/>
+<message column="26" line="1" message="Class name fissan not in scope." messageType="error" number="3133" resource="process-action-newstm.cml"/>
+<message column="23" line="2" message="Symbol 'a' is not an updatable variable." messageType="error" number="3247" resource="process-action-newstm.cml"/>
+<message column="26" line="2" message="Class name fissan not in scope." messageType="error" number="3133" resource="process-action-newstm.cml"/>
+<message column="23" line="3" message="Symbol 'a' is not an updatable variable." messageType="error" number="3247" resource="process-action-newstm.cml"/>
+<message column="26" line="3" message="Class name fissan not in scope." messageType="error" number="3133" resource="process-action-newstm.cml"/>
+<result/>
+</testResult>

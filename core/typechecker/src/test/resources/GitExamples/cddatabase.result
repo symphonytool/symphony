@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.RunCmlExamplesTestCase">
+<message column="2" line="18" message="Instance variable 'cds' is not initialized." messageType="warning" number="5001" resource="cddatabase.cml"/>
+<message column="12" line="39" message="Unable to resolve type name 'Track'." messageType="error" number="3427" resource="cddatabase.cml"/>
+<message column="28" line="59" message="Unable to resolve type name 'CD'." messageType="error" number="3427" resource="cddatabase.cml"/>
+<message column="50" line="37" message="CDBuilder`self not in scope." messageType="error" number="3154" resource="cddatabase.cml"/>
+<message column="12" line="39" message="Unable to resolve type name 'Track'." messageType="error" number="3428" resource="cddatabase.cml"/>
+<message column="49" line="51" message="TrackBuilder`self not in scope." messageType="error" number="3154" resource="cddatabase.cml"/>
+<message column="57" line="54" message="TrackBuilder`self not in scope." messageType="error" number="3154" resource="cddatabase.cml"/>
+<message column="49" line="57" message="TrackBuilder`self not in scope." messageType="error" number="3154" resource="cddatabase.cml"/>
+<message column="28" line="59" message="Unable to resolve type name 'CD'." messageType="error" number="3428" resource="cddatabase.cml"/>
+<message column="21" line="75" message="Name 'TrackBuilder()' is not in scope." messageType="error" number="3182" resource="cddatabase.cml"/>
+<message column="21" line="75" message="Operation 'TrackBuilder' cannot be called in an expression." messageType="error" number="3425" resource="cddatabase.cml"/>
+<message column="21" line="75" message="Operation '(TrackBuilder().setName)' cannot be called in an expression." messageType="error" number="3425" resource="cddatabase.cml"/>
+<message column="21" line="75" message="Operation '((TrackBuilder().setName)(&quot;What?&quot;).setYear)' cannot be called in an expression." messageType="error" number="3425" resource="cddatabase.cml"/>
+<message column="21" line="75" message="Operation '(((TrackBuilder().setName)(&quot;What?&quot;).setYear)(2012).setDuration)' cannot be called in an expression." messageType="error" number="3425" resource="cddatabase.cml"/>
+<message column="12" line="75" message="Unable to resolve type name 'Track'." messageType="error" number="3428" resource="cddatabase.cml"/>
+<result/>
+</testResult>

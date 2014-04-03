@@ -1,0 +1,51 @@
+h1, h2, h3, h4, h5, h6
+{
+    font-family: Gotham, Helvetica, Arial, sans-serif;   
+}
+
+h1 {
+    font-size: 170%;
+}
+
+h2 {
+    font-size: 160%;
+    line-height: 130%;
+}
+
+h3 {
+    font-size: 140%;
+}
+
+h4 {
+    font-size: 130%;
+}
+
+h5 {
+    font-size: 120%;
+}
+
+h6 {
+    font-size: 110%;
+}
+
+body
+{
+    font: 12px/170% Gotham, Helvetica, Verdana;
+    color: #494949;
+}
+
+.top
+{
+    background-color: #FFFFFF;
+}
+
+.titletext
+{
+    color: #000000;
+    
+}
+
+.content
+{
+    clear:both;
+}

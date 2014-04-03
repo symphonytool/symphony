@@ -1,0 +1,13 @@
+class
+
+ test =
+
+begin
+
+
+
+values
+
+ a : int = if (let b:int=10 in b > 10) then 42 else 24
+
+end

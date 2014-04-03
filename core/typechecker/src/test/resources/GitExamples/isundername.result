@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.RunCmlExamplesTestCase">
+<message column="0" line="2" message="Duplicate definition: anders." messageType="error" number="5007" resource="isundername.cml"/>
+<message column="0" line="3" message="Duplicate definition: anders." messageType="error" number="5007" resource="isundername.cml"/>
+<message column="0" line="2" message="Duplicate definition: anders." messageType="error" number="5007" resource="isundername.cml"/>
+<message column="0" line="3" message="Duplicate definition: anders." messageType="error" number="5007" resource="isundername.cml"/>
+<message column="0" line="2" message="Duplicate definitions for anders. anders: isundername.cml at 2:0 anders: isundername.cml at 3:0" messageType="error" number="3017" resource="isundername.cml"/>
+<message column="23" line="2" message="Name 'a' is not in scope." messageType="error" number="3182" resource="isundername.cml"/>
+<message column="16" line="2" message="Unknown type name 'Hej'." messageType="error" number="3113" resource="isundername.cml"/>
+<message column="29" line="3" message="Name 'b' is not in scope." messageType="error" number="3182" resource="isundername.cml"/>
+<message column="16" line="3" message="Unknown type name 'hello'." messageType="error" number="3113" resource="isundername.cml"/>
+<message column="0" line="2" message="Duplicate definition: anders." messageType="error" number="5007" resource="isundername.cml"/>
+<message column="0" line="3" message="Duplicate definition: anders." messageType="error" number="5007" resource="isundername.cml"/>
+<message column="23" line="2" message="Name 'a' is not in scope." messageType="error" number="3182" resource="isundername.cml"/>
+<message column="16" line="2" message="Unknown type name 'Hej'." messageType="error" number="3113" resource="isundername.cml"/>
+<message column="29" line="3" message="Name 'b' is not in scope." messageType="error" number="3182" resource="isundername.cml"/>
+<message column="16" line="3" message="Unknown type name 'hello'." messageType="error" number="3113" resource="isundername.cml"/>
+<message column="29" line="4" message="Name 'b' is not in scope." messageType="error" number="3182" resource="isundername.cml"/>
+<message column="16" line="4" message="Unknown type name 'hello'." messageType="error" number="3113" resource="isundername.cml"/>
+<result/>
+</testResult>

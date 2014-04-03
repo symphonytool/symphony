@@ -1,0 +1,5 @@
+process Wait3 = 
+begin 
+
+	@ Wait 3;a -> Wait 1 
+end

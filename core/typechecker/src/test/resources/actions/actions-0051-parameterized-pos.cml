@@ -1,0 +1,13 @@
+channels 
+a, b
+
+process A = 
+begin 
+
+	state
+		x :int
+	actions
+		d=  r:int @ x:=r; Skip
+		
+	@ d(1)
+end

@@ -1,0 +1,9 @@
+/* Untimed timeout action is ok */
+
+process A =
+begin
+
+@ Skip [_> Skip
+
+end
+

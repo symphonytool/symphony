@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.RunCmlExamplesTestCase">
+<message column="4" line="5" message="Channel book is not declared" messageType="error" number="3431" resource="process-actions2.cml"/>
+<message column="4" line="5" message="Communication &quot;book&quot; declared with too many arguments. Actual 3, Expected 0" messageType="error" number="3434" resource="process-actions2.cml"/>
+<message column="4" line="5" message="Communication not allowed over untyped channel: book." messageType="error" number="3425" resource="process-actions2.cml"/>
+<message column="35" line="5" message="Name 'avail' is not in scope." messageType="error" number="3182" resource="process-actions2.cml"/>
+<message column="20" line="5" message="Name 'AvailRng(?, ?, ?, ?)' is not in scope." messageType="error" number="3182" resource="process-actions2.cml"/>
+<message column="20" line="5" message="Operation 'AvailRng' cannot be called in an expression." messageType="error" number="3425" resource="process-actions2.cml"/>
+<message column="46" line="5" message="Operation BOOKROOM(?, ?, ?) is not in scope." messageType="error" number="3213" resource="process-actions2.cml"/>
+<message column="64" line="5" message="Channel booked is not declared" messageType="error" number="3431" resource="process-actions2.cml"/>
+<result/>
+</testResult>

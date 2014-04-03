@@ -1,0 +1,19 @@
+channels
+c : int
+d i
+
+process TestInput =
+begin
+actions
+  main = (c?x->out;step2)
+  step2 = i->Skip 
+  out = d ->Skip[_ 3 _>Skip
+  @ main
+end
+
+process TestOne =
+begin
+    @ c!1->i->Skip
+end
+
+process TestDriver = TestOne [|{|c,i,d|}|]TestInput

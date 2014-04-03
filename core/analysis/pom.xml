@@ -6,19 +6,20 @@
   <parent>
     <groupId>eu.compassresearch.core</groupId>
     <artifactId>core</artifactId>
-    <version>0.1.1<!--Replaceable: Main Version--></version>
+    <version>0.3.1-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
   <groupId>eu.compassresearch.core.analysis</groupId>
   <artifactId>analysis</artifactId>
-  <name>COMPASS Core Analysis Top-level</name>
+  <name>Symphony Core Analysis Top-level</name>
 
   <modules>
     <module>pog</module>
     <module>theoremprover</module>
-    <!-- module>refinementtool</module -->
+    <module>refinementtool</module>
     <module>rtt-mbt</module>
+    <module>modelchecker</module>
   </modules>
 </project>
 

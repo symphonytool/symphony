@@ -1,0 +1,28 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>eu.compassresearch.ide</groupId>
+    <artifactId>ide</artifactId>
+    <version>0.3.1-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+
+  <packaging>pom</packaging>
+
+  <groupId>eu.compassresearch.ide</groupId>
+  <artifactId>eu.compassresearch.ide.plugins</artifactId>
+  <name>Symphony IDE Plugins Top-level</name>
+  <description>Super POM for all Symphony IDE Plugin (Eclipse) artifacts.</description>
+
+  <modules>
+    <module>interpreter</module>
+    <module>rtt-mbt</module>
+    <module>pog</module>
+    <module>theoremprover</module>
+    <module>modelchecker</module>   
+    <module>faulttolerance</module>
+    <module>refinementtool</module>
+  </modules>
+</project>

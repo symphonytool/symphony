@@ -1,0 +1,14 @@
+channels 
+a, b, init
+
+process A = 
+begin 
+	@  init -> a -> Skip
+end
+
+process B = 
+begin 
+	@  init -> b -> Skip
+end
+
+process C = A [ {a,init} || {b,init} ] B

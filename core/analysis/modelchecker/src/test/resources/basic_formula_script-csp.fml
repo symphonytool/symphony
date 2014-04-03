@@ -1,0 +1,281 @@
+domain ShallowEmbbeding {
+    // Types
+    primitive Int       ::= (Integer).
+    primitive Nat       ::= (Natural).
+    primitive Str       ::= (String).
+    primitive IR        ::= (Real).
+    primitive Seq       ::= (SeqRest).
+    EmptySeq            ::= { empty }.
+    primitive SeqCont   ::= ( cSeq: Types, rest: SeqRest ).
+    SeqRest             ::= EmptySeq + SeqCont.
+    Types               ::= Int + Nat + IR + Str + Seq.
+    aSeq                ::= (SeqRest).
+    // Some relational operators
+    primitive EQ        ::= (x : Types, y : Types).
+    primitive NEQ       ::= (x : Types, y : Types).
+    primitive LT        ::= (x : Types, y : Types).
+    primitive GT        ::= (x : Types, y : Types).
+    bExps               ::= EQ + NEQ + LT + GT.
+}
+domain CSP_Syntax includes ShallowEmbbeding {
+    Bound ::= (Natural).
+    belongTo                ::= (chN:String, chT: String, v: Types).
+    EmptyDomain             ::= { none }.
+    primitive DomainCont    ::= ( dCont: Types, dRest: DomainRem ).
+    DomainRem               ::= EmptyDomain + DomainCont.
+    SetOfVals               ::= (chN: String, chT: String, sv: DomainRem, b: Natural).
+    belongTo(c, Tc, d)         :- SetOfVals(c, Tc, DomainCont(d, none), b).
+    SetOfVals(c, Tc, r, b_), belongTo(c, Tc, d)         :- SetOfVals(c, Tc, DomainCont(d, r), b), r!=none, Bound(L), b_ = b + 1, b_ < L.
+    SetOfVals(c, Tc, r, 0), belongTo(c, Tc, d), Bound(1) :- Channel(c, Tc, DomainCont(d, r)). // There is a bound :-(
+    primitive Channel       ::= (chN : String, nT: String, chT: DomainRem).
+    primitive BasicEv       ::= (name: String).
+    primitive CommEv        ::= (name : String, data : Types).
+    Sigma                   ::= BasicEv + CommEv.
+    SpecialEvents           ::= { tick, tau }.
+    SigmaTickTau            ::= Sigma + SpecialEvents.
+    Omega                   ::= {omega}.
+    BasicProcess            ::= {Stop, Skip, Chaos, Div}.
+    primitive Prefix        ::= (ev : Sigma, proc : CSPProcess).
+    primitive iChoice       ::= (lProc : CSPProcess, rProc : CSPProcess).
+    primitive eChoice       ::= (lProc : CSPProcess, rProc : CSPProcess).
+    primitive bChoice       ::= (cond : bExps, lProc : CSPProcess, rProc : CSPProcess).
+    primitive seqC          ::= (lProc : CSPProcess, rProc : CSPProcess).
+    lieIn                   ::= (ev : Sigma, sourceSet: String). // This is used by hiding and parallelism.
+    primitive hide          ::= (proc : CSPProcess, hideS : String).
+    primitive par           ::= (lProc : CSPProcess, SyncS : String, rProc : CSPProcess).
+    primitive intlv         ::= (lProc : CSPProcess, rProc : CSPProcess).
+    NoPar                   ::= { nopar }.
+    SPar                    ::= (Types).
+    DPar                    ::= (p1: Types, p2: Types).
+    Param                   ::= NoPar + SPar + DPar.
+    primitive proc          ::= (name : String, p: Param).
+    CSPProcess              ::= Omega + BasicProcess + Prefix + iChoice + eChoice + bChoice + seqC + hide + par + intlv + proc.
+}
+
+domain CSP_Semantics extends CSP_Syntax {
+    State ::= (p: CSPProcess).
+    trans ::= (source: State, ev: SigmaTickTau, target: State).
+    bind ::= (nv: String, p: Param, st: proc).
+    BoolE ::= (bExps).
+    Eval                ::= (b : bExps).
+    Eval(EQ(x, y))      :- BoolE(EQ(x, y)), x = y.
+    Eval(NEQ(x, y))     :- BoolE(NEQ(x, y)), x != y.
+    Eval(LT(Nat(x), Nat(y)))      :- BoolE(LT(Nat(x), Nat(y))), x < y.
+    Eval(GT(Nat(x), Nat(y)))      :- BoolE(GT(Nat(x), Nat(y))), x > y.
+    NEval                ::= (b : bExps).
+    NEval(EQ(x, y))      :- BoolE(EQ(x, y)), x != y.
+    NEval(NEQ(x, y))     :- BoolE(NEQ(x, y)), x = y.
+    NEval(LT(Nat(x), Nat(y)))      :- BoolE(LT(Nat(x), Nat(y))), x >= y.
+    NEval(GT(Nat(x), Nat(y)))      :- BoolE(GT(Nat(x), Nat(y))), x <= y.
+    // Cardinality operator
+    card                ::= (s: SeqRest, t: Natural).
+    card(empty, 0) :- aSeq(empty).
+    card(SeqCont(h, t), n_) :- belongTo(_, _, h), aSeq(t), card(t, n), n_ = n + 1.
+    // Concatenation operator
+    conc                ::= (s1: SeqRest, n: Types, sR: SeqRest).
+    conc(s, x, SeqCont(x, s)) :- belongTo(_, _, x), aSeq(s).
+    // Head operator
+    head                ::= (s1: SeqRest, n: Types).
+    head(SeqCont(x, s), x) :- belongTo(_, _, x), aSeq(s).
+    // Tail operator
+    tail                ::= (s1: SeqRest, sR: SeqRest).
+    tail(SeqCont(x, s), s) :- belongTo(_, _, x), aSeq(s).
+	
+     // This generates the next state on demand.
+    State(nS) :- trans(State(iS), ev, State(nS)).
+    // Skip
+    trans(State(Skip), tick, State(omega)) :- State(Skip).
+    // a -> P
+    trans(State(Prefix(a, P)), a, State(P)) :- State(Prefix(a, P)).
+    // P |~| Q
+    trans(State(iChoice(P, Q)), tau, State(P)) :- State(iChoice(P, Q)).
+    trans(State(iChoice(P, Q)), tau, State(Q)) :- State(iChoice(P, Q)).
+    // P [] Q
+    State(P) :- State(eChoice(P, Q)). 
+    State(Q) :- State(eChoice(P, Q)).
+
+    trans(iS, tau, State(eChoice(P_, Q))) :- iS is State(eChoice(P, Q)), trans(State(P), tau, State(P_)).
+    trans(iS, tau, State(eChoice(P, Q_))) :- iS is State(eChoice(P, Q)), trans(State(Q), tau, State(Q_)).
+    trans(iS, ev, State(P_)) :- iS is State(eChoice(P, Q)), trans(State(P), ev, State(P_)), ev != tau.
+    trans(iS, ev, State(Q_)) :- iS is State(eChoice(P, Q)),trans(State(Q), ev, State(Q_)), ev != tau.
+    trans(iS, tau, State(P_)) :- iS is State(eChoice(P, Q)),
+                trans(State(P), ev, State(P_)), trans(State(Q), ev2, State(Q_)), ev != tau, ev = ev2.
+    trans(iS, tau, State(Q_)) :- iS is State(eChoice(P, Q)),
+                trans(State(Q), ev, State(Q_)), trans(State(P), ev2, State(P_)), ev != tau, ev = ev2.
+    
+    // if b then P else Q. 
+    BoolE(bExp) :- State(bChoice(bExp, p, q)).
+    trans(State(bChoice(bExp, p, q)), tau, State(p)) :- State(bChoice(bExp, p, q)), Eval(bExp).
+    trans(State(bChoice(bExp, p, q)), tau, State(q)) :- State(bChoice(bExp, p, q)), NEval(bExp).
+    // P \ X
+    State(P) :- State(hide(P, X)). // This rule is needed to allow firing rule hyphoteses.
+    // P \ X --tau--> P' \ X. 
+    trans(State(hide(P,X)), tau, State(hide(P_, X))) :- State(hide(P,X)), trans(State(P), ev, State(P_)), ev!=tick, lieIn(ev, X).    
+    // P \ X --ev--> P' \ X
+    trans(State(hide(P,X)), ev, State(hide(P_, X))) :- State(hide(P,X)), trans(State(P), ev, State(P_)), ev!=tick, fail lieIn(ev, X).    
+    //P \ X --tick--> omega
+    trans(State(hide(P,X)), tick, State(omega)) :- State(hide(P,X)), trans(State(P), tick, State(omega)).
+
+    // P ; Q --ev--> P' ; Q
+    State(P) :- State(seqC(P, Q)). // This rule is needed to allow firing rule hyphoteses.
+    trans(iS, ev, State(seqC(P_, Q))) :- iS is State(seqC(P,Q)), trans(State(P), ev, State(P_)), ev!=tick.
+    //SKIP ; Q --tau--> Q
+    trans(iS, tau, State(Q)) :- iS is State(seqC(P, Q)), trans(State(P), tick, State(P_)).
+    // P [|X|] Q
+    State(P) :- State(par(P, X, Q)). // These two rules are needed to allow firing rule hyphoteses.
+    State(Q) :- State(par(P, X, Q)).
+    // P || Q --tau--> P' || Q  e P || Q --tau--> P || Q'
+    trans(iS, tau, State(par(P_,X, Q))) :- trans(State(P), tau, State(P_)), iS is State(par(P,X,Q)).
+    trans(iS, tau, State(par(P,X, Q_))) :- trans(State(Q), tau, State(Q_)), iS is State(par(P,X,Q)).
+    // P || Q --ev--> P' || Q'
+    trans(iS, ev, State(par(P_, X, Q_))) :- iS is State(par(P, X, Q)), trans(State(P),ev,State(P_)),trans(State(Q),ev,State(Q_)), ev!=tau, ev!=tick, lieIn(ev, X).
+    //P || Q --ev--> P' || Q
+    trans(iS, ev, State(par(P_, X, Q))) :- iS is State(par(P, X, Q)), ev!=tau, ev!=tick, trans(State(P), ev, State(P_)), fail lieIn(ev, X).
+    //P || Q --ev--> P || Q'
+    trans(iS, ev, State(par(P, X, Q_))) :- iS is State(par(P, X, Q)), ev!=tau, ev!=tick, trans(State(Q), ev, State(Q_)), fail lieIn(ev, X).
+    //Skip || Q --ev--> omega || Q
+    trans(iS, tau, State(par(omega, X, Q))) :- iS is State(par(Skip, X, Q)).
+    //P || Skip --ev--> P|| omega
+    trans(iS, tau, State(par(P, X, omega))) :- iS is State(par(P, X, Skip)).
+    // If both sides are omega, then we have an omega final state
+    trans(iS, tick, State(omega)) :- iS is State(par(omega, X, omega)).
+    // Recursive calls
+    State(PBody) :- State(proc(P, pP)), ProcDef(P, pP, PBody). // These two rules mean "the unfolding rule"
+    // Firing rules for recursive calls (The unfolding rule)
+    trans(n, tau, m) :- n is State(proc(P, pP)), ProcDef(P, pP, PBody), m is State(PBody).
+
+    ProcDef             ::= (name:String, pproc: Param, proc:CSPProcess).
+    State(p)            :- GivenProc(np), ProcDef(np, nopar, p).
+
+    // The following primitive is used to mark the starting point
+    primitive GivenProc ::= (name: String).
+
+}
+
+domain CSP_Properties extends CSP_Semantics {
+    // Deadlock property
+    Deadlock := trans(_, ev, State(L)), fail trans(State(L), _, _), ev!=tick, L != Div.
+    Deadlock := GivenProc(name),ProcDef(name,params,body),fail trans(State(body),_,_).
+
+    
+    //Livelock property
+    // Capturing tau-loops
+    tauPath      ::= (iS:State,fS:State).
+    tauPath(P,Q) :- trans (P,tau,Q).
+    tauPath(P,Q) :- tauPath(P,S),tauPath(S,Q).
+    Livelock := tauPath(L,L). 
+	Livelock := trans(L,ev,Sf),reachable(Sf),Sf=State(Div).
+	
+    // Nondeterminism property
+    accepts    ::= (iS:State,ev:SigmaTickTau).
+    accepts(P, ev) :- trans(P,ev,_), ev != tau.
+    accepts(P, ev) :- trans(P,tau,R),accepts(R,ev).
+    
+	reachable    ::= (fS:State).
+	reachable(State(PBody)) :- GivenProc(P),ProcDef(P,pPar,PBody).
+	reachable(Q)  :- GivenProc(P),ProcDef(P,pPar,PBody), trans(State(PBody),_,Q).
+	reachable(Q)  :- reachable(R), trans(R,_,Q).
+	
+	//s^<a> \in traces(P) <=> reachable(PBody,L), accepts(L,a,_)
+	//(s,{a}) \in failures(P) <=> reachable(PBody,L), fail accepts(L,a,_)
+			
+	
+    Nondeterminism := trans(L,tau,S1),trans(L,tau,S2), S1 != S2, 
+						accepts(S1,ev), ev!= tau, fail accepts(S2,ev),
+						reachable(S1),reachable(S2).
+
+	//Nondeterminism := Livelock.
+  
+
+}
+
+domain TrRefinement extends CSP_Properties as Spec, CSP_Properties as Impl{
+ CEPath              ::= (iS:Spec.State,event:Spec.SigmaTickTau,fS:Spec.State).
+ CEPath(P, ev, Q)    :- Spec.trans(P, ev, Q), ev != tau.
+ CEPath(P, ev2, Q)   :- Spec.tauPath(P, S), Spec.trans(S, ev2, Q), ev2 != tau.
+
+ //The conterexample
+ C_Ex::=(spec:Spec.State,impl:Impl.State,
+       event:Impl.SigmaTickTau,specNext:Spec.State,implNext:Impl.State). 
+ 
+ // Building the first transition
+ C_Ex(Spec.State(proc(P,pP)),Impl.State(proc(Q,pQ)),tau,
+       Spec.State(PBody),Impl.State(QBody)) :- 
+            Spec.GivenProc(P),Spec.ProcDef(P,pP,PBody),
+            Impl.GivenProc(Q),Impl.ProcDef(Q,pQ,QBody).
+
+ // Tau transitions in the implementation are discarded. 
+ C_Ex(S0P,S0Q,ev,S1P,S2Q) :- Impl.trans(S1Q,tau,S2Q),C_Ex(S0P,S0Q,ev,S1P,S1Q).
+
+ //Implementation has a lengthier trace than the specification
+ C_Ex(S0P,S0Q,evI,Spec.State(omega),Impl.State(omega)) :-
+        Impl.trans(S0Q,evI,_),
+        evI!=tau,evI!=tick, 
+        C_Ex(_,_,_,S0P,S0Q),
+        fail CEPath(S0P,_,_).
+ 
+ //Different events originate the final transition.
+ C_Ex(S0P,S0Q,evI,Spec.State(omega),Impl.State(omega)) :-
+        Impl.trans(S0Q,evI,_),
+        C_Ex(_,_,_,S0P,S0Q),
+        evI = Impl.BasicEv(name),
+        fail CEPath(S0P,Spec.BasicEv(name),_).
+ 
+ //For the case where impl performs tick
+ C_Ex(S0P,S0Q,tick,Spec.State(omega),Impl.State(omega)) :-
+        Impl.trans(S0Q,tick,_),
+        C_Ex(_,_,_,S0P,S0Q),
+        fail CEPath(S0P,tick,_).
+		
+ // Equal events were performed. Just record it.
+ C_Ex(S0P,S0Q,evI,S1P,S1Q) :- CEPath(S0P,evS,S1P),
+        Impl.trans(S0Q,evI,S1Q),
+        evS = Spec.BasicEv(name),evI = Impl.BasicEv(name), 
+        C_Ex(_,_,_,S0P,S0Q),evI!=tau. 
+ 
+ // Counterexample definition
+ counterExample := Spec.GivenProc(P), Spec.ProcDef(P,Ppar,PBody), 
+        Impl.GivenProc(Q), Impl.ProcDef(Q,pQ,QBody), 
+        C_Ex(Spec.State(proc(P,Ppar)),Impl.State(proc(Q,pQ)),_,_,_),
+        C_Ex(_,_,_,Spec.State(omega),Impl.State(omega)).
+ 
+ //counterExample := Spec.GivenProc(P), Spec.ProcDef(P,Ppar,PBody), //Spec.GivenProc(P,Ppar,PBody)
+ //       Impl.GivenProc(Q),Impl.ProcDef(Q,pQ,QBody),//Impl.GivenProc(Q,pQ,QBody), 
+        //C_Ex(Spec.State(PBody),Impl.State(QBody),_,_,_),
+ //       C_Ex(Spec.State(proc(P,Ppar)),Impl.State(proc(Q,pQ)),_,_,_),
+ //       C_Ex(_,_,_,Spec.State(omega),Impl.State(omega)).
+ conforms                 := counterExample.
+}
+domain CML_PropertiesSpec extends CML_SemanticsSpec {
+    // Deadlock property
+    Deadlock := GivenProc(name),ProcDef(name,params,body),reachable(State(_,st,_,L)),trans(_,_,State(_,st,_,L)),fail trans(State(_,st,_,L),_,_),L != Skip.
+    Deadlock := GivenProc(name),ProcDef(name,params,body),fail trans(State(_,s,name,body),_,_), body != Skip.
+
+    //Livelock property
+    // Capturing tau-loops
+    tauPath      ::= (iS:State,fS:State).
+    tauPath(P,Q) :- trans (P,tau,Q).
+    tauPath(P,Q) :- tauPath(P,S),tauPath(S,Q).
+    Livelock := tauPath(L,L). 
+
+    // Nondeterminism property
+    accepts    ::= (iS:State,ev:SigmaTau).
+    accepts(P, ev) :- trans(P,ev,_), ev != tau.
+    accepts(P, ev) :- trans(P,tau,R),accepts(R,ev).
+    
+	reachable    ::= (fS:State).
+	//The initial binding is captured at initialisation
+    reachable(State(0,nBind,P,PBody)) :- GivenProc(P),ProcDef(P,pPar,PBody).
+	reachable(Q)  :- GivenProc(P),ProcDef(P,pPar,PBody), trans(State(_,_,P,PBody),_,Q).
+	reachable(Q)  :- reachable(R), trans(R,_,Q).
+	
+	//s^<a> \in traces(P) <=> reachable(PBody,L), accepts(L,a,_)
+	//(s,{a}) \in failures(P) <=> reachable(PBody,L), fail accepts(L,a,_)
+    Nondeterminism := trans(L,ev1,S1),trans(L,ev1,S2), S1 != S2, 
+						accepts(S1,ev), ev!= tau, fail accepts(S2,ev),
+						reachable(S1),reachable(S2).
+	
+    Chaos := GivenProc(name),ProcDef(name,params,body), trans(_,_,State(_,_,name,Chaos)).
+}
+
+

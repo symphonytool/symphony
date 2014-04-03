@@ -1,0 +1,23 @@
+
+channels
+	c : int
+	a
+	b:char
+	
+chansets
+cs = {c}
+
+process P = A [|cs|] B
+
+process A = 
+begin
+@c?x-> Skip
+end
+
+process B = 
+begin
+actions
+
+act_C = act_C
+@ c.1->act_C ; Skip  
+end

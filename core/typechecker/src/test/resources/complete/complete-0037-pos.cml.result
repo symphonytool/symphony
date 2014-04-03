@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.CompleteCmlTypeCheckerTests">
+<message column="1" line="15" message="erus at 15:1 hidden by erus." messageType="warning" number="5008" resource="complete-0037-pos.cml"/>
+<message column="21" line="15" message="eruRescues at 15:21 hidden by eruRescues." messageType="warning" number="5008" resource="complete-0037-pos.cml"/>
+<message column="1" line="15" message="Instance variable 'erus' is not initialized." messageType="warning" number="5001" resource="complete-0037-pos.cml"/>
+<message column="21" line="15" message="Instance variable 'eruRescues' is not initialized." messageType="warning" number="5001" resource="complete-0037-pos.cml"/>
+<result/>
+</testResult>

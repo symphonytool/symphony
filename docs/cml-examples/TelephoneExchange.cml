@@ -192,37 +192,37 @@ process ExchangeProc = lSUBS: (set of SUBS) @ begin -- there's not type "finite 
 
 	actions
 		Exch = 
-				call?s in set (subs)?t in set (subs) ->
+				call?s:(s in set subs)?t:(t in set subs) ->
 					(if s in set free(status,number,subs) then callok -> Call(s,t)
 					else callerror -> Skip); Exch
 				[]
-				clear?s in set (subs) ->
+				clear?s:(s in set subs) ->
 					(if s in set dom(status) then clearok -> 
 						(dcl t: SUBS @ t := number(s); Clear(s,t))
 					else clearerror -> Skip); Exch
 				[]
-				suspend?t in set (subs) ->
+				suspend?t:(t in set subs) ->
 					(if t in set suspendable(status,number) 
 					then suspendok -> (dcl s: SUBS @ s := number(t); Suspend(s,t))
 					else suspenderror -> Skip); Exch
 				[]
-				connectfree?s in set (connectable(status,number) union free(status,number,subs)) ->
+				connectfree?s:(s in set (connectable(status,number) union free(status,number,subs))) ->
 					(dcl t: SUBS @ t:=number(s); ConnectFree(s,t)); Exch
 				[]
-				connectbusy?s in set (connectable(status,number) \ free(status,number,subs)) ->
+				connectbusy?s:(s in set (connectable(status,number) \ free(status,number,subs))) ->
 					(dcl t: SUBS @ t:=number(s); ConnectBusy(s,t)); Exch
 				[]
-				answer?t in set (subs) ->
+				answer?t:(t in set subs) ->
 					(if t in set ringing(status,number)
 					then answerok -> (dcl s: SUBS @ s:=number(t); Answer(s,t))
 					else answererror -> Skip); Exch
 				[]
-				unsuspend?t in set (subs) ->
+				unsuspend?t:(t in set subs) ->
 					(if t in set suspended(status,number) 
 					then unsuspendok -> (dcl s: SUBS @ s:=number(t); Unsuspend(s,t))
 					else unsuspenderror -> Skip); Exch
 		
-		@ init -> InitExchange; Exch
+		@ init -> InitExchange(); Exch
 end		
 
 channels
@@ -233,6 +233,7 @@ channels
 	mycallok,myclearok,mysuspendok,myanswerok,myunsuspendok
 	mycallerror,myclearerror,mysuspenderror,myanswererror,myunsuspenderror
 	link,mid: LOC*MSG*LOC*LOC*SUBS*SUBS
+	connectbusy
 	
 process NodeProc = i: nat @ begin
 	functions
@@ -269,30 +270,30 @@ process NodeProc = i: nat @ begin
 
 	actions
 		Node = 
-			call?s in set (home(i) \ (dom(away)))?t in set (home(i) \ (dom(away))) ->
+			call?s:(s in set (home(i) \ (dom(away))))?t:(t in set (home(i) \ (dom(away)))) ->
 				mycall!s!t -> (mycallok -> callok -> Skip [] mycallerror -> callerror -> Skip); Node
 			[]
-			call?s in set (dom(away))?t -> callerror -> Node
+			call?s:(s in set dom(away))?t -> callerror -> Node
 			[]
-			call?s in set (home(i))?t in set ({x | x: SUBS @ x not in set home(i)}) ->
+			call?s:(s in set home(i))?t:(t in set SUBS and t not in set home(i)) ->
 				(dcl m: nat @ [frame wr m pre true post t in set home(m)];
 							  away := away ++ {s |-> m};
 							  mid!i!vcallmsg!i!m!s!t -> Skip); Node
 			[]
-			clear?s in set (home(i) \ (dom(away)))?t in set (home(i) \ (dom(away))) ->
+			clear?s:(s in set (home(i) \ (dom(away))))?t:(t in set (home(i) \ (dom(away)))) ->
 
 				myclear!s!t -> (myclearok -> clearok -> Skip [] myclearerror -> clearerror -> Skip); Node
 			[]
-			clear?s in set (dom(away))?t in set ({x | x: SUBS @ x not in set home(i)}) ->
+			clear?s:(s in set dom(away))?t:(t in set SUBS and t not in set home(i)) ->
 				mid!i!vclearmsg!i!(away(s))!s!t -> away:={s}<-:away; Node
 			[]
-			suspend?s in set (home(i)) -> mysuspend!s ->
+			suspend?s:(s in set home(i)) -> mysuspend!s ->
 				(mysuspendok -> suspendok -> Skip [] mysuspenderror -> suspenderror -> Skip); Node
 			[]
-			answer?t in set (home(i)) -> myanswer!s ->
+			answer?t:(t in set home(i)) -> myanswer!s ->
 				(myanswerok -> answerok -> Skip [] myanswererror -> answererror -> Skip); Node
 			[]
-			suspend?t in set (home(i)) -> myunsuspend!s ->
+			suspend?t:(t in set home(i)) -> myunsuspend!s ->
 				(myunsuspendok -> unsuspendok -> Skip
 				[]
 				myunsuspenderror -> unsuspenderror -> Skip); Node
@@ -335,7 +336,7 @@ end
 process NodeLinkProc = i: nat @ (NodeProc(i) [|{|mid|}|] LinkProc(i)) \\ {|mid|}
 
 process SlaveExchangeProc = i: LOC @
-	ExchangeProc(home(i))[[
+	(ExchangeProc(home(i)))[[
 		call <- mycall, clear <- myclear, suspend <- mysuspend,
 		connectfree <- myconnectfree, connectbusy <- myconnectbusy,
 		answer <- myanswer, unsuspend <- myunsuspend,

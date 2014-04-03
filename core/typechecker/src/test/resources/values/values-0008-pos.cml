@@ -1,0 +1,13 @@
+class
+
+ test =
+
+begin
+
+
+
+values
+
+ public a:token = mk_token("what up?")
+
+end

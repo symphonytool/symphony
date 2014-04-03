@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.RunCmlExamplesTestCase">
+<message column="13" line="3" message="Name 'n' is not in scope." messageType="error" number="3182" resource="process-action-instantiated.cml"/>
+<message column="9" line="3" message="The Symbol &quot;OW&quot; is undefined." messageType="error" number="3410" resource="process-action-instantiated.cml"/>
+<result/>
+</testResult>

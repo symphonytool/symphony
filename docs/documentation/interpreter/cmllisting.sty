@@ -1,0 +1,194 @@
+%%
+%% This is file `cmllisting.sty',
+%%
+%% 
+%% Please read the software license in cmllisting.pdf.
+%%
+%% (w)(c) 2010--2013 Kenneth Lausdahl and/or any other author listed
+%% elsewhere in this file.
+%% (c) 2013 Kenneth Lausdahl
+%%
+%%
+\def\filedate{2013/04/10}
+\def\fileversion{1.0}
+\NeedsTeXFormat{LaTeX2e}
+\AtEndOfPackage{\ProvidesPackage{cmllisting}
+             [\filedate\space\fileversion\space(Kenneth Lausdahl)]}
+\def\lst@CheckVersion#1{\edef\reserved@a{#1}%
+    \ifx\lst@version\reserved@a \expandafter\@gobble
+                          \else \expandafter\@firstofone \fi}
+\let\lst@version\fileversion
+
+\RequirePackage{listings}
+
+%define load option flags
+\newif\ifnotimes
+\newif\ifenablecolors
+
+\DeclareOption{notimes}{
+ 	\notimestrue
+}
+
+
+
+\ProcessOptions\relax
+
+\ifnotimes
+%
+\else
+ 	\RequirePackage{times}
+\fi
+
+
+ 	\RequirePackage{color}
+ 	\definecolor{notovered}{rgb}{1,0,0}  %red
+% Custom macro used to color uncoverage model parts in listings
+
+
+%
+%configure listing style and language
+%
+
+\lstdefinelanguage{CML}
+  {  keywords={%
+    @,%
+    &,%
+    ++,%
+    actions,%
+    all,%
+    and,%
+    atomic,%
+    begin,%
+    bool,%
+    by,%
+   class,%
+    cases,%
+    channels,%
+    Chaos,%
+    dcl,%
+    Div,%
+    do,%
+    dom,%
+    dunion,%
+    else,%
+    elseif,%
+    endsby,%
+    end,%
+    for,%
+    forall,%
+    functions,%
+    if,%
+    in,%
+    inter,%
+    inmap,%
+    inv,%
+is,%
+    let,%
+    loc,%
+    map,%
+    mk,%
+    mu,%
+    munion,%
+    new,%
+    not,%
+    of,%
+    operations,%
+    or,%
+    others,%
+    power,%
+    post,%
+    pre,%
+    process,%
+    public,%
+    ret,%
+    return,%
+    rng,%
+    seq,%
+    set,%
+    Skip,%
+    startsby,%
+    state,%
+    Stop,%
+    subset,%
+    then,%
+    to,%
+    token,%
+    types,%
+    union,%
+    values,%
+    var, %
+    Wait,%
+    while%
+  },%
+morekeywords={RESULT, abs, all, always, and, as, be, be st, bool, by, card, cases, char, comp, compose, 
+conc, dcl, def, definitions, dinter, div, dlmodule, do, dom, dunion, elems, else, elseif, end,
+ error, errs, exists, exists1, exit, exports, ext, false, floor, for, for all, forall, from, 
+ functions, hd, if, imports, in, in set, inds, init, inmap, int, inter, inv, inverse, iota, 
+ is not yet specified, lambda, len, let, map, measure, merge, mod, module, mu, munion, nat, nat1,
+  nil, not, not in set, of, operations, or, others, post, power, pre, psubset, rat, rd, real, rem, 
+  renamed, return, reverse, rng, seq, seq1, set, skip, specified, st, state, struct, subset, then,
+   tixe, tl, to, token, traces, trap, true, types, undefined, union, uselib, values, while, with, wr,
+    yet,mk\_ },
+   sensitive,
+   morecomment=[l]--,
+   morestring=[b]",
+   morestring=[b]',
+  }[keywords,comments,strings]
+
+\definecolor{mygreen}{rgb}{0,0.6,0}
+\definecolor{mymauve}{rgb}{0.58,0,0.82}
+
+%
+% Define  listing for the cml language
+%
+\lstdefinestyle{cmlStyle}{
+  keywordstyle=\bfseries\color{purple!80!black},%
+  language=CML,%
+  breaklines     = true,%
+basicstyle=\footnotesize\ttfamily,
+			tabsize=2, 
+			linewidth=\textwidth,
+			showstringspaces=false, 
+			captionpos=b,
+commentstyle=\color{mygreen},
+stringstyle=\color{mymauve}, 
+			aboveskip=5mm,
+			belowskip=5mm,
+			framexleftmargin=0mm, 
+			framexrightmargin=0mm,
+			escapeinside={(*@}{@*)},
+			}
+
+
+% define listing environments
+
+
+
+% Environment definition for cml blocks
+%  The listing environment cml_al is reset to the default overture style and default dialect each time one of the overture listing environments are used.
+% All listing environments are defined to take an optional parameter of the type \lstset which is applied as the last on in the environment allowing the user to change the defaults if desired:
+%\begin{cml}[\lstset{numbers=left}]
+
+%Default cml  Listing: language is set by the project from which it has been generated from. 
+\lstnewenvironment{cml}[1][]{\lstset{style=cmlStyle}\lstset{#1}}
+{}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\endinput

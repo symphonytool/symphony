@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.ProcessesCmlTypeCheckerTests">
+<message column="1" line="11" message="Instance variable 'a' is not initialized." messageType="warning" number="5001" resource="processes-0014-neg.cml"/>
+<message column="45" line="15" message="Expression is not boolean." messageType="error" number="3218" resource="processes-0014-neg.cml"/>
+<result/>
+</testResult>

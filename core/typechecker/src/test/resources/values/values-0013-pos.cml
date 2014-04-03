@@ -1,0 +1,13 @@
+class
+
+ test =
+
+begin
+
+
+
+values
+
+ public a:int = 0xDEADBEEF + 0xCAFEBABE
+
+end

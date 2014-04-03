@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.FunctionsCmlTypeCheckerTests">
+<message column="32" line="3" message="Definition 'b' not used." messageType="warning" number="5000" resource="functions-0009-pos.cml"/>
+<message column="30" line="3" message="Definition 'a' not used." messageType="warning" number="5000" resource="functions-0009-pos.cml"/>
+<message column="1" line="19" message="Instance variable 'b' is not initialized." messageType="warning" number="5001" resource="functions-0009-pos.cml"/>
+<result/>
+</testResult>

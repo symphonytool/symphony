@@ -1,0 +1,9 @@
+/* Timeout action is ok with int expression */
+
+process A =
+begin
+
+@ Skip [_ 1 _> Skip
+
+end
+

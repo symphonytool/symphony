@@ -1,0 +1,16 @@
+channels 
+a
+b : int
+
+process A = 
+begin 
+	state
+		v : int := 2
+
+	operations
+	
+		Test : () ==> ()
+		Test() == if v = 1 then v := 0
+	
+	@ a -> v := v + 1;Test(); b.v -> Skip
+end

@@ -1,0 +1,13 @@
+channels a b c 
+process test = 
+begin
+	state 
+		v : int := 2
+	actions
+		INIT = 
+		(a -> v := v + 1; c -> Skip) 
+		[] 
+		(b -> v := v + 2;c -> Skip) 
+	
+	@ INIT
+end

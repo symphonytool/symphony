@@ -1,0 +1,8 @@
+channels 
+b
+a : int * int
+
+process A = 
+begin 
+	@ (b -> a.1?x -> Skip) [| {|a|} |] (a.1!4 -> Skip)
+end

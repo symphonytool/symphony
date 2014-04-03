@@ -1,0 +1,4 @@
+process A = 
+begin 
+	@ Stop 
+end

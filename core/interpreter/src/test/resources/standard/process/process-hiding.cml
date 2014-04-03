@@ -1,0 +1,14 @@
+channels
+a b c
+
+process A = 
+begin
+	@ c -> a -> Skip
+end
+
+process B = 
+begin
+	@ b -> c -> Skip
+end
+
+process C = A [| {c} |] B \\ {c}

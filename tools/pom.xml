@@ -6,13 +6,13 @@
   <parent>
     <groupId>eu.compassresearch</groupId>
     <artifactId>root</artifactId>
-    <version>0.1.1<!--Replaceable: Main Version--></version>
+    <version>0.3.1-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
   <groupId>eu.compassresearch.tools</groupId>
   <artifactId>tools</artifactId>
-  <name>COMPASS Tools Top-Level</name>
+  <name>Symphony Tools Top-Level</name>
 
   <modules>
   </modules>

@@ -1,0 +1,9 @@
+/* Communication is not fine if channel does not exist*/
+
+
+process A =
+begin
+
+@ a -> Skip
+
+end

@@ -1,0 +1,13 @@
+process
+
+ K =
+
+begin
+
+
+
+actions
+
+ INIT = Skip @ INIT
+
+end

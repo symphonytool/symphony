@@ -1,0 +1,13 @@
+channels a
+process test = 
+begin
+	state
+	v : int := 0
+	
+	actions
+	Main = 	[v < 2] & a -> v := v + 1 ; Main
+			[] 
+		 	[v = 2] & Skip 
+	
+	@ Main 	 
+end

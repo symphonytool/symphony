@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.RunCmlExamplesTestCase">
+<message column="26" line="1" message="Unable to resolve type name 'T'." messageType="error" number="3427" resource="process-instantiation-withdecl.cml"/>
+<message column="23" line="1" message="Expecting 0 arguments. Actual 1." messageType="error" number="3211" resource="process-instantiation-withdecl.cml"/>
+<result/>
+</testResult>

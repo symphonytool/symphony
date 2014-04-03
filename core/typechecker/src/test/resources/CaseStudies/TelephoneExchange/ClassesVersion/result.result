@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.CaseStudiesTestCase">
+<message column="1" line="23" message="Recursive function has no measure." messageType="warning" number="5012" resource="TelephoneExchangeSoS.cml"/>
+<message column="9" line="71" message="status at 71:2 hidden by status." messageType="warning" number="5008" resource="TelephoneExchangeSoS.cml"/>
+<message column="9" line="72" message="number at 72:2 hidden by number." messageType="warning" number="5008" resource="TelephoneExchangeSoS.cml"/>
+<message column="9" line="73" message="subs at 73:2 hidden by subs." messageType="warning" number="5008" resource="TelephoneExchangeSoS.cml"/>
+<message column="9" line="67" message="lSUBS at 67:2 hidden by lSUBS." messageType="warning" number="5008" resource="TelephoneExchangeSoS.cml"/>
+<message column="22" line="85" message="Definition 'a' not used." messageType="warning" number="5000" resource="TelephoneExchangeSoS.cml"/>
+<message column="9" line="73" message="subs at 73:2 hidden by subs." messageType="warning" number="5008" resource="TelephoneExchangeSoS.cml"/>
+<message column="9" line="73" message="subs at 73:2 hidden by subs." messageType="warning" number="5008" resource="TelephoneExchangeSoS.cml"/>
+<message column="9" line="71" message="status at 71:2 hidden by status." messageType="warning" number="5008" resource="TelephoneExchangeSoS.cml"/>
+<message column="9" line="72" message="number at 72:2 hidden by number." messageType="warning" number="5008" resource="TelephoneExchangeSoS.cml"/>
+<message column="9" line="73" message="subs at 73:2 hidden by subs." messageType="warning" number="5008" resource="TelephoneExchangeSoS.cml"/>
+<message column="9" line="71" message="status at 71:2 hidden by status." messageType="warning" number="5008" resource="TelephoneExchangeSoS.cml"/>
+<message column="9" line="72" message="number at 72:2 hidden by number." messageType="warning" number="5008" resource="TelephoneExchangeSoS.cml"/>
+<message column="9" line="73" message="subs at 73:2 hidden by subs." messageType="warning" number="5008" resource="TelephoneExchangeSoS.cml"/>
+<message column="9" line="71" message="status at 71:2 hidden by status." messageType="warning" number="5008" resource="TelephoneExchangeSoS.cml"/>
+<message column="9" line="73" message="subs at 73:2 hidden by subs." messageType="warning" number="5008" resource="TelephoneExchangeSoS.cml"/>
+<message column="9" line="72" message="number at 72:2 hidden by number." messageType="warning" number="5008" resource="TelephoneExchangeSoS.cml"/>
+<message column="9" line="71" message="status at 71:2 hidden by status." messageType="warning" number="5008" resource="TelephoneExchangeSoS.cml"/>
+<message column="9" line="73" message="subs at 73:2 hidden by subs." messageType="warning" number="5008" resource="TelephoneExchangeSoS.cml"/>
+<message column="9" line="72" message="number at 72:2 hidden by number." messageType="warning" number="5008" resource="TelephoneExchangeSoS.cml"/>
+<message column="9" line="71" message="status at 71:2 hidden by status." messageType="warning" number="5008" resource="TelephoneExchangeSoS.cml"/>
+<message column="9" line="73" message="subs at 73:2 hidden by subs." messageType="warning" number="5008" resource="TelephoneExchangeSoS.cml"/>
+<message column="9" line="72" message="number at 72:2 hidden by number." messageType="warning" number="5008" resource="TelephoneExchangeSoS.cml"/>
+<message column="9" line="71" message="status at 71:2 hidden by status." messageType="warning" number="5008" resource="TelephoneExchangeSoS.cml"/>
+<message column="9" line="73" message="subs at 73:2 hidden by subs." messageType="warning" number="5008" resource="TelephoneExchangeSoS.cml"/>
+<message column="9" line="72" message="number at 72:2 hidden by number." messageType="warning" number="5008" resource="TelephoneExchangeSoS.cml"/>
+<message column="9" line="71" message="status at 71:2 hidden by status." messageType="warning" number="5008" resource="TelephoneExchangeSoS.cml"/>
+<message column="9" line="73" message="subs at 73:2 hidden by subs." messageType="warning" number="5008" resource="TelephoneExchangeSoS.cml"/>
+<message column="9" line="72" message="number at 72:2 hidden by number." messageType="warning" number="5008" resource="TelephoneExchangeSoS.cml"/>
+<message column="9" line="250" message="away at 250:2 hidden by away." messageType="warning" number="5008" resource="TelephoneExchangeSoS.cml"/>
+<message column="2" line="251" message="origin at 251:2 hidden by origin." messageType="warning" number="5008" resource="TelephoneExchangeSoS.cml"/>
+<message column="2" line="67" message="Instance variable 'lSUBS' is not initialized." messageType="warning" number="5001" resource="TelephoneExchangeSoS.cml"/>
+<message column="2" line="71" message="Instance variable 'status' is not initialized." messageType="warning" number="5001" resource="TelephoneExchangeSoS.cml"/>
+<message column="2" line="72" message="Instance variable 'number' is not initialized." messageType="warning" number="5001" resource="TelephoneExchangeSoS.cml"/>
+<message column="2" line="73" message="Instance variable 'subs' is not initialized." messageType="warning" number="5001" resource="TelephoneExchangeSoS.cml"/>
+<message column="7" line="190" message="Instance variable 'ex' is not initialized." messageType="warning" number="5001" resource="TelephoneExchangeSoS.cml"/>
+<message column="2" line="249" message="Instance variable 'i' is not initialized." messageType="warning" number="5001" resource="TelephoneExchangeSoS.cml"/>
+<message column="2" line="250" message="Instance variable 'away' is not initialized." messageType="warning" number="5001" resource="TelephoneExchangeSoS.cml"/>
+<message column="2" line="251" message="Instance variable 'origin' is not initialized." messageType="warning" number="5001" resource="TelephoneExchangeSoS.cml"/>
+<message column="7" line="281" message="Instance variable 'n' is not initialized." messageType="warning" number="5001" resource="TelephoneExchangeSoS.cml"/>
+<result/>
+</testResult>

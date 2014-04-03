@@ -1,0 +1,98 @@
+types
+
+  G = nat
+
+values 
+  GValue : G = 20
+  
+functions       
+  GFun: G-> G
+  GFun(g_f_p) == g_f_p
+  
+  
+functions       
+  GFun2: G-> G
+  GFun2(g_f_p) == '4'
+
+process P = val a :int @
+
+begin
+  state 
+ 	PState : G                  
+
+  types
+	PType = nat
+
+  values 
+	PValue_G : G = 30
+	PValue_PType : PType = 40
+
+  operations
+  
+	POp: G ==> G
+    POp(p_o_p) == return p_o_p
+    
+  functions       
+    PFun: G-> G
+    PFun(p_f_p) == p_f_p+a
+    
+  actions
+  a1 = Skip
+  @
+    Skip ; a1
+end  
+
+process P1 = 
+
+begin
+  state 
+ 	PState : G                  
+
+  types
+	PType = nat
+
+  values 
+	PValue_G : G = 30
+	PValue_PType : PType = 40
+
+  operations
+  
+	POp: G ==> G
+    POp(p_o_p) == return p_o_p
+    
+  functions       
+    PFun: G-> G
+    PFun(p_f_p) == p_f_p
+    
+  actions
+  a1 = Skip
+  @
+    Skip ; a1
+end 
+
+
+process P2 = P;P1
+
+
+class GClass = 
+begin
+
+types
+--G=int
+  GCG = int
+
+values 
+  GCV : G = 40
+
+state
+  GCInstance_Var : G 
+
+--operations
+
+--  GCOp: G ==> G
+--  GCOp(g_c_o_p) == return g_c_o_p
+    
+functions       
+  GCFun: G-> G
+  GCFun(g_c_f_p) == g_c_f_p+true+GFun(g_c_f_p)
+end

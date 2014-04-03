@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.RunCmlExamplesTestCase">
+<message column="29" line="1" message="Name 'a' is not in scope." messageType="error" number="3182" resource="process-action-whilestm.cml"/>
+<message column="38" line="1" message="Symbol 'a' is not an updatable variable." messageType="error" number="3247" resource="process-action-whilestm.cml"/>
+<message column="43" line="1" message="Name 'a' is not in scope." messageType="error" number="3182" resource="process-action-whilestm.cml"/>
+<result/>
+</testResult>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.RunCmlExamplesTestCase">
+<message column="8" line="1" message="Duplicate definition: test." messageType="warning" number="5007" resource="process-action-replicated-internalChoice.cml"/>
+<message column="8" line="2" message="Duplicate definition: test." messageType="warning" number="5007" resource="process-action-replicated-internalChoice.cml"/>
+<message column="8" line="3" message="Duplicate definition: test." messageType="warning" number="5007" resource="process-action-replicated-internalChoice.cml"/>
+<message column="8" line="1" message="Duplicate definition: test." messageType="error" number="5007" resource="process-action-replicated-internalChoice.cml"/>
+<message column="8" line="2" message="Duplicate definition: test." messageType="error" number="5007" resource="process-action-replicated-internalChoice.cml"/>
+<message column="8" line="3" message="Duplicate definition: test." messageType="error" number="5007" resource="process-action-replicated-internalChoice.cml"/>
+<message column="43" line="1" message="Operation A(nat1) is not in scope." messageType="error" number="3213" resource="process-action-replicated-internalChoice.cml"/>
+<message column="36" line="2" message="Operation A(nat) is not in scope." messageType="error" number="3213" resource="process-action-replicated-internalChoice.cml"/>
+<message column="51" line="3" message="Operation A(nat1) is not in scope." messageType="error" number="3213" resource="process-action-replicated-internalChoice.cml"/>
+<result/>
+</testResult>

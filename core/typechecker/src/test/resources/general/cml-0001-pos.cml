@@ -1,0 +1,33 @@
+types
+	H = int
+
+channels
+	
+	a:int
+	b
+	t : bool
+	h : H
+	
+chansets
+
+
+	Cset = {| a,h |}
+	
+
+	
+process P =
+	begin
+	
+	operations
+
+op1: int ==>()
+op1(a) == Skip
+	
+		actions
+		A1=	a?s	->	A2
+		
+		A2 = A1
+		
+		@  op1(1+5)
+			//h	-> P
+	end

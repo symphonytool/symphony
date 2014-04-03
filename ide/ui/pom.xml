@@ -1,0 +1,41 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>eu.compassresearch.ide</groupId>
+    <artifactId>ide</artifactId>
+    <version>0.3.1-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+
+  <packaging>eclipse-plugin</packaging>
+
+
+  <artifactId>eu.compassresearch.ide.ui</artifactId>
+  <name>Symphony IDE UI</name>
+
+
+  <developers>
+    <developer>
+      <id>lausdahl</id>
+      <name>Kenneth Lausdahl</name>
+      <email>lausdahl@eng.au.dk</email>
+      <organization>AU</organization>
+      <roles>
+        <role>architect</role>
+        <role>developer</role>
+      </roles>
+      <timezone>+1</timezone>
+    </developer>
+    <developer>
+      <id>ldcouto</id>
+      <name>Luis Diogo Couto</name>
+      <email>ldc@eng.au.dk</email>
+      <organization>AU</organization>
+      <roles>
+        <role>developer</role>
+      </roles>
+      <timezone>+1</timezone>
+    </developer>
+  </developers>
+</project>

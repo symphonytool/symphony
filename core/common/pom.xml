@@ -5,12 +5,12 @@
   <parent>
     <groupId>eu.compassresearch.core</groupId>
     <artifactId>core</artifactId>
-    <version>0.1.1<!--Replaceable: Main Version--></version>
+    <version>0.3.1-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
   <artifactId>common</artifactId>
-  <name>COMPASS Core Common</name>
+  <name>Symphony Core Common</name>
 
   <dependencies>
 

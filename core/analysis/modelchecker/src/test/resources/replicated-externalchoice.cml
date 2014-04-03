@@ -1,0 +1,10 @@
+channels 
+a
+ 
+process A = 
+begin
+	actions
+	 TEST = a -> Skip 
+	
+	@ [] i in set {1,2,3} @ TEST
+end

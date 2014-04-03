@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.RunCmlExamplesTestCase">
+<message column="8" line="1" message="Duplicate definition: test." messageType="warning" number="5007" resource="process-action-forsequence.cml"/>
+<message column="8" line="2" message="Duplicate definition: test." messageType="warning" number="5007" resource="process-action-forsequence.cml"/>
+<message column="27" line="1" message="Definition 'a' not used." messageType="warning" number="5000" resource="process-action-forsequence.cml"/>
+<message column="27" line="2" message="Definition 'a' not used." messageType="warning" number="5000" resource="process-action-forsequence.cml"/>
+<message column="8" line="1" message="Duplicate definition: test." messageType="error" number="5007" resource="process-action-forsequence.cml"/>
+<message column="8" line="2" message="Duplicate definition: test." messageType="error" number="5007" resource="process-action-forsequence.cml"/>
+<result/>
+</testResult>

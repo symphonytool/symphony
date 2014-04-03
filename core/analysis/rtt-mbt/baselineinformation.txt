@@ -1,0 +1,168 @@
+-----------------------------------------------------------
+RTTPLUGIN_0.3.1
+
+Changes:
+
+- added workaround for different forms of absolute path names on windows ("c:\" and "/c:/").
+- adjusted code (for windows path names) that generates parent directories of files to be created.
+- added new actions to (generate and) execute test procedures in one go.
+- fixed download of templates for import and new project.
+- fixed bug in enabling/disabling rtt-mbt actions for multiple selected objects.
+
+Revision: in progress
+Released: in progress
+-----------------------------------------------------------
+RTTPLUGIN_0.3.0
+
+Synchronisation with Symphony release
+
+-----------------------------------------------------------
+RTTPLUGIN_0.2.9
+
+no merge from local development to symphony development in this version
+
+-----------------------------------------------------------
+RTTMBTAPI_0.2.7-SNAPSHOT
+
+merge from local rtt-plugin development into symphony
+
+changes:
+- added support for "file does not exist" indication in receive file from server command
+- download directory from server now works recursively.
+- fixed problems with windows path separator.
+- added output of VERDICT.txt to console log after successful test execution.
+- removed obsolete prefix "*** error:" from some error messages.
+- fixed scanning for job id for tasks without progress or
+  console indication.
+- fixed project cleanup for RTT-MBT projects
+- added support for ignore patterns that are used during file
+  upload
+- added support for RT-Tester clean, compile, run, doc
+  commands for RT-Tester test procedures that are not in
+  execution context.
+- adjusted log output in case of a failure
+- adjusted tms database name support
+- adjusted file transfer messages
+- added check functions that check if a given path leads to an 
+  RTT-MBT test procedure generation context or an or RT-Tester 6
+  test procedure. The checks are performed according to the 
+  criteria in Mantis PR 7720 "Adjust the project scanner library for MBT"
+  https://software.verified.de/mantis/view.php?id=7720#c15235
+- remove leading and trailing newlines from console log items.
+- back-ports from COMPASS source tree.
+- adjusted console output
+- adjusted default project database name
+- added support for build-make-target command
+- Adjustments to support absolute path inside the file system for all
+  selected items in the project explorer.
+  This is necessary to be able to deal with external projects that
+  are only mapped inside the current workshop.
+- added support for stand alone RT-Tester Projects
+- adjusted version number to match latest symphony release
+- changed from workspace local path for selected objects and
+  related files to absolute file system path. For projects
+  that are mapped into the workspace, the original file system
+  path is used.
+- refactoring of package name
+- added additional console output (in verbose mode) during test generation
+- started support for TMS database commands
+- improved error reporting
+- added cleanup functionality
+- started support for TMS database commands
+- added new command to cleanup a test procedure generation context
+- added error reporting of failed server tasks
+- Added parser for advanced.conf file
+- added support for advanced.conf settings MM and AI override
+- added org.eclipse.draw2d_3.9.0.jar to plugin bundle
+- updated version number and added baseline information files
+
+-----------------------------------------------------------
+RTTMBTAPI_0.2.6
+
+Changes: none
+
+Step forward for the Jan 2014 CIG release
+
+-----------------------------------------------------------
+RTTMBTAPI_0.2.4
+
+Changes: none
+
+Step forward for the M26 milestone release (again)
+
+-----------------------------------------------------------
+RTTMBTAPI_0.2.2
+
+Changes: none
+
+Step forward for the M26 milestone release
+
+-----------------------------------------------------------
+RTTMBTAPI_0.2.0
+
+Changes: none
+
+Step forward for the M24 milestone release
+
+-----------------------------------------------------------
+RTTMBTAPI_0.1.9
+
+Changes: none
+
+Step forward to the development version
+
+-----------------------------------------------------------
+RTTMBTAPI_0.1.8
+
+Changes: none
+
+Update version for COMPASS release
+
+-----------------------------------------------------------
+RTTMBTAPI_0.1.7
+
+Changes: none
+
+Step forward to the development version
+
+-----------------------------------------------------------
+RTTMBTAPI_0.1.6
+
+Changes: none
+
+Update version to bring it in step with the main COMPASS versions, and this corresponds to the 0.1.6 COMPASS release
+
+-----------------------------------------------------------
+RTTMBTAPI_0.1.3
+
+Changes:
+
+rttMbtTmsClientApi:
+- 
+
+Commit: in development
+Released: in development
+
+-----------------------------------------------------------
+RTTMBTAPI_0.1.2
+
+Bugfix and feature release after COMPASS Plenary 2
+
+Changes:
+
+rttMbtTmsClientApi:
+- implemented cleanProject
+- cleanup on model import
+- added CML project name to path in the work area on the RTT-MBT server.
+- add time stamp to console messages if verbose logging is active
+- fixed problem with windows file separator
+
+Commit: a0db135
+Released: 2013-06-28
+
+-----------------------------------------------------------
+Version that was used for the COMPASS Plenary 2 2013-06-14
+
+Commit: 4a9400a
+Released: 2013-06-28
+-----------------------------------------------------------

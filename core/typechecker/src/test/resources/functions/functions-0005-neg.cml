@@ -1,0 +1,15 @@
+class
+
+ Stuff =
+
+begin
+
+
+
+functions
+o : () -> int o() == (let a:int = 2 in "abcd")
+
+
+
+
+end

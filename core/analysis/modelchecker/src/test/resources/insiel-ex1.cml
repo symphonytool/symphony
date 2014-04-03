@@ -1,0 +1,91 @@
+channels
+	a,
+	b,
+	fault,
+	error,
+	failure
+
+process P =
+begin
+	actions
+		NOMINAL = a -> ((b -> NOMINAL) [] FAULT)
+		FAULT = fault -> ((b -> NOMINAL) [] (error -> Skip))
+	@ NOMINAL
+end
+
+process Q = 
+begin
+	actions
+		NOMINAL = a -> ((b -> NOMINAL) [] FAULT)
+		FAULT = fault -> (NOMINAL [] (error -> Skip))
+	@ NOMINAL
+end
+
+-- The following definitions must be in a separate file
+chansets
+	F = {| fault |}
+	E = {| fault, error, failure |}
+	H = {| |}
+	--H = dunion({ErrorDetectionChannels, 
+	--            	RecoveryChannels, 
+	--            	OperationChannels})
+
+process RunE = 
+begin	
+	@ [] e: E @ e -> RunE
+end
+
+--THE USE OF E HAS PROBLEMS. PROBABLY THE CHANSETS ARE NOS MANIPULATED CORRECTLY
+process ChaosE = 
+begin
+	@ Chaos [| E |] RunE
+end
+
+-- Processes related to P
+
+process NoFaults_P = 
+begin
+	@ (P \\ H) [| E |] Stop 
+end
+
+process Lazy_P = 
+begin
+	@ ((P \\ H) [| E |] ChaosE) \\ E 
+end
+
+process Limit_P = 
+begin
+	@ [] e: F @ e -> Limit_P
+end
+
+process LazyLimit_P = 
+begin
+	@ (((P \\ H) [| E |] Limit_P) [| E |] ChaosE) \\ E 
+end
+
+-- Processes related to Q
+process NoFaults_Q = 
+begin
+	@ (Q \\ H) [| E |] Stop 
+end
+
+process Lazy_Q = 
+begin
+	@ ((Q \\ H) [| E |] ChaosE) \\ E 
+end
+
+process Limit_Q = 
+begin
+	@ [] e: F @ e -> Limit_Q
+end
+
+process LazyLimit_Q = 
+begin
+	@ (((Q \\ H) [| E |] Limit_Q) [| E |] ChaosE) \\ E 
+end
+
+-- Verifications
+process FT_P_H = P \\ H
+process FT_P_E = P \\ E
+process FT_Q_H = Q \\ H
+process FT_Q_E = Q \\ E

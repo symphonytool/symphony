@@ -1,0 +1,69 @@
+/*  CML_{0} example from CML Definition 0 document v. 1.0 */
+  types
+    public Byte = int
+    inv n == (n >= 0) and (n <= 255)
+
+  functions
+   oflow : Byte*Byte -> bool
+   oflow(i,j) == i+j > 255
+
+   uflow : Byte*Byte -> bool
+   uflow(i,j) == i-j < 0
+
+
+  channels
+   init, overflow, underflow
+   read, load, add, sub : Byte
+
+  //chansets
+  //I = {| init, overflow, underflow, read, load, add, sub |}
+
+
+process RegisterProc = 
+ begin
+	
+  state 
+  reg : Byte	
+
+  operations  
+   INIT : () ==> ()
+   INIT() == reg := 0
+   post reg = 0
+
+   LOAD : Byte ==> ()
+   LOAD(i) == reg := i
+   
+   READ: () ==>  Byte
+   READ() == return reg
+
+   ADD: Byte ==> ()
+   ADD(i) == reg := reg + i
+   pre not oflow(reg, i)
+   post reg = reg~ + i
+
+   SUB: Byte ==> ()
+   SUB(i) == reg := reg - i
+   pre not uflow(reg,i)
+   post reg = reg~ - i
+   
+  actions
+   
+   REG = 
+     (load?i -> LOAD(i) ; REG)
+     []
+     (dcl j: Byte @ j := READ(); read!j -> REG)
+     [] 
+     (add?i -> ( ([oflow(reg,i)] & overflow -> INIT(); REG)
+       	     	 [] 
+		 ([not oflow(reg,i)] & ADD(i);REG)))
+     [] 
+     (sub?i -> ( ([uflow(reg,i)] & underflow -> INIT(); REG)
+       	     	 [] 
+		 ([not uflow(reg,i)] & SUB(i); REG)))
+   @
+     init -> INIT(); REG
+ end
+ 
+ process Test_Driver = begin @ load.56 -> add!44 -> read?x -> sub!101 -> read?x -> Skip end
+ 
+ process Test = RegisterProc [| { load, add, sub, read } |] Test_Driver 

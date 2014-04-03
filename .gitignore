@@ -25,6 +25,7 @@
 # Logs and databases #
 ######################
 *.log
+*.log.*
 *.sql
 *.sqlite
 
@@ -40,8 +41,18 @@ generatedAST.gv
 ######################
 .DS_Store*
 ehthumbs.db
-Icon?
 Thumbs.db
+
+# The next exclusion as broadly targets the OS X icon file "Icon\r"
+# (that's a carriage return, or ^M, at the end).  It's overbroad,
+# killing any file whose name is 5 characters long, starting with Icon
+# and ending with a character not alphanumeric or -.  We'll tighten it
+# up if we need to.  We're doing it this way as inserting the precise
+# filename (using control characters) doesn't always survive across
+# OSes and edits. -jwc/6June2013
+Icon[^-0-9a-zA-Z]
+!Icon*/
+
 
 # maven target directories #
 ############################
@@ -50,6 +61,10 @@ target/
 .classpath
 .settings/
 .project
+.metadata
+
+# maybe from scala; definitely not desired
+.cache
 
 # temporary excludes #
 ######################
@@ -57,3 +72,8 @@ bin/
 /core/parser/*.report
 output/
 reset-output.sh
+
+
+# vim swap files #
+##################
+*.swp

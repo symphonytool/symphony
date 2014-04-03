@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.RunCmlExamplesTestCase">
+<message column="34" line="1" message="Name 'a' is not in scope." messageType="error" number="3182" resource="process-action-nondeterministicdostm.cml"/>
+<message column="47" line="1" message="Channel b is not declared" messageType="error" number="3431" resource="process-action-nondeterministicdostm.cml"/>
+<result/>
+</testResult>

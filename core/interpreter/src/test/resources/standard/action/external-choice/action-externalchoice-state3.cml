@@ -1,0 +1,16 @@
+channels a, b, c : int
+
+chansets
+I = {| a,b |}
+
+process test = 
+begin
+	
+	@ a?i -> c.(i) -> Skip
+		[] 
+		 b?i -> c.(i) -> Skip 
+end
+
+process driver = begin @ a!2 -> Skip end
+
+process Main = driver [| I |] test

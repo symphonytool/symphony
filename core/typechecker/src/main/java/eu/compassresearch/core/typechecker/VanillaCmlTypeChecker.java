@@ -1,577 +1,302 @@
 package eu.compassresearch.core.typechecker;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.io.PrintWriter;
-import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.Vector;
 
-import eu.compassresearch.ast.types.ASourceType;
-import eu.compassresearch.ast.types.AParagraphType;
-import org.antlr.runtime.ANTLRInputStream;
-import org.antlr.runtime.CommonTokenStream;
-import org.antlr.runtime.RecognitionException;
 import org.overture.ast.analysis.AnalysisException;
-import org.overture.ast.analysis.intf.IQuestionAnswer;
 import org.overture.ast.definitions.AClassClassDefinition;
-import org.overture.ast.definitions.ATypeDefinition;
-import org.overture.ast.definitions.AValueDefinition;
 import org.overture.ast.definitions.PDefinition;
-import org.overture.ast.expressions.PAlternative;
+import org.overture.ast.definitions.SClassDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.factory.AstFactory;
-import org.overture.ast.node.INode;
-import org.overture.ast.patterns.PBind;
-import org.overture.ast.patterns.PMultipleBind;
-import org.overture.ast.patterns.PPattern;
-import org.overture.ast.patterns.PPatternBind;
-import org.overture.ast.statements.PAlternativeStm;
-import org.overture.ast.statements.PClause;
+import org.overture.ast.intf.lex.ILexLocation;
+import org.overture.ast.lex.Dialect;
+import org.overture.ast.lex.LexIdentifierToken;
+import org.overture.ast.lex.LexNameList;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.types.PType;
-import org.overture.typechecker.FlatEnvironment;
+import org.overture.config.Release;
+import org.overture.config.Settings;
+import org.overture.typechecker.Environment;
+import org.overture.typechecker.FlatCheckedEnvironment;
+import org.overture.typechecker.TypeCheckException;
 import org.overture.typechecker.TypeCheckInfo;
-import org.overture.typechecker.assistant.pattern.PPatternAssistantTC;
+import org.overture.typechecker.TypeChecker;
+import org.overture.typechecker.assistant.ITypeCheckerAssistantFactory;
+import org.overture.typechecker.visitor.TypeCheckVisitor;
 
-import eu.compassresearch.ast.actions.PAction;
-import eu.compassresearch.ast.actions.PAlternativeAction;
-import eu.compassresearch.ast.actions.PCommunicationParameter;
-import eu.compassresearch.ast.actions.PParametrisation;
-import eu.compassresearch.ast.declarations.PSingleDeclaration;
-import eu.compassresearch.ast.definitions.AChannelsDefinition;
-import eu.compassresearch.ast.definitions.AChansetsDefinition;
-import eu.compassresearch.ast.definitions.AClassDefinition;
+import eu.compassresearch.ast.definitions.AChannelDefinition;
+import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
-import eu.compassresearch.ast.expressions.PVarsetExpression;
-import eu.compassresearch.ast.process.PProcess;
-import eu.compassresearch.ast.program.AFileSource;
-import eu.compassresearch.ast.program.AInputStreamSource;
-import eu.compassresearch.ast.program.PSource;
-import eu.compassresearch.ast.types.AErrorType;
-import eu.compassresearch.core.common.RegistryFactory;
-import eu.compassresearch.core.parser.CmlLexer;
-import eu.compassresearch.core.parser.CmlParser;
-import eu.compassresearch.core.typechecker.api.TypeComparator;
-import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
-import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
-import eu.compassresearch.core.typechecker.api.TypeIssueHandler.CMLTypeError;
-import eu.compassresearch.core.typechecker.api.TypeIssueHandler.CMLTypeWarning;
+import eu.compassresearch.ast.lex.CmlLexNameToken;
+import eu.compassresearch.ast.messages.InternalException;
+import eu.compassresearch.ast.types.AChannelType;
+import eu.compassresearch.core.typechecker.analysis.CollectGlobalStateClass;
+import eu.compassresearch.core.typechecker.analysis.OperationBodyValidater;
+import eu.compassresearch.core.typechecker.analysis.UniquenessChecker;
+import eu.compassresearch.core.typechecker.api.CMLErrorsException;
+import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
+import eu.compassresearch.core.typechecker.visitors.CmlClassTypeChecker;
+import eu.compassresearch.core.typechecker.visitors.CmlCspTypeChecker;
+import eu.compassresearch.core.typechecker.visitors.CmlVdmTypeCheckVisitor;
+import eu.compassresearch.core.typechecker.weeding.Weeding1;
+import eu.compassresearch.core.typechecker.weeding.Weeding2;
+import eu.compassresearch.core.typechecker.weeding.Weeding5RemoveInitialDefinitions;
+import eu.compassresearch.core.typechecker.weeding.WeedingAccessCorrector;
+import eu.compassresearch.core.typechecker.weeding.WeedingCallToCallActionReplacer;
+import eu.compassresearch.core.typechecker.weeding.WeedingSkipActionToStmCleaner;
+import eu.compassresearch.core.typechecker.weeding.WeedingStmCleaner;
+import eu.compassresearch.core.typechecker.weeding.WeedingUnresolvedPathReplacement;
 
-@SuppressWarnings("serial")
-class VanillaCmlTypeChecker extends AbstractTypeChecker {
+public class VanillaCmlTypeChecker extends AbstractTypeChecker
+{
 
+	private static class VdmTypeCheckResult
+	{
+		public final Environment globalEnv;
+		public final ITypeCheckerAssistantFactory af;
 
-    @Override
-    public PType defaultPCommunicationParameter(PCommunicationParameter node,
-                                                TypeCheckInfo question) throws AnalysisException {
-        return super.defaultPCommunicationParameter(node, question);
-    }
+		public VdmTypeCheckResult(Environment globalEnv,
 
-    @Override
-    public PType defaultPParametrisation(PParametrisation node,
-                                         TypeCheckInfo question) throws AnalysisException {
-        return addErrorForMissingType(node, node.apply(this.act, question));
-	
-    }
-
-    @Override
-    public PType defaultPAlternativeAction(PAlternativeAction node,
-                                           TypeCheckInfo question) throws AnalysisException {
-        return addErrorForMissingType(node, node.apply(this.act, question));	}
-
-    // ---------------------------------------------
-    // -- Type Checker State
-    // ---------------------------------------------m
-    // subcheckers
-    private IQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType> exp; // expressions
-    private IQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType> act; // actions
-    private IQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType> dad; // definition and decls
-    private IQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType> typ; // basic
-    private IQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType> prc; // process
-    private IQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType> bnd; // bind
-    // type
-    // checker
-    private boolean lastResult;
-    private final TypeComparator typeComparator;
-    private AClassClassDefinition globalRoot;
-
-    private void initialize(TypeIssueHandler issueHandler) {
-        if (issueHandler != null)
-            this.issueHandler = issueHandler;
-        else
-            this.issueHandler = new CollectingIssueHandler(RegistryFactory.getInstance().getRegistry());
-
-        TCActionVisitor actionVisitor = new TCActionVisitor(this, this.issueHandler, typeComparator); 
-        exp = new TCExpressionVisitor(this, this.issueHandler, typeComparator);
-        act = actionVisitor;
-        dad = new TCDeclAndDefVisitor(this, typeComparator, this.issueHandler, actionVisitor);
-        typ = new TCTypeVisitor(this, this.issueHandler);
-        prc = new TCProcessVisitor(this, this.issueHandler, typeComparator);
-        bnd = new TCBindVisitor(this,this.issueHandler);
-
-    }
-
-    // ---------------------------------------------
-    // -- Dispatch to sub-checkers
-    // ---------------------------------------------
-
-    private PType addErrorForMissingType(INode node, PType type) {
-        if (type == null) {
-            // addTypeError(node, "Insufficient type checker implementation.");
-            return new AErrorType();
-        } else
-            return type;
-
-    }
-
-    @Override
-    public PType defaultPMultipleBind(PMultipleBind node, TypeCheckInfo question)
-        throws AnalysisException {
-        return addErrorForMissingType(node, node.apply(bnd, question));
-    }
-
-	
-	
-    @Override
-    public PType defaultPVarsetExpression(PVarsetExpression node,
-                                          TypeCheckInfo question) throws AnalysisException {
-        return addErrorForMissingType(node, node.apply(exp, question));
-    }
-
-    @Override
-    public PType defaultPBind(PBind node, TypeCheckInfo question)
-        throws AnalysisException {
-        return addErrorForMissingType(node, node.apply(bnd, question));
-    }
-
-    @Override
-    public PType defaultPType(PType node,
-                              org.overture.typechecker.TypeCheckInfo question)
-        throws AnalysisException {
-        return addErrorForMissingType(node, node.apply(typ, question));
-    }
-
-
-
-    @Override
-    public PType defaultPPattern(PPattern node, TypeCheckInfo question)
-        throws AnalysisException {
-        return addErrorForMissingType(node,node.apply(bnd,question));
-    }
-
-    @Override
-    public PType defaultPPatternBind(PPatternBind node, TypeCheckInfo question)
-        throws AnalysisException {
-        return addErrorForMissingType(node, node.apply(this.bnd, question));
-    }
-
-
-
-    @Override
-    public PType defaultINode(INode node,
-                              org.overture.typechecker.TypeCheckInfo question)
-        throws AnalysisException {
-        return addErrorForMissingType(node, super.defaultINode(node, question));
-    }
-
-
-
-
-    @Override
-    public PType defaultPSingleDeclaration(PSingleDeclaration node,
-                                           TypeCheckInfo question) throws AnalysisException {
-        return addErrorForMissingType(node, node.apply(this.dad, question));
-    }
-
-
-    @Override
-    public PType defaultPAlternative(PAlternative node, TypeCheckInfo question)
-        throws AnalysisException {
-        return addErrorForMissingType(node, node.apply(this.act, question));
-    }
-
-    @Override
-    public PType defaultPAlternativeStm(PAlternativeStm node,
-                                        TypeCheckInfo question) throws AnalysisException {
-        return addErrorForMissingType(node, node.apply(this.act, question));
-    }
-
-    @Override
-    public PType defaultPDefinition(PDefinition node,
-                                    org.overture.typechecker.TypeCheckInfo question)
-        throws AnalysisException {
-        return addErrorForMissingType(node, node.apply(this.dad, question));
-    }
-
-    @Override
-    public PType defaultPExp(PExp node,
-                             org.overture.typechecker.TypeCheckInfo question)
-        throws AnalysisException {
-        return addErrorForMissingType(node, node.apply(exp, question));
-    }
-
-    @Override
-    public PType defaultPProcess(PProcess node,
-                                 org.overture.typechecker.TypeCheckInfo question)
-        throws AnalysisException {
-        return node.apply(prc, question);
-    }
-
-    @Override
-    public PType defaultPAction(PAction node,
-                                org.overture.typechecker.TypeCheckInfo question)
-        throws AnalysisException {
-        return node.apply(act, question);
-    }
-
-
-
-
-    @Override
-    public PType defaultPClause(PClause node, TypeCheckInfo question)
-        throws AnalysisException {
-        return addErrorForMissingType(node, node.apply(act,question));
-    }
-
-    // ---------------------------------------------
-    // -- Public API to CML Type Checker
-    // ---------------------------------------------
-    /**
-     * This method is invoked by the command line tool when pretty printing the
-     * analysis name.
-     * 
-     * @return Pretty short name for this analysis.
-     */
-    public String getAnalysisName() {
-        return "The CML Type Checker";
-    }
-
-    /**
-     * Construct a CmlTypeChecker with the intension of checking a list of
-     * PSources. These source may refer to each other.
-     * 
-     * 
-     * @param cmlSources
-     *            - Source containing CML Paragraphs for type checking.
-     */
-    public VanillaCmlTypeChecker(Collection<PSource> cmlSources,
-                                 TypeIssueHandler issueHandler) {
-
-        this.sourceForest = cmlSources;
-        typeComparator = SimpleTypeComparator.newInstance();
-        initialize(issueHandler);
-    }
-
-    void clear() {
-        cleared = true;
-        sourceForest = null;
-
-    }
-
-    public VanillaCmlTypeChecker(Collection<PSource> cmlSource,
-                                 TypeComparator typeComparator, TypeIssueHandler issueHandler) {
-        this.sourceForest = new LinkedList<PSource>();
-        sourceForest.addAll(cmlSource);
-        this.typeComparator = typeComparator;
-        initialize(issueHandler);
-    }
-
-    /**
-     * Construct a CmlTypeChecker with the intension of checking a single
-     * source.
-     * 
-     * @param singleSource
-     */
-    public VanillaCmlTypeChecker(PSource singleSource,
-                                 TypeIssueHandler issueHandler) {
-
-        this.sourceForest = new LinkedList<PSource>();
-        this.sourceForest.add(singleSource);
-        typeComparator = SimpleTypeComparator.newInstance();
-        initialize(issueHandler);
-
-    }
-
-    /**
-     * Run the type checker. This will update the source(s) this type checker
-     * instance was constructed with.
-     * 
-     * @return - Returns true if the entire tree could be type checked without
-     *         errors.
-     */
-    public boolean typeCheck() {
-
-        org.overture.typechecker.TypeCheckInfo.clearContext();
-		
-        SetLocationVisitor.updateLocations(sourceForest);
-		
-        try {
-            eu.compassresearch.core.typechecker.CmlTypeCheckInfo info = eu.compassresearch.core.typechecker.CmlTypeCheckInfo
-                .getNewTopLevelInstance(this.issueHandler, globalRoot);
-
-
-            if (!cleared)
-                return lastResult;
-
-            try {
-                // Collect global values, global types and global functions
-                globalRoot = CollectGlobalStateClass.getGlobalRoot(
-                                                                   this.sourceForest, issueHandler, info);
-
-
-                info.env.setEnclosingDefinition(globalRoot);
-                info.scope = NameScope.GLOBAL;
-                PType globalRootType = ((TCDeclAndDefVisitor) dad)
-                    .typeCheckOvertureClass(globalRoot, info);
-                if (!TCDeclAndDefVisitor.successfulType(globalRootType)) {
-                    issueHandler.addTypeError(globalRoot,
-                                              TypeErrorMessages.PARAGRAPH_HAS_TYPES_ERRORS
-                                              .customizeMessage("Global Definitions"));
-                    return false;
-                }
-                // Add all global definitions to the environment
-                for (PDefinition def : globalRoot.getDefinitions()) {
-
-                    List<PDefinition> l = TCDeclAndDefVisitor.handleDefinitionsForOverture(def);
-                    if (l != null)
-                        for(PDefinition dd : l)
-                            {
-                                if (dd instanceof ATypeDefinition)
-                                    info.addType(dd.getName(), dd);
-                                else
-                                    {
-                                        if (dd instanceof AValueDefinition)
-                                            {
-                                                AValueDefinition vdd = (AValueDefinition)dd;
-                                                List<PDefinition> list = PPatternAssistantTC.getDefinitions(vdd.getPattern(), dd.getType(), NameScope.LOCAL);
-                                                for(PDefinition d : list)
-                                                    info.addVariable(d.getName(), d);
-								
-                                            }
-                                        else
-                                            info.addVariable(dd.getName(),dd);
-                                    }
-                            }
-                }
-
-            } catch (AnalysisException e) {
-                e.printStackTrace();
-            }
-
-            // Check the channels
-            for(PSource s : sourceForest)
+		ITypeCheckerAssistantFactory af)
 		{
-                    for(PDefinition paragraph : s.getParagraphs())
+			this.globalEnv = globalEnv;
+			this.af = af;
+		}
+	}
+
+	/**
+	 * Simple assigning constructor with a bit of logic in initialize.
+	 * 
+	 * @param cmlSource
+	 * @param issueHandler
+	 */
+	public VanillaCmlTypeChecker(List<? extends PDefinition> cmlSource,
+			ITypeIssueHandler issueHandler)
+	{
+		this.sourceForest = new DefinitionList();
+		sourceForest.addAll(cmlSource);
+		initialize(issueHandler);
+	}
+
+	private void initialize(ITypeIssueHandler issueHandler)
+	{
+		if (issueHandler == null)
+		{
+			this.issueHandler = new CollectingIssueHandler();
+		} else
+		{
+			this.issueHandler = issueHandler;
+		}
+
+		Settings.release = Release.VDM_10;
+		Settings.dialect = Dialect.VDM_PP;
+		TypeChecker.clearErrors();
+
+	}
+
+	/**
+	 * This method is invoked by the command line tool when pretty printing the analysis name.
+	 * 
+	 * @return Pretty short name for this analysis.
+	 */
+	@Override
+	public String getAnalysisName()
+	{
+		return "The CML Type Checker";
+	}
+
+	@Override
+	void clear()
+	{
+		sourceForest = null;
+	}
+
+	@Override
+	public boolean typeCheck()
+	{
+		try
+		{
+			setup();
+
+			// Transform the AST before analysis
+			// W: Stage 1 remove intermediate product types in functions
+			Weeding1.apply(sourceForest);
+			// W: Stage 2 remove all bracket types
+			Weeding2.apply(sourceForest);
+			// W: Stage 5 remove any initial definitions
+			Weeding5RemoveInitialDefinitions.apply(sourceForest);
+
+			WeedingCallToCallActionReplacer.apply(sourceForest);
+			WeedingSkipActionToStmCleaner.apply(sourceForest);
+			WeedingStmCleaner.apply(sourceForest);
+			WeedingAccessCorrector.apply(sourceForest);
+
+			// DotUtil.dot(sourceForest.iterator().next());
+
+			// Collect all Top-level entities
+			DefinitionList globalDefs = CollectGlobalStateClass.getGlobalRoot(sourceForest);
+			UniquenessChecker.apply(globalDefs, issueHandler);
+
+			VdmTypeCheckResult result = overtureClassTc(globalDefs);
+			cmlCspTc(sourceForest, result);
+
+		} catch (AnalysisException e)
+		{
+			// An expected anomaly was found
+			e.printStackTrace();
+			throw new InternalException(0, e.getMessage());
+		} catch (AbortTypecheck e)
+		{
+			if (e.number != -1)
 			{
-                            if (paragraph instanceof AChannelsDefinition || paragraph instanceof AChansetsDefinition)
+				throw e;
+			}
+
+		} catch (Exception e)
+		{
+			if (e instanceof TypeCheckException)
+			{
+				throw e;// new InternalException(0,e.getMessage()+" "+ ((TypeCheckException)e).location);
+			}
+			e.printStackTrace();
+			throw new InternalException(0, e.getMessage());
+		} finally
+		{
+			teardown();
+		}
+
+		return !issueHandler.hasErrors();
+	}
+
+	public void teardown()
+	{
+		TypeChecker.removeStatusListner(this.issueHandler);
+	}
+
+	public void setup()
+	{
+		TypeChecker.addStatusListner(this.issueHandler);
+		// Force setup of the legacy static access assistants in Overture
+		CmlTypeCheckerAssistantFactory.init(new CmlTypeCheckerAssistantFactory());
+	}
+
+	private VdmTypeCheckResult overtureClassTc(DefinitionList globals)
+	{
+		final List<SClassDefinition> classes = globals.getAllClasses();// exstractClasses(globalDefs2);
+
+		final List<PDefinition> globalVdmDefs = globals.getGlobalVdmDefinitions();// filterCSP(globalDefinitions);
+
+		ILexLocation location = null;
+		AClassClassDefinition globalClass = AstFactory.newAClassClassDefinition(new CmlLexNameToken(GLOBAL_CLASS_NAME, new LexIdentifierToken(GLOBAL_CLASS_NAME, false, location)), new LexNameList(), globalVdmDefs);
+
+		// insert global class first, it must be checked first do to the environment linking
+		classes.add(0, globalClass);
+
+		// resolve AUnresolvedPathExp. Each resolved path will be replaced with a AVariableExp
+		WeedingUnresolvedPathReplacement.apply(globals);
+
+		// check that operation bodies only contain the allowed subset
+		if (!OperationBodyValidater.apply(globals, issueHandler))
+		{
+			abort(-1, "Stopped due to type errors in operatuib bodies");
+		}
+
+		// DotUtil.dot(classes);
+
+		CmlClassTypeChecker typeChecker = new CmlClassTypeChecker(classes, globalVdmDefs);// new
+																							// ClassTypeChecker(classes,new
+		typeChecker.typeCheck();
+		return new VdmTypeCheckResult(typeChecker.getAllClassesEnvronment(), typeChecker.getAssistantFactory());
+	}
+
+	private void cmlCspTc(DefinitionList sourceForest,
+			VdmTypeCheckResult vdmResult)
+	{
+
+		List<PDefinition> globalCmlDefinition = new Vector<PDefinition>();
+
+		for (PDefinition def : sourceForest)
+		{
+			{
+				if (def instanceof AChannelDefinition
+						|| def instanceof AChansetDefinition
+						|| def instanceof AProcessDefinition)
 				{
-                                    try {
-                                        PType type = paragraph.apply(this, info);
-                                        if (!TCDeclAndDefVisitor.successfulType(type))
-                                            paragraph.setType(issueHandler.addTypeError(paragraph, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(paragraph+"")));
-                                    } catch (AnalysisException e) {
-                                        issueHandler.addTypeError(paragraph, e.getMessage());
-                                    }
+					globalCmlDefinition.add(def);
 				}
 			}
 		}
-            if (issueHandler.hasErrors()) return false;
 
-            // add classes and processes beforehand to environment
-            for(PSource s : sourceForest)
+		Environment env = new FlatCheckedEnvironment(vdmResult.af, globalCmlDefinition, vdmResult.globalEnv, NameScope.NAMES);
+
+		for (PDefinition def : globalCmlDefinition)
 		{
-                    for(PDefinition def : s.getParagraphs())
+			if (def instanceof AChannelDefinition)
 			{
-                            if (def instanceof AClassDefinition)
-                                info.addType(def.getName(), def);
-                            if (def instanceof AProcessDefinition)
-                                info.addVariable(def.getName(), def);
+				try
+				{
+					AChannelType cType = (AChannelType) def.getType();
+					for (PType t : cType.getParameters())
+					{
+						vdmResult.af.createPTypeAssistant().typeResolve(t, null, new CmlVdmTypeCheckVisitor(), new TypeCheckInfo(vdmResult.af, env, NameScope.NAMES));
+					}
+					cType.setResolved(true);
+
+				} catch (TypeCheckException te)
+				{
+					TypeChecker.report(3427, te.getMessage(), te.location);
+				}
 			}
 		}
-		
-            // for each source type check classes and processes in depth
-            for (PSource s : sourceForest) {
-                try {
-                    boolean allParagraphsOk = true;
-                    for (PDefinition paragraph : s.getParagraphs()) {
-                        if (paragraph instanceof AClassDefinition
-                            || paragraph instanceof AProcessDefinition)
 
-                            try {
-                                PType topType = paragraph.apply(this, info);
-                                if (!TCDeclAndDefVisitor.successfulType(topType)) {
-                                    paragraph.setType(
-                                                      issueHandler
-                                                      .addTypeError(
-                                                                    paragraph,
-                                                                    TypeErrorMessages.PARAGRAPH_HAS_TYPES_ERRORS
-                                                                    .customizeMessage(paragraph
-                                                                                      .getName()
-                                                                                      .toString())));
-                                    allParagraphsOk = false;
-                                }
-                                else
-                                    paragraph.setType(new AParagraphType());
-                            } catch (AnalysisException ae) {
-                                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                                ae.printStackTrace(new PrintStream(baos));
-                                paragraph.setType(issueHandler
-                                                  .addTypeError(
-								s,
-								"The COMPASS Type checker failed on this cml-source. Please submit it for investigation to rala@iha.dk.\n"
-                                                                + new String(baos.toByteArray())));
-                                // This means we have a bug in the type checker
-                                return false;
-                            } catch (ClassCastException e) {
-                                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                                PrintWriter out = new PrintWriter(baos);
-                                e.printStackTrace(out);
-                                out.flush();
-                                paragraph.setType(issueHandler
-                                                  .addTypeError(
-								paragraph,
-								"Ill defined ast definition. Check that the implied AST-node is not defined in both cml.ast and in overtureII.astv2. Naturally, if this is the case the visitor has an ambigouos choice.\n"
-                                                                + e.getMessage()
-                                                                + "\n"
-                                                                + new String(baos.toByteArray())));
-                            }
-                    }
-                    if (allParagraphsOk)
-                        s.setType(new ASourceType());
-                    else
-                        s.setType(new AErrorType());
-                } catch (RuntimeException e)
-                    {
-                        issueHandler.addTypeError(s, TypeErrorMessages.TYPE_CHECK_INTERNAL_FAILURE.customizeMessage(CmlTCUtil.getErrorMessages(e)));			
-                    }
-            }
-            super.cleared = false;
+		for (PDefinition source : sourceForest)
+		{
+			try
+			{
+				source.apply(new CmlCspTypeChecker(issueHandler), new TypeCheckInfo(vdmResult.af, env, NameScope.NAMES));
+			} catch (AnalysisException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 
-            return !super.issueHandler.hasErrors();
-        } catch (RuntimeException e)
+	}
 
-            {
-                PSource first = null;
-                if(!sourceForest.isEmpty())
-                    {
-                        first = sourceForest.iterator().next();
-                        issueHandler.addTypeError(first, TypeErrorMessages.TYPE_CHECK_INTERNAL_FAILURE.customizeMessage(CmlTCUtil.getErrorMessages(e)));
-                    }
-                return false;
-            }
-    }
+	@Override
+	public PType typeCheck(PExp expr) throws Exception
+	{
+		try
+		{
+			setup();
+			Weeding2.apply(expr);
 
-    /**
-     * Get errors that occurred while type checking.
-     * 
-     * @return list of CMLTypeErrors
-     */
-    public List<CMLTypeError> getTypeErrors() {
-        return issueHandler.getTypeErrors();
-    }
+			DefinitionList globalDefs = CollectGlobalStateClass.getGlobalRoot(sourceForest);
+			// resolve AUnresolvedPathExp. Each resolved path will be replaced with a AVariableExp
+			WeedingUnresolvedPathReplacement.apply(globalDefs.getAllClasses(), expr);
 
-    /**
-     * Get warnings that occurred while type checking. The type check method
-     * will return true even though this returns an non-empty list.
-     * 
-     * @return list of CMLTypeWarnings
-     */
-    public List<CMLTypeWarning> getTypeWarnings() {
-        return issueHandler.getTypeWarnings();
-    }
+			CmlClassTypeChecker typeChecker = new CmlClassTypeChecker(globalDefs.getAllClasses(), globalDefs.getGlobalVdmDefinitions());
 
-    // ---------------------------------------
-    // Static stuff for running the TypeChecker from Eclipse
-    // ---------------------------------------
+			PType type = expr.apply(new TypeCheckVisitor(), new TypeCheckInfo(typeChecker.getAssistantFactory(), typeChecker.getAllClassesEnvronment(), NameScope.NAMESANDSTATE));
 
-    // setting the file on AFileSource allows the CmlParser factory method
-    // to create both parser and lexer.
-    private static PSource prepareSource(File f) {
-        if (f == null) {
-            AInputStreamSource iss = new AInputStreamSource();
-            iss.setStream(System.in);
-            iss.setOrigin("stdin");
-            return iss;
-        } else {
-            AFileSource fs = new AFileSource();
-            fs.setName(f.getName());
-            fs.setFile(f);
-            return fs;
-        }
-    }
+			if (issueHandler.hasErrors())
+			{
+				throw new CMLErrorsException(issueHandler.getTypeErrors());
+			}
 
-    private static void runOnFile(File f) throws IOException {
-        // set file name
-        PSource source = prepareSource(f);
-
-        ANTLRInputStream in = new ANTLRInputStream(new FileInputStream(f));
-        CmlLexer lexer = new CmlLexer(in);
-        CommonTokenStream tokens = new CommonTokenStream(lexer);
-        CmlParser parser = new CmlParser(tokens);
-
-
-        try {
-            source.setParagraphs(parser.source());
-        } catch (RecognitionException e) {
-            e.printStackTrace();
-            return;
-        }
-
-        // Type check
-        VanillaCmlTypeChecker cmlTC = new VanillaCmlTypeChecker(source,
-                                                                VanillaFactory.newCollectingIssueHandle(RegistryFactory.getInstance().getRegistry()));
-
-        // Print result and report errors if any
-        if (!cmlTC.typeCheck()) {
-            System.out.println("Failed to type check" + source.toString());
-        }
-        ;
-
-        // Report success
-        System.out.println("The given CML Program is type checked.");
-    }
-
-    public static void main(String[] args) throws IOException {
-        File cml_examples = new File("../../docs/cml-examples");
-        int failures = 0;
-        int successes = 0;
-        // runOnFile(null);
-
-        if (cml_examples.isDirectory()) {
-            for (File example : cml_examples.listFiles()) {
-                System.out.print("Typechecking example: " + example.getName()
-                                 + " \t\t...: ");
-                System.out.flush();
-                try {
-                    runOnFile(example);
-                    System.out.println("done");
-                    successes++;
-                } catch (Exception e) {
-                    System.out.println("exception");
-                    failures++;
-                }
-            }
-        }
-
-        System.out.println(successes + " was successful, " + failures
-                           + " was failures.");
-
-    }
-
-    public boolean hasErrors() {
-        return issueHandler.hasErrors();
-    }
-
-    public boolean hasWarnings() {
-        return issueHandler.hasWarnings();
-    }
-
-    public boolean hasIssues() {
-        return issueHandler.hasIssues();
-    }
+			return type;
+		} catch (Exception e)
+		{
+			throw e;
+		} catch (Throwable e)
+		{
+			e.printStackTrace();
+		} finally
+		{
+			teardown();
+		}
+		return null;
+	}
 
 }

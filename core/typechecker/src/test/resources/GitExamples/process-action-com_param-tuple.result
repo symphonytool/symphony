@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.RunCmlExamplesTestCase">
+<message column="3" line="5" message="Channel init is not declared" messageType="error" number="3431" resource="process-action-com_param-tuple.cml"/>
+<message column="3" line="5" message="Communication &quot;init&quot; declared with too many arguments. Actual 1, Expected 0" messageType="error" number="3434" resource="process-action-com_param-tuple.cml"/>
+<message column="3" line="5" message="Communication not allowed over untyped channel: init." messageType="error" number="3425" resource="process-action-com_param-tuple.cml"/>
+<message column="19" line="5" message="The Symbol &quot;REG&quot; is undefined." messageType="error" number="3410" resource="process-action-com_param-tuple.cml"/>
+<result/>
+</testResult>

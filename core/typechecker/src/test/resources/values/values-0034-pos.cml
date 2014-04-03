@@ -1,0 +1,17 @@
+class
+
+ test =
+
+begin
+
+
+
+values
+
+ a:int = cases 42 : 2 -> 3, 4 -> 5
+
+end
+
+
+
+end

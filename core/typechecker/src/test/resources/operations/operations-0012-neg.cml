@@ -1,0 +1,15 @@
+/*Negative Test check on parameter list with product type.*/
+
+class
+
+ A =
+
+begin
+
+
+
+operations
+
+ addCD: (seq of char * (seq of Track)) ==> () addCD(title, tracks) == Skip
+
+end

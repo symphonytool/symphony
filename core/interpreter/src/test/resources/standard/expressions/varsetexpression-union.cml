@@ -1,0 +1,35 @@
+channels 
+a b
+c, d : int
+
+process A = 
+begin 
+	@ (a -> b -> Skip) [| {|a|} union {|b|} |] (a -> b -> Skip) 
+end
+
+process B = 
+begin 
+	@ (a -> b -> Skip) [| {a} union {b} |] (a -> b -> Skip) 
+end
+
+process C = 
+begin 
+	@ (a -> b -> Skip) [| {|a|} union {b} |] (a -> b -> Skip) 
+end
+
+process D = 
+begin 
+	@ (a -> b -> Skip) [| {a} union {|b|} |] (a -> b -> Skip) 
+end
+
+process E = 
+begin 
+	@ (a -> c.1 -> Skip) [| {a} union {|c|} |] (a -> c.1 -> Skip) 
+end
+
+process F = 
+begin 
+	@ (c.1 -> d.2 -> Skip) [| {c.1} union {|d|} |] (c.1 -> d.2 -> Skip) 
+end
+
+process Test = A;B;C;D;E;F

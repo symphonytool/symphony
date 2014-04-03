@@ -1,0 +1,16 @@
+channels 
+a
+
+process A = 
+begin 
+
+	@ Wait 4 ; a -> Skip
+end
+
+process B = 
+begin 
+
+	@ Wait 3 ; a -> Skip
+end
+
+process C = A [| {a} |] B

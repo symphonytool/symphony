@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+
+<plugin>
+  <!-- For possible extension points see
+ 
+  http://help.eclipse.org/indigo/index.jsp?
+  topic=%2Forg.eclipse.platform.doc.isv%2Freference%2Fextension-points%2Findex.html
+
+  -->
+  
+  <extension
+        point="org.eclipse.ui.startup">
+     <startup class="eu.compassresearch.ide.modelchecker.Activator"> </startup>
+  </extension>
+  
+  <extension point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="eu.compassresearch.ide.modelchecker.MCHandler"
+            id="eu.compassresearch.ide.modelchecker.mcCommand"
+            name="Run CML model checker">
+            <commandParameter
+                  id="eu.compassresearch.ide.modelchecker.property"
+                  name="property">
+            </commandParameter>
+      </command>
+            <command
+            defaultHandler="eu.compassresearch.ide.modelchecker.MCCollectorHandler"
+            id="eu.compassresearch.ide.modelchecker.mcCollectorCommand"
+            name="Test Model Checker Compatibilityt">
+      </command>
+   </extension>
+   
+   
+   <extension point="org.eclipse.ui.menus">
+     <menuContribution
+            locationURI="popup:eu.compassresearch.ide.ui.CmlNavigator" >
+            
+      <!-- menuContribution
+            locationURI="popup:org.eclipse.ui.popup.any?after=additions" -->
+            <menu 
+            	  id="eu.compassresearch.ide.modelchecker"
+                  label="Model check"
+                  icon="icons/mc.png">
+                  <command
+	                  commandId="eu.compassresearch.ide.modelchecker.mcCollectorCommand"
+	                  id="eu.compassresearch.ide.modelchecker.mcCollectorCommand"
+	                  style="push"
+	                  label="Check MC compatibility"
+	                  tooltip="Test compatibility of model with model checker.">
+            	</command>
+                  <separator
+                        name="eu.compassresearch.ide.modelchecker.separator"
+                        visible="true">
+                  </separator>
+                <command
+                      commandId="eu.compassresearch.ide.modelchecker.mcCommand"
+                      id="eu.compassresearch.ide.modelchecker.deadlockCmd"
+                      style="push"
+                      label="Check deadlock"
+                      tooltip="Invokes the CML model checker for checking deadlock">
+                      <parameter
+                            name="eu.compassresearch.ide.modelchecker.property"
+                            value="DEADLOCK">
+                      </parameter>
+                </command>
+            	<command
+                  commandId="eu.compassresearch.ide.modelchecker.mcCommand"
+                  id="eu.compassresearch.ide.modelchecker.livelockCmd"
+                  style="push"
+                  label="Check livelock"
+                  tooltip="Invokes the CML model checker for checking livelock">
+                  <parameter
+                        name="eu.compassresearch.ide.modelchecker.property"
+                        value="LIVELOCK">
+                  </parameter>
+            	</command>
+            	<command
+                  commandId="eu.compassresearch.ide.modelchecker.mcCommand"
+                  id="eu.compassresearch.ide.modelchecker.nondeterminismCmd"
+                  style="push"
+                  label="Check Nondeterminism"
+                  tooltip="Invokes the CML model checker for checking nondeterminism">
+                  <parameter
+                        name="eu.compassresearch.ide.modelchecker.property"
+                        value="NONDETERMINISM">
+                  </parameter>
+            	</command>
+             <visibleWhen>
+   		<iterate operator="and" ifEmpty="false">
+      			<adapt type="org.eclipse.core.resources.IResource">
+      			<or>
+                            <test property="org.eclipse.core.resources.contentTypeId" 
+           	    	value="eu.compassresearch.ide.core.content-type-cml"/>
+   	      		    
+               	</or>
+      			</adapt>
+   		</iterate>
+        </visibleWhen>
+            </menu>
+      </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+			id="eu.compassresearch.ide.ui.category"
+			name="Symphony">
+      </category>
+      <view
+            category="eu.compassresearch.ide.ui.category"
+            class="eu.compassresearch.ide.modelchecker.view.MCListView"
+            icon="icons/mc.png"
+            id="eu.compassresearch.ide.modelchecker.view.mc-listview"
+            name="CML Model Checker List">
+      </view>
+      <view
+               id="eu.compassresearch.ide.modelchecker.view.progressview"
+               name="Model Checker Progress View"
+               class="eu.compassresearch.ide.modelchecker.MCProgressView:progressView">
+         </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="eu.compassresearch.ide.modelchecker.MCPerspectiveFactory"
+            icon="icons/mc.png"
+            id="eu.compassresearch.ide.modelchecker.perspective"
+            name="Model Checker">
+            <description>
+               CML Model Checker Perspective
+            </description>
+      </perspective>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+		<perspectiveExtension
+            targetID="eu.compassresearch.ide.modelchecker.perspective">
+			<view
+               id="eu.compassresearch.ide.modelchecker.view.mc-listview"
+               minimized="false"
+               ratio="0.50"
+               relationship="bottom"
+               relative="org.eclipse.ui.views.ContentOutline"
+               visible="true">
+			</view>
+			<view
+               id="eu.compassresearch.ide.modelchecker.view.progressview"
+               minimized="false"
+               ratio="0.80"
+               relationship="bottom"
+               relative="eu.compassresearch.ide.ui.CmlNavigator"
+               visible="true">
+			</view>
+		</perspectiveExtension>
+	</extension>
+
+</plugin>

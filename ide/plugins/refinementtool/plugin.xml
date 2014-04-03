@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="4.2"?>
+
+<plugin>
+
+<extension
+         point="org.eclipse.ui.perspectives">
+		<perspective
+            class="eu.compassresearch.ide.refinementtool.PerspectiveFactory"
+            icon="icons/ref_icon.png"
+            id="eu.compassresearch.ide.refinementtool.ref-perspective"
+            name="Refinement">
+		</perspective>
+	</extension>
+<extension
+      point="org.eclipse.ui.menus">
+   <menuContribution
+         locationURI="popup:#TextEditorContext?after=additions"> <!-- menu:org.eclipse.ui.main.menu?after=additions -->
+      <menu
+            id="eu.compassresearch.ide.refinementtool.menus.refineMenu"
+            label="Refinement"
+            mnemonic="M">
+         <command
+               commandId="eu.compassresearch.ide.refinementtool.commands.refine"
+               id="eu.compassresearch.ide.refinementtool.menus.refine"
+               mnemonic="S">
+         </command>
+         <visibleWhen checkEnabled="false">	
+            <and>
+	            <with variable="activeWorkbenchWindow.activePerspective">
+    	            <equals value="eu.compassresearch.ide.refinementtool.ref-perspective"/>
+        	    </with>
+            	<with variable="activeEditorId">
+                	   <equals value="eu.compassresearch.ide.ui.editor"/>
+            	</with>
+            </and>
+         </visibleWhen>
+         <dynamic class="MenuPopulationClass"
+                id="MenuPopulation"/>
+      </menu>
+   </menuContribution>
+
+<!--
+   <menuContribution
+         locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
+      <toolbar
+            id="eu.compassresearch.ide.refinementtool.toolbars.refineToolbar">
+         <command
+               commandId="eu.compassresearch.ide.refinementtool.commands.refine"
+               icon="icons/ref_icon.png"
+               id="eu.compassresearch.ide.refinementtool.toolbars.refine"
+               tooltip="Say hello world">
+         </command>
+      </toolbar>
+   </menuContribution>
+-->
+   
+</extension>
+<extension
+      point="org.eclipse.ui.commands">
+   <category
+         id="eu.compassresearch.ide.refinementtool.commands.refCommands"
+         name="Refinement">
+   </category>
+   <command
+         categoryId="eu.compassresearch.ide.refinementtool.commands.refCommands"
+         id="eu.compassresearch.ide.refinementtool.commands.refine"
+         name="Refine">
+   </command>
+</extension>
+<extension
+      point="org.eclipse.ui.handlers">
+   <handler
+         class="eu.compassresearch.ide.refinementtool.handlers.RefineHandler"
+         commandId="eu.compassresearch.ide.refinementtool.commands.refine">
+   </handler>
+</extension>
+<extension
+      point="org.eclipse.ui.bindings">
+   <key
+         commandId="eu.compassresearch.ide.refinementtool.commands.refine"
+         contextId="org.eclipse.ui.contexts.window"
+         schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+         sequence="M1+6">
+   </key>
+</extension>
+
+</plugin>

@@ -1,95 +1,96 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"> 
-  <modelVersion>4.0.0</modelVersion>
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>eu.compassresearch.core</groupId>
-    <artifactId>core</artifactId>
-    <version>0.1.1<!--Replaceable: Main Version--></version>
-    <relativePath>../pom.xml</relativePath>
-  </parent>
+	<parent>
+		<groupId>eu.compassresearch.core</groupId>
+		<artifactId>core</artifactId>
+		<version>0.3.1-SNAPSHOT</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
 
-  <artifactId>interpreter</artifactId>
-  <name>COMPASS Core CML Interpreter</name>
+	<artifactId>interpreter</artifactId>
+	<name>Symphony Core CML Interpreter</name>
+	<dependencies>
+		<dependency>
+			<groupId>eu.compassresearch.core</groupId>
+			<artifactId>ast</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>eu.compassresearch.core</groupId>
+			<artifactId>parser</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>eu.compassresearch.core</groupId>
+			<artifactId>typechecker</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.overturetool.core</groupId>
+			<artifactId>typechecker</artifactId>
+			<version>${overture.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.overturetool.core</groupId>
+			<artifactId>interpreter</artifactId>
+			<version>${overture.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.googlecode.json-simple</groupId>
+			<artifactId>json-simple</artifactId>
+			<version>1.1.1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>2.3.0</version>
+		</dependency>
 
-  <dependencies>
-    <dependency>
-      <groupId>eu.compassresearch.core</groupId>
-      <artifactId>ast</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>eu.compassresearch.core</groupId>
-      <artifactId>parser</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>eu.compassresearch.core</groupId>
-      <artifactId>typechecker</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.overturetool.core</groupId>
-      <artifactId>typechecker</artifactId>
-      <version>${overture.version}</version>
-    </dependency>
-    <!-- <dependency> -->
-    <!--   <groupId>org.overturetool.core</groupId> -->
-    <!--   <artifactId>ast</artifactId> -->
-    <!--   <version>${overture.version}</version> -->
-    <!-- </dependency> -->
-    <dependency>
-      <groupId>org.overturetool.core</groupId>
-      <artifactId>interpreter</artifactId>
-      <version>${overture.version}</version>
-    </dependency>
-  	 <dependency>
-      <groupId>com.googlecode.json-simple</groupId>
-      <artifactId>json-simple</artifactId>
-      <version>1.1</version>
-    </dependency>
-    <!--  Gson: Java to Json conversion -->
-    <dependency>
-      <groupId>com.google.code.gson</groupId>
-      <artifactId>gson</artifactId>
-      <version>2.2.2</version>
-      <scope>compile</scope>
-    </dependency>
-    
-  </dependencies>
-  <!-- <build> -->
-  <!--   <plugins> -->
-  <!--     <plugin> -->
-  <!--     	<version>1.7</version> -->
-  <!--       <groupId>org.codehaus.mojo</groupId> -->
-  <!--       <artifactId>build-helper-maven-plugin</artifactId> -->
-  <!--       <executions> -->
-  <!--         <execution> -->
-  <!--           <phase>generate-sources</phase> -->
-  <!--           <goals><goal>add-source</goal></goals> -->
-  <!--           <configuration> -->
-  <!--             <sources> -->
-  <!--               <source>src/main/transast</source> -->
-  <!--             </sources> -->
-  <!--           </configuration> -->
-  <!--         </execution> -->
-  <!--       </executions> -->
-  <!--     </plugin> -->
-  <!--   </plugins> -->
-  <!-- </build> -->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.7.5</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>1.7.5</version>
+			<!-- scope>test</scope -->
+		</dependency>
+	</dependencies>
 
-<build>
-	<plugins>
-		<plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <testFailureIgnore>true</testFailureIgnore>
-                </configuration>
-            </plugin>
-     </plugins>
-</build>
-
- 
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<redirectTestOutputToFile>true</redirectTestOutputToFile>
+					<testFailureIgnore>true</testFailureIgnore>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>process-sources</phase>
+						<goals>
+							<goal>add-source</goal>
+						</goals>
+						<configuration>
+							<sources>
+								<source>src/main/behaviour</source>
+								<source>src/main/utility</source>
+							</sources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 </project>
 

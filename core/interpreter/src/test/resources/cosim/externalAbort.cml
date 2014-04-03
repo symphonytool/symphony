@@ -1,0 +1,23 @@
+
+channels
+	c  
+	a:int
+	b:int
+	
+chansets
+cs = {c}
+
+process P = A [|cs|] B
+
+process A = 
+begin
+@  Skip
+end
+
+process B = 
+begin
+@ 	c->
+		a?x->
+			b.1->
+				c-> Skip  
+end

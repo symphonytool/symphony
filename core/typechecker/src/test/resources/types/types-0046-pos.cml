@@ -1,0 +1,3 @@
+types
+
+ A = map int to int inv m == dom(m) <> {}

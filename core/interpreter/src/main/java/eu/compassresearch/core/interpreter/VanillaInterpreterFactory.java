@@ -2,58 +2,73 @@ package eu.compassresearch.core.interpreter;
 
 import java.util.List;
 
-import eu.compassresearch.ast.program.PSource;
+import org.overture.ast.definitions.PDefinition;
+
+import eu.compassresearch.core.interpreter.api.CmlBehaviorFactory;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
-import eu.compassresearch.core.interpreter.api.InterpreterException;
-import eu.compassresearch.core.interpreter.cml.CmlCommunicationSelectionStrategy;
-import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
-import eu.compassresearch.core.interpreter.cml.DefaultSupervisorEnvironment;
-import eu.compassresearch.core.interpreter.scheduler.CmlScheduler;
-import eu.compassresearch.core.interpreter.scheduler.Scheduler;
-import eu.compassresearch.core.interpreter.scheduler.SchedulingPolicy;
+import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 
-public final class VanillaInterpreterFactory {
+public class VanillaInterpreterFactory implements InterpreterFactory
+{
 
-	
-	/**
-	 * create an instance of the Vanilla interpreter.
-	 * 
-	 * @param cmlSources
-	 *            - List of parsed and type-checked CML source to interpret
-	 * @throws InterpreterException 
+	protected CmlBehaviorFactory cmlBehaviorFactory = new DefaultCmlBehaviorFactory();
+
+	/*
+	 * (non-Javadoc)
+	 * @see
+	 * eu.compassresearch.core.interpreter.InterpreterFactory#setDefaultCmlBehaviourFactory(eu.compassresearch.core.
+	 * interpreter.api.behaviour.CmlBehaviorFactory)
 	 */
-	public static CmlInterpreter newInterpreter(List<PSource> cmlSources) throws InterpreterException {
-		return new VanillaCmlInterpreter(cmlSources);
-	}
-	
-	/**
-	 * create an instance of the Vanilla interpreter.
-	 * 
-	 * @param cmlSource
-	 *            - A single parsed and type-checked CML source to interpret
-	 * @throws InterpreterException 
-	 */
-	public static CmlInterpreter newInterpreter(PSource cmlSource) throws InterpreterException {
-		return new VanillaCmlInterpreter(cmlSource);
-	}
-	
-	/**
-	 * Creates new CmlSupervisorEnvironment
-	 * @param selectStrategy
-	 * @return
-	 */
-	public static CmlSupervisorEnvironment newCmlSupervisorEnvironment(CmlCommunicationSelectionStrategy selectStrategy, Scheduler cmlScheduler)
+	@Override
+	public void setDefaultCmlBehaviourFactory(CmlBehaviorFactory factory)
 	{
-		return new DefaultSupervisorEnvironment(selectStrategy,cmlScheduler);
+		cmlBehaviorFactory = factory;
 	}
-	
-	/**
-	 * Create a scheduler with a specified Scheduling policy
-	 * @param policy
-	 * @return
+
+	/*
+	 * (non-Javadoc)
+	 * @see eu.compassresearch.core.interpreter.InterpreterFactory#newInterpreter(java.util.List)
 	 */
-	public static Scheduler newScheduler(SchedulingPolicy policy)
+	@Override
+	public CmlInterpreter newInterpreter(List<PDefinition> definitions)
+			throws CmlInterpreterException
 	{
-		return new CmlScheduler(policy);
+		VanillaCmlInterpreter interpreter = new VanillaCmlInterpreter(definitions, newDefaultConfig());
+		CmlContextFactory.configureDBGPReader(interpreter);
+		return interpreter;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see eu.compassresearch.core.interpreter.InterpreterFactory#newInterpreter(java.util.List,
+	 * eu.compassresearch.core.interpreter.Config)
+	 */
+	@Override
+	public CmlInterpreter newInterpreter(List<PDefinition> definitions,
+			Config config) throws CmlInterpreterException
+	{
+		VanillaCmlInterpreter interpreter = new VanillaCmlInterpreter(definitions, config);
+		CmlContextFactory.configureDBGPReader(interpreter);
+		return interpreter;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see eu.compassresearch.core.interpreter.InterpreterFactory#newDefaultConfig()
+	 */
+	@Override
+	public Config newDefaultConfig()
+	{
+		return new Config(false, cmlBehaviorFactory);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see eu.compassresearch.core.interpreter.InterpreterFactory#newDefaultConfig(boolean)
+	 */
+	@Override
+	public Config newDefaultConfig(boolean filterTockEvents)
+	{
+		return new Config(filterTockEvents, cmlBehaviorFactory);
 	}
 }

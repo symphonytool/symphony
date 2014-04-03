@@ -1,0 +1,7 @@
+types
+
+ String2 = seq of char Process2 :: id: String2
+
+functions
+
+ findPos: seq of Process2* String2 -> nat findPos(q,id)== let mk_(-,p)= mk_(7, mk_Process2([])) in p.id = id

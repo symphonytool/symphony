@@ -1,0 +1,13 @@
+channels
+
+ c
+
+process
+
+ A =
+
+begin
+
+ @ ||| k in set {1,2,3} @ [{ }]c!k -> Skip
+
+end

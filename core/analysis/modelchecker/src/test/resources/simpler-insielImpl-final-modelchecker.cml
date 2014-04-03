@@ -1,0 +1,69 @@
+-- this is a simpler version so the FORMULA analysis is faster.
+
+types
+  NAT = nat
+    inv i == i in set {1,...,27}
+  INT = int
+    inv i == i in set {-2,...,2}
+  ID = <fav> | <rv>
+  SigID = <End_Recovery_1_S> | <Error_1_detection_S> | <Fault_1_activation_S>
+     | <Service_rescue_S> | <Start_Recovery_1_S> | <Start_rescue_S>
+     | <Target_not_attended_S>
+channels
+  control: NAT
+  endDiagram: ID
+  interrupted: ID*ID*NAT
+  update: NAT*INT
+  clear: NAT
+  wait, inc, dec
+  simultaneous
+  fault: ID
+  error: ID
+  failure: ID
+
+  startActivity_fav: ID
+  endActivity_fav: ID
+  interruptActivity_fav
+  startActivity_rv: ID
+  endActivity_rv: ID
+  interruptActivity_rv
+
+  sendSignal: SigID
+  acceptEvent: SigID
+
+chansets
+    Hidden_fav = {|
+      control, 
+      endDiagram, 
+      interrupted, 
+      update, 
+      clear, 
+      wait, 
+      inc, 
+      dec, 
+      interruptActivity_fav
+    |}
+    Hidden_rv = {|
+      control, 
+      endDiagram, 
+      interrupted, 
+      update, 
+      clear, 
+      wait, 
+      inc, 
+      dec, 
+      interruptActivity_rv
+    |}
+
+process SIGNAL_BUFFER =
+begin
+  actions
+    SS_UNIT = val idSS : SigID @ sendSignal.idSS -> SS_UNIT(idSS)
+    FULL_UNIT = val idF : SigID @ sendSignal.idF -> acceptEvent.idF -> FULL_UNIT(idF)
+    AE_UNIT = val idAE : SigID @ acceptEvent.idAE -> AE_UNIT(idAE)
+    FULL = FULL_UNIT(<Start_rescue_S>) ||| FULL_UNIT(<Start_Recovery_1_S>) ||| FULL_UNIT(<End_Recovery_1_S>)
+    AE =  AE_UNIT(<Fault_1_activation_S>) |||  AE_UNIT(<Error_1_detection_S>) 
+    SS = SS_UNIT(<Fault_1_activation_S>) ||| SS_UNIT(<Error_1_detection_S>)  
+  @ FULL_UNIT(<Start_rescue_S>) ||| FULL_UNIT(<Start_Recovery_1_S>) ||| FULL_UNIT(<End_Recovery_1_S>) ||| AE_UNIT(<Fault_1_activation_S>) |||  AE_UNIT(<Error_1_detection_S>) ||| SS_UNIT(<Fault_1_activation_S>) ||| SS_UNIT(<Error_1_detection_S>)
+  -- for some reason, FORMULA raises an error when we use FULL ||| AE ||| SS  
+end

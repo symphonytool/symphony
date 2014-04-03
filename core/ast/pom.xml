@@ -5,22 +5,30 @@
   <parent>
     <groupId>eu.compassresearch.core</groupId>
     <artifactId>core</artifactId>
-    <version>0.1.1<!--Replaceable: Main Version--></version>
+    <version>0.3.1-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
   <artifactId>ast</artifactId>
-  <name>COMPASS Core CML Abstract Syntax Tree</name>
+  <name>Symphony Core CML Abstract Syntax Tree</name>
 
   <properties>
-    <astcreator.version>1.1.8</astcreator.version>
+    <astcreator.version>1.6.4</astcreator.version>
   </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.overturetool.core</groupId>
+      <artifactId>ast</artifactId>
+      <version>${overture.version}</version>
+    </dependency>
+  </dependencies>
 
   <build>
     <plugins>
-      <plugin> 
-	<groupId>org.overturetool.tools</groupId>
-	<artifactId>astcreatorplugin</artifactId>
+      <plugin>
+	<groupId>org.overturetool.astcreator</groupId>
+	<artifactId>astcreator-plugin</artifactId>
 	<version>${astcreator.version}</version>
 	<executions>
 	  <execution>
@@ -35,21 +43,22 @@
 	  <ast>overtureII.astv2</ast>
 	  <extendedAst>cml.ast</extendedAst>
 	  <extendedName>CML</extendedName>
-          <!--
-	      * let's not delete these every time; I don't think we
-	      actually need to -jwc/22Oct2012
-	      * If you end up with a heap space exception during
-	      compilation you need to comment these in. I've left them
-	      in in this commit due to the masive ast changes we are
-	      undergoing. When the Ast is stable I completely agree
-	      with the above. -rwl/26Dec2012
-	      * commented; I think we're stable again -jwc/18Jan2013
-	  -->
+	  <extendedTreeOnly>true</extendedTreeOnly>
+	  <!-- * let's not delete these every time; I don't think we actually 
+	       need to -jwc/22Oct2012 * If you end up with a heap space exception during 
+	       compilation you need to comment these in. I've left them in in this commit 
+	       due to the masive ast changes we are undergoing. When the Ast is stable I 
+	       completely agree with the above. -rwl/26Dec2012 * commented; I think we're 
+	       stable again -jwc/18Jan2013 -->
 	  <!-- <deletePackageOnGenerate> -->
-	  <!--   <param>org.overture.ast</param> -->
-	  <!--   <param>eu.compassresearch.ast</param> -->
+	  <!-- <param>org.overture.ast</param> -->
+	  <!-- <param>eu.compassresearch.ast</param> -->
 	  <!-- </deletePackageOnGenerate> -->
 	  <useSrcOutput>false</useSrcOutput>
+
+
+	  <extendedAstGroupId>org.overturetool.core</extendedAstGroupId>
+	  <extendedAstArtifactId>ast</extendedAstArtifactId>
 	</configuration>
       </plugin>
 
@@ -58,16 +67,16 @@
 	<artifactId>build-helper-maven-plugin</artifactId>
 	<executions>
 	  <execution>
-            <id>add-source</id>
-            <phase>generate-sources</phase>
-            <goals>
+	    <id>add-source</id>
+	    <phase>generate-sources</phase>
+	    <goals>
 	      <goal>add-source</goal>
-            </goals>
+	    </goals>
 	    <configuration>
 	      <sources>
 		<source>${project.build.directory}/generated-sources/astCreator/</source>
 	      </sources>
-            </configuration>
+	    </configuration>
 	  </execution>
 	</executions>
       </plugin>
@@ -75,8 +84,8 @@
 
     <pluginManagement>
       <plugins>
-	<!--This plugin's configuration is used to store Eclipse 
-	    m2e settings only. It has no influence on the Maven build itself. -->
+	<!--This plugin's configuration is used to store Eclipse m2e settings 
+	    only. It has no influence on the Maven build itself. -->
 	<plugin>
 	  <groupId>org.eclipse.m2e</groupId>
 	  <artifactId>lifecycle-mapping</artifactId>
@@ -86,15 +95,15 @@
 	      <pluginExecutions>
 		<pluginExecution>
 		  <pluginExecutionFilter>
-		    <groupId>org.overturetool.tools</groupId>
-		    <artifactId>astcreatorplugin</artifactId>
+		    <groupId>org.overturetool.astcreator</groupId>
+		    <artifactId>astcreator-plugin</artifactId>
 		    <versionRange>${astcreator.version}</versionRange>
 		    <goals>
 		      <goal>generate</goal>
 		    </goals>
 		  </pluginExecutionFilter>
 		  <action>
-		    <execute />
+		    <ignore />
 		  </action>
 		</pluginExecution>
 	      </pluginExecutions>
