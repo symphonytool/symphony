@@ -27,6 +27,8 @@ import org.overture.ast.node.IToken;
 import eu.compassresearch.ide.core.resources.ICmlProject;
 import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
 import eu.compassresearch.ide.refinementtool.ChaosStopRefineLaw;
+import eu.compassresearch.ide.refinementtool.ChoiceStopLeft;
+import eu.compassresearch.ide.refinementtool.ChoiceStopRight;
 import eu.compassresearch.ide.refinementtool.DummyRefineLaw;
 import eu.compassresearch.ide.refinementtool.INodeNearCaret;
 import eu.compassresearch.ide.refinementtool.IRefineLaw;
@@ -94,6 +96,8 @@ public class RefineHandler extends AbstractHandler {
 			laws.add(new DummyRefineLaw());			
 			laws.add(new ChaosStopRefineLaw());
 			laws.add(new NullRefineLaw());
+			laws.add(new ChoiceStopLeft());
+			laws.add(new ChoiceStopRight());
 			
 			
 			cmlProj.getModel().setAttribute(RefConstants.REF_LAWS_ID, laws);  
