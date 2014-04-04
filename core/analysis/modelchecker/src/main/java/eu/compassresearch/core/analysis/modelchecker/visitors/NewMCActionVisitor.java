@@ -392,7 +392,8 @@ public class NewMCActionVisitor extends
 				INode parentAction = question.actionOrProcessDefStack.peek();
 				if(parentAction instanceof AActionDefinition){
 					String actionName = Utilities.extractFunctionName(((AActionDefinition) parentAction).getName().toString());
-					ActionChannelDependency actionChanDep = new ActionChannelDependency(actionName, identifier, mcParameters);
+					String actionNameToUse = question.generateName(actionName); 
+					ActionChannelDependency actionChanDep = new ActionChannelDependency(actionNameToUse, identifier, mcParameters);
 					question.channelDependencies.add(actionChanDep);
 				} else if (parentAction instanceof AProcessDefinition){
 					String processName = Utilities.extractFunctionName(((AProcessDefinition) parentAction).getName().toString());

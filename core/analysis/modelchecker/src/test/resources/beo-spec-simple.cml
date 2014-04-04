@@ -25,7 +25,7 @@ process Spec =
  q_period : nat := 3 
  all_nodes : set of NODE_ID := {0,1,2}
  all_nodes_nat : set of nat := {0,1,2}
- t : nat := 4
+ t : MY_NAT := 4
  alive : set of NODE_ID := {}
 
   --operations
@@ -37,7 +37,17 @@ process Spec =
  
  actions
    --new local variables were inserted.
-   Alive = Skip
+   Alive = alive : set of NODE_ID @ 
+   ([t > q_period] & Alive(alive) --I have changed Stable(alive,t) by Alive(alive,t) to make it work
+    []
+    ([t <= q_period] & 
+       ([] i in set {1,2} @ leaderClaim!i.true -> Alive(alive))
+     [_1_> 
+       Alive(alive)
+    ) 
+    
+   )
+   
    
    
 -- leaderClaim.i.true offers a non-deterministic choice between the set of all nodes in alive.  
@@ -50,8 +60,8 @@ process Spec =
    -- doesn't need timed behaviour
    LeaderChosen = Skip
  @ 
-   init -> Skip  -- begin with no nodes on and no time passed 
-end
+   init -> Skip  -- begin with no nodes on and no time passed  
+ end
 
 
 

@@ -102,7 +102,12 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 			result = new MCAFixedInvariantType(realValue);
 		}else{
 			realValue = exp.getName();
-			result = new MCANamedInvariantType(realValue);
+			try {
+				Integer.valueOf(realValue);
+				result = new MCAFixedInvariantType(realValue);
+			} catch (NumberFormatException e) {
+				result = new MCANamedInvariantType(realValue);
+			}
 		}
 		
 		
