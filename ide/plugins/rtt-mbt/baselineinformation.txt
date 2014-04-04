@@ -3,6 +3,8 @@ RTTPLUGIN_0.3.1
 
 Changes:
 
+- added fix to allow project creation outside the current workspace.
+- added button to "add" all test cases for a requirement to a test procedure generation context.
 - fixed download of templates for import and new project.
 - added log message for non-existing local files in case of uploads if verbose logging is active.
 - added support for file permissions when sending files to server cache.

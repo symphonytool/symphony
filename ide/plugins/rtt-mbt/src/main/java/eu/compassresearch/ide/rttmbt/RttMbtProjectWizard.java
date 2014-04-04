@@ -3,9 +3,11 @@ package eu.compassresearch.ide.rttmbt;
 import java.io.File;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.ui.dialogs.WizardNewProjectCreationPage;
 import org.eclipse.ui.wizards.newresource.BasicNewProjectResourceWizard;
 
@@ -44,8 +46,13 @@ public class RttMbtProjectWizard extends BasicNewProjectResourceWizard {
 		// create folder
 		WizardNewProjectCreationPage newFolderPage = (WizardNewProjectCreationPage) getPages()[0];
 		IProject newProject = newFolderPage.getProjectHandle();
+		String projectName = newFolderPage.getProjectName();
 		try {
-			newProject.create(null);
+			IProjectDescription description = workspace.newProjectDescription(projectName);
+			File projectdir = new File(RttMbtClient.getAbsolutePathFromFileURI(newFolderPage.getLocationURI()) + File.separator + projectName);
+			description.setLocation(Path.fromOSString(projectdir.getAbsolutePath()));
+			description.setName(newFolderPage.getProjectName());
+			newProject.create(description,null);
 			newProject.open(null);
 		} catch (CoreException e) {
 			client.addErrorMessage("[FAIL]: creating project resource failed!");
@@ -53,11 +60,11 @@ public class RttMbtProjectWizard extends BasicNewProjectResourceWizard {
 			return false;
 		}
 
-		// get folder name
-		String projectName = newProject.getName();
+		// initialize client
 		client.setRttProjectName(projectName);
+		client.setRttProjectPath(RttMbtClient.getAbsolutePathFromFileURI(newFolderPage.getLocationURI()) + File.separator + projectName);
 		client.setWorkspaceProjectName(projectName);
-		client.setRttProjectPath(client.getWorkspacePath() + File.separator + projectName);
+		client.setWorkspaceProjectPrefix(null);
 		client.addLogMessage("creating RTT-MBT project " + projectName + "... please wait for the task to be finished.");
 
 		// start RTT-MBT-TMS session
