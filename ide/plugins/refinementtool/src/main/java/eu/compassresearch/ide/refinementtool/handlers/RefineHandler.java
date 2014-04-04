@@ -32,6 +32,7 @@ import eu.compassresearch.ide.refinementtool.INodeNearCaret;
 import eu.compassresearch.ide.refinementtool.IRefineLaw;
 import eu.compassresearch.ide.refinementtool.NullRefineLaw;
 import eu.compassresearch.ide.refinementtool.RefConstants;
+import eu.compassresearch.ide.refinementtool.RefUtils;
 import eu.compassresearch.ide.refinementtool.view.RefineLawView;
 import eu.compassresearch.ide.ui.editor.core.CmlEditor;
 import eu.compassresearch.ide.ui.editor.syntax.INodeFromCaret;
@@ -135,13 +136,15 @@ public class RefineHandler extends AbstractHandler {
 		RefineLawView rv = null;
 		
 		try {
-			rv = (RefineLawView) window.getActivePage().showView("eu.compassresearch.ide.refinementtool.RefineLawView");
+			rv = (RefineLawView) window.getActivePage().showView(RefConstants.REF_LAW_VIEW);
 		} catch (PartInitException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		} 
 
 		rv.clearLaws();
+		rv.setSelection(selection);
+		rv.setNode(node);
 		
 		for (IRefineLaw l : laws) {
 			if (l.isApplicable(node)) {
@@ -150,7 +153,7 @@ public class RefineHandler extends AbstractHandler {
 		}
 				
 		
-		IDocument doc = editor.getDocumentProvider().getDocument(editor.getEditorInput());
+		//IDocument doc = editor.getDocumentProvider().getDocument(editor.getEditorInput());
 /*
 		
 		try {

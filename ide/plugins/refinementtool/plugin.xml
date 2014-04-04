@@ -109,12 +109,21 @@
          id="eu.compassresearch.ide.refinementtool.commands.refine"
          name="Refine">
    </command>
+   <command
+         categoryId="eu.compassresearch.ide.refinementtool.commands.refCommands"
+         id="eu.compassresearch.ide.refinementtool.commands.refineApply"
+         name="Apply Refine">
+   </command>
 </extension>
 <extension
       point="org.eclipse.ui.handlers">
    <handler
          class="eu.compassresearch.ide.refinementtool.handlers.RefineHandler"
          commandId="eu.compassresearch.ide.refinementtool.commands.refine">
+   </handler>
+   <handler
+         class="eu.compassresearch.ide.refinementtool.handlers.RefineApplyHandler"
+         commandId="eu.compassresearch.ide.refinementtool.commands.refineApply">
    </handler>
 </extension>
 <extension
