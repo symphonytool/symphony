@@ -1163,6 +1163,7 @@ public class RttMbtClient {
 		uploadFile(confDirName + "configuration.csv");
 		uploadFile(confDirName + "signalmap.csv");
 		uploadFile(confDirName + "advanced.conf");
+		uploadFile(confDirName + "max_steps.txt");
 		uploadFile(confDirName + "addgoals.conf");
 		uploadFile(confDirName + "addgoalsordered.conf");
 		// cache/<user-id>/<project-name>/TMPL
@@ -1180,14 +1181,14 @@ public class RttMbtClient {
 		cmd.setGuiPorts(true);
 		cmd.setTestProcName("TestProcedures/" + abstractTestProc);
 		// read advanced.conf
-		RttMbtAdvConfParser advConf = new RttMbtAdvConfParser();
 		confDirName = getRttProjectPath() + File.separator
 				+ getRttMbtTProcGenCtxFolderName() + File.separator
 				+ abstractTestProc + File.separator
 				+ "conf" +  File.separator;
-		if (advConf.readAdvancedConfig(confDirName + "advanced.conf")) {
-			cmd.setMaximizeModelCoverage(advConf.getMM());
-			cmd.setAbstractInterpreter(advConf.getAI());
+		RttMbtMaxStepsParser maxSteps = new RttMbtMaxStepsParser();
+		if (maxSteps.readMaxSteps(confDirName + "max_steps.txt")) {
+			cmd.seMaxSolverSteps(maxSteps.getMaxSolverSteps());
+			cmd.setMaxSimulationSteps(maxSteps.getMaxSimulationSteps());
 		}
 		if (getVerboseLogging()) {
 			addLogMessage("starting test generation...");
@@ -1387,12 +1388,14 @@ public class RttMbtClient {
 		// - signalmap.csv
 		// - addgoals.conf
 		// - addgoalsordered.conf
+		// - testcases.csv
 		String modelDirName = getRttProjectPath() + File.separator + "model" + File.separator;
 		uploadFile(modelDirName + "model_dump.xml");
 		uploadFile(modelDirName + "configuration.csv");
 		uploadFile(modelDirName + "signalmap.csv");
 		uploadFile(modelDirName + "addgoals.conf");
 		uploadFile(modelDirName + "addgoalsordered.conf");
+		uploadFile(modelDirName + "testcases.csv");
 		if (isCurrentTaskCanceled()) {
 			return false;
 		}
@@ -1414,8 +1417,16 @@ public class RttMbtClient {
 		if (isCurrentTaskCanceled()) {
 			return false;
 		}
-		// cache/<user-id>/<project-name>/<abstract-testproc>/model
-		// covered_testcases.csv
+		// cache/<user-id>/<project-name>/<abstract-testproc>/log/
+		// - covered_testcases.csv
+		String localLogDirName = getRttProjectPath() + File.separator
+				+ getRttMbtTProcGenCtxFolderName() + File.separator
+				+ abstractTestProc + File.separator
+				+ "log" +  File.separator;
+		uploadFile(localLogDirName + "covered_testcases.csv");		
+		// cache/<user-id>/<project-name>/<abstract-testproc>/model/
+		// - signals.json
+		// signals.dat
 		String localModelDirName = getRttProjectPath() + File.separator
 				+ getRttMbtTProcGenCtxFolderName() + File.separator
 				+ abstractTestProc + File.separator

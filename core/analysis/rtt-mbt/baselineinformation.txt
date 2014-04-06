@@ -3,6 +3,8 @@ RTTPLUGIN_0.3.1
 
 Changes:
 
+- fixed: "abstract interpreter" and "maximise model coverage" are now taken from advanced.conf by rtt-mbt-tcgen
+- added parsing of max_steps.txt and assignment of respective parameters to generate-test-command
 - added workaround for different forms of absolute path names on windows ("c:\" and "/c:/").
 - adjusted code (for windows path names) that generates parent directories of files to be created.
 - added new actions to (generate and) execute test procedures in one go.

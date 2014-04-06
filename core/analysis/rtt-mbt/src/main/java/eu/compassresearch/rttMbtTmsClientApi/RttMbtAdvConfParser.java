@@ -31,6 +31,7 @@ MC;0;Perform model checking instead of test generation, if 1
 	protected Boolean RP = false;
 	protected int CI = 1;
 	protected int DI = 10;
+	protected int LI = 10000;
 	protected Boolean MC = false;
 
 	public RttMbtAdvConfParser() {
@@ -91,6 +92,8 @@ MC;0;Perform model checking instead of test generation, if 1
 				setCI(Integer.parseInt(value));
 			} else if (option.compareTo("DI") == 0) {
 				setDI(Integer.parseInt(value));
+			} else if (option.compareTo("LI") == 0) {
+				setLI(Integer.parseInt(value));
 			} else if (option.compareTo("MC") == 0) {
 				setMC(value.compareTo("1") == 0);
 			} else {
@@ -180,6 +183,14 @@ MC;0;Perform model checking instead of test generation, if 1
 
 	public void setDI(int dI) {
 		DI = dI;
+	}
+
+	public int getLI() {
+		return LI;
+	}
+
+	public void setLI(int lI) {
+		LI = lI;
 	}
 
 	public Boolean getMC() {
