@@ -56,6 +56,48 @@
 -->
    
 </extension>
+
+	<extension
+         point="org.eclipse.ui.perspectiveExtensions">
+		<perspectiveExtension
+            targetID="eu.compassresearch.ide.refinementtool.ref-perspective">
+			<view
+               id="eu.compassresearch.ide.ui.CmlNavigator"
+               minimized="false"
+               ratio="0.20"
+               relationship="left"
+               relative="org.eclipse.ui.editorss"
+               visible="true">
+			</view>
+			<view
+               id="eu.compassresearch.ide.refinementtool.RefineLawView"
+               minimized="false"
+               ratio="0.70"
+               relationship="right"
+               relative="org.eclipse.ui.editorss"
+               visible="true">
+			</view>
+			<view
+               id="eu.compassresearch.ide.refinementtool.POsTable"
+               minimized="false"
+               ratio="0.40"
+               relationship="bottom"
+               relative="eu.compassresearch.ide.refinementtool.RefineLawView"
+               visible="true">
+			</view>
+			<view
+               id="eu.compassresearch.ide.refinementtool.PoDetail"
+               minimized="false"
+               ratio="0.50"
+               relationship="bottom"
+               relative="eu.compassresearch.ide.refinementtool.POsTable"
+               visible="true">
+			</view>
+			
+       </perspectiveExtension>
+   </extension>
+       
+
 <extension
       point="org.eclipse.ui.commands">
    <category
@@ -67,12 +109,21 @@
          id="eu.compassresearch.ide.refinementtool.commands.refine"
          name="Refine">
    </command>
+   <command
+         categoryId="eu.compassresearch.ide.refinementtool.commands.refCommands"
+         id="eu.compassresearch.ide.refinementtool.commands.refineApply"
+         name="Apply Refine">
+   </command>
 </extension>
 <extension
       point="org.eclipse.ui.handlers">
    <handler
          class="eu.compassresearch.ide.refinementtool.handlers.RefineHandler"
          commandId="eu.compassresearch.ide.refinementtool.commands.refine">
+   </handler>
+   <handler
+         class="eu.compassresearch.ide.refinementtool.handlers.RefineApplyHandler"
+         commandId="eu.compassresearch.ide.refinementtool.commands.refineApply">
    </handler>
 </extension>
 <extension
@@ -84,5 +135,36 @@
          sequence="M1+6">
    </key>
 </extension>
+
+	<extension
+         point="org.eclipse.ui.views">
+		<category
+			id="eu.compassresearch.ide.ui.category"
+			name="Symphony"/>
+		<view
+            category="eu.compassresearch.ide.ui.category"
+            class="eu.compassresearch.ide.refinementtool.view.RefineLawView"
+            icon="icons/ref_icon.png"
+            id="eu.compassresearch.ide.refinementtool.RefineLawView"
+            name="Refinement Laws">
+		</view>
+		<view
+            category="eu.compassresearch.ide.ui.category"
+            class="eu.compassresearch.ide.pog.view.PoDetailView"
+            icon="icons/ref_icon.png"
+            id="eu.compassresearch.ide.refinementtool.PoDetail"
+            name="CML RPO Details">
+		</view>
+		<view
+            category="eu.compassresearch.ide.ui.category"
+            class="eu.compassresearch.ide.pog.view.PoListView"
+            icon="icons/ref_icon.png"
+            id="eu.compassresearch.ide.refinementtool.POsTable"
+            name="CML RPO List">
+		</view>
+
+
+	</extension>
+
 
 </plugin>

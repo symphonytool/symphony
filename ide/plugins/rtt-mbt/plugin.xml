@@ -521,18 +521,18 @@
                   tooltip="Run a compiled Test Procedure">
             </command>
             <command
-                  commandId="eu.compassresearch.ide.rttmbt.RttMbtReplayTest"
-                  icon="icons/mbt_replay.png"
-                  label="Replay Test Result"
-                  style="push"
-                  tooltip="Replay Test Result against the Model">
-            </command>
-            <command
                   commandId="eu.compassresearch.ide.rttmbt.RttMbtDocTest"
                   icon="icons/documentate.png"
                   label="Generate Test Documentation"
                   style="push"
                   tooltip="Generate Test Procedure Documentation">
+            </command>
+            <command
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtReplayTest"
+                  icon="icons/mbt_replay.png"
+                  label="Replay Test Result"
+                  style="push"
+                  tooltip="Replay Test Result against the Model">
             </command>
             <separator
                   name="eu.compassresearch.ide.rttmbt.separator-004"
@@ -764,11 +764,11 @@
                </visibleWhen>
             </command>
             <command
-                  commandId="eu.compassresearch.ide.rttmbt.RttMbtReplayTest"
-                  icon="icons/mbt_replay.png"
-                  label="Replay Test Result"
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtDocTest"
+                  icon="icons/documentate.png"
+                  label="Generate Test Documentation"
                   style="push"
-                  tooltip="Replay Test Result against the Model">
+                  tooltip="Generate Test Procedure Documentation">
                <visibleWhen>
                   <with
                         variable="eu.compassresearch.ide.rttmbt.IsRttPerspectiveActive">
@@ -779,11 +779,11 @@
                </visibleWhen>
             </command>
             <command
-                  commandId="eu.compassresearch.ide.rttmbt.RttMbtDocTest"
-                  icon="icons/documentate.png"
-                  label="Generate Test Documentation"
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtReplayTest"
+                  icon="icons/mbt_replay.png"
+                  label="Replay Test Result"
                   style="push"
-                  tooltip="Generate Test Procedure Documentation">
+                  tooltip="Replay Test Result against the Model">
                <visibleWhen>
                   <with
                         variable="eu.compassresearch.ide.rttmbt.IsRttPerspectiveActive">
@@ -1053,18 +1053,18 @@
                   tooltip="Execute Test Procedure">
             </command>
             <command
-                  commandId="eu.compassresearch.ide.rttmbt.RttMbtReplayTest"
-                  icon="icons/mbt_replay.png"
-                  label="Replay Test Result"
-                  style="push"
-                  tooltip="Replay Test Result against the Model">
-            </command>
-            <command
                   commandId="eu.compassresearch.ide.rttmbt.RttMbtDocTest"
                   icon="icons/documentate.png"
                   label="Generate Test Documentation"
                   style="push"
                   tooltip="Generate Test Procedure Documentation">
+            </command>
+            <command
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtReplayTest"
+                  icon="icons/mbt_replay.png"
+                  label="Replay Test Result"
+                  style="push"
+                  tooltip="Replay Test Result against the Model">
             </command>
             <visibleWhen
                   checkEnabled="false">
