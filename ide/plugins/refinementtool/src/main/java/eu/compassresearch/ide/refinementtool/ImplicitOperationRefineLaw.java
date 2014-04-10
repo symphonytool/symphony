@@ -3,6 +3,7 @@ package eu.compassresearch.ide.refinementtool;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AAssignmentDefinition;
 import org.overture.ast.definitions.AExplicitOperationDefinition;
 import org.overture.ast.definitions.AImplicitOperationDefinition;
@@ -11,7 +12,9 @@ import org.overture.ast.expressions.PExp;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.patterns.AIdentifierPattern;
+import org.overture.ast.patterns.APatternListTypePair;
 import org.overture.ast.patterns.APatternTypePair;
+import org.overture.ast.patterns.PPattern;
 import org.overture.ast.statements.ABlockSimpleBlockStm;
 import org.overture.ast.statements.AExternalClause;
 import org.overture.ast.statements.AReturnStm;
@@ -32,7 +35,7 @@ public class ImplicitOperationRefineLaw implements IRefineLaw {
 
 	@Override
 	public Refinement apply(INode node) {
-		AImplicitOperationDefinition oo = (AImplicitOperationDefinition) node; 
+		AImplicitOperationDefinition oo = ((AImplicitOperationDefinition) node).clone(); 
 		
 		// Create a specification statement to act as the body
 		
@@ -103,14 +106,18 @@ public class ImplicitOperationRefineLaw implements IRefineLaw {
 		
 		ASpecificationStm spec = new ASpecificationStm();
 		
-		spec.setPrecondition(oo.getPrecondition().clone());
-		spec.setPostcondition(oo.getPostcondition().clone());
-		spec.setExternals(((List<AExternalClause>)(oo.getExternals().clone())));//new LinkedList<AExternalClause>());
+
+		spec.setPrecondition(oo.getPrecondition());
+		
+		spec.setPostcondition(oo.getPostcondition());
+		
+		spec.setExternals(oo.getExternals());//new LinkedList<AExternalClause>());
+		
 		
 		AReturnStm ret = new AReturnStm();
 		AVariableExp v = new AVariableExp();
 		APatternTypePair result = oo.getResult();
-		AIdentifierPattern pat = (AIdentifierPattern)result.getPattern();
+		AIdentifierPattern pat = ((AIdentifierPattern)result.getPattern());
 		v.setName(pat.getName().clone());
 		ret.setExpression(v);
 		
@@ -134,9 +141,9 @@ public class ImplicitOperationRefineLaw implements IRefineLaw {
 		List<AAssignmentDefinition> assigns = new LinkedList<AAssignmentDefinition>();
 		
 		AAssignmentDefinition assign = new AAssignmentDefinition();
-		ILexNameToken name = pat.getName().clone();
+		ILexNameToken name = pat.getName();
 		assign.setName(name);
-		assign.setType(result.getType().clone());
+		assign.setType(result.getType());
 		assign.setUsed(false);
 		
 		assigns.add(assign);
@@ -144,14 +151,33 @@ public class ImplicitOperationRefineLaw implements IRefineLaw {
 		
 		AExplicitOperationDefinition no = new AExplicitOperationDefinition();
 				
-		no.setName(oo.getName().clone());
-		no.setPrecondition(oo.getPrecondition().clone());
-		no.setPostcondition(oo.getPostcondition().clone());
+		no.setName(oo.getName());
+		no.setPrecondition(oo.getPrecondition());
+		no.setPostcondition(oo.getPostcondition());
 		no.setBody(block);
-		no.setType(oo.getType().clone());
+		no.setType(oo.getType());
+		
+		List<PPattern> npat = new LinkedList<PPattern>(); 
+		
+		for (APatternListTypePair list: oo.getParameterPatterns()) {
+			for (PPattern patt: list.getPatterns()) {
+				npat.add(patt);
+			}
+		}
+		
+		
+		no.setParameterPatterns(npat);
+		
+		RefinePrettyPrinter rpp = new RefinePrettyPrinter();
 		
 		// TODO Auto-generated method stub
-		return new Refinement(no.toString(), new LinkedList<PExp>());		
+		try {
+			return new Refinement(no.apply(rpp, 1), new LinkedList<PExp>());
+		} catch (AnalysisException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}		
 	}
 
 }
