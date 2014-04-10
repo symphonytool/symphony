@@ -144,9 +144,6 @@
               name="startupMessageRect"
               value="75,200,300,15">
         </property>
-        <property
-              name="preferenceCustomization">
-        </property>
      </product>
   </extension>
   <extension
