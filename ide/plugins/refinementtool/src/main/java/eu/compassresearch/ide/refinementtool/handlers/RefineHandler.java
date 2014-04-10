@@ -9,9 +9,6 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IAdaptable;
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -22,8 +19,8 @@ import org.eclipse.ui.part.FileEditorInput;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.node.INode;
-import org.overture.ast.node.IToken;
 
+import eu.compassresearch.ast.statements.AActionStm;
 import eu.compassresearch.ide.core.resources.ICmlProject;
 import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
 import eu.compassresearch.ide.refinementtool.ChaosStopRefineLaw;
@@ -35,10 +32,8 @@ import eu.compassresearch.ide.refinementtool.IRefineLaw;
 import eu.compassresearch.ide.refinementtool.ImplicitOperationRefineLaw;
 import eu.compassresearch.ide.refinementtool.NullRefineLaw;
 import eu.compassresearch.ide.refinementtool.RefConstants;
-import eu.compassresearch.ide.refinementtool.RefUtils;
 import eu.compassresearch.ide.refinementtool.view.RefineLawView;
 import eu.compassresearch.ide.ui.editor.core.CmlEditor;
-import eu.compassresearch.ide.ui.editor.syntax.INodeFromCaret;
 
 /**
  * Our sample handler extends AbstractHandler, an IHandler base class.
@@ -152,6 +147,9 @@ public class RefineHandler extends AbstractHandler {
 		rv.setNode(node);
 		
 		for (IRefineLaw l : laws) {
+			while (node instanceof AActionStm) {
+				node = ((AActionStm)node).getAction();
+			}
 			if (l.isApplicable(node)) {
 				rv.addRefineLaw(l);				
 			}

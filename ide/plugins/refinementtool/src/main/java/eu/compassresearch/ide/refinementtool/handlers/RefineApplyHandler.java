@@ -9,7 +9,9 @@ import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.handlers.HandlerUtil;
+import org.overture.ast.node.INode;
 
+import eu.compassresearch.ast.statements.AActionStm;
 import eu.compassresearch.ide.refinementtool.IRefineLaw;
 import eu.compassresearch.ide.refinementtool.RefConstants;
 import eu.compassresearch.ide.refinementtool.view.RefineLawView;
@@ -40,9 +42,12 @@ public class RefineApplyHandler extends AbstractHandler {
 		IRefineLaw law = rv.getCurrentlySelectedLaw(); 
 			
 		if (law != null) {
-			
+			INode node = rv.getNode();
+			while (node instanceof AActionStm) {
+				node = ((AActionStm)node).getAction();
+			}
 			try {			
-				doc.replace(selection.getOffset(), selection.getLength(), law.apply(rv.getNode()).getResult());
+				doc.replace(selection.getOffset(), selection.getLength(), law.apply(node).getResult());
 				rv.clearLaws();
 			    // editor.getDocumentProvider().saveDocument(new NullProgressMonitor(), null, doc, true);
 				
