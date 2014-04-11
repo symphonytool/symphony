@@ -21,6 +21,8 @@ import org.overture.ast.statements.AReturnStm;
 import org.overture.ast.statements.ASpecificationStm;
 import org.overture.ast.statements.PStm;
 
+import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligation;
+
 public class ImplicitOperationRefineLaw implements IRefineLaw {
 
 	@Override
@@ -119,6 +121,7 @@ public class ImplicitOperationRefineLaw implements IRefineLaw {
 		APatternTypePair result = oo.getResult();
 		AIdentifierPattern pat = ((AIdentifierPattern)result.getPattern());
 		v.setName(pat.getName().clone());
+		v.setOriginal(pat.getName().toString());
 		ret.setExpression(v);
 		
 //		ASequentialCompositionAction seq = new ASequentialCompositionAction();
@@ -172,7 +175,7 @@ public class ImplicitOperationRefineLaw implements IRefineLaw {
 		
 		// TODO Auto-generated method stub
 		try {
-			return new Refinement(no.apply(rpp, 1), new LinkedList<PExp>());
+			return new Refinement(no.apply(rpp, 1), new LinkedList<CmlProofObligation>());
 		} catch (AnalysisException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -2,8 +2,9 @@ package eu.compassresearch.ide.refinementtool;
 
 import java.util.LinkedList;
 
-import org.overture.ast.expressions.PExp;
 import org.overture.ast.node.INode;
+
+import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligation;
 
 public class DummyRefineLaw implements IRefineLaw {
 
@@ -19,7 +20,7 @@ public class DummyRefineLaw implements IRefineLaw {
 
 	@Override
 	public Refinement apply(INode node) {
-		return new Refinement("DUMMY", new LinkedList<PExp>());
+		return new Refinement("DUMMY", new LinkedList<CmlProofObligation>());
 	}
 
 }

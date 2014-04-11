@@ -65,9 +65,10 @@ public enum CmlPOType
 	OPERATION_PATTERNS("operation parameter patterns"),
 	OP_SATISFIABILITY("operation satisfiability"),
 	NON_ZERO_TIME("non-zero time"),
+	REFINE_PROVISO("refinement proviso"),
 	OPERATION_REFINE ("operation refinement"),
 	ACTION_REFINE("action refinement"),
-	PROCESS_REFINE("action refinement"),
+	PROCESS_REFINE("process refinement"),
 	TEST("test");
 	
 	private String kind;

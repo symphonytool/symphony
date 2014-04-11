@@ -2,11 +2,11 @@ package eu.compassresearch.ide.refinementtool;
 
 import java.util.LinkedList;
 
-import org.overture.ast.expressions.PExp;
 import org.overture.ast.node.INode;
 
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
 import eu.compassresearch.ast.actions.AStopAction;
+import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligation;
 
 public class ChoiceStopLeft implements IRefineLaw {
 
@@ -28,7 +28,7 @@ public class ChoiceStopLeft implements IRefineLaw {
 	public Refinement apply(INode node) {
 		return new Refinement(
 				((AExternalChoiceAction) node)
-						.getRight().toString(), new LinkedList<PExp>());
+						.getRight().toString(), new LinkedList<CmlProofObligation>());
 	}
 
 }

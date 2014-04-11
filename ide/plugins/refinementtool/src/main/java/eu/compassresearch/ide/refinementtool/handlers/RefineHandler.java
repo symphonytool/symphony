@@ -20,6 +20,7 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.node.INode;
 
+import eu.compassresearch.ast.actions.AStmAction;
 import eu.compassresearch.ast.statements.AActionStm;
 import eu.compassresearch.ide.core.resources.ICmlProject;
 import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
@@ -32,6 +33,7 @@ import eu.compassresearch.ide.refinementtool.IRefineLaw;
 import eu.compassresearch.ide.refinementtool.ImplicitOperationRefineLaw;
 import eu.compassresearch.ide.refinementtool.NullRefineLaw;
 import eu.compassresearch.ide.refinementtool.RefConstants;
+import eu.compassresearch.ide.refinementtool.SpecSkipRefineLaw;
 import eu.compassresearch.ide.refinementtool.view.RefineLawView;
 import eu.compassresearch.ide.ui.editor.core.CmlEditor;
 
@@ -95,6 +97,7 @@ public class RefineHandler extends AbstractHandler {
 			laws.add(new ChoiceStopLeft());
 			laws.add(new ChoiceStopRight());
 			laws.add(new ImplicitOperationRefineLaw());
+			laws.add(new SpecSkipRefineLaw());
 			
 			cmlProj.getModel().setAttribute(RefConstants.REF_LAWS_ID, laws);  
 		}
@@ -147,8 +150,12 @@ public class RefineHandler extends AbstractHandler {
 		rv.setNode(node);
 		
 		for (IRefineLaw l : laws) {
-			while (node instanceof AActionStm) {
-				node = ((AActionStm)node).getAction();
+			while (node instanceof AActionStm || node instanceof AStmAction) {
+				if (node instanceof AActionStm)
+					node = ((AActionStm)node).getAction();
+				if (node instanceof AStmAction)
+					node = ((AStmAction)node).getStatement();
+
 			}
 			if (l.isApplicable(node)) {
 				rv.addRefineLaw(l);				

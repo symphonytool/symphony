@@ -7,24 +7,20 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AAssignmentDefinition;
 import org.overture.ast.definitions.AExplicitOperationDefinition;
 import org.overture.ast.definitions.APrivateAccess;
-import org.overture.ast.definitions.AUntypedDefinition;
 import org.overture.ast.definitions.AValueDefinition;
-import org.overture.ast.expressions.AUnaryMinusUnaryExp;
-import org.overture.ast.expressions.AUnaryPlusUnaryExp;
-import org.overture.ast.expressions.AUndefinedExp;
+import org.overture.ast.expressions.ASetCompSetExp;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.node.INode;
-import org.overture.ast.statements.AAssignmentStm;
-import org.overture.ast.statements.ABlockSimpleBlockStm;
-import org.overture.ast.statements.PStm;
-import org.overture.ast.patterns.APatternListTypePair;
 import org.overture.ast.patterns.AUnionPattern;
 import org.overture.ast.patterns.PPattern;
+import org.overture.ast.statements.AAssignmentStm;
+import org.overture.ast.statements.ABlockSimpleBlockStm;
+import org.overture.ast.statements.AExternalClause;
+import org.overture.ast.statements.AReturnStm;
+import org.overture.ast.statements.ASpecificationStm;
 import org.overture.ast.statements.AWhileStm;
-import org.overture.ast.types.AUndefinedType;
+import org.overture.ast.statements.PStm;
 import org.overture.ast.types.AUnionType;
-import org.overture.ast.types.AUnknownType;
-import org.overture.ast.types.AUnresolvedType;
 import org.overture.ast.types.PType;
 
 import eu.compassresearch.ast.actions.AUntimedTimeoutAction;
@@ -34,17 +30,13 @@ import eu.compassresearch.ast.actions.AWaitAction;
 import eu.compassresearch.ast.actions.AWriteCommunicationParameter;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.definitions.AActionDefinition;
-import eu.compassresearch.ast.expressions.ABracketedExp;
 import eu.compassresearch.ast.process.AActionProcess;
-import eu.compassresearch.ast.statements.AActionStm;
-import eu.compassresearch.ast.expressions.AUnionVOpVarsetExpression;
-import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
 import eu.compassresearch.ast.process.AUntimedTimeoutProcess;
-import eu.compassresearch.ast.statements.AUnresolvedObjectDesignator;
-import eu.compassresearch.ast.statements.AUnresolvedStateDesignator;
+import eu.compassresearch.ast.statements.AActionStm;
 
 public class RefinePrettyPrinter extends QuestionAnswerCMLAdaptor<Integer, String> {
 	private String eol = System.getProperty("line.separator");
+	private CmlPExprPrettyPrinter cmlpp = new CmlPExprPrettyPrinter();
 	
 	public static String tabs(Integer n) {
 		String s = "";
@@ -53,6 +45,19 @@ public class RefinePrettyPrinter extends QuestionAnswerCMLAdaptor<Integer, Strin
 		}
 		return s;
 	}
+	
+	public static <A> List<A> delimit(List<A> list, A dl) {
+		List<A> nl = new LinkedList<A>();
+		if (list.size() > 0) {
+			nl.add(nl.get(0));
+			for (int i = 1; i < nl.size(); i++) {
+				nl.add(dl);
+				nl.add(nl.get(i));
+			}
+		}
+		return nl;
+	}
+	
 	@Override
 	public String createNewReturnValue(INode arg0, Integer arg1)
 			throws AnalysisException {
@@ -200,8 +205,15 @@ public class RefinePrettyPrinter extends QuestionAnswerCMLAdaptor<Integer, Strin
 	@Override
 	public String defaultPExp(PExp node, Integer question)
 			throws AnalysisException {
-		return tabs(question)+node.toString();
+		return tabs(question)+node.apply(cmlpp);
 	}
+	
+	@Override
+	public String caseASetCompSetExp(ASetCompSetExp node, Integer question)
+			throws AnalysisException {
+		return super.caseASetCompSetExp(node, question);
+	}
+
 	@Override
 	public String caseAExplicitOperationDefinition(
 			AExplicitOperationDefinition n, Integer question)
@@ -302,10 +314,53 @@ public class RefinePrettyPrinter extends QuestionAnswerCMLAdaptor<Integer, Strin
 
 		if (node.getExpression() != null) {
 			sb.append(" := ");
-			sb.append(node.getExpression());
+			sb.append(node.getExpression().apply(cmlpp));
 		}
 		
 		return sb.toString();
+	}
+	@Override
+	public String caseASpecificationStm(ASpecificationStm node, Integer question)
+			throws AnalysisException {
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append("[");
+		
+		List<AExternalClause> exts = node.getExternals();
+		
+		if (exts.size() > 0) {
+			sb.append("frame ");
+			
+            /*			
+			sb.append(exts.g)
+			
+			for (e : )
+			List<ILexNameToken> ids = exts.get(0).getIdentifiers();
+			*/
+			sb.append(" ");
+		}
+		
+		if (node.getPrecondition() != null) {
+			sb.append("pre ");
+			sb.append(node.getPrecondition().apply(cmlpp));
+		}
+		
+		if (node.getPostcondition() != null) {
+			sb.append("post ");
+			sb.append(node.getPostcondition().apply(cmlpp));
+		} else {
+			sb.append("post true");
+		}
+		
+		sb.append("]");
+		
+		return sb.toString();
+	}
+
+	@Override
+	public String caseAReturnStm(AReturnStm node, Integer question)
+			throws AnalysisException {
+		return "return " + node.getExpression().toString();
 	}
 	
 }
