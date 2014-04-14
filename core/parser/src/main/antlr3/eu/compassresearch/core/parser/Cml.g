@@ -58,6 +58,7 @@ import java.lang.NumberFormatException;
 import java.lang.reflect.Method;
 import java.math.BigInteger;
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.text.ParseException;
 
 import java.util.Arrays;
@@ -66,6 +67,7 @@ import java.util.ListIterator;
 import java.util.LinkedList;
 import java.util.Collection;
 import java.util.Vector;
+import java.util.Locale;
 
 import static org.overture.ast.lex.Dialect.VDM_PP;
 import org.overture.ast.assistant.definition.PDefinitionAssistant;
@@ -226,7 +228,7 @@ public String getTokenErrorDisplay(CommonToken t) {
 //    throw e;
 //}
 
-private DecimalFormat decimalFormatParser = new DecimalFormat();
+private NumberFormat decimalFormatParser =NumberFormat.getNumberInstance(Locale.ENGLISH);
 public static final String CML_LANG_VERSION = "CML M16";
 
 public static char convertEscapeToChar(String escape) {
