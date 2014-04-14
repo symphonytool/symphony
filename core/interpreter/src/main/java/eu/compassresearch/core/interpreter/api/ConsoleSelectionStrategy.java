@@ -4,14 +4,12 @@ import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
-import java.util.Set;
-import java.util.SortedSet;
 
 import eu.compassresearch.core.interpreter.Console;
-import eu.compassresearch.core.interpreter.api.transitions.AbstractSilentTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.transitions.LabelledTransition;
+import eu.compassresearch.core.interpreter.api.transitions.TauTransition;
 
 public class ConsoleSelectionStrategy implements SelectionStrategy
 {
@@ -34,7 +32,7 @@ public class ConsoleSelectionStrategy implements SelectionStrategy
 	private boolean isSystemSelect(CmlTransitionSet availableChannelEvents)
 	{
 
-		CmlTransitionSet silentTransitions = availableChannelEvents.filterByType(AbstractSilentTransition.class);
+		CmlTransitionSet silentTransitions = availableChannelEvents.filterByType(TauTransition.class);
 		// don't let the system run the divergent processes since it will never stop
 		int count = 0;
 
@@ -50,7 +48,7 @@ public class ConsoleSelectionStrategy implements SelectionStrategy
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private CmlTransition systemSelect(CmlTransitionSet availableChannelEvents)
 	{
-		rndSelect.choices(availableChannelEvents.filterByType(AbstractSilentTransition.class));
+		rndSelect.choices(availableChannelEvents.filterByType(TauTransition.class));
 		return rndSelect.resolveChoice();
 	}
 

@@ -73,7 +73,7 @@ public class RttMbtProjectWizard extends BasicNewProjectResourceWizard {
 		client.setProgress(IRttMbtProgressBar.Tasks.Global, 15);
 
 		// download templates
-		if (client.downloadDirectory("templates")) {
+		if (client.downloadDirectory(client.getWorkspacePath() + File.separator + "templates")) {
 			client.addLogMessage("[PASS]: downloading templates");
 			client.setProgress(IRttMbtProgressBar.Tasks.Global, 75);
 		} else {

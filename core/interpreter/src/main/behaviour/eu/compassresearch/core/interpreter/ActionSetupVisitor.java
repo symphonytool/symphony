@@ -6,6 +6,8 @@ import org.overture.ast.node.INode;
 import org.overture.ast.statements.AForAllStm;
 import org.overture.ast.statements.AForIndexStm;
 import org.overture.ast.statements.AForPatternBindStm;
+import org.overture.ast.statements.ASkipStm;
+import org.overture.ast.statements.AStopStm;
 import org.overture.interpreter.assistant.pattern.PPatternAssistantInterpreter;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.PatternMatchException;
@@ -18,6 +20,8 @@ import org.overture.interpreter.values.ValueSet;
 import eu.compassresearch.ast.CmlAstFactory;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AChannelRenamingAction;
+import eu.compassresearch.ast.actions.ACommunicationAction;
+import eu.compassresearch.ast.actions.ADivAction;
 import eu.compassresearch.ast.actions.AEndDeadlineAction;
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
 import eu.compassresearch.ast.actions.AExternalChoiceReplicatedAction;
@@ -42,8 +46,9 @@ import eu.compassresearch.ast.actions.AWaitAction;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.expressions.SRenameChannelExp;
 import eu.compassresearch.ast.statements.AActionStm;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorFactory;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
+import eu.compassresearch.core.interpreter.api.CmlBehaviorFactory;
+import eu.compassresearch.core.interpreter.api.CmlBehaviour;
+import eu.compassresearch.core.interpreter.api.TransitionEvent;
 import eu.compassresearch.core.interpreter.api.values.RenamingValue;
 import eu.compassresearch.core.interpreter.utility.LocationExtractor;
 import eu.compassresearch.core.interpreter.utility.Pair;
@@ -92,6 +97,55 @@ class ActionSetupVisitor extends CommonSetupVisitor
 		return caseASequentialComposition(node, node.getLeft(), question);
 	}
 
+	@Override
+	public Pair<INode, Context> caseACommunicationAction(
+			ACommunicationAction node, Context question)
+			throws AnalysisException
+	{
+		newTransitionEvent(TransitionEvent.WAIT_EVENT);
+		return new Pair<INode, Context>(node, question);
+	}
+	
+	@Override
+	public Pair<INode, Context> caseASkipAction(ASkipAction node,
+			Context question) throws AnalysisException
+	{
+		newTransitionEvent(TransitionEvent.SKIP);
+		return new Pair<INode, Context>(node, question);
+	}
+	
+	@Override
+	public Pair<INode, Context> caseASkipStm(ASkipStm node, Context question)
+			throws AnalysisException
+	{
+		newTransitionEvent(TransitionEvent.SKIP);
+		return new Pair<INode, Context>(node, question);
+	}
+	
+	@Override
+	public Pair<INode, Context> caseADivAction(ADivAction node, Context question)
+			throws AnalysisException
+	{
+		newTransitionEvent(TransitionEvent.DIV);
+		return new Pair<INode, Context>(node, question);
+	}
+	
+	@Override
+	public Pair<INode, Context> caseAStopAction(AStopAction node,
+			Context question) throws AnalysisException
+	{
+		newTransitionEvent(TransitionEvent.STOP);
+		return new Pair<INode, Context>(node, question);
+	}
+	
+	@Override
+	public Pair<INode, Context> caseAStopStm(AStopStm node, Context question)
+			throws AnalysisException
+	{
+		newTransitionEvent(TransitionEvent.STOP);
+		return new Pair<INode, Context>(node, question);
+	}
+	
 	@Override
 	public Pair<INode, Context> caseAHidingAction(AHidingAction node,
 			Context question) throws AnalysisException

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="The Symphony IDE" uid="eu.compassresearch.ide.product" id="eu.compassresearch.ide.platform.product" application="org.eclipse.ui.ide.workbench" version="0.2.9.qualifier" useFeatures="true" includeLaunchers="true">
+<product name="The Symphony IDE" uid="eu.compassresearch.ide.product" id="eu.compassresearch.ide.platform.product" application="org.eclipse.ui.ide.workbench" version="0.3.1.qualifier" useFeatures="true" includeLaunchers="true">
 
    <aboutInfo>
       <image path="icons/aboutboximg.png"/>
@@ -25,7 +25,7 @@
       startupProgressRect="0,0,300,20"
       startupMessageRect="75,200,300,15"
       startupForegroundColor="7F7F7F" />
-    <launcher name="Symphony IDE">
+   <launcher name="Symphony IDE">
       <linux icon="/icons/linux/symphony.xpm"/>
       <macosx icon="/icons/osx/symphony.icns"/>
       <solaris/>
@@ -42,7 +42,7 @@
    <license>
         <url>http://www.compass-research.eu</url>
         <text>
-The Symphony IDE
+   The Symphony IDE
 
 This is an open source tool for the COMPASS Modelling Language (CML). 
 
@@ -90,8 +90,6 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
       <plugin id="org.eclipse.update.configurator" autoStart="true" startLevel="4" />
       <property name="REMOVE.FOR.PRODUCTION.osgi.instance.area.default" value="@user.home/Documents/SymphonyIDE/workspace" />
       <property name="org.eclipse.update.reconcile" value="false" />
-      <!-- <plugin id="eu.compassresearch.ide.tpplugin" autoStart="true" startLevel="4" /> -->
-      <!-- <plugin id="eu.compassresearch.ide.ui" autoStart="true" startLevel="3" /> -->
    </configurations>
 
 </product>

@@ -48,6 +48,9 @@ public class FaultToleranceModelCheckingJob extends
 				return FaultToleranceModelCheckingJob.this.property
 						.getFormulaScriptFile().exists();
 			}
+			@Override
+			public void postCheckPreRequisite(boolean checkResult) {
+			}
 		});
 		addJobChangeListener(new JobChangeAdapter() {
 			@Override

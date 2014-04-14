@@ -14,7 +14,6 @@ import org.overture.ast.node.Node;
 import org.overture.ast.types.AClassType;
 import org.overture.ast.types.ARecordInvariantType;
 import org.overture.ast.types.PType;
-import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.BooleanValue;
 import org.overture.interpreter.values.CharacterValue;
 import org.overture.interpreter.values.FieldMap;
@@ -38,8 +37,8 @@ import com.fasterxml.jackson.databind.Module.SetupContext;
 import eu.compassresearch.ast.lex.CmlLexNameToken;
 import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
-import eu.compassresearch.core.interpreter.api.values.CMLChannelValue;
-import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
+import eu.compassresearch.core.interpreter.api.values.ChannelValue;
+import eu.compassresearch.core.interpreter.api.values.CmlChannel;
 import eu.compassresearch.core.interpreter.api.values.LatticeTopValue;
 import eu.compassresearch.core.interpreter.api.values.MultiConstraint;
 import eu.compassresearch.core.interpreter.api.values.ValueConstraint;
@@ -209,7 +208,7 @@ public class MessageCommunicatorMixins
 
 	static abstract class ChannelNameValueMixIn
 	{
-		ChannelNameValueMixIn(@JsonProperty("channel") CMLChannelValue channel,
+		ChannelNameValueMixIn(@JsonProperty("channel") CmlChannel channel,
 				@JsonProperty("values") List<Value> values,
 				@JsonProperty("constraints") List<ValueConstraint> constraints)
 		{
@@ -234,7 +233,7 @@ public class MessageCommunicatorMixins
 		ignore.put(ARecordInvariantType.class, new String[]{"_invDef","_fields"});
 		ignore.put(PType.class, new String[] { "_definitions","_location","_resolved" });
 		ignore.put(CmlTransitionSet.class, new String[] { "silentEvents" });
-		ignore.put(CMLChannelValue.class, new String[] { "selectObservers" });
+		ignore.put(CmlChannel.class, new String[] { "selectObservers" });
 //		ignore.put(AChannelType.class, new String[] { "_location","_definitions" });
 		
 		ignore.put(CmlLexNameToken.class, new String[] { "location" ,"old","explicit","hashcode"});
@@ -262,10 +261,10 @@ public class MessageCommunicatorMixins
 		ctxt.setMixInAnnotations(CharacterValue.class, CharacterValueMixIn.class);
 		ctxt.setMixInAnnotations(RecordValue.class, RecordValueMixIn.class);
 		ctxt.setMixInAnnotations(FieldValue.class, FieldValueMixIn.class);
-		ctxt.setMixInAnnotations(CMLChannelValue.class, CMLChannelValueMixIn.class);
+		ctxt.setMixInAnnotations(CmlChannel.class, CMLChannelValueMixIn.class);
 		ctxt.setMixInAnnotations(LatticeTopValue.class, LatticeTopValueMixIn.class);
 		ctxt.setMixInAnnotations(MultiConstraint.class, MultiConstraintMixIn.class);
-		ctxt.setMixInAnnotations(ChannelNameValue.class, ChannelNameValueMixIn.class);
+		ctxt.setMixInAnnotations(ChannelValue.class, ChannelNameValueMixIn.class);
 		ctxt.setMixInAnnotations(IntegerValue.class, IntegerValueMixIn.class);
 
 		ctxt.appendAnnotationIntrospector(new JsonIgnoreIntrospector(ignore));

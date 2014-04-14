@@ -7,6 +7,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAGreaterN
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAInSetBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCALessEqualNumericBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCALessNumericBinaryExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAModNumericBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANotEqualsBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANotInSetBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANotUnaryExp;
@@ -38,7 +39,7 @@ public class ExpressionNegator {
 			result = new MCANotInSetBinaryExp(((MCAInSetBinaryExp) expression).getLeft(), ((MCAInSetBinaryExp) expression).getRight());
 		} else if(expression instanceof MCAVariableExp){
 			result = new MCANotUnaryExp(expression);
-		}
+		} 
 		
 		return result;
 	}

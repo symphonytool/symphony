@@ -9,11 +9,13 @@ import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAChansetD
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCATypeDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANameChannelExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPVarsetExpression;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCABooleanBasicType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAIntNumericBasicType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANamedInvariantType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANatNumericBasicType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAProductType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAQuoteType;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCASetType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAUnionType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
@@ -48,6 +50,10 @@ public class TypeManipulator {
 			result = this.getValues((MCAUnionType)type);
 		} else if(type instanceof MCATypeSingleDeclaration){
 			result = this.getValues((MCATypeSingleDeclaration)type);
+		} else if(type instanceof MCASetType){
+			result = this.getValues((MCASetType)type);
+		} else if(type instanceof MCABooleanBasicType){
+			result = this.getValues((MCABooleanBasicType)type);
 		}
 		return result;
 	}
@@ -111,6 +117,12 @@ public class TypeManipulator {
 
 		return result;
 	}
+	public LinkedList<TypeValue> getValues(MCABooleanBasicType type){
+		LinkedList<TypeValue> result = new LinkedList<TypeValue>();
+		result.add(new SingleTypeValue("true"));
+		result.add(new SingleTypeValue("false"));
+		return result;
+	}
 	public LinkedList<TypeValue> getValues(MCAProductType type){
 		LinkedList<TypeValue> result = new LinkedList<TypeValue>();
 
@@ -172,4 +184,40 @@ public class TypeManipulator {
 		return result;
 	}
 
+	public LinkedList<TypeValue> getValues(MCASetType type){
+		ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
+		LinkedList<TypeValue> result = new LinkedList<TypeValue>();
+		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
+		MCPCMLType internalType = type.getSetOf();
+		if(internalType instanceof MCANamedInvariantType){
+			MCATypeDefinition typeDef = context.getTypeDefinition(((MCANamedInvariantType) internalType).getName());
+			if(typeDef != null){
+				LinkedList<String> valueSet = new LinkedList<String>(); 
+				if(typeDef.getInvExpression() != null){
+					valueSet = evaluator.getValueSet(typeDef.getInvExpression());
+				}else{
+					LinkedList<TypeValue> typeValues = getValues(typeDef.getType());
+					for (TypeValue typeValue : typeValues) {
+						valueSet.add(typeValue.toFormula(MCNode.DEFAULT));
+					}
+				}
+				for (String string : valueSet) {
+					result.add(new SingleTypeValue(string));
+				}
+			} else{//the type can be defined in a chanset definition
+				MCAChansetDefinition chansetDef = context.getChansetDefinition(((MCANamedInvariantType) internalType).getName());
+				if(chansetDef != null){
+					LinkedList<MCANameChannelExp> chansetValues = chansetDef.getChansetExpression().getChannelNames();
+					for (MCANameChannelExp mcaNameChannelExp : chansetValues) {
+						result.add(new SingleTypeValue(mcaNameChannelExp.getIdentifier()));
+					}
+				}
+				
+			}
+		}else{
+		  //nothing to do for the moment	
+		}
+		
+		return result;
+	}
 }

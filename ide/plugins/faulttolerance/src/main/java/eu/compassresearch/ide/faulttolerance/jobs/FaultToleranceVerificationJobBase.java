@@ -144,10 +144,14 @@ public abstract class FaultToleranceVerificationJobBase extends WorkspaceJob {
 	public final boolean shouldRun() {
 		boolean should = super.shouldRun();
 
-		for (IFaultToleranceVerificationPreRequisite pr : preRequisites) {
-			should &= pr.checkPreRequisite();
-			if (!should) {
-				break;
+		synchronized (response) {
+			for (IFaultToleranceVerificationPreRequisite pr : preRequisites) {
+				boolean preRequisite = pr.checkPreRequisite();
+				should &= preRequisite;
+				pr.postCheckPreRequisite(preRequisite);
+				if (!should) {
+					break;
+				}
 			}
 		}
 

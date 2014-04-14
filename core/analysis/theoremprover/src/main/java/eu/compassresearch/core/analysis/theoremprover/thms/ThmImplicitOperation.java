@@ -1,6 +1,7 @@
 package eu.compassresearch.core.analysis.theoremprover.thms;
 
 import java.util.LinkedList;
+
 import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.patterns.APatternListTypePair;
 import org.overture.ast.patterns.APatternTypePair;
@@ -13,6 +14,7 @@ public class ThmImplicitOperation extends ThmDecl{
 	private String name;
 	private String pre;
 	private String post;
+	private String body;
 	private LinkedList<APatternListTypePair> params;
 	private APatternTypePair result;
 	private String resType;
@@ -28,11 +30,9 @@ public class ThmImplicitOperation extends ThmDecl{
 		this.paramTypes = genParamTypeList(paramT);
 		this.result = res;
 		//generate function for precondition
-		
-
 		this.pre = genPre(pre);
 		this.post = genPost(post);
-		
+		this.body = genBody();
 		this.resType = resType;
 	}
 	
@@ -83,6 +83,15 @@ public class ThmImplicitOperation extends ThmDecl{
 	}
 	
 	
+	private String genBody()
+	{
+		String bodyOutput = ThmProcessUtil.isaOp + " \"body_" + name + " (" + inputName +")" + " = " + 
+				ThmProcessUtil.opBodyLeft + "true" +
+				ThmProcessUtil.opBodyRight + "\"\n" + tactic("body_"+ name, operation);
+		
+		return bodyOutput;	
+	}
+	
 	
 	/**
 	 * Method to change the value names in an expression when they are parameter names
@@ -125,11 +134,14 @@ public class ThmImplicitOperation extends ThmDecl{
 	
 		res.append(post + "\n\n");
 		
+		res.append(body + "\n\n");
+		
 		res.append(ThmProcessUtil.isaOp + " \"" + name + " = CMLOpO " + 
 				ThmProcessUtil.opParamLeft + paramTypes + ThmProcessUtil.opParamRight + " " + 
 				ThmProcessUtil.opParamLeft + resType + ThmProcessUtil.opParamRight + " " + 
 				"pre_" + name + " " + 
-				"post_" + name + "\"\n" + 
+				"post_" + name + " " + 
+				"body_" + name + "\"\n" + 
 				tactic(name, operation));
 		
 		return res.toString();

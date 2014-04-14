@@ -20,12 +20,14 @@ import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.lex.CmlLexNameToken;
+import eu.compassresearch.core.interpreter.api.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
+import eu.compassresearch.core.interpreter.api.CmlTrace;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.SelectionStrategy;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlTrace;
+import eu.compassresearch.core.interpreter.api.events.CmlBehaviorStateEvent;
+import eu.compassresearch.core.interpreter.api.events.CmlBehaviorStateObserver;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.transitions.ObservableTransition;
@@ -150,6 +152,17 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		// start the execution of the top process
 		try
 		{
+			runningTopProcess.onStateChanged().registerObserver(new CmlBehaviorStateObserver()
+			{
+				
+				@Override
+				public void onStateChange(CmlBehaviorStateEvent stateEvent)
+				{
+					System.out.println("Top CML behavior: "+ stateEvent.getState().toString());
+					
+				}
+			});
+			
 			executeTopProcess(runningTopProcess);
 		} catch (AnalysisException e)
 		{

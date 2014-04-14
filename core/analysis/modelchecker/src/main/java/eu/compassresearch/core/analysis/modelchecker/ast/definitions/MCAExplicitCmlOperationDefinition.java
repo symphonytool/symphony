@@ -15,6 +15,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ExpressionEva
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCOperationCall;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCPreOpTrue;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCStringType;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASetDifferenceBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASetUnionBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAVariableExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
@@ -156,6 +157,9 @@ public class MCAExplicitCmlOperationDefinition implements
 			MCPCMLExp realExpression = assignmentBody.getExpression();
 			if(realExpression instanceof MCASetUnionBinaryExp){
 				((MCASetUnionBinaryExp) realExpression).setNewVarName(newValueVarName);
+				result.append(realExpression.toFormula(option)); //expression assignment
+			}else if(realExpression instanceof MCASetDifferenceBinaryExp){
+				((MCASetDifferenceBinaryExp) realExpression).setNewVarName(newValueVarName);
 				result.append(realExpression.toFormula(option)); //expression assignment
 			}else{
 				//DEVE PRODUZIR ALGO SEMELHANTE A ISSO PORQUE OS FATOS UNION NAO ESTAO MUDANDO OS BINDINGS

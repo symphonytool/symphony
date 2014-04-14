@@ -17,7 +17,6 @@ import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.process.AActionProcess;
-import eu.compassresearch.core.interpreter.runtime.state.ProcessDefinitionRuntime;
 
 public class ProcessObjectValue extends ObjectValue
 {

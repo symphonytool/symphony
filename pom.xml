@@ -1,24 +1,29 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
+
+  <!-- Needed to make deployment work -->
+  <parent>
+    <groupId>org.sonatype.oss</groupId>
+    <artifactId>oss-parent</artifactId>
+    <version>7</version>
+  </parent>
+
   <packaging>pom</packaging>
 
   <groupId>eu.compassresearch</groupId>
   <artifactId>root</artifactId>
   <name>The Symphony IDE Top-Level</name>
-  <version>0.2.9-SNAPSHOT</version>
+  <version>0.3.1-SNAPSHOT</version>
 
   <modules>
     <module>tools</module>
     <module>core</module>
-    <!-- <module>ide</module> -->
-    <!-- I would like to deprecate the core-examples module -jwc/6Aug2013 -->
-    <!-- <module>docs/core-examples</module> -->
   </modules>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <overture.version>2.0.3-SNAPSHOT</overture.version>
+    <overture.version>2.0.7-SNAPSHOT</overture.version>
   </properties>
 
   <dependencies>
@@ -37,28 +42,6 @@
 	<module>ide</module>
       </modules>
     </profile>
-
-    <profile>
-      <id>overture-test-repo</id>
-      <repositories>
-        <repository>
-          <id>overture.au.dk</id>
-          <name>Overture Project Build Repository for Symphony at AU</name>
-          <releases>
-	    <enabled>false</enabled>
-	    <updatePolicy>daily</updatePolicy>
-	    <checksumPolicy>warn</checksumPolicy>
-          </releases>
-          <snapshots>
-	    <enabled>true</enabled>
-	    <updatePolicy>always</updatePolicy>
-	    <checksumPolicy>warn</checksumPolicy>
-          </snapshots>
-          <url>http://overture.au.dk/maven/symphony-overture-test/</url>
-          <layout>default</layout>
-        </repository>
-      </repositories>
-    </profile>
   </profiles>
 
   <repositories>
@@ -68,43 +51,7 @@
       <url>http://overture.au.dk/maven/mirror-external-m2repo/</url>
       <layout>default</layout>
     </repository>
-
-    <repository>
-      <id>overture.au.dk</id>
-      <name>Overture Project Build Repository for Symphony at AU</name>
-      <releases>
-	<enabled>false</enabled>
-	<updatePolicy>daily</updatePolicy>
-	<checksumPolicy>warn</checksumPolicy>
-      </releases>
-      <snapshots>
-	<enabled>true</enabled>
-	<updatePolicy>always</updatePolicy>
-	<checksumPolicy>warn</checksumPolicy>
-      </snapshots>
-      <url>http://overture.au.dk/maven/symphony-overture-development/</url>
-      <layout>default</layout>
-    </repository>
   </repositories>
-
-  <pluginRepositories>
-    <pluginRepository>
-      <id>overture.au.dk</id>
-      <name>Overture Project Build Repository for Symphony at AU</name>
-      <releases>
-	<enabled>true</enabled>
-	<updatePolicy>daily</updatePolicy>
-	<checksumPolicy>warn</checksumPolicy>
-      </releases>
-      <snapshots>
-	<enabled>false</enabled>
-	<updatePolicy>daily</updatePolicy>
-	<checksumPolicy>warn</checksumPolicy>
-      </snapshots>
-      <url>http://overture.au.dk/maven/symphony-overture-development/</url>
-      <layout>default</layout>
-    </pluginRepository>
-  </pluginRepositories>
 
   <build>
     <defaultGoal>install</defaultGoal>
@@ -114,7 +61,7 @@
         <!--
             This plugin allows you to run
 
-            $ mvn versions:set -Dtycho.mode=maven -PWith-IDE -DnewVersion=1.6.1
+            $ mvn versions:set -DnewVersion=1.6.1
 
             and get all the maven version numbers updated nearly for
             free.  The tycho bit on the end just tells tycho (used in
@@ -270,25 +217,6 @@
     <!-- <developerConnection>scm:git:https://git.code.sf.net/p/compassresearch/code</developerConnection> -->
     <url>https://sourceforge.net/p/compassresearch/code/</url>
   </scm>
-
-  <!-- Reconfigure this later -jwc -->
-  <!-- mvn deploy won't work until we set this up -->
-  <distributionManagement>
-    <repository>
-      <id>build.overture.org</id>
-      <name>COMPASS Repo at AU/IHA</name>
-      <url>sftp://jenkins@overture.iha.dk/home/jenkins/web/compass-m2repo</url>
-    </repository>
-    <!-- <snapshotRepository> -->
-    <!--   <id>sourceforge.net</id> -->
-    <!--   <name>Overture Snapshot Repo af SF.Net</name> -->
-    <!--   <url>sftp://web.sourceforge.net/home/groups/o/ov/overture/htdocs/maven/snapshotrepo</url> -->
-    <!-- </snapshotRepository> -->
-    <!-- <site> -->
-    <!--   <id>sourceforge.net</id> -->
-    <!--   <url>scp://shell.sourceforge.net/home/groups/o/ov/overture/htdocs/maven/doc</url> -->
-    <!-- </site> -->
-  </distributionManagement>
 
   <organization>
     <name>The COMPASS Project</name>

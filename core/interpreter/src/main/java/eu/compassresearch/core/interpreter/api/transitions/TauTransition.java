@@ -2,9 +2,10 @@ package eu.compassresearch.core.interpreter.api.transitions;
 
 import org.overture.ast.node.INode;
 
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
+import eu.compassresearch.core.interpreter.CmlRuntime;
+import eu.compassresearch.core.interpreter.api.CmlBehaviour;
 
-public class TauTransition extends AbstractSilentTransition
+public class TauTransition extends AbstractCmlTransition
 {
 
 	/**
@@ -14,14 +15,66 @@ public class TauTransition extends AbstractSilentTransition
 
 	protected static TauTransition instance = null;
 	// public final static String tauString = "\u03C4".toLowerCase();
-	private final static String tauKind = "tau";
+	private String transitionMessage = null;
+	private final INode destinationNode;
+	private final String kind = "tau";
 
-	public TauTransition(CmlBehaviour source, INode transitionDstNode,
-			String transitionMessage)
+	public TauTransition(CmlBehaviour eventSource,
+			INode destinationNode, String transitionMessage)
 	{
-		super(source, transitionDstNode, tauKind);
+		super(eventSource);
+		if (destinationNode == null)
+		{
+			throw new NullPointerException("A tau transition must have a destination node");
+		}
+		this.destinationNode = destinationNode;
+		
 		setTransitionMessage(transitionMessage);
 	}
+
+	public String getTransitionMessage()
+	{
+		return transitionMessage;
+	}
+
+	protected void setTransitionMessage(String transitionMessage)
+	{
+		this.transitionMessage = transitionMessage;
+	}
+
+	public INode getDestinationNode()
+	{
+		return destinationNode;
+	}
+
+	@Override
+	public String toString()
+	{
+		// We now that it always has one source because it an internal transition
+		INode transitionSrcNode = this.getEventSources().iterator().next().getNextState().first;
+		if (CmlRuntime.expandShowHiddenEvents())
+		{
+			return kind
+					+ "("
+					+ transitionSrcNode.getClass().getSimpleName()
+					+ (transitionMessage != null ? "--" + transitionMessage
+							+ "->" : "->")
+
+					+ destinationNode.getClass().getSimpleName() + ") : "
+					+ getEventSources();
+		} else
+		{
+			return kind;
+		}
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return kind.hashCode() + destinationNode.hashCode()
+				+ this.eventSources.hashCode();
+	}
+	
 
 	@Override
 	public boolean equals(Object obj)

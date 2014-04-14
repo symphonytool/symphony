@@ -338,6 +338,7 @@ public class NewMCVisitor extends
 		//String cml_file = "src/test/resources/BeoAVDeviceDiscovery-final version-model checker.cml";
 		//String cml_file = "src/test/resources/simpler-register.cml";
 		//String cml_file = "src/test/resources/simpler-BeoAVDeviceDiscovery.cml";
+		String cml_file = "src/test/resources/ERSystem.cml";
 		//String cml_file = "src/test/resources/timed-interrupt2.cml";
 		//String cml_file = "src/test/resources/insiel-ex1.cml";
 		//String cml_file = "src/test/resources/action-generalised-parallelism-no-state-simple.cml";
@@ -345,13 +346,16 @@ public class NewMCVisitor extends
 		//String cml_file = "src/test/resources/recursion.cml";
 		//String cml_file = "src/test/resources/action-prefix-stop.cml";
 		//String cml_file = "src/test/resources/minimondex-incomplete.cml.nok";
-		String cml_file = "src/test/resources/simpler-minimondex.cml";
+		//String cml_file = "src/test/resources/simpler-minimondex.cml";
+		//String cml_file = "src/test/resources/LE-derived-CSP-modelchecker.cml";
+		//String cml_file = "src/test/resources/beo-spec.cml";
 		//String cml_file = "src/test/resources/set-manipulation.cml";
 		//String cml_file = "src/test/resources/action-prefix-stop.cml";
 		//String cml_file = "src/test/resources/action-vardecl.cml";
 		//String cml_file = "src/test/resources/simpler-register.cml";
 		//String cml_file = "src/test/resources/Dphils.cml";
 		//String cml_file = "src/test/resources/BeoAVDeviceDiscovery-final-version-model-checker.cml";
+		//String cml_file = "src/test/resources/beo-spec.cml";
 		//String cml_file = "src/test/resources/cmlfile5.cml";
 		//String cml_file = "src/test/resources/simpler-insielImpl-final-modelchecker.cml";
 		//String cml_file = "src/test/resources/action-prefix-skip.cml";
@@ -373,7 +377,8 @@ public class NewMCVisitor extends
 		//String mainProcessName = "RegisterProc";
 		//String mainProcessName = "N_LAZY_Q";
 		//String mainProcessName = "ad_Initiate_Rescue_Activation___Fault_1";
-		String mainProcessName = "OneCard";
+		//String mainProcessName = "Spec";
+		String mainProcessName = "Recovery1";
 		
 		
 		String formulaCode = visitor1.generateFormulaScript(source1.getParagraphs(),Utilities.DEADLOCK_PROPERTY,mainProcessName);

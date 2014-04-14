@@ -7,8 +7,8 @@ import org.overture.interpreter.runtime.Context;
 
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.process.PProcess;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorFactory;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
+import eu.compassresearch.core.interpreter.api.CmlBehaviorFactory;
+import eu.compassresearch.core.interpreter.api.CmlBehaviour;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
 class CmlSetupVisitor extends AbstractSetupVisitor

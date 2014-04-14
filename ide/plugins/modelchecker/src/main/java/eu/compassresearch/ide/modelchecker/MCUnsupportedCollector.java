@@ -1445,7 +1445,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 
 	@Override
 	public void caseAIfExp(AIfExp node) throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseAIfExp(node);
@@ -1947,7 +1947,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseAModNumericBinaryExp(AModNumericBinaryExp node)
 			throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseAModNumericBinaryExp(node);
@@ -2609,7 +2609,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseASeqCompSeqExp(ASeqCompSeqExp node)
 			throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseASeqCompSeqExp(node);

@@ -344,7 +344,8 @@ public class FilesPreparationJob extends FaultToleranceVerificationJobBase {
 			PrintStream ps = new PrintStream(baos);
 
 			boolean requires;
-			requires = createBaseFileChansets(chansetsNotFound, ps);
+			requires = createBaseFileChansets(chansetsNotFound,
+					channelsNotFound, ps);
 			requires = createBaseFileProcesses(processesNotFound, ps)
 					|| requires;
 
@@ -376,7 +377,7 @@ public class FilesPreparationJob extends FaultToleranceVerificationJobBase {
 	}
 
 	private boolean createBaseFileChansets(List<String> chansetsNotFound,
-			PrintStream ps) {
+			List<String> channelsNotFound, PrintStream ps) {
 		List<String> chansetsToAdd = new LinkedList<>();
 
 		if (!chansetsNotFound
@@ -387,6 +388,11 @@ public class FilesPreparationJob extends FaultToleranceVerificationJobBase {
 				chansetsNotFound.remove(relatedToH.nextToken());
 			}
 		}
+
+		removeChannelsOfDefinedChanset(Message.CHANSET_E_NAME,
+				Message.CHANNELS_E_RELATED, chansetsNotFound, channelsNotFound);
+		removeChannelsOfDefinedChanset(Message.CHANSET_F_NAME,
+				Message.CHANNELS_F_RELATED, chansetsNotFound, channelsNotFound);
 
 		updateElementsToAdd(Message.CHANSET_E_NAME, Message.CHANSET_E_TEMPLATE,
 				chansetsNotFound, chansetsToAdd);
@@ -403,6 +409,18 @@ public class FilesPreparationJob extends FaultToleranceVerificationJobBase {
 			}
 		}
 		return !chansetsToAdd.isEmpty();
+	}
+
+	private void removeChannelsOfDefinedChanset(Message chansetName,
+			Message relatedChannels, List<String> chansetsNotFound,
+			List<String> channelsNotFound) {
+		if (!chansetsNotFound.contains(formatSystemName(chansetName))) {
+			StringTokenizer relatedToChanset = new StringTokenizer(
+					formatSystemName(relatedChannels), ",");
+			while (relatedToChanset.hasMoreTokens()) {
+				channelsNotFound.remove(relatedToChanset.nextToken());
+			}
+		}
 	}
 
 	private void updateElementsToAdd(Message nameMessage, Message template,

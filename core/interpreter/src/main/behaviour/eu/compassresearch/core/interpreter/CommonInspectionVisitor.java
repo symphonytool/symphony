@@ -24,27 +24,25 @@ import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
 import eu.compassresearch.ast.expressions.ANameChannelExp;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
+import eu.compassresearch.core.interpreter.api.CmlBehaviorFactory;
+import eu.compassresearch.core.interpreter.api.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorFactory;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlCalculationStep;
-import eu.compassresearch.core.interpreter.api.behaviour.Inspection;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
-import eu.compassresearch.core.interpreter.api.transitions.Filter;
 import eu.compassresearch.core.interpreter.api.transitions.HiddenTransition;
 import eu.compassresearch.core.interpreter.api.transitions.LabelledTransition;
-import eu.compassresearch.core.interpreter.api.transitions.MapOperation;
 import eu.compassresearch.core.interpreter.api.transitions.ObservableTransition;
-import eu.compassresearch.core.interpreter.api.transitions.RemoveChannelNames;
-import eu.compassresearch.core.interpreter.api.transitions.RetainChannelNames;
-import eu.compassresearch.core.interpreter.api.transitions.RetainChannelNamesAndTau;
 import eu.compassresearch.core.interpreter.api.transitions.TimedTransition;
 import eu.compassresearch.core.interpreter.api.transitions.UpdateTimeLimit;
-import eu.compassresearch.core.interpreter.api.values.CMLChannelValue;
+import eu.compassresearch.core.interpreter.api.transitions.ops.Filter;
+import eu.compassresearch.core.interpreter.api.transitions.ops.MapOperation;
+import eu.compassresearch.core.interpreter.api.transitions.ops.RemoveChannelNames;
+import eu.compassresearch.core.interpreter.api.transitions.ops.RetainChannelNames;
+import eu.compassresearch.core.interpreter.api.transitions.ops.RetainChannelNamesAndTau;
+import eu.compassresearch.core.interpreter.api.values.CmlChannel;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameSetValue;
-import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
+import eu.compassresearch.core.interpreter.api.values.ChannelValue;
 import eu.compassresearch.core.interpreter.api.values.NamesetValue;
 import eu.compassresearch.core.interpreter.api.values.RenamingValue;
 import eu.compassresearch.core.interpreter.utility.LocationExtractor;
@@ -89,7 +87,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 			RenamingValue rv = (RenamingValue)question.lookup(NamespaceUtility.getRenamingValueName());
  			CmlTransitionSet childTransitions = leftChild.inspect();
 			final HashMap<CmlTransition, CmlTransition> newtoOld = new HashMap<CmlTransition, CmlTransition>();
- 			for(Entry<ChannelNameValue, ChannelNameValue> pair : rv.renamingMap().entrySet())
+ 			for(Entry<ChannelValue, ChannelValue> pair : rv.renamingMap().entrySet())
  			{
  				CmlTransitionSet transitionsToBeRenamed  = childTransitions.filter(new RetainChannelNames(pair.getKey()));
  				//if this is true then we have remove the from channel and need to add the
@@ -398,7 +396,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		// if true this means that this is the first time here, so the Parallel Begin rule is invoked.
 		if (!owner.hasChildren())
 		{
-			return newInspection(createTauTransitionWithTime(node, "Begin"),
+			return newInspection(createTauTransitionWithoutTime(node, "Begin"),
 
 			new CmlCalculationStep()
 			{
@@ -523,7 +521,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 			return (ChannelNameSetValue) val;
 		} else if (val instanceof Set && ((Set) val).isEmpty())
 		{
-			return new ChannelNameSetValue(new HashSet<ChannelNameValue>());
+			return new ChannelNameSetValue(new HashSet<ChannelValue>());
 		}
 
 		throw new CmlInterpreterException(chansetExpression, InterpretationErrorMessages.FATAL_ERROR.customizeMessage("Failed to evaluate chanset expression"));
@@ -971,10 +969,10 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 			throws AnalysisException
 	{
 
-		// If the left child is Skip then the while interrupt construct is Skip
+		// If the left child is Skip then the interrupt construct is Skip
 		if (owner.getLeftChild().finished())
 		{
-			return newInspection(createTauTransitionWithTime(owner.getLeftChild().getNextState().first),
+			return newInspection(createTauTransitionWithoutTime(owner.getLeftChild().getNextState().first),
 
 			new CmlCalculationStep()
 			{
@@ -989,11 +987,10 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 				}
 			});
 		}
-		// If the right action has taken a labelled transition then the whole becomes the right action
-		else if (owner.getRightChild().getTraceModel().getLastTransition() instanceof ObservableTransition
-				&& owner.getRightChild().getTraceModel().getLastTransition() instanceof LabelledTransition)
+		// If the right action has taken a labeled transition then the whole becomes the right action
+		else if (owner.getRightChild().getTraceModel().getLastTransition() instanceof LabelledTransition)
 		{
-			return newInspection(createTauTransitionWithTime(owner.getRightChild().getNextState().first),
+			return newInspection(createTauTransitionWithoutTime(owner.getRightChild().getNextState().first),
 
 			new CmlCalculationStep()
 			{
@@ -1040,7 +1037,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		// Get all the channel name exps objects
 		for (Entry<ILexNameToken, Value> entry : globalContext.entrySet())
 		{
-			if (entry.getValue() instanceof CMLChannelValue)
+			if (entry.getValue() instanceof CmlChannel)
 			{
 				channelNames.add(CmlAstFactory.newANameChannelExp(entry.getKey().getLocation(), entry.getKey().clone(), new LinkedList<PExp>()));
 			}

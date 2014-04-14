@@ -1,5 +1,6 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.auxiliary;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
@@ -56,7 +57,9 @@ public class MCActionCall extends MCGenericCall {
 			}
 			result.append(")");
 		} else{
+			
 			StringBuilder assignments = buildAssignments(parameters,args,context, option);
+			
 			result.append("seqC(");
 			result.append(assignments.toString());
 			result.append(",proc(\"" + this.name + "\"");
@@ -76,9 +79,13 @@ public class MCActionCall extends MCGenericCall {
 		return result.toString();
 	}
 
-	private StringBuilder buildAssignments(LinkedList<MCPParametrisation> parameters,LinkedList<MCPCMLExp> args,NewCMLModelcheckerContext context, String option){
+	private StringBuilder buildAssignments(LinkedList<MCPParametrisation> realParameters,LinkedList<MCPCMLExp> realArgs,NewCMLModelcheckerContext context, String option){
 		StringBuilder result = new StringBuilder();
-		 
+		LinkedList<MCPCMLExp> args  = new LinkedList<MCPCMLExp>();
+		args.addAll(realArgs);
+		LinkedList<MCPParametrisation> parameters = new LinkedList<MCPParametrisation>();
+		parameters.addAll(realParameters);
+		
 		if(parameters.size() == 1){
 			MCPCMLExp expression = args.getFirst();
 			String varName = parameters.getFirst().toFormula(MCNode.DEFAULT);
@@ -88,7 +95,19 @@ public class MCActionCall extends MCGenericCall {
 			context.assignDefs.add(assignDef);
 			result.append(assignment.toFormula(option));
 		} else{
-			//nothing to do for the moment
+			//build an assignment for each parameter
+			result.append("seqC(");
+			MCPCMLExp expression = args.removeFirst();
+			String varName = parameters.removeFirst().toFormula(MCNode.DEFAULT);
+			MCAUnresolvedStateDesignator varDesignator = new MCAUnresolvedStateDesignator(new MCAVariableExp(varName));
+			MCAAssignmentStm assignment = new MCAAssignmentStm(expression,varDesignator);
+			MCAssignDef assignDef = new MCAssignDef(assignment.getCounterId(),expression,new MCAVariableExp(varName),assignment);
+			context.assignDefs.add(assignDef);
+			result.append(assignment.toFormula(option)); 	
+			result.append(",");
+			StringBuilder remainingAssignments = this.buildAssignments(parameters, args, context, option);
+			result.append(remainingAssignments.toString());
+			result.append(")");
 		}
 		/*	
 		MCPStateDesignator target = (MCPStateDesignator) node.getTarget().apply(rootVisitor, question);

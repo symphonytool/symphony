@@ -5,11 +5,11 @@
   <parent>
     <groupId>eu.compassresearch</groupId>
     <artifactId>root</artifactId>
-    <version>0.2.9-SNAPSHOT</version>
+    <version>0.3.1-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <packaging>pom</packaging>
+    <packaging>pom</packaging>
 
   <groupId>eu.compassresearch.ide</groupId>
   <artifactId>ide</artifactId>
@@ -142,7 +142,7 @@
     <!--   <layout>p2</layout> -->
     <!-- </repository> -->
     <repository>
-      <id>overture.au.dk-p2</id>
+      <id>overture-p2</id>
       <url>http://overture.au.dk/p2/symphony-overture-development/</url>
       <layout>p2</layout>
     </repository>

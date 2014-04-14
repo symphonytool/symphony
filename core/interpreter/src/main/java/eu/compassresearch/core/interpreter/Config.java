@@ -1,6 +1,6 @@
 package eu.compassresearch.core.interpreter;
 
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorFactory;
+import eu.compassresearch.core.interpreter.api.CmlBehaviorFactory;
 
 public class Config
 {
