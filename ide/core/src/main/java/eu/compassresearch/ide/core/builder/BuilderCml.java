@@ -47,8 +47,6 @@ public class BuilderCml extends AbstractVdmBuilder
 		ICmlTypeChecker typeChecker = VanillaFactory.newTypeChecker(model.getDefinitions(), issueHandler);
 		try
 		{
-			// Force setup of the legacy static access assistants in Overture
-			CmlTypeCheckerAssistantFactory.init(new CmlTypeCheckerAssistantFactory());
 			typeChecker.typeCheck();
 
 		} catch (TypeCheckException e)

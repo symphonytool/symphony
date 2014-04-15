@@ -58,12 +58,14 @@ public abstract class AbstractResultBasedCmlTypeCheckerTestCase extends
 	// return collectResourcesTestData("general");
 	// }
 
-	public static Collection<Object[]> combine(Collection<Object[]> a,
-			Collection<Object[]> b)
+	@SuppressWarnings("unchecked")
+	public static Collection<Object[]> combine(@SuppressWarnings("rawtypes") Collection... all)
 	{
 		Collection<Object[]> tests = new LinkedList<Object[]>();
-		tests.addAll(a);
-		tests.addAll(b);
+		for (Collection<Object[]> test : all)
+		{
+			tests.addAll(test);
+		}
 		return tests;
 	}
 
