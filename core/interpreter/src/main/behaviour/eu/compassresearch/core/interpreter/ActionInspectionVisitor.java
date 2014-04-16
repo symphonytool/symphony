@@ -220,7 +220,8 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 				// change the trace at a latter point
 				if (valueExp instanceof UpdatableValue)
 				{
-					values.add(valueExp.deref());
+					//FIX for issue 195 where trace changed after the value was changed elsewhere.
+					values.add((Value) valueExp.deref().clone());
 				} else
 				{
 					values.add(valueExp);

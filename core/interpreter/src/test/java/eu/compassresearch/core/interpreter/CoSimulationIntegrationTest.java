@@ -224,6 +224,19 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 		Assert.assertTrue("Simulators did not deadlock successfully", isFinished());
 
 	}
+	
+	@Test
+	public void testSyncOnRecord() throws Exception
+	{
+		String source = "src/test/resources/cosim/SyncOnRecord.cml";
+		Process coordinator = setUpCoordinator(source, "Main", "Writer");
+		setUpClient(source, "Writer");
+
+		waitForCompletion(coordinator, DEFAULT_TIMEOUT);
+
+		Assert.assertTrue("Simulators did not deadlock successfully", isFinished());
+
+	}
 
 	@Test
 	public void testExternalAbort() throws Exception

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.TicketsCmlTypeCheckerTests">
+<message column="8" line="221" message="Instance variable 'b' is not initialized." messageType="warning" number="5001" resource="ticket-196-huge-file-neg.cml"/>
+<message column="13" line="613" message="Definition 't' not used." messageType="warning" number="5000" resource="ticket-196-huge-file-neg.cml"/>
+<message column="21" line="637" message="Unable to resolve type name 'cts'" messageType="error" number="0" resource="ticket-196-huge-file-neg.cml"/>
+<result/>
+</testResult>

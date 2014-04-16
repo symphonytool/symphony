@@ -167,7 +167,12 @@ public class SubSystem implements IProcessDelegate
 						try
 						{
 							client.abort(e.error, e.getMessage());
+							Thread.sleep(1000);
+							System.exit(0);
 						} catch (IOException e1)
+						{
+							e1.printStackTrace();
+						} catch (InterruptedException e1)
 						{
 							e1.printStackTrace();
 						}
