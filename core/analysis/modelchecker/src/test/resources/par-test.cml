@@ -1,0 +1,45 @@
+values
+  nodeids : set of nat = {0,...,2}
+  
+types 
+  MYNAT = nat
+   inv n == n in set nodeids
+   
+process Test =   
+begin
+  actions 
+    T1 = x,y:MYNAT@ Skip
+@ Skip
+
+end
+
+process Test2 =   
+begin
+  actions
+    --an action without parameters but with local variables
+    T = (dcl x: MYNAT @ (dcl y:MYNAT @ y := 1; x := 2 ; Stop))
+ @ T
+
+end
+
+process Test3 =   
+begin
+  state
+    --state variables emulating action parameters 
+    x1:MYNAT := 0
+    y1:MYNAT := 0
+    
+  actions
+    T2 = y1 := 1; x1 := 2 ; Stop
+ @ T2
+
+end
+
+process Test4 =   
+begin
+  actions
+    --action with one parameter
+    T3 = x2: MYNAT @ x2 := 2 ; Stop
+ @ T3(0)
+
+end
