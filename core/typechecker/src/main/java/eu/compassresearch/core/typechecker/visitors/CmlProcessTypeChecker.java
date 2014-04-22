@@ -433,11 +433,9 @@ public class CmlProcessTypeChecker extends
 
 		return getVoidType(node);
 	}
-	
-	
+
 	private PType caseDeadlineProcess(PProcess node, PProcess leftProcess,
-			PExp expression,
-			org.overture.typechecker.TypeCheckInfo question)
+			PExp expression, org.overture.typechecker.TypeCheckInfo question)
 			throws AnalysisException
 	{
 
@@ -456,7 +454,7 @@ public class CmlProcessTypeChecker extends
 		}
 
 		return getVoidType(node);
-	} 
+	}
 
 	@Override
 	public PType caseAStartDeadlineProcess(AStartDeadlineProcess node,

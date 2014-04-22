@@ -1,0 +1,9 @@
+process A = begin
+state
+  y : int := 0
+  z : int := 0
+
+
+@
+  y := 1 [|| {z} | {y} ||] z := 1
+end

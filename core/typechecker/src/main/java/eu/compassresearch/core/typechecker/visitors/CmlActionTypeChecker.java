@@ -758,8 +758,6 @@ public class CmlActionTypeChecker extends
 			return node.getType();
 		}
 
-		PType type = null;
-
 		if (!(def instanceof AActionDefinition))
 		{
 			issueHandler.addTypeError(node, TypeErrorMessages.EXPECTED_AN_ACTION, " a "
@@ -773,11 +771,7 @@ public class CmlActionTypeChecker extends
 			node.setActionDefinition(actionDef);
 		}
 
-		if (type == null)
-
-		{
-			type = AstFactory.newAVoidType(node.getLocation());
-		}
+		PType type = AstFactory.newAVoidType(node.getLocation());
 
 		node.setType(type);
 		return node.getType();

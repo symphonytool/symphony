@@ -40,6 +40,7 @@ import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.expressions.SChannelExp;
 import eu.compassresearch.ast.lex.CmlLexNameToken;
 import eu.compassresearch.ast.messages.InternalException;
+import eu.compassresearch.ast.process.AActionProcess;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.ast.statements.AActionStm;
@@ -86,6 +87,11 @@ public class CmlCspTypeChecker extends
 	 */
 	private final CmlChannelExpressionTypeChecker channelExpChecker;
 
+	/**
+	 * Type checker namesets in parallel actions
+	 */
+	private final ParallelNamesetChecker parallelNamesetChecker;
+
 	public CmlCspTypeChecker(ITypeIssueHandler issuehandler)
 	{
 		this.vdmChecker = new CmlVdmTypeCheckVisitor()
@@ -110,6 +116,8 @@ public class CmlCspTypeChecker extends
 		this.processChecker = new CmlProcessTypeChecker(this, issuehandler, channelSetChecker);
 
 		this.channelExpChecker = new CmlChannelExpressionTypeChecker(this, issuehandler);
+
+		this.parallelNamesetChecker = new ParallelNamesetChecker(this.issueHandler);
 
 	}
 
@@ -322,6 +330,20 @@ public class CmlCspTypeChecker extends
 		}
 
 		return AstFactory.newAClassType(node.getLocation(), node);
+	}
+
+	/**
+	 * This method overrides the default path to the super implementation by first calling the super implementation
+	 * forcing all type checking to complete before the name sets of certian parallel actions are checked. This is
+	 * needed due to circlic depenendcy allowance in the language.
+	 */
+	@Override
+	public PType caseAActionProcess(AActionProcess node, TypeCheckInfo question)
+			throws AnalysisException
+	{
+		PType type = super.caseAActionProcess(node, question);
+		node.apply(parallelNamesetChecker);
+		return type;
 	}
 
 	@Override
