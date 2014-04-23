@@ -22,7 +22,6 @@ import org.overture.typechecker.Environment;
 import org.overture.typechecker.TypeCheckInfo;
 import org.overture.typechecker.TypeComparator;
 
-import eu.compassresearch.ast.actions.ATimedInterruptAction;
 import eu.compassresearch.ast.actions.PParametrisation;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
@@ -63,7 +62,7 @@ public class CmlProcessTypeChecker extends
 		QuestionAnswerCMLAdaptor<TypeCheckInfo, PType>
 {
 
-	private final ITypeIssueHandler issueHandler;// = VanillaFactory.newCollectingIssueHandle();
+	private final ITypeIssueHandler issueHandler;
 
 	/**
 	 * Type checker for var set expressions used for channel sets
@@ -110,8 +109,6 @@ public class CmlProcessTypeChecker extends
 
 		Environment base = new PrivateActionClassEnvironment(question.assistantFactory, node.getActionDefinition(), question.env);
 		Environment env = PParametrisationAssistant.updateEnvironment(base, node.getActionDefinition());
-
-		// FIXME we properly need to assemble all action definitions in the process and add then to the env
 
 		TypeCheckInfo q = new TypeCheckInfo(question.assistantFactory, env, NameScope.NAMESANDSTATE);
 
@@ -273,9 +270,9 @@ public class CmlProcessTypeChecker extends
 		PProcess left = node.getLeft();
 		PProcess right = node.getRight();
 
-		PType leftType = left.apply(THIS, question);
+		left.apply(THIS, question);
 
-		PType rightType = right.apply(THIS, question);
+		right.apply(THIS, question);
 
 		return getVoidType(node);
 	}
@@ -288,9 +285,9 @@ public class CmlProcessTypeChecker extends
 		PProcess left = node.getLeft();
 		PProcess right = node.getRight();
 
-		PType leftType = left.apply(THIS, question);
+		left.apply(THIS, question);
 
-		PType rightType = right.apply(THIS, question);
+		right.apply(THIS, question);
 
 		return getVoidType(node);
 	}
@@ -356,10 +353,10 @@ public class CmlProcessTypeChecker extends
 	{
 
 		PProcess left = node.getLeft();
-		PType leftType = left.apply(THIS, question);
+		left.apply(THIS, question);
 
 		PVarsetExpression csexp = node.getChansetExpression();
-		PType csexpType = csexp.apply(channelSetChecker, question);
+		csexp.apply(channelSetChecker, question);
 
 		return getVoidType(node);
 	}
@@ -374,11 +371,11 @@ public class CmlProcessTypeChecker extends
 		PProcess right = node.getRight();
 		PVarsetExpression csExp = node.getChansetExpression();
 
-		PType leftType = left.apply(THIS, question);
+		left.apply(THIS, question);
 
-		PType rightType = right.apply(THIS, question);
+		right.apply(THIS, question);
 
-		PType csExpType = csExp.apply(channelSetChecker, question);
+		csExp.apply(channelSetChecker, question);
 
 		return getVoidType(node);
 	}
@@ -391,9 +388,9 @@ public class CmlProcessTypeChecker extends
 		PProcess left = node.getLeft();
 		PProcess right = node.getRight();
 
-		PType leftType = left.apply(THIS, question);
+		left.apply(THIS, question);
 
-		PType rightType = right.apply(THIS, question);
+		right.apply(THIS, question);
 
 		return getVoidType(node);
 	}
@@ -406,9 +403,9 @@ public class CmlProcessTypeChecker extends
 		PProcess process = node.getProcess();
 		SRenameChannelExp renameExp = node.getRenameExpression();
 
-		PType processType = process.apply(THIS, question);
+		process.apply(THIS, question);
 
-		PType renameExpType = renameExp.apply(THIS, question);
+		renameExp.apply(THIS, question);
 
 		return getVoidType(node);
 	}
@@ -420,16 +417,16 @@ public class CmlProcessTypeChecker extends
 	{
 
 		PProcess left = node.getLeft();
-		PType leftType = left.apply(THIS, question);
+		left.apply(THIS, question);
 
 		PProcess right = node.getRight();
-		PType rightType = right.apply(THIS, question);
+		right.apply(THIS, question);
 
 		PVarsetExpression leftChanSet = node.getLeftChansetExpression();
-		PType leftChanSetType = leftChanSet.apply(channelSetChecker, question);
+		leftChanSet.apply(channelSetChecker, question);
 
 		PVarsetExpression rightChanSet = node.getRightChansetExpression();
-		PType rightChanSetType = rightChanSet.apply(channelSetChecker, question);
+		rightChanSet.apply(channelSetChecker, question);
 
 		return getVoidType(node);
 	}
@@ -443,7 +440,7 @@ public class CmlProcessTypeChecker extends
 
 		PExp timeExp = expression;
 
-		PType leftType = left.apply(THIS, question);
+		left.apply(THIS, question);
 
 		PType timeExpType = timeExp.apply(THIS, question);
 
@@ -537,10 +534,10 @@ public class CmlProcessTypeChecker extends
 			TypeCheckInfo question) throws AnalysisException
 	{
 		PProcess left = node.getLeft();
-		PType leftType = left.apply(THIS, question);
+		left.apply(THIS, question);
 
 		PProcess right = node.getRight();
-		PType rightType = right.apply(THIS, question);
+		right.apply(THIS, question);
 
 		PType expType = node.getTimeExpression().apply(THIS, question);
 		if (!TypeComparator.isSubType(expType, new ANatNumericBasicType(), question.assistantFactory))
@@ -550,14 +547,6 @@ public class CmlProcessTypeChecker extends
 		}
 
 		return getVoidType(node);
-	}
-
-	@Override
-	public PType caseATimedInterruptAction(ATimedInterruptAction node,
-			TypeCheckInfo question) throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-		return super.caseATimedInterruptAction(node, question);
 	}
 
 	@Override

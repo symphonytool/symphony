@@ -143,8 +143,8 @@ public class CmlActionTypeChecker extends
 			node.getName().setTypeQualifier(atypes);
 		}
 
-		PDefinition opdef = question.env.findName(node.getName(), question.scope);// findDefinition(node.getName(),
-																					// question.env);
+		PDefinition opdef = question.env.findName(node.getName(), question.scope);
+																					
 
 		if (opdef == null)
 		{
@@ -305,7 +305,6 @@ public class CmlActionTypeChecker extends
 			}
 		}
 
-		// FIXME how should we handle write only checks
 		PType repActionType = node.getReplicatedAction().apply(THIS, question.newScope(defs, NameScope.NAMESANDANYSTATE));
 
 		return TypeCheckerUtil.setType(question.assistantFactory, node, repActionType);
@@ -1108,6 +1107,8 @@ public class CmlActionTypeChecker extends
 		// TODO Auto-generated method stub
 		return setTypeVoid(node);
 	}
+	
+	
 
 	public PType createNewReturnValue(INode node, TypeCheckInfo question)
 			throws AnalysisException
