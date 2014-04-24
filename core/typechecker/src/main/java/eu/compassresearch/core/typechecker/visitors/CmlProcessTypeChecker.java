@@ -12,6 +12,7 @@ import org.overture.ast.analysis.QuestionAnswerAdaptor;
 import org.overture.ast.analysis.intf.IQuestionAnswer;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
+import org.overture.ast.factory.AstFactory;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.node.INode;
@@ -25,6 +26,7 @@ import org.overture.typechecker.TypeComparator;
 import eu.compassresearch.ast.actions.PParametrisation;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
+import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.expressions.SRenameChannelExp;
@@ -54,6 +56,7 @@ import eu.compassresearch.ast.process.AUntimedTimeoutProcess;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
+import eu.compassresearch.core.typechecker.assistant.AReferenceAssistant;
 import eu.compassresearch.core.typechecker.assistant.PParametrisationAssistant;
 import eu.compassresearch.core.typechecker.assistant.TypeCheckerUtil;
 import eu.compassresearch.core.typechecker.environment.PrivateActionClassEnvironment;
@@ -501,28 +504,36 @@ public class CmlProcessTypeChecker extends
 			throws AnalysisException
 	{
 
-		LinkedList<PExp> args = node.getArgs();
-		for (PExp arg : args)
-		{
-			PType type = arg.apply(this.THIS, question);
-		}
+		List<PType> atypes = question.assistantFactory.createACallObjectStatementAssistant().getArgTypes(node.getArgs(), THIS, question);
 
-		PDefinition processDef = findDefinition(node.getProcessName(), question.env);
+		PDefinition def = findDefinition(node.getProcessName(), question.env);
 
-		if (processDef == null)
+		if (def == null)
 		{
 			issueHandler.addTypeError(node, TypeErrorMessages.UNDEFINED_SYMBOL, node.getProcessName()
 					+ "");
 		} else
 		{
 
-			if (!(processDef instanceof AProcessDefinition))
+			if (def instanceof AProcessDefinition)
 			{
-				issueHandler.addTypeError(processDef, TypeErrorMessages.EXPECTED_PROCESS_DEFINITION, node.getProcessName()
-						+ "");
+				AProcessDefinition processDef = (AProcessDefinition) def;
+
+				List<PType> paramTypes = new Vector<PType>();
+				for (PParametrisation localDef : processDef.getLocalState())
+				{
+					PType t = localDef.getDeclaration().getType();
+					question.assistantFactory.createPTypeAssistant().typeResolve(t, null, THIS, question);
+					paramTypes.add(t);
+				}
+				
+				
+				AReferenceAssistant.checkArgTypes(node, AstFactory.newAVoidReturnType(node.getLocation()), paramTypes, atypes);
+				node.setProcessDefinition(processDef);
 			} else
 			{
-				node.setProcessDefinition((AProcessDefinition) processDef);
+				issueHandler.addTypeError(def, TypeErrorMessages.EXPECTED_PROCESS_DEFINITION, node.getProcessName()
+						+ "");
 			}
 		}
 
