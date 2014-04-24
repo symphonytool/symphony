@@ -26,7 +26,6 @@ import org.overture.typechecker.TypeComparator;
 import eu.compassresearch.ast.actions.PParametrisation;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
-import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.expressions.SRenameChannelExp;
@@ -299,14 +298,14 @@ public class CmlProcessTypeChecker extends
 	public PType caseAInstantiationProcess(AInstantiationProcess node,
 			TypeCheckInfo question) throws AnalysisException
 	{
-
+		// FIXME: what is an instantiation Process is it similar to a reference process. It has arguments
 		LinkedList<PExp> args = node.getArgs();
 		LinkedList<PParametrisation> decl = node.getParametrisations();
 		PProcess proc = node.getProcess();
 
 		for (PExp arg : args)
 		{
-			PType argType = arg.apply(THIS, question);
+			arg.apply(THIS, question);
 		}
 
 		List<PDefinition> definitions = new LinkedList<PDefinition>();
@@ -344,7 +343,7 @@ public class CmlProcessTypeChecker extends
 				locals.add(ithDef);
 			}
 
-			PType procType = proc.apply(THIS, question.newScope(locals));
+			proc.apply(THIS, question.newScope(locals));
 		}
 
 		return getVoidType(node);
@@ -526,8 +525,7 @@ public class CmlProcessTypeChecker extends
 					question.assistantFactory.createPTypeAssistant().typeResolve(t, null, THIS, question);
 					paramTypes.add(t);
 				}
-				
-				
+
 				AReferenceAssistant.checkArgTypes(node, AstFactory.newAVoidReturnType(node.getLocation()), paramTypes, atypes);
 				node.setProcessDefinition(processDef);
 			} else
