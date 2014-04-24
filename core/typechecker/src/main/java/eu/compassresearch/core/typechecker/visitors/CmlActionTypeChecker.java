@@ -144,7 +144,6 @@ public class CmlActionTypeChecker extends
 		}
 
 		PDefinition opdef = question.env.findName(node.getName(), question.scope);
-																					
 
 		if (opdef == null)
 		{
@@ -457,14 +456,13 @@ public class CmlActionTypeChecker extends
 			org.overture.typechecker.TypeCheckInfo question)
 			throws AnalysisException
 	{
+		// all channels must exist so just check that the channels exists
+		// then check the action
 
-		// PAction action = node.getAction();
-		//
-		// SRenameChannelExp renameExp = node.getRenameExpression();
+		node.getRenameExpression().apply(THIS,question);
+		node.getAction().apply(THIS, question);
 
-		// FIXME throw new InternalException(0, "caseAChannelRenamingAction not implemented");
 		return setTypeVoid(node);
-		// return new AActionType(node.getLocation(), true);
 	}
 
 	@Override
@@ -746,8 +744,7 @@ public class CmlActionTypeChecker extends
 			throws AnalysisException
 	{
 
-		PDefinition def = question.env.findName(node.getName(), question.scope); // findDefinition(node.getName().getIdentifier(),
-																					// question.env);
+		PDefinition def = question.env.findName(node.getName(), question.scope);
 
 		if (def == null)
 		{
@@ -1104,11 +1101,9 @@ public class CmlActionTypeChecker extends
 			AAlphabetisedParallelismReplicatedAction node,
 			TypeCheckInfo question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+		// FIXME Auto-generated method stub
 		return setTypeVoid(node);
 	}
-	
-	
 
 	public PType createNewReturnValue(INode node, TypeCheckInfo question)
 			throws AnalysisException

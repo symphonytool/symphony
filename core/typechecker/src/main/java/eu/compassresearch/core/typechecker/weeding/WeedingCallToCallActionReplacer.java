@@ -76,7 +76,7 @@ public class WeedingCallToCallActionReplacer extends
 							&& d.getName().getName().equals(name.getName()))
 					{
 						// replace and return
-						ACallAction ac = new ACallAction();
+						ACallAction ac = new ACallAction();//FIXME dublicated node use AReferenceAction instead
 						ac.setArgs(node.getArgs());
 						ac.setLocation(node.getLocation());
 						ac.setName(node.getName());
