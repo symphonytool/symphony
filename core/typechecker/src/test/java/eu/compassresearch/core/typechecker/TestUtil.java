@@ -59,7 +59,6 @@ public class TestUtil
 			}
 		}
 		res.sources = parserRes.definitions;
-		;
 
 		return res;
 	}
