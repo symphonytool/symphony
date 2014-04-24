@@ -121,12 +121,6 @@ public class CmlCspTypeChecker extends
 
 	}
 
-	public PType caseACallAction(
-			eu.compassresearch.ast.actions.ACallAction node,
-			TypeCheckInfo question) throws AnalysisException
-	{
-		return node.apply(actionChecker, question);
-	};
 
 	@Override
 	public PType defaultPSource(PSource node, TypeCheckInfo question)

@@ -91,7 +91,7 @@ import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
 import eu.compassresearch.core.typechecker.api.TypeWarningMessages;
-import eu.compassresearch.core.typechecker.assistant.ACallActionAssistant;
+import eu.compassresearch.core.typechecker.assistant.AReferenceAssistant;
 import eu.compassresearch.core.typechecker.assistant.PParametrisationAssistant;
 import eu.compassresearch.core.typechecker.assistant.TypeCheckerUtil;
 
@@ -174,16 +174,80 @@ public class CmlActionTypeChecker extends
 				node.getName().setTypeQualifier(paramTypes);
 			}
 			node.setType(AstFactory.newAVoidReturnType(node.getLocation()));
-			ACallActionAssistant.checkArgTypes(node, node.getType(), paramTypes, atypes);
-
+			AReferenceAssistant.checkArgTypes(node, node.getType(), paramTypes, atypes);
+//			node.setActionDefinition(actionDef);
 			return node.getType();
 		} else
 		{
-			TypeCheckerErrors.report(3438, "Name is not an action", node.getLocation(), node);
+//			TypeCheckerErrors.report(3438, "Name is not an action", node.getLocation(), node);
+			issueHandler.addTypeError(node, TypeErrorMessages.EXPECTED_AN_ACTION, " a "
+					+ question.assistantFactory.createPDefinitionAssistant().kind(opdef)
+					+ " deinition:" + node.getName());
 			node.setType(AstFactory.newAUnknownType(node.getLocation()));
 			return node.getType();
 		}
 
+	}
+	
+	@Override
+	public PType caseAReferenceAction(AReferenceAction node,
+			org.overture.typechecker.TypeCheckInfo question)
+			throws AnalysisException
+	{
+		List<PType> atypes = question.assistantFactory.createACallObjectStatementAssistant().getArgTypes(node.getArgs(), THIS, question);
+		
+		//Only change the name from 'A' to 'A(int,int)' if 'A' has arguments
+		if(!node.getArgs().isEmpty())
+		{
+			if (question.env.isVDMPP())
+			{
+				node.getName().setTypeQualifier(atypes);
+			}
+		}
+
+		PDefinition opdef = question.env.findName(node.getName(), question.scope);
+
+		if (opdef == null)
+		{
+			TypeCheckerErrors.report(3437, "Action '" + node.getName()
+					+ "' is not in scope", node.getLocation(), node);
+			question.env.listAlternatives(node.getName());
+			node.setType(AstFactory.newAUnknownType(node.getLocation()));
+			return node.getType();
+		}
+
+		if (opdef instanceof AActionDefinition)
+		{
+			AActionDefinition actionDef = (AActionDefinition) opdef;
+
+			List<PType> paramTypes = new Vector<PType>();
+			for (PParametrisation localDef : actionDef.getDeclarations())
+			{
+				PType t = localDef.getDeclaration().getType();
+				question.assistantFactory.createPTypeAssistant().typeResolve(t, null, THIS, question);
+				paramTypes.add(t);
+			}
+
+			// Reset the name's qualifier with the actual operation type so
+			// that runtime search has a simple TypeComparator call.
+
+			if (question.env.isVDMPP())
+			{
+				node.getName().setTypeQualifier(paramTypes);
+			}
+			node.setType(AstFactory.newAVoidReturnType(node.getLocation()));
+			AReferenceAssistant.checkArgTypes(node, node.getType(), paramTypes, atypes);
+			node.setActionDefinition(actionDef);
+			return node.getType();
+		} else
+		{
+//			TypeCheckerErrors.report(3438, "Name is not an action", node.getLocation(), node);
+			issueHandler.addTypeError(node, TypeErrorMessages.EXPECTED_AN_ACTION, " a "
+					+ question.assistantFactory.createPDefinitionAssistant().kind(opdef)
+					+ " deinition:" + node.getName());
+			node.setType(AstFactory.newAUnknownType(node.getLocation()));
+			return node.getType();
+		}
 	}
 
 	@Override
@@ -738,40 +802,7 @@ public class CmlActionTypeChecker extends
 		return setType(question.assistantFactory, node, leftType, rightType);
 	}
 
-	@Override
-	public PType caseAReferenceAction(AReferenceAction node,
-			org.overture.typechecker.TypeCheckInfo question)
-			throws AnalysisException
-	{
 
-		PDefinition def = question.env.findName(node.getName(), question.scope);
-
-		if (def == null)
-		{
-			issueHandler.addTypeError(node, TypeErrorMessages.UNDEFINED_SYMBOL, node.getName()
-					+ "");
-			node.setType(AstFactory.newAUnknownType(node.getLocation()));
-			return node.getType();
-		}
-
-		if (!(def instanceof AActionDefinition))
-		{
-			issueHandler.addTypeError(node, TypeErrorMessages.EXPECTED_AN_ACTION, " a "
-					+ question.assistantFactory.createPDefinitionAssistant().kind(def)
-					+ " deinition:" + node.getName());
-
-		} else
-		{
-
-			AActionDefinition actionDef = (AActionDefinition) def;
-			node.setActionDefinition(actionDef);
-		}
-
-		PType type = AstFactory.newAVoidType(node.getLocation());
-
-		node.setType(type);
-		return node.getType();
-	}
 
 	@SuppressWarnings("deprecation")
 	@Override
