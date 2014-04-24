@@ -27,7 +27,6 @@ import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.CmlAstFactory;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
-import eu.compassresearch.ast.actions.ACallAction;
 import eu.compassresearch.ast.actions.AChannelRenamingAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.ADivAction;
@@ -149,43 +148,43 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 	}
 
 	
-	/**
-	 * This implements the 7.5.10 Action Reference transition rule in D23.2.
-	 */
-	@Override
-	public Inspection caseACallAction(final ACallAction node,
-			final Context question) throws AnalysisException
-	{
-		final Value value = lookupName(node.getName(), question);
-		if (value instanceof ActionValue)
-		{
-			// first find the action value in the context
-			final ActionValue actionVal = (ActionValue) value;
-
-			return newInspection(createTauTransitionWithoutTime(actionVal.getActionDefinition().getAction(), null), new CmlCalculationStep()
-			{
-
-				@Override
-				public Pair<INode, Context> execute(
-						CmlTransition selectedTransition)
-						throws AnalysisException
-				{
-
-					//the following if is copied from areference action. Not sure why it is here
-					if (!owner.getName().getLastAction().equals(node.getName().getName()))
-					{
-						owner.getName().addAction(node.getName().getName());
-					}
-					
-					return caseReferenceAction(node.getLocation(), node.getArgs(), actionVal, question);
-				}
-			});
-
-		} else
-		{
-			throw new CmlInterpreterException(node, InterpretationErrorMessages.FATAL_ERROR.customizeMessage());
-		}
-	}
+//	/**
+//	 * This implements the 7.5.10 Action Reference transition rule in D23.2.
+//	 */
+//	@Override
+//	public Inspection caseACallAction(final ACallAction node,
+//			final Context question) throws AnalysisException
+//	{
+//		final Value value = lookupName(node.getName(), question);
+//		if (value instanceof ActionValue)
+//		{
+//			// first find the action value in the context
+//			final ActionValue actionVal = (ActionValue) value;
+//
+//			return newInspection(createTauTransitionWithoutTime(actionVal.getActionDefinition().getAction(), null), new CmlCalculationStep()
+//			{
+//
+//				@Override
+//				public Pair<INode, Context> execute(
+//						CmlTransition selectedTransition)
+//						throws AnalysisException
+//				{
+//
+//					//the following if is copied from areference action. Not sure why it is here
+//					if (!owner.getName().getLastAction().equals(node.getName().getName()))
+//					{
+//						owner.getName().addAction(node.getName().getName());
+//					}
+//					
+//					return caseReferenceAction(node.getLocation(), node.getArgs(), actionVal, question);
+//				}
+//			});
+//
+//		} else
+//		{
+//			throw new CmlInterpreterException(node, InterpretationErrorMessages.FATAL_ERROR.customizeMessage());
+//		}
+//	}
 	
 	/**
 	 * This implements the 7.5.10 Action Reference transition rule in D23.2.

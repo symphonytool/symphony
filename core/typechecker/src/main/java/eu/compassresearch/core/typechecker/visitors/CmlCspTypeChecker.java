@@ -121,7 +121,6 @@ public class CmlCspTypeChecker extends
 
 	}
 
-
 	@Override
 	public PType defaultPSource(PSource node, TypeCheckInfo question)
 			throws AnalysisException

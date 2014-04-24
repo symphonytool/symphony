@@ -55,7 +55,7 @@ public class TestUtil
 				res.tcOk = checker.typeCheck();
 			} catch (TypeCheckException e)
 			{
-				
+
 			}
 		}
 		res.sources = parserRes.definitions;

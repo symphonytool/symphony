@@ -132,7 +132,7 @@ public abstract class AbstractResultBasedCmlTypeCheckerTestCase extends
 
 		List<File> theFiles = new Vector<File>();
 		final File[] listFiles = examplesDir.listFiles(cmlFiles);
-		
+
 		if (listFiles != null && listFiles.length > 0)
 		{
 			theFiles.addAll(Arrays.asList(listFiles));
