@@ -231,9 +231,13 @@ public class CmlActionTypeChecker extends
 			// Reset the name's qualifier with the actual operation type so
 			// that runtime search has a simple TypeComparator call.
 
+			//Only change the name from 'A' to 'A(int,int)' if 'A' has arguments
+			if(!node.getArgs().isEmpty())
+			{
 			if (question.env.isVDMPP())
 			{
 				node.getName().setTypeQualifier(paramTypes);
+			}
 			}
 			node.setType(AstFactory.newAVoidReturnType(node.getLocation()));
 			AReferenceAssistant.checkArgTypes(node, node.getType(), paramTypes, atypes);
