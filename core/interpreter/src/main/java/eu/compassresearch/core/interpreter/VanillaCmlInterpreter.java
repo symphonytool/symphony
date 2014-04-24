@@ -3,8 +3,6 @@ package eu.compassresearch.core.interpreter;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
@@ -154,15 +152,16 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		{
 			runningTopProcess.onStateChanged().registerObserver(new CmlBehaviorStateObserver()
 			{
-				
+
 				@Override
 				public void onStateChange(CmlBehaviorStateEvent stateEvent)
 				{
-					System.out.println("Top CML behavior: "+ stateEvent.getState().toString());
-					
+					System.out.println("Top CML behavior: "
+							+ stateEvent.getState().toString());
+
 				}
 			});
-			
+
 			executeTopProcess(runningTopProcess);
 		} catch (AnalysisException e)
 		{
@@ -218,7 +217,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			throws AnalysisException, InterruptedException
 	{
 		CmlTransitionSet availableEvents = inspect(behaviour);
-		
+
 		// continue until the top process is not finished and not deadlocked
 		while (!behaviour.finished() && !behaviour.deadlocked())
 		{
@@ -240,7 +239,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			CmlTrace trace = behaviour.getTraceModel();
 
 			logTransition(behaviour, trace);
-			
+
 			availableEvents = inspect(behaviour);
 
 		}
@@ -291,8 +290,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			Console.out.print("\n");
 		}
 
-		logger.trace("Waiting for environment on : "
-				+ availableEvents.asSet());
+		logger.trace("Waiting for environment on : " + availableEvents.asSet());
 
 		logState(availableEvents);
 

@@ -8,22 +8,22 @@ import eu.compassresearch.core.interpreter.api.values.ChannelValue;
 public class RetainChannelNames implements Filter
 {
 	private final ChannelNameSetValue channelNameSetValue;
-	
+
 	public RetainChannelNames(ChannelNameSetValue channelNameSetValue)
 	{
 		this.channelNameSetValue = channelNameSetValue;
 	}
-	
+
 	public RetainChannelNames(ChannelValue channelNameValue)
 	{
 		this.channelNameSetValue = new ChannelNameSetValue(channelNameValue);
-		
-	} 
+
+	}
 
 	@Override
 	public boolean isAccepted(CmlTransition transition)
 	{
-		if(transition instanceof LabelledTransition)
+		if (transition instanceof LabelledTransition)
 		{
 			LabelledTransition obsChannelEvent = (LabelledTransition) transition;
 
@@ -31,13 +31,16 @@ public class RetainChannelNames implements Filter
 			{
 				if (obsChannelEvent.getChannelName().isComparable(channelNameValue)
 						&& channelNameValue.isGTEQPrecise(obsChannelEvent.getChannelName()))
+				{
 					return true;
+				}
 			}
-			
+
+			return false;
+		} else
+		{
 			return false;
 		}
-		else
-			return false;
 	}
 
 }

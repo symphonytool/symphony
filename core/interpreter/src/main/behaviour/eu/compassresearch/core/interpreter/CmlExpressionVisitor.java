@@ -44,9 +44,9 @@ import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.patterns.ARenamePair;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
-import eu.compassresearch.core.interpreter.api.values.CmlChannel;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameSetValue;
 import eu.compassresearch.core.interpreter.api.values.ChannelValue;
+import eu.compassresearch.core.interpreter.api.values.CmlChannel;
 import eu.compassresearch.core.interpreter.api.values.LatticeTopValue;
 import eu.compassresearch.core.interpreter.api.values.NamesetValue;
 import eu.compassresearch.core.interpreter.api.values.RenamingValue;
@@ -137,9 +137,8 @@ public class CmlExpressionVisitor extends
 		return new ChannelValue(chanValue);
 	}
 
-	protected ChannelValue createChannelNameValue(
-			ANameChannelExp chanNameExp, Context question)
-			throws AnalysisException
+	protected ChannelValue createChannelNameValue(ANameChannelExp chanNameExp,
+			Context question) throws AnalysisException
 	{
 		// find the channel value
 		ILexNameToken channelName = NamespaceUtility.createChannelName(chanNameExp.getIdentifier());
@@ -374,21 +373,21 @@ public class CmlExpressionVisitor extends
 
 		return node.getExpression().apply(this, question);
 	}
-	
+
 	@Override
 	public Value caseAEnumerationRenameChannelExp(
 			AEnumerationRenameChannelExp node, Context question)
 			throws AnalysisException
 	{
 		RenamingValue rnv = new RenamingValue();
-		
-		for(ARenamePair pair : node.getRenamePairs())
+
+		for (ARenamePair pair : node.getRenamePairs())
 		{
 			ChannelValue src = createChannelNameValue(pair.getFrom(), question);
 			ChannelValue dst = createChannelNameValue(pair.getTo(), question);
-			rnv.renamingMap().put(src,dst);
+			rnv.renamingMap().put(src, dst);
 		}
-		
+
 		return rnv;
 	}
 

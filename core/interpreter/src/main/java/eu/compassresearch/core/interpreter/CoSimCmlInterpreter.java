@@ -24,7 +24,7 @@ import eu.compassresearch.core.interpreter.cosim.communication.Utils;
  */
 public class CoSimCmlInterpreter extends VanillaCmlInterpreter
 {
-private Thread executionThread = null;
+	private Thread executionThread = null;
 	private CoSimulationClient client;
 
 	boolean runningInternalExecution = false;
@@ -54,7 +54,7 @@ private Thread executionThread = null;
 	public CmlTransition resolveChoice(CmlTransitionSet availableEvents)
 	{
 		executionThread = Thread.currentThread();
-		
+
 		CmlTransitionSet transitions = null;
 
 		// let this simulator execute all non-observable
@@ -67,10 +67,10 @@ private Thread executionThread = null;
 			{
 				SortedSet<CmlTransition> set = new TreeSet<CmlTransition>();
 				set.add(client.getExecutableTransition());
-				transitions =new CmlTransitionSet(set);
+				transitions = new CmlTransitionSet(set);
 			} catch (InterruptedException e)
 			{
-				if(getState()==CmlInterpreterState.FINISHED)
+				if (getState() == CmlInterpreterState.FINISHED)
 				{
 					return null;
 				}
@@ -128,11 +128,11 @@ private Thread executionThread = null;
 		super.executeBehaviour(behaviour);
 		this.runningInternalExecution = false;
 	}
-	
+
 	public void stop()
 	{
 		setNewState(CmlInterpreterState.FINISHED);
-		if(executionThread!=null)
+		if (executionThread != null)
 		{
 			executionThread.interrupt();
 		}

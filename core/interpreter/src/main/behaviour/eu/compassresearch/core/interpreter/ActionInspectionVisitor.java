@@ -220,7 +220,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 				// change the trace at a latter point
 				if (valueExp instanceof UpdatableValue)
 				{
-					//FIX for issue 195 where trace changed after the value was changed elsewhere.
+					// FIX for issue 195 where trace changed after the value was changed elsewhere.
 					values.add((Value) valueExp.deref().clone());
 				} else
 				{
@@ -291,10 +291,11 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 			}
 		});
 	}
-	
+
 	@Override
-	public Inspection caseAChannelRenamingAction(final AChannelRenamingAction node,
-			final Context question) throws AnalysisException
+	public Inspection caseAChannelRenamingAction(
+			final AChannelRenamingAction node, final Context question)
+			throws AnalysisException
 	{
 		return caseChannelRenaming(node, question);
 	}
@@ -720,7 +721,6 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 
 	/*
 	 * Timed actions
-	 * 
 	 */
 
 	/**
@@ -732,7 +732,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 	{
 		return caseStartDeadline(node, node.getLeft(), node.getExpression(), question);
 	}
-	
+
 	@Override
 	public Inspection caseAEndDeadlineAction(AEndDeadlineAction node,
 			Context question) throws AnalysisException

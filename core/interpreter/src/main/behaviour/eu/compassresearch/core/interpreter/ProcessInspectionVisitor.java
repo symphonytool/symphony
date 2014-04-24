@@ -130,10 +130,10 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 				AProcessDefinition processDefinition = node.getAncestor(AProcessDefinition.class);
 				if (question.title.equals(CmlContextFactory.PARAMETRISED_PROCESS_CONTEXT_NAME))
 				{
-					tmpContext = CmlContextFactory.newObjectContext(node.getLocation(), "Tmp Action Process Context", question.outer, new ProcessObjectValue(question.assistantFactory,processDefinition, node.getActionDefinition(), valueMap, null, null));
+					tmpContext = CmlContextFactory.newObjectContext(node.getLocation(), "Tmp Action Process Context", question.outer, new ProcessObjectValue(question.assistantFactory, processDefinition, node.getActionDefinition(), valueMap, null, null));
 				} else
 				{
-					tmpContext = CmlContextFactory.newObjectContext(node.getLocation(), "Tmp Action Process Context", question, new ProcessObjectValue(question.assistantFactory,processDefinition, node.getActionDefinition(), valueMap, null, null));
+					tmpContext = CmlContextFactory.newObjectContext(node.getLocation(), "Tmp Action Process Context", question, new ProcessObjectValue(question.assistantFactory, processDefinition, node.getActionDefinition(), valueMap, null, null));
 				}
 
 				// Evaluate and add paragraph definitions and add the result to the state
@@ -157,7 +157,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 					}
 				}
 
-				ProcessObjectValue self = new ProcessObjectValue(question.assistantFactory,processDefinition, node.getActionDefinition(), valueMap, question.getSelf(), processInv);
+				ProcessObjectValue self = new ProcessObjectValue(question.assistantFactory, processDefinition, node.getActionDefinition(), valueMap, question.getSelf(), processInv);
 				ObjectContext processObjectContext = null;
 
 				// If params is defined in the above context them we need to add them to the created processContext
@@ -351,11 +351,10 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 
 		}
 	}
-		
+
 	@Override
-	public Inspection caseAChannelRenamingProcess(
-			AChannelRenamingProcess node, Context question)
-			throws AnalysisException
+	public Inspection caseAChannelRenamingProcess(AChannelRenamingProcess node,
+			Context question) throws AnalysisException
 	{
 		return caseChannelRenaming(node, question);
 	}
@@ -421,7 +420,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 	public Inspection caseAReferenceProcess(final AReferenceProcess node,
 			final Context question) throws AnalysisException
 	{
-		//TODO: This should be a lookup in a map name -> definition instead of it attached to the AST node directly
+		// TODO: This should be a lookup in a map name -> definition instead of it attached to the AST node directly
 		return newInspection(createTauTransitionWithoutTime(node.getProcessDefinition().getProcess()), new CmlCalculationStep()
 		{
 
@@ -465,7 +464,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 				// if not then we create a new process object
 				else
 				{
-					ProcessObjectValue self = new ProcessObjectValue(question.assistantFactory,node.getProcessDefinition(), evaluatedArgs, question.getSelf());
+					ProcessObjectValue self = new ProcessObjectValue(question.assistantFactory, node.getProcessDefinition(), evaluatedArgs, question.getSelf());
 					nextContext = CmlContextFactory.newObjectContext(node.getLocation(), "Process Context", question, self);
 				}
 
@@ -485,17 +484,18 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 	{
 		return caseASequentialComposition(node, node.getLeft(), node.getRight(), question);
 	}
-	
+
 	/**
 	 * see {@link CommonInspectionVisitor#caseStartDeadline(INode, INode, PExp, Context) }
 	 */
 	@Override
-	public Inspection caseAStartDeadlineProcess(final AStartDeadlineProcess node,
-			final Context question) throws AnalysisException
+	public Inspection caseAStartDeadlineProcess(
+			final AStartDeadlineProcess node, final Context question)
+			throws AnalysisException
 	{
 		return caseStartDeadline(node, node.getLeft(), node.getExpression(), question);
 	}
-	
+
 	@Override
 	public Inspection caseAEndDeadlineProcess(AEndDeadlineProcess node,
 			Context question) throws AnalysisException

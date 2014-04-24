@@ -50,7 +50,7 @@ public class CmlProcessDTO
 			this.trace = new Vector<String>();
 		}
 		// this.isProcess = process.getNextState().first instanceof PProcess;
-		this.state = null;/*FIXME! do not call this it is a recursive call: process.getState();*/
+		this.state = null;/* FIXME! do not call this it is a recursive call: process.getState(); */
 		this.location = LocationExtractor.extractLocation(process.getNextState().first);
 		this.parent = parent;
 

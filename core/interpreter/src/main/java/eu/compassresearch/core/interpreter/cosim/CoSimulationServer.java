@@ -109,12 +109,12 @@ public class CoSimulationServer implements IProcessBehaviourDelegationManager
 		return false;
 	}
 
-	
 	@Override
 	public void abortedBy(ConnectionThread connectionThread,
 			String registeredProcessName, int errorCode, String message)
 	{
-		Console.out.println(registeredProcessName+" aborted with error:"+errorCode+ " "+message);
+		Console.out.println(registeredProcessName + " aborted with error:"
+				+ errorCode + " " + message);
 	}
 
 }

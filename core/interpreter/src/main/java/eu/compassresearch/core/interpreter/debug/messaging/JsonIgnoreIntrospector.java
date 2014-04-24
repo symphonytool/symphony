@@ -41,12 +41,12 @@ public class JsonIgnoreIntrospector extends AnnotationIntrospector
 				items.addAll(Arrays.asList(entry.getValue()));
 			}
 		}
-		
-		if(items.isEmpty())
+
+		if (items.isEmpty())
 		{
 			return null;
 		}
-		
+
 		return items.toArray(new String[items.size()]);
 	}
 
