@@ -240,7 +240,7 @@ public interface ITypeIssueHandler extends IStatusListener
 
 			return false;
 		}
-		
+
 		@Override
 		public int hashCode()
 		{

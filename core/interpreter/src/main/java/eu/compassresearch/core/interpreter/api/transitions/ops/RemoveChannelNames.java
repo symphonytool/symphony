@@ -3,29 +3,29 @@ package eu.compassresearch.core.interpreter.api.transitions.ops;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.LabelledTransition;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameSetValue;
-import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
+import eu.compassresearch.core.interpreter.api.values.ChannelValue;
 
 public class RemoveChannelNames implements Filter
 {
-	
+
 	private final ChannelNameSetValue channelNameSetValue;
-	
+
 	public RemoveChannelNames(ChannelNameSetValue channelNameSetValue)
 	{
 		this.channelNameSetValue = channelNameSetValue;
 	}
-	
-	public RemoveChannelNames(ChannelNameValue channelNameValue)
+
+	public RemoveChannelNames(ChannelValue channelNameValue)
 	{
 		this.channelNameSetValue = new ChannelNameSetValue(channelNameValue);
 	}
-	
-	private boolean isTransitionCompatible(LabelledTransition transition, ChannelNameValue channelNameValue)
+
+	private boolean isTransitionCompatible(LabelledTransition transition,
+			ChannelValue channelNameValue)
 	{
-		return (transition.getChannelName().isComparable(channelNameValue) && 
-				channelNameValue.isGTEQPrecise(transition.getChannelName()));
+		return transition.getChannelName().isComparable(channelNameValue)
+				&& channelNameValue.isGTEQPrecise(transition.getChannelName());
 	}
-	
 
 	@Override
 	public boolean isAccepted(CmlTransition transition)
@@ -35,7 +35,7 @@ public class RemoveChannelNames implements Filter
 			LabelledTransition lt = (LabelledTransition) transition;
 			boolean retaintIt = true;
 
-			for (ChannelNameValue channelNameValue : channelNameSetValue)
+			for (ChannelValue channelNameValue : channelNameSetValue)
 			{
 				if (isTransitionCompatible(lt, channelNameValue))
 				{
@@ -45,8 +45,7 @@ public class RemoveChannelNames implements Filter
 			}
 
 			return retaintIt;
-		}
-		else 
+		} else
 		{
 			return true;
 		}

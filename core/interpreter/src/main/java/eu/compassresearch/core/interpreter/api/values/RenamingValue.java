@@ -7,23 +7,23 @@ import org.overture.interpreter.values.Value;
 
 public class RenamingValue extends Value
 {
-	
+
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 6088185706549337001L;
-	private Map<ChannelNameValue, ChannelNameValue> renamingMap;
+	private Map<ChannelValue, ChannelValue> renamingMap;
 
 	public RenamingValue()
 	{
-		renamingMap = new HashMap<ChannelNameValue, ChannelNameValue>();
+		renamingMap = new HashMap<ChannelValue, ChannelValue>();
 	}
-	
-	public RenamingValue(Map<ChannelNameValue, ChannelNameValue> renamingMap)
+
+	public RenamingValue(Map<ChannelValue, ChannelValue> renamingMap)
 	{
 		this.renamingMap = renamingMap;
 	}
-	
+
 	@Override
 	public String toString()
 	{
@@ -51,10 +51,10 @@ public class RenamingValue extends Value
 	@Override
 	public Object clone()
 	{
-		return new RenamingValue(new HashMap<ChannelNameValue, ChannelNameValue>(this.renamingMap));
+		return new RenamingValue(new HashMap<ChannelValue, ChannelValue>(this.renamingMap));
 	}
-	
-	public Map<ChannelNameValue, ChannelNameValue> renamingMap()
+
+	public Map<ChannelValue, ChannelValue> renamingMap()
 	{
 		return this.renamingMap;
 	}

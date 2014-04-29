@@ -155,7 +155,6 @@ import org.overture.ast.types.AVoidType;
 
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismReplicatedAction;
-import eu.compassresearch.ast.actions.ACallAction;
 import eu.compassresearch.ast.actions.AChannelRenamingAction;
 import eu.compassresearch.ast.actions.AChaosAction;
 import eu.compassresearch.ast.actions.ACommonInterleavingReplicatedAction;
@@ -666,14 +665,6 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseAAltNonDeterministicStm(node);
-	}
-
-	@Override
-	public void caseACallAction(ACallAction arg0) throws AnalysisException {
-		// unsupported=false;
-		// TODO Uncomment the above line to signal support for this node
-		// Do not remove the super call below.
-		super.caseACallAction(arg0);
 	}
 
 	@Override

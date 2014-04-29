@@ -27,8 +27,8 @@ import eu.compassresearch.ast.process.AStartDeadlineProcess;
 import eu.compassresearch.ast.process.ATimedInterruptProcess;
 import eu.compassresearch.ast.process.ATimeoutProcess;
 import eu.compassresearch.ast.process.AUntimedTimeoutProcess;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorFactory;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
+import eu.compassresearch.core.interpreter.api.CmlBehaviorFactory;
+import eu.compassresearch.core.interpreter.api.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameSetValue;
 import eu.compassresearch.core.interpreter.api.values.CmlSetQuantifier;
 import eu.compassresearch.core.interpreter.utility.Pair;
@@ -49,17 +49,6 @@ class ProcessSetupVisitor extends CommonSetupVisitor
 			throws AnalysisException
 	{
 		return caseAlphabetisedParallelism(node, node.getLeftChansetExpression(), node.getRightChansetExpression(), question);
-		// // evaluate the children in the their own context
-		// ChannelNameSetValue leftChanset = eval( node.getLeftChansetExpression(), getChildContexts(question).first);
-		// ChannelNameSetValue rightChanset = eval(node.getRightChansetExpression(),getChildContexts(question).second);
-		//
-		// Context chansetContext = CmlContextFactory.newContext(node.getLocation(),
-		// "Alphabetised parallelism precalcualted channelsets", question);
-		//
-		// chansetContext.put(NamespaceUtility.getLeftPrecalculatedChannetSet(),leftChanset);
-		// chansetContext.put(NamespaceUtility.getRightPrecalculatedChannetSet(),rightChanset);
-		//
-		// return new Pair<INode, Context>(node,chansetContext);
 	}
 
 	@Override
@@ -84,7 +73,7 @@ class ProcessSetupVisitor extends CommonSetupVisitor
 	{
 		return caseATimedInterrupt(node, node.getLeft(), question);
 	}
-	
+
 	@Override
 	public Pair<INode, Context> caseAChannelRenamingProcess(
 			AChannelRenamingProcess node, Context question)
@@ -109,7 +98,7 @@ class ProcessSetupVisitor extends CommonSetupVisitor
 		setLeftChild(node.getLeft(), question);
 		return new Pair<INode, Context>(node, question);
 	}
-	
+
 	@Override
 	public Pair<INode, Context> caseAStartDeadlineProcess(
 			AStartDeadlineProcess node, Context question)
@@ -117,7 +106,7 @@ class ProcessSetupVisitor extends CommonSetupVisitor
 	{
 		return setupTimedOperator(node, node.getLeft(), NamespaceUtility.getStartsByTimeName(), question);
 	}
-	
+
 	@Override
 	public Pair<INode, Context> caseAEndDeadlineProcess(
 			AEndDeadlineProcess node, Context question)

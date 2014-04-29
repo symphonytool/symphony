@@ -7,11 +7,9 @@ begin
 
 
 functions
+o : () -> int o() == (let a:int = 2 in "abcd")
 
 
 
-operations
-
- o : () ==> int o() == (return (let a:int = 2 in "abcd"))
 
 end

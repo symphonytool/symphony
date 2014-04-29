@@ -61,7 +61,7 @@ public class TimedSpeckChecker extends DepthFirstAnalysisCMLAdaptor
 	{
 		hasTimedConstruct = true;
 	}
-	
+
 	@Override
 	public void caseAWaitAction(AWaitAction node) throws AnalysisException
 	{

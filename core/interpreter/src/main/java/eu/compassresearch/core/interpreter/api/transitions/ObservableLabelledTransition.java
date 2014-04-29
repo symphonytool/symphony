@@ -14,21 +14,20 @@ import org.overture.ast.types.AUnionType;
 import org.overture.ast.types.PType;
 
 import eu.compassresearch.ast.analysis.AnswerCMLAdaptor;
-import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
-import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
-import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
+import eu.compassresearch.core.interpreter.api.CmlBehaviour;
+import eu.compassresearch.core.interpreter.api.values.ChannelValue;
 
 public class ObservableLabelledTransition extends AbstractCmlTransition
-implements LabelledTransition
-		
+		implements LabelledTransition
+
 {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -2217645151439301812L;
-	final protected ChannelNameValue channelName;
+	final protected ChannelValue channelName;
+
 	/**
 	 * Added for json construction
 	 */
@@ -38,21 +37,20 @@ implements LabelledTransition
 	}
 
 	public ObservableLabelledTransition(CmlBehaviour source,
-			ChannelNameValue channelName)
+			ChannelValue channelName)
 	{
 		super(source);
 		this.channelName = channelName;
-		
+
 	}
 
 	private ObservableLabelledTransition(SortedSet<CmlBehaviour> sources,
-			ChannelNameValue channelName)
+			ChannelValue channelName)
 	{
 		super(sources);
 		this.channelName = channelName;
 	}
-	
-	
+
 	/**
 	 * Synchronized constructor
 	 * 
@@ -61,14 +59,14 @@ implements LabelledTransition
 	 * @param meetValue
 	 */
 	public ObservableLabelledTransition(CmlTransition baseEvent,
-			CmlTransition otherComEvent, ChannelNameValue meetValue)
+			CmlTransition otherComEvent, ChannelValue meetValue)
 	{
 		super(baseEvent, otherComEvent);
 		this.channelName = meetValue;
 	}
-	
+
 	@Override
-	public ChannelNameValue getChannelName()
+	public ChannelValue getChannelName()
 	{
 		return channelName;
 	}
@@ -101,7 +99,6 @@ implements LabelledTransition
 		return other.getChannelName().equals(getChannelName())
 				&& super.equals(obj);
 	}
-	
 
 	private boolean isChannelsComparable(ObservableTransition other)
 	{
@@ -114,23 +111,23 @@ implements LabelledTransition
 		LabelledTransition otherChannelEvent = (LabelledTransition) other;
 		return channelName.isComparable(otherChannelEvent.getChannelName());
 	}
-	
+
 	@Override
 	public boolean isSynchronizedBy(ObservableTransition other)
 	{
-		return  isChannelsComparable(other) && this.isSourcesSubset(other);
+		return isChannelsComparable(other) && this.isSourcesSubset(other);
 	}
-	
+
 	@Override
 	public boolean isSynchronizableWith(ObservableTransition other)
 	{
-		LabelledTransition otherLT = other instanceof LabelledTransition?(LabelledTransition)other : null;
-		
-		if( isChannelsComparable(otherLT) && 
-				(this.getChannelName().isGTEQPrecise(otherLT.getChannelName())
-				|| otherLT.getChannelName().isGTEQPrecise(this.getChannelName())))
+		LabelledTransition otherLT = other instanceof LabelledTransition ? (LabelledTransition) other
+				: null;
+
+		if (isChannelsComparable(otherLT)
+				&& (this.getChannelName().isGTEQPrecise(otherLT.getChannelName()) || otherLT.getChannelName().isGTEQPrecise(this.getChannelName())))
 		{
-			ChannelNameValue meetValue = this.getChannelName().meet(otherLT.getChannelName());
+			ChannelValue meetValue = this.getChannelName().meet(otherLT.getChannelName());
 			try
 			{
 				return meetValue != null && meetValue.isConstraintValid();
@@ -138,27 +135,31 @@ implements LabelledTransition
 			{
 				return false;
 			}
+		} else
+		{
+			return false;
 		}
-		else return false;
 	}
 
 	@Override
 	public ObservableTransition synchronizeWith(ObservableTransition syncEvent)
 	{
 		ObservableLabelledTransition otherComEvent = (ObservableLabelledTransition) syncEvent;
-		ChannelNameValue meetValue = this.getChannelName().meet(((LabelledTransition) otherComEvent).getChannelName());
+		ChannelValue meetValue = this.getChannelName().meet(((LabelledTransition) otherComEvent).getChannelName());
 
-//		if (meetValue == null)
-//		{
-//			throw new CmlInterpreterException(InterpretationErrorMessages.SYNC_OF_NONCOMPARABLE_EVENTS.customizeMessage(this.toString(), syncEvent.toString()));
-//		}
+		// if (meetValue == null)
+		// {
+		// throw new
+		// CmlInterpreterException(InterpretationErrorMessages.SYNC_OF_NONCOMPARABLE_EVENTS.customizeMessage(this.toString(),
+		// syncEvent.toString()));
+		// }
 
 		try
 		{
 			if (meetValue.isConstraintValid())
 			{
 				return new ObservableLabelledTransition(this, otherComEvent, meetValue);
-			} 
+			}
 		} catch (AnalysisException e)
 		{
 		}
@@ -181,9 +182,9 @@ implements LabelledTransition
 		// return new LinkedList<ChannelEvent>();
 		// }
 	}
-	
+
 	@Override
-	public LabelledTransition rename(ChannelNameValue value)
+	public LabelledTransition rename(ChannelValue value)
 	{
 		return new ObservableLabelledTransition(this.eventSources, this.channelName.rename(value.getChannel()));
 	}

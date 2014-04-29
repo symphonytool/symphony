@@ -20,8 +20,8 @@ import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.transitions.LabelledTransition;
 import eu.compassresearch.core.interpreter.api.transitions.ObservableLabelledTransition;
 import eu.compassresearch.core.interpreter.api.transitions.ObservableTransition;
-import eu.compassresearch.core.interpreter.api.values.CMLChannelValue;
-import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
+import eu.compassresearch.core.interpreter.api.values.ChannelValue;
+import eu.compassresearch.core.interpreter.api.values.CmlChannel;
 import eu.compassresearch.core.interpreter.api.values.LatticeTopValue;
 import eu.compassresearch.core.interpreter.cosim.external.ExternalCoSimulationClient;
 
@@ -57,49 +57,48 @@ public class SubSystem implements IProcessDelegate
 
 	private ObservableTransition untypedChannel(String name)
 	{
-		CMLChannelValue channel = createChannelValue(name);
-		ChannelNameValue channelName = new ChannelNameValue(channel, new LinkedList<Value>(), null);
+		CmlChannel channel = createChannelValue(name);
+		ChannelValue channelName = new ChannelValue(channel, new LinkedList<Value>(), null);
 		ObservableTransition transition = new ObservableLabelledTransition(null, channelName);
 		return transition;
 	}
 
 	private ObservableTransition sendChannel(String name, int... value)
 	{
-		CMLChannelValue channel = createChannelValue(name, new AIntNumericBasicType());
+		CmlChannel channel = createChannelValue(name, new AIntNumericBasicType());
 		List<Value> values = new Vector<Value>();
 		for (int v : value)
 		{
 			values.add(new IntegerValue(v));
 		}
 
-		ChannelNameValue channelName = new ChannelNameValue(channel, values, null);
+		ChannelValue channelName = new ChannelValue(channel, values, null);
 		ObservableTransition transition = new ObservableLabelledTransition(null, channelName);
 		return transition;
 	}
 
 	private ObservableTransition readChannel(String name, PType... value)
 	{
-		CMLChannelValue channel = createChannelValue(name, value);
+		CmlChannel channel = createChannelValue(name, value);
 		List<Value> values = new Vector<Value>();
 		for (PType v : value)
 		{
 			values.add(new LatticeTopValue(v));
 		}
 
-		ChannelNameValue channelName = new ChannelNameValue(channel, values, null);
+		ChannelValue channelName = new ChannelValue(channel, values, null);
 		ObservableTransition transition = new ObservableLabelledTransition(null, channelName);
 		return transition;
 	}
 
-	private static CMLChannelValue createChannelValue(String name)
+	private static CmlChannel createChannelValue(String name)
 	{
 		return createChannelValue(name, (PType[]) null);
 	}
 
-	private static CMLChannelValue createChannelValue(String name,
-			PType... type)
+	private static CmlChannel createChannelValue(String name, PType... type)
 	{
-		return new CMLChannelValue(null, NamespaceUtility.createChannelName(new LexIdentifierToken(name, false, new LexLocation())));
+		return new CmlChannel(null, NamespaceUtility.createChannelName(new LexIdentifierToken(name, false, new LexLocation())));
 	}
 
 	@Override
@@ -139,7 +138,7 @@ public class SubSystem implements IProcessDelegate
 	{
 		final SubSystem sys = new SubSystem();
 		Integer post = 8088;
-		if(args.length>0)
+		if (args.length > 0)
 		{
 			post = Integer.valueOf(args[0]);
 		}
@@ -167,7 +166,12 @@ public class SubSystem implements IProcessDelegate
 						try
 						{
 							client.abort(e.error, e.getMessage());
+							Thread.sleep(1000);
+							System.exit(0);
 						} catch (IOException e1)
+						{
+							e1.printStackTrace();
+						} catch (InterruptedException e1)
 						{
 							e1.printStackTrace();
 						}

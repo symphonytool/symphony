@@ -1,7 +1,10 @@
 package eu.compassresearch.core.interpreter.debug.messaging;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Vector;
 
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.core.util.VersionUtil;
@@ -30,14 +33,21 @@ public class JsonIgnoreIntrospector extends AnnotationIntrospector
 	@Override
 	public String[] findPropertiesToIgnore(Annotated ac)
 	{
+		List<String> items = new Vector<String>();
 		for (Entry<Class<?>, String[]> entry : jsonignoreProperties.entrySet())
 		{
 			if (entry.getKey().isAssignableFrom(ac.getRawType()))
 			{
-				return entry.getValue();
+				items.addAll(Arrays.asList(entry.getValue()));
 			}
 		}
-		return null;
+
+		if (items.isEmpty())
+		{
+			return null;
+		}
+
+		return items.toArray(new String[items.size()]);
 	}
 
 }

@@ -6,7 +6,7 @@ import java.util.SortedSet;
 
 import org.overture.ast.node.INode;
 
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
+import eu.compassresearch.core.interpreter.api.CmlBehaviour;
 
 public interface CmlTransition extends Serializable, Comparable<CmlTransition>
 {

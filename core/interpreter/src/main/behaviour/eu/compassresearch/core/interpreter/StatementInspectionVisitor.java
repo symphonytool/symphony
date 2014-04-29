@@ -42,12 +42,10 @@ import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.statements.AAltNonDeterministicStm;
 import eu.compassresearch.ast.statements.ADoNonDeterministicStm;
 import eu.compassresearch.ast.statements.AIfNonDeterministicStm;
+import eu.compassresearch.core.interpreter.api.CmlBehaviorFactory;
+import eu.compassresearch.core.interpreter.api.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorFactory;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlCalculationStep;
-import eu.compassresearch.core.interpreter.api.behaviour.Inspection;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.values.ProcessObjectValue;
 import eu.compassresearch.core.interpreter.utility.Pair;
@@ -69,27 +67,27 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 	{
 		throw new CmlInterpreterException(node, InterpretationErrorMessages.CASE_NOT_IMPLEMENTED.customizeMessage(node.getClass().getSimpleName()));
 	}
-	
+
 	@Override
 	public Inspection caseACasesStm(ACasesStm node, final Context question)
 			throws AnalysisException
 	{
-		
+
 		Value val = node.getExp().apply(this.cmlExpressionVisitor, question);
 		INode dstTmpNode = null;
 		Context tmpEvalContext = null;
-		
+
 		for (ACaseAlternativeStm c : node.getCases())
 		{
-			try{
+			try
+			{
 				tmpEvalContext = CmlContextFactory.newContext(node.getLocation(), "case alternative", question);
-				//this thows an exception if the pattern does not match
+				// this thows an exception if the pattern does not match
 				tmpEvalContext.putList(PPatternAssistantInterpreter.getNamedValues(c.getPattern(), val, question));
-				//if we get here we found the case
+				// if we get here we found the case
 				dstTmpNode = c.getResult();
 				break;
-			}
-			catch (PatternMatchException e)
+			} catch (PatternMatchException e)
 			{
 				// CasesStatement tries the others
 			}
@@ -97,22 +95,22 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 
 		if (dstTmpNode == null && node.getOthers() != null)
 		{
-			tmpEvalContext = question; 
+			tmpEvalContext = question;
 			dstTmpNode = node.getOthers();
 		}
-		
+
 		final INode dstNode = dstTmpNode;
 		final Context evalContext = tmpEvalContext;
-		
-		
-		return newInspection(createTauTransitionWithoutTime(dstNode),  new CmlCalculationStep(){
+
+		return newInspection(createTauTransitionWithoutTime(dstNode), new CmlCalculationStep()
+		{
 
 			@Override
 			public Pair<INode, Context> execute(CmlTransition selectedTransition)
 					throws AnalysisException
 			{
 				return new Pair<INode, Context>(dstNode, evalContext);
-			}			
+			}
 		});
 	}
 
@@ -471,63 +469,64 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 			return new Pair<INode, Context>(skipNode, question);
 		}
 	}
-	
+
 	@Override
 	public Inspection caseASpecificationStm(ASpecificationStm node,
 			Context question) throws AnalysisException
 	{
 		throw new AnalysisException("The specification statement cannot be executed, refine it something explicit if it should be executed");
 	}
-	
+
 	@Override
-	public Inspection caseAForIndexStm(final AForIndexStm node, final Context question)
-			throws AnalysisException
+	public Inspection caseAForIndexStm(final AForIndexStm node,
+			final Context question) throws AnalysisException
 	{
-		
-		final CmlBehaviour leftchild = owner.getLeftChild(); 
-		if(!leftchild.finished())
+
+		final CmlBehaviour leftchild = owner.getLeftChild();
+		if (!leftchild.finished())
 		{
 			return newInspection(leftchild.inspect(), new CmlCalculationStep()
 			{
 				@Override
-				public Pair<INode, Context> execute(CmlTransition selectedTransition)
+				public Pair<INode, Context> execute(
+						CmlTransition selectedTransition)
 						throws AnalysisException
 				{
 					leftchild.execute(selectedTransition);
 					return new Pair<INode, Context>(node, question);
 				}
 			});
-		}
-		else
+		} else
 		{
 			long currentId = question.lookup(node.getVar()).intValue(question);
 			long by = question.lookup(NamespaceUtility.getForIndexByName()).intValue(question);
 			long to = question.lookup(NamespaceUtility.getForIndexToName()).intValue(question);
-			final long nextId = currentId + by; 
-			
-			//we continue
-			if(nextId <= to)
+			final long nextId = currentId + by;
+
+			// we continue
+			if (nextId <= to)
 			{
 				return newInspection(createTauTransitionWithoutTime(node), new CmlCalculationStep()
 				{
-					
+
 					@Override
-					public Pair<INode, Context> execute(CmlTransition selectedTransition)
+					public Pair<INode, Context> execute(
+							CmlTransition selectedTransition)
 							throws AnalysisException
 					{
 						question.put(node.getVar(), new IntegerValue(nextId));
-						setLeftChild(node.getStatement(),question);
-						return new  Pair<INode, Context>(node, question);
+						setLeftChild(node.getStatement(), question);
+						return new Pair<INode, Context>(node, question);
 					}
 				});
-			}
-			else
+			} else
 			{
 				final INode skip = CmlAstFactory.newASkipAction(node.getLocation());
 				return newInspection(createTauTransitionWithoutTime(skip), new CmlCalculationStep()
 				{
 					@Override
-					public Pair<INode, Context> execute(CmlTransition selectedTransition)
+					public Pair<INode, Context> execute(
+							CmlTransition selectedTransition)
 							throws AnalysisException
 					{
 						clearLeftChild();
@@ -537,10 +536,10 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 			}
 		}
 	}
-	
+
 	@Override
-	public Inspection caseAForAllStm(final AForAllStm node, final Context question)
-			throws AnalysisException
+	public Inspection caseAForAllStm(final AForAllStm node,
+			final Context question) throws AnalysisException
 	{
 		final ValueSet v = question.lookup(NamespaceUtility.getForAllName()).setValue(question);
 
@@ -562,7 +561,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 			});
 		}
 		// if the sequence is non empty and we a finished child
-	    // we need to create a new one
+		// we need to create a new one
 		else if (!v.isEmpty() && owner.getLeftChild().finished())
 		{
 			// put the front element in scope of the action
@@ -589,12 +588,12 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 			@Override
 			public Pair<INode, Context> execute(CmlTransition selectedTransition)
 					throws AnalysisException
-					{
+			{
 
 				owner.getLeftChild().execute(selectedTransition);
 
 				return new Pair<INode, Context>(node, question);
-					}
+			}
 		});
 	}
 
@@ -622,7 +621,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 			});
 		}
 		// if the sequence is non empty and we a finished child
-	    // we need to create a new one
+		// we need to create a new one
 		else if (!v.isEmpty() && owner.getLeftChild().finished())
 		{
 			// put the front element in scope of the action
@@ -649,14 +648,13 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 			@Override
 			public Pair<INode, Context> execute(CmlTransition selectedTransition)
 					throws AnalysisException
-					{
+			{
 
 				owner.getLeftChild().execute(selectedTransition);
 
 				return new Pair<INode, Context>(node, question);
-					}
+			}
 		});
-
 
 	}
 

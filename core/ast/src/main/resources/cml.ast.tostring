@@ -10,7 +10,7 @@ import eu.compassresearch.ast.util.ToStringUtil;
 // Actions
 %action->#Replicated = "Replication of action: " [replicatedAction]
 
-%action->#Parallel->synchronousParallelism = [leftAction]+ " [| " + [leftNamesetExpression]+" | " + [rightNamesetExpression]+ " |] " +  [rightAction]
+//%action->#Parallel->synchronousParallelism = [leftAction]+ " [| " + [leftNamesetExpression]+" | " + [rightNamesetExpression]+ " |] " +  [rightAction]
 %action->#Parallel->interleaving = [leftAction]+ " [|| " + [leftNamesetExpression]+" | " + [rightNamesetExpression]+ " ||] " +  [rightAction]
 %action->#Parallel->generalisedParallelism = [leftAction]+ " [| " + [leftNamesetExpression]+" | " +[chansetExpression]+ " | "+ [rightNamesetExpression]+ " |] " +  [rightAction]
 %action->#Parallel->alphabetisedParallelism = [leftAction]+ " [ " + [leftNamesetExpression]+" | " +[leftChansetExpression]+ " || "+[rightChansetExpression]+" | "+ [rightNamesetExpression]+ " ] " +  [rightAction]

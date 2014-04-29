@@ -6,7 +6,7 @@ import org.eclipse.core.runtime.Status;
 
 import eu.compassresearch.rttMbtTmsClientApi.IRttMbtProgressBar;
 
-public class RttMbtGenerateTest extends RttMbtAbstractTestProcedureAction  {
+public class RttMbtGenerateTest extends RttMbtAbstractTestProcedureAction {
 
 	@Override
 	public String getTaskName() {

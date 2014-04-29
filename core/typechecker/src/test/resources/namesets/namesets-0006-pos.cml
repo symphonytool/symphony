@@ -10,5 +10,5 @@ actions
   
   AssignOp = y := 1
 @
-  AssignOp [|| {} | {} ||] AssignAct [|| {} | {z} ||] z := 1
+  AssignOp [|| {y} | {z,x} ||] AssignAct [|| {x} | {z} ||] z := 1
 end

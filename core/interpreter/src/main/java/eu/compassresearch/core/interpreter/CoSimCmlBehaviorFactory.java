@@ -6,9 +6,9 @@ import org.overture.interpreter.runtime.Context;
 
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.process.AReferenceProcess;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorFactory;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour.BehaviourName;
+import eu.compassresearch.core.interpreter.api.CmlBehaviorFactory;
+import eu.compassresearch.core.interpreter.api.CmlBehaviour;
+import eu.compassresearch.core.interpreter.api.CmlBehaviour.BehaviourName;
 import eu.compassresearch.core.interpreter.cosim.DelegatedCmlBehaviour;
 import eu.compassresearch.core.interpreter.cosim.IProcessBehaviourDelegationManager;
 import eu.compassresearch.core.interpreter.cosim.IProcessDelegate;
