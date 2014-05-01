@@ -1,6 +1,8 @@
 package eu.compassresearch.ide.refinementtool;
 
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 import org.overture.ast.node.INode;
 
@@ -20,9 +22,14 @@ public class ChaosStopRefineLaw implements IRefineLaw {
 	}
 
 	@Override
-	public Refinement apply(INode node) {
+	public Refinement apply(Map<String, String> metas, INode node) {
 		// TODO Auto-generated method stub
 		return new Refinement("Stop", new LinkedList<CmlProofObligation>());
+	}
+
+	@Override
+	public List<String> getMetaNames() {
+		return new LinkedList<String>();
 	}
 
 }
