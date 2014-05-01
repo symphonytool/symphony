@@ -1,16 +1,24 @@
 package eu.compassresearch.ide.refinementtool.handlers;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.jface.dialogs.IInputValidator;
+import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.handlers.HandlerUtil;
@@ -91,7 +99,21 @@ public class RefineApplyHandler extends AbstractHandler {
 
 			}
 			try {
-				Refinement ref = law.apply(node);
+				Refinement ref = null;
+				if (law.getMetaNames().size() > 0) {
+					InputDialog id = new InputDialog(window.getShell()
+							,"Input meta-variables"
+							,"Please enter " + law.getMetaNames().get(0)
+							,""
+							,new IInputValidator() { public String isValid(String s) { return null; } } );
+					id.open();
+					Map<String, String> mv = new HashMap<String, String>();
+					mv.put(law.getMetaNames().get(0), id.getValue());
+					ref = law.apply(mv, node);
+				}
+				else {				
+					ref = law.apply(new HashMap<String, String>(), node);
+				}
 				doc.replace(selection.getOffset(), selection.getLength(), ref.getResult());
 				
 				CmlProofObligationList pol = new CmlProofObligationList();

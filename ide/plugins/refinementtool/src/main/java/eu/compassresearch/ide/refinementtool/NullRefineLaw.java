@@ -1,5 +1,9 @@
 package eu.compassresearch.ide.refinementtool;
 
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
 import org.overture.ast.node.INode;
 
 public class NullRefineLaw implements IRefineLaw {
@@ -17,9 +21,14 @@ public class NullRefineLaw implements IRefineLaw {
 	}
 
 	@Override
-	public Refinement apply(INode node) {
+	public Refinement apply(Map<String, String> metas, INode node) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	@Override
+	public List<String> getMetaNames() {
+		return new LinkedList<String>();
+	}	
+	
 }

@@ -2,6 +2,7 @@ package eu.compassresearch.ide.refinementtool;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.expressions.ABooleanConstExp;
@@ -27,7 +28,7 @@ public class SpecSkipRefineLaw implements IRefineLaw {
 	}
 
 	@Override
-	public Refinement apply(INode node) {
+	public Refinement apply(Map<String, String> metas, INode node) {
 		ASpecificationStm spec = (ASpecificationStm) node;
 		
 		List<CmlProofObligation> pos = new LinkedList<CmlProofObligation>();
@@ -49,4 +50,9 @@ public class SpecSkipRefineLaw implements IRefineLaw {
 		return new Refinement("Skip", pos);
 	}
 
+	@Override
+	public List<String> getMetaNames() {
+		return new LinkedList<String>();
+	}	
+	
 }

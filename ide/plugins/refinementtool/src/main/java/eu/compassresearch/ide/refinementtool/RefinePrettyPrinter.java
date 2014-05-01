@@ -10,6 +10,7 @@ import org.overture.ast.definitions.APrivateAccess;
 import org.overture.ast.definitions.AValueDefinition;
 import org.overture.ast.expressions.ASetCompSetExp;
 import org.overture.ast.expressions.PExp;
+import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.patterns.AUnionPattern;
 import org.overture.ast.patterns.PPattern;
@@ -319,6 +320,30 @@ public class RefinePrettyPrinter extends QuestionAnswerCMLAdaptor<Integer, Strin
 		
 		return sb.toString();
 	}
+	
+	public static String printFrame(List<AExternalClause> exts) {
+		StringBuilder sb = new StringBuilder();
+		if (exts.size() > 0) {
+			sb.append("frame ");
+			
+			for (AExternalClause e: exts) {
+				sb.append(e.getMode().toString()+" ");
+				List<String> names = new LinkedList<String>();
+				for (ILexNameToken n: e.getIdentifiers()) {
+					names.add(n.toString());
+				}
+				if (names.size() > 0) {
+					sb.append(names.get(0));
+					for (int i = 1; i < names.size(); i++) {
+						sb.append(", "+names.get(i));
+					}
+				}
+				sb.append(" ");
+			}
+		}
+		return sb.toString();
+	}
+	
 	@Override
 	public String caseASpecificationStm(ASpecificationStm node, Integer question)
 			throws AnalysisException {
@@ -328,17 +353,7 @@ public class RefinePrettyPrinter extends QuestionAnswerCMLAdaptor<Integer, Strin
 		
 		List<AExternalClause> exts = node.getExternals();
 		
-		if (exts.size() > 0) {
-			sb.append("frame ");
-			
-            /*			
-			sb.append(exts.g)
-			
-			for (e : )
-			List<ILexNameToken> ids = exts.get(0).getIdentifiers();
-			*/
-			sb.append(" ");
-		}
+		sb.append(printFrame(exts));
 		
 		if (node.getPrecondition() != null) {
 			sb.append("pre ");

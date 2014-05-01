@@ -2,6 +2,7 @@ package eu.compassresearch.ide.refinementtool;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AAssignmentDefinition;
@@ -36,7 +37,7 @@ public class ImplicitOperationRefineLaw implements IRefineLaw {
 	}
 
 	@Override
-	public Refinement apply(INode node) {
+	public Refinement apply(Map<String, String> metas, INode node) {
 		AImplicitOperationDefinition oo = ((AImplicitOperationDefinition) node).clone(); 
 		
 		// Create a specification statement to act as the body
@@ -183,4 +184,9 @@ public class ImplicitOperationRefineLaw implements IRefineLaw {
 		}		
 	}
 
+	@Override
+	public List<String> getMetaNames() {
+		return new LinkedList<String>();
+	}		
+	
 }
