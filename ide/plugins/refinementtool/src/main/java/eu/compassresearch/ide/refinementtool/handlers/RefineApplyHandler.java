@@ -112,17 +112,29 @@ public class RefineApplyHandler extends AbstractHandler {
 			try {
 				Refinement ref = null;
 				if (law.getMetaNames().size() > 0) {
-					InputDialog id = new InputDialog(window.getShell()
-							,"Input meta-variables"
-							,"Please enter " + law.getMetaNames().get(0)
-							,""
-							,new IInputValidator() { public String isValid(String s) { return null; } } );
-					id.open();
-					if (id.getValue() != null ) {
-						Map<String, String> mv = new HashMap<String, String>();
-						mv.put(law.getMetaNames().get(0), id.getValue());
-						ref = law.apply(mv, node, lineOffset);
+					
+					boolean failed = false;
+					Map<String, String> mv = new HashMap<String, String>();
+					
+					for (String m : law.getMetaNames()) {
+						InputDialog id = new InputDialog(window.getShell()
+								,"Input meta-variable"
+								,"Please enter " + m
+								,""
+								,new IInputValidator() { public String isValid(String s) { return null; } } );
+						id.open();
+						
+						if (id.getValue() != null ) {
+							mv.put(m, id.getValue());
+						} else {
+							failed = true;
+							break;
+						}
 					}
+					
+					if (!failed)
+						ref = law.apply(mv, node, lineOffset);
+					
 				}
 				else {				
 					ref = law.apply(new HashMap<String, String>(), node, lineOffset);

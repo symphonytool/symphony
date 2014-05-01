@@ -17,6 +17,7 @@ import org.overture.ast.patterns.PPattern;
 import org.overture.ast.statements.AAssignmentStm;
 import org.overture.ast.statements.ABlockSimpleBlockStm;
 import org.overture.ast.statements.AExternalClause;
+import org.overture.ast.statements.ALetStm;
 import org.overture.ast.statements.AReturnStm;
 import org.overture.ast.statements.ASpecificationStm;
 import org.overture.ast.statements.AWhileStm;
@@ -24,6 +25,7 @@ import org.overture.ast.statements.PStm;
 import org.overture.ast.types.AUnionType;
 import org.overture.ast.types.PType;
 
+import eu.compassresearch.ast.actions.AStmAction;
 import eu.compassresearch.ast.actions.AUntimedTimeoutAction;
 import eu.compassresearch.ast.actions.AValParametrisation;
 import eu.compassresearch.ast.actions.AVresParametrisation;
@@ -377,6 +379,20 @@ public class RefinePrettyPrinter extends QuestionAnswerCMLAdaptor<Integer, Strin
 	public String caseAReturnStm(AReturnStm node, Integer question)
 			throws AnalysisException {
 		return "return " + node.getExpression().toString();
+	}
+
+	@Override
+	public String caseAStmAction(AStmAction node, Integer question)
+			throws AnalysisException {
+		// TODO Auto-generated method stub
+		return super.caseAStmAction(node, question);
+	}
+
+	@Override
+	public String caseALetStm(ALetStm node, Integer question)
+			throws AnalysisException {
+		// TODO Auto-generated method stub
+		return super.caseALetStm(node, question);
 	}
 	
 }

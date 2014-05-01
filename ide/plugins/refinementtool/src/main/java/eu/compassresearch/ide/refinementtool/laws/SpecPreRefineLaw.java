@@ -82,6 +82,7 @@ public class SpecPreRefineLaw implements IRefineLaw {
 	public List<String> getMetaNames() {
 		List<String> l = new LinkedList<String>();
 		l.add(NEWPRE);
+		l.add("Ho hum!");
 		return l;
 
 	}
