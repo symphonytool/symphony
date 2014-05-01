@@ -9,6 +9,6 @@ public interface IRefineLaw {
 
 	public String getName();
 	public boolean isApplicable(INode node);
-	public Refinement apply(Map<String, String> metas, INode node);
+	public Refinement apply(Map<String, String> metas, INode node, int offset);
 	public List<String> getMetaNames();
 }

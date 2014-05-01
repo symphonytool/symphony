@@ -1,10 +1,13 @@
-package eu.compassresearch.ide.refinementtool;
+package eu.compassresearch.ide.refinementtool.laws;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import org.overture.ast.node.INode;
+
+import eu.compassresearch.ide.refinementtool.IRefineLaw;
+import eu.compassresearch.ide.refinementtool.Refinement;
 
 public class NullRefineLaw implements IRefineLaw {
 
@@ -21,7 +24,7 @@ public class NullRefineLaw implements IRefineLaw {
 	}
 
 	@Override
-	public Refinement apply(Map<String, String> metas, INode node) {
+	public Refinement apply(Map<String, String> metas, INode node, int offset) {
 		// TODO Auto-generated method stub
 		return null;
 	}

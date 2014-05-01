@@ -358,6 +358,7 @@ public class RefinePrettyPrinter extends QuestionAnswerCMLAdaptor<Integer, Strin
 		if (node.getPrecondition() != null) {
 			sb.append("pre ");
 			sb.append(node.getPrecondition().apply(cmlpp));
+			sb.append(" ");
 		}
 		
 		if (node.getPostcondition() != null) {

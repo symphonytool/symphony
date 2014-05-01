@@ -24,17 +24,20 @@ import eu.compassresearch.ast.actions.AStmAction;
 import eu.compassresearch.ast.statements.AActionStm;
 import eu.compassresearch.ide.core.resources.ICmlProject;
 import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
-import eu.compassresearch.ide.refinementtool.ChaosStopRefineLaw;
-import eu.compassresearch.ide.refinementtool.ChoiceStopLeft;
-import eu.compassresearch.ide.refinementtool.ChoiceStopRight;
-import eu.compassresearch.ide.refinementtool.DummyRefineLaw;
 import eu.compassresearch.ide.refinementtool.INodeNearCaret;
 import eu.compassresearch.ide.refinementtool.IRefineLaw;
-import eu.compassresearch.ide.refinementtool.ImplicitOperationRefineLaw;
-import eu.compassresearch.ide.refinementtool.NullRefineLaw;
 import eu.compassresearch.ide.refinementtool.RefConstants;
-import eu.compassresearch.ide.refinementtool.SpecSeqRefineLaw;
-import eu.compassresearch.ide.refinementtool.SpecSkipRefineLaw;
+import eu.compassresearch.ide.refinementtool.laws.ChaosStopRefineLaw;
+import eu.compassresearch.ide.refinementtool.laws.ChoiceStopLeft;
+import eu.compassresearch.ide.refinementtool.laws.ChoiceStopRight;
+import eu.compassresearch.ide.refinementtool.laws.DummyRefineLaw;
+import eu.compassresearch.ide.refinementtool.laws.ImplicitOperationRefineLaw;
+import eu.compassresearch.ide.refinementtool.laws.NullRefineLaw;
+import eu.compassresearch.ide.refinementtool.laws.SpecIterRefineLaw;
+import eu.compassresearch.ide.refinementtool.laws.SpecPostRefineLaw;
+import eu.compassresearch.ide.refinementtool.laws.SpecPreRefineLaw;
+import eu.compassresearch.ide.refinementtool.laws.SpecSeqRefineLaw;
+import eu.compassresearch.ide.refinementtool.laws.SpecSkipRefineLaw;
 import eu.compassresearch.ide.refinementtool.view.RefineLawView;
 import eu.compassresearch.ide.ui.editor.core.CmlEditor;
 
@@ -100,6 +103,9 @@ public class RefineHandler extends AbstractHandler {
 			laws.add(new ImplicitOperationRefineLaw());
 			laws.add(new SpecSkipRefineLaw());
 			laws.add(new SpecSeqRefineLaw());
+			laws.add(new SpecIterRefineLaw());
+			laws.add(new SpecPreRefineLaw());
+			laws.add(new SpecPostRefineLaw());
 			
 			cmlProj.getModel().setAttribute(RefConstants.REF_LAWS_ID, laws);  
 		}

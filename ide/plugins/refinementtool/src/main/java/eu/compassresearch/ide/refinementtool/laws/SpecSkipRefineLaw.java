@@ -1,4 +1,4 @@
-package eu.compassresearch.ide.refinementtool;
+package eu.compassresearch.ide.refinementtool.laws;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -14,6 +14,9 @@ import org.overture.ast.node.INode;
 import org.overture.ast.statements.ASpecificationStm;
 
 import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligation;
+import eu.compassresearch.ide.refinementtool.CmlRefineProvisoObligation;
+import eu.compassresearch.ide.refinementtool.IRefineLaw;
+import eu.compassresearch.ide.refinementtool.Refinement;
 
 public class SpecSkipRefineLaw implements IRefineLaw {
 
@@ -28,7 +31,7 @@ public class SpecSkipRefineLaw implements IRefineLaw {
 	}
 
 	@Override
-	public Refinement apply(Map<String, String> metas, INode node) {
+	public Refinement apply(Map<String, String> metas, INode node, int offset) {
 		ASpecificationStm spec = (ASpecificationStm) node;
 		
 		List<CmlProofObligation> pos = new LinkedList<CmlProofObligation>();

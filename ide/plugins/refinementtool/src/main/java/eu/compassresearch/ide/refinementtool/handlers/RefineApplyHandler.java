@@ -89,6 +89,17 @@ public class RefineApplyHandler extends AbstractHandler {
 		ITextSelection selection = rv.getSelection();
 		IRefineLaw law = rv.getCurrentlySelectedLaw(); 
 			
+		int lineOffset = 0;
+		
+		try {
+			int l1 = doc.getLineOfOffset(selection.getOffset());
+			int l2 = doc.getLineOffset(l1);
+		    lineOffset = selection.getOffset() - l2;
+		} catch (BadLocationException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
 		if (law != null) {
 			INode node = rv.getNode();
 			while (node instanceof AActionStm || node instanceof AStmAction) {
@@ -107,21 +118,27 @@ public class RefineApplyHandler extends AbstractHandler {
 							,""
 							,new IInputValidator() { public String isValid(String s) { return null; } } );
 					id.open();
-					Map<String, String> mv = new HashMap<String, String>();
-					mv.put(law.getMetaNames().get(0), id.getValue());
-					ref = law.apply(mv, node);
+					if (id.getValue() != null ) {
+						Map<String, String> mv = new HashMap<String, String>();
+						mv.put(law.getMetaNames().get(0), id.getValue());
+						ref = law.apply(mv, node, lineOffset);
+					}
 				}
 				else {				
-					ref = law.apply(new HashMap<String, String>(), node);
+					ref = law.apply(new HashMap<String, String>(), node, lineOffset);
 				}
-				doc.replace(selection.getOffset(), selection.getLength(), ref.getResult());
 				
-				CmlProofObligationList pol = new CmlProofObligationList();
+				if (ref != null) {
 				
-				pol.addAll(ref.getProvisos());				
-				pt.setDataList(cmlProj, pol);
+					doc.replace(selection.getOffset(), selection.getLength(), ref.getResult());
 				
-				pt.refreshList();
+					CmlProofObligationList pol = new CmlProofObligationList();
+				
+					pol.addAll(ref.getProvisos());				
+					pt.setDataList(cmlProj, pol);
+				
+					pt.refreshList();
+				}
 				rv.clearLaws();
 			    // editor.getDocumentProvider().saveDocument(new NullProgressMonitor(), null, doc, true);
 				

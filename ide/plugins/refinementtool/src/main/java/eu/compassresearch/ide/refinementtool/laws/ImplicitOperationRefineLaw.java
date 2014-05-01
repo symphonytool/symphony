@@ -1,4 +1,4 @@
-package eu.compassresearch.ide.refinementtool;
+package eu.compassresearch.ide.refinementtool.laws;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -23,6 +23,9 @@ import org.overture.ast.statements.ASpecificationStm;
 import org.overture.ast.statements.PStm;
 
 import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligation;
+import eu.compassresearch.ide.refinementtool.IRefineLaw;
+import eu.compassresearch.ide.refinementtool.RefinePrettyPrinter;
+import eu.compassresearch.ide.refinementtool.Refinement;
 
 public class ImplicitOperationRefineLaw implements IRefineLaw {
 
@@ -37,7 +40,7 @@ public class ImplicitOperationRefineLaw implements IRefineLaw {
 	}
 
 	@Override
-	public Refinement apply(Map<String, String> metas, INode node) {
+	public Refinement apply(Map<String, String> metas, INode node, int offset) {
 		AImplicitOperationDefinition oo = ((AImplicitOperationDefinition) node).clone(); 
 		
 		// Create a specification statement to act as the body
