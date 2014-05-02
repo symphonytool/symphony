@@ -254,5 +254,33 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 		Assert.assertTrue("Simulators did not abort successfully", watch.isMatched());
 
 	}
+	
+	
+	@Test
+	public void testTypesQuotes() throws Exception
+	{
+		String source = "src/test/resources/cosim/TypeTestingSoS.cml";
+		Process coordinator = setUpCoordinator(source, "NodeSoS", "NodeReaderCS");
+		setUpClient(source, "NodeReaderCS");
+
+		waitForCompletion(coordinator, DEFAULT_TIMEOUT);
+
+		Assert.assertTrue("Simulators did not finish successfully", isFinished());
+
+	}
+	
+	
+	@Test
+	public void testTypesBool() throws Exception
+	{
+		String source = "src/test/resources/cosim/TypeTestingSoS.cml";
+		Process coordinator = setUpCoordinator(source, "BoolSoS", "BoolReaderCS");
+		setUpClient(source, "BoolReaderCS");
+
+		waitForCompletion(coordinator, DEFAULT_TIMEOUT);
+
+		Assert.assertTrue("Simulators did not finish successfully", isFinished());
+
+	}
 
 }
