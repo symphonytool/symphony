@@ -7,6 +7,7 @@ import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.ui.dialogs.WizardNewProjectCreationPage;
 import org.eclipse.ui.wizards.newresource.BasicNewProjectResourceWizard;
@@ -47,22 +48,32 @@ public class RttMbtProjectWizard extends BasicNewProjectResourceWizard {
 		WizardNewProjectCreationPage newFolderPage = (WizardNewProjectCreationPage) getPages()[0];
 		IProject newProject = newFolderPage.getProjectHandle();
 		String projectName = newFolderPage.getProjectName();
-		try {
-			IProjectDescription description = workspace.newProjectDescription(projectName);
-			File projectdir = new File(RttMbtClient.getAbsolutePathFromFileURI(newFolderPage.getLocationURI()) + File.separator + projectName);
+		IProjectDescription description = workspace.newProjectDescription(projectName);
+		File projectdir = new File(RttMbtClient.getAbsolutePathFromFileURI(newFolderPage.getLocationURI()));
+		if (!projectdir.getAbsolutePath().startsWith(workspaceDirectory.getAbsolutePath())) {
 			description.setLocation(Path.fromOSString(projectdir.getAbsolutePath()));
-			description.setName(newFolderPage.getProjectName());
+			description.setName(projectName);
+		} else {
+			description = null;
+		}
+		IStatus status = workspace.validateProjectLocation(newProject, Path.fromOSString(projectdir.getAbsolutePath()));
+		if (!status.isOK()) {
+			client.addErrorMessage("invalid project location " + projectdir.getAbsolutePath() + ": " + status.toString());
+		}
+		try {
+			client.addLogMessage("creating Eclipse project resource '" + Path.fromOSString(projectdir.getAbsolutePath()) + "'...");
 			newProject.create(description,null);
 			newProject.open(null);
 		} catch (CoreException e) {
-			client.addErrorMessage("[FAIL]: creating project resource failed!");
+			client.addErrorMessage("[FAIL]: creating project resource '" + Path.fromOSString(projectdir.getAbsolutePath()) + "' failed!");
+			client.addErrorMessage(e.toString());
 			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 			return false;
 		}
 
 		// initialize client
 		client.setRttProjectName(projectName);
-		client.setRttProjectPath(RttMbtClient.getAbsolutePathFromFileURI(newFolderPage.getLocationURI()) + File.separator + projectName);
+		client.setRttProjectPath(RttMbtClient.getAbsolutePathFromFileURI(newFolderPage.getLocationURI()));
 		client.setWorkspaceProjectName(projectName);
 		client.setWorkspaceProjectPrefix(null);
 		client.addLogMessage("creating RTT-MBT project " + projectName + "... please wait for the task to be finished.");

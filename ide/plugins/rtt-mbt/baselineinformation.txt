@@ -3,10 +3,17 @@ RTTPLUGIN_0.3.1
 
 Changes:
 
+- added test procedure generation context properties to RT-Tester properties.
+- added user manual and help content
+- added papyrus client mode that enables direct syntax/livelock check of model.uml files.
+- added user name and password settings for HTTP(S) front end authentication
+- added tool tips for preferences.
+- added new advanced.conf parameter LI (upper limit for duration between input signal changes).
+- fixed path for project creation
 - added fix to allow project creation outside the current workspace.
 - added button to "add" all test cases for a requirement to a test procedure generation context.
+- adjusted sequence of tool bar icons and menu icons in plugin.xml.
 - fixed download of templates for import and new project.
-- added log message for non-existing local files in case of uploads if verbose logging is active.
 - added support for file permissions when sending files to server cache.
 - fixed bug in download path for doc-test action.
 
