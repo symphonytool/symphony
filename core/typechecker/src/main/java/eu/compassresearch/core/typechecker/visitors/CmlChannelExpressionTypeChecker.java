@@ -21,7 +21,6 @@ import eu.compassresearch.ast.definitions.AChannelDefinition;
 import eu.compassresearch.ast.expressions.AComprehensionRenameChannelExp;
 import eu.compassresearch.ast.expressions.AEnumerationRenameChannelExp;
 import eu.compassresearch.ast.expressions.ANameChannelExp;
-import eu.compassresearch.ast.messages.InternalException;
 import eu.compassresearch.ast.patterns.ARenamePair;
 import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
@@ -89,7 +88,9 @@ public class CmlChannelExpressionTypeChecker extends
 			AComprehensionRenameChannelExp node, TypeCheckInfo question)
 			throws AnalysisException
 	{
-		throw new InternalException(0, "AComprehensionRenameChannelExp is not implemented");
+		issueHandler.addTypeError(node, TypeErrorMessages.UNSUPPORTED_CONSTRUCT, ""
+				+ node);
+		return AstFactory.newAUnknownType(node.getLocation());
 	}
 
 	@Override
@@ -103,23 +104,50 @@ public class CmlChannelExpressionTypeChecker extends
 		{
 			ANameChannelExp from = p.getFrom();
 			ANameChannelExp to = p.getTo();
+			List<PType> pairTypes = new Vector<PType>();
 
-			PDefinition fromChanDef = TypeCheckerUtil.findDefinition(from.getIdentifier(), question.env);
-			if (fromChanDef == null)
+			for (ANameChannelExp chanExp : new ANameChannelExp[] { from, to })
 			{
-				issueHandler.addTypeError(from, TypeErrorMessages.UNDEFINED_SYMBOL, ""
-						+ from);
-				return null;
+				PDefinition chanDef = TypeCheckerUtil.findDefinition(chanExp.getIdentifier(), question.env);
+				if (chanDef == null)
+				{
+					issueHandler.addTypeError(from, TypeErrorMessages.UNDEFINED_SYMBOL, ""
+							+ from);
+					return null;
+				}
+
+				pairTypes.add(chanDef.getType());
 			}
 
-			to.setType(fromChanDef.getType());
-			types.add(fromChanDef.getType());
-			// cmlEnv.addChannel(to.getIdentifier(), fromChanDef);
+			if (pairTypes.size() == 2)
+			{
+				final AChannelType toType = (AChannelType) pairTypes.get(1);
+				final AChannelType fromType = (AChannelType) pairTypes.get(0);
+				if (!TypeComparator.compatible(toType.getParameters(), fromType.getParameters(), question.assistantFactory))
+				{
+					issueHandler.addTypeError(from, TypeErrorMessages.INCOMPATIBLE_TYPE, formatChannelType(toType), formatChannelType(fromType));
+					return AstFactory.newAUnknownType(node.getLocation());
+				}
+			}
+
+			types.addAll(pairTypes);
+
 		}
 
 		node.setType(TypeCheckerUtil.generateUnionType(question.assistantFactory, node.getLocation(), types));
 		return node.getType();
 
+	}
+
+	private String formatChannelType(AChannelType t)
+	{
+		String typeMsg = "" + t;
+		if (typeMsg.trim().isEmpty())
+		{
+			typeMsg = "()";
+		}
+
+		return typeMsg;
 	}
 
 	@Override

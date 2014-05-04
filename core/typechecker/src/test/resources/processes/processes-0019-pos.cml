@@ -4,6 +4,15 @@ process
 
 begin
 
- @ A [[ init <- start ]]
+actions 
+
+act1=Skip
+
+ @ act1 [[ init <- start ]]
 
 end
+
+channels
+
+init:int
+start:int

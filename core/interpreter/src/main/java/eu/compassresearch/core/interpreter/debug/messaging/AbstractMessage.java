@@ -51,11 +51,11 @@ public abstract class AbstractMessage implements JsonMessage
 	public abstract MessageType getType();
 
 	public abstract String getKey();
-	
+
 	@Override
 	public String toString()
 	{
-		return getType()+" "+ getContent();
+		return getType() + " " + getContent();
 	}
 
 }

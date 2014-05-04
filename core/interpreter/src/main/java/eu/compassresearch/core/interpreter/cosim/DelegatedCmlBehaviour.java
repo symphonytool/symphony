@@ -27,8 +27,8 @@ import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.transitions.LabelledTransition;
 import eu.compassresearch.core.interpreter.api.transitions.TauTransition;
 import eu.compassresearch.core.interpreter.api.transitions.TimedTransition;
-import eu.compassresearch.core.interpreter.api.values.CmlChannel;
 import eu.compassresearch.core.interpreter.api.values.ChannelValue;
+import eu.compassresearch.core.interpreter.api.values.CmlChannel;
 import eu.compassresearch.core.interpreter.api.values.NoConstraint;
 import eu.compassresearch.core.interpreter.api.values.ValueConstraint;
 import eu.compassresearch.core.interpreter.utility.Pair;
@@ -86,7 +86,8 @@ public class DelegatedCmlBehaviour implements CmlBehaviour
 			this.delegate.execute(selectedTransition);
 		} catch (Exception e)
 		{
-			throw new InterpreterRuntimeException("Failed to invoke execute on delegate \""+delegate.getProcessName()+"\"", e);
+			throw new InterpreterRuntimeException("Failed to invoke execute on delegate \""
+					+ delegate.getProcessName() + "\"", e);
 		}
 	}
 
@@ -111,7 +112,8 @@ public class DelegatedCmlBehaviour implements CmlBehaviour
 			return transitions;
 		} catch (Exception e)
 		{
-			throw new InterpreterRuntimeException("Failed to invoke inspect on delegate \""+delegate.getProcessName()+"\"", e);
+			throw new InterpreterRuntimeException("Failed to invoke inspect on delegate \""
+					+ delegate.getProcessName() + "\"", e);
 		}
 	}
 
@@ -335,7 +337,8 @@ public class DelegatedCmlBehaviour implements CmlBehaviour
 			return finished;
 		} catch (Exception e)
 		{
-			throw new InterpreterRuntimeException("Failed to invoke isFinished on delegate \""+delegate.getProcessName()+"\"", e);
+			throw new InterpreterRuntimeException("Failed to invoke isFinished on delegate \""
+					+ delegate.getProcessName() + "\"", e);
 		}
 	}
 

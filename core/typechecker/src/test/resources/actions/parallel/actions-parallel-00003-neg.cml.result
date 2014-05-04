@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.ActionsCmlTypeCheckerTests">
+<message column="2" line="8" message="Action assigns to &quot;y&quot; which is not declared in the nameset" messageType="warning" number="0" resource="actions-parallel-00003-neg.cml"/>
+<message column="25" line="8" message="Action assigns to &quot;z&quot; which is not declared in the nameset" messageType="warning" number="0" resource="actions-parallel-00003-neg.cml"/>
+<result/>
+</testResult>

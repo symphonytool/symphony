@@ -9,7 +9,6 @@ import org.overture.ast.expressions.PExp;
 import org.overture.ast.node.INode;
 import org.overture.ast.statements.AIfStm;
 
-import eu.compassresearch.ast.actions.ACallAction;
 import eu.compassresearch.ast.actions.AChaosAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.ADivAction;
@@ -493,19 +492,20 @@ public class NewMCActionVisitor extends
 	}
 	*/
 	
-	@Override
-	public MCNode caseACallAction(ACallAction node,
-			NewCMLModelcheckerContext question) throws AnalysisException {
-		
-		String name = node.getName().getSimpleName();
-		LinkedList<MCPCMLExp> args = new LinkedList<MCPCMLExp>();
-		for (PExp pExp : node.getArgs()) {
-			args.add((MCPCMLExp) pExp.apply(rootVisitor, question));
-		}
-		MCACallAction result = new MCACallAction(name, args);
-		
-		return result;
-	}
+	// KEL: Removed node ACallAction, it is a dublica of AReferenceAction
+//	@Override
+//	public MCNode caseACallAction(ACallAction node,
+//			NewCMLModelcheckerContext question) throws AnalysisException {
+//		
+//		String name = node.getName().getSimpleName();
+//		LinkedList<MCPCMLExp> args = new LinkedList<MCPCMLExp>();
+//		for (PExp pExp : node.getArgs()) {
+//			args.add((MCPCMLExp) pExp.apply(rootVisitor, question));
+//		}
+//		MCACallAction result = new MCACallAction(name, args);
+//		
+//		return result;
+//	}
 
 	/////TIMED ACTIONS
 	@Override

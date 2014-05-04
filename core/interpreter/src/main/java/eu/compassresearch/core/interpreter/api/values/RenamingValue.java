@@ -7,7 +7,7 @@ import org.overture.interpreter.values.Value;
 
 public class RenamingValue extends Value
 {
-	
+
 	/**
 	 * 
 	 */
@@ -18,12 +18,12 @@ public class RenamingValue extends Value
 	{
 		renamingMap = new HashMap<ChannelValue, ChannelValue>();
 	}
-	
+
 	public RenamingValue(Map<ChannelValue, ChannelValue> renamingMap)
 	{
 		this.renamingMap = renamingMap;
 	}
-	
+
 	@Override
 	public String toString()
 	{
@@ -53,7 +53,7 @@ public class RenamingValue extends Value
 	{
 		return new RenamingValue(new HashMap<ChannelValue, ChannelValue>(this.renamingMap));
 	}
-	
+
 	public Map<ChannelValue, ChannelValue> renamingMap()
 	{
 		return this.renamingMap;

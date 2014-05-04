@@ -1,0 +1,9 @@
+process
+
+ P =
+
+begin
+
+ @ a.1.2 -> Skip
+
+end

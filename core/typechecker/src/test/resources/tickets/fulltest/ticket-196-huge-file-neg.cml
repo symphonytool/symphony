@@ -1,0 +1,1229 @@
+-- t_model Started with NMain::ProducerConsumer
+types
+    ID = seq of token
+    DL = bool | <defer>
+    -- t_type_operation started with NMain::ProducerConsumer::Buffer.add
+    public add_I ::
+        $id: token
+        x: ID
+    public add_O ::
+        $id: token
+
+    -- t_type_operation finished with NMain::ProducerConsumer::Buffer.add
+    -- t_type_operation started with NMain::ProducerConsumer::Buffer.rem
+    public rem_I ::
+        $id: token
+
+    public rem_O ::
+        $id: token
+        $ret: ID
+    -- t_type_operation finished with NMain::ProducerConsumer::Buffer.rem
+    -- t_type_operation started with NMain::ProducerConsumer::Consumer.foo
+
+    public foo_I ::
+        $id: token
+
+    public foo_O ::
+        $id: token
+
+    -- t_type_operation finished with NMain::ProducerConsumer::Consumer.foo
+    -- t_type_operation started with NMain::ProducerConsumer::Producer.foo2
+    public foo2_I ::
+        $id: token
+
+    public foo2_O ::
+        $id: token
+
+    public sig ::
+        $id: token
+
+    -- t_type_operation finished with NMain::ProducerConsumer::Producer.foo2
+    OPS = add_I | add_O | rem_I | rem_O | rem_I | rem_O | add_I | add_O | foo_I | foo_O | foo2_I | foo2_O
+    S = sig
+    MSG = OPS | S
+    -- t_interface_types started with NMain::ProducerConsumer::Interface1
+    values
+    -- t_interface_signal_type started with NMain::ProducerConsumer::Interface1
+    Interface1_S = {}
+    -- t_interface_signal_type finished with NMain::ProducerConsumer::Interface1
+    -- t_interface_input_type started with NMain::ProducerConsumer::Interface1
+    Interface1_I = {mk_token("rem_I")}
+    -- t_interface_input_type finished with NMain::ProducerConsumer::Interface1
+    -- t_interface_output_type started with NMain::ProducerConsumer::Interface1
+    Interface1_O = {mk_token("rem_O")}
+    -- t_interface_output_type finished with NMain::ProducerConsumer::Interface1
+    Interface1_OPS = Interface1_I union Interface1_O
+    -- t_interface_types finished with NMain::ProducerConsumer::Interface1
+    -- t_interface_types started with NMain::ProducerConsumer::Interface2
+    values
+    -- t_interface_signal_type started with NMain::ProducerConsumer::Interface2
+    Interface2_S = {}
+    -- t_interface_signal_type finished with NMain::ProducerConsumer::Interface2
+    -- t_interface_input_type started with NMain::ProducerConsumer::Interface2
+    Interface2_I = {mk_token("add_I")}
+    -- t_interface_input_type finished with NMain::ProducerConsumer::Interface2
+    -- t_interface_output_type started with NMain::ProducerConsumer::Interface2
+    Interface2_O = {mk_token("add_O")}
+    -- t_interface_output_type finished with NMain::ProducerConsumer::Interface2
+    Interface2_OPS = Interface2_I union Interface2_O
+    -- t_interface_types finished with NMain::ProducerConsumer::Interface2
+
+-- declare_bag started with NMain::ProducerConsumer
+types
+public Bag = map token to nat
+values
+    public empty_bag = {|->}
+functions
+    public in_bag: token * Bag -> bool
+    in_bag(o,b) == 
+        exists n in set dom(b) @ b(n) > 0 and o = n
+
+    public bunion: Bag * Bag -> Bag
+    bunion(m1,m2) == 
+        {x |-> y | x in set (dom m1 inter dom m2),
+            y: nat @ y = m1(x)+m2(x)}
+        munion
+        {x |-> y | x in set dom m1, y: nat @
+            x not in set dom m2 and y = m1(x)}
+        munion
+        {x |-> y | x in set dom m2, y: nat @
+            x not in set dom m1 and y = m2(x)}
+
+    public bdiff: Bag * Bag -> Bag
+    bdiff(m1,m2) == 
+        {x |-> y | x in set (dom m1 inter dom m2),
+            y: nat
+            @ y = if m1(x)-m2(x) > 0
+                then m1(x)-m2(x)
+                else 0}
+        munion
+        {x |-> y | x in set dom m1, y: nat @
+            x not in set dom m2 and y = m1(x)}
+-- declare_bag finished with NMain::ProducerConsumer
+
+functions
+DL_or(a: DL, b: DL) c: DL
+post (is_bool(a) and is_bool(b) => c = a or b)
+    and (not is_bool(a) or not is_bool(b) => (
+        ((a = true) or (b = true) => (c = true))
+        and ((not (a = true) and not (b = true))
+             => c = <defer>)
+    ))
+
+
+channels
+    ConnectorBetweenMyProducerPort1AndMyBufferPort2_op: nat*ID*ID*OPS
+    ConnectorBetweenMyConsumerPort1AndMyBufferPort1_op: nat*ID*ID*OPS
+
+-- t_block started with NMain::ProducerConsumer::Buffer
+-- t_simple_block started with NMain::ProducerConsumer::Buffer
+-- t_block_types started with NMain::ProducerConsumer::Buffer
+values
+-- t_block_signal_type started with NMain::ProducerConsumer::Buffer
+Buffer_S = {}
+-- t_block_signal_type finished with NMain::ProducerConsumer::Buffer
+-- t_block_input_type started with NMain::ProducerConsumer::Buffer
+Buffer_I = {mk_token("add_I") , mk_token("rem_I") , mk_token("rem_I") , mk_token("add_I")}
+-- t_block_input_type finished with NMain::ProducerConsumer::Buffer
+-- t_block_output_type started with NMain::ProducerConsumer::Buffer
+Buffer_O = {mk_token("add_O") , mk_token("rem_O") , mk_token("rem_O") , mk_token("add_O")}
+-- t_block_output_type finished with NMain::ProducerConsumer::Buffer
+Buffer_OPS = Buffer_I union Buffer_O
+-- t_block_types finished with NMain::ProducerConsumer::Buffer
+-- t_block_channels started with NMain::ProducerConsumer::Buffer
+channels
+    Buffer_op: nat*ID*ID*OPS
+    Buffer_sig: nat*ID*ID*S
+    Buffer_addevent: nat*ID*ID*MSG
+    -- d_attribute_setnget_channels started with NMain::ProducerConsumer::Buffer.b
+    Buffer_get_b:ID*ID*seq of ID
+    Buffer_set_b:ID*ID*seq of ID
+    -- d_attribute_setnget_channels finished with NMain::ProducerConsumer::Buffer.b
+-- t_block_channels finished with NMain::ProducerConsumer::Buffer
+-- t_port started with NMain::ProducerConsumer::Buffer.Port1
+-- t_port_types started with NMain::ProducerConsumer::Buffer.Port1
+values
+Port1_P_I = Interface1_I
+Port1_P_O = Interface1_O
+Port1_P_S = Interface1_S
+Port1_R_I = {}
+Port1_R_O = {}
+Port1_R_S = {}
+-- t_port_types finished with NMain::ProducerConsumer::Buffer.Port1
+-- t_port_channels started with NMain::ProducerConsumer::Buffer.Port1
+channels
+    Port1_int_sig: nat*ID*ID*S
+    Port1_ext_sig: nat*ID*ID*S
+    Port1_int_op: nat*ID*ID*OPS
+    Port1_ext_op: nat*ID*ID*OPS
+
+-- t_port_channels finished with NMain::ProducerConsumer::Buffer.Port1
+process port_Port1 = val id: ID @ begin
+@ mu X @ ((
+    Port1_ext_sig?i?o!id?x:(x.$id in set Port1_P_S) ->
+    Port1_int_sig.i.id?y.x -> Skip
+    []Port1_int_sig?i?o!id?x:(x.$id in set Port1_R_S) ->
+    Port1_ext_sig.i.id?y.x -> Skip
+    []Port1_ext_op?i?o!id?x:(x.$id in set Port1_P_I) ->
+    Port1_int_op.i.id?y.x -> Skip
+    []Port1_int_op?i?o!id?x:(x.$id in set Port1_P_O) ->
+    Port1_ext_op.i.id?y.x -> Skip
+    []Port1_int_op?i?o!id?x:(x.$id in set Port1_R_I) ->
+    Port1_ext_op.i.id?y.x -> Skip
+    []Port1_ext_op?i?o!id?x:(x.$id in set Port1_R_O) ->
+    Port1_int_op.i.id?y.x -> Skip
+); X)
+end
+-- t_port finished with NMain::ProducerConsumer::Buffer.Port1
+
+
+-- t_port started with NMain::ProducerConsumer::Buffer.Port2
+-- t_port_types started with NMain::ProducerConsumer::Buffer.Port2
+values
+Port2_P_I = Interface2_I
+Port2_P_O = Interface2_O
+Port2_P_S = Interface2_S
+Port2_R_I = {}
+Port2_R_O = {}
+Port2_R_S = {}
+-- t_port_types finished with NMain::ProducerConsumer::Buffer.Port2
+-- t_port_channels started with NMain::ProducerConsumer::Buffer.Port2
+channels
+    Port2_int_sig: nat*ID*ID*S
+    Port2_ext_sig: nat*ID*ID*S
+    Port2_int_op: nat*ID*ID*OPS
+    Port2_ext_op: nat*ID*ID*OPS
+-- t_port_channels finished with NMain::ProducerConsumer::Buffer.Port2
+process port_Port2 = val id: ID @ begin
+@ mu X @ ((
+    Port2_ext_sig?i?o!id?x:(x.$id in set Port2_P_S) ->
+    Port2_int_sig.i.id?y.x -> Skip
+    []Port2_int_sig?i?o!id?x:(x.$id in set Port2_R_S) ->
+    Port2_ext_sig.i.id?y.x -> Skip
+    []Port2_ext_op?i?o!id?x:(x.$id in set Port2_P_I) ->
+    Port2_int_op.i.id?y.x -> Skip
+    []Port2_int_op?i?o!id?x:(x.$id in set Port2_P_O) ->
+    Port2_ext_op.i.id?y.x -> Skip
+    []Port2_int_op?i?o!id?x:(x.$id in set Port2_R_I) ->
+    Port2_ext_op.i.id?y.x -> Skip
+    []Port2_ext_op?i?o!id?x:(x.$id in set Port2_R_O) ->
+    Port2_int_op.i.id?y.x -> Skip
+); X)
+end
+-- t_port finished with NMain::ProducerConsumer::Buffer.Port2
+
+-- t_block_process started with NMain::ProducerConsumer::Buffer
+-- t_block_simple_process started with NMain::ProducerConsumer::Buffer
+process simple_Buffer = val id: ID @ begin
+    -- t_block_state started with NMain::ProducerConsumer::Buffer
+    state
+        -- d_attribute_declaration started with NMain::ProducerConsumer::Buffer.b
+        b: seq of ID
+        -- d_attribute_declaration finished with NMain::ProducerConsumer::Buffer.b
+        benabled: Bag := empty_bag
+    -- t_block_state finished with NMain::ProducerConsumer::Buffer
+    actions
+    -- t_block_state_action started with NMain::ProducerConsumer::Buffer
+    Buffer_state = mu X @ (
+        Buffer_get_b?o!id!b-> X
+        []
+        Buffer_set_b?o!id?x -> b:= x; X
+    )
+    -- t_block_state_action finished with NMain::ProducerConsumer::Buffer
+    -- t_block_requests_action started with NMain::ProducerConsumer::Buffer
+    Buffer_requests = mu X @ (
+        Buffer_op?n?o!id?x:(x.$id in set Buffer_I) -> (
+            -- t_block_requests_action1 started with NMain::ProducerConsumer::Buffer.add
+            [x.$id = mk_token("add_I")]&
+                Buffer_addevent!n!o!id!x -> Skip;
+                benabled := bunion(benabled, {mk_token("add_O")|->1}); X
+            -- t_block_requests_action1 finished with NMain::ProducerConsumer::Buffer.add
+            []
+            -- t_block_requests_action1 started with NMain::ProducerConsumer::Buffer.rem
+            [x.$id = mk_token("rem_I")]&
+                Buffer_addevent!n!o!id!x -> Skip;
+                benabled := bunion(benabled, {mk_token("rem_O")|->1}); X
+            -- t_block_requests_action1 finished with NMain::ProducerConsumer::Buffer.rem
+            []
+            -- t_block_requests_action1 started with NMain::ProducerConsumer::Interface1.rem
+            [x.$id = mk_token("rem_I")]&
+                Buffer_addevent!n!o!id!x -> Skip;
+                benabled := bunion(benabled, {mk_token("rem_O")|->1}); X
+            -- t_block_requests_action1 finished with NMain::ProducerConsumer::Interface1.rem
+            []
+            -- t_block_requests_action1 started with NMain::ProducerConsumer::Interface2.add
+            [x.$id = mk_token("add_I")]&
+                Buffer_addevent!n!o!id!x -> Skip;
+                benabled := bunion(benabled, {mk_token("add_O")|->1}); X
+            -- t_block_requests_action1 finished with NMain::ProducerConsumer::Interface2.add
+        )
+        []
+        Buffer_op?n?o!id?x:(in_bag(x.$id,benabled)) -> (
+            -- t_block_requests_action1 started with NMain::ProducerConsumer::Buffer.add
+            [x.$id = mk_token("add_O")]&
+                benabled := bdiff(benabled,{x.$id |-> 1}); X
+            -- t_block_requests_action1 finished with NMain::ProducerConsumer::Buffer.add
+            []
+            -- t_block_requests_action1 started with NMain::ProducerConsumer::Buffer.rem
+            [x.$id = mk_token("rem_O")]&
+                benabled := bdiff(benabled,{x.$id |-> 1}); X
+            -- t_block_requests_action1 finished with NMain::ProducerConsumer::Buffer.rem
+            []
+            -- t_block_requests_action1 started with NMain::ProducerConsumer::Interface1.rem
+            [x.$id = mk_token("rem_O")]&
+                benabled := bdiff(benabled,{x.$id |-> 1}); X
+            -- t_block_requests_action1 finished with NMain::ProducerConsumer::Interface1.rem
+            []
+            -- t_block_requests_action1 started with NMain::ProducerConsumer::Interface2.add
+            [x.$id = mk_token("add_O")]&
+                benabled := bdiff(benabled,{x.$id |-> 1}); X
+            -- t_block_requests_action1 finished with NMain::ProducerConsumer::Interface2.add
+        )
+        []
+        Buffer_sig?n?o!id?x:(x.$id in set Buffer_S) -> 
+            Buffer_addevent!n!o!id!x -> X
+    )
+    -- t_block_requests_action finished with NMain::ProducerConsumer::Buffer
+    @ 
+    Buffer_state
+    [||{b}|{benabled}||]
+    Buffer_requests
+end
+-- t_block_simple_process finished with NMain::ProducerConsumer::Buffer
+
+channels
+
+enter, entered, exit, exited: ID*ID
+setstate,getstate: ID*ID*bool
+cancel: ID*ID
+enabled: ID*bool
+completion: ID
+fire,fired
+
+types
+Events = nat*ID*ID*OPS
+
+channels
+Buffer_inevent: ID*Events
+Buffer_consumed: ID*DL
+
+-- t_region_chansets finished with NMain::ProducerConsumer::Buffer.Buffer::TopLevelRegion
+-- t_transition_chansets started with add[empty - mid]
+chansets
+    chanset_CMLNameForTransitionWithIde21aa631283c427bab7a6ff537691a1d = {|fire,fired|}
+        union {|cancel.x.([mk_token("CMLNameForTransitionWithIde21aa631283c427bab7a6ff537691a1d")])|x:ID|}
+        union {|enter.([mk_token("CMLNameForTransitionWithIde21aa631283c427bab7a6ff537691a1d")]),entered.([mk_token("CMLNameForTransitionWithIde21aa631283c427bab7a6ff537691a1d")]),exit.([mk_token("CMLNameForTransitionWithIde21aa631283c427bab7a6ff537691a1d")]),
+            exited.([mk_token("CMLNameForTransitionWithIde21aa631283c427bab7a6ff537691a1d")]),Buffer_inevent.([mk_token("CMLNameForTransitionWithIde21aa631283c427bab7a6ff537691a1d")]),
+            enabled.([mk_token("CMLNameForTransitionWithIde21aa631283c427bab7a6ff537691a1d")])|}
+        union -- t_readstate_chanset started with add[empty - mid]
+        {|
+        |}
+        -- t_readstate_chanset finished with add[empty - mid]
+
+-- t_transition_chansets finished with add[empty - mid]
+-- t_transition_chansets started with rem[full - mid]
+chansets
+    chanset_CMLNameForTransitionWithId649c5c7a032d401e8135d2d5e8da78fc = {|fire,fired|}
+        union {|cancel.x.([mk_token("CMLNameForTransitionWithId649c5c7a032d401e8135d2d5e8da78fc")])|x:ID|}
+        union {|enter.([mk_token("CMLNameForTransitionWithId649c5c7a032d401e8135d2d5e8da78fc")]),entered.([mk_token("CMLNameForTransitionWithId649c5c7a032d401e8135d2d5e8da78fc")]),exit.([mk_token("CMLNameForTransitionWithId649c5c7a032d401e8135d2d5e8da78fc")]),
+            exited.([mk_token("CMLNameForTransitionWithId649c5c7a032d401e8135d2d5e8da78fc")]),Buffer_inevent.([mk_token("CMLNameForTransitionWithId649c5c7a032d401e8135d2d5e8da78fc")]),
+            enabled.([mk_token("CMLNameForTransitionWithId649c5c7a032d401e8135d2d5e8da78fc")])|}
+        union -- t_readstate_chanset started with rem[full - mid]
+        {|
+        |}
+        -- t_readstate_chanset finished with rem[full - mid]
+
+-- t_transition_chansets finished with rem[full - mid]
+-- t_transition_chansets started with add[mid - full]
+chansets
+    chanset_CMLNameForTransitionWithIdefabbfa5824b46ab837b4b80b2c53756 = {|fire,fired|}
+        union {|cancel.x.([mk_token("CMLNameForTransitionWithIdefabbfa5824b46ab837b4b80b2c53756")])|x:ID|}
+        union {|enter.([mk_token("CMLNameForTransitionWithIdefabbfa5824b46ab837b4b80b2c53756")]),entered.([mk_token("CMLNameForTransitionWithIdefabbfa5824b46ab837b4b80b2c53756")]),exit.([mk_token("CMLNameForTransitionWithIdefabbfa5824b46ab837b4b80b2c53756")]),
+            exited.([mk_token("CMLNameForTransitionWithIdefabbfa5824b46ab837b4b80b2c53756")]),Buffer_inevent.([mk_token("CMLNameForTransitionWithIdefabbfa5824b46ab837b4b80b2c53756")]),
+            enabled.([mk_token("CMLNameForTransitionWithIdefabbfa5824b46ab837b4b80b2c53756")])|}
+        union -- t_readstate_chanset started with add[mid - full]
+        {|
+        |}
+        -- t_readstate_chanset finished with add[mid - full]
+
+-- t_transition_chansets finished with add[mid - full]
+-- t_transition_chansets started with rem[mid - empty]
+chansets
+    chanset_CMLNameForTransitionWithId1f55d7374dbd4fdcb7db8c668f0dfcfd = {|fire,fired|}
+        union {|cancel.x.([mk_token("CMLNameForTransitionWithId1f55d7374dbd4fdcb7db8c668f0dfcfd")])|x:ID|}
+        union {|enter.([mk_token("CMLNameForTransitionWithId1f55d7374dbd4fdcb7db8c668f0dfcfd")]),entered.([mk_token("CMLNameForTransitionWithId1f55d7374dbd4fdcb7db8c668f0dfcfd")]),exit.([mk_token("CMLNameForTransitionWithId1f55d7374dbd4fdcb7db8c668f0dfcfd")]),
+            exited.([mk_token("CMLNameForTransitionWithId1f55d7374dbd4fdcb7db8c668f0dfcfd")]),Buffer_inevent.([mk_token("CMLNameForTransitionWithId1f55d7374dbd4fdcb7db8c668f0dfcfd")]),
+            enabled.([mk_token("CMLNameForTransitionWithId1f55d7374dbd4fdcb7db8c668f0dfcfd")])|}
+        union -- t_readstate_chanset started with rem[mid - empty]
+        {|
+        |}
+        -- t_readstate_chanset finished with rem[mid - empty]
+
+-- t_transition_chansets finished with rem[mid - empty]
+-- t_comp_transition_chansets started with [Initial - empty]
+chansets
+    chanset_CMLNameForTransitionWithId3aa204478f4a46b984891952a251c7b4 = {| enter.([mk_token("CMLNameForTransitionWithId3aa204478f4a46b984891952a251c7b4")]),entered.([mk_token("CMLNameForTransitionWithId3aa204478f4a46b984891952a251c7b4")]), exit.([mk_token("CMLNameForTransitionWithId3aa204478f4a46b984891952a251c7b4")]),
+        exited.([mk_token("CMLNameForTransitionWithId3aa204478f4a46b984891952a251c7b4")]), completion.([mk_token("CMLNameForTransitionWithId3aa204478f4a46b984891952a251c7b4")])|}
+        union -- t_readstate_chanset started with [Initial - empty]
+        {|
+        |}
+        -- t_readstate_chanset finished with [Initial - empty]
+
+-- t_comp_transition_chansets finished with [Initial - empty]
+-- t_chansets finished with NMain::ProducerConsumer::Buffer.Buffer
+
+chansets
+    internal = {|enter, entered, exit, exited,
+        enabled, fire, fired|}
+        union {|Buffer_consumed.x | x: ID @ x <> ([mk_token("Buffer")])|}
+        union {|Buffer_inevent.x | x: ID @ x <> ([mk_token("Buffer")])|}
+
+values
+-- t_block_signal_type started with NMain::ProducerConsumer::Consumer
+Consumer_S = {}
+-- t_block_signal_type finished with NMain::ProducerConsumer::Consumer
+-- t_block_input_type started with NMain::ProducerConsumer::Consumer
+Consumer_I = {mk_token("foo_I")}
+-- t_block_input_type finished with NMain::ProducerConsumer::Consumer
+-- t_block_output_type started with NMain::ProducerConsumer::Consumer
+Consumer_O = {mk_token("foo_O")}
+-- t_block_output_type finished with NMain::ProducerConsumer::Consumer
+Consumer_OPS = Consumer_I union Consumer_O
+-- t_block_types finished with NMain::ProducerConsumer::Consumer
+-- t_block_channels started with NMain::ProducerConsumer::Consumer
+channels
+    Consumer_op: nat*ID*ID*OPS
+    Consumer_sig: nat*ID*ID*S
+    Consumer_addevent: nat*ID*ID*MSG
+-- t_block_channels finished with NMain::ProducerConsumer::Consumer
+-- t_port started with NMain::ProducerConsumer::Consumer.Port1
+-- t_port_types started with NMain::ProducerConsumer::Consumer.Port1
+
+-- t_port_types finished with NMain::ProducerConsumer::Consumer.Port1
+-- t_port_channels started with NMain::ProducerConsumer::Consumer.Port1
+-- t_port_channels finished with NMain::ProducerConsumer::Consumer.Port1
+-- t_port finished with NMain::ProducerConsumer::Consumer.Port1
+-- t_block_process started with NMain::ProducerConsumer::Consumer
+-- t_block_simple_process started with NMain::ProducerConsumer::Consumer
+
+
+process simple_Consumer = val id: ID @ begin
+    -- t_block_state started with NMain::ProducerConsumer::Consumer
+    state
+        benabled: Bag := empty_bag
+    -- t_block_state finished with NMain::ProducerConsumer::Consumer
+    actions
+    -- t_block_state_action started with NMain::ProducerConsumer::Consumer
+    Consumer_state = Skip
+    -- t_block_state_action finished with NMain::ProducerConsumer::Consumer
+    -- t_block_requests_action started with NMain::ProducerConsumer::Consumer
+    Consumer_requests = mu X @ (
+        Consumer_op?n?o!id?x:(x.$id in set Consumer_I) -> (
+            -- t_block_requests_action1 started with NMain::ProducerConsumer::Consumer.foo
+            [x.$id = mk_token("foo_I")]&
+                Consumer_addevent!n!o!id!x -> Skip;
+                benabled := bunion(benabled, {mk_token("foo_O")|->1}); X
+            -- t_block_requests_action1 finished with NMain::ProducerConsumer::Consumer.foo
+        )
+        []
+        Consumer_op?n?o!id?x:(in_bag(x.$id,benabled)) -> (
+            -- t_block_requests_action1 started with NMain::ProducerConsumer::Consumer.foo
+            [x.$id = mk_token("foo_O")]&
+                benabled := bdiff(benabled,{x.$id|->1}); X
+            -- t_block_requests_action1 finished with NMain::ProducerConsumer::Consumer.foo
+        )
+        []
+        Consumer_sig?n?o!id?x:(x.$id in set Consumer_S) -> 
+            Consumer_addevent!n!o!id!x -> X
+    )
+    -- t_block_requests_action finished with NMain::ProducerConsumer::Consumer
+    @ 
+    Consumer_state
+    [||{}|{benabled}||]
+    Consumer_requests
+end
+-- t_block_simple_process finished with NMain::ProducerConsumer::Consumer
+-- t_block_bare_process started with NMain::ProducerConsumer::Consumer
+process bare_Consumer = id: ID @ simple_Consumer(id)
+-- t_block_bare_process finished with NMain::ProducerConsumer::Consumer
+process Consumer = val id: ID @ ((( bare_Consumer(id)
+)\\ {|Consumer_addevent|})
+-- Entering Port Section of t_block_process
+-- There are operations
+[|
+{|Consumer_op.n.id.p |
+n: nat, p in set {id^([mk_token("Port1")])}|}
+union
+{|Consumer_op.n.p.id |
+n: nat, p in set {id^([mk_token("Port1")])}|}
+|]
+(-- d_port_t_block_process started with NMain::ProducerConsumer::Consumer.Port1
+(port_Port1(id^([mk_token("Port1")])))[[Port1_int_op <- Consumer_op]]
+-- d_port_t_block_process finished with NMain::ProducerConsumer::Consumer.Port1
+)
+)\\ (
+{|Consumer_op.n.id.p |
+n: nat, p in set {id^([mk_token("Port1")])}|}
+union
+{|Consumer_op.n.p.id |
+n: nat, p in set {id^([mk_token("Port1")])}|}
+)
+-- t_block_process finished with NMain::ProducerConsumer::Consumer
+-- t_simple_block finished with NMain::ProducerConsumer::Consumer
+-- t_block finished with NMain::ProducerConsumer::Consumer
+-- t_block started with NMain::ProducerConsumer::Item
+-- t_simple_block started with NMain::ProducerConsumer::Item
+-- t_block_types started with NMain::ProducerConsumer::Item
+-- t_block started with NMain::ProducerConsumer::Producer
+-- t_simple_block started with NMain::ProducerConsumer::Producer
+-- t_block_types started with NMain::ProducerConsumer::Producer
+values
+-- t_block_signal_type started with NMain::ProducerConsumer::Producer
+Producer_S = {}
+-- t_block_signal_type finished with NMain::ProducerConsumer::Producer
+-- t_block_input_type started with NMain::ProducerConsumer::Producer
+Producer_I = {mk_token("foo2_I")}
+-- t_block_input_type finished with NMain::ProducerConsumer::Producer
+-- t_block_output_type started with NMain::ProducerConsumer::Producer
+Producer_O = {mk_token("foo2_O")}
+-- t_block_output_type finished with NMain::ProducerConsumer::Producer
+Producer_OPS = Producer_I union Producer_O
+-- t_block_types finished with NMain::ProducerConsumer::Producer
+-- t_block_channels started with NMain::ProducerConsumer::Producer
+channels
+    Producer_op: nat*ID*ID*OPS
+    Producer_sig: nat*ID*ID*S
+    Producer_addevent: nat*ID*ID*MSG
+-- t_block_channels finished with NMain::ProducerConsumer::Producer
+-- t_port started with NMain::ProducerConsumer::Producer.Port1
+-- t_port_types started with NMain::ProducerConsumer::Producer.Port1
+-- t_port finished with NMain::ProducerConsumer::Producer.Port1
+-- t_block_process started with NMain::ProducerConsumer::Producer
+-- t_block_simple_process started with NMain::ProducerConsumer::Producer
+process simple_Producer = val id: ID @ begin
+    -- t_block_state started with NMain::ProducerConsumer::Producer
+    state
+        benabled: Bag := empty_bag
+    -- t_block_state finished with NMain::ProducerConsumer::Producer
+    actions
+    -- t_block_state_action started with NMain::ProducerConsumer::Producer
+    Producer_state = Skip
+    -- t_block_state_action finished with NMain::ProducerConsumer::Producer
+    -- t_block_requests_action started with NMain::ProducerConsumer::Producer
+    Producer_requests = mu X @ (
+        Producer_op?n?o!id?x:(x.$id in set Producer_I) -> (
+            -- t_block_requests_action1 started with NMain::ProducerConsumer::Producer.foo2
+            [x.$id = mk_token("foo2_I")]&
+                Producer_addevent!n!o!id!x -> Skip;
+                benabled := bunion(benabled, {mk_token("foo2_O")|->1}); X
+            -- t_block_requests_action1 finished with NMain::ProducerConsumer::Producer.foo2
+        )
+        []
+        Producer_op?n?o!id?x:(in_bag(x.$id,benabled)) -> (
+            -- t_block_requests_action1 started with NMain::ProducerConsumer::Producer.foo2
+            [x.$id = mk_token("foo2_O")]&
+                benabled := bdiff(benabled,{x.$id|->1}); X
+            -- t_block_requests_action1 finished with NMain::ProducerConsumer::Producer.foo2
+        )
+        []
+        Producer_sig?n?o!id?x:(x.$id in set Producer_S) -> 
+            Producer_addevent!n!o!id!x -> X
+    )
+    -- t_block_requests_action finished with NMain::ProducerConsumer::Producer
+    @ 
+    Producer_state
+    [||{}|{benabled}||]
+    Producer_requests
+end
+-- t_block_simple_process finished with NMain::ProducerConsumer::Producer
+
+
+process internal_Buffer = val id: ID @ begin
+values
+    -- TBC id for topregions uses different algorithm and may not match!
+    topregions = {([mk_token("TopLevelRegion")])}
+-- t_element_actions started with NMain::ProducerConsumer::Buffer.Buffer
+-- t_state started with NMain::ProducerConsumer::Buffer.Buffer::empty
+actions
+    -- t_enter_state started with NMain::ProducerConsumer::Buffer.Buffer::empty
+    off_empty = enter?o!([mk_token("empty")]) ->
+        setstate!([mk_token("empty")])!([mk_token("empty")])!true -> (
+        -- t_enter_parent started with NMain::ProducerConsumer::Buffer.Buffer::empty
+        Skip
+        -- t_enter_parent finished with NMain::ProducerConsumer::Buffer.Buffer::empty
+        ; 
+        -- t_action started with NMain::ProducerConsumer::Buffer.Buffer::empty
+        -- t_statecopy started with NMain::ProducerConsumer::Buffer.Buffer::empty
+        (dcl b:seq of ID@
+        -- t_readstate started with NMain::ProducerConsumer::Buffer.Buffer::empty
+        (Buffer_get_b!([mk_token("empty")])!id?x -> b := x)
+        -- t_readstate finished with NMain::ProducerConsumer::Buffer.Buffer::empty
+        -- t_statecopy finished with NMain::ProducerConsumer::Buffer.Buffer::empty
+        ;
+        -- Implementation of rename_parameters and t_simple_action deferred awaiting definition and clarification respectively for rules
+        -- rename_parameters@(t_simple_action(a,b,n,trs))
+        Skip;
+        -- t_stateupdate started with NMain::ProducerConsumer::Buffer.Buffer::empty
+        -- d_attribute_t_stateupdate started with NMain::ProducerConsumer::Buffer.b
+        Buffer_set_b.([mk_token("")]).id!b -> Skip)
+        -- d_attribute_t_stateupdate finished with NMain::ProducerConsumer::Buffer.b
+        -- t_stateupdate finished with NMain::ProducerConsumer::Buffer.Buffer::empty
+
+        -- t_action finished with NMain::ProducerConsumer::Buffer.Buffer::empty
+        ;
+        entered!o!([mk_token("empty")]) -> Skip; 
+        -- AtomicStates::t_enter_children started with NMain::ProducerConsumer::Buffer.Buffer::empty
+        Skip
+        -- AtomicStates::t_enter_children finished with NMain::ProducerConsumer::Buffer.Buffer::empty
+
+    ); on_empty
+    -- t_enter_state finished with NMain::ProducerConsumer::Buffer.Buffer::empty
+
+    -- t_exit_state started with NMain::ProducerConsumer::Buffer.Buffer::empty
+    on_empty = (
+    (
+    -- t_actions started with NMain::ProducerConsumer::Buffer.Buffer::empty
+    Skip
+    -- t_actions finished with NMain::ProducerConsumer::Buffer.Buffer::empty
+    ;c_empty)
+    |||
+    a_empty
+    )/_\exit?o!([mk_token("empty")]) ->setstate!([mk_token("empty")])!([mk_token("empty")])!false -> (
+    -- AtomicStates::t_exit_children started with NMain::ProducerConsumer::Buffer.Buffer::empty
+    Skip
+    -- AtomicStates::t_exit_children finished with NMain::ProducerConsumer::Buffer.Buffer::empty
+    ;
+    -- t_actions started with NMain::ProducerConsumer::Buffer.Buffer::empty
+    Skip
+    -- t_actions finished with NMain::ProducerConsumer::Buffer.Buffer::empty
+    ;
+    exited!o!([mk_token("empty")]) -> Skip
+    ); off_empty
+    -- t_exit_state finished with NMain::ProducerConsumer::Buffer.Buffer::empty
+
+    -- AtomicStates::t_process_event started with NMain::ProducerConsumer::Buffer.Buffer::emp
+
+    a_empty = mu X @ (
+    Buffer_inevent!([mk_token("empty")])?e -> (-- t_transition_offers started with NMain::ProducerConsumer::Buffer.Buffer::empty
+    -- t_transition_offers2 started with NMain::ProducerConsumer::Buffer.Buffer::empty
+    let ts = {([mk_token("CMLNameForTransitionWithIde21aa631283c427bab7a6ff537691a1d")])}
+    in (
+    dcl i: nat @ i := 0; (
+    (||| t in set ts @ [{}] Buffer_inevent!t!e -> enabled!t?b -> Skip)[|{}|{|enabled|}|{i}|]
+    (for all t in set ts do
+    enabled?x?y -> (if y = true then i := i+1 else Skip)
+    )
+    );(||| j in set {1,...,i-1} @ [{}] cancel!([mk_token("empty")])?x -> Skip);(
+    if i > 0
+    then Buffer_consumed!([mk_token("empty")])!true -> Skip
+    else (
+    if -- t_triggers started with NMain::ProducerConsumer::Buffer.Buffer::empty
+    false
+    -- t_triggers finished with NMain::ProducerConsumer::Buffer.Buffer::empty
+    then Buffer_consumed!([mk_token("empty")])!<defer> -> Skip
+    else Buffer_consumed!([mk_token("empty")])!false -> Skip
+    )
+    )
+    ))
+    -- t_transition_offers2 finished with NMain::ProducerConsumer::Buffer.Buffer::empty
+    -- t_transition_offers finished with NMain::ProducerConsumer::Buffer.Buffer::empty
+    ; X )
+    -- AtomicStates::t_process_event finished with NMain::ProducerConsumer::Buffer.Buffer::empty
+
+    -- AtomicStates::t_completion_transitions started with NMain::ProducerConsumer::Buffer.Buffer::empty
+    c_empty = 
+        let cts = {
+            }
+        in (||| cti: cts @ [{}] mu X @ (completion!cti -> X))
+    -- AtomicStates::t_completion_transitions finished with NMain::ProducerConsumer::Buffer.Buffer::empty
+
+    -- t_status started with NMain::ProducerConsumer::Buffer.Buffer::empty
+    in_empty = (dcl b: bool := false @
+    mu X @ (
+    instate?x!([mk_token("empty")])!b -> X
+    []
+    setstate?x!([mk_token("empty")])?y -> b:=y; X
+    )
+    )
+    -- t_status finished with NMain::ProducerConsumer::Buffer.Buffer::empty
+
+    state_empty = (
+        in_empty
+        [|{|instate.([mk_token("empty")]).([mk_token("empty")]),setstate|}|]
+        off_empty
+    )\\{|instate.([mk_token("empty")]).([mk_token("empty")]),setstate|}
+-- t_state finished with NMain::ProducerConsumer::Buffer.Buffer::empty
+-- t_state started with NMain::ProducerConsumer::Buffer.Buffer::full
+actions
+    -- t_enter_state started with NMain::ProducerConsumer::Buffer.Buffer::full
+    off_full = enter?o!([mk_token("full")]) ->
+        setstate!([mk_token("full")])!([mk_token("full")])!true -> (
+        -- t_enter_parent started with NMain::ProducerConsumer::Buffer.Buffer::full
+        Skip
+        -- t_enter_parent finished with NMain::ProducerConsumer::Buffer.Buffer::full
+        ; 
+        -- t_action started with NMain::ProducerConsumer::Buffer.Buffer::full
+        -- t_statecopy started with NMain::ProducerConsumer::Buffer.Buffer::full
+        (dcl b:ID@
+        -- t_readstate started with NMain::ProducerConsumer::Buffer.Buffer::full
+        (Buffer_get_b.([mk_token("full")]).id?x -> b := x)
+        -- t_readstate finished with NMain::ProducerConsumer::Buffer.Buffer::full
+        -- t_statecopy finished with NMain::ProducerConsumer::Buffer.Buffer::full
+        ;
+        -- Implementation of rename_parameters and t_simple_action deferred awaiting definition and clarification respectively for rules
+        -- rename_parameters@(t_simple_action(a,b,n,trs))
+        Skip;
+        -- t_stateupdate started with NMain::ProducerConsumer::Buffer.Buffer::full
+        -- d_attribute_t_stateupdate started with NMain::ProducerConsumer::Buffer.b
+        Buffer_set_b.([mk_token("")]).id!b -> Skip)
+        -- d_attribute_t_stateupdate finished with NMain::ProducerConsumer::Buffer.b
+        -- t_stateupdate finished with NMain::ProducerConsumer::Buffer.Buffer::full
+
+        -- t_action finished with NMain::ProducerConsumer::Buffer.Buffer::full
+        ;
+        entered!o!([mk_token("full")]) -> Skip; 
+        -- AtomicStates::t_enter_children started with NMain::ProducerConsumer::Buffer.Buffer::full
+        Skip
+        -- AtomicStates::t_enter_children finished with NMain::ProducerConsumer::Buffer.Buffer::full
+
+    ); on_full
+    -- t_enter_state finished with NMain::ProducerConsumer::Buffer.Buffer::full
+
+    -- t_exit_state started with NMain::ProducerConsumer::Buffer.Buffer::full
+    on_full = (
+    (
+    -- t_actions started with NMain::ProducerConsumer::Buffer.Buffer::full
+    Skip
+    -- t_actions finished with NMain::ProducerConsumer::Buffer.Buffer::full
+    ;c_full)
+    |||
+    a_full
+    )/_\exit?o!([mk_token("full")]) ->setstate!([mk_token("full")])!([mk_token("full")])!false -> (
+    -- AtomicStates::t_exit_children started with NMain::ProducerConsumer::Buffer.Buffer::full
+    Skip
+    -- AtomicStates::t_exit_children finished with NMain::ProducerConsumer::Buffer.Buffer::full
+    ;
+    -- t_actions started with NMain::ProducerConsumer::Buffer.Buffer::full
+    Skip
+    -- t_actions finished with NMain::ProducerConsumer::Buffer.Buffer::full
+    ;
+    exited!o!([mk_token("full")]) -> Skip
+    ); off_full
+    -- t_exit_state finished with NMain::ProducerConsumer::Buffer.Buffer::full
+
+    -- AtomicStates::t_process_event started with NMain::ProducerConsumer::Buffer.Buffer::full
+    a_full = mu X @ (
+    Buffer_inevent!([mk_token("full")])?e -> -- t_transition_offers started with NMain::ProducerConsumer::Buffer.Buffer::full
+    -- t_transition_offers2 started with NMain::ProducerConsumer::Buffer.Buffer::full
+    let ts = {([mk_token("CMLNameForTransitionWithId649c5c7a032d401e8135d2d5e8da78fc")])}
+    in (
+    dcl i: nat @ i := 0; (
+    (||| t in set ts @ [{}] Buffer_inevent!t!e -> enabled!t?b -> Skip)[|{}|{|enabled|}|{i}|]
+    (for all t in set ts do
+    enabled?x?y -> (if y = true then i := i+1 else Skip)
+    )
+    );(||| j in set {1,...,i-1} @ [{}] cancel!([mk_token("full")])?x -> Skip);(
+    if i > 0
+    then Buffer_consumed!([mk_token("full")])!true -> Skip
+    else (
+    if -- t_triggers started with NMain::ProducerConsumer::Buffer.Buffer::full
+    false
+    -- t_triggers finished with NMain::ProducerConsumer::Buffer.Buffer::full
+    then Buffer_consumed!([mk_token("full")])!<defer> -> Skip
+    else Buffer_consumed!([mk_token("full")])!false -> Skip
+    )
+    )
+    )
+    -- t_transition_offers2 finished with NMain::ProducerConsumer::Buffer.Buffer::full
+    -- t_transition_offers finished with NMain::ProducerConsumer::Buffer.Buffer::full
+    ; X )
+    -- AtomicStates::t_process_event finished with NMain::ProducerConsumer::Buffer.Buffer::full
+
+    -- AtomicStates::t_completion_transitions started with NMain::ProducerConsumer::Buffer.Buffer::full
+    c_full = 
+        let cts = {
+            }
+        in (||| cti: cts @ [{}] mu X @ (completion!cti -> X))
+    -- AtomicStates::t_completion_transitions finished with NMain::ProducerConsumer::Buffer.Buffer::full
+
+    -- t_status started with NMain::ProducerConsumer::Buffer.Buffer::full
+    in_full = (dcl b: bool := false @
+    mu X @ (
+    instate?x!([mk_token("full")])!b -> X
+    []
+    setstate?x!([mk_token("full")])?y -> b:=y; X
+    )
+    )
+    -- t_status finished with NMain::ProducerConsumer::Buffer.Buffer::full
+
+    state_full = (
+        in_full
+        [|{|instate.([mk_token("full")]).([mk_token("full")]),setstate|}|]
+        off_full
+    )\\{|instate.([mk_token("full")]).([mk_token("full")]),setstate|}
+-- t_state finished with NMain::ProducerConsumer::Buffer.Buffer::full
+-- t_state started with NMain::ProducerConsumer::Buffer.Buffer::mid
+actions
+    -- t_enter_state started with NMain::ProducerConsumer::Buffer.Buffer::mid
+    off_mid = enter?o!([mk_token("mid")]) ->
+        setstate!([mk_token("mid")])!([mk_token("mid")])!true -> (
+        -- t_enter_parent started with NMain::ProducerConsumer::Buffer.Buffer::mid
+        Skip
+        -- t_enter_parent finished with NMain::ProducerConsumer::Buffer.Buffer::mid
+        ; 
+        -- t_action started with NMain::ProducerConsumer::Buffer.Buffer::mid
+        -- t_statecopy started with NMain::ProducerConsumer::Buffer.Buffer::mid
+        (dcl b:ID@
+        -- t_readstate started with NMain::ProducerConsumer::Buffer.Buffer::mid
+        (Buffer_get_b.([mk_token("mid")]).id?x -> b := x)
+        -- t_readstate finished with NMain::ProducerConsumer::Buffer.Buffer::mid
+        -- t_statecopy finished with NMain::ProducerConsumer::Buffer.Buffer::mid
+        ;
+        -- Implementation of rename_parameters and t_simple_action deferred awaiting definition and clarification respectively for rules
+        -- rename_parameters@(t_simple_action(a,b,n,trs))
+        Skip;
+        -- t_stateupdate started with NMain::ProducerConsumer::Buffer.Buffer::mid
+        -- d_attribute_t_stateupdate started with NMain::ProducerConsumer::Buffer.b
+        Buffer_set_b.([mk_token("mid")]).id!b -> Skip)
+        -- d_attribute_t_stateupdate finished with NMain::ProducerConsumer::Buffer.b
+        -- t_stateupdate finished with NMain::ProducerConsumer::Buffer.Buffer::mid
+
+        -- t_action finished with NMain::ProducerConsumer::Buffer.Buffer::mid
+        ;
+        entered!o!([mk_token("mid")]) -> Skip; 
+        -- AtomicStates::t_enter_children started with NMain::ProducerConsumer::Buffer.Buffer::mid
+        Skip
+        -- AtomicStates::t_enter_children finished with NMain::ProducerConsumer::Buffer.Buffer::mid
+
+    ); on_mid
+    -- t_enter_state finished with NMain::ProducerConsumer::Buffer.Buffer::mid
+
+    -- t_exit_state started with NMain::ProducerConsumer::Buffer.Buffer::mid
+    on_mid = (
+    (
+    -- t_actions started with NMain::ProducerConsumer::Buffer.Buffer::mid
+    Skip
+    -- t_actions finished with NMain::ProducerConsumer::Buffer.Buffer::mid
+    ;c_mid)
+    |||
+    a_mid
+    )/_\exit?o!([mk_token("mid")]) ->setstate!([mk_token("mid")])!([mk_token("mid")])!false -> (
+    -- AtomicStates::t_exit_children started with NMain::ProducerConsumer::Buffer.Buffer::mid
+    Skip
+    -- AtomicStates::t_exit_children finished with NMain::ProducerConsumer::Buffer.Buffer::mid
+    ;
+    -- t_actions started with NMain::ProducerConsumer::Buffer.Buffer::mid
+    Skip
+    -- t_actions finished with NMain::ProducerConsumer::Buffer.Buffer::mid
+    ;
+    exited!o!([mk_token("mid")]) -> Skip
+    ); off_mid
+    -- t_exit_state finished with NMain::ProducerConsumer::Buffer.Buffer::mid
+
+    -- AtomicStates::t_process_event started with NMain::ProducerConsumer::Buffer.Buffer::mid
+    a_mid = mu X @ (
+    Buffer_inevent!([mk_token("mid")])?e -> -- t_transition_offers started with NMain::ProducerConsumer::Buffer.Buffer::mid
+    -- t_transition_offers2 started with NMain::ProducerConsumer::Buffer.Buffer::mid
+    let ts = {([mk_token("CMLNameForTransitionWithIdefabbfa5824b46ab837b4b80b2c53756")]),([mk_token("CMLNameForTransitionWithId1f55d7374dbd4fdcb7db8c668f0dfcfd")])}
+    in (
+    dcl i: nat @ i := 0; (
+    (||| t in set ts @ [{}] Buffer_inevent!t!e -> enabled!t?b -> Skip)[|{}|{|enabled|}|{i}|]
+    (for all t in set ts do
+    enabled?x?y -> (if y = true then i := i+1 else Skip)
+    )
+    );(||| j in set {1,...,i-1} @ [{}] cancel!([mk_token("mid")])?x -> Skip);(
+    if i > 0
+    then Buffer_consumed!([mk_token("mid")])!true -> Skip
+    else (
+    if -- t_triggers started with NMain::ProducerConsumer::Buffer.Buffer::mid
+    false
+    -- t_triggers finished with NMain::ProducerConsumer::Buffer.Buffer::mid
+    then Buffer_consumed!([mk_token("mid")])!<defer> -> Skip
+    else Buffer_consumed!([mk_token("mid")])!false -> Skip
+    )
+    )
+    )
+    -- t_transition_offers2 finished with NMain::ProducerConsumer::Buffer.Buffer::mid
+    -- t_transition_offers finished with NMain::ProducerConsumer::Buffer.Buffer::mid
+    ; X )
+    -- AtomicStates::t_process_event finished with NMain::ProducerConsumer::Buffer.Buffer::mid
+
+    -- AtomicStates::t_completion_transitions started with NMain::ProducerConsumer::Buffer.Buffer::mid
+    c_mid = 
+        let cts = {
+            }
+        in (||| cti: cts @ [{}] mu X @ (completion!cti -> X))
+    -- AtomicStates::t_completion_transitions finished with NMain::ProducerConsumer::Buffer.Buffer::mid
+
+    -- t_status started with NMain::ProducerConsumer::Buffer.Buffer::mid
+    in_mid = (dcl b: bool := false @
+    mu X @ (
+    instate?x!([mk_token("mid")])!b -> X
+    []
+    setstate?x!([mk_token("mid")])?y -> b:=y; X
+    )
+    )
+    -- t_status finished with NMain::ProducerConsumer::Buffer.Buffer::mid
+
+    state_mid = (
+        in_mid
+        [|{|instate.([mk_token("mid")]).([mk_token("mid")]),setstate|}|]
+        off_mid
+    )\\{|instate.([mk_token("mid")]).([mk_token("mid")]),setstate|}
+-- t_state finished with NMain::ProducerConsumer::Buffer.Buffer::mid
+-- t_region started with NMain::ProducerConsumer::Buffer.Buffer::TopLevelRegion
+actions
+    -- Regions::t_enter_region started with NMain::ProducerConsumer::Buffer.Buffer::TopLevelRegion
+    off_TopLevelRegion = enter?o!([mk_token("TopLevelRegion")]) -> setstate!([mk_token("TopLevelRegion")])!([mk_token("TopLevelRegion")])!true -> (
+    instate!([mk_token("TopLevelRegion")])!([mk_token("TopRegionStateMachine")])?x -> (
+    if x = false then enter!([mk_token("TopLevelRegion")])!([mk_token("TopRegionStateMachine")]) ->
+    entered!([mk_token("TopLevelRegion")])!([mk_token("TopRegionStateMachine")]) -> Skip
+    else Skip
+    ); entered!o!([mk_token("TopLevelRegion")]) -> Skip; 
+    -- SequentialStates::t_enter_children started with NMain::ProducerConsumer::Buffer.Buffer::TopLevelRegion
+    (dcl b: bool := false @
+    (for all x in set { empty,full,mid} do
+    instate!([mk_token("TopLevelRegion")])!x?y -> b := b or y
+    );
+    (if b = false
+    then (-- t_initial_pseudostate started on parent vertex NMain::ProducerConsumer::Buffer.Buffer::TopLevelRegion
+    -- t_init_to_vertex started with [Initial - empty]
+    -- t_init_to_state started with [Initial - empty]
+    -- t_actions started with [Initial - empty]
+    Skip
+    -- t_actions finished with [Initial - empty]
+    ;enter!([mk_token("TopLevelRegion")])!([mk_token("empty")]) ->
+        entered!([mk_token("TopLevelRegion")])!([mk_token("empty")]) -> Skip
+    -- t_init_to_state finished with [Initial - empty]
+    -- t_init_to_vertex finished with [Initial - empty]
+    -- t_initial_pseudostate finished on parent vertex NMain::ProducerConsumer::Buffer.Buffer::TopLevelRegion
+    )else Skip)
+    )
+    -- SequentialStates::t_enter_children finished with NMain::ProducerConsumer::Buffer.Buffer::TopLevelRegion
+
+    ); on_TopLevelRegion
+    -- Regions::t_enter_region finished with NMain::ProducerConsumer::Buffer.Buffer::TopLevelRegion
+    -- Regions::t_exit_region started with NMain::ProducerConsumer::Buffer.Buffer::TopLevelRegion
+    on_TopLevelRegion = a_TopLevelRegion/_\ exit?o!([mk_token("TopLevelRegion")]) -> 
+        setstate!([mk_token("TopLevelRegion")])!([mk_token("TopLevelRegion")])!false -> (
+            -- AtomicStates::t_exit_children started with NMain::ProducerConsumer::Buffer.Buffer::TopLevelRegion
+            Skip
+            -- AtomicStates::t_exit_children finished with NMain::ProducerConsumer::Buffer.Buffer::TopLevelRegion
+            ;exited!o!([mk_token("TopLevelRegion")]) -> Skip;
+            instate!([mk_token("TopLevelRegion")])!([mk_token("TopRegionStateMachine")])?x -> (
+                if x = true then exit!([mk_token("TopLevelRegion")])!([mk_token("TopRegionStateMachine")]) ->
+                    exited!([mk_token("TopLevelRegion")])!([mk_token("TopRegionStateMachine")]) -> Skip
+                else Skip
+            )
+        ); off_TopLevelRegion
+    -- Regions::t_exit_region finished with NMain::ProducerConsumer::Buffer.Buffer::TopLevelRegion
+    -- Regions::t_process_event_region started with NMain::ProducerConsumer::Buffer.Buffer::TopLevelRegion
+    a_TopLevelRegion = (let ss = {} in
+    Buffer_inevent!([mk_token("TopLevelRegion")])?e -> Buffer_inevent?x:(x in set ss)!e ->
+    Buffer_consumed.x?y -> Buffer_consumed!([mk_token("TopLevelRegion")])!y -> Skip
+    ); a_TopLevelRegion
+    -- Regions::t_process_event_region finished with NMain::ProducerConsumer::Buffer.Buffer::TopLevelRegion
+    -- t_status started with NMain::ProducerConsumer::Buffer.Buffer::TopLevelRegion
+    in_TopLevelRegion = (dcl b: bool := false @
+    mu X @ (
+    instate?x!([mk_token("TopLevelRegion")])!b -> X
+    []
+    setstate?x!([mk_token("TopLevelRegion")])?y -> b:=y; X
+    )
+    )
+    -- t_status finished with NMain::ProducerConsumer::Buffer.Buffer::TopLevelRegion
+    region_TopLevelRegion = 
+        (in_TopLevelRegion[|{|instate.([mk_token("TopLevelRegion")]).([mk_token("TopLevelRegion")]), setstate|}|]off_TopLevelRegion)
+        \\{|instate.([mk_token("TopLevelRegion")]).([mk_token("TopLevelRegion")]),setstate|}
+-- t_region finished with NMain::ProducerConsumer::Buffer.Buffer::TopLevelRegion
+-- t_transition started with add[empty - mid]
+actions
+
+trans_CMLNameForTransitionWithIde21aa631283c427bab7a6ff537691a1d = (
+    Buffer_inevent!([mk_token("CMLNameForTransitionWithIde21aa631283c427bab7a6ff537691a1d")])?e -> (
+        if false then
+            (dcl b:ID @ (Buffer_get_b.([mk_token("")]).id?x -> b := x); (
+                if true then (
+                    enabled!([mk_token("CMLNameForTransitionWithIde21aa631283c427bab7a6ff537691a1d")])!true -> 
+                    let ss = {([mk_token("empty")]), ([mk_token("full")]), ([mk_token("mid")])} in (
+                        fire -> exit!([mk_token("CMLNameForTransitionWithIde21aa631283c427bab7a6ff537691a1d")])?x:(x in set ss) -> 
+                        exited!([mk_token("CMLNameForTransitionWithIde21aa631283c427bab7a6ff537691a1d")])!x ->
+                        (dcl b:ID@
+                            (Buffer_get_b.([mk_token("CMLNameForTransitionWithIde21aa631283c427bab7a6ff537691a1d")]).id?x -> b := x);
+                            Skip; Buffer_set_b.([mk_token("CMLNameForTransitionWithIde21aa631283c427bab7a6ff537691a1d")]).id!b -> Skip
+                        )
+                        -- t_actions finished with add[empty - mid]
+                        ;enter!([mk_token("CMLNameForTransitionWithIde21aa631283c427bab7a6ff537691a1d")])!([mk_token("mid")]) ->
+                        entered!([mk_token("CMLNameForTransitionWithIde21aa631283c427bab7a6ff537691a1d")])!([mk_token("mid")]) -> fired -> Skip
+                    []
+                    cancel?x!([mk_token("CMLNameForTransitionWithIde21aa631283c427bab7a6ff537691a1d")]) -> fire -> fired -> Skip
+                )
+            -- t_to_state finished with add[empty - mid]
+            -- t_to_vertex finished with add[empty - mid]
+            )
+            else enabled!([mk_token("CMLNameForTransitionWithIde21aa631283c427bab7a6ff537691a1d")])!false -> fire -> fired -> Skip
+        ))
+        else enabled!([mk_token("CMLNameForTransitionWithIde21aa631283c427bab7a6ff537691a1d")])!false -> fire -> fired -> Skip
+    )
+    []
+    fire -> fired -> Skip
+); trans_CMLNameForTransitionWithIde21aa631283c427bab7a6ff537691a1d
+-- t_from_state finished with add[empty - mid]
+-- t_transition finished with add[empty - mid]
+-- t_transition started with rem[full - mid]
+actions
+-- t_from_state started with rem[full - mid]
+trans_CMLNameForTransitionWithId649c5c7a032d401e8135d2d5e8da78fc = (
+    Buffer_inevent!([mk_token("CMLNameForTransitionWithId649c5c7a032d401e8135d2d5e8da78fc")])?e -> (
+        if  -- t_triggers started with rem[full - mid]
+        false
+        -- t_triggers finished with rem[full - mid]
+
+        then -- t_statecopy started with rem[full - mid]
+        (dcl b:ID@
+        -- t_readstate started with rem[full - mid]
+        (Buffer_get_b.([mk_token("")]).id?x -> b := x)
+        -- t_readstate finished with rem[full - mid]
+        -- t_statecopy finished with rem[full - mid]
+        ; (
+            if -- t_guard started with rem[full - mid]
+            true
+            -- t_guard finished with rem[full - mid]
+            then (-- t_to_vertex started with rem[full - mid] t = mid
+            -- t_to_state started with rem[full - mid]
+            enabled!([mk_token("CMLNameForTransitionWithId649c5c7a032d401e8135d2d5e8da78fc")])!true -> 
+                let ss = {([mk_token("empty")]), ([mk_token("full")]), ([mk_token("mid")])}
+                in (
+                    fire -> exit!([mk_token("CMLNameForTransitionWithId649c5c7a032d401e8135d2d5e8da78fc")])?x:(x in set ss) -> 
+                        exited!([mk_token("CMLNameForTransitionWithId649c5c7a032d401e8135d2d5e8da78fc")])!x ->
+                        -- t_actions started with rem[full - mid]
+                        -- t_statecopy started with rem[full - mid]
+                        (dcl b:ID@
+                        -- t_readstate started with rem[full - mid]
+                        (Buffer_get_b.([mk_token("CMLNameForTransitionWithId649c5c7a032d401e8135d2d5e8da78fc")]).id?x -> b := x)
+                        -- t_readstate finished with rem[full - mid]
+                        -- t_statecopy finished with rem[full - mid]
+                        ;
+                        -- t_actions TBC - renamed actions replaced with Skip
+                        Skip;
+                        -- t_stateupdate started with rem[full - mid]
+                        -- d_attribute_t_stateupdate started with NMain::ProducerConsumer::Buffer.b
+                        Buffer_set_b.([mk_token("CMLNameForTransitionWithId649c5c7a032d401e8135d2d5e8da78fc")]).id!b -> Skip
+                        -- d_attribute_t_stateupdate finished with NMain::ProducerConsumer::Buffer.b
+                        -- t_stateupdate finished with rem[full - mid]
+                        )
+                        -- t_actions finished with rem[full - mid]
+                        ;enter!([mk_token("CMLNameForTransitionWithId649c5c7a032d401e8135d2d5e8da78fc")])!([mk_token("mid")]) ->
+                        entered!([mk_token("CMLNameForTransitionWithId649c5c7a032d401e8135d2d5e8da78fc")])!([mk_token("mid")]) -> fired -> Skip
+                    []
+                    cancel?x!([mk_token("CMLNameForTransitionWithId649c5c7a032d401e8135d2d5e8da78fc")]) -> fire -> fired -> Skip
+                )
+            -- t_to_state finished with rem[full - mid]
+            -- t_to_vertex finished with rem[full - mid]
+            )
+            else enabled!([mk_token("CMLNameForTransitionWithId649c5c7a032d401e8135d2d5e8da78fc")])!false -> fire -> fired -> Skip
+        ))
+        else enabled!([mk_token("CMLNameForTransitionWithId649c5c7a032d401e8135d2d5e8da78fc")])!false -> fire -> fired -> Skip
+    )
+    []
+    fire -> fired -> Skip
+); trans_CMLNameForTransitionWithId649c5c7a032d401e8135d2d5e8da78fc
+-- t_from_state finished with rem[full - mid]
+-- t_transition finished with rem[full - mid]
+-- t_transition started with add[mid - full]
+actions
+-- t_from_state started with add[mid - full]
+trans_CMLNameForTransitionWithIdefabbfa5824b46ab837b4b80b2c53756 = (
+    Buffer_inevent!([mk_token("CMLNameForTransitionWithIdefabbfa5824b46ab837b4b80b2c53756")])?e -> (
+        if  -- t_triggers started with add[mid - full]
+        false
+        -- t_triggers finished with add[mid - full]
+
+        then -- t_statecopy started with add[mid - full]
+        (dcl b:ID@
+        -- t_readstate started with add[mid - full]
+        (Buffer_get_b.([mk_token("")]).id?x -> b := x)
+        -- t_readstate finished with add[mid - full]
+        -- t_statecopy finished with add[mid - full]
+        ; (
+            if -- t_guard started with add[mid - full]
+            size(b)=MAX-1
+            -- t_guard finished with add[mid - full]
+            then (-- t_to_vertex started with add[mid - full] t = full
+            -- t_to_state started with add[mid - full]
+            enabled!([mk_token("CMLNameForTransitionWithIdefabbfa5824b46ab837b4b80b2c53756")])!true -> 
+                let ss = {([mk_token("empty")]), ([mk_token("full")]), ([mk_token("mid")])}
+                in (
+                    fire -> exit!([mk_token("CMLNameForTransitionWithIdefabbfa5824b46ab837b4b80b2c53756")])?x:(x in set ss) -> 
+                        exited!([mk_token("CMLNameForTransitionWithIdefabbfa5824b46ab837b4b80b2c53756")])!x ->
+                        -- t_actions started with add[mid - full]
+                        -- t_statecopy started with add[mid - full]
+                        (dcl b:ID@
+                        -- t_readstate started with add[mid - full]
+                        (Buffer_get_b.([mk_token("CMLNameForTransitionWithIdefabbfa5824b46ab837b4b80b2c53756")]).id?x -> b := x)
+                        -- t_readstate finished with add[mid - full]
+                        -- t_statecopy finished with add[mid - full]
+                        ;
+                        -- t_actions TBC - renamed actions replaced with Skip
+                        Skip;
+                        -- t_stateupdate started with add[mid - full]
+                        -- d_attribute_t_stateupdate started with NMain::ProducerConsumer::Buffer.b
+                        Buffer_set_b.([mk_token("CMLNameForTransitionWithIdefabbfa5824b46ab837b4b80b2c53756")]).id!b -> Skip
+                        -- d_attribute_t_stateupdate finished with NMain::ProducerConsumer::Buffer.b
+                        -- t_stateupdate finished with add[mid - full]
+                        )
+                        -- t_actions finished with add[mid - full]
+                        ;enter!([mk_token("CMLNameForTransitionWithIdefabbfa5824b46ab837b4b80b2c53756")])!([mk_token("full")]) ->
+                        entered!([mk_token("CMLNameForTransitionWithIdefabbfa5824b46ab837b4b80b2c53756")])!([mk_token("full")]) -> fired -> Skip
+                    []
+                    cancel?x!([mk_token("CMLNameForTransitionWithIdefabbfa5824b46ab837b4b80b2c53756")]) -> fire -> fired -> Skip
+                )
+            -- t_to_state finished with add[mid - full]
+            -- t_to_vertex finished with add[mid - full]
+            )
+            else enabled!([mk_token("CMLNameForTransitionWithIdefabbfa5824b46ab837b4b80b2c53756")])!false -> fire -> fired -> Skip
+        ))
+        else enabled!([mk_token("CMLNameForTransitionWithIdefabbfa5824b46ab837b4b80b2c53756")])!false -> fire -> fired -> Skip
+    )
+    []
+    fire -> fired -> Skip
+); trans_CMLNameForTransitionWithIdefabbfa5824b46ab837b4b80b2c53756
+-- t_from_state finished with add[mid - full]
+-- t_transition finished with add[mid - full]
+-- t_transition started with rem[mid - empty]
+actions
+-- t_from_state started with rem[mid - empty]
+trans_CMLNameForTransitionWithId1f55d7374dbd4fdcb7db8c668f0dfcfd = (
+    Buffer_inevent!([mk_token("CMLNameForTransitionWithId1f55d7374dbd4fdcb7db8c668f0dfcfd")])?e -> (
+        if  -- t_triggers started with rem[mid - empty]
+        false
+        -- t_triggers finished with rem[mid - empty]
+
+        then -- t_statecopy started with rem[mid - empty]
+        (dcl b:ID@
+        -- t_readstate started with rem[mid - empty]
+        (Buffer_get_b.([mk_token("")]).id?x -> b := x)
+        -- t_readstate finished with rem[mid - empty]
+        -- t_statecopy finished with rem[mid - empty]
+        ; (
+            if -- t_guard started with rem[mid - empty]
+            size(b)=1
+            -- t_guard finished with rem[mid - empty]
+            then (-- t_to_vertex started with rem[mid - empty] t = empty
+            -- t_to_state started with rem[mid - empty]
+            enabled!([mk_token("CMLNameForTransitionWithId1f55d7374dbd4fdcb7db8c668f0dfcfd")])!true -> 
+                let ss = {([mk_token("empty")]), ([mk_token("full")]), ([mk_token("mid")])}
+                in (
+                    fire -> exit!([mk_token("CMLNameForTransitionWithId1f55d7374dbd4fdcb7db8c668f0dfcfd")])?x:(x in set ss) -> 
+                        exited!([mk_token("CMLNameForTransitionWithId1f55d7374dbd4fdcb7db8c668f0dfcfd")])!x ->
+                        -- t_actions started with rem[mid - empty]
+                        -- t_statecopy started with rem[mid - empty]
+                        (dcl b:ID@
+                        -- t_readstate started with rem[mid - empty]
+                        (Buffer_get_b.([mk_token("CMLNameForTransitionWithId1f55d7374dbd4fdcb7db8c668f0dfcfd")]).id?x -> b := x)
+                        -- t_readstate finished with rem[mid - empty]
+                        -- t_statecopy finished with rem[mid - empty]
+                        ;
+                        -- t_actions TBC - renamed actions replaced with Skip
+                        Skip;
+                        -- t_stateupdate started with rem[mid - empty]
+                        -- d_attribute_t_stateupdate started with NMain::ProducerConsumer::Buffer.b
+                        Buffer_set_b.([mk_token("CMLNameForTransitionWithId1f55d7374dbd4fdcb7db8c668f0dfcfd")]).id!b -> Skip
+                        -- d_attribute_t_stateupdate finished with NMain::ProducerConsumer::Buffer.b
+                        -- t_stateupdate finished with rem[mid - empty]
+                        )
+                        -- t_actions finished with rem[mid - empty]
+                        ;enter!([mk_token("CMLNameForTransitionWithId1f55d7374dbd4fdcb7db8c668f0dfcfd")])!([mk_token("empty")]) ->
+                        entered!([mk_token("CMLNameForTransitionWithId1f55d7374dbd4fdcb7db8c668f0dfcfd")])!([mk_token("empty")]) -> fired -> Skip
+                    []
+                    cancel?x!([mk_token("CMLNameForTransitionWithId1f55d7374dbd4fdcb7db8c668f0dfcfd")]) -> fire -> fired -> Skip
+                )
+            -- t_to_state finished with rem[mid - empty]
+            -- t_to_vertex finished with rem[mid - empty]
+            )
+            else enabled!([mk_token("CMLNameForTransitionWithId1f55d7374dbd4fdcb7db8c668f0dfcfd")])!false -> fire -> fired -> Skip
+        ))
+        else enabled!([mk_token("CMLNameForTransitionWithId1f55d7374dbd4fdcb7db8c668f0dfcfd")])!false -> fire -> fired -> Skip
+    )
+    []
+    fire -> fired -> Skip
+); trans_CMLNameForTransitionWithId1f55d7374dbd4fdcb7db8c668f0dfcfd
+-- t_from_state finished with rem[mid - empty]
+-- t_transition finished with rem[mid - empty]
+-- t_element_actions started comptransitions section with NMain::ProducerConsumer::Buffer.Buffer
+-- t_comp_transition started with [Initial - empty]
+-- t_comp_transition finished with [Initial - empty]
+-- t_element_actions finished comptransitions section with NMain::ProducerConsumer::Buffer.Buffer
+-- t_element_actions finished with NMain::ProducerConsumer::Buffer.Buffer
+actions
+    -- t_machine started with NMain::ProducerConsumer::Buffer.Buffer
+    machine_Buffer =
+        (||| r in set topregions @ [{}]
+            enter!([mk_token("Buffer")])!r ->
+            entered!([mk_token("Buffer")])!r -> Skip);
+        mu X @ (
+            Buffer_inevent!([mk_token("Buffer")])?e ->
+            (dcl aux: bool @ aux := false;
+                (
+                    (||| r in set topregions @ [{}]
+                        Buffer_inevent!r!e ->
+                        Buffer_consumed!r?y -> Skip)
+                    [|{}|{|Buffer_consumed|}|{aux}|]
+                    (for all i in set topregions do
+                        Buffer_consumed?x?y ->
+                        aux:=DL_or(aux,y)
+                    )
+                );
+                Buffer_consumed!([mk_token("Buffer")])!aux -> Skip
+            ); fire -> fired -> X
+        )
+    -- t_machine finished with NMain::ProducerConsumer::Buffer.Buffer
+
+@ -- t_internal_main_action started with NMain::ProducerConsumer::Buffer.Buffer
+-- call_alphabetised_parallel_state_machine mid
+-- define_alphabetised_parallel started 
+(machine_Buffer
+[chanset_Buffer||chanset_Buffertopregion union chanset_empty union chanset_full union chanset_mid union chanset_TopLevelRegion union chanset_CMLNameForTransitionWithIde21aa631283c427bab7a6ff537691a1d union chanset_CMLNameForTransitionWithId649c5c7a032d401e8135d2d5e8da78fc union chanset_CMLNameForTransitionWithId3aa204478f4a46b984891952a251c7b4 union chanset_CMLNameForTransitionWithIdefabbfa5824b46ab837b4b80b2c53756 union chanset_CMLNameForTransitionWithId1f55d7374dbd4fdcb7db8c668f0dfcfd]
+-- define_alphabetised_parallel started 
+(region_Buffertopregion
+[chanset_Buffertopregion||chanset_empty union chanset_full union chanset_mid union chanset_TopLevelRegion union chanset_CMLNameForTransitionWithIde21aa631283c427bab7a6ff537691a1d union chanset_CMLNameForTransitionWithId649c5c7a032d401e8135d2d5e8da78fc union chanset_CMLNameForTransitionWithId3aa204478f4a46b984891952a251c7b4 union chanset_CMLNameForTransitionWithIdefabbfa5824b46ab837b4b80b2c53756 union chanset_CMLNameForTransitionWithId1f55d7374dbd4fdcb7db8c668f0dfcfd]
+-- define_alphabetised_parallel started 
+(state_empty
+[chanset_empty||chanset_full union chanset_mid union chanset_TopLevelRegion union chanset_CMLNameForTransitionWithIde21aa631283c427bab7a6ff537691a1d union chanset_CMLNameForTransitionWithId649c5c7a032d401e8135d2d5e8da78fc union chanset_CMLNameForTransitionWithId3aa204478f4a46b984891952a251c7b4 union chanset_CMLNameForTransitionWithIdefabbfa5824b46ab837b4b80b2c53756 union chanset_CMLNameForTransitionWithId1f55d7374dbd4fdcb7db8c668f0dfcfd]
+-- define_alphabetised_parallel started 
+(state_full
+[chanset_full||chanset_mid union chanset_TopLevelRegion union chanset_CMLNameForTransitionWithIde21aa631283c427bab7a6ff537691a1d union chanset_CMLNameForTransitionWithId649c5c7a032d401e8135d2d5e8da78fc union chanset_CMLNameForTransitionWithId3aa204478f4a46b984891952a251c7b4 union chanset_CMLNameForTransitionWithIdefabbfa5824b46ab837b4b80b2c53756 union chanset_CMLNameForTransitionWithId1f55d7374dbd4fdcb7db8c668f0dfcfd]
+-- define_alphabetised_parallel started 
+(state_mid
+[chanset_mid||chanset_TopLevelRegion union chanset_CMLNameForTransitionWithIde21aa631283c427bab7a6ff537691a1d union chanset_CMLNameForTransitionWithId649c5c7a032d401e8135d2d5e8da78fc union chanset_CMLNameForTransitionWithId3aa204478f4a46b984891952a251c7b4 union chanset_CMLNameForTransitionWithIdefabbfa5824b46ab837b4b80b2c53756 union chanset_CMLNameForTransitionWithId1f55d7374dbd4fdcb7db8c668f0dfcfd]
+-- define_alphabetised_parallel started 
+(region_TopLevelRegion
+[chanset_TopLevelRegion||chanset_CMLNameForTransitionWithIde21aa631283c427bab7a6ff537691a1d union chanset_CMLNameForTransitionWithId649c5c7a032d401e8135d2d5e8da78fc union chanset_CMLNameForTransitionWithId3aa204478f4a46b984891952a251c7b4 union chanset_CMLNameForTransitionWithIdefabbfa5824b46ab837b4b80b2c53756 union chanset_CMLNameForTransitionWithId1f55d7374dbd4fdcb7db8c668f0dfcfd]
+-- define_alphabetised_parallel started 
+(trans_CMLNameForTransitionWithIde21aa631283c427bab7a6ff537691a1d
+[chanset_CMLNameForTransitionWithIde21aa631283c427bab7a6ff537691a1d||chanset_CMLNameForTransitionWithId649c5c7a032d401e8135d2d5e8da78fc union chanset_CMLNameForTransitionWithId3aa204478f4a46b984891952a251c7b4 union chanset_CMLNameForTransitionWithIdefabbfa5824b46ab837b4b80b2c53756 union chanset_CMLNameForTransitionWithId1f55d7374dbd4fdcb7db8c668f0dfcfd]
+-- define_alphabetised_parallel started 
+(trans_CMLNameForTransitionWithId649c5c7a032d401e8135d2d5e8da78fc
+[chanset_CMLNameForTransitionWithId649c5c7a032d401e8135d2d5e8da78fc||chanset_CMLNameForTransitionWithId3aa204478f4a46b984891952a251c7b4 union chanset_CMLNameForTransitionWithIdefabbfa5824b46ab837b4b80b2c53756 union chanset_CMLNameForTransitionWithId1f55d7374dbd4fdcb7db8c668f0dfcfd]
+-- define_alphabetised_parallel started 
+(trans_CMLNameForTransitionWithId3aa204478f4a46b984891952a251c7b4
+[chanset_CMLNameForTransitionWithId3aa204478f4a46b984891952a251c7b4||chanset_CMLNameForTransitionWithIdefabbfa5824b46ab837b4b80b2c53756 union chanset_CMLNameForTransitionWithId1f55d7374dbd4fdcb7db8c668f0dfcfd]
+-- define_alphabetised_parallel started 
+(trans_CMLNameForTransitionWithIdefabbfa5824b46ab837b4b80b2c53756
+[chanset_CMLNameForTransitionWithIdefabbfa5824b46ab837b4b80b2c53756||chanset_CMLNameForTransitionWithId1f55d7374dbd4fdcb7db8c668f0dfcfd]
+-- define_alphabetised_parallel started 
+trans_CMLNameForTransitionWithId1f55d7374dbd4fdcb7db8c668f0dfcfd-- define_alphabetised_parallel ended 
+)-- define_alphabetised_parallel ended 
+)-- define_alphabetised_parallel ended 
+)-- define_alphabetised_parallel ended 
+)-- define_alphabetised_parallel ended 
+)-- define_alphabetised_parallel ended 
+)-- define_alphabetised_parallel ended 
+)-- define_alphabetised_parallel ended 
+)-- define_alphabetised_parallel ended 
+)-- define_alphabetised_parallel ended 
+)-- define_alphabetised_parallel ended 
+-- call_alphabetised_parallel_state_machine ended
+\\internal
+-- t_internal_main_action finished with NMain::ProducerConsumer::Buffer.Buffer
+end

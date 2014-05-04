@@ -151,12 +151,11 @@ public class ChannelValue extends Value
 		return new ChannelValue(this.channel, meetValues, meetConstraints);
 	}
 
-	
 	public ChannelValue rename(CmlChannel channel)
 	{
 		return new ChannelValue(channel, values, constraints);
 	}
-	
+
 	public boolean isComparable(ChannelValue channelNameValue)
 	{
 		return this.getChannel().equals(channelNameValue.channel)

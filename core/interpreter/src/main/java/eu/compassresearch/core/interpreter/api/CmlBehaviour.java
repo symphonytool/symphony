@@ -249,12 +249,11 @@ public interface CmlBehaviour extends Serializable, Comparable<CmlBehaviour>
 	}
 
 	/**
-	 * Executes the given transition which must be contained 
-	 * in the CmlTransitionSet returned by the inspect method.
+	 * Executes the given transition which must be contained in the CmlTransitionSet returned by the inspect method.
 	 * 
-	 * @param selectedTransition The executed transtions, 
-	 * this transition must be contained in the possible transitions
-	 * returned from the inspect method. If not then the behavior is not guaranteed!
+	 * @param selectedTransition
+	 *            The executed transtions, this transition must be contained in the possible transitions returned from
+	 *            the inspect method. If not then the behavior is not guaranteed!
 	 */
 	public void execute(CmlTransition selectedTransition)
 			throws AnalysisException;
@@ -301,24 +300,28 @@ public interface CmlBehaviour extends Serializable, Comparable<CmlBehaviour>
 
 	/**
 	 * The parent behavior
+	 * 
 	 * @return parent behavior
 	 */
 	public CmlBehaviour parent();
 
 	/**
 	 * Return the child object as a list, with ranging from 0-2 children.
+	 * 
 	 * @return child behaviors
 	 */
 	public List<CmlBehaviour> children();
 
 	/**
 	 * Left child
+	 * 
 	 * @return Left child
 	 */
 	public CmlBehaviour getLeftChild();
 
 	/**
 	 * Right child
+	 * 
 	 * @return Right child
 	 */
 	public CmlBehaviour getRightChild();
@@ -358,21 +361,20 @@ public interface CmlBehaviour extends Serializable, Comparable<CmlBehaviour>
 	 */
 	public CmlBehaviorState getState();
 
-	
 	/*
 	 * Denotational Semantics Information
 	 */
-	
+
 	/**
-	 * The current trace of the behavior, which is a
-	 * list of the executed transitions
+	 * The current trace of the behavior, which is a list of the executed transitions
+	 * 
 	 * @return
 	 */
 	public CmlTrace getTraceModel();
 
 	/**
-	 * Returns the current time passed by counting 
-	 * the TimedTransitions in the current trace
+	 * Returns the current time passed by counting the TimedTransitions in the current trace
+	 * 
 	 * @return Current time passed
 	 */
 	public long getCurrentTime();
@@ -380,14 +382,14 @@ public interface CmlBehaviour extends Serializable, Comparable<CmlBehaviour>
 	/**
 	 * Instance events
 	 */
-	
+
 	/**
 	 * Register or unregister for the State Changed event
 	 * 
 	 * @return The appropriate EventSource for event registration
 	 */
 	public EventSource<CmlBehaviorStateObserver> onStateChanged();
-	
+
 	/**
 	 * Register or unregister for the Trace Changed event
 	 * 

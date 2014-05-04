@@ -190,12 +190,13 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 	{
 		String source = "src/test/resources/cosim/main-deadlocked.cml";
 		final ConsoleWatcher deadlockedWatch = new ConsoleWatcher("Main", "DEADLOCKED");
-		Process coordinator = setUpCoordinator(source, "P", "B",deadlockedWatch);
+		Process coordinator = setUpCoordinator(source, "P", "B", deadlockedWatch);
 		setUpClient(source, "B");
 
 		waitForCompletion(coordinator, DEFAULT_TIMEOUT);
 
-		Assert.assertFalse("Simulators did not finish successfully", isFinished()&& deadlockedWatch.isMatched());
+		Assert.assertFalse("Simulators did not finish successfully", isFinished()
+				&& deadlockedWatch.isMatched());
 
 	}
 
@@ -211,11 +212,24 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 		Assert.assertFalse("Simulators did not finish successfully", isFinished());
 
 	}
-	
+
 	@Test
 	public void testSyncOnString() throws Exception
 	{
 		String source = "src/test/resources/cosim/SyncOnString.cml";
+		Process coordinator = setUpCoordinator(source, "Main", "Writer");
+		setUpClient(source, "Writer");
+
+		waitForCompletion(coordinator, DEFAULT_TIMEOUT);
+
+		Assert.assertTrue("Simulators did not deadlock successfully", isFinished());
+
+	}
+
+	@Test
+	public void testSyncOnRecord() throws Exception
+	{
+		String source = "src/test/resources/cosim/SyncOnRecord.cml";
 		Process coordinator = setUpCoordinator(source, "Main", "Writer");
 		setUpClient(source, "Writer");
 
