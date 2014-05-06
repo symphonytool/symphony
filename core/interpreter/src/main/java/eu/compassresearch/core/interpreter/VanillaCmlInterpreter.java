@@ -36,6 +36,7 @@ import eu.compassresearch.core.interpreter.debug.Breakpoint;
 import eu.compassresearch.core.interpreter.debug.DebugContext;
 import eu.compassresearch.core.interpreter.utility.LocationExtractor;
 import eu.compassresearch.core.parser.ParserUtil;
+import eu.compassresearch.core.parser.PreParser;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.ICmlTypeChecker;
 
@@ -482,7 +483,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	@Override
 	public PExp parseExpression(String line, String module) throws Exception
 	{
-		return ParserUtil.parseExpression(new File("Console"), ParserUtil.getCharStream(line, StandardCharsets.UTF_8.name())).exp;
+		return ParserUtil.parseExpression(new File("Console"), ParserUtil.getCharStream(line, StandardCharsets.UTF_8.name()),PreParser.StreamType.Plain).exp;
 	}
 
 }

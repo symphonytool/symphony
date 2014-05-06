@@ -12,14 +12,17 @@ package eu.compassresearch.core;
  *
  */
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.antlr.runtime.ANTLRInputStream;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.intf.IAnalysis;
 import org.overture.ast.definitions.PDefinition;
@@ -35,7 +38,6 @@ import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.ConsoleSelectionStrategy;
-import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.core.parser.ParserUtil;
 import eu.compassresearch.core.parser.ParserUtil.ParserResult;
 import eu.compassresearch.core.typechecker.VanillaFactory;
@@ -58,7 +60,7 @@ public class CheckCml
 			List<PDefinition> sourceForest = new LinkedList<PDefinition>();
 
 			// Say hello
-			System.out.println(HELLO + " - " + CmlParser.CML_LANG_VERSION);
+			System.out.println(HELLO + " - " + ParserUtil.getLanguageVersion());
 
 			// inputs
 			if ((inp = checkInput(args)) == null)
@@ -69,8 +71,8 @@ public class CheckCml
 			// Two modes of operation, Interactive or Batch mode on files.
 			if (inp.isSwitchOn(Switch.INTER))
 			{
-				ANTLRInputStream in = new ANTLRInputStream(System.in);
-				ParserResult res = ParserUtil.parse(new File("console"), in);
+				String buf = readInputStreamAsString(System.in);
+				ParserResult res = ParserUtil.parse(new File("console"), buf, "utf-8");
 				if (res.errors.isEmpty())
 				{
 					sourceForest.addAll(res.definitions);
@@ -112,23 +114,35 @@ public class CheckCml
 	private enum Switch
 	{
 		PARSE_ONLY("po", "Parse Only, stop analysis after the parse phase.",
-				false), TYPE_CHECK_ONLY(
+				false),
+
+		TYPE_CHECK_ONLY(
 				"tco",
 				"Type Check Only, stop checking after the type checking phase.",
-				false), NOTC("notc",
-				"No type checking, the type checking phase is omitted.", false), COE(
+				false),
+
+		NOTC("notc", "No type checking, the type checking phase is omitted.",
+				false), COE(
 				"coe",
 				"Continue on Exception, analysis continues even if an exception occurs.",
-				false), SOE("soe",
-				"Silence on Exception, supress exceptions in analysis.", false), EMPTY(
-				"empty",
+				false),
+
+		SOE("soe", "Silence on Exception, supress exceptions in analysis.",
+				false), EMPTY("empty",
 				"Empty Analysis, run the empty analysis (good for debugging).",
-				false), DOTG("dotg",
+				false),
+
+		DOTG("dotg",
 				"Dot Graph, -dotg=<out> write ast dot graph to file <out>.",
-				true), DWA("dwa", "Example, the Div Warn Analysis example",
-				false), POG("pog",
+				true),
+
+		DWA("dwa", "Example, the Div Warn Analysis example", false),
+
+		POG("pog",
 				"Proof Obligation Generator, the proof obligation generator",
-				false), INTER("i", "Interactive mode", false), EXEC(
+				false),
+
+		INTER("i", "Interactive mode", false), EXEC(
 				"e",
 				"Simulation, -e=<processID>, simulate the process identified by <processID>",
 				true);
@@ -588,5 +602,20 @@ public class CheckCml
 		}
 
 		// Add more analysis here ...
+	}
+
+	static String readInputStreamAsString(InputStream in) throws IOException
+	{
+
+		BufferedInputStream bis = new BufferedInputStream(in);
+		ByteArrayOutputStream buf = new ByteArrayOutputStream();
+		int result = bis.read();
+		while (result != -1)
+		{
+			byte b = (byte) result;
+			buf.write(b);
+			result = bis.read();
+		}
+		return buf.toString();
 	}
 }
