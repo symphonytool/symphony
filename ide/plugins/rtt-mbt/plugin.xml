@@ -1173,7 +1173,7 @@
    <extension
          point="org.eclipse.help.toc">
       <toc
-            file="help/book.xml"
+            file="toc/book.xml"
             primary="true">
       </toc>
    </extension>
