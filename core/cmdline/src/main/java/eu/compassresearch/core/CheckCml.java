@@ -18,7 +18,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -33,9 +32,7 @@ import eu.compassresearch.ast.analysis.DepthFirstAnalysisCMLAdaptor;
 import eu.compassresearch.ast.preview.DotGraphVisitor;
 import eu.compassresearch.core.analysis.pog.obligations.CmlPOContextStack;
 import eu.compassresearch.core.analysis.pog.visitors.ProofObligationGenerator;
-import eu.compassresearch.core.interpreter.CmlRuntime;
-import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
-import eu.compassresearch.core.interpreter.api.CmlInterpreter;
+import eu.compassresearch.core.interpreter.CMLJ;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.ConsoleSelectionStrategy;
 import eu.compassresearch.core.parser.ParserUtil;
@@ -43,6 +40,7 @@ import eu.compassresearch.core.parser.ParserUtil.ParserResult;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.ICmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
+import eu.compassresearch.core.typechecker.api.ITypeIssueHandler.CMLTypeWarning;
 
 //import eu.compassresearch.examples.DivWarnAnalysis;
 
@@ -96,6 +94,8 @@ public class CheckCml
 				}
 			}
 
+			typeCheck(sourceForest);
+
 			// Run the analysis phase
 			runAllAnalysis(inp, sourceForest);
 
@@ -107,25 +107,49 @@ public class CheckCml
 		}
 	}
 
+	private static void typeCheck(List<PDefinition> sources)
+	{
+		final ITypeIssueHandler issueHandler = VanillaFactory.newCollectingIssueHandle();
+		final ICmlTypeChecker typeChecker = VanillaFactory.newTypeChecker(sources, issueHandler);
+
+		System.out.println("Type checking");
+		typeChecker.typeCheck();
+		if (issueHandler.hasErrors() || issueHandler.hasWarnings())
+		{
+			for (ITypeIssueHandler.CMLTypeError e : issueHandler.getTypeErrors())
+			{
+				System.out.println("\t" + e);
+			}
+			for (CMLTypeWarning e : issueHandler.getTypeWarnings())
+			{
+				System.out.println("\t" + e);
+			}
+		} else
+		{
+			System.out.println("[model types are ok]");
+		}
+
+	}
+
 	/*************************************************************
 	 ** Switches and parsing input
 	 *************************************************************/
 	// Register switches the program accepts
 	private enum Switch
 	{
-		PARSE_ONLY("po", "Parse Only, stop analysis after the parse phase.",
-				false),
-
+		// PARSE_ONLY("po", "Parse Only, stop analysis after the parse phase.",
+		// false),
+		//
 		TYPE_CHECK_ONLY(
 				"tco",
 				"Type Check Only, stop checking after the type checking phase.",
 				false),
-
-		NOTC("notc", "No type checking, the type checking phase is omitted.",
-				false), COE(
-				"coe",
-				"Continue on Exception, analysis continues even if an exception occurs.",
-				false),
+		//
+		// NOTC("notc", "No type checking, the type checking phase is omitted.",
+		// false), COE(
+		// "coe",
+		// "Continue on Exception, analysis continues even if an exception occurs.",
+		// false),
 
 		SOE("soe", "Silence on Exception, supress exceptions in analysis.",
 				false), EMPTY("empty",
@@ -142,7 +166,9 @@ public class CheckCml
 				"Proof Obligation Generator, the proof obligation generator",
 				false),
 
-		INTER("i", "Interactive mode", false), EXEC(
+		INTER("i", "Interactive mode", false),
+
+		EXEC(
 				"e",
 				"Simulation, -e=<processID>, simulate the process identified by <processID>",
 				true);
@@ -317,34 +343,6 @@ public class CheckCml
 		return r;
 	}
 
-	/*************************************************************
-	 * Analysis
-	 ************************************************************/
-
-	private static String getAnalysisName(Object a)
-	{
-		String res = "";
-		if (a == null)
-		{
-			return res;
-		}
-
-		res = a.getClass().getCanonicalName();
-		try
-		{
-			Class<?> clz = a.getClass();
-			Method getAnalysisName = clz.getMethod("getAnalysisName", new Class<?>[] {});
-			getAnalysisName.setAccessible(true);
-			res = (String) getAnalysisName.invoke(a, new Object[] {});
-
-		} catch (Exception e)
-		{
-			e.printStackTrace();
-			return " e " + res;
-		}
-		return res;
-	}
-
 	/**
 	 * Helper methods run analysis controlling propergation of exceptions
 	 */
@@ -352,15 +350,15 @@ public class CheckCml
 	private static boolean runAnalysis(Input input,
 			AnalysisRunAdaptor analysis, List<PDefinition> sources)
 	{
-		boolean continueOnException = input.isSwitchOn(Switch.COE);
+		// boolean continueOnException = input.isSwitchOn(Switch.COE);
 		boolean silentOnException = input.isSwitchOn(Switch.SOE);
 
 		for (PDefinition source : sources)
 		{
 			try
 			{
-				System.out.println(" Running " + getAnalysisName(analysis)
-						+ " on " + source.toString() + " ");
+				// System.out.println(" Running " + getAnalysisName(analysis)
+				// + " on " + source.toString() + " ");
 				analysis.apply(source);
 				System.out.println();
 			} catch (Exception e)
@@ -370,7 +368,7 @@ public class CheckCml
 					e.printStackTrace();
 				}
 
-				if (!continueOnException)
+				// if (!continueOnException)
 				{
 					return false;
 				}
@@ -450,40 +448,34 @@ public class CheckCml
 	private static void runAllAnalysis(Input input, List<PDefinition> sources)
 
 	{
-		// Check The Parse Only Switch
-		if (input.isSwitchOn(Switch.PARSE_ONLY))
-		{
-			return;
-		}
 
-		// Inform parsing went well and analysis has begun
-		System.out.println(sources.size()
-				+ " file(s) successfully parsed. Starting analysis:");
-
-		if (!input.isSwitchOn(Switch.NOTC)) // check no type checking switch
-		{
-			final ITypeIssueHandler issueHandler = VanillaFactory.newCollectingIssueHandle();
-			final ICmlTypeChecker typeChecker = VanillaFactory.newTypeChecker(sources, issueHandler);
-
-			AnalysisRunAdaptor r = new AnalysisRunAdaptor(typeChecker)
-			{
-				public void apply(INode root) throws AnalysisException
-				{
-
-					if (!typeChecker.typeCheck())
-					{
-						for (ITypeIssueHandler.CMLTypeError e : issueHandler.getTypeErrors())
-						{
-							System.out.println("\t" + e);
-						}
-					} else
-					{
-						System.out.println("[model types are ok]");
-					}
-				}
-			};
-			runAnalysis(input, r, sources);
-		}
+		// // Inform parsing went well and analysis has begun
+		// System.out.println(sources.size()
+		// + " file(s) successfully parsed. Starting analysis:");
+		//
+		// if (!input.isSwitchOn(Switch.NOTC)) // check no type checking switch
+		// {
+		// final ITypeIssueHandler issueHandler = VanillaFactory.newCollectingIssueHandle();
+		// final ICmlTypeChecker typeChecker = VanillaFactory.newTypeChecker(sources, issueHandler);
+		//
+		// typeChecker.typeCheck();
+		// if (issueHandler.hasErrors()||issueHandler.hasWarnings())
+		// {
+		// for (ITypeIssueHandler.CMLTypeError e : issueHandler.getTypeErrors())
+		// {
+		// System.out.println("\t" + e);
+		// }
+		// for (CMLTypeWarning e : issueHandler.getTypeWarnings())
+		// {
+		// System.out.println("\t" + e);
+		// }
+		// } else
+		// {
+		// System.out.println("[model types are ok]");
+		// }
+		//
+		//
+		// }
 
 		// Check The Type Check Only Switch
 		if (input.isSwitchOn(Switch.TYPE_CHECK_ONLY))
@@ -561,44 +553,54 @@ public class CheckCml
 		// Interpreter
 		if (input.isSwitchOn(Switch.EXEC))
 		{
-			if (input.isSwitchOn(Switch.NOTC))
+
+			String processName = Switch.EXEC.getValue();
+			try
 			{
-				System.out.println("You can only interpret typechecked models!");
-			} else
+				CMLJ.interpret(null, new ConsoleSelectionStrategy(), processName, sources, new File("console"));
+			} catch (CmlInterpreterException e)
 			{
-
-				try
-				{
-
-					final CmlInterpreter interpreter = new VanillaInterpreterFactory().newInterpreter(sources);
-
-					AnalysisRunAdaptor re = new AnalysisRunAdaptor(null)
-					{
-						public void apply(INode root) throws AnalysisException
-						{
-							try
-							{
-								CmlRuntime.expandHiddenEvents(true);
-								interpreter.setDefaultName(Switch.EXEC.getValue());
-
-								interpreter.initialize();
-								interpreter.execute(new ConsoleSelectionStrategy());
-								System.out.println("Terminated with following state: "
-										+ interpreter.getState());
-							} catch (Exception e)
-							{
-
-								e.printStackTrace();
-							}
-						}
-					};
-					runAnalysis(input, re, sources);
-				} catch (CmlInterpreterException e1)
-				{
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
+			// if (input.isSwitchOn(Switch.NOTC))
+			// {
+			// System.out.println("You can only interpret typechecked models!");
+			// } else
+			// {
+			//
+			// try
+			// {
+			//
+			// final CmlInterpreter interpreter = new VanillaInterpreterFactory().newInterpreter(sources);
+			//
+			// AnalysisRunAdaptor re = new AnalysisRunAdaptor(null)
+			// {
+			// public void apply(INode root) throws AnalysisException
+			// {
+			// try
+			// {
+			// CmlRuntime.expandHiddenEvents(true);
+			// interpreter.setDefaultName(Switch.EXEC.getValue());
+			//
+			// interpreter.initialize();
+			// interpreter.execute(new ConsoleSelectionStrategy());
+			// System.out.println("Terminated with following state: "
+			// + interpreter.getState());
+			// } catch (Exception e)
+			// {
+			//
+			// e.printStackTrace();
+			// }
+			// }
+			// };
+			// runAnalysis(input, re, sources);
+			// } catch (CmlInterpreterException e1)
+			// {
+			// // TODO Auto-generated catch block
+			// e1.printStackTrace();
+			// }
+			// }
 		}
 
 		// Add more analysis here ...
