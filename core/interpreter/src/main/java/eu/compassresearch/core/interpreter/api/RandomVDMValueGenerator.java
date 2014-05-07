@@ -4,6 +4,7 @@ import java.util.Random;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.node.INode;
+import org.overture.ast.types.ABooleanBasicType;
 import org.overture.ast.types.AIntNumericBasicType;
 import org.overture.ast.types.ANamedInvariantType;
 import org.overture.ast.types.ANatNumericBasicType;
@@ -11,6 +12,7 @@ import org.overture.ast.types.AProductType;
 import org.overture.ast.types.AQuoteType;
 import org.overture.ast.types.AUnionType;
 import org.overture.ast.types.PType;
+import org.overture.interpreter.values.BooleanValue;
 import org.overture.interpreter.values.IntegerValue;
 import org.overture.interpreter.values.NaturalValue;
 import org.overture.interpreter.values.QuoteValue;
@@ -56,16 +58,6 @@ class RandomVDMValueGenerator extends AnswerCMLAdaptor<Value>
 	public Value caseANamedInvariantType(ANamedInvariantType node)
 			throws AnalysisException
 	{
-
-		// if(node.getInvDef() != null)
-		// {
-		// StateContext stateContext = new StateContext(node.getLocation(), "invaraint function context");
-		// NameValuePairList nvpl = node.getInvDef().apply(new CmlDefinitionEvaluator(),stateContext);
-		// FunctionValue func = nvpl.get(0).value.functionValue(stateContext);
-		// func.e
-		//
-		// }
-
 		return node.getType().apply(this);
 	}
 
@@ -84,6 +76,13 @@ class RandomVDMValueGenerator extends AnswerCMLAdaptor<Value>
 
 		return new QuoteValue(node.getValue().getValue());
 	}
+	
+	@Override
+	public Value caseABooleanBasicType(ABooleanBasicType node)
+			throws AnalysisException
+	{
+		return new BooleanValue(rndValue.nextBoolean());
+	}
 
 	@Override
 	public Value caseAProductType(AProductType node) throws AnalysisException
@@ -93,10 +92,6 @@ class RandomVDMValueGenerator extends AnswerCMLAdaptor<Value>
 
 		for (int i = 0; i < node.getTypes().size(); i++)
 		{
-			// Value val = ((TupleValue)chosenEvent.getValue()).values.get(i);
-			// if(AbstractValueInterpreter.isValueMostPrecise(val))
-			// argvals.add(val);
-			// else
 			argvals.add(node.getTypes().get(i).apply(this));
 		}
 		return new TupleValue(argvals);
@@ -105,14 +100,14 @@ class RandomVDMValueGenerator extends AnswerCMLAdaptor<Value>
 	@Override
 	public Value createNewReturnValue(INode node)
 	{
-		throw new InterpreterRuntimeException("Missing implementation in random vml value generator for: "
+		throw new InterpreterRuntimeException("Missing implementation in random CML value generator for: "
 				+ node.getClass().getName());
 	}
 
 	@Override
 	public Value createNewReturnValue(Object node)
 	{
-		throw new InterpreterRuntimeException("Missing implementation in random vml value generator for: "
+		throw new InterpreterRuntimeException("Missing implementation in random CML value generator for: "
 				+ node.getClass().getName());
 	}
 }
