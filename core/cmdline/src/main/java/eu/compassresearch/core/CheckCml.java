@@ -115,7 +115,7 @@ public class CheckCml
 
 		public String toString()
 		{
-			return "-" + sw + " \t - \t " + description;
+			return String.format("-%-10s -  %s", sw, description);
 		}
 
 		public static Switch fromString(String arg, StringBuilder error)
@@ -177,7 +177,7 @@ public class CheckCml
 			StringBuilder sb = new StringBuilder();
 			for (String sw : toStrs)
 			{
-				sb.append("\t" + sw + "\n");
+				sb.append("  " + sw + "\n");
 			}
 			return sb.toString();
 		}
@@ -193,7 +193,7 @@ public class CheckCml
 			List<PDefinition> sources = new LinkedList<PDefinition>();
 
 			// Say hello
-			System.out.println(HELLO + " - " + ParserUtil.getLanguageVersion());
+			System.out.println(HELLO);// + " - " + ParserUtil.getLanguageVersion());
 
 			// inputs
 			if ((input = checkInput(args)) == null)
