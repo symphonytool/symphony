@@ -10,7 +10,6 @@ Require-Bundle:
  eu.compassresearch.ide.core,
  eu.compassresearch.ide.ui
 Import-Package: eu.compassresearch.ast.program,
- eu.compassresearch.core.common,
  eu.compassresearch.ide.core.resources,
  eu.compassresearch.ide.ui.utility,
  eu.compassresearch.ide.core.unsupported,

@@ -18,7 +18,6 @@ import org.overture.ide.core.utility.FileUtility;
 import org.overture.parser.messages.VDMWarning;
 import org.overture.typechecker.TypeCheckException;
 
-import eu.compassresearch.core.typechecker.CmlTypeCheckerAssistantFactory;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.ICmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
