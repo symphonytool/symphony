@@ -2,7 +2,7 @@
 //
 
 #include "stdafx.h"
-#include "CoSimConfig.hpp"
+#include "../generates/CoSimConfig.hpp"
 #include"ExternalSystem.hpp"
 
 
