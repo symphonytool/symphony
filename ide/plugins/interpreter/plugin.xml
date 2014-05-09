@@ -295,4 +295,44 @@
 		<persistent value="true">
 		</persistent>
 	</extension>
+	
+	
+	
+	
+ <extension
+       point="org.eclipse.ui.commands">
+    <command
+          defaultHandler="eu.compassresearch.ide.interpreter.handlers.CreateExternalSystemHandler"
+          id="compass-eu.compassresearch.ide.interpreter.commandCreateExternalSystemTemplate"
+          name="Create External System Template Project">
+    </command>
+ </extension>
+ 
+ <extension
+       point="org.eclipse.ui.menus">
+    <menuContribution
+          allPopups="false"
+          locationURI="popup:eu.compassresearch.ide.ui.CmlNavigator">
+       <command
+             commandId="compass-eu.compassresearch.ide.interpreter.commandCreateExternalSystemTemplate"
+             label="Create External System Template"
+             style="push"
+             tooltip="">
+          <visibleWhen>
+					<iterate ifEmpty="false" >
+						<or>
+							<adapt type="org.eclipse.core.resources.IProject">
+
+								<test
+                       property="org.eclipse.core.resources.projectNature"
+                       value="eu.compassresearch.ide.core.cmlnature">
+								</test>
+							</adapt>
+							
+						</or>
+					</iterate>
+				</visibleWhen>
+       </command>
+    </menuContribution>
+     </extension>
 </plugin>
