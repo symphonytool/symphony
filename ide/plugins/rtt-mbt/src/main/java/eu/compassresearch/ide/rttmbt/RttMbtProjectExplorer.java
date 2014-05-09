@@ -289,7 +289,8 @@ public class RttMbtProjectExplorer extends org.eclipse.ui.navigator.CommonNaviga
 		if (selectedObject == null) {
 			return false;
 		}
-		return selectedObject.compareTo("model_dump.xml") == 0;
+		return ((selectedObject.compareTo("model_dump.xml") == 0) ||
+				((selectedObject.compareTo("model.uml") == 0)) && (client.getIsPapyrusMode()));
 	}
 
 	public Boolean isMakefileSelected() {

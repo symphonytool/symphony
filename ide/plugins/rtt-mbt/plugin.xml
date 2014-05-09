@@ -1170,5 +1170,12 @@
             name="RT-Tester">
       </page>
    </extension>
+   <extension
+         point="org.eclipse.help.toc">
+      <toc
+            file="toc/book.xml"
+            primary="true">
+      </toc>
+   </extension>
 
 </plugin>

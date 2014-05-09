@@ -12,25 +12,28 @@ public class RttMbtAdvConfParser {
 GC;1;if 1, cover all goals in d addgoals(ordered).conf, even if they are already covered by other procedures
 BT;0;switch back tracking on if 1
 LO;0;produce logger threads instead of checkers if 1
-AI;0;use abstract interpretation for speed-up of solver, if 1
+AI;1;use abstract interpretation for speed-up of solver, if 1
 MM;0;maximise model coverage if 1
 SC;0;perform sanity checks in solver and abstract interpreter if 1
 RB;0;do robustness testing if 1
 RP;0;if RB=1 RP defines the percentage of robustness transitions to be performed
 CI;1;maximal number of simultaneous input changes
 DI;10;minimal duration between two input changes
+LI;10;upper limit for duration between two input changes
 MC;0;Perform model checking instead of test generation, if 1
 	 */
+
 	protected Boolean GC = true;
 	protected Boolean BT = false;
 	protected Boolean LO = false;
-	protected Boolean AI = false;
+	protected Boolean AI = true;
 	protected Boolean MM = false;
 	protected Boolean SC = false;
 	protected Boolean RB = false;
-	protected Boolean RP = false;
+	protected int RP = 0;
 	protected int CI = 1;
 	protected int DI = 10;
+	protected int LI = 10000;
 	protected Boolean MC = false;
 
 	public RttMbtAdvConfParser() {
@@ -86,11 +89,13 @@ MC;0;Perform model checking instead of test generation, if 1
 			} else if (option.compareTo("RB") == 0) {
 				setRB(value.compareTo("1") == 0);
 			} else if (option.compareTo("RP") == 0) {
-				setRP(value.compareTo("1") == 0);
+				setRP(Integer.parseInt(value));
 			} else if (option.compareTo("CI") == 0) {
 				setCI(Integer.parseInt(value));
 			} else if (option.compareTo("DI") == 0) {
 				setDI(Integer.parseInt(value));
+			} else if (option.compareTo("LI") == 0) {
+				setLI(Integer.parseInt(value));
 			} else if (option.compareTo("MC") == 0) {
 				setMC(value.compareTo("1") == 0);
 			} else {
@@ -158,11 +163,11 @@ MC;0;Perform model checking instead of test generation, if 1
 		RB = rB;
 	}
 
-	public Boolean getRP() {
+	public int getRP() {
 		return RP;
 	}
 
-	public void setRP(Boolean rP) {
+	public void setRP(int rP) {
 		RP = rP;
 	}
 
@@ -180,6 +185,14 @@ MC;0;Perform model checking instead of test generation, if 1
 
 	public void setDI(int dI) {
 		DI = dI;
+	}
+
+	public int getLI() {
+		return LI;
+	}
+
+	public void setLI(int lI) {
+		LI = lI;
 	}
 
 	public Boolean getMC() {

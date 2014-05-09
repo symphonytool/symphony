@@ -62,6 +62,10 @@ public class RttMbtClient {
     // this path is only needed for files that are to be stored directly in the workspace (e.g. templates)
 	private String workspacePath;
 
+	// HTTP(S) user name and password
+	private String httpUsername;
+	private String httpPassword;
+
 	// runtime information
 	private String currentJobId;
 	private String RttMbtTestProcFolderName;
@@ -84,6 +88,7 @@ public class RttMbtClient {
 	private Boolean verboseLogging;
 	private Boolean extraFiles;
 	private Boolean allowMultipleRttMbtTmsTasks;
+	private Boolean isPapyrusMode;
 	
 	// Space separated list of patterns to exclude from uploads
 	private String noUploadFilePatterns;
@@ -111,10 +116,13 @@ public class RttMbtClient {
 		verboseLogging = false;
 		extraFiles = false;
 		allowMultipleRttMbtTmsTasks = true;
+		isPapyrusMode = false;
 		tmsDatabaseName = null;
 		setDefaultIgnorePatternProperty();
 		setDefaultMakeToolProperty();
-	}
+		httpUsername = "";
+		httpPassword="";
+		}
 
 	public void setLoggingFacility(String name, IRttMbtLoggingFacility logger) {
 		consoleName = name;
@@ -347,9 +355,6 @@ public class RttMbtClient {
 		// check if file exists in local file system
 		File localFile = new File(filename);
 		if (!localFile.exists()) {
-			if (getVerboseLogging()) {
-				addLogMessage("note: local file " + filename + " does not exist - no upload possible!");
-			}
 			return false;
 		}
 		
@@ -1163,6 +1168,7 @@ public class RttMbtClient {
 		uploadFile(confDirName + "configuration.csv");
 		uploadFile(confDirName + "signalmap.csv");
 		uploadFile(confDirName + "advanced.conf");
+		uploadFile(confDirName + "max_steps.txt");
 		uploadFile(confDirName + "addgoals.conf");
 		uploadFile(confDirName + "addgoalsordered.conf");
 		// cache/<user-id>/<project-name>/TMPL
@@ -1180,14 +1186,14 @@ public class RttMbtClient {
 		cmd.setGuiPorts(true);
 		cmd.setTestProcName("TestProcedures/" + abstractTestProc);
 		// read advanced.conf
-		RttMbtAdvConfParser advConf = new RttMbtAdvConfParser();
 		confDirName = getRttProjectPath() + File.separator
 				+ getRttMbtTProcGenCtxFolderName() + File.separator
 				+ abstractTestProc + File.separator
 				+ "conf" +  File.separator;
-		if (advConf.readAdvancedConfig(confDirName + "advanced.conf")) {
-			cmd.setMaximizeModelCoverage(advConf.getMM());
-			cmd.setAbstractInterpreter(advConf.getAI());
+		RttMbtMaxStepsParser maxSteps = new RttMbtMaxStepsParser();
+		if (maxSteps.readMaxSteps(confDirName + "max_steps.txt")) {
+			cmd.seMaxSolverSteps(maxSteps.getMaxSolverSteps());
+			cmd.setMaxSimulationSteps(maxSteps.getMaxSimulationSteps());
 		}
 		if (getVerboseLogging()) {
 			addLogMessage("starting test generation...");
@@ -1387,12 +1393,14 @@ public class RttMbtClient {
 		// - signalmap.csv
 		// - addgoals.conf
 		// - addgoalsordered.conf
+		// - testcases.csv
 		String modelDirName = getRttProjectPath() + File.separator + "model" + File.separator;
 		uploadFile(modelDirName + "model_dump.xml");
 		uploadFile(modelDirName + "configuration.csv");
 		uploadFile(modelDirName + "signalmap.csv");
 		uploadFile(modelDirName + "addgoals.conf");
 		uploadFile(modelDirName + "addgoalsordered.conf");
+		uploadFile(modelDirName + "testcases.csv");
 		if (isCurrentTaskCanceled()) {
 			return false;
 		}
@@ -1414,8 +1422,16 @@ public class RttMbtClient {
 		if (isCurrentTaskCanceled()) {
 			return false;
 		}
-		// cache/<user-id>/<project-name>/<abstract-testproc>/model
-		// covered_testcases.csv
+		// cache/<user-id>/<project-name>/<abstract-testproc>/log/
+		// - covered_testcases.csv
+		String localLogDirName = getRttProjectPath() + File.separator
+				+ getRttMbtTProcGenCtxFolderName() + File.separator
+				+ abstractTestProc + File.separator
+				+ "log" +  File.separator;
+		uploadFile(localLogDirName + "covered_testcases.csv");		
+		// cache/<user-id>/<project-name>/<abstract-testproc>/model/
+		// - signals.json
+		// signals.dat
 		String localModelDirName = getRttProjectPath() + File.separator
 				+ getRttMbtTProcGenCtxFolderName() + File.separator
 				+ abstractTestProc + File.separator
@@ -2328,6 +2344,7 @@ public class RttMbtClient {
 			return null;
 		}
 		String path = uri.toString();
+		path = path.replaceAll("%20", " ");
 		if (path.startsWith("file:")) {
 			return path.substring(5);
 		} else {
@@ -2758,6 +2775,14 @@ public class RttMbtClient {
 	public void setMode(String mode) {
 		if (mode.compareTo("RTT_MBT_VSI_MODE") == 0) {
 			this.mode = Modes.RTT_MBT_VSI_MODE;
+		} else if (mode.compareTo("RTT_MBT_VSI_MODE_COMPASS") == 0) {
+			// COMPASS/Symphony specific settings
+			// none so far.
+			this.mode = Modes.RTT_MBT_VSI_MODE;
+		} else if (mode.compareTo("RTT_MBT_VSI_MODE_PAPYRUS") == 0) {
+			// papyrus inegration settings
+			this.isPapyrusMode = true;
+			this.mode = Modes.RTT_MBT_VSI_MODE;
 		} else if (mode.compareTo("RTT_MBT_DAG_MODE") == 0) {
 			this.mode = Modes.RTT_MBT_DAG_MODE;
 		} else if (mode.compareTo("RTT_MBT_SCADE_MODE") == 0) {
@@ -2834,4 +2859,37 @@ public class RttMbtClient {
 	public void setDefaultIgnorePatternProperty() {
 		noUploadFilePatterns = ".svn:.git:*.o";
 	}
+
+	public String getHttpUsername() {
+		return httpUsername;
+	}
+
+	public void setHttpUsername(String httpUsername) {
+		if (httpUsername == null) {
+			this.httpUsername = "";
+		} else {
+			this.httpUsername = httpUsername;
+		}
+	}
+
+	public String getHttpPassword() {
+		return httpPassword;
+	}
+
+	public void setHttpPassword(String httpPassword) {
+		if (httpPassword == null) {
+			this.httpPassword = "";
+		} else {
+			this.httpPassword = httpPassword;
+		}
+	}
+
+	public Boolean getIsPapyrusMode() {
+		return isPapyrusMode;
+	}
+
+	public void setIsPapyrusMode(Boolean isPapyrusMode) {
+		this.isPapyrusMode = isPapyrusMode;
+	}
+
 }

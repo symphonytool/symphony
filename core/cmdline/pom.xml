@@ -1,129 +1,102 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+	 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>eu.compassresearch.core</groupId>
-		<artifactId>core</artifactId>
-		<version>0.3.1-SNAPSHOT</version>
-		<relativePath>../pom.xml</relativePath>
-	</parent>
+  <parent>
+    <groupId>eu.compassresearch.core</groupId>
+    <artifactId>core</artifactId>
+    <version>0.3.1-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
 
-	<artifactId>commandlinetool</artifactId>
-	<name>Symphony Core CML Command Line Tool</name>
+  <artifactId>commandlinetool</artifactId>
+  <name>Symphony Core CML Command Line Tool</name>
 
-	<dependencies>
+  <dependencies>
+    <!-- Only need to depend on the interpreter and pog as they
+         transitively pull in all the other dependencies. -->
+    <dependency>
+      <groupId>eu.compassresearch.core</groupId>
+      <artifactId>interpreter</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>eu.compassresearch.core.analysis</groupId>
+      <artifactId>pog</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+  </dependencies>
 
-		<!-- Link with the auto generated AST. -->
-		<dependency>
-			<groupId>eu.compassresearch.core</groupId>
-			<artifactId>ast</artifactId>
-			<version>${project.version}</version>
-		</dependency>
+  <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <targetPath>${project.build.directory}/cmlc</targetPath>
+        <filtering>true</filtering>
+        <includes>
+          <include>cmlc*</include>
+        </includes>
+      </resource>
+    </resources>
 
-		<!-- Link with the parser -->
-		<dependency>
-			<groupId>eu.compassresearch.core</groupId>
-			<artifactId>parser</artifactId>
-			<version>${project.version}</version>
-		</dependency>
+    <plugins>
+      <plugin>
+	<artifactId>maven-assembly-plugin</artifactId>
+	<configuration>
+	  <appendAssemblyId>false</appendAssemblyId>
+          <finalName>cmlc-${project.version}</finalName>
+          <outputDirectory>${project.build.directory}/cmlc</outputDirectory>
+	  <descriptorRefs>
+	    <descriptorRef>jar-with-dependencies</descriptorRef>
+	  </descriptorRefs>
+	  <archive>
+	    <manifest>
+	      <addClasspath>true</addClasspath>
+	      <!-- The main class -->
+	      <!-- eu.compassresearch.core.CheckCml.java -->
+	      <mainClass>eu.compassresearch.core.CheckCml</mainClass>
+	      <!-- The package for the main class -->
+	      <packageName>eu.compassresearch.core</packageName>
+	    </manifest>
+	    <manifestEntries>
+	      <mode>development</mode>
+	      <url>${project.url}</url>
+	    </manifestEntries>
+	  </archive>
+	</configuration>
+	<executions>
+	  <execution>
+	    <id>make-assembly</id>
+	    <phase>package</phase>
+	    <goals>
+	      <goal>single</goal>
+	    </goals>
+	  </execution>
+	</executions>
+      </plugin>
 
-		<dependency>
-			<groupId>org.antlr</groupId>
-			<artifactId>antlr-runtime</artifactId>
-			<version>3.5</version>
-		</dependency>
-
-		<!-- ************************************************************ Analysis 
-			that the command line tool can run and thus depend on. ************************************************************ -->
-
-		<!-- Type Checker Analysis <dependency> <groupId>eu.compassresearch.core</groupId> 
-			<artifactId>typechecker</artifactId> <version>${project.version}</version> 
-			</dependency> -->
-
-		<!-- Interpreter -->
-		<dependency>
-			<groupId>eu.compassresearch.core</groupId>
-			<artifactId>interpreter</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-
-		<!-- Div Warn Exp Analysis -->
-		<!-- <dependency> -->
-		<!-- <groupId>eu.compassresearch.examples</groupId> -->
-		<!-- <artifactId>divwarnanalysis</artifactId> -->
-		<!-- <version>${project.version}</version> -->
-		<!-- </dependency> -->
-
-		<!-- POG Analysis -->
-		<dependency>
-			<groupId>eu.compassresearch.core.analysis</groupId>
-			<artifactId>pog</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-
-	</dependencies>
-
-	<build>
-		<plugins>
-
-			<plugin>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<configuration>
-					<appendAssemblyId>true</appendAssemblyId>
-					<descriptorRefs>
-						<descriptorRef>jar-with-dependencies</descriptorRef>
-					</descriptorRefs>
-					<archive>
-						<manifest>
-							<addClasspath>true</addClasspath>
-							<!-- The main class -->
-							<!-- eu.compassresearch.core.CheckCml.java -->
-							<mainClass>eu.compassresearch.core.CheckCml</mainClass>
-							<!-- The package for the main class -->
-							<packageName>eu.compassresearch.core</packageName>
-						</manifest>
-						<manifestEntries>
-							<mode>development</mode>
-							<url>${pom.url}</url>
-						</manifestEntries>
-					</archive>
-
-				</configuration>
-				<executions>
-					<execution>
-						<id>make-assembly</id>
-						<phase>package</phase>
-						<goals>
-							<goal>single</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-
-			<!-- To build an executable jar (as in java -jar myjar.jar) a main class 
-				must be set in the jar manifast. -->
-			<plugin>
-
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<configuration>
-					<archive>
-						<manifest>
-							<addClasspath>true</addClasspath>
-							<!-- The main class -->
-							<mainClass>eu.compassresearch.core.CheckCml</mainClass>
-							<!-- The package for the main class -->
-							<packageName>eu.compassresearch.core</packageName>
-						</manifest>
-						<manifestEntries>
-							<mode>development</mode>
-							<url>${pom.url}</url>
-						</manifestEntries>
-					</archive>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
+      <!-- To build an executable jar (as in java -jar myjar.jar) a main class 
+	   must be set in the jar manifast. -->
+      <plugin>
+	<groupId>org.apache.maven.plugins</groupId>
+	<artifactId>maven-jar-plugin</artifactId>
+	<configuration>
+	  <archive>
+	    <manifest>
+	      <addClasspath>true</addClasspath>
+	      <!-- The main class -->
+	      <mainClass>eu.compassresearch.core.CheckCml</mainClass>
+	      <!-- The package for the main class -->
+	      <packageName>eu.compassresearch.core</packageName>
+	    </manifest>
+	    <manifestEntries>
+	      <mode>development</mode>
+	      <url>${project.url}</url>
+	    </manifestEntries>
+	  </archive>
+	</configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>
 
