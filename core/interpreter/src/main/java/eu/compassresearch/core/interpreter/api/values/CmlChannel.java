@@ -9,8 +9,8 @@ import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.core.interpreter.api.ICmlChannel;
-import eu.compassresearch.core.interpreter.api.events.ChannelEventTypeActivity;
 import eu.compassresearch.core.interpreter.api.events.ChannelEvent;
+import eu.compassresearch.core.interpreter.api.events.ChannelEventTypeActivity;
 import eu.compassresearch.core.interpreter.api.events.ChannelObserver;
 import eu.compassresearch.core.interpreter.api.events.EventFireMediator;
 import eu.compassresearch.core.interpreter.api.events.EventSource;
@@ -26,8 +26,7 @@ public class CmlChannel extends Value implements ICmlChannel // CmlIOChannel<Val
 	public final ILexNameToken name;
 	private AChannelType channelType;
 	private EventSourceHandler<ChannelObserver, ChannelEvent> selectObservers = new EventSourceHandler<ChannelObserver, ChannelEvent>(this, new ChannelEventMediator());
-	
-	
+
 	private class ChannelEventMediator implements
 			EventFireMediator<ChannelObserver, ChannelEvent>, Serializable
 	{

@@ -15,14 +15,14 @@ public class jsonGenerateTestCommand extends jsonCommand {
 
 	private String testProcName;
 	private Boolean guiPorts;
-	private Boolean maximizeModelCoverage;
-	private Boolean abstractInterpreter;
+	private Integer maxSolverSteps;
+	private Integer maxSimulationSteps;
 
 	public jsonGenerateTestCommand(RttMbtClient client) {
 		super(client);
 		guiPorts = false;
-		maximizeModelCoverage = true;
-		abstractInterpreter = false;
+		maxSolverSteps = 100;
+		maxSimulationSteps = 10;
 	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -37,14 +37,8 @@ public class jsonGenerateTestCommand extends jsonCommand {
 		Map params = new LinkedHashMap();
 		params.put("project-name", client.toUnixPath(client.removeLocalWorkspace(client.getRttProjectPath())));
 		params.put("test-procedure-path", client.toUnixPath(testProcName));
-		// maximize-model-coverage
-		if (maximizeModelCoverage) {
-			params.put("maximize-model-coverage", "true");			
-		}
-		// abstract-interpreter
-		if (abstractInterpreter) {
-			params.put("abstract-interpreter", "true");			
-		}
+		params.put("max-solver-steps", maxSolverSteps);
+		params.put("max-simulation-steps", maxSimulationSteps);
 		// use gui ports
 		if (guiPorts) {
 			params.put("progress-port", "true");
@@ -97,19 +91,19 @@ public class jsonGenerateTestCommand extends jsonCommand {
 		hasConsole = guiPorts;
 	}
 
-	public Boolean getMaximizeModelCoverage() {
-		return maximizeModelCoverage;
+	public Integer getMaxSolverSteps() {
+		return maxSolverSteps;
 	}
 
-	public void setMaximizeModelCoverage(Boolean maximizeModelCoverage) {
-		this.maximizeModelCoverage = maximizeModelCoverage;
+	public void seMaxSolverSteps(Integer maxSolverSteps) {
+		this.maxSolverSteps = maxSolverSteps;
 	}
 
-	public Boolean getAbstractInterpreter() {
-		return abstractInterpreter;
+	public Integer getMaxSimulationSteps() {
+		return maxSimulationSteps;
 	}
 
-	public void setAbstractInterpreter(Boolean abstractInterpreter) {
-		this.abstractInterpreter = abstractInterpreter;
+	public void setMaxSimulationSteps(Integer maxSimulationSteps) {
+		this.maxSimulationSteps = maxSimulationSteps;
 	}
 }

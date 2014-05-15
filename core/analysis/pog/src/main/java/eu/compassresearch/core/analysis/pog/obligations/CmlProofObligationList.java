@@ -13,11 +13,9 @@ import java.util.Vector;
 import org.overture.pog.pub.IProofObligation;
 import org.overture.pog.pub.IProofObligationList;
 
-import eu.compassresearch.core.common.AnalysisArtifact;
-
 @SuppressWarnings("serial")
 public class CmlProofObligationList extends Vector<IProofObligation> implements
-		AnalysisArtifact, IProofObligationList {
+		 IProofObligationList {
 
 	@Override
 	public void trivialCheck() {

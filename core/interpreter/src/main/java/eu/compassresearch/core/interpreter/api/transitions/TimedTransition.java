@@ -79,7 +79,7 @@ public class TimedTransition extends AbstractCmlTransition implements
 	{
 		return isSynchronizableWith(other) && this.isSourcesSubset(other);
 	}
-	
+
 	@Override
 	public boolean isSynchronizableWith(ObservableTransition other)
 	{

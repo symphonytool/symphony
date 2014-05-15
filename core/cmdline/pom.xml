@@ -1,7 +1,5 @@
-<project xmlns=
-	 "http://maven.apache.org/POM/4.0.0" 
-	 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"> 
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
@@ -15,78 +13,42 @@
   <name>Symphony Core CML Command Line Tool</name>
 
   <dependencies>
-    
-    <!--
-	Link with the auto generated AST.
-    -->
-    <dependency>
-      <groupId>eu.compassresearch.core</groupId>
-      <artifactId>ast</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <!-- 
-         Link with the parser
-    -->
-    <dependency>
-      <groupId>eu.compassresearch.core</groupId>
-      <artifactId>parser</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.antlr</groupId>
-      <artifactId>antlr-runtime</artifactId>
-      <version>3.5</version>
-    </dependency>
-
-    <!-- 
-	 ************************************************************
-	 Analysis that the command line tool can run and thus depend
-	 on.
-	 ************************************************************
-    -->
-
-    <!-- Type Checker Analysis
-         <dependency>
-         <groupId>eu.compassresearch.core</groupId>
-         <artifactId>typechecker</artifactId>
-         <version>${project.version}</version>
-         </dependency> -->
-
-    <!-- Interpreter-->
+    <!-- Only need to depend on the interpreter and pog as they
+         transitively pull in all the other dependencies. -->
     <dependency>
       <groupId>eu.compassresearch.core</groupId>
       <artifactId>interpreter</artifactId>
       <version>${project.version}</version>
     </dependency>
-
-    <!-- Div Warn Exp Analysis -->
-    <!-- <dependency> -->
-    <!--   <groupId>eu.compassresearch.examples</groupId> -->
-    <!--   <artifactId>divwarnanalysis</artifactId> -->
-    <!--   <version>${project.version}</version> -->
-    <!-- </dependency> -->
-    
-    <!-- POG Analysis -->
     <dependency>
       <groupId>eu.compassresearch.core.analysis</groupId>
       <artifactId>pog</artifactId>
       <version>${project.version}</version>
     </dependency>
-
   </dependencies>
 
   <build>
-    <plugins>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <targetPath>${project.build.directory}/cmlc</targetPath>
+        <filtering>true</filtering>
+        <includes>
+          <include>cmlc*</include>
+        </includes>
+      </resource>
+    </resources>
 
-      <plugin> 
-	<artifactId>maven-assembly-plugin</artifactId> 
-	<configuration> 
-	  <appendAssemblyId>true</appendAssemblyId> 
-	  <descriptorRefs> 
-	    <descriptorRef>jar-with-dependencies</descriptorRef> 
-	  </descriptorRefs> 
+    <plugins>
+      <plugin>
+	<artifactId>maven-assembly-plugin</artifactId>
+	<configuration>
+	  <appendAssemblyId>false</appendAssemblyId>
+          <finalName>cmlc-${project.version}</finalName>
+          <outputDirectory>${project.build.directory}/cmlc</outputDirectory>
+	  <descriptorRefs>
+	    <descriptorRef>jar-with-dependencies</descriptorRef>
+	  </descriptorRefs>
 	  <archive>
 	    <manifest>
 	      <addClasspath>true</addClasspath>
@@ -98,28 +60,24 @@
 	    </manifest>
 	    <manifestEntries>
 	      <mode>development</mode>
-	      <url>${pom.url}</url>
+	      <url>${project.url}</url>
 	    </manifestEntries>
 	  </archive>
-
-	</configuration> 
-	<executions> 
-	  <execution> 
-	    <id>make-assembly</id> 
-	    <phase>package</phase> 
-	    <goals> 
-	      <goal>single</goal> 
-	    </goals> 
-	  </execution> 
-	</executions> 
+	</configuration>
+	<executions>
+	  <execution>
+	    <id>make-assembly</id>
+	    <phase>package</phase>
+	    <goals>
+	      <goal>single</goal>
+	    </goals>
+	  </execution>
+	</executions>
       </plugin>
 
-      <!--
-	  To build an executable jar (as in java -jar myjar.jar)
-	  a main class must be set in the jar manifast.
-      -->
+      <!-- To build an executable jar (as in java -jar myjar.jar) a main class 
+	   must be set in the jar manifast. -->
       <plugin>
-	<version>2.4</version>
 	<groupId>org.apache.maven.plugins</groupId>
 	<artifactId>maven-jar-plugin</artifactId>
 	<configuration>
@@ -133,7 +91,7 @@
 	    </manifest>
 	    <manifestEntries>
 	      <mode>development</mode>
-	      <url>${pom.url}</url>
+	      <url>${project.url}</url>
 	    </manifestEntries>
 	  </archive>
 	</configuration>

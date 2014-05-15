@@ -58,7 +58,7 @@ public class ConnectionThread extends Thread
 	Semaphore executingSem = new Semaphore(0);
 	private String registeredProcessName;
 	private AbortMessage abortedMsg;
-	
+
 	public ConnectionThread(ThreadGroup group, Socket conn, boolean principal,
 			IProcessBehaviourDelegationManager delegationManager)
 			throws IOException
@@ -110,7 +110,8 @@ public class ConnectionThread extends Thread
 			// Caused by die(), and CDMJ death
 			if (connected)
 			{
-				System.err.println("Error in connection thread for: "+registeredProcessName);
+				System.err.println("Error in connection thread for: "
+						+ registeredProcessName);
 				e.printStackTrace();
 			}
 		} catch (IOException e)
@@ -156,13 +157,13 @@ public class ConnectionThread extends Thread
 		{
 			FinishedReplyMessage replyMsg = (FinishedReplyMessage) message;
 			isFinishedMap.get(replyMsg.getProcess()).offer(replyMsg.isFinished());
-		}else if (message instanceof ExecuteCompletedMessage)
+		} else if (message instanceof ExecuteCompletedMessage)
 		{
 			executingSem.release();
-		}else if (message instanceof AbortMessage)
+		} else if (message instanceof AbortMessage)
 		{
-			this.delegationManager.abortedBy(this,registeredProcessName,((AbortMessage) message).getErrorCode(),((AbortMessage) message).getMessage());
-			this.abortedMsg =(AbortMessage)message;
+			this.delegationManager.abortedBy(this, registeredProcessName, ((AbortMessage) message).getErrorCode(), ((AbortMessage) message).getMessage());
+			this.abortedMsg = (AbortMessage) message;
 		}
 	}
 
@@ -179,7 +180,7 @@ public class ConnectionThread extends Thread
 			throws JsonGenerationException, JsonMappingException, IOException
 	{
 		checkAbortState();
-		
+
 		comm.send(new ExecuteMessage(transition));
 		try
 		{
@@ -193,9 +194,12 @@ public class ConnectionThread extends Thread
 
 	private void checkAbortState()
 	{
-		if(abortedMsg!=null)
+		if (abortedMsg != null)
 		{
-			throw new InterpreterRuntimeException("The external co-simulation process "+registeredProcessName+" aborted with error: "+abortedMsg.getErrorCode()+" "+abortedMsg.getMessage());
+			throw new InterpreterRuntimeException("The external co-simulation process "
+					+ registeredProcessName
+					+ " aborted with error: "
+					+ abortedMsg.getErrorCode() + " " + abortedMsg.getMessage());
 		}
 	}
 
@@ -204,7 +208,7 @@ public class ConnectionThread extends Thread
 			InterruptedException
 	{
 		checkAbortState();
-		
+
 		if (!isFinishedMap.containsKey(processName))
 		{
 			isFinishedMap.put(processName, new SynchronousQueue<Boolean>());

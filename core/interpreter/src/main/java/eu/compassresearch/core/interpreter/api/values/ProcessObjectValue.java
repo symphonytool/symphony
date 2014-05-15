@@ -28,23 +28,26 @@ public class ProcessObjectValue extends ObjectValue
 	private AProcessDefinition processDefinition = null;
 	private PExp invariantExpression = null;
 
-	public ProcessObjectValue(IInterpreterAssistantFactory af,AProcessDefinition processDefinition,
-			NameValuePairMap members, ObjectValue creator)
+	public ProcessObjectValue(IInterpreterAssistantFactory af,
+			AProcessDefinition processDefinition, NameValuePairMap members,
+			ObjectValue creator)
 	{
 		super(CmlToVdmConverter.createClassType(processDefinition), members, new LinkedList<ObjectValue>(), CPUValue.vCPU, creator);
 		this.processDefinition = processDefinition;
 		configureRuntime(af);
 	}
 
-	public ProcessObjectValue(IInterpreterAssistantFactory af,AProcessDefinition processDefinition,
-			NameValuePairMap members, ObjectValue creator, PExp invExp)
+	public ProcessObjectValue(IInterpreterAssistantFactory af,
+			AProcessDefinition processDefinition, NameValuePairMap members,
+			ObjectValue creator, PExp invExp)
 	{
-		this(af,processDefinition, members, creator);
+		this(af, processDefinition, members, creator);
 		this.setInvariantExpression(invExp);
 		configureRuntime(af);
 	}
 
-	public ProcessObjectValue(IInterpreterAssistantFactory af,AProcessDefinition processDefinition,
+	public ProcessObjectValue(IInterpreterAssistantFactory af,
+			AProcessDefinition processDefinition,
 			SClassDefinition classDefinition, NameValuePairMap members,
 			ObjectValue creator, PExp invExp)
 	{
@@ -54,8 +57,8 @@ public class ProcessObjectValue extends ObjectValue
 		configureRuntime(af);
 	}
 
-	public ProcessObjectValue(IInterpreterAssistantFactory af,AProcessDefinition processDefinition,
-			ObjectValue creator)
+	public ProcessObjectValue(IInterpreterAssistantFactory af,
+			AProcessDefinition processDefinition, ObjectValue creator)
 	{
 		super(CmlToVdmConverter.createClassType(processDefinition), new NameValuePairMap(), new LinkedList<ObjectValue>(), CPUValue.vCPU, creator);
 		this.processDefinition = processDefinition;
@@ -71,7 +74,7 @@ public class ProcessObjectValue extends ObjectValue
 		{
 			AActionProcess actionProcess = (AActionProcess) processDefinition.getProcess();
 			def = actionProcess.getActionDefinition();
-			SClassDefinitionRuntime state = new ProcessDefinitionRuntime(af,def, name);
+			SClassDefinitionRuntime state = new ProcessDefinitionRuntime(af, def, name);
 			VdmRuntime.setNodeState(processDefinition, state);
 		}
 

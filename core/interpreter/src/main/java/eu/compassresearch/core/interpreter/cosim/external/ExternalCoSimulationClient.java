@@ -256,8 +256,9 @@ public class ExternalCoSimulationClient extends Thread
 		this.subsystem = subsystem;
 	}
 
-	public void abort(int error, String message) throws JsonGenerationException, JsonMappingException, IOException
+	public void abort(int error, String message)
+			throws JsonGenerationException, JsonMappingException, IOException
 	{
-		comm.send(new AbortMessage(error,message));
+		comm.send(new AbortMessage(error, message));
 	}
 }

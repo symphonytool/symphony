@@ -35,7 +35,6 @@ import eu.compassresearch.core.interpreter.api.events.TraceEvent;
 import eu.compassresearch.core.interpreter.api.events.TraceObserver;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
-import eu.compassresearch.core.interpreter.api.transitions.LabelledTransition;
 import eu.compassresearch.core.interpreter.api.transitions.ObservableTransition;
 import eu.compassresearch.core.interpreter.api.transitions.TimedTransition;
 import eu.compassresearch.core.interpreter.utility.Pair;
@@ -43,7 +42,7 @@ import eu.compassresearch.core.interpreter.utility.Pair;
 class ConcreteCmlBehaviour implements CmlBehaviour
 {
 	final static Logger logger = LoggerFactory.getLogger("cml-interpreter");
-	
+
 	private static int globalIdCount = 0;
 	private static final long serialVersionUID = -4920762081111266274L;
 
@@ -108,7 +107,7 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	 * are created
 	 */
 	Pair<Context, Context> preConstructedChildContexts = null;
-	
+
 	CmlBehaviorState state = null;
 
 	// This might get used to boost the performance
@@ -169,23 +168,25 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 			{
 				final CmlBehaviorStateObserver obs = new CmlBehaviorStateObserver()
 				{
-					
+
 					@Override
 					public void onStateChange(CmlBehaviorStateEvent stateEvent)
 					{
-						//if(state == CmlBehaviorState.WAITING_CHILD)
-							newTransitionEvent(TransitionEvent.CHILD_EVENT);
-		
+						// if(state == CmlBehaviorState.WAITING_CHILD)
+						newTransitionEvent(TransitionEvent.CHILD_EVENT);
+
 					}
 				};
-				
-				if(child != null && child.onStateChanged() != null)
+
+				if (child != null && child.onStateChanged() != null)
+				{
 					child.onStateChanged().registerObserver(obs);
-				else if(leftChild != null && leftChild.onStateChanged() != null)
+				} else if (leftChild != null
+						&& leftChild.onStateChanged() != null)
 				{
 					leftChild.onStateChanged().unregisterObserver(obs);
 				}
-				
+
 				ConcreteCmlBehaviour.this.setLeftChild(child);
 				newTransitionEvent(TransitionEvent.CHILD_EVENT);
 			}
@@ -193,26 +194,28 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 			@Override
 			public void setRightChild(CmlBehaviour child)
 			{
-							
+
 				final CmlBehaviorStateObserver obs = new CmlBehaviorStateObserver()
 				{
-					
+
 					@Override
 					public void onStateChange(CmlBehaviorStateEvent stateEvent)
 					{
-						//if(state == CmlBehaviorState.WAITING_CHILD)
-							newTransitionEvent(TransitionEvent.CHILD_EVENT);
-		
+						// if(state == CmlBehaviorState.WAITING_CHILD)
+						newTransitionEvent(TransitionEvent.CHILD_EVENT);
+
 					}
 				};
-				
-				if(child != null && child.onStateChanged() != null)
+
+				if (child != null && child.onStateChanged() != null)
+				{
 					child.onStateChanged().registerObserver(obs);
-				else if(rightChild != null &&  rightChild.onStateChanged() != null)
+				} else if (rightChild != null
+						&& rightChild.onStateChanged() != null)
 				{
 					rightChild.onStateChanged().unregisterObserver(obs);
 				}
-				
+
 				ConcreteCmlBehaviour.this.setRightChild(child);
 				newTransitionEvent(TransitionEvent.CHILD_EVENT);
 			}
@@ -242,13 +245,13 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 			{
 				triggerEvent(event);
 			}
-			
+
 		};
 
 		// Initialize the visitors
 		setupVisitor = new CmlSetupVisitor(this, visitorAccess, this.cmlBehaviorFactory);
 		inspectionVisitor = new CmlInspectionVisitor(this, this.cmlBehaviorFactory, visitorAccess);
-	
+
 		// must not notify before name is set
 		state = CmlBehaviorState.RUNNING;
 	}
@@ -300,11 +303,12 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	 * Executes the current process behaviour
 	 */
 	@Override
-	public void execute(CmlTransition selectedTransition) throws AnalysisException
+	public void execute(CmlTransition selectedTransition)
+			throws AnalysisException
 	{
 		/*
-		 * If the selected transition is tock, then we need to execute the 
-		 * children as well to make time pass in the entire process tree
+		 * If the selected transition is tock, then we need to execute the children as well to make time pass in the
+		 * entire process tree
 		 */
 		if (selectedTransition instanceof TimedTransition)
 		{
@@ -324,12 +328,12 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 			waitPrime = false;
 			setNext(lastInspection.getTransitionFunction().execute(selectedTransition));
 		}
-		performInspection();	
+		performInspection();
 		performTransitionEvents();
 		updateTrace(selectedTransition);
-		
+
 	}
-	
+
 	protected boolean setNext(Pair<INode, Context> newNext)
 			throws AnalysisException
 	{
@@ -344,7 +348,7 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 			return false;
 		}
 	}
-	
+
 	private void performInspection() throws AnalysisException
 	{
 		if (lastInspection == null
@@ -353,15 +357,19 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 			lastInspection = next.first.apply(inspectionVisitor, next.second);
 		}
 	}
-	
+
 	private void performTransitionEvents()
 	{
-		//if next node is skip we the state is finished
-		
-		if(state != CmlBehaviorState.STOPPED && isDeadlocked())
+		// if next node is skip we the state is finished
+
+		if (state != CmlBehaviorState.STOPPED && isDeadlocked())
+		{
 			triggerEvent(TransitionEvent.STOP);
-		else if(state != CmlBehaviorState.WAITING_CHILD && isChildrenWaiting())
+		} else if (state != CmlBehaviorState.WAITING_CHILD
+				&& isChildrenWaiting())
+		{
 			triggerEvent(TransitionEvent.WAIT_CHILD);
+		}
 	}
 
 	@Override
@@ -374,7 +382,8 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	/**
 	 * Update the trace and fires the trace event
 	 * 
-	 * @param The recent executed transition
+	 * @param The
+	 *            recent executed transition
 	 */
 	private void updateTrace(CmlTransition event)
 	{
@@ -384,13 +393,15 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 
 	private void triggerEvent(TransitionEvent event)
 	{
-		CmlBehaviorState oldState = state; 
-		state = state.next(event); 
-		
-		if(oldState != state)
+		CmlBehaviorState oldState = state;
+		state = state.next(event);
+
+		if (oldState != state)
+		{
 			notifyOnStateChange(state);
+		}
 	}
-	
+
 	/*
 	 * Execute region end
 	 */
@@ -406,7 +417,7 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	{
 		return this.processId;
 	}
-	
+
 	@Override
 	public int compareTo(CmlBehaviour o)
 	{
@@ -499,10 +510,10 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	@Override
 	public boolean waiting()
 	{
-		return state == CmlBehaviorState.WAITING_CHILD || 
-				state == CmlBehaviorState.WAITING_EVENT;
+		return state == CmlBehaviorState.WAITING_CHILD
+				|| state == CmlBehaviorState.WAITING_EVENT;
 	}
-	
+
 	private boolean isChildrenWaiting()
 	{
 		boolean ret = false;
@@ -529,8 +540,9 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	@Override
 	public boolean finished()
 	{
-		//return state == CmlBehaviorState.FINISHED;
-		return next.first instanceof ASkipAction || next.first instanceof ASkipStm;
+		// return state == CmlBehaviorState.FINISHED;
+		return next.first instanceof ASkipAction
+				|| next.first instanceof ASkipStm;
 	}
 
 	@Override
@@ -538,19 +550,15 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	{
 		return isDeadlocked();
 	}
-	
+
 	private boolean isDeadlocked()
 	{
 		CmlTransitionSet alpha = lastInspection.getTransitions();
-		
-		return (!finished() && (
-				alpha.isEmpty()
-				||
-				(
-				alpha.size() <= 1 && 
-				alpha.filterByType(TimedTransition.class).size() == 1) &&
-				!((TimedTransition) alpha.filterByTypeAsSet(ObservableTransition.class).first()).hasTimeLimit())
-				);
+
+		return !finished()
+				&& (alpha.isEmpty() || alpha.size() <= 1
+						&& alpha.filterByType(TimedTransition.class).size() == 1
+						&& !((TimedTransition) alpha.filterByTypeAsSet(ObservableTransition.class).first()).hasTimeLimit());
 	}
 
 	protected void notifyOnStateChange(CmlBehaviorState state)
@@ -570,13 +578,13 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	{
 		return next;
 	}
-	
+
 	@Override
 	public CmlBehaviorState getState()
 	{
 		return state;
 	}
-	
+
 	@Override
 	public void replaceState(Context context) throws ValueException
 	{

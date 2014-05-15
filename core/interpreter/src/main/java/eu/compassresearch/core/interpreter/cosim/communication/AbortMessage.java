@@ -22,7 +22,7 @@ public class AbortMessage implements JsonMessage
 
 	private int errorCode;
 	private String message;
-	
+
 	/**
 	 * default for message parsing
 	 */

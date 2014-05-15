@@ -8,24 +8,25 @@ public class UpdateTimeLimit implements MapOperation
 	long startTimeVal;
 	long val;
 	CmlBehaviour owner;
-	
+
 	public UpdateTimeLimit(CmlBehaviour owner, long val, long startTimeVal)
 	{
 		this.owner = owner;
-		this.val = val;		
+		this.val = val;
 		this.startTimeVal = startTimeVal;
 	}
-	
+
 	@Override
 	public CmlTransition apply(CmlTransition transition)
 	{
-		if(transition instanceof TimedTransition)
+		if (transition instanceof TimedTransition)
 		{
 			long limit = val - (owner.getCurrentTime() - startTimeVal);
-			return ((TimedTransition)transition).synchronizeWith(new TimedTransition(owner, limit));
-		}
-		else
+			return ((TimedTransition) transition).synchronizeWith(new TimedTransition(owner, limit));
+		} else
+		{
 			return transition;
+		}
 	}
 
 }

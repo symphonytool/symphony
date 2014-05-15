@@ -8,5 +8,6 @@
 <message column="2" line="14" message="Function returns unexpected type. Actual: char Expected: G" messageType="error" number="3018" resource="tc-context-test-model.cml"/>
 <message column="25" line="37" message="State variable 'a' cannot be accessed from this context." messageType="error" number="3302" resource="tc-context-test-model.cml"/>
 <message column="28" line="97" message="Left hand of + is not numeric. Actual: bool" messageType="error" number="3139" resource="tc-context-test-model.cml"/>
+<message column="13" line="74" message="Expecting 1 arguments." messageType="error" number="3216" resource="tc-context-test-model.cml"/>
 <result/>
 </testResult>

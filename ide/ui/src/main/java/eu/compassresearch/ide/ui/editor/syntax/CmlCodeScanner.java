@@ -26,6 +26,7 @@ import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.jface.text.rules.EndOfLineRule;
 import org.eclipse.jface.text.rules.IRule;
 import org.eclipse.jface.text.rules.IToken;
+import org.eclipse.jface.text.rules.SingleLineRule;
 import org.eclipse.jface.text.rules.Token;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.RGB;
@@ -48,6 +49,10 @@ public class CmlCodeScanner extends VdmCodeScanner
 		rules.add(new PrefixedUnderscoreIdentifierRule("ch", new Token(new TextAttribute(provider.getColor(new RGB(128, 128, 0)), null, SWT.NONE))));
 		rules.add(new QuoteRule(type));
 		rules.add(new EndOfLineRule("//", comment));
+		
+		rules.add(new SingleLineRule("\\begin{cml", "}", comment));
+		rules.add(new SingleLineRule("\\end{cml", "}", comment));
+		
 		rules.addAll(Arrays.asList(this.fRules));
 
 		IRule[] result = new IRule[rules.size()];

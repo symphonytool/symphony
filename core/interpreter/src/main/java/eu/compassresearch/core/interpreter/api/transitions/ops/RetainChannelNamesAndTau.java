@@ -11,11 +11,12 @@ public class RetainChannelNamesAndTau extends RetainChannelNames
 	{
 		super(channelNameSetValue);
 	}
-	
+
 	@Override
 	public boolean isAccepted(CmlTransition transition)
 	{
-		return super.isAccepted(transition) || (transition instanceof TauTransition);
+		return super.isAccepted(transition)
+				|| transition instanceof TauTransition;
 	}
 
 }
