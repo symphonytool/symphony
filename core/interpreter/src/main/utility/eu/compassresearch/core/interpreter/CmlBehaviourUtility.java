@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 
+import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.interpreter.runtime.ClassContext;
 import org.overture.interpreter.runtime.Context;
@@ -74,9 +75,9 @@ class CmlBehaviourUtility
 
 		return result;
 	}
-
-	private static void replaceObjectMembers(ObjectValue srcObj,
-			ObjectValue dstObj, Context dstContext) throws ValueException
+	
+	
+	private static void replaceObjectMembers(ObjectValue srcObj, ObjectValue dstObj, Context dstContext) throws AnalysisException
 	{
 		for (Entry<ILexNameToken, Value> srcEntry : srcObj.getMemberValues().entrySet())
 		{
@@ -90,9 +91,8 @@ class CmlBehaviourUtility
 			}
 		}
 	}
-
-	private static void replaceMembers(ObjectValue srcObj, Context dstContext)
-			throws ValueException
+	
+	private static void replaceMembers(ObjectValue srcObj, Context dstContext) throws AnalysisException
 	{
 		for (Entry<ILexNameToken, Value> entry : srcObj.getMemberValues().entrySet())
 		{
@@ -114,8 +114,8 @@ class CmlBehaviourUtility
 		}
 	}
 
-	public static Context mergeAndReplaceState(Context dstContext,
-			Context srcContext) throws ValueException
+	public static Context mergeAndReplaceState(Context dstContext, Context srcContext)
+			throws AnalysisException
 	{
 		// Find the root context, this is the current process object root context
 		RootContext srcRootContext = srcContext.getRoot();

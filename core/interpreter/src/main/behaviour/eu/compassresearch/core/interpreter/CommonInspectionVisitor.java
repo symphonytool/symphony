@@ -245,9 +245,10 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 	 * Handles the external choice end rule
 	 * 
 	 * @return
+	 * @throws AnalysisException 
 	 */
 	protected Pair<INode, Context> caseExternalChoiceEnd(
-			CmlBehaviour theChoosenOne, Context context) throws ValueException
+			CmlBehaviour theChoosenOne, Context context) throws AnalysisException
 	{
 		Context copyContext = theChoosenOne.getNextState().second;
 		Context newCurrentContext = CmlBehaviourUtility.mergeAndReplaceState(context, copyContext);
