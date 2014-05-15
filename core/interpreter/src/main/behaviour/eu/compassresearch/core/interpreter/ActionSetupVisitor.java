@@ -375,7 +375,7 @@ class ActionSetupVisitor extends CommonSetupVisitor
 			{
 				try
 				{
-					context.putList(PPatternAssistantInterpreter.getNamedValues(node.getPatternBind().getPattern(), x, context));
+					context.putList(question.assistantFactory.createPPatternAssistant().getNamedValues(node.getPatternBind().getPattern(), x, context));
 				} catch (PatternMatchException e)
 				{
 					// Ignore mismatches
@@ -446,7 +446,7 @@ class ActionSetupVisitor extends CommonSetupVisitor
 			{
 				try
 				{
-					context.putList(PPatternAssistantInterpreter.getNamedValues(node.getPattern(), x, context));
+					context.putList(question.assistantFactory.createPPatternAssistant().getNamedValues(node.getPattern(), x, context));
 				} catch (PatternMatchException e)
 				{
 					// Ignore mismatches
