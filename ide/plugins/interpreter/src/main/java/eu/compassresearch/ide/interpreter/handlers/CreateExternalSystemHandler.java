@@ -91,7 +91,7 @@ public class CreateExternalSystemHandler extends AbstractHandler implements
 				base.create(true, false, new NullProgressMonitor());
 			}
 
-			IFolder gen = base.getFolder("generates");
+			IFolder gen = base.getFolder("generated");
 
 			if (!gen.exists())
 			{

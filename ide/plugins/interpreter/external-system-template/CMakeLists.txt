@@ -112,7 +112,7 @@ add_executable(ExternalSystem
 	src/stdafx.h
 	src/stdafx.cpp
 	src/QuoteSenderExample.hpp
-	generates/CoSimConfig.hpp
+	generated/CoSimConfig.hpp
 )
 
 
