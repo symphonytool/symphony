@@ -9,6 +9,7 @@ import org.overture.ast.definitions.AClassClassDefinition;
 import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.intf.lex.ILexNameToken;
+import org.overture.ast.lex.LexQuoteToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.node.Node;
 import org.overture.ast.types.AClassType;
@@ -72,6 +73,14 @@ public class MessageCommunicatorMixins
 		List<PType> typeQualifier;
 		// @JsonIgnore
 		// ILexLocation location;
+	}
+	
+	static abstract class LexQuoteTokenMixIn
+	{
+		LexQuoteTokenMixIn(@JsonProperty("value") String value,
+				@JsonProperty("location") ILexLocation location)
+		{
+		}
 	}
 
 	// IDE
@@ -261,6 +270,7 @@ public class MessageCommunicatorMixins
 
 		// Cosim
 		ctxt.setMixInAnnotations(QuoteValue.class, QuoteValueMixIn.class);
+		ctxt.setMixInAnnotations(LexQuoteToken.class, LexQuoteTokenMixIn.class);
 		ctxt.setMixInAnnotations(BooleanValue.class, BooleanValueMixIn.class);
 		ctxt.setMixInAnnotations(NaturalValue.class, NaturalValueMixIn.class);
 		ctxt.setMixInAnnotations(NaturalOneValue.class, NaturalOneValueMixIn.class);

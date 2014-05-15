@@ -11,7 +11,6 @@ Require-Bundle:
  eu.compassresearch.ide.ui,
  eu.compassresearch.ide.modelchecker
 Import-Package: eu.compassresearch.ast.program,
- eu.compassresearch.core.common,
  eu.compassresearch.ide.core.resources,
  eu.compassresearch.ide.core.unsupported,
  eu.compassresearch.ide.modelchecker,

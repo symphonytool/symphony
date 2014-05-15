@@ -1,21 +1,21 @@
 package eu.compassresearch.core.parser.test;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.util.Collection;
 import java.util.List;
 import java.util.Vector;
 
-import org.antlr.runtime.ANTLRInputStream;
-import org.antlr.runtime.CommonTokenStream;
+
+
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import eu.compassresearch.core.parser.CmlLexer;
-import eu.compassresearch.core.parser.CmlParser;
+import eu.compassresearch.core.parser.ParserUtil;
+import eu.compassresearch.core.parser.ParserUtil.ParserResult;
 
 @RunWith(Parameterized.class)
 public class ParseAllCmlExampleFilesTest
@@ -33,8 +33,7 @@ public class ParseAllCmlExampleFilesTest
 	{
 		return getCmlfilePaths("../../docs/cml-examples");
 	}
-	
-	
+
 	public static Collection<Object[]> getCmlfilePaths(String path)
 	{
 		File dir = new File(path);
@@ -84,14 +83,16 @@ public class ParseAllCmlExampleFilesTest
 	@Test
 	public void testParseCmlFile() throws Exception
 	{
-		FileInputStream source = new FileInputStream(filePath);
-		ANTLRInputStream stream = new ANTLRInputStream(source);
-		CmlLexer lexer = new CmlLexer(stream);
-		CommonTokenStream tokens = new CommonTokenStream(lexer);
-		CmlParser parser = new CmlParser(tokens);
-
-	Object res =	parser.source(); // parser.source() returns the parse tree, but we never check it here
-	int i = 0;
+//		FileInputStream source = new FileInputStream(filePath);
+//		ANTLRInputStream stream = new ANTLRInputStream(source);
+//		CmlLexer lexer = new CmlLexer(stream);
+//		CommonTokenStream tokens = new CommonTokenStream(lexer);
+//		CmlParser parser = new CmlParser(tokens);
+//
+//		parser.source(); // parser.source() returns the parse tree, but we never check it here
+		
+		ParserResult result = ParserUtil.parse(new File(filePath));
+		Assert.assertTrue("There are parse failures: \n"+result, result.errors.isEmpty());
 	}
 
 }
