@@ -9,6 +9,7 @@ import org.overture.ast.definitions.AClassClassDefinition;
 import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.intf.lex.ILexNameToken;
+import org.overture.ast.lex.LexQuoteToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.node.Node;
 import org.overture.ast.types.AClassType;
@@ -70,8 +71,16 @@ public class MessageCommunicatorMixins
 
 		@JsonIgnore
 		List<PType> typeQualifier;
-//		@JsonIgnore
-//		ILexLocation location;
+		// @JsonIgnore
+		// ILexLocation location;
+	}
+	
+	static abstract class LexQuoteTokenMixIn
+	{
+		LexQuoteTokenMixIn(@JsonProperty("value") String value,
+				@JsonProperty("location") ILexLocation location)
+		{
+		}
 	}
 
 	// IDE
@@ -109,7 +118,7 @@ public class MessageCommunicatorMixins
 		}
 
 	}
-	
+
 	static abstract class BooleanValueMixIn
 	{
 		BooleanValueMixIn(@JsonProperty("value") boolean value)
@@ -117,7 +126,7 @@ public class MessageCommunicatorMixins
 		}
 
 	}
-	
+
 	static abstract class NaturalValueMixIn
 	{
 		NaturalValueMixIn(@JsonProperty("longVal") long value)
@@ -127,7 +136,7 @@ public class MessageCommunicatorMixins
 		@JsonIgnore
 		public double value;
 	}
-	
+
 	static abstract class NaturalOneValueMixIn
 	{
 		NaturalOneValueMixIn(@JsonProperty("longVal") long value)
@@ -143,25 +152,25 @@ public class MessageCommunicatorMixins
 		IntegerValueMixIn(@JsonProperty("longVal") long value)
 		{
 		}
-		
+
 		@JsonIgnore
-		 double value;
+		double value;
 	}
-	
+
 	static abstract class RationalValueMixIn
 	{
 		RationalValueMixIn(@JsonProperty("value") double value)
 		{
 		}
-		
+
 	}
-	
+
 	static abstract class RealValueMixIn
 	{
 		RealValueMixIn(@JsonProperty("value") double value)
 		{
 		}
-		
+
 	}
 
 	static abstract class TokenValueMixIn
@@ -177,24 +186,29 @@ public class MessageCommunicatorMixins
 		{
 		}
 	}
-	
+
 	static abstract class RecordValueMixIn
 	{
-		RecordValueMixIn(@JsonProperty("type") ARecordInvariantType type,@JsonProperty("fieldmap")	FieldMap mapvalues,@JsonProperty("invariant") FunctionValue invariant)
+		RecordValueMixIn(@JsonProperty("type") ARecordInvariantType type,
+				@JsonProperty("fieldmap") FieldMap mapvalues,
+				@JsonProperty("invariant") FunctionValue invariant)
 		{
-		
+
 		}
+
 		@JsonIgnore
 		FunctionValue invariant;
 	}
-	
+
 	static abstract class FieldValueMixIn
 	{
-		FieldValueMixIn(@JsonProperty("name") String name,@JsonProperty("value") Value value,@JsonProperty("comparable") boolean comparable)
+		FieldValueMixIn(@JsonProperty("name") String name,
+				@JsonProperty("value") Value value,
+				@JsonProperty("comparable") boolean comparable)
 		{
-		
+
 		}
-		
+
 	}
 
 	static abstract class CMLChannelValueMixIn
@@ -222,22 +236,26 @@ public class MessageCommunicatorMixins
 		}
 	}
 
-
 	private static Map<Class<?>, String[]> ignore = new HashMap<Class<?>, String[]>();
 
 	static
 	{
 		ignore.put(AClassType.class, new String[] { "_classdef" });
-		ignore.put(ATypeDefinition.class, new String[]{"_classDefinition","_invdef"});
-		ignore.put(AClassClassDefinition.class, new String[]{"_definitions"});
-		ignore.put(ARecordInvariantType.class, new String[]{"_invDef","_fields"});
-		ignore.put(PType.class, new String[] { "_definitions","_location","_resolved" });
+		ignore.put(ATypeDefinition.class, new String[] { "_classDefinition",
+				"_invdef" });
+		ignore.put(AClassClassDefinition.class, new String[] { "_definitions" });
+		ignore.put(ARecordInvariantType.class, new String[] { "_invDef",
+				"_fields" });
+		ignore.put(PType.class, new String[] { "_definitions", "_location",
+				"_resolved" });
 		ignore.put(CmlTransitionSet.class, new String[] { "silentEvents" });
 		ignore.put(CmlChannel.class, new String[] { "selectObservers" });
-//		ignore.put(AChannelType.class, new String[] { "_location","_definitions" });
-		
-		ignore.put(CmlLexNameToken.class, new String[] { "location" ,"old","explicit","hashcode"});
-//		ignore.put(LatticeTopValue.class, new String[] { "type" });//Commented this, not sure which case that made us add ignore for it
+		// ignore.put(AChannelType.class, new String[] { "_location","_definitions" });
+
+		ignore.put(CmlLexNameToken.class, new String[] { "location", "old",
+				"explicit", "hashcode" });
+		// ignore.put(LatticeTopValue.class, new String[] { "type" });//Commented this, not sure which case that made us
+		// add ignore for it
 	}
 
 	public static void setup(SetupContext ctxt)
@@ -252,6 +270,7 @@ public class MessageCommunicatorMixins
 
 		// Cosim
 		ctxt.setMixInAnnotations(QuoteValue.class, QuoteValueMixIn.class);
+		ctxt.setMixInAnnotations(LexQuoteToken.class, LexQuoteTokenMixIn.class);
 		ctxt.setMixInAnnotations(BooleanValue.class, BooleanValueMixIn.class);
 		ctxt.setMixInAnnotations(NaturalValue.class, NaturalValueMixIn.class);
 		ctxt.setMixInAnnotations(NaturalOneValue.class, NaturalOneValueMixIn.class);

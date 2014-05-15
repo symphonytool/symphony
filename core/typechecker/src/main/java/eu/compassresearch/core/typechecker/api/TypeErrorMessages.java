@@ -151,7 +151,9 @@ public enum TypeErrorMessages
 			"Expecting a state or nameset definition but found a %s definition"),
 
 	PARALLEL_NAMESETS_MUST_BE_DISJOINT_REPEATED_STATE(3443,
-			"Namesets for parallel actions must be disjoint. Repeated identifiers: %s");
+			"Namesets for parallel actions must be disjoint. Repeated identifiers: %s"),
+
+	UNSUPPORTED_CONSTRUCT(3444, "Unsupported language construct found: '%s'");
 
 	;
 

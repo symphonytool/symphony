@@ -39,7 +39,8 @@ public class JsonValueTest
 				new BooleanValue(false), new CharacterValue('c'),
 				new IntegerValue(-45), new NaturalValue(0),
 				new NaturalOneValue(3), new RationalValue(1 / 3),
-				new RealValue(123.123),new SeqValue("My test string"), new LatticeTopValue(new AIntNumericBasicType()) };
+				new RealValue(123.123), new SeqValue("My test string"),
+				new LatticeTopValue(new AIntNumericBasicType()) };
 
 		List<Object[]> tests = new Vector<Object[]>();
 

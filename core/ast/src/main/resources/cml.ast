@@ -274,7 +274,7 @@ action {-> package='eu.compassresearch.ast.actions'
     | #Instantiated
     | #Replicated
     | {stm} [statement]:stm
-    | {call} [name]:LexNameToken [args]:exp*
+   // | {call} [name]:LexNameToken [args]:exp*
     | {reference}
         [name]:LexNameToken
         [args]:exp*

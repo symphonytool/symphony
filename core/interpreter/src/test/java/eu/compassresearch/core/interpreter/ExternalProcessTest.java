@@ -19,7 +19,7 @@ import eu.compassresearch.core.interpreter.cosim.communication.Utils;
 
 public class ExternalProcessTest
 {
-	
+
 	protected static interface IConsoleWatcher
 	{
 
@@ -37,40 +37,46 @@ public class ExternalProcessTest
 
 	public static int findAvailablePort(int fromPort, int toPort)
 	{
-		if (fromPort > toPort) {
-			throw new IllegalArgumentException(
-					"startPortShouldBeLessThanOrEqualToEndPort");
+		if (fromPort > toPort)
+		{
+			throw new IllegalArgumentException("startPortShouldBeLessThanOrEqualToEndPort");
 		}
-	
+
 		int port = fromPort;
 		ServerSocket socket = null;
-		while (port <= toPort) {
-			try {
+		while (port <= toPort)
+		{
+			try
+			{
 				socket = new ServerSocket(port);
 				return port;
-			} catch (IOException e) {
+			} catch (IOException e)
+			{
 				++port;
-			} finally {
+			} finally
+			{
 				if (socket != null)
-					try {
+				{
+					try
+					{
 						socket.close();
-					} catch (IOException e) {
+					} catch (IOException e)
+					{
 						e.printStackTrace();
 					}
+				}
 			}
 		}
-	
+
 		return -1;
 	}
 
-
-
-	protected void waitForCompletion(final Process coordinator, final int timeout)
-			throws InterruptedException
+	protected void waitForCompletion(final Process coordinator,
+			final int timeout) throws InterruptedException
 	{
 		Thread timer = new Thread(new Runnable()
 		{
-	
+
 			@Override
 			public void run()
 			{
@@ -79,7 +85,7 @@ public class ExternalProcessTest
 				Assert.fail("Simulation timeout reached. Value = " + timeout);
 			}
 		});
-	
+
 		timer.setDaemon(true);
 		timer.start();
 		coordinator.waitFor();
@@ -95,14 +101,16 @@ public class ExternalProcessTest
 		return result;
 	}
 
-	protected static void startAutoRead(Process serverProcess, final String name, final boolean quiet,final IConsoleWatcher... watch)
+	protected static void startAutoRead(Process serverProcess,
+			final String name, final boolean quiet,
+			final IConsoleWatcher... watch)
 	{
 		InputStream stdout = serverProcess.getInputStream();
 		final BufferedReader reader = new BufferedReader(new InputStreamReader(stdout));
 		new Thread(new Runnable()
 		{
 			String line;
-	
+
 			@Override
 			public void run()
 			{
@@ -114,13 +122,12 @@ public class ExternalProcessTest
 						{
 							System.out.println("Stdout(" + name + "): " + line);
 						}
-	
+
 						for (IConsoleWatcher w : watch)
 						{
 							w.match(line);
 						}
-						
-						
+
 					}
 				} catch (IOException e)
 				{
@@ -136,9 +143,9 @@ public class ExternalProcessTest
 		String classpath = System.getProperty("java.class.path");
 		String path = System.getProperty("java.home") + separator + "bin"
 				+ separator + "java";
-	
+
 		List<String> arguments = new Vector<String>();
-	
+
 		ProcessBuilder processBuilder = new ProcessBuilder();
 		processBuilder.redirectErrorStream(true);
 		arguments.addAll(Arrays.asList(new String[] { path, "-cp", classpath,
@@ -146,7 +153,7 @@ public class ExternalProcessTest
 		arguments.addAll(Arrays.asList(args));
 		processBuilder.command(arguments);
 		Process process = processBuilder.start();
-	
+
 		// process.waitFor();
 		return process;
 	}
@@ -155,15 +162,14 @@ public class ExternalProcessTest
 	{
 		super();
 	}
-	
+
 	@Before
 	public void setUp()
 	{
 		processes = new HashSet<Process>();
 		port = findAvailablePort(7000, 9000);
 	}
-	
-	
+
 	@After
 	public void tearDown() throws Exception
 	{

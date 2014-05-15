@@ -1,17 +1,26 @@
 package eu.compassresearch.ide.rttmbt;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
+import org.eclipse.jface.preference.IntegerFieldEditor;
 import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPropertyPage;
 
+import eu.compassresearch.rttMbtTmsClientApi.RttMbtAdvConfParser;
 import eu.compassresearch.rttMbtTmsClientApi.RttMbtClient;
+import eu.compassresearch.rttMbtTmsClientApi.RttMbtMaxStepsParser;
 
 public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage implements IWorkbenchPropertyPage {
 
@@ -40,12 +49,41 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
 	private StringFieldEditor ignorePatternUploadField;
 	private String ignorePatternUploadProperty;
 
+	// path of test procedure generation context (if selected)
+	private String path;
+
+	// configuration settings
+	private IntegerFieldEditor MaxSolverStepsField;
+	private Integer MaxSolverStepsProperty;
+	private IntegerFieldEditor MaxSimStepsField;
+	private Integer MaxSimStepsProperty;
+	private IntegerFieldEditor AbstractInterpreterField;
+	private Integer AbstractInterpreterProperty;
+	private Integer SanityChecksProperty;
+	private IntegerFieldEditor RobustnessTestingField;
+	private Integer RobustnessTestingProperty;
+	private IntegerFieldEditor RobustnessPercentageField;
+	private Integer RobustnessPercentageProperty;
+	private IntegerFieldEditor MaxSimultaneousInputChangesField;
+	private Integer MaxSimultaneousInputChangesProperty;
+	private IntegerFieldEditor MinDurationBetweenInputChangesField;
+	private Integer MinDurationBetweenInputChangesProperty;
+	private IntegerFieldEditor MaxDurationBetweenInputChangesField;
+	private Integer MaxDurationBetweenInputChangesProperty;
+	private IntegerFieldEditor ModelCheckingField;
+	private Integer ModelCheckingProperty;
+	private Integer GoalCoverageProperty;
+	private Integer BacktrackingProperty;
+	private Integer LoggerProperty;
+	private Integer MaxModelCoverageProperty;
+
 	public RttMbtProjectPropertiesPage() {
 		super(GRID);
 		setDescription("RTT-Project settings");
-    	client = Activator.getClient();
     	project = null;
+    	path = null;
     	projectQualifiedname = null;
+    	client = Activator.getClient();
 	}
 
 	// file separator that is regular expression compatible
@@ -101,13 +139,88 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
 		}
 	}
 
+	/**
+	 * read all property values from max_steps.txt and advanced.conf.csv
+	 * into property variables
+	 */
+	private void readTgenConfig() {
+		RttMbtAdvConfParser advancedConf = new RttMbtAdvConfParser();
+		RttMbtMaxStepsParser maxSteps = new RttMbtMaxStepsParser();
+		advancedConf.readAdvancedConfig(path + File.separator + "conf" + File.separator + "advanced.conf");
+		maxSteps.readMaxSteps(path + File.separator + "conf" + File.separator + "max_steps.txt");
+		MaxSolverStepsProperty = maxSteps.getMaxSolverSteps();
+		MaxSimStepsProperty = maxSteps.getMaxSimulationSteps();
+		GoalCoverageProperty = advancedConf.getGC() ? 1 : 0;
+		BacktrackingProperty = advancedConf.getBT() ? 1 : 0;
+		LoggerProperty = advancedConf.getLO() ? 1 : 0;
+		AbstractInterpreterProperty = advancedConf.getAI() ? 1 : 0;
+		MaxModelCoverageProperty = advancedConf.getMM() ? 1 : 0;
+		SanityChecksProperty = advancedConf.getSC() ? 1 : 0;
+		RobustnessTestingProperty = advancedConf.getRB() ? 1 : 0;
+		RobustnessPercentageProperty = advancedConf.getRP();
+		MaxSimultaneousInputChangesProperty = advancedConf.getCI();
+		MinDurationBetweenInputChangesProperty = advancedConf.getDI();
+		MaxDurationBetweenInputChangesProperty = advancedConf.getLI();
+		ModelCheckingProperty = advancedConf.getMC() ? 1 : 0;
+	}
+
+	/**
+	 * write changes to configuration files if necessary.
+	 */
+	private void writeTgenConfig() {
+		File output = null;
+		Writer writer = null;
+		BufferedWriter bWriter = null;
+		try {
+			// write max_steps.txt
+			output = new File(path + File.separator + "conf" + File.separator + "max_steps.txt");
+			writer = new FileWriter(output);
+			bWriter = new BufferedWriter(writer);
+			bWriter.write("MAX SOLVER STEPS;" + Integer.toString(MaxSolverStepsProperty) + "\n");
+			bWriter.write("MAX SIMULATION STEPS;" + Integer.toString(MaxSimStepsProperty) + "\n");
+			bWriter.close();
+
+			// write advanced.conf
+			output = new File(path + File.separator + "conf" + File.separator + "advanced.conf");
+			writer = new FileWriter(output);
+			bWriter = new BufferedWriter(writer);
+			bWriter.write("GC;" + Integer.toString(GoalCoverageProperty) + ";if 1, cover all goals in d addgoals(ordered).conf, even if they are already covered by other procedures\n");
+			bWriter.write("BT;" + Integer.toString(BacktrackingProperty) + ";switch back tracking on if 1\n");
+			bWriter.write("LO;" + Integer.toString(LoggerProperty) + ";produce logger threads instead of checkers if 1\n");
+			bWriter.write("AI;" + Integer.toString(AbstractInterpreterProperty) + ";use abstract interpretation for speed-up of solver, if 1\n");
+			bWriter.write("MM;" + Integer.toString(MaxModelCoverageProperty) + ";maximise model coverage if 1\n");
+			bWriter.write("SC;" + Integer.toString(SanityChecksProperty) + ";perform sanity checks in solver and abstract interpreter if 1\n");
+			bWriter.write("RB;" + Integer.toString(RobustnessTestingProperty) + ";do robustness testing if 1\n");
+			bWriter.write("RP;" + Integer.toString(RobustnessPercentageProperty) + ";if RB=1 RP defines the percentage of robustness transitions to be performed\n");
+			bWriter.write("CI;" + Integer.toString(MaxSimultaneousInputChangesProperty) + ";maximal number of simultaneous input changes\n");
+			bWriter.write("DI;" + Integer.toString(MinDurationBetweenInputChangesProperty) + ";minimal duration between two input changes\n");
+			bWriter.write("LI;" + Integer.toString(MaxDurationBetweenInputChangesProperty) + ";upper limit for duration between two input changes\n");
+			bWriter.write("MC;" + Integer.toString(ModelCheckingProperty) + ";Perform model checking instead of test generation, if 1\n");
+			bWriter.close();
+		} catch (IOException e) {
+			client.addErrorMessage("problem writing test procedure generation context properties!");
+		}
+	}
+
 	public void createFieldEditors() {
+		String tooltip;
 
 		// check if this project in RT-Tester project
-		project = (IProject)element;
+		IFolder folder = null;
+		if (element instanceof IFolder) {
+			folder = (IFolder)element;
+    		path = RttMbtClient.getAbsolutePathFromFileURI(folder.getLocationURI());
+			project = folder.getProject();
+		} else if (element instanceof IProject) {
+			project = (IProject)element;
+		} else if (element instanceof IFile) {
+			IFile file = (IFile)element;
+			project = file.getProject();
+		}
+
+		// check for non-RT-Tester projects
 		String projectFilesystemPath = RttMbtClient.getAbsolutePathFromFileURI(project.getLocationURI());
 		if (!RttMbtClient.isRttProject(projectFilesystemPath)) {
-			setDescription("NO RT-Tester Properties available for this project");
 			project = null;
 			return;
 		}
@@ -129,53 +242,231 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
 		}
 		client.setWorkspaceProjectName(project.getName());
 		projectQualifiedname = project.getFullPath().toString().replaceAll(fileSeparatorPattern(), ".");
-		setDescription("RTT-Project settings for " + project.getFullPath());
 
 		// add Project Database Name field
+		tooltip = "The name of the RTT-TMS project database. Note: the database is not used in the current implementation, but will contain persistent information about the project in later versions.";
 		rttProjectDatabaseField = new StringFieldEditor("RttMbtrttProjectDatabase",
                                                    "Project Database Name:",
                                                    getFieldEditorParent());
 		rttProjectDatabaseField.setPreferenceStore(null);
 		rttProjectDatabaseValue = getPropertyValue("RttMbtrttProjectDatabase");
 		rttProjectDatabaseField.setStringValue(rttProjectDatabaseValue);
+		rttProjectDatabaseField.getLabelControl(getFieldEditorParent()).setToolTipText(tooltip);
+		rttProjectDatabaseField.getTextControl(getFieldEditorParent()).setToolTipText(tooltip);
     	addField(rttProjectDatabaseField);
 
 		// add Test Execution Context field
+		tooltip = "The name of the directory in the project where the generation of all model based test procedures is prepared. Note: the generation of each of the test procedures that are to be generated is stored in a separate sub directory of this directory.";
     	rttExeCtxNameField = new StringFieldEditor("RttMbtRttTprocPrefix",
                                                    "Test Execution Context:",
                                                    getFieldEditorParent());
     	rttExeCtxNameField.setPreferenceStore(null);
     	rttExeCtxName = getPropertyValue("RttMbtRttTprocPrefix");
     	rttExeCtxNameField.setStringValue(rttExeCtxName);
+    	rttExeCtxNameField.getLabelControl(getFieldEditorParent()).setToolTipText(tooltip);
+    	rttExeCtxNameField.getTextControl(getFieldEditorParent()).setToolTipText(tooltip);
     	addField(rttExeCtxNameField);
 
 		// add Test Generation Context field
+		tooltip = "The name of the directory inside the project in which all test procedures are generated. Note: each test procedure is generated in a separate sub directory of this directory.";
     	rttTgenCtxNameField = new StringFieldEditor("RttMbtTProcGenCtx",
                                                    "Test Generation Context:",
                                                    getFieldEditorParent());
     	rttTgenCtxNameField.setPreferenceStore(null);
     	rttTgenCtxName = getPropertyValue("RttMbtTProcGenCtx");
     	rttTgenCtxNameField.setStringValue(rttTgenCtxName);
+    	rttTgenCtxNameField.getLabelControl(getFieldEditorParent()).setToolTipText(tooltip);
+    	rttTgenCtxNameField.getTextControl(getFieldEditorParent()).setToolTipText(tooltip);
     	addField(rttTgenCtxNameField);
 
 		// add make tool field
+		tooltip = "The make tool that is used on the RTT-MBT server to build make targets";
     	makeToolField = new StringFieldEditor("RttMbtSutMakeTool",
                                               "Make tool for SUT code:",
                                               getFieldEditorParent());
     	makeToolField.setPreferenceStore(null);
     	makeToolProperty = getPropertyValue("RttMbtSutMakeTool");
     	makeToolField.setStringValue(makeToolProperty);
+    	makeToolField.getLabelControl(getFieldEditorParent()).setToolTipText(tooltip);
+    	makeToolField.getTextControl(getFieldEditorParent()).setToolTipText(tooltip);
     	addField(makeToolField);
 
 		// add file ignore pattern field
+		tooltip = "This field contains a colon (':') separated list of patterns. Only files that do NOT match all of these patterns are uploaded to or downloaded from the RTT-MBT server";
     	ignorePatternUploadField = new StringFieldEditor("RttMbtFileIgnorePattern",
-                                                         "Test Generation Context:",
+                                                         "Ignore Pattern for File Transfer:",
                                                          getFieldEditorParent());
     	ignorePatternUploadField.setPreferenceStore(null);
     	ignorePatternUploadProperty = getPropertyValue("RttMbtFileIgnorePattern");
     	ignorePatternUploadField.setStringValue(ignorePatternUploadProperty);
+    	ignorePatternUploadField.getLabelControl(getFieldEditorParent()).setToolTipText(tooltip);
+    	ignorePatternUploadField.getTextControl(getFieldEditorParent()).setToolTipText(tooltip);
     	addField(ignorePatternUploadField);
 
+    	if ((path != null) && (RttMbtClient.isRttMbtTestProcedure(path))) {
+    		readTgenConfig();
+
+    		// add max. solver steps field
+    		tooltip = "The maximal number of model execution steps from " +
+    				"the current model state that the constraint solver will  perform to look for a " +
+    				"solution of the test objective to be fulfilled. A value between 20 and 100 is " +
+    				"suitable for most projects.";
+    		MaxSolverStepsField = new IntegerFieldEditor("RttMbtMaxSolverSteps",
+    				"Max. Solver Steps:",
+    				getFieldEditorParent());
+    		MaxSolverStepsField.setPreferenceStore(null);
+    		MaxSolverStepsField.setStringValue(MaxSolverStepsProperty.toString());
+    		MaxSolverStepsField.getLabelControl(getFieldEditorParent()).setToolTipText(tooltip);
+    		MaxSolverStepsField.getTextControl(getFieldEditorParent()).setToolTipText(tooltip);
+    		addField(MaxSolverStepsField);
+
+    		// add max. simulation steps field
+    		tooltip = "The maximal number of simulation steps to be " +
+    				"performed by the generator without covering any new model transitions: if this " +
+    				"number is greater than 0, the generator will try to find test data for a test " +
+    				"objective also by means of random walks through the model, if the constraint " +
+    				"solver could not solve the goal within the given number of steps from the " +
+    				"current state.\n" +
+    				"A random walk is continued as long as new portions of the model are covered by " +
+    				"this walk. If a simulation step fails to cover a new model element the initial " +
+    				"value specified by this parameter is decremented. The following simulation steps " +
+    				"continue to decrement this value until a new model element is covered or the " +
+    				"value becomes zero. In the former case the value is set back to the value of this parameter. " +
+    				"In the latter case the simulation is stopped and the constraint solver " +
+    				"tries to reach (one of) the remaining test goals from the model state reached " +
+    				"by the simulation.  " +
+    				"The default value is 0 (no simulation with random data generation).";
+    		MaxSimStepsField = new IntegerFieldEditor("RttMbtMaxSimSteps",
+    				"Max. Simulator Steps:",
+    				getFieldEditorParent());
+    		MaxSimStepsField.setPreferenceStore(null);
+    		MaxSimStepsField.setStringValue(MaxSimStepsProperty.toString());
+    		MaxSimStepsField.getLabelControl(getFieldEditorParent()).setToolTipText(tooltip);
+    		MaxSimStepsField.getTextControl(getFieldEditorParent()).setToolTipText(tooltip);
+    		addField(MaxSimStepsField);
+
+    		// add max. simultaneous input changes field
+    		tooltip = "Maximal number of simultaneous input changes.\n" +
+    				"This is a non-negative natural number. It specifies the" +
+    				"number of inputs that may be changed simultaneously after a delay. " +
+    				"The input vector to the SUT may be changed after " +
+    				"time delays, during which the model state remained stable. " +
+    				"In hardware-in-the-loop tests it may be desirable to change only a bounded number" +
+    				"of inputs at a time, since the SUT reaction may become non-deterministic in " +
+    				"presence of too many nearly simultaneous input changes. Therefore this parameter " +
+    				"is set to 1 by default, meaning that after a delay at most one input " +
+    				"to the SUT is allowed to be changed.\n" +
+    				"For software testing, it is often allowed and even necessary to change several " +
+    				"input variables to the SUT at the same time. If this is the case, this parameter " +
+    				"should be set to a bound which is sufficiently high.";
+    		MaxSimultaneousInputChangesField = new IntegerFieldEditor("RttMbtMaxSimultaneousInputChanges",
+    				"Max. Number of simultaneous Input Changes:",
+    				getFieldEditorParent());
+    		MaxSimultaneousInputChangesField.setPreferenceStore(null);
+    		MaxSimultaneousInputChangesField.setStringValue(MaxSimultaneousInputChangesProperty.toString());
+    		MaxSimultaneousInputChangesField.getLabelControl(getFieldEditorParent()).setToolTipText(tooltip);
+    		MaxSimultaneousInputChangesField.getTextControl(getFieldEditorParent()).setToolTipText(tooltip);
+    		addField(MaxSimultaneousInputChangesField);
+
+    		// add min. duration between input changes
+    		tooltip = "Minimal duration between two input changes.\n" +
+    				"In hardware-in-the-loop testing the interface latency of the SUT has to be " +
+    				"taken into account: if changes to the SUT occur with too high a frequency, the " +
+    				"SUT will not be able to process them, because consecutive changes get lost" +
+    				"already on input interface boards, or in buffers of the SUT runtime system. " +
+    				"Therefore the minimal duration between input changes to the SUT should be " +
+    				"respected by the testing environment. To this end, this parameter can be set to a nonnegative integer " +
+    				"number, indicating the minimal duration between two input changes in time unit milliseconds.";
+    		MinDurationBetweenInputChangesField = new IntegerFieldEditor("RttMbtMinDurationBetweenInputChanges",
+    				"Min. Duration between Input Changes:",
+    				getFieldEditorParent());
+    		MinDurationBetweenInputChangesField.setPreferenceStore(null);
+    		MinDurationBetweenInputChangesField.setStringValue(MinDurationBetweenInputChangesProperty.toString());
+    		MinDurationBetweenInputChangesField.getLabelControl(getFieldEditorParent()).setToolTipText(tooltip);
+    		MinDurationBetweenInputChangesField.getTextControl(getFieldEditorParent()).setToolTipText(tooltip);
+    		addField(MinDurationBetweenInputChangesField);
+
+    		// add max. duration between input changes
+    		tooltip = "Upper limit for the duration between two input changes.\n" +
+    				"As well as changes to the SUT should not occur with too high a frequency, " +
+    				"it can be useful if the tester can limit the mamimum duration between two " +
+    				"input changes, to prevent the solver to generate tests that wait unreasonably " +
+    				"long between input changes. This parameter can be set to a " +
+    				"nonnegative integer number, indicating the upper limit for the duration " +
+    				"between two input changes in time unit milliseconds. Note that the " +
+    				"latency for signals has to be taken into account when defining this parameter. " +
+    				"Otherwise it would be possible to define configuration in which " +
+    				"the checker will never find problems in the SUT outputs.";
+    		MaxDurationBetweenInputChangesField = new IntegerFieldEditor("RttMbtMaxDurationBetweenInputChanges",
+    				"Min. Duration between Input Changes::",
+    				getFieldEditorParent());
+    		MaxDurationBetweenInputChangesField.setPreferenceStore(null);
+    		MaxDurationBetweenInputChangesField.setStringValue(MaxDurationBetweenInputChangesProperty.toString());
+    		MaxDurationBetweenInputChangesField.getLabelControl(getFieldEditorParent()).setToolTipText(tooltip);
+    		MaxDurationBetweenInputChangesField.getTextControl(getFieldEditorParent()).setToolTipText(tooltip);
+    		addField(MaxDurationBetweenInputChangesField);
+
+    		// add use abstract interpreter field
+    		tooltip = "Use abstract interpretation for speed-up of solver.";
+    		AbstractInterpreterField = new IntegerFieldEditor("RttMbtAbstractInterpreter",
+    				"Use Abstract Interpreter:",
+    				getFieldEditorParent());
+    		AbstractInterpreterField.setPreferenceStore(null);
+    		AbstractInterpreterField.setStringValue(AbstractInterpreterProperty.toString());
+    		AbstractInterpreterField.getLabelControl(getFieldEditorParent()).setToolTipText(tooltip);
+    		AbstractInterpreterField.getTextControl(getFieldEditorParent()).setToolTipText(tooltip);
+    		addField(AbstractInterpreterField);
+
+    		// add robustness testing field
+    		tooltip = "Do robustness testing.\n" +
+    				"If robustness tests should be performed by the test procedure to be generated, " +
+    				"then this parameter has to be set to 1. In this case, the robustness " +
+    				"transitions defined in TE state machines are not ignored (as it is the case when " +
+    				"this parameter is 0), but are performed with the percentage specified in Robustess Percentage. " +
+    				"Observe that setting this parameter to 1 only has an effect, if\n" +
+    				"1. Robustess Percentage is greater than 0,\n" +
+    				"2. TE components have been modelled, are active, and\n" +
+    				"3. at least one TE state machine associated with an active TE component has robustness transitions.\n";
+    		RobustnessTestingField = new IntegerFieldEditor("RttMbtRobustnessTesting",
+    				"Robustness Testing:",
+    				getFieldEditorParent());
+    		RobustnessTestingField.setPreferenceStore(null);
+    		RobustnessTestingField.setStringValue(RobustnessTestingProperty.toString());
+    		RobustnessTestingField.getLabelControl(getFieldEditorParent()).setToolTipText(tooltip);
+    		RobustnessTestingField.getTextControl(getFieldEditorParent()).setToolTipText(tooltip);
+    		addField(RobustnessTestingField);
+
+    		// add robustness testing percentage field
+    		tooltip = "If Robustness testing is activated, this attribute defines the percentage of robustness transitions to be performed.\n" +
+    				"Allowed values are natural numbers in range 0 --- 100. " +
+    				"This parametr specifies the percentage of robustness transitions to be " +
+    				"taken when residing in a TE state machine state from where some emanating " +
+    				"transitions have been marked as robustness transitions, but " +
+    				"also ordinary transitions exist. If the value of this parameter is RP, " +
+    				"the test generator will fire approximately " +
+    				"RP % robustness transitions from this state, and " + 
+    				"(100 - RP) % normal behaviour transitions.";
+    		RobustnessPercentageField = new IntegerFieldEditor("RttMbtRobustnessPercentage",
+    				"Robustess Percentage:",
+    				getFieldEditorParent());
+    		RobustnessPercentageField.setPreferenceStore(null);
+    		RobustnessPercentageField.setStringValue(RobustnessPercentageProperty.toString());
+    		RobustnessPercentageField.getLabelControl(getFieldEditorParent()).setToolTipText(tooltip);
+    		RobustnessPercentageField.getTextControl(getFieldEditorParent()).setToolTipText(tooltip);
+    		addField(RobustnessPercentageField);
+
+    		// add model checking field
+    		tooltip = "Perform model checking instead of test generation.";
+    		ModelCheckingField = new IntegerFieldEditor("RttMbtModelChecking",
+    				"Model Checking:",
+    				getFieldEditorParent());
+    		ModelCheckingField.setPreferenceStore(null);
+    		ModelCheckingField.setStringValue(ModelCheckingProperty.toString());
+    		ModelCheckingField.getLabelControl(getFieldEditorParent()).setToolTipText(tooltip);
+    		ModelCheckingField.getTextControl(getFieldEditorParent()).setToolTipText(tooltip);
+    		addField(ModelCheckingField);
+
+    	}
 	}
 
 	public void performDefaults() {
@@ -184,6 +475,15 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
     	rttTgenCtxNameField.setStringValue("TestGeneration");
 		makeToolField.setStringValue("make");
 		ignorePatternUploadField.setStringValue(".svn:.git:*.o");
+		MaxSolverStepsField.setStringValue(Integer.toString(100));
+		MaxSimStepsField.setStringValue(Integer.toString(0));
+		AbstractInterpreterField.setStringValue(Integer.toString(1));
+		RobustnessTestingField.setStringValue(Integer.toString(0));
+		RobustnessPercentageField.setStringValue(Integer.toString(0));
+		MaxSimultaneousInputChangesField.setStringValue(Integer.toString(1));
+		MinDurationBetweenInputChangesField.setStringValue(Integer.toString(10));
+		MaxDurationBetweenInputChangesField.setStringValue(Integer.toString(10000));
+		ModelCheckingField.setStringValue(Integer.toString(0));
 		super.performDefaults();
 	}
 
@@ -205,6 +505,22 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
 			// file ignore pattern for upload/download
 			setPropertyValue("RttMbtFileIgnorePattern", ignorePatternUploadField.getStringValue());
 
+	    	if ((path != null) && (RttMbtClient.isRttMbtTestProcedure(path))) {
+	    		// copy from Integer field string values to property variables
+	    		MaxSolverStepsProperty = Integer.parseInt(MaxSolverStepsField.getStringValue());
+	    		MaxSimStepsProperty = Integer.parseInt(MaxSimStepsField.getStringValue());
+	    		AbstractInterpreterProperty = Integer.parseInt(AbstractInterpreterField.getStringValue());
+	    		RobustnessTestingProperty = Integer.parseInt(RobustnessTestingField.getStringValue());
+	    		RobustnessPercentageProperty = Integer.parseInt(RobustnessPercentageField.getStringValue());
+	    		MaxSimultaneousInputChangesProperty = Integer.parseInt(MaxSimultaneousInputChangesField.getStringValue());
+	    		MinDurationBetweenInputChangesProperty = Integer.parseInt(MinDurationBetweenInputChangesField.getStringValue());
+	    		MaxDurationBetweenInputChangesProperty = Integer.parseInt(MaxDurationBetweenInputChangesField.getStringValue());
+	    		ModelCheckingProperty = Integer.parseInt(ModelCheckingField.getStringValue());
+
+	    		// write property values to disc
+	    		writeTgenConfig();
+	    	}
+	    	
 			return super.performOk();
 		} else {
 			return super.performOk();

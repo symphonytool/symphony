@@ -11,11 +11,12 @@ public class RetainChannelNamesAndTime extends RetainChannelNames
 	{
 		super(channelNameSetValue);
 	}
-	
+
 	@Override
 	public boolean isAccepted(CmlTransition transition)
 	{
-		return super.isAccepted(transition) || (transition instanceof TimedTransition);
+		return super.isAccepted(transition)
+				|| transition instanceof TimedTransition;
 	}
 
 }

@@ -1264,6 +1264,8 @@ leadingIdAction returns[PAction action]
         {
             CmlLexNameToken name = new CmlLexNameToken("", $id.getText(), extractLexLocation($start));
             $action = new AReferenceAction(null, name, new ArrayList<PExp>());
+			//in case of a channel renaming action; then the location must be set here else only the outer action will have a location set
+			$action.setLocation(extractLexLocation($start,$id));
         }
         ( renamingExpr
             // action call plus rename

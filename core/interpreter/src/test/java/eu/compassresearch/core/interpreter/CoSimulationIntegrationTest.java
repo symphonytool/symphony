@@ -190,12 +190,13 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 	{
 		String source = "src/test/resources/cosim/main-deadlocked.cml";
 		final ConsoleWatcher deadlockedWatch = new ConsoleWatcher("Main", "DEADLOCKED");
-		Process coordinator = setUpCoordinator(source, "P", "B",deadlockedWatch);
+		Process coordinator = setUpCoordinator(source, "P", "B", deadlockedWatch);
 		setUpClient(source, "B");
 
 		waitForCompletion(coordinator, DEFAULT_TIMEOUT);
 
-		Assert.assertFalse("Simulators did not finish successfully", isFinished()&& deadlockedWatch.isMatched());
+		Assert.assertFalse("Simulators did not finish successfully", isFinished()
+				&& deadlockedWatch.isMatched());
 
 	}
 
@@ -211,7 +212,7 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 		Assert.assertFalse("Simulators did not finish successfully", isFinished());
 
 	}
-	
+
 	@Test
 	public void testSyncOnString() throws Exception
 	{
@@ -224,7 +225,7 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 		Assert.assertTrue("Simulators did not deadlock successfully", isFinished());
 
 	}
-	
+
 	@Test
 	public void testSyncOnRecord() throws Exception
 	{
@@ -251,6 +252,34 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 		waitForCompletion(coordinator, DEFAULT_TIMEOUT);
 
 		Assert.assertTrue("Simulators did not abort successfully", watch.isMatched());
+
+	}
+	
+	
+	@Test
+	public void testTypesQuotes() throws Exception
+	{
+		String source = "src/test/resources/cosim/TypeTestingSoS.cml";
+		Process coordinator = setUpCoordinator(source, "NodeSoS", "NodeReaderCS");
+		setUpClient(source, "NodeReaderCS");
+
+		waitForCompletion(coordinator, DEFAULT_TIMEOUT);
+
+		Assert.assertTrue("Simulators did not finish successfully", isFinished());
+
+	}
+	
+	
+	@Test
+	public void testTypesBool() throws Exception
+	{
+		String source = "src/test/resources/cosim/TypeTestingSoS.cml";
+		Process coordinator = setUpCoordinator(source, "BoolSoS", "BoolReaderCS");
+		setUpClient(source, "BoolReaderCS");
+
+		waitForCompletion(coordinator, DEFAULT_TIMEOUT);
+
+		Assert.assertTrue("Simulators did not finish successfully", isFinished());
 
 	}
 

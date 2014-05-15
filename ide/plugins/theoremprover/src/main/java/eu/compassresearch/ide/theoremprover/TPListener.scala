@@ -5,7 +5,6 @@ import scala.actors.Actor.react
 import scala.collection.JavaConversions
 import org.overture.pog.pub.POStatus
 import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligationList
-import eu.compassresearch.core.common.RegistryFactory
 import eu.compassresearch.ide.pog.POConstants
 import eu.compassresearch.ide.core.resources.ICmlModel
 import eu.compassresearch.core.analysis.theoremprover.IsabelleTheory

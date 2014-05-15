@@ -1,25 +1,25 @@
 types
 
 Id :: 	type : (<ERU> | <CC>)
-	identifier : token;
+	identifier : token
 
-ERUId = Id;
-Location = token;
+ERUId = Id
+Location = token
 Criticality = nat
-inv c == c < 4; --(<Red> | <Yellow> | <Green> | <White>); red = 3, yellow = 2, green = 1, white = 0 
+inv c == c < 4 --(<Red> | <Yellow> | <Green> | <White>); red = 3, yellow = 2, green = 1, white = 0 
 
-String = seq of char;
+String = seq of char
 
 RescueDetails :: 	target : Location  -- The target location of the rescue event
-			criticality : Criticality;
+			criticality : Criticality
 
 Message :: 	sender: Id
 		destn : Id
-		message : String;
+		message : String
 			
 Log :: 	eru : ERUId
 	oldRescue : RescueDetails
-	newRescue : RescueDetails;
+	newRescue : RescueDetails
 values  
 
 functions

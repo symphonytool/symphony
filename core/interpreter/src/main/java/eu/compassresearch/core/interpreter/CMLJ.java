@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
+import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.lex.Dialect;
 import org.overture.interpreter.runtime.ValueException;
 import org.slf4j.Logger;
@@ -231,8 +232,24 @@ public class CMLJ
 			return;
 		}
 
+		interpret(remote, selectionStrategy, processName, res.definitions, f);
+	}
+
+	/**
+	 * This method start the interpeter 
+	 * @param remote
+	 * @param selectionStrategy
+	 * @param processName
+	 * @param definitions a list of type checked definitions
+	 * @param f
+	 * @throws CmlInterpreterException
+	 */
+	public static void interpret(IRemoteControl remote,
+			SelectionStrategy selectionStrategy, String processName,
+			List<PDefinition> definitions, File... f) throws CmlInterpreterException
+	{
 		// interpret
-		CmlInterpreter interpreter = factory.newInterpreter(res.definitions);
+		CmlInterpreter interpreter = factory.newInterpreter(definitions);
 		if (processName != null)
 		{
 			interpreter.setDefaultName(processName);

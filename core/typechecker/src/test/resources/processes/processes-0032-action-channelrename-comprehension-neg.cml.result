@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.ProcessesCmlTypeCheckerTests">
+<message column="6" line="4" message="Unsupported language construct found: 'ex!e[e in set I]test'" messageType="error" number="3444" resource="processes-0032-action-channelrename-comprehension-neg.cml"/>
+<message column="5" line="4" message="Action 'A' is not in scope." messageType="error" number="3437" resource="processes-0032-action-channelrename-comprehension-neg.cml"/>
+<result/>
+</testResult>

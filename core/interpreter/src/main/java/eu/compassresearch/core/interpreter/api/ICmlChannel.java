@@ -20,7 +20,6 @@ public interface ICmlChannel
 	 */
 	public List<PType> getValueTypes();
 
-
 	/**
 	 * Signals that this channel is selected by the environment to all the channel listeners
 	 */
