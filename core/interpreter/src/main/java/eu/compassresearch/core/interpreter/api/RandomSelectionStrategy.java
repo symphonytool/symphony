@@ -27,7 +27,6 @@ public class RandomSelectionStrategy implements SelectionStrategy
 	private final Random rndChoice = new Random(randomSeed);
 	CmlTransitionSet availableChannelEvents;
 
-
 	private Value getRandomValueFromType(PType type)
 	{
 		try

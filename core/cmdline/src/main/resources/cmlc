@@ -1,0 +1,15 @@
+#!/bin/bash
+
+BASE=$( dirname "${BASH_SOURCE[0]}" )
+
+VERSION=${project.version}
+
+JAR=$BASE/cmlc-$VERSION.jar
+
+if [ ! -f ${JAR} ]; then
+    echo -e "Executable jar: \n\n${JAR}\n\ndoes not exist.\nPlease ensure it is in the same directory as the $0 command."
+    exit -1;
+fi
+
+java -jar ${JAR} $@
+

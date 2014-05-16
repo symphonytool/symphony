@@ -19,8 +19,8 @@ import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionFactory;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.transitions.ObservableTransition;
-import eu.compassresearch.core.interpreter.api.values.CmlChannel;
 import eu.compassresearch.core.interpreter.api.values.ChannelValue;
+import eu.compassresearch.core.interpreter.api.values.CmlChannel;
 import eu.compassresearch.core.interpreter.api.values.LatticeTopValue;
 import eu.compassresearch.core.interpreter.cosim.IProcessDelegate;
 import eu.compassresearch.core.interpreter.cosim.communication.Utils;
@@ -60,7 +60,7 @@ public class SubSystem implements IProcessDelegate
 			values.add(new IntegerValue(v));
 		}
 
-//		List<ValueConstraint> constraints = new Vector<ValueConstraint>();
+		// List<ValueConstraint> constraints = new Vector<ValueConstraint>();
 
 		// constraints.add(new NoConstraint());
 
@@ -88,16 +88,15 @@ public class SubSystem implements IProcessDelegate
 		return createChannelValue(name, (PType[]) null);
 	}
 
-	private static CmlChannel createChannelValue(String name,
-			PType... type)
+	private static CmlChannel createChannelValue(String name, PType... type)
 	{
-//		AChannelType channelType = null;
+		// AChannelType channelType = null;
 		// if(type!=null)
 		// {
 		// channelType = new AChannelType(new LexLocation(), false, Arrays.asList(type));
 		// }else
 		// {
-//		channelType = new AChannelType();
+		// channelType = new AChannelType();
 		// }
 
 		return new CmlChannel(null, NamespaceUtility.createChannelName(new LexIdentifierToken(name, false, new LexLocation())));

@@ -10,7 +10,6 @@ import org.overture.typechecker.utilities.VariableNameCollector;
 
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismReplicatedAction;
-import eu.compassresearch.ast.actions.ACallAction;
 import eu.compassresearch.ast.actions.AChannelRenamingAction;
 import eu.compassresearch.ast.actions.AChaosAction;
 import eu.compassresearch.ast.actions.ACommonInterleavingReplicatedAction;
@@ -925,14 +924,6 @@ public class AbstractCmlVariableNameCollector extends VariableNameCollector
 	@Override
 	public LexNameList caseAUnresolvedObjectDesignator(
 			AUnresolvedObjectDesignator node) throws AnalysisException
-	{
-
-		return null;
-	}
-
-	@Override
-	public LexNameList caseACallAction(ACallAction node)
-			throws AnalysisException
 	{
 
 		return null;

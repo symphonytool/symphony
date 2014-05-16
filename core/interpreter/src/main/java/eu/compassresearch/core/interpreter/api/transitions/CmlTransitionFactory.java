@@ -6,7 +6,7 @@ import eu.compassresearch.core.interpreter.api.values.ChannelValue;
 public class CmlTransitionFactory
 {
 
-	//protected static AbstractSilentTransition instance = null;
+	// protected static AbstractSilentTransition instance = null;
 
 	/*
 	 * communication event factory methods

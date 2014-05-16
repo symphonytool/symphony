@@ -19,7 +19,17 @@ public class TicketsCmlTypeCheckerTests extends
 	@Parameters(name = "{1}")
 	public static Collection<Object[]> getData()
 	{
-		return combine(collectResourcesTestData("tickets", TestType.POSITIVE), collectResourcesTestData("tickets", TestType.NEGATIVE));
+		return combine(
+
+		collectResourcesTestData("tickets", TestType.POSITIVE),
+
+		collectResourcesTestData("tickets", TestType.NEGATIVE),
+
+		collectResourcesTestData("tickets/fulltest", TestType.NEGATIVE, TestType.COMPARE_RECORDRD),
+
+		collectResourcesTestData("tickets/fulltest", TestType.POSITIVE, TestType.COMPARE_RECORDRD)
+
+		);
 	}
 
 	@Override

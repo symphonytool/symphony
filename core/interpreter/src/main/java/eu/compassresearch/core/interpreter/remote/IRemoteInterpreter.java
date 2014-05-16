@@ -53,9 +53,10 @@ public interface IRemoteInterpreter
 	 * @return
 	 */
 	public boolean isFinished();
-	
+
 	/**
 	 * Gets the current state of the interpreter
+	 * 
 	 * @return {@link CmlInterpreterState#FAILED} if an error occurred otherwise any of the available states.
 	 */
 	public CmlInterpreterState getState();

@@ -73,7 +73,7 @@ class ProcessSetupVisitor extends CommonSetupVisitor
 	{
 		return caseATimedInterrupt(node, node.getLeft(), question);
 	}
-	
+
 	@Override
 	public Pair<INode, Context> caseAChannelRenamingProcess(
 			AChannelRenamingProcess node, Context question)
@@ -98,7 +98,7 @@ class ProcessSetupVisitor extends CommonSetupVisitor
 		setLeftChild(node.getLeft(), question);
 		return new Pair<INode, Context>(node, question);
 	}
-	
+
 	@Override
 	public Pair<INode, Context> caseAStartDeadlineProcess(
 			AStartDeadlineProcess node, Context question)
@@ -106,7 +106,7 @@ class ProcessSetupVisitor extends CommonSetupVisitor
 	{
 		return setupTimedOperator(node, node.getLeft(), NamespaceUtility.getStartsByTimeName(), question);
 	}
-	
+
 	@Override
 	public Pair<INode, Context> caseAEndDeadlineProcess(
 			AEndDeadlineProcess node, Context question)

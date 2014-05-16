@@ -58,6 +58,7 @@ import java.lang.NumberFormatException;
 import java.lang.reflect.Method;
 import java.math.BigInteger;
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.text.ParseException;
 
 import java.util.Arrays;
@@ -66,6 +67,7 @@ import java.util.ListIterator;
 import java.util.LinkedList;
 import java.util.Collection;
 import java.util.Vector;
+import java.util.Locale;
 
 import static org.overture.ast.lex.Dialect.VDM_PP;
 import org.overture.ast.assistant.definition.PDefinitionAssistant;
@@ -226,7 +228,7 @@ public String getTokenErrorDisplay(CommonToken t) {
 //    throw e;
 //}
 
-private DecimalFormat decimalFormatParser = new DecimalFormat();
+private NumberFormat decimalFormatParser =NumberFormat.getNumberInstance(Locale.ENGLISH);
 public static final String CML_LANG_VERSION = "CML M16";
 
 public static char convertEscapeToChar(String escape) {
@@ -1262,6 +1264,8 @@ leadingIdAction returns[PAction action]
         {
             CmlLexNameToken name = new CmlLexNameToken("", $id.getText(), extractLexLocation($start));
             $action = new AReferenceAction(null, name, new ArrayList<PExp>());
+			//in case of a channel renaming action; then the location must be set here else only the outer action will have a location set
+			$action.setLocation(extractLexLocation($start,$id));
         }
         ( renamingExpr
             // action call plus rename
@@ -2648,7 +2652,7 @@ field returns[AFieldField field]
         {
             ILexLocation loc = $type.type.getLocation();
             CmlLexNameToken name = new CmlLexNameToken("", new LexIdentifierToken("",false,loc));
-            $field = new AFieldField(null, name, null, $type.type, false);
+            $field = new AFieldField(null, name, "", $type.type, false);
         }
     | IDENTIFIER ( ':' | eqAbs=':-' ) type
         {
