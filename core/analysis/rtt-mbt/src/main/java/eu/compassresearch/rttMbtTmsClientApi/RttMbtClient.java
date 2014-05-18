@@ -272,21 +272,24 @@ public class RttMbtClient {
 	}
 
 	public Boolean removeRttMbtSession() {
+		// check if file cache exists for this user
 		jsonCheckFileCacheExistsCommand check =
 				new jsonCheckFileCacheExistsCommand(this);
 		check.executeCommand();
-		if ((check.executedSuccessfully()) && (check.getResult())){
-			System.out.println("remove file cache for user id '" + getUserId() + "'.");
+		if ((check.executedSuccessfully()) && (check.getResult())) {
+			// file cache exists => try to remove it
 			jsonRemoveFileCacheCommand remove =
 					new jsonRemoveFileCacheCommand(this);
 			remove.executeCommand();
 			if ((!remove.executedSuccessfully()) || (!remove.getResult())) {
+				// remove of existing file cache failed => FAIL
 				return false;
 			}
 		} else {
-			System.out.println("unable to remove file cache for user id '" + getUserId() + "'!");
-			return false;
+			// file cache does not exist => PASS
+			return true;
 		}
+		// successfully removed existing file cache
 		return true;
 	}
 	
