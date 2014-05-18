@@ -34,6 +34,7 @@ MC;0;Perform model checking instead of test generation, if 1
 	protected int CI = 1;
 	protected int DI = 10;
 	protected int LI = 10000;
+	protected int VL = 1;
 	protected Boolean MC = false;
 
 	public RttMbtAdvConfParser() {
@@ -98,6 +99,8 @@ MC;0;Perform model checking instead of test generation, if 1
 				setLI(Integer.parseInt(value));
 			} else if (option.compareTo("MC") == 0) {
 				setMC(value.compareTo("1") == 0);
+			} else if (option.compareTo("VL") == 0) {
+				setVL(Integer.parseInt(value));
 			} else {
 				System.err.println("unknown option '" + option + "' in advanved configuration file " + filename);
 				return false;
@@ -193,6 +196,14 @@ MC;0;Perform model checking instead of test generation, if 1
 
 	public void setLI(int lI) {
 		LI = lI;
+	}
+
+	public int getVL() {
+		return VL;
+	}
+
+	public void setVL(int lI) {
+		VL = lI;
 	}
 
 	public Boolean getMC() {

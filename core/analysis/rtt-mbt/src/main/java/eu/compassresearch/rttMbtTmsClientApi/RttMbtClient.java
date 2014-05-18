@@ -644,13 +644,11 @@ public class RttMbtClient {
 		File projectConf = new File(folder, "project.rtp");
 		if (!projectConf.exists()) {
 			// extract project template
-			String templatesDir = getWorkspacePath() + File.separator + "templates";
-			File templates = new File(templatesDir);
-			if (!templates.isDirectory()) {
-				addErrorMessage("local templates directory " + templatesDir + " does not exist!");
+			File archive = new File(getWorkspacePath() + File.separator + "templates" + File.separator + "_Project_compass.zip");
+			if (!archive.isFile()) {
+				addErrorMessage("'" + archive.getAbsolutePath() + "' does not exist or is not a regular file!");
 				return false;
 			}
-			File archive = new File(templates, "_Project_compass.zip");
 			if (getVerboseLogging()) {
 				addLogMessage("unzipping archive '" + archive.getAbsolutePath() + "' into directory '" + getRttProjectPath() + "'");
 			}
@@ -925,12 +923,22 @@ public class RttMbtClient {
 			return false;
 		}
 
+		// download templates to local workspace
+		String backupWorkspaceProjectPrefix = getWorkspaceProjectPrefix();
+		String backupProjectPath = getRttProjectPath();
+		setWorkspaceProjectPrefix(null); // remove project prefix for templates download
+		setRttProjectPath(getWorkspacePath() + File.separator + rttProjectName); // set fake project path for templates download
+		if (!downloadDirectory(getWorkspacePath() + File.separator + "templates")) {
+			setWorkspaceProjectPrefix(backupWorkspaceProjectPrefix); // restore project prefix again
+			setRttProjectPath(backupProjectPath); // restore file system project path
+			return false;
+		}
+		setWorkspaceProjectPrefix(backupWorkspaceProjectPrefix); // restore project prefix again
+		setRttProjectPath(backupProjectPath); // restore file system project path
+
 		// unpack _P1.zip
 		setSubTaskName("extract test procedure generation context template");
-		String templatesDir = getFilesystemWorkspacePath() + "templates";
-		File templates = new File(templatesDir);
-		downloadDirectory(templatesDir);
-		File archive = new File(templates, "_P1_compass.zip");
+		File archive = new File(getWorkspacePath() + File.separator + "templates" + File.separator + "_P1_compass.zip");
 		if (!archive.isFile()) {
 			addErrorMessage("'" + archive.getAbsolutePath() + "' does not exist or is not a regular file!");
 			return false;
