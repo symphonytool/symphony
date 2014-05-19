@@ -11,6 +11,11 @@
           <url>http://overture.au.dk/maven/symphony-overture-test/</url>
           <layout>default</layout>
         </repository>
+        <repository>
+          <id>overture-p2</id>
+          <url>http://overture.au.dk/p2/symphony-overture-test/</url>
+          <layout>p2</layout>
+        </repository>
       </repositories>
     </profile>
   </profiles>
