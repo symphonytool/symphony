@@ -289,7 +289,7 @@ private ILexLocation extractLexLocation(CommonToken start, CommonToken end) {
     int spos = start.getCharPositionInLine();
     int epos = end.getCharPositionInLine() + end.getText().length();
     int soffset = start.getStartIndex();
-    int eoffset = end.getStopIndex();
+    int eoffset = end.getStartIndex() + end.getText().length();
     return new LexLocation(this.sourceFileName,
                            "",
                            sline, spos,
