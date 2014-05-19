@@ -4,7 +4,7 @@
 
   <profiles>
     <profile>
-      <id>overture-test-m2</id>
+      <id>overture-test-buildserver</id>
       <repositories>
         <repository>
           <id>overture-m2</id>
@@ -21,7 +21,6 @@
   </profiles>
 
   <activeProfiles>
-    <activeProfile>overture-test-m2</activeProfile>
+    <activeProfile>overture-test-buildserver</activeProfile>
   </activeProfiles>
-
 </settings>
