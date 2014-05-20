@@ -18,6 +18,7 @@ import org.overture.typechecker.TypeComparator;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.definitions.AChannelDefinition;
+import eu.compassresearch.ast.expressions.ACompVarsetExpression;
 import eu.compassresearch.ast.expressions.AComprehensionRenameChannelExp;
 import eu.compassresearch.ast.expressions.AEnumerationRenameChannelExp;
 import eu.compassresearch.ast.expressions.ANameChannelExp;
@@ -78,6 +79,24 @@ public class CmlChannelExpressionTypeChecker extends
 				return AstFactory.newAUnknownType(node.getLocation());
 			}
 		}
+		
+		if(node.getAncestor(ACompVarsetExpression.class)!=null)
+		{
+			//expression size must match declared
+			final int argSize = node.getExpressions().size();
+			final int dclTypeSize = chanConcreteType.getParameters().size();
+			if(argSize > dclTypeSize)
+			{
+				issueHandler.addTypeError(node, TypeErrorMessages.COMMUNICATION_TOO_MANY_ARGUMENTS, chanDef.getName().getName()
+						,""+argSize,""+dclTypeSize);
+			}else if(node.getExpressions().size() < chanConcreteType.getParameters().size())
+			{
+				issueHandler.addTypeError(node, TypeErrorMessages.COMMUNICATION_TOO_FEW_ARGUMENTS, chanDef.getName().getName()
+						,""+argSize,""+dclTypeSize);
+			}
+		}
+		
+		
 		chanConcreteType.getDefinitions().add(chanDef);
 		node.setType(chanConcreteType);
 		return node.getType();
