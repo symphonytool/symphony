@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Vector;
@@ -60,6 +61,15 @@ public class ParserUtil
 				printer.println(err.toString());
 			}
 
+		}
+		
+		@Override
+		public String toString()
+		{
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			PrintStream ps = new PrintStream(baos);
+			printErrors(ps);
+			return baos.toString();
 		}
 	}
 

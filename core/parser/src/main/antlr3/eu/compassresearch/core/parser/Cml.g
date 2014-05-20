@@ -1321,7 +1321,7 @@ leadingIdAction returns[PAction action]
                                 // an Exception.  This should be
                                 // factored out, above, to look for an
                                 // explicit (exprList) directly.
-                                throw new RecognitionException(input);
+                                throw new StuckException(input,"If this is a raw operation call, the wrong selector, the best that can be done right now is to throw  an Exception. This should be factored out, above, to look for an  explicit (exprList) directly.");
                             }
 
                             List<LexIdentifierToken> idList = new ArrayList<LexIdentifierToken>();
