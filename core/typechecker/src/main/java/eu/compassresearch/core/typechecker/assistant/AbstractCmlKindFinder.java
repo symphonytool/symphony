@@ -9,7 +9,6 @@ import org.overture.typechecker.utilities.KindFinder;
 
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismReplicatedAction;
-import eu.compassresearch.ast.actions.ACallAction;
 import eu.compassresearch.ast.actions.AChannelRenamingAction;
 import eu.compassresearch.ast.actions.AChaosAction;
 import eu.compassresearch.ast.actions.ACommonInterleavingReplicatedAction;
@@ -915,13 +914,6 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	@Override
 	public String caseADoNonDeterministicStm(ADoNonDeterministicStm node)
 			throws AnalysisException
-	{
-
-		return null;
-	}
-
-	@Override
-	public String caseACallAction(ACallAction node) throws AnalysisException
 	{
 
 		return null;

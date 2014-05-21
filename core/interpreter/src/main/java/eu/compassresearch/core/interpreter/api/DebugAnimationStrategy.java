@@ -2,7 +2,6 @@ package eu.compassresearch.core.interpreter.api;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.SortedSet;
 import java.util.concurrent.SynchronousQueue;
 
 import org.overture.ast.intf.lex.ILexLocation;
@@ -42,7 +41,6 @@ public class DebugAnimationStrategy implements SelectionStrategy
 		return availableChannelEvents.hasType(TauTransition.class);
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private CmlTransition systemSelect()
 	{
 		this.rndSelect.choices(this.availableChannelEvents.filterByType(TauTransition.class));

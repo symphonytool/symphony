@@ -8,8 +8,8 @@ import org.overture.interpreter.values.Value;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.core.interpreter.api.CmlBehaviorFactory;
 import eu.compassresearch.core.interpreter.api.CmlBehaviour;
-import eu.compassresearch.core.interpreter.api.TransitionEvent;
 import eu.compassresearch.core.interpreter.api.CmlBehaviour.BehaviourName;
+import eu.compassresearch.core.interpreter.api.TransitionEvent;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
 /**
@@ -96,7 +96,7 @@ abstract class AbstractSetupVisitor extends
 	{
 		this.controlAccess.setChildContexts(preBuildContexts);
 	}
-	
+
 	protected void newTransitionEvent(TransitionEvent event)
 	{
 		this.controlAccess.newTransitionEvent(event);

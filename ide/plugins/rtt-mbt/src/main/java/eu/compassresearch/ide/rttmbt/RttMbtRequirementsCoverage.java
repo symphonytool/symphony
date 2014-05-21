@@ -362,6 +362,7 @@ public class RttMbtRequirementsCoverage extends MultiPageEditorPart  {
 		String ltlformula = button.getData().toString();
 		ElementListSelectionDialog selection =
 				new ElementListSelectionDialog(getContainer().getShell(), new LabelProvider());
+		selection.setTitle("Select test procedure generation context");
 		File tprocRoot = new File(client.getRttProjectPath() + File.separator + client.getRttMbtTProcGenCtxFolderName());
 		File[] files = tprocRoot.listFiles();
 		List<File> subdirs = new ArrayList<File>();
@@ -417,6 +418,80 @@ public class RttMbtRequirementsCoverage extends MultiPageEditorPart  {
 		}
 	}
 
+	// add all test cases for a requirement
+	private void addTestcaseForRequirement(SelectionEvent e) {
+		Button button = (Button) e.getSource();
+		String requirement = button.getData().toString();
+
+		// create list of test cases (goals) for this requirement
+		String goals = "";
+		List<String> tcs = req2tc.get(requirement);
+		if (tcs.size() == 0) {
+			client.addLogMessage("no test cases found for requirement " + requirement + "!");
+			return;
+		}
+		for (int idx = 0; idx < tcs.size(); idx++) {
+			String tcTag = tcs.get(idx);
+		    goals = goals + tcTag + ";" + testcases.get(tcTag) + ";\n";
+		}
+		
+		ElementListSelectionDialog selection =
+				new ElementListSelectionDialog(getContainer().getShell(), new LabelProvider());
+		selection.setTitle("Select test procedure generation context");
+		File tprocRoot = new File(client.getRttProjectPath() + File.separator + client.getRttMbtTProcGenCtxFolderName());
+		File[] files = tprocRoot.listFiles();
+		List<File> subdirs = new ArrayList<File>();
+		List<File> testprocs = new ArrayList<File>();
+		int idx;
+		if (files != null) {
+			for (idx = 0; idx < files.length; idx++) {
+				if (files[idx].isDirectory()) {
+					subdirs.add(files[idx]);
+				}
+			}
+		} else {
+			client.addErrorMessage("unable to find test generation context directories!");
+		}
+		for (idx = 0; idx < subdirs.size(); idx++) {
+			File conf = new File(subdirs.get(idx), "conf");
+			if (conf.isDirectory()) {
+				File configuration = new File(conf, "configuration.csv");
+				if (configuration.isFile()) {
+					testprocs.add(subdirs.get(idx));
+				}
+			}
+		}
+		String[] names = new String[testprocs.size()];
+		for (idx = 0; idx < testprocs.size(); idx++) {
+			names[idx] = testprocs.get(idx).getName();
+		}
+		selection.setElements(names);
+		if (selection.open() == Window.OK) {
+			String testproc = (String) selection.getFirstResult();
+			// get additional goal file of selected test procedure
+			File addgoals = null;
+			for (idx = 0; idx < testprocs.size(); idx++) {
+				if (testproc.compareTo(testprocs.get(idx).getName()) == 0) {
+					addgoals = new File(testprocs.get(idx), File.separator + "conf" + File.separator + "addgoals.conf");
+					// add test case to additional goals
+					try {
+						FileWriter addgoalStream = new FileWriter(addgoals.getAbsolutePath(), true);
+						BufferedWriter append = new BufferedWriter(addgoalStream);
+						append.write(goals);
+						append.close();
+						addgoalStream.close();
+						client.addLogMessage("added test cases for requirement " + requirement + ":\n" + goals + "to '" + addgoals.getAbsolutePath() + "'");
+					} catch (IOException ex) {
+						client.addErrorMessage("Unable to open '" + addgoals.getAbsolutePath() + "' for writing!");
+					}
+					idx = testprocs.size();
+				}
+			}
+		} else {
+			client.addErrorMessage("unable to open test generation context seleciton dialog");
+		}
+	}
+
 	// testcase coverage
 	private void createTc2ReqPage() {
 		// create tree view
@@ -445,6 +520,7 @@ public class RttMbtRequirementsCoverage extends MultiPageEditorPart  {
 			reqParent.setText(0, tcTag);
 			reqParent.setText(1, Verdict2String(tccov.get(tcTag)));
 			reqParent.setBackground(1, new Color(Display.getDefault(), Verdict2RGB(tccov.get(tcTag))));
+			// create button to add test cases
 			TreeEditor editor = new TreeEditor(tcTreeView);
 			editor.horizontalAlignment = SWT.LEFT;
 			editor.minimumWidth = 40;
@@ -501,28 +577,43 @@ public class RttMbtRequirementsCoverage extends MultiPageEditorPart  {
 		Iterator<String> reqIt = reqSet.iterator();
 		while (reqIt.hasNext()) {
 			reqTag = reqIt.next();
-			List<String> tcs = req2tc.get(reqTag);
+			// add requirement
 			TreeItem tcParent = null;
 			tcParent = new TreeItem(reqTreeView, SWT.NONE);
 			tcParent.setText(0, reqTag);
 			tcParent.setText(1, Verdict2String(reqcov.get(reqTag)));
 			tcParent.setBackground(1, new Color(Display.getDefault(), Verdict2RGB(reqcov.get(reqTag))));
-			tcParent.setText(2, "");
+			// create button to add test cases for this requirement
+			TreeEditor editor = new TreeEditor(reqTreeView);
+			editor.horizontalAlignment = SWT.LEFT;
+			editor.minimumWidth = 40;
+			editor.minimumHeight = 12;
+		    Button cellEditor = new Button(reqTreeView, SWT.PUSH);
+		    cellEditor.setText("add");
+		    cellEditor.setBackground(tcParent.getBackground());
+		    cellEditor.setData(reqTag);
+		    cellEditor.addSelectionListener(new SelectionListener() {
+				@Override
+				public void widgetSelected(SelectionEvent e) { addTestcaseForRequirement(e); }
+
+				@Override
+				public void widgetDefaultSelected(SelectionEvent e) { addTestcaseForRequirement(e); }
+				});
+		    editor.setEditor(cellEditor, tcParent, 2);
+			// add test cases for this requirement
+			List<String> tcs = req2tc.get(reqTag);
 			for (int idx = 0; idx < tcs.size(); idx++) {
 				tcTag = tcs.get(idx);
 				TreeItem tc = new TreeItem(tcParent, SWT.NONE);
 				tc.setText(0, tcTag);
 				tc.setText(1, Verdict2String(tccov.get(tcTag)));
 				tc.setBackground(1, new Color(Display.getDefault(), Verdict2RGB(tccov.get(tcTag))));
-				TreeEditor editor = new TreeEditor(reqTreeView);
+				// create button to add this test case
+				editor = new TreeEditor(reqTreeView);
 				editor.horizontalAlignment = SWT.LEFT;
 				editor.minimumWidth = 40;
 				editor.minimumHeight = 12;
-			    Button cellEditor = new Button(reqTreeView, SWT.PUSH);
-			    //Image image = this.getDefaultImage();
-			    //Device device = image.getDevice();
-			    //Image plus = new Image(device, RttMbtRequirementsCoverage.class.getResourceAsStream("plus.png"));
-			    //cellEditor.setImage(plus);
+			    cellEditor = new Button(reqTreeView, SWT.PUSH);
 			    cellEditor.setText("add");
 			    cellEditor.setBackground(tcParent.getBackground());
 			    cellEditor.setData(tcTag + ";" + testcases.get(tcTag) + ";");
@@ -535,7 +626,7 @@ public class RttMbtRequirementsCoverage extends MultiPageEditorPart  {
 					});
 			    editor.setEditor(cellEditor, tc, 2);
 			}
-			tcParent.setExpanded(false);
+			tcParent.setExpanded(true);
 		}
 		// pack columns
 		for (int idx = 0; idx < req2tcHeader.length; idx++) {

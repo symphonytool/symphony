@@ -21,7 +21,8 @@ Require-Bundle: org.eclipse.debug.ui,
  org.overture.ide.builders.vdmj,
  org.overture.ide.debug,
  eu.compassresearch.ide.core,
- eu.compassresearch.ide.ui
+ eu.compassresearch.ide.ui,
+ org.eclipse.core.filesystem
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Eclipse-BuddyPolicy: registered

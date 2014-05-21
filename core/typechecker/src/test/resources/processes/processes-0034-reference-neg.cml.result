@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.ProcessesCmlTypeCheckerTests">
+<message column="22" line="5" message="Expecting 1 arguments." messageType="error" number="3216" resource="processes-0034-reference-neg.cml"/>
+<message column="27" line="5" message="Unexpected type for argument 1. Expected: bool Actual: char" messageType="error" number="3217" resource="processes-0034-reference-neg.cml"/>
+<result/>
+</testResult>

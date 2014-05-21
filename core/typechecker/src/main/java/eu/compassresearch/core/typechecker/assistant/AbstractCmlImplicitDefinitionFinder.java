@@ -11,7 +11,6 @@ import org.overture.typechecker.utilities.ImplicitDefinitionFinder;
 
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismReplicatedAction;
-import eu.compassresearch.ast.actions.ACallAction;
 import eu.compassresearch.ast.actions.AChannelRenamingAction;
 import eu.compassresearch.ast.actions.AChaosAction;
 import eu.compassresearch.ast.actions.ACommonInterleavingReplicatedAction;
@@ -853,13 +852,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	@Override
 	public void caseAUnresolvedObjectDesignator(
 			AUnresolvedObjectDesignator node, Environment question)
-			throws AnalysisException
-	{
-
-	}
-
-	@Override
-	public void caseACallAction(ACallAction node, Environment question)
 			throws AnalysisException
 	{
 

@@ -11,7 +11,6 @@ import org.overture.typechecker.utilities.DefinitionCollector;
 
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismReplicatedAction;
-import eu.compassresearch.ast.actions.ACallAction;
 import eu.compassresearch.ast.actions.AChannelRenamingAction;
 import eu.compassresearch.ast.actions.AChaosAction;
 import eu.compassresearch.ast.actions.ACommonInterleavingReplicatedAction;
@@ -929,14 +928,6 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 
 	@Override
 	public List<PDefinition> caseAActionDefinition(AActionDefinition node)
-			throws AnalysisException
-	{
-
-		return null;
-	}
-
-	@Override
-	public List<PDefinition> caseACallAction(ACallAction node)
 			throws AnalysisException
 	{
 

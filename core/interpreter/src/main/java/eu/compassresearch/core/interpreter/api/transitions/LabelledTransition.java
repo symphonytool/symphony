@@ -15,7 +15,7 @@ public interface LabelledTransition extends ObservableTransition
 	public ChannelValue getChannelName();
 
 	public List<LabelledTransition> expand();
-	
+
 	public LabelledTransition rename(ChannelValue value);
 
 }

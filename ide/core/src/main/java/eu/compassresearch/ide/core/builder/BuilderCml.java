@@ -18,7 +18,6 @@ import org.overture.ide.core.utility.FileUtility;
 import org.overture.parser.messages.VDMWarning;
 import org.overture.typechecker.TypeCheckException;
 
-import eu.compassresearch.core.typechecker.CmlTypeCheckerAssistantFactory;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.ICmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
@@ -47,8 +46,6 @@ public class BuilderCml extends AbstractVdmBuilder
 		ICmlTypeChecker typeChecker = VanillaFactory.newTypeChecker(model.getDefinitions(), issueHandler);
 		try
 		{
-			// Force setup of the legacy static access assistants in Overture
-			CmlTypeCheckerAssistantFactory.init(new CmlTypeCheckerAssistantFactory());
 			typeChecker.typeCheck();
 
 		} catch (TypeCheckException e)

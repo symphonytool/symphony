@@ -1,7 +1,6 @@
 package eu.compassresearch.core.interpreter;
 
 import org.overture.ast.analysis.AnalysisException;
-import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.statements.AForAllStm;
 import org.overture.ast.statements.AForIndexStm;
@@ -43,14 +42,10 @@ import eu.compassresearch.ast.actions.ATimedInterruptAction;
 import eu.compassresearch.ast.actions.ATimeoutAction;
 import eu.compassresearch.ast.actions.AUntimedTimeoutAction;
 import eu.compassresearch.ast.actions.AWaitAction;
-import eu.compassresearch.ast.actions.PAction;
-import eu.compassresearch.ast.expressions.SRenameChannelExp;
 import eu.compassresearch.ast.statements.AActionStm;
 import eu.compassresearch.core.interpreter.api.CmlBehaviorFactory;
 import eu.compassresearch.core.interpreter.api.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.TransitionEvent;
-import eu.compassresearch.core.interpreter.api.values.RenamingValue;
-import eu.compassresearch.core.interpreter.utility.LocationExtractor;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
 @SuppressWarnings("deprecation")
@@ -105,7 +100,7 @@ class ActionSetupVisitor extends CommonSetupVisitor
 		newTransitionEvent(TransitionEvent.WAIT_EVENT);
 		return new Pair<INode, Context>(node, question);
 	}
-	
+
 	@Override
 	public Pair<INode, Context> caseASkipAction(ASkipAction node,
 			Context question) throws AnalysisException
@@ -113,7 +108,7 @@ class ActionSetupVisitor extends CommonSetupVisitor
 		newTransitionEvent(TransitionEvent.SKIP);
 		return new Pair<INode, Context>(node, question);
 	}
-	
+
 	@Override
 	public Pair<INode, Context> caseASkipStm(ASkipStm node, Context question)
 			throws AnalysisException
@@ -121,7 +116,7 @@ class ActionSetupVisitor extends CommonSetupVisitor
 		newTransitionEvent(TransitionEvent.SKIP);
 		return new Pair<INode, Context>(node, question);
 	}
-	
+
 	@Override
 	public Pair<INode, Context> caseADivAction(ADivAction node, Context question)
 			throws AnalysisException
@@ -129,7 +124,7 @@ class ActionSetupVisitor extends CommonSetupVisitor
 		newTransitionEvent(TransitionEvent.DIV);
 		return new Pair<INode, Context>(node, question);
 	}
-	
+
 	@Override
 	public Pair<INode, Context> caseAStopAction(AStopAction node,
 			Context question) throws AnalysisException
@@ -137,7 +132,7 @@ class ActionSetupVisitor extends CommonSetupVisitor
 		newTransitionEvent(TransitionEvent.STOP);
 		return new Pair<INode, Context>(node, question);
 	}
-	
+
 	@Override
 	public Pair<INode, Context> caseAStopStm(AStopStm node, Context question)
 			throws AnalysisException
@@ -145,7 +140,7 @@ class ActionSetupVisitor extends CommonSetupVisitor
 		newTransitionEvent(TransitionEvent.STOP);
 		return new Pair<INode, Context>(node, question);
 	}
-	
+
 	@Override
 	public Pair<INode, Context> caseAHidingAction(AHidingAction node,
 			Context question) throws AnalysisException
@@ -173,15 +168,14 @@ class ActionSetupVisitor extends CommonSetupVisitor
 	{
 		return setupTimedOperator(node, node.getLeft(), NamespaceUtility.getStartsByTimeName(), question);
 	}
-	
+
 	@Override
-	public Pair<INode, Context> caseAEndDeadlineAction(
-			AEndDeadlineAction node, Context question)
-			throws AnalysisException
+	public Pair<INode, Context> caseAEndDeadlineAction(AEndDeadlineAction node,
+			Context question) throws AnalysisException
 	{
 		return setupTimedOperator(node, node.getLeft(), NamespaceUtility.getEndsByTimeName(), question);
 	}
-	
+
 	/*
 	 * Timeout
 	 */
@@ -368,11 +362,11 @@ class ActionSetupVisitor extends CommonSetupVisitor
 		Context context = CmlContextFactory.newContext(node.getLocation(), "Sequence for loop context", question);
 		Value v = node.getExp().apply(cmlExpressionVisitor, question);
 		context.putNew(new NameValuePair(NamespaceUtility.getSeqForName(), v));
-		
+
 		// put the front element in scope of the action
 		ValueList seqValue = v.seqValue(question);
-		
-		if(!seqValue.isEmpty())
+
+		if (!seqValue.isEmpty())
 		{
 			Value x = seqValue.firstElement();
 			seqValue.remove(x);
@@ -381,7 +375,7 @@ class ActionSetupVisitor extends CommonSetupVisitor
 			{
 				try
 				{
-					context.putList(PPatternAssistantInterpreter.getNamedValues(node.getPatternBind().getPattern(), x, context));
+					context.putList(question.assistantFactory.createPPatternAssistant().getNamedValues(node.getPatternBind().getPattern(), x, context));
 				} catch (PatternMatchException e)
 				{
 					// Ignore mismatches
@@ -389,15 +383,14 @@ class ActionSetupVisitor extends CommonSetupVisitor
 			}
 
 			setLeftChild(node.getStatement(), context);
-		}
-		else
+		} else
 		{
 			setLeftChild(CmlAstFactory.newASkipAction(node.getLocation()), question);
 		}
 
 		return new Pair<INode, Context>(node, context);
 	}
-	
+
 	@Override
 	public Pair<INode, Context> caseAChannelRenamingAction(
 			AChannelRenamingAction node, Context question)
@@ -405,31 +398,34 @@ class ActionSetupVisitor extends CommonSetupVisitor
 	{
 		return caseChannelRenaming(node, node.getRenameExpression(), node.getAction(), question);
 	}
-	
+
 	@Override
 	public Pair<INode, Context> caseAForIndexStm(AForIndexStm node,
 			Context question) throws AnalysisException
 	{
 		Context forIndexContext = CmlContextFactory.newContext(node.getLocation(), "For index context", question);
-		Value idValue = node.getFrom().apply(this.cmlExpressionVisitor,question);
-		forIndexContext.putNew(new NameValuePair(node.getVar(),idValue));
-		
+		Value idValue = node.getFrom().apply(this.cmlExpressionVisitor, question);
+		forIndexContext.putNew(new NameValuePair(node.getVar(), idValue));
+
 		Value byValue = null;
-		if(node.getBy() != null)
-			byValue = node.getBy().apply(this.cmlExpressionVisitor,question);
-		else
+		if (node.getBy() != null)
+		{
+			byValue = node.getBy().apply(this.cmlExpressionVisitor, question);
+		} else
+		{
 			byValue = new IntegerValue(1);
-		forIndexContext.putNew(new NameValuePair(NamespaceUtility.getForIndexByName(),byValue));
-		
-		Value toValue = node.getTo().apply(this.cmlExpressionVisitor,question);
-		forIndexContext.putNew(new NameValuePair(NamespaceUtility.getForIndexToName(),toValue));
-		
-		//put action to execute in the left child
+		}
+		forIndexContext.putNew(new NameValuePair(NamespaceUtility.getForIndexByName(), byValue));
+
+		Value toValue = node.getTo().apply(this.cmlExpressionVisitor, question);
+		forIndexContext.putNew(new NameValuePair(NamespaceUtility.getForIndexToName(), toValue));
+
+		// put action to execute in the left child
 		setLeftChild(node.getStatement(), forIndexContext);
-		
+
 		return new Pair<INode, Context>(node, forIndexContext);
 	}
-	
+
 	@Override
 	public Pair<INode, Context> caseAForAllStm(AForAllStm node, Context question)
 			throws AnalysisException
@@ -437,11 +433,11 @@ class ActionSetupVisitor extends CommonSetupVisitor
 		Context context = CmlContextFactory.newContext(node.getLocation(), "For all loop context", question);
 		Value v = node.getSet().apply(cmlExpressionVisitor, question);
 		context.putNew(new NameValuePair(NamespaceUtility.getForAllName(), v));
-		
+
 		// put the front element in scope of the action
 		ValueSet setValue = v.setValue(question);
-		
-		if(!setValue.isEmpty())
+
+		if (!setValue.isEmpty())
 		{
 			Value x = setValue.firstElement();
 			setValue.remove(x);
@@ -450,7 +446,7 @@ class ActionSetupVisitor extends CommonSetupVisitor
 			{
 				try
 				{
-					context.putList(PPatternAssistantInterpreter.getNamedValues(node.getPattern(), x, context));
+					context.putList(question.assistantFactory.createPPatternAssistant().getNamedValues(node.getPattern(), x, context));
 				} catch (PatternMatchException e)
 				{
 					// Ignore mismatches
@@ -458,8 +454,7 @@ class ActionSetupVisitor extends CommonSetupVisitor
 			}
 
 			setLeftChild(node.getStatement(), context);
-		}
-		else
+		} else
 		{
 			setLeftChild(CmlAstFactory.newASkipAction(node.getLocation()), question);
 		}

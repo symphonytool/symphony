@@ -27,7 +27,7 @@
  
 package eu.compassresearch.core.analysis.pog.obligations;
 
-import org.overture.pog.pub.POType;
+import org.overture.pog.obligation.POType;
 
 //Extending/copying the overture enums. Will need to encapsulate better.
 public enum CmlPOType

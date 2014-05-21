@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <testResult type="eu.compassresearch.core.typechecker.CaseStudiesTestCase">
-<message column="12" line="14" message="Definition 'mID' not used." messageType="warning" number="5000" resource="Gateway.cml"/>
 <message column="17" line="14" message="Definition 'value' not used." messageType="warning" number="5000" resource="Gateway.cml"/>
+<message column="12" line="14" message="Definition 'mID' not used." messageType="warning" number="5000" resource="Gateway.cml"/>
 <message column="12" line="17" message="Definition 'mID' not used." messageType="warning" number="5000" resource="Gateway.cml"/>
 <message column="17" line="17" message="Definition 'value' not used." messageType="warning" number="5000" resource="Gateway.cml"/>
 <message column="19" line="20" message="Definition 'mID' not used." messageType="warning" number="5000" resource="Gateway.cml"/>
