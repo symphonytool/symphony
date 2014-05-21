@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.ActionsCmlTypeCheckerTests">
+<message column="13" line="17" message="Expected an entity of type nat but (nat * nat) was found." messageType="error" number="3406" resource="actions-channel-rename-0001-neg.cml"/>
+<message column="14" line="18" message="Expected an entity of type () but nat was found." messageType="error" number="3406" resource="actions-channel-rename-0001-neg.cml"/>
+<result/>
+</testResult>
