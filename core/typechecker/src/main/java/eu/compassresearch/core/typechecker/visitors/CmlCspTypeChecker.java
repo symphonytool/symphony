@@ -295,11 +295,9 @@ public class CmlCspTypeChecker extends
 			if (def instanceof AActionDefinition
 					&& def.getName().getTypeQualifier() != null)
 			{
-				System.out.println(def.getName());
-				for (PType type : def.getName().getTypeQualifier())
+//				for (PType type : def.getName().getTypeQualifier())
 				{
-					System.out.println(type);
-					try
+//					try
 					{
 						question.assistantFactory.createPTypeAssistant().typeResolve(type, null, vdmChecker, question);
 					} catch (TypeCheckException te)
