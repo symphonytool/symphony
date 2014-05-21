@@ -884,7 +884,7 @@ renamePairList returns[List<ARenamePair> pairs]
     ;
 
 renamePair returns[ARenamePair pair]
-    : fid=IDENTIFIER ( '.' fexp=expression )? '<-' tid=IDENTIFIER ( '.' texp=expression )?
+    : tid=IDENTIFIER ( '.' texp=expression )? '<-' fid=IDENTIFIER ( '.' fexp=expression )?
         {
             // FIXME --- We really ought take #Channel out of the exp tree in the AST
             ILexLocation floc = extractLexLocation($fid);
