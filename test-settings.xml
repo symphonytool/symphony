@@ -4,11 +4,11 @@
 
   <profiles>
     <profile>
-      <id>overture-development-buildserver</id>
+      <id>overture-test-buildserver</id>
       <repositories>
         <repository>
           <id>overture-m2</id>
-          <url>http://overture.au.dk/maven/symphony-overture-development/</url>
+          <url>http://overture.au.dk/maven/symphony-overture-test/</url>
           <layout>default</layout>
           <releases>
             <enabled>true</enabled>
@@ -21,7 +21,7 @@
         </repository>
         <repository>
           <id>overture-p2</id>
-          <url>http://overture.au.dk/p2/symphony-overture-development/</url>
+          <url>http://overture.au.dk/p2/symphony-overture-test/</url>
           <layout>p2</layout>
           <releases>
             <enabled>true</enabled>
@@ -47,6 +47,6 @@
   </profiles>
 
   <activeProfiles>
-    <activeProfile>overture-development-buildserver</activeProfile>
+    <activeProfile>overture-test-buildserver</activeProfile>
   </activeProfiles>
 </settings>

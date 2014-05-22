@@ -71,7 +71,7 @@ public class CheckCml
 				true),
 
 		DOT_PATH("dotpath",
-				"Path to dot, -dotpath=<out> a path where dot can be found.",
+				"Path to dot, -dotpath=<path> a path where dot can be found.",
 				true),
 
 		POG("pog",
@@ -314,7 +314,7 @@ public class CheckCml
 
 	private static void printUsage()
 	{
-		System.out.println("\nUsage: cmlc [switches] <file1>, ...,<fileN>\nSwitches:");
+		System.out.println("\nUsage: cmlc [switches] <file1> ... <fileN>\nSwitches:");
 		System.out.println(Switch.listSwitches());
 	}
 

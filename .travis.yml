@@ -7,7 +7,7 @@ jdk:
   - oraclejdk7
 install:
   - echo "The maven command runs quietly to download all of the dependencies"
-  - mvn -B -q install -PWith-IDE -Dmaven.test.skip=true -Dmaven.javadoc.skip=true -Dgit-commit-id.skip=true
+  - mvn -B -q install -PWith-IDE -Dmaven.test.skip=true -Dmaven.javadoc.skip=true -Dgit-commit-id.skip=true -s development-settings.xml
 script: 
-  - mvn -B install
-  - mvn -B install -f ide/pom.xml -Dgit-commit-id.skip=true -Pall-platforms
+  - mvn -B install -s development-settings.xml
+  - mvn -B install -f ide/pom.xml -Dgit-commit-id.skip=true -Pall-platforms -s development-settings.xml
