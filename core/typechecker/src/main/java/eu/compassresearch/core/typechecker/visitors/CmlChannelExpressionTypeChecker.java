@@ -38,7 +38,7 @@ public class CmlChannelExpressionTypeChecker extends
 		QuestionAnswerCMLAdaptor<TypeCheckInfo, PType>
 {
 
-	private final ITypeIssueHandler issueHandler;// = VanillaFactory.newCollectingIssueHandle();
+	private final ITypeIssueHandler issueHandler;
 
 	public CmlChannelExpressionTypeChecker(
 			IQuestionAnswer<TypeCheckInfo, PType> root,
@@ -48,7 +48,7 @@ public class CmlChannelExpressionTypeChecker extends
 		this.issueHandler = issueHandler;
 	}
 
-	private void checkChannelExpArgs(PDefinition chanDef,
+	private void checkChannelExpArgs(ANameChannelExp node, String channelName,
 			AChannelType chanConcreteType, List<PExp> args,
 			boolean ignoreTooFewArgs, TypeCheckInfo question)
 			throws AnalysisException
@@ -57,12 +57,12 @@ public class CmlChannelExpressionTypeChecker extends
 		final int dclTypeSize = chanConcreteType.getParameters().size();
 		if (args.size() > dclTypeSize)
 		{
-			issueHandler.addTypeError(chanDef, TypeErrorMessages.COMMUNICATION_TOO_MANY_ARGUMENTS, chanDef.getName().getName(), ""
+			issueHandler.addTypeError(node, TypeErrorMessages.COMMUNICATION_TOO_MANY_ARGUMENTS, channelName, ""
 					+ args.size(), "" + dclTypeSize);
 		} else if (!ignoreTooFewArgs
 				&& args.size() < chanConcreteType.getParameters().size())
 		{
-			issueHandler.addTypeError(chanDef, TypeErrorMessages.COMMUNICATION_TOO_FEW_ARGUMENTS, chanDef.getName().getName(), ""
+			issueHandler.addTypeError(node, TypeErrorMessages.COMMUNICATION_TOO_FEW_ARGUMENTS, channelName, ""
 					+ args.size(), "" + dclTypeSize);
 		}
 
@@ -85,7 +85,6 @@ public class CmlChannelExpressionTypeChecker extends
 			{
 				issueHandler.addTypeError(expression, TypeErrorMessages.INCOMPATIBLE_TYPE, ""
 						+ singleChanConcType, "" + expressionType);
-				// return AstFactory.newAUnknownType(node.getLocation());
 			}
 		}
 	}
@@ -106,28 +105,14 @@ public class CmlChannelExpressionTypeChecker extends
 
 		AChannelType chanConcreteType = ((AChannelDefinition) chanDef).getType();
 
-		boolean allArgsMustMatchTypes = false;
+		boolean allArgsMustMatchTypes = true;
 
 		if (node.getAncestor(ACompVarsetExpression.class) != null)
 		{
-			allArgsMustMatchTypes = true;
-			// expression size must match declared
-			// final int argSize = node.getExpressions().size();
-			// final int dclTypeSize = chanConcreteType.getParameters().size();
-			// if (argSize > dclTypeSize)
-			// {
-			// issueHandler.addTypeError(node, TypeErrorMessages.COMMUNICATION_TOO_MANY_ARGUMENTS,
-			// chanDef.getName().getName(), ""
-			// + argSize, "" + dclTypeSize);
-			// } else if (node.getExpressions().size() < chanConcreteType.getParameters().size())
-			// {
-			// issueHandler.addTypeError(node, TypeErrorMessages.COMMUNICATION_TOO_FEW_ARGUMENTS,
-			// chanDef.getName().getName(), ""
-			// + argSize, "" + dclTypeSize);
-			// }
+			allArgsMustMatchTypes = false;
 		}
 
-		checkChannelExpArgs((AChannelDefinition) chanDef, chanConcreteType, node.getExpressions(), allArgsMustMatchTypes, question);
+		checkChannelExpArgs(node, chanDef.getName().getName(), chanConcreteType, node.getExpressions(), allArgsMustMatchTypes, question);
 
 		chanConcreteType.getDefinitions().add(chanDef);
 		node.setType(chanConcreteType);
@@ -140,8 +125,8 @@ public class CmlChannelExpressionTypeChecker extends
 			throws AnalysisException
 	{
 		List<PType> types = new Vector<PType>();
-		List<ARenamePair> pairs =Arrays.asList(new ARenamePair[]{ node.getRenamePairs()});
-		
+		List<ARenamePair> pairs = Arrays.asList(new ARenamePair[] { node.getRenamePairs() });
+
 		PDefinition def = AstFactory.newAMultiBindListDefinition(node.getLocation(), node.getBindings());
 		def.apply(THIS, question);
 
@@ -159,7 +144,7 @@ public class CmlChannelExpressionTypeChecker extends
 		}
 
 		local.unusedCheck();
-		
+
 		checkRenamePairs(renameQuestion, types, pairs);
 
 		node.setType(TypeCheckerUtil.generateUnionType(question.assistantFactory, node.getLocation(), types));
@@ -203,7 +188,7 @@ public class CmlChannelExpressionTypeChecker extends
 				}
 
 				final AChannelType channelType = (AChannelType) chanDef.getType();
-				checkChannelExpArgs(chanDef, channelType, chanExp.getExpressions(), true, question);
+				checkChannelExpArgs(chanExp, chanDef.getName().getName(), channelType, chanExp.getExpressions(), true, question);
 
 				PType remainingType = null;
 
@@ -237,7 +222,6 @@ public class CmlChannelExpressionTypeChecker extends
 				{
 					issueHandler.addTypeError(from, TypeErrorMessages.INCOMPATIBLE_TYPE, toType
 							+ "", fromType + "");
-					// return AstFactory.newAUnknownType(node.getLocation());
 				}
 			}
 
@@ -263,22 +247,10 @@ public class CmlChannelExpressionTypeChecker extends
 
 	}
 
-	private String formatChannelType(AChannelType t)
-	{
-		String typeMsg = "" + t;
-		if (typeMsg.trim().isEmpty())
-		{
-			typeMsg = "()";
-		}
-
-		return typeMsg;
-	}
-
 	@Override
 	public PType createNewReturnValue(INode node, TypeCheckInfo question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -286,7 +258,6 @@ public class CmlChannelExpressionTypeChecker extends
 	public PType createNewReturnValue(Object node, TypeCheckInfo question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 
