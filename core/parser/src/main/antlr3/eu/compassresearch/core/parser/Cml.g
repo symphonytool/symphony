@@ -1390,10 +1390,12 @@ leadingIdAction returns[PAction action]
 
                                 $action = stm2action(AstFactory.newACallObjectStm(designator,name.getIdentifier(),apply.getArgs()));
                             }
-                        }else
+                        } else
                         {
                             //  This is from having something like 'x.a' as a statement on its own --- this cannot be a AReferenceAction as actions cannot be referenced with dots, and it cannot be a operation call as it is missing () at the end (the selectorOptList was empty) --- so this is a Parse Error -jwc/29Oct2013
-                            //FIXME throw new RecognitionException(input);
+                            if ($ids != null && $ids.size() > 0) {
+                                throw new StuckException(input, "This must be either a simple identifier or an operation call that ends with ().");
+                            }
                         }
                     }
                 | ':='
