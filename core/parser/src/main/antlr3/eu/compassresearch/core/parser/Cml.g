@@ -884,25 +884,47 @@ renamePairList returns[List<ARenamePair> pairs]
     ;
 
 renamePair returns[ARenamePair pair]
-    : tid=IDENTIFIER ( '.' texp=expression )? '<-' fid=IDENTIFIER ( '.' fexp=expression )?
+@init { List<PExp> texprs = new ArrayList<PExp>(); List<PExp> fexprs = new ArrayList<PExp>(); }
+    : tid=IDENTIFIER ( '.'
+            ( teid=IDENTIFIER
+                {
+                    ILexLocation loc = extractLexLocation($teid);
+                    ILexNameToken lexname = new CmlLexNameToken("", $teid.getText(), loc, false, false);
+                    texprs.add(new AVariableExp(loc, lexname, lexname.getName()));
+                }
+            | '(' teexp=expression ')'    { texprs.add($teexp.exp); }
+            | tesle=symbolicLiteralExpr   { texprs.add($tesle.exp); }
+            | terte=recordTupleExprs      { texprs.add($terte.exp); }
+            )
+        )*
+        '<-'
+        fid=IDENTIFIER ( '.'
+            ( tEid=IDENTIFIER
+                {
+                    ILexLocation loc = extractLexLocation($tEid);
+                    ILexNameToken lexname = new CmlLexNameToken("", $tEid.getText(), loc, false, false);
+                    fexprs.add(new AVariableExp(loc, lexname, lexname.getName()));
+                }
+            | '(' feexp=expression ')'    { fexprs.add($feexp.exp); }
+            | fesle=symbolicLiteralExpr   { fexprs.add($fesle.exp); }
+            | ferte=recordTupleExprs      { fexprs.add($ferte.exp); }
+            )
+        )*
         {
             // FIXME --- We really ought take #Channel out of the exp tree in the AST
             ILexLocation floc = extractLexLocation($fid);
-            List<PExp> fexprs = new ArrayList<PExp>();
-            if ($fexp.exp != null)
-                fexprs.add($fexp.exp);
             ANameChannelExp fromExp = new ANameChannelExp(floc, new CmlLexNameToken("", $fid.getText(), floc), fexprs);
-            if ($fexp.exp != null)
-                fromExp.setLocation(extractLexLocation($fid,$fexp.stop));
+            if (fexprs.size() > 0) {
+                fromExp.setLocation(extractLexLocation(floc,fexprs.get(fexprs.size() - 1).getLocation()));
+            }
 
             ILexLocation tloc = extractLexLocation($tid);
-            List<PExp> texprs = new ArrayList<PExp>();
-            if ($texp.exp != null)
-                texprs.add($texp.exp);
             ANameChannelExp toExp = new ANameChannelExp(tloc, new CmlLexNameToken("", $tid.getText(), tloc), texprs);
-            if ($texp.exp != null)
-                toExp.setLocation(extractLexLocation($tid,$texp.stop));
+            if (texprs.size() > 0) {
+                toExp.setLocation(extractLexLocation(tloc,texprs.get(texprs.size() - 1).getLocation()));
+            }
 
+            // ARenamePairs don't have locations as such; perhaps they should? -jwc/22May2014
             $pair = new ARenamePair(false, fromExp, toExp);
         }
     ;
@@ -1898,17 +1920,13 @@ varsetNameList returns[List<ANameChannelExp> names]
     ;
 
 varsetName returns[ANameChannelExp name]
-@init {
-    ILexLocation loc;
-    CmlLexNameToken lex;
-    List<PExp> exprs = new ArrayList<PExp>();
-}
+@init { List<PExp> exprs = new ArrayList<PExp>(); }
 @after { $name.setLocation(extractLexLocation($start,$stop)); }
     : base=IDENTIFIER
         ( '.'
             ( id=IDENTIFIER
                 {
-                    loc = extractLexLocation($id);
+                    ILexLocation loc = extractLexLocation($id);
                     ILexNameToken lexname = new CmlLexNameToken("", $id.getText(), loc, false, false);
                     exprs.add(new AVariableExp(loc, lexname, lexname.getName()));
                 }
@@ -1918,7 +1936,7 @@ varsetName returns[ANameChannelExp name]
             )
         )*
         {
-            loc = extractLexLocation($base);
+            ILexLocation loc = extractLexLocation($base);
             LexIdentifierToken lexid = new LexIdentifierToken($base.getText(), false, loc);
             $name = new ANameChannelExp();
             $name.setIdentifier(lexid);
