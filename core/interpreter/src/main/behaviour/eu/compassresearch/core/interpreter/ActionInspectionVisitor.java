@@ -1,9 +1,7 @@
 package eu.compassresearch.core.interpreter;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -29,7 +27,6 @@ import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.CmlAstFactory;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
-import eu.compassresearch.ast.actions.ACallAction;
 import eu.compassresearch.ast.actions.AChannelRenamingAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.ADivAction;
@@ -64,12 +61,11 @@ import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.lex.CmlLexNameToken;
 import eu.compassresearch.ast.statements.AActionStm;
+import eu.compassresearch.core.interpreter.api.CmlBehaviorFactory;
+import eu.compassresearch.core.interpreter.api.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorFactory;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlCalculationStep;
-import eu.compassresearch.core.interpreter.api.behaviour.Inspection;
+import eu.compassresearch.core.interpreter.api.TransitionEvent;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionFactory;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
@@ -77,13 +73,12 @@ import eu.compassresearch.core.interpreter.api.transitions.LabelledTransition;
 import eu.compassresearch.core.interpreter.api.transitions.ObservableTransition;
 import eu.compassresearch.core.interpreter.api.transitions.TimedTransition;
 import eu.compassresearch.core.interpreter.api.values.ActionValue;
-import eu.compassresearch.core.interpreter.api.values.CMLChannelValue;
-import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
+import eu.compassresearch.core.interpreter.api.values.ChannelValue;
+import eu.compassresearch.core.interpreter.api.values.CmlChannel;
 import eu.compassresearch.core.interpreter.api.values.ExpressionConstraint;
 import eu.compassresearch.core.interpreter.api.values.LatticeTopValue;
 import eu.compassresearch.core.interpreter.api.values.NamesetValue;
 import eu.compassresearch.core.interpreter.api.values.NoConstraint;
-import eu.compassresearch.core.interpreter.api.values.RenamingValue;
 import eu.compassresearch.core.interpreter.api.values.UnresolvedExpressionValue;
 import eu.compassresearch.core.interpreter.api.values.ValueConstraint;
 import eu.compassresearch.core.interpreter.utility.Pair;
@@ -152,8 +147,50 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 		return node.getStatement().apply(this.parentVisitor, question);
 	}
 
+	
+//	/**
+//	 * This implements the 7.5.10 Action Reference transition rule in D23.2.
+//	 */
+//	@Override
+//	public Inspection caseACallAction(final ACallAction node,
+//			final Context question) throws AnalysisException
+//	{
+//		final Value value = lookupName(node.getName(), question);
+//		if (value instanceof ActionValue)
+//		{
+//			// first find the action value in the context
+//			final ActionValue actionVal = (ActionValue) value;
+//
+//			return newInspection(createTauTransitionWithoutTime(actionVal.getActionDefinition().getAction(), null), new CmlCalculationStep()
+//			{
+//
+//				@Override
+//				public Pair<INode, Context> execute(
+//						CmlTransition selectedTransition)
+//						throws AnalysisException
+//				{
+//
+//					//the following if is copied from areference action. Not sure why it is here
+//					if (!owner.getName().getLastAction().equals(node.getName().getName()))
+//					{
+//						owner.getName().addAction(node.getName().getName());
+//					}
+//					
+//					return caseReferenceAction(node.getLocation(), node.getArgs(), actionVal, question);
+//				}
+//			});
+//
+//		} else
+//		{
+//			throw new CmlInterpreterException(node, InterpretationErrorMessages.FATAL_ERROR.customizeMessage());
+//		}
+//	}
+	
+	/**
+	 * This implements the 7.5.10 Action Reference transition rule in D23.2.
+	 */
 	@Override
-	public Inspection caseACallAction(final ACallAction node,
+	public Inspection caseAReferenceAction(final AReferenceAction node,
 			final Context question) throws AnalysisException
 	{
 		final Value value = lookupName(node.getName(), question);
@@ -171,6 +208,12 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 						throws AnalysisException
 				{
 
+					//the following if is copied from areference action. Not sure why it is here
+					if (!owner.getName().getLastAction().equals(node.getName().getName()))
+					{
+						owner.getName().addAction(node.getName().getName());
+					}
+					
 					return caseReferenceAction(node.getLocation(), node.getArgs(), actionVal, question);
 				}
 			});
@@ -189,13 +232,10 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 	public Inspection caseACommunicationAction(final ACommunicationAction node,
 			final Context question) throws AnalysisException
 	{
-
-		setWaiting();
-
 		// create the channel name
 		ILexNameToken channelName = NamespaceUtility.createChannelName(node.getIdentifier());
 		// find the channel value
-		CMLChannelValue chanValue = (CMLChannelValue) question.lookup(channelName);
+		CmlChannel chanValue = (CmlChannel) question.lookup(channelName);
 
 		SortedSet<CmlTransition> comset = new TreeSet<CmlTransition>();
 		List<Value> values = new LinkedList<Value>();
@@ -227,7 +267,8 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 				// change the trace at a latter point
 				if (valueExp instanceof UpdatableValue)
 				{
-					values.add(valueExp.deref());
+					// FIX for issue 195 where trace changed after the value was changed elsewhere.
+					values.add((Value) valueExp.deref().clone());
 				} else
 				{
 					values.add(valueExp);
@@ -253,7 +294,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 			}
 		}
 
-		ObservableTransition observableEvent = CmlTransitionFactory.newObservableChannelEvent(owner, new ChannelNameValue(chanValue, values, constraints));
+		ObservableTransition observableEvent = CmlTransitionFactory.newLabelledTransition(owner, new ChannelValue(chanValue, values, constraints));
 		comset.add(observableEvent);
 
 		return newInspection(new CmlTransitionSet(comset).union(new TimedTransition(owner)), new CmlCalculationStep()
@@ -264,7 +305,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 					throws AnalysisException
 			{
 				// At this point the supervisor has already given go to the event, or the event is hidden
-				ChannelNameValue channelNameValue = ((LabelledTransition) selectedTransition).getChannelName();
+				ChannelValue channelNameValue = ((LabelledTransition) selectedTransition).getChannelName();
 
 				Context nextContext = question;
 
@@ -288,19 +329,20 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 								nextContext = CmlContextFactory.newContext(node.getAction().getLocation(), "input communication context", question);
 							}
 
-							nextContext.putList(PPatternAssistantInterpreter.getNamedValues(pattern, value, nextContext));
+							nextContext.putList(question.assistantFactory.createPPatternAssistant().getNamedValues(pattern, value, nextContext));
 						}
 					}
 				}
-
+				newTransitionEvent(TransitionEvent.CHANNEL_EVENT);
 				return new Pair<INode, Context>(node.getAction(), nextContext);
 			}
 		});
 	}
-	
+
 	@Override
-	public Inspection caseAChannelRenamingAction(final AChannelRenamingAction node,
-			final Context question) throws AnalysisException
+	public Inspection caseAChannelRenamingAction(
+			final AChannelRenamingAction node, final Context question)
+			throws AnalysisException
 	{
 		return caseChannelRenaming(node, question);
 	}
@@ -403,7 +445,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 			return newInspection(createTauTransitionWithoutTime(dstNode, "End"), caseParallelEnd(dstNode, question));
 		} else
 		{
-			return newInspection(syncOnTockAndJoinChildren(), new CmlCalculationStep()
+			return newInspection(syncOnTimeAndJoinChildren(), new CmlCalculationStep()
 			{
 
 				@Override
@@ -613,35 +655,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 		}, node.getChansetExpression(), question);
 	}
 
-	/**
-	 * This implements the 7.5.10 Action Reference transition rule in D23.2.
-	 */
-	@Override
-	public Inspection caseAReferenceAction(final AReferenceAction node,
-			final Context question) throws AnalysisException
-	{
-		// FIXME: the scoping is not correct, this should be done as described in the transition rule
 
-		// FIXME: Consider: Instead of this might create a child process, and behave as this child until it terminates
-		// CMLActionInstance refchild = new CMLActionInstance(node.getActionDefinition().getAction(), question,
-		// node.getName());
-		final ActionValue actionValue = (ActionValue) question.check(node.getName()).deref();
-
-		return newInspection(createTauTransitionWithoutTime(actionValue.getActionDefinition().getAction()), new CmlCalculationStep()
-		{
-
-			@Override
-			public Pair<INode, Context> execute(CmlTransition selectedTransition)
-					throws AnalysisException
-			{
-				if (!owner.getName().getLastAction().equals(node.getName().getName()))
-				{
-					owner.getName().addAction(node.getName().getName());
-				}
-				return caseReferenceAction(node.getLocation(), node.getArgs(), actionValue, question);
-			}
-		});
-	}
 
 	protected Pair<INode, Context> caseReferenceAction(ILexLocation location,
 			List<PExp> args, ActionValue actionValue, Context question)
@@ -726,7 +740,6 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 
 	/*
 	 * Timed actions
-	 * 
 	 */
 
 	/**
@@ -738,7 +751,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 	{
 		return caseStartDeadline(node, node.getLeft(), node.getExpression(), question);
 	}
-	
+
 	@Override
 	public Inspection caseAEndDeadlineAction(AEndDeadlineAction node,
 			Context question) throws AnalysisException

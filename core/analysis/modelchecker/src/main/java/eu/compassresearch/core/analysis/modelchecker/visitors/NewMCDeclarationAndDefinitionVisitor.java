@@ -8,6 +8,7 @@ import org.overture.ast.analysis.QuestionAnswerAdaptor;
 import org.overture.ast.definitions.AAssignmentDefinition;
 import org.overture.ast.definitions.AExplicitFunctionDefinition;
 import org.overture.ast.definitions.AExplicitOperationDefinition;
+import org.overture.ast.definitions.AImplicitOperationDefinition;
 import org.overture.ast.definitions.AInstanceVariableDefinition;
 import org.overture.ast.definitions.ALocalDefinition;
 import org.overture.ast.definitions.AStateDefinition;
@@ -38,6 +39,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPParametrisation;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ExpressionEvaluator;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCAssignDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCAExpressionSingleDeclaration;
 import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCATypeSingleDeclaration;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAActionClassDefinition;
@@ -176,23 +178,26 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 			NewCMLModelcheckerContext question) throws AnalysisException {
 		
 		MCPCMLType type = (MCPCMLType) node.getType().apply(rootVisitor, question);;
-		MCPCMLExp expr = null;
+		MCPCMLExp expression = null;
 		if(node.getExpression() != null) {
-			expr = (MCPCMLExp) node.getExpression().apply(rootVisitor, question);
+			expression = (MCPCMLExp) node.getExpression().apply(rootVisitor, question);
 		}
 				
 		String varName = node.getName().toString();
 		MCPCMLExp varValue = new MCVoidValue();
-		if(expr != null){
-			//this has to be improved to instantiate values of the suitable type of the expression.
-			ExpressionEvaluator evaluator = new ExpressionEvaluator();
-			//varValue = evaluator.instantiateMCType(expr);
-			////PPPPPPPPPP
-			//from type we have to get the correct type instantiation
+		if(expression != null){
+			varValue = expression;
+			if(expression instanceof MCAUndefinedExp){
+				//this has to be improved to instantiate values of the suitable type of the expression.
+				ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
+				varValue = evaluator.getDefaultValue(type);
+			} 
 		}
 		question.maximalBinding = question.maximalBinding.addBinding("nP", varName, varValue);
 		
-		return new MCAAssignmentDefinition(varName, expr, type);
+		MCAAssignmentDefinition result = new MCAAssignmentDefinition(varName, expression, type);
+				
+		return result;
 	}
 
 	@Override
@@ -246,6 +251,9 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 		MCAChansetDefinition result = new MCAChansetDefinition(identifier, chansetExpression);
 		
 		question.chansetDefs.add(result);
+		
+		//maybe only the bellow insertion is enough
+		question.globalChanSets.add(chansetExpression);
 		
 		return result;
 	}
@@ -303,6 +311,14 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 	
 	
 	@Override
+	public MCNode caseAImplicitOperationDefinition(
+			AImplicitOperationDefinition node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		
+		return super.caseAImplicitOperationDefinition(node, question);
+	}
+
+	@Override
 	public MCNode caseAExplicitFunctionDefinition(
 			AExplicitFunctionDefinition node, NewCMLModelcheckerContext question)
 			throws AnalysisException {
@@ -337,7 +353,10 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 		for (PDefinition pDef : node.getDefs()) {
 			definitions.add((MCPCMLDefinition) pDef.apply(rootVisitor, question));
 		}
-		MCPCMLType type = (MCPCMLType) node.getType().apply(rootVisitor, question);
+		MCPCMLType type = null;
+		if (node.getType() != null){
+			type = (MCPCMLType) node.getType().apply(rootVisitor, question);
+		}
 		MCPCMLExp expression = (MCPCMLExp) node.getExpression().apply(rootVisitor, question);
 		MCAValueDefinition result = new MCAValueDefinition(name, definitions, expression,type);
 

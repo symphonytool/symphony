@@ -12,25 +12,26 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ContextException;
 import org.overture.interpreter.runtime.ValueException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import eu.compassresearch.core.interpreter.CmlRuntime;
 import eu.compassresearch.core.interpreter.Console;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
+import eu.compassresearch.core.interpreter.api.DebugAnimationStrategy;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.api.SelectionStrategy;
 import eu.compassresearch.core.interpreter.api.events.CmlInterpreterStateObserver;
 import eu.compassresearch.core.interpreter.api.events.InterpreterStateChangedEvent;
-import eu.compassresearch.core.interpreter.debug.messaging.CmlRequest;
 import eu.compassresearch.core.interpreter.debug.messaging.AbstractMessage;
+import eu.compassresearch.core.interpreter.debug.messaging.CmlRequest;
 import eu.compassresearch.core.interpreter.debug.messaging.MessageCommunicator;
 import eu.compassresearch.core.interpreter.debug.messaging.MessageContainer;
 import eu.compassresearch.core.interpreter.debug.messaging.RequestMessage;
@@ -46,6 +47,8 @@ public class SocketServerCmlDebugger implements CmlDebugger,
 		CmlInterpreterStateObserver
 {
 
+	final static Logger logger = LoggerFactory.getLogger("cml-interpreter");
+
 	/**
 	 * The communication socket
 	 */
@@ -55,6 +58,8 @@ public class SocketServerCmlDebugger implements CmlDebugger,
 	private BufferedReader requestReader;
 	private boolean connected = false;
 	private CmlInterpreter runningInterpreter;
+
+	Thread worker = null;
 	public final List<TransitionDTO> waitingChoices = new LinkedList<TransitionDTO>();
 
 	/**
@@ -87,7 +92,7 @@ public class SocketServerCmlDebugger implements CmlDebugger,
 				requestSocket.shutdownInput();
 			} catch (IOException e)
 			{
-				CmlRuntime.logger().log(Level.WARNING, "", e);
+				logger.warn("", e);
 			}
 		}
 
@@ -95,20 +100,31 @@ public class SocketServerCmlDebugger implements CmlDebugger,
 		public void run()
 		{
 			MessageContainer messageContainer = null;
+			final MessageContainer DEFAULT_MESSAGE = new MessageContainer(new CmlDbgStatusMessage(CmlInterpreterState.TERMINATED_BY_USER));
 			try
 			{
 
 				do
 				{
-					messageContainer = recvMessage();
-					CmlRuntime.logger().finest("Debug event thread received a message: "
+					// Receives a CML message. This is a blocking call
+					messageContainer = MessageCommunicator.receiveMessage(requestReader, DEFAULT_MESSAGE);
+
+					if (messageContainer == DEFAULT_MESSAGE)
+					{
+						logger.debug("IDE connection disconnected, reached EOF");
+						break;
+					}
+					logger.trace("Debug event thread received a message: "
 							+ messageContainer.toString());
 				} while (!stopped && processMessage(messageContainer));
 
 			} catch (IOException e)
 			{
-				stopped();
-				CmlRuntime.logger().log(Level.WARNING, "", e);
+				// stopped();
+				if (!stopped)
+				{
+					logger.warn("", e);
+				}
 			}
 		}
 	}
@@ -133,31 +149,22 @@ public class SocketServerCmlDebugger implements CmlDebugger,
 		}
 	}
 
+	public void dicsonnect()
+	{
+		commandDispatcher.stop();
+		worker.interrupt();
+		try
+		{
+			requestSocket.close();
+		} catch (IOException e)
+		{
+			// ignore
+		}
+	}
+
 	private boolean isConnected()
 	{
 		return connected;
-	}
-
-	// private void simulate(CmlInterpreter cmlInterpreter)
-	// throws AnalysisException
-	// {
-	// cmlInterpreter.execute(new RandomSelectionStrategy());
-	// }
-	//
-	// private void animate(final CmlInterpreter cmlInterpreter)
-	// throws AnalysisException
-	// {
-	// // cmlInterpreter.setSuspendBeforeTermination(true);
-	// cmlInterpreter.execute(new AnnimationStrategy());
-	// }
-
-	/**
-	 * Message communication methods
-	 */
-
-	private void stopped()
-	{
-		stopped(null);
 	}
 
 	private void stopped(CmlInterpreterStateDTO status)
@@ -169,21 +176,13 @@ public class SocketServerCmlDebugger implements CmlDebugger,
 				Console.err.println(error);
 			}
 		}
-		try
-		{
-			sendStatusMessage(status);
-		} catch (IOException e)
-		{
-			throw new InterpreterRuntimeException("Failed to send status message", e);
-		}
-		commandDispatcher.stop();
 	}
 
 	private void sendStatusMessage(CmlInterpreterStateDTO interpreterStatus)
 			throws IOException
 	{
 		CmlDbgStatusMessage dm = new CmlDbgStatusMessage(interpreterStatus);
-		CmlRuntime.logger().finest("Sending status message : " + dm.toString());
+		logger.trace("Sending status message : " + dm.toString());
 		sendMessage(requestOS, dm);
 	}
 
@@ -208,17 +207,6 @@ public class SocketServerCmlDebugger implements CmlDebugger,
 		}
 
 		return responseMessage;
-	}
-
-	/**
-	 * Receives a CML message. This is a blocking call
-	 * 
-	 * @return The received message
-	 * @throws IOException
-	 */
-	private MessageContainer recvMessage() throws IOException
-	{
-		return MessageCommunicator.receiveMessage(requestReader, new MessageContainer(new CmlDbgStatusMessage(CmlInterpreterState.TERMINATED_BY_USER)));
 	}
 
 	private void stopping()
@@ -414,7 +402,7 @@ public class SocketServerCmlDebugger implements CmlDebugger,
 		runningInterpreter.onStateChanged().registerObserver(this);
 		// sendStatusMessage(this.runningInterpreter.getStatus());
 		commandDispatcher = new CommandDispatcher();
-		Thread worker = new Thread(commandDispatcher, "CMLInterpreterRunner event dipsatcher");
+		worker = new Thread(commandDispatcher, "CMLInterpreterRunner event dipsatcher");
 		worker.setDaemon(true);
 		worker.start();
 		runningInterpreter.initialize();
@@ -439,7 +427,10 @@ public class SocketServerCmlDebugger implements CmlDebugger,
 		{
 			requestSetup();
 
-			strategy.initialize(runningInterpreter, this);
+			if (strategy instanceof DebugAnimationStrategy)
+			{
+				((DebugAnimationStrategy) strategy).initialize(runningInterpreter, this);
+			}
 			runningInterpreter.execute(strategy);
 
 			stopped(CmlInterpreterStateDTO.createCmlInterpreterStateDTO(runningInterpreter));
@@ -493,13 +484,13 @@ public class SocketServerCmlDebugger implements CmlDebugger,
 					sendStatusMessage(CmlInterpreterStateDTO.createCmlInterpreterStateDTO(runningInterpreter, waitingChoices));
 
 				}
-			} else if (status != CmlInterpreterState.FAILED )
+			} else if (status != CmlInterpreterState.FAILED)
 			{
 				Console.debug.println("Debug thread sending Status event to controller: "
 						+ event);
 				sendStatusMessage(CmlInterpreterStateDTO.createCmlInterpreterStateDTO(runningInterpreter, waitingChoices));
 			}
-			CmlRuntime.logger().fine(status.toString());
+			logger.trace(status.toString());
 		} catch (IOException e)
 		{
 			throw new InterpreterRuntimeException("Unable to send message", e);

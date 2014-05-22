@@ -11,6 +11,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAEnumVars
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAFatEnumVarsetExpression;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANameChannelExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAUnionVOpVarsetExpression;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAVariableExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPVarsetExpression;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
@@ -33,7 +34,46 @@ public class MCACommunicationAction implements MCPAction {
 		this.communicationParameters = communicationParameters;
 		this.action = action;
 	}
+	
+	private MCACommunicationAction(int counterId, String identifier,
+			LinkedList<MCPCommunicationParameter> communicationParameters,
+			MCPAction action) {
+		this.counterId = counterId;
+		this.identifier = identifier;
+		this.communicationParameters = communicationParameters;
+		this.action = action;
+	}
 
+	public MCACommunicationAction copy(){
+		MCACommunicationAction result = new MCACommunicationAction(this.counterId, this.identifier, (LinkedList<MCPCommunicationParameter>)communicationParameters.clone(), this.action);
+		
+		return result;
+	}
+
+	public void setParameter(String name, MCPCMLExp expValue){
+		for (MCPCommunicationParameter param : communicationParameters) {
+			if(param instanceof MCAReadCommunicationParameter){
+				if(((MCAReadCommunicationParameter) param).getPattern().toFormula(MCNode.DEFAULT).equals(name)){
+					((MCAReadCommunicationParameter) param).setExpression(expValue);
+				}
+			} else if (param instanceof MCAWriteCommunicationParameter){
+				
+				if(((MCAWriteCommunicationParameter) param).getExpression() instanceof MCAVariableExp){
+					MCAVariableExp paramExp = (MCAVariableExp) ((MCAWriteCommunicationParameter)param).getExpression();
+					if(paramExp.getName().equals(name)){
+						paramExp.setName(expValue.toFormula(MCNode.DEFAULT));
+					}
+				}
+			} else if (param instanceof MCASignalCommunicationParameter){
+				if(((MCASignalCommunicationParameter) param).getExpression() instanceof MCAVariableExp){
+					MCAVariableExp paramExp = (MCAVariableExp) ((MCASignalCommunicationParameter)param).getExpression();
+					if(paramExp.getName().equals(name)){
+						paramExp.setName(expValue.toFormula(MCNode.DEFAULT));
+					}
+				}
+			}
+		}
+	}
 
 
 	@Override
@@ -65,23 +105,33 @@ public class MCACommunicationAction implements MCPAction {
 				boolean generateLieIn = false;
 				for (MCANameChannelExp aNameChannelExp : chanNames) {
 					if(aNameChannelExp.getIdentifier().toString().equals(this.identifier.toString())){
-						generateLieIn = true;
-						break;
+						//generateLieIn = true;
+						ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
+						MCPCMLType value = evaluator.instantiateMCTypeFromCommParams(this.communicationParameters);
+						
+						MCCommEv commEv = new MCCommEv(this.identifier,this.communicationParameters, value);
+						MCLieInFact lieIn = new MCLieInFact(commEv,setExp); 
+						if(!context.lieIn.contains(lieIn)){
+							context.lieIn.add(lieIn);
+						}
+						//break;
 					}
 				}
-				if(!generateLieIn && chanSetStack.size()==0){
-					break;
-				}else{
-					ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
-					MCPCMLType value = evaluator.instantiateMCTypeFromCommParams(this.communicationParameters);
-					
-					MCCommEv commEv = new MCCommEv(this.identifier,this.communicationParameters, value);
-					MCLieInFact lieIn = new MCLieInFact(commEv,setExp); 
-					if(!context.lieIn.contains(lieIn)){
-						context.lieIn.add(lieIn);
+				//if(!generateLieIn && chanSetStack.size()==0){
+				//	break;
+			} /*else{
+					if (chanNames.size() > 0){
+						ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
+						MCPCMLType value = evaluator.instantiateMCTypeFromCommParams(this.communicationParameters);
+						
+						MCCommEv commEv = new MCCommEv(this.identifier,this.communicationParameters, value);
+						MCLieInFact lieIn = new MCLieInFact(commEv,setExp); 
+						if(!context.lieIn.contains(lieIn)){
+							context.lieIn.add(lieIn);
+						}
 					}
 				}
-			}
+			}*/
 			
 		}
 		
@@ -124,17 +174,24 @@ public class MCACommunicationAction implements MCPAction {
 		return result.toString();
 	}
 
-	private String buildIOCommActualParams(String option){
+	public String buildIOCommActualParams(String option){
 	
 		StringBuilder result = new StringBuilder();
 		ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
-		MCPCMLType type = evaluator.instantiateMCTypeFromCommParams(this.communicationParameters);
-
-		result.append(type.toFormula(option));
-		
+	
+		if(option.equals(MCNode.MINIMAL_GENERIC)){
+			MCPCMLType type = evaluator.instantiateMCTypeFromCommParamsForIOCommDef(this.communicationParameters,"");
+			result.append(type.toFormula(option));
+		}else{
+			MCPCMLType type = evaluator.instantiateMCTypeFromCommParams(this.communicationParameters);
+			result.append(type.toFormula(option));
+		}
 		return result.toString();
 	}
-
+	
+	
+	
+	
 	public String getIdentifier() {
 		return identifier;
 	}

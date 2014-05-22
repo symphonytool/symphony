@@ -9,7 +9,6 @@ import org.overture.ast.expressions.PExp;
 import org.overture.ast.node.INode;
 import org.overture.ast.statements.AIfStm;
 
-import eu.compassresearch.ast.actions.ACallAction;
 import eu.compassresearch.ast.actions.AChaosAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.ADivAction;
@@ -63,7 +62,6 @@ import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAInterruptAct
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAReferenceAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCASequentialCompositionAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCASequentialCompositionReplicatedAction;
-import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCASingleGeneralAssignmentStatementAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCASkipAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAStmAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAStopAction;
@@ -145,6 +143,8 @@ public class NewMCActionVisitor extends
 		MCPAction action = (MCPAction) node.getLeft().apply(rootVisitor, question);
 		MCPVarsetExpression chanSetExp = (MCPVarsetExpression) node.getChansetExpression().apply(rootVisitor, question);
 		MCAHidingAction result = new MCAHidingAction(action, chanSetExp);
+		
+		question.setStack.add(chanSetExp);
 		
 		return result;
 	}
@@ -405,7 +405,7 @@ public class NewMCActionVisitor extends
 		MCACommunicationAction result = new MCACommunicationAction(identifier, mcParameters, action);
 		
 		//fr the moment iocomm do not depend on channel. This means that formula wont instantiate communicated values
-		MCIOCommDef ioCommDef = new MCIOCommDef(result.getCounterId(), result, null);
+		MCIOCommDef ioCommDef = new MCIOCommDef(result.getCounterId(), result);
 
 		question.ioCommDefs.add(ioCommDef);
 		
@@ -492,19 +492,20 @@ public class NewMCActionVisitor extends
 	}
 	*/
 	
-	@Override
-	public MCNode caseACallAction(ACallAction node,
-			NewCMLModelcheckerContext question) throws AnalysisException {
-		
-		String name = node.getName().getSimpleName();
-		LinkedList<MCPCMLExp> args = new LinkedList<MCPCMLExp>();
-		for (PExp pExp : node.getArgs()) {
-			args.add((MCPCMLExp) pExp.apply(rootVisitor, question));
-		}
-		MCACallAction result = new MCACallAction(name, args);
-		
-		return result;
-	}
+	// KEL: Removed node ACallAction, it is a dublica of AReferenceAction
+//	@Override
+//	public MCNode caseACallAction(ACallAction node,
+//			NewCMLModelcheckerContext question) throws AnalysisException {
+//		
+//		String name = node.getName().getSimpleName();
+//		LinkedList<MCPCMLExp> args = new LinkedList<MCPCMLExp>();
+//		for (PExp pExp : node.getArgs()) {
+//			args.add((MCPCMLExp) pExp.apply(rootVisitor, question));
+//		}
+//		MCACallAction result = new MCACallAction(name, args);
+//		
+//		return result;
+//	}
 
 	/////TIMED ACTIONS
 	@Override

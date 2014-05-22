@@ -4,6 +4,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAVariableExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCAAssignmentStm;
 import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCPCMLStm;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANamedInvariantType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
@@ -40,11 +41,16 @@ public class MCAssignDef implements MCNode {
 		result.append(max.toFormula(MCNode.NAMED)); //with variable names
 		result.append(", st_ = ");
 		Binding maxCopy = max.copy();
+		if (stateDesignator == null){
+			if (parentStm instanceof MCAAssignmentStm){
+				stateDesignator = new MCAVariableExp(((MCAAssignmentStm) this.parentStm).getTarget().toFormula(option));
+			}
+		}
 		String varName = stateDesignator.toFormula(MCNode.NAMED);
 		String newValueVarName = varName + "_";
 		MCPCMLExp newVarValue = new MCAVariableExp(newValueVarName);
 		maxCopy.updateBinding(varName,newVarValue); 
-		result.append(maxCopy.toFormula(MCNode.DEFAULT)); 
+		result.append(maxCopy.toFormula(MCNode.NAMED)); 
 		
 		//THE EXPRESSION OF THE ASSIGNMENT
 		result.append(", ");
@@ -54,6 +60,18 @@ public class MCAssignDef implements MCNode {
 		result.append(".");
 		
 		return result.toString();
+	}
+
+	
+
+	@Override
+	public boolean equals(Object arg0) {
+		boolean result = false;
+		
+		if(arg0 instanceof MCAssignDef){
+			result = this.counterId == ((MCAssignDef) arg0).getCounterId();
+		}
+		return result;
 	}
 
 

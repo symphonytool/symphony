@@ -4,15 +4,18 @@
   <parent>
     <groupId>eu.compassresearch.ide</groupId>
     <artifactId>ide</artifactId>
-    <version>0.2.7-SNAPSHOT</version>
+    <version>0.3.1-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
   <packaging>eclipse-plugin</packaging>
-
   
   <artifactId>eu.compassresearch.ide.platform</artifactId>
   <name>Symphony IDE Platform</name>
+
+  <properties>
+    <git-commit-id.skip>false</git-commit-id.skip>
+  </properties>
 
   <build>
     <resources>
@@ -39,6 +42,7 @@
           </execution>
         </executions>
         <configuration>
+          <skip>${git-commit-id.skip}</skip>
           <prefix>git</prefix>
           <dateFormat>yyyy MMM dd HH:mm z</dateFormat>
           <verbose>false</verbose>
@@ -47,7 +51,7 @@
             <skip>false</skip>
             <always>false</always>
             <abbrev>7</abbrev>
-            <dirty>-dirty</dirty>
+            <dirty></dirty>
             <forceLongFormat>false</forceLongFormat>
           </gitDescribe>
         </configuration>

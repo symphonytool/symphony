@@ -44,9 +44,9 @@ import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.patterns.ARenamePair;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
-import eu.compassresearch.core.interpreter.api.values.CMLChannelValue;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameSetValue;
-import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
+import eu.compassresearch.core.interpreter.api.values.ChannelValue;
+import eu.compassresearch.core.interpreter.api.values.CmlChannel;
 import eu.compassresearch.core.interpreter.api.values.LatticeTopValue;
 import eu.compassresearch.core.interpreter.api.values.NamesetValue;
 import eu.compassresearch.core.interpreter.api.values.RenamingValue;
@@ -125,25 +125,24 @@ public class CmlExpressionVisitor extends
 		throw new CmlInterpreterException(InterpretationErrorMessages.CASE_NOT_IMPLEMENTED.customizeMessage(node.getClass().getSimpleName()));
 	}
 
-	protected ChannelNameValue createChannelNameValue(ILexIdentifierToken id,
+	protected ChannelValue createChannelNameValue(ILexIdentifierToken id,
 			Context question) throws AnalysisException
 	{
 		// find the channel value
 		// TODO this might change if channel renaming does not
 		// require the renamed channel name to be defined
 		ILexNameToken channelName = NamespaceUtility.createChannelName(id);
-		CMLChannelValue chanValue = (CMLChannelValue) question.lookup(channelName);
+		CmlChannel chanValue = (CmlChannel) question.lookup(channelName);
 
-		return new ChannelNameValue(chanValue);
+		return new ChannelValue(chanValue);
 	}
 
-	protected ChannelNameValue createChannelNameValue(
-			ANameChannelExp chanNameExp, Context question)
-			throws AnalysisException
+	protected ChannelValue createChannelNameValue(ANameChannelExp chanNameExp,
+			Context question) throws AnalysisException
 	{
 		// find the channel value
 		ILexNameToken channelName = NamespaceUtility.createChannelName(chanNameExp.getIdentifier());
-		CMLChannelValue chanValue = (CMLChannelValue) question.lookup(channelName);
+		CmlChannel chanValue = (CmlChannel) question.lookup(channelName);
 
 		// extract the values
 		List<Value> values = new LinkedList<Value>();
@@ -160,14 +159,14 @@ public class CmlExpressionVisitor extends
 			}
 		}
 
-		return new ChannelNameValue(chanValue, values);
+		return new ChannelValue(chanValue, values);
 	}
 
 	private boolean isChannelSetExp(ANameChannelExp varexp, Context question)
 	{
 		// find the channel value
 		ILexNameToken channelName = NamespaceUtility.createChannelName(varexp.getIdentifier());
-		return question.check(channelName) instanceof CMLChannelValue;
+		return question.check(channelName) instanceof CmlChannel;
 	}
 
 	@Override
@@ -182,11 +181,11 @@ public class CmlExpressionVisitor extends
 				&& isChannelSetExp(node.getChannelNames().get(0), question))
 		{
 
-			Set<ChannelNameValue> coms = new HashSet<ChannelNameValue>();
+			Set<ChannelValue> coms = new HashSet<ChannelValue>();
 
 			for (ANameChannelExp chanNameExp : node.getChannelNames())
 			{
-				ChannelNameValue channelName = createChannelNameValue(chanNameExp, question);
+				ChannelValue channelName = createChannelNameValue(chanNameExp, question);
 				coms.add(channelName);
 			}
 
@@ -234,10 +233,10 @@ public class CmlExpressionVisitor extends
 		if (node.getChannelNames().size() > 0
 				&& isChannelSetExp(node.getChannelNames().get(0), question))
 		{
-			Set<ChannelNameValue> coms = new HashSet<ChannelNameValue>();
+			Set<ChannelValue> coms = new HashSet<ChannelValue>();
 			for (ANameChannelExp chanNameExp : node.getChannelNames())
 			{
-				ChannelNameValue channelName = createChannelNameValue(chanNameExp, question);
+				ChannelValue channelName = createChannelNameValue(chanNameExp, question);
 				coms.add(channelName);
 			}
 
@@ -291,7 +290,7 @@ public class CmlExpressionVisitor extends
 
 		if (isChannelSetExp(node.getChannelNameExp(), ctxt))
 		{
-			set = new ChannelNameSetValue(new HashSet<ChannelNameValue>());
+			set = new ChannelNameSetValue(new HashSet<ChannelValue>());
 		} else
 		{
 			set = new NamesetValue(new HashSet<ILexNameToken>());
@@ -303,7 +302,7 @@ public class CmlExpressionVisitor extends
 
 			for (PMultipleBind mb : node.getBindings())
 			{
-				ValueList bvals = PMultipleBindAssistantInterpreter.getBindValues(mb, ctxt);
+				ValueList bvals = ctxt.assistantFactory.createPMultipleBindAssistant().getBindValues(mb, ctxt);
 
 				for (PPattern p : mb.getPlist())
 				{
@@ -374,21 +373,21 @@ public class CmlExpressionVisitor extends
 
 		return node.getExpression().apply(this, question);
 	}
-	
+
 	@Override
 	public Value caseAEnumerationRenameChannelExp(
 			AEnumerationRenameChannelExp node, Context question)
 			throws AnalysisException
 	{
 		RenamingValue rnv = new RenamingValue();
-		
-		for(ARenamePair pair : node.getRenamePairs())
+
+		for (ARenamePair pair : node.getRenamePairs())
 		{
-			ChannelNameValue src = createChannelNameValue(pair.getFrom(), question);
-			ChannelNameValue dst = createChannelNameValue(pair.getTo(), question);
-			rnv.renamingMap().put(src,dst);
+			ChannelValue src = createChannelNameValue(pair.getFrom(), question);
+			ChannelValue dst = createChannelNameValue(pair.getTo(), question);
+			rnv.renamingMap().put(src, dst);
 		}
-		
+
 		return rnv;
 	}
 

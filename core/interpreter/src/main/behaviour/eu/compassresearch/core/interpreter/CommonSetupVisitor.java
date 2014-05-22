@@ -22,20 +22,19 @@ import org.overture.interpreter.values.Value;
 import org.overture.interpreter.values.ValueList;
 
 import eu.compassresearch.ast.CmlAstFactory;
-import eu.compassresearch.ast.actions.AStartDeadlineAction;
 import eu.compassresearch.ast.actions.SReplicatedAction;
 import eu.compassresearch.ast.analysis.DepthFirstAnalysisCMLAdaptor;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.expressions.SRenameChannelExp;
 import eu.compassresearch.ast.process.SReplicatedProcess;
+import eu.compassresearch.core.interpreter.api.CmlBehaviorFactory;
+import eu.compassresearch.core.interpreter.api.CmlBehaviour;
+import eu.compassresearch.core.interpreter.api.CmlBehaviour.BehaviourName;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorFactory;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour.BehaviourName;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameSetValue;
-import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
+import eu.compassresearch.core.interpreter.api.values.ChannelValue;
 import eu.compassresearch.core.interpreter.api.values.CmlSetQuantifier;
 import eu.compassresearch.core.interpreter.api.values.LatticeTopValue;
 import eu.compassresearch.core.interpreter.api.values.RenamingValue;
@@ -62,7 +61,7 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 			return (ChannelNameSetValue) val;
 		} else if (val instanceof Set && ((Set) val).isEmpty())
 		{
-			return new ChannelNameSetValue(new HashSet<ChannelNameValue>());
+			return new ChannelNameSetValue(new HashSet<ChannelValue>());
 		}
 
 		throw new CmlInterpreterException(chansetExpression, InterpretationErrorMessages.FATAL_ERROR.customizeMessage("Failed to evaluate chanset expression"));
@@ -94,17 +93,17 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 
 		return new Pair<INode, Context>(node, question);
 	}
-	
-	protected Pair<INode, Context> caseChannelRenaming(
-			INode node, SRenameChannelExp renameExpression, INode subNode, Context question)
+
+	protected Pair<INode, Context> caseChannelRenaming(INode node,
+			SRenameChannelExp renameExpression, INode subNode, Context question)
 			throws AnalysisException
 	{
 		Context rnContext = CmlContextFactory.newContext(LocationExtractor.extractLocation(node), "Renaming context", question);
-		RenamingValue rv = (RenamingValue)renameExpression.apply(this.cmlExpressionVisitor,question);
+		RenamingValue rv = (RenamingValue) renameExpression.apply(this.cmlExpressionVisitor, question);
 		rnContext.putNew(new NameValuePair(NamespaceUtility.getRenamingValueName(), rv));
-		
+
 		setLeftChild(subNode, question);
-		
+
 		return new Pair<INode, Context>(node, rnContext);
 	}
 
@@ -140,12 +139,13 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 		return new Pair<INode, Context>(node, question);
 	}
 
-	
-	protected Pair<INode, Context> setupTimedOperator(INode node, INode leftNode, ILexNameToken startTimeValueName,
-			Context question) throws AnalysisException
+	protected Pair<INode, Context> setupTimedOperator(INode node,
+			INode leftNode, ILexNameToken startTimeValueName, Context question)
+			throws AnalysisException
 	{
 
-		Context context = CmlContextFactory.newContext(LocationExtractor.extractLocation(node), node.getClass().getName() + " context", question);
+		Context context = CmlContextFactory.newContext(LocationExtractor.extractLocation(node), node.getClass().getName()
+				+ " context", question);
 		try
 		{
 			context.putNew(new NameValuePair(startTimeValueName, new NaturalValue(owner.getCurrentTime())));
@@ -159,43 +159,45 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 		return new Pair<INode, Context>(node, context);
 
 	}
-	
-	
-//	protected Pair<INode, Context> caseATimeout(INode node, INode leftNode,
-//			Context question) throws AnalysisException
-//	{
-//
-//		Context context = CmlContextFactory.newContext(LocationExtractor.extractLocation(node), "Timeout context", question);
-//		try
-//		{
-//			context.putNew(new NameValuePair(NamespaceUtility.getStartTimeName(), new IntegerValue(owner.getCurrentTime())));
-//		} catch (Exception e)
-//		{
-//			throw new ValueException(0, e.getMessage(), question);
-//		}
-//		// We setup the child nodes
-//		setLeftChild(leftNode, question);
-//		return new Pair<INode, Context>(node, context);
-//
-//	}
-	
-//	@Override
-//	public Pair<INode, Context> caseAStartDeadlineAction(
-//			AStartDeadlineAction node, Context question)
-//			throws AnalysisException
-//	{
-//		Context context = CmlContextFactory.newContext(LocationExtractor.extractLocation(node), "Timeout context", question);
-//		try
-//		{
-//			context.putNew(new NameValuePair(NamespaceUtility.getStartsByTimeName(), new NaturalValue(owner.getCurrentTime())));
-//			
-//		} catch (Exception e)
-//		{
-//			throw new ValueException(0, e.getMessage(), question);
-//		}
-//		setLeftChild(node.getLeft(), question);
-//		return new Pair<INode, Context>(node, context);
-//	}
+
+	// protected Pair<INode, Context> caseATimeout(INode node, INode leftNode,
+	// Context question) throws AnalysisException
+	// {
+	//
+	// Context context = CmlContextFactory.newContext(LocationExtractor.extractLocation(node), "Timeout context",
+	// question);
+	// try
+	// {
+	// context.putNew(new NameValuePair(NamespaceUtility.getStartTimeName(), new IntegerValue(owner.getCurrentTime())));
+	// } catch (Exception e)
+	// {
+	// throw new ValueException(0, e.getMessage(), question);
+	// }
+	// // We setup the child nodes
+	// setLeftChild(leftNode, question);
+	// return new Pair<INode, Context>(node, context);
+	//
+	// }
+
+	// @Override
+	// public Pair<INode, Context> caseAStartDeadlineAction(
+	// AStartDeadlineAction node, Context question)
+	// throws AnalysisException
+	// {
+	// Context context = CmlContextFactory.newContext(LocationExtractor.extractLocation(node), "Timeout context",
+	// question);
+	// try
+	// {
+	// context.putNew(new NameValuePair(NamespaceUtility.getStartsByTimeName(), new
+	// NaturalValue(owner.getCurrentTime())));
+	//
+	// } catch (Exception e)
+	// {
+	// throw new ValueException(0, e.getMessage(), question);
+	// }
+	// setLeftChild(node.getLeft(), question);
+	// return new Pair<INode, Context>(node, context);
+	// }
 
 	/*
 	 * Non public replication helper methods -- Start

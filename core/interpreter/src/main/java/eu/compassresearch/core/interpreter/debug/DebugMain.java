@@ -19,9 +19,9 @@ import eu.compassresearch.core.interpreter.Config;
 import eu.compassresearch.core.interpreter.Console;
 import eu.compassresearch.core.interpreter.InterpreterFactory;
 import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
-import eu.compassresearch.core.interpreter.api.AnnimationStrategy;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
+import eu.compassresearch.core.interpreter.api.DebugAnimationStrategy;
 import eu.compassresearch.core.interpreter.api.RandomSelectionStrategy;
 import eu.compassresearch.core.interpreter.api.SelectionStrategy;
 import eu.compassresearch.core.interpreter.cosim.CoSimulationClient;
@@ -160,56 +160,62 @@ public class DebugMain
 
 			// Since the process that started expects the debugger to connect
 			// we do this first so the connection doesn't time out
-			debugger.connect(host, port);
-
-			// create the typechecker and typecheck the source forest
-			ITypeIssueHandler ih = VanillaFactory.newCollectingIssueHandle();
-			ICmlTypeChecker tc = VanillaFactory.newTypeChecker(res.definitions, ih);
-			Console.debug.println("Debug Thread: Typechecking...");
-			if (tc.typeCheck())
+			try
 			{
-				Console.debug.println("Debug Thread: Typechecking: OK");
+				debugger.connect(host, port);
 
-				configureCoSimulation(jargs);
-
-				boolean filterTockEvents = autoFilterTockEvents
-						&& !TimedSpeckChecker.containsTimeConstructs(res.definitions);
-				Config config = factory.newDefaultConfig(filterTockEvents);
-				CmlInterpreter cmlInterpreter = factory.newInterpreter(res.definitions, config);
-				cmlInterpreter.setDefaultName(startProcessName);
-				CmlRuntime.consoleMode = false;
-				Console.debug.println("Debug Thread: Initializing the interpreter...");
-				debugger.initialize(cmlInterpreter);
-
-				if (remote == null)
+				// create the typechecker and typecheck the source forest
+				ITypeIssueHandler ih = VanillaFactory.newCollectingIssueHandle();
+				ICmlTypeChecker tc = VanillaFactory.newTypeChecker(res.definitions, ih);
+				Console.debug.println("Debug Thread: Typechecking...");
+				if (tc.typeCheck())
 				{
-					Console.debug.println("Debug Thread: Starting the interpreter...");
+					Console.debug.println("Debug Thread: Typechecking: OK");
 
-					SelectionStrategy strategy = null;
+					configureCoSimulation(jargs);
 
-					switch (interpreterExecutionMode)
+					boolean filterTockEvents = autoFilterTockEvents
+							&& !TimedSpeckChecker.containsTimeConstructs(res.definitions);
+					Config config = factory.newDefaultConfig(filterTockEvents);
+					CmlInterpreter cmlInterpreter = factory.newInterpreter(res.definitions, config);
+					cmlInterpreter.setDefaultName(startProcessName);
+					CmlRuntime.consoleMode = false;
+					Console.debug.println("Debug Thread: Initializing the interpreter...");
+					debugger.initialize(cmlInterpreter);
+
+					if (remote == null)
 					{
-						case ANIMATE:
-							strategy = new AnnimationStrategy();
-							break;
-						case SIMULATE:
-						default:
-							strategy = new RandomSelectionStrategy();
-							break;
+						Console.debug.println("Debug Thread: Starting the interpreter...");
 
+						SelectionStrategy strategy = null;
+
+						switch (interpreterExecutionMode)
+						{
+							case ANIMATE:
+								strategy = new DebugAnimationStrategy();
+								break;
+							case SIMULATE:
+							default:
+								strategy = new RandomSelectionStrategy();
+								break;
+
+						}
+
+						debugger.start(strategy);
+					} else
+					{
+						IRemoteInterpreter interpreter = new RemoteInterpreter(cmlInterpreter, debugger);
+						remote.run(interpreter);
 					}
-
-					debugger.start(strategy);
 				} else
 				{
-					IRemoteInterpreter interpreter = new RemoteInterpreter(debugger);
-					remote.run(interpreter);
+					// TODO send this to Eclipse also
+					Console.err.println("Typechecking: Error(s)");
+					Console.err.println(ih.getTypeErrors());
 				}
-			} else
+			} finally
 			{
-				// TODO send this to Eclipse also
-				Console.err.println("Typechecking: Error(s)");
-				Console.err.println(ih.getTypeErrors());
+				debugger.dicsonnect();
 			}
 
 		} catch (IOException | AnalysisException e)
@@ -219,6 +225,7 @@ public class DebugMain
 		{
 			shutdownCoSimulation();
 		}
+		Console.out.println("Terminated");
 	}
 
 	private static void shutdownCoSimulation() throws InterruptedException
@@ -231,7 +238,13 @@ public class DebugMain
 		if (client != null)
 		{
 			Console.out.println("Waiting for client to recieve disconnect instructions...");
-			client.join();
+			try
+			{
+				client.join();
+			} catch (InterruptedException e)
+			{
+				// ignore
+			}
 			try
 			{
 				Console.out.println("Client instructed to disconnect so disconnecting now");

@@ -1,0 +1,40 @@
+/*
+ * Small example that implements a RW system where the writer writes and the reader (echo) process 
+ * reads the input and echoes it back 
+*/
+channels
+
+a: seq of char
+b: seq of char
+
+values
+
+MAX = 10
+
+process Main = Writer [|{a,b}|] Echo 
+
+process Echo = Reader
+process Reader = 
+begin
+actions
+s= a?x -> 	(
+				[len x < MAX] & b!x -> s 
+				[] 
+				[len x = MAX] & b!x -> Skip
+			)
+@ s
+end
+
+process Writer = 
+begin
+actions
+s= val x : seq of char @ a!x -> b?y -> 
+		let n = y^">" 
+		in 
+			(
+				[len n <= MAX] & s(n) 
+				[] 
+				[len n > MAX] & Skip
+			)
+@ s("-")
+end

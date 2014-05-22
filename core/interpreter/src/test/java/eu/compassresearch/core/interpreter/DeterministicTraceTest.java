@@ -18,8 +18,8 @@ import org.junit.Test;
 import org.overture.ast.analysis.AnalysisException;
 
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
+import eu.compassresearch.core.interpreter.api.CmlTrace;
 import eu.compassresearch.core.interpreter.api.RandomSelectionStrategy;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlTrace;
 import eu.compassresearch.core.parser.ParserUtil;
 import eu.compassresearch.core.parser.ParserUtil.ParserResult;
 import eu.compassresearch.core.typechecker.VanillaFactory;

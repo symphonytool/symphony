@@ -28,6 +28,13 @@ public class MCASignalCommunicationParameter implements
 		return result;
 	}
 
+	
+
+	@Override
+	public String toString() {
+		return this.expression.toString();
+	}
+
 
 	public MCPCMLExp getExpression() {
 		return expression;

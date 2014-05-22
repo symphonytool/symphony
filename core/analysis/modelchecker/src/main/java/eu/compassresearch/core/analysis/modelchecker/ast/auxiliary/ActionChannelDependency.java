@@ -30,7 +30,7 @@ public class ActionChannelDependency {
 			StringBuilder temp = new StringBuilder();
 			
 			temp.append(channelDefinition.toFormula(MCNode.GENERIC));
-			int index = temp.indexOf("_");
+			int index = temp.lastIndexOf("_");
 			ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
 			MCPCMLType paramTypes = evaluator.instantiateMCTypeFromCommParams(parameters);
 			if(index != -1){

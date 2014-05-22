@@ -2,6 +2,7 @@ package eu.compassresearch.core.analysis.modelchecker.ast.statements;
 
 import org.overture.ast.statements.PStateDesignator;
 
+import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 
 public class MCAUnresolvedStateDesignator implements MCPStateDesignator {
@@ -16,10 +17,15 @@ public class MCAUnresolvedStateDesignator implements MCPStateDesignator {
 
 	@Override
 	public String toFormula(String option) {
-		// TODO Auto-generated method stub
-		return null;
+		
+		return path.toFormula(option);
 	}
 
+	@Override
+	public String toString() {
+		return path.toFormula(MCNode.DEFAULT);
+	
+	}
 
 	public MCPCMLExp getPath() {
 		return path;

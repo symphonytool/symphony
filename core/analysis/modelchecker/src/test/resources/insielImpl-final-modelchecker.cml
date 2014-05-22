@@ -1,0 +1,374 @@
+types
+  -- types must range in a specific set of values
+  NAT = nat
+    inv i == i in set {1,...,27}
+  INT = int
+    inv i == i in set {-2,...,2}
+  ID = <fav> | <rv>
+  SigID = <End_Recovery_1_S> | <Error_1_detection_S> | <Fault_1_activation_S>
+     | <Service_rescue_S> | <Start_Recovery_1_S> | <Start_rescue_S>
+     | <Target_not_attended_S>
+  OpID = <Allocate_idle_ERU_I> | <Allocate_idle_ERU_O> | <Divert_ERU_I>
+     | <Divert_ERU_O> | <Drop_message_I> | <Drop_message_O>
+     | <Find_idle_ERUs_I> | <Find_idle_ERUs_O> | <Log_diversion_I>
+     | <Log_diversion_O> | <Log_fault_1_I> | <Log_fault_1_O>
+     | <Process_message_I> | <Process_message_O> | <Receive_message_MPS_I>
+     | <Receive_message_MPS_O> | <Receive_message_RS_I> | <Receive_message_RS_O>
+     | <Resend_rescue_info_to_ERU_I> | <Resend_rescue_info_to_ERU_O> | <Send_rescue_info_to_ERU_I>
+     | <Send_rescue_info_to_ERU_O> | <Wait_I> | <Wait_O>
+     
+channels
+  control: NAT
+  endDiagram: ID
+  interrupted: ID*ID*NAT
+  update: NAT*INT
+  clear: NAT
+  wait, inc, dec
+  simultaneous
+  fault: ID
+  error: ID
+  failure: ID
+
+  startActivity_fav: ID
+  endActivity_fav: ID
+  interruptActivity_fav
+  startActivity_rv: ID
+  endActivity_rv: ID
+  interruptActivity_rv
+
+  sendSignal: SigID
+  acceptEvent: SigID
+  operation: OpID
+
+chansets
+    Hidden_fav = {|
+      control, 
+      endDiagram, 
+      interrupted, 
+      update, 
+      clear, 
+      wait, 
+      inc, 
+      dec, 
+      interruptActivity_fav
+    |}
+    Hidden_rv = {|
+      control, 
+      endDiagram, 
+      interrupted, 
+      update, 
+      clear, 
+      wait, 
+      inc, 
+      dec, 
+      interruptActivity_rv
+    |}
+
+-- process names, parameters names, action names, state variables, local variables and communication variables 
+-- are treated uniformly by FORMULA. This means that they MUST have different names. This has been changed in the cml model.
+ 
+process ad_internal_Initiate_Rescue_Activation___Fault_1 = val Fault_1_id: ID @ 
+begin
+  state
+    nToken: nat := 0
+    
+  actions
+    START_ACTIVITY = startActivity_fav.Fault_1_id -> Skip --      atomic -> ()
+    END_DIAGRAM = endDiagram.<fav> -> Skip
+    InterruptibleRegion_1 = control.22 -> interrupted.<fav>.Fault_1_id.1 -> Skip; InterruptibleRegion_1
+    InterruptibleRegion_2 = control.25 -> interrupted.<fav>.Fault_1_id.2 -> Skip; InterruptibleRegion_2
+    InterruptibleRegions = InterruptibleRegion_1 ||| InterruptibleRegion_2
+    CNode_1 = (update.1!1 -> (control!1 -> Skip); wait -> Skip)
+      /_\ END_DIAGRAM
+    Start_rescue_2 = (dcl end_guard_2: bool := true @
+      ((control.1 -> Skip);
+       (acceptEvent.<Start_rescue_S> -> Skip);
+       (control.2 -> Skip);
+       Start_rescue_2)
+      /_\ [end_guard_2] & END_DIAGRAM)
+    -- CNode_3 = ([] i in set {2,15} @ control!i -> control.3 -> CNode_3) /_\ END_DIAGRAM
+    -- replicated indexed process was replaced by the explicit expanded external choice
+    CNode_3 = (control!2 -> control.3 -> CNode_3 [] control!15 -> control.3 -> CNode_3) /_\ END_DIAGRAM
+    Find_idle_ERUs_4 = (dcl end_guard_4: bool := true @
+      (
+      (control.3 -> Skip);
+      (operation.<Find_idle_ERUs_I> -> inc -> end_guard_4 := false;
+      operation.<Find_idle_ERUs_O> -> dec -> end_guard_4 := true);
+      (control.4 -> Skip);Find_idle_ERUs_4)
+      /_\ [end_guard_4] & END_DIAGRAM)
+    CNode_5 = (control.4 -> control.5 -> CNode_5 [] control.13 -> CNode_5) /_\ END_DIAGRAM
+    Allocate_idle_ERU_6 = (dcl end_guard_6: bool := true @
+      (
+      (control.5 -> Skip);
+      (operation.<Allocate_idle_ERU_I> -> inc -> end_guard_6 := false;
+      operation.<Allocate_idle_ERU_O> -> dec -> end_guard_6 := true);
+      (control.6 -> Skip);Allocate_idle_ERU_6)
+      /_\ [end_guard_6] & END_DIAGRAM)
+    CNode_7 = (control!6 -> control.7 -> CNode_7 [] control!18 -> control.7 -> CNode_7)
+      /_\ END_DIAGRAM
+    Send_rescue_info_to_ERU_8 = (dcl end_guard_8: bool := true @
+      (
+      (control.7 -> Skip);
+      (operation.<Send_rescue_info_to_ERU_I> -> inc -> end_guard_8 := false;
+      operation.<Send_rescue_info_to_ERU_O> -> dec -> end_guard_8 := true);
+      (control.8 -> Skip);Send_rescue_info_to_ERU_8)
+      /_\ [end_guard_8] & END_DIAGRAM)
+    Process_message_9 = (dcl end_guard_9: bool := true @ (dcl end_guard_9_1: bool := true @
+      (
+      (control.8 -> Skip);
+      (operation.<Process_message_I> -> inc -> end_guard_9 := false; end_guard_9_1 := false;
+      operation.<Process_message_O> -> dec -> end_guard_9 := true; end_guard_9_1 := false);
+      (control.9 -> Skip);Process_message_9
+      /_\ [end_guard_9] & interrupted.<fav>.Fault_1_id.1 -> Process_message_9) -- the [] i in set {1} was removed as it has only one index 
+      /_\ [end_guard_9_1] & END_DIAGRAM))
+    Receive_message_RS_10 = (dcl end_guard_10: bool := true @
+      (
+      (control.9 -> Skip);
+      (operation.<Receive_message_RS_I> -> inc -> end_guard_10 := false;
+      operation.<Receive_message_RS_O> -> dec -> end_guard_10 := true);
+      (control.10 -> Skip);Receive_message_RS_10)
+      /_\ [end_guard_10] & END_DIAGRAM)
+    CNode_11 = (control!10 -> control.11 -> CNode_11 [] control!27 -> control.11 -> CNode_11)
+      /_\ END_DIAGRAM
+    Service_rescue_12 = (dcl end_guard_12: bool := true @
+      (
+      (control.11 -> Skip);
+      (sendSignal.<Service_rescue_S> -> Skip);
+      (control.12 -> Skip);Service_rescue_12)
+      /_\ [end_guard_12] & END_DIAGRAM)
+    --the value -1 was put in a local variable because the value returned by the parser was incorrect
+    CNode_13 = (dcl vConst_13: int := -1 @ (control.12 -> update.13!vConst_13 -> CNode_13)
+      /_\ END_DIAGRAM)
+    CNode_14 = (control.13 ->
+        control.14 -> CNode_14
+        [] control.16 -> CNode_14)
+      /_\ END_DIAGRAM
+    Wait_15 = (dcl end_guard_15: bool := true @
+      (
+      (control.14 -> Skip);
+      (operation.<Wait_I> -> inc -> end_guard_15 := false;
+      operation.<Wait_O> -> dec -> end_guard_15 := true);
+      (control.15 -> Skip);Wait_15)
+      /_\ [end_guard_15] & END_DIAGRAM)
+    Divert_ERU_16 = (dcl end_guard_16: bool := true @
+      (
+      (control.16 -> Skip);
+      (operation.<Divert_ERU_I> -> inc -> end_guard_16 := false;
+      operation.<Divert_ERU_O> -> dec -> end_guard_16 := true);
+      (control.17 -> Skip);Divert_ERU_16)
+      /_\ [end_guard_16] & END_DIAGRAM)
+    CNode_17 = (control.17 -> update.17!1 -> (control!18 -> Skip ||| control!19 -> Skip); CNode_17)
+      /_\ END_DIAGRAM
+    Log_diversion_18 = (dcl end_guard_18: bool := true @
+      (
+      (control.19 -> Skip);
+      (operation.<Log_diversion_I> -> inc -> end_guard_18 := false;
+      operation.<Log_diversion_O> -> dec -> end_guard_18 := true);
+      (control.20 -> Skip);Log_diversion_18)
+      /_\ [end_guard_18] & END_DIAGRAM)
+    Start_rescue_19 = (dcl end_guard_19: bool := true @
+      (
+      (control.20 -> Skip);
+      (sendSignal.<Start_rescue_S> -> Skip);
+      (control.21 -> Skip);Start_rescue_19)
+      /_\ [end_guard_19] & END_DIAGRAM)
+    --the value -1 was put in a local variable
+    CNode_20 = (dcl vConst_20: int := -1 @ (control.21 -> update.20!vConst_20 -> CNode_20))
+      /_\ END_DIAGRAM
+    
+    Fault_1_activation_21 = (dcl end_guard_21: bool := true @ (dcl end_guard_21_1: bool := true @
+      (update.21!1 -> 
+      ((control.8 -> Skip);
+      acceptEvent.<Fault_1_activation_S> -> Skip);
+      (control.22 -> Skip);wait -> Fault_1_activation_21
+      /_\ [end_guard_21] & (interrupted.<fav>.Fault_1_id.1 -> Fault_1_activation_21)) -- the replicated choice [] i in set { 1 }  was removed as it originates only one element
+      /_\ [end_guard_21_1] & END_DIAGRAM))
+    Drop_message_22 = (dcl end_guard_22: bool := true @ (dcl end_guard_22_1: bool := true @
+      (
+      (control.22 -> Skip);
+      (operation.<Drop_message_I> -> inc -> end_guard_22 := false;
+      operation.<Drop_message_O> -> dec -> end_guard_22 := true);
+      (control.23 -> Skip);Drop_message_22
+      /_\ [end_guard_22] & (interrupted.<fav>.Fault_1_id.2 -> Drop_message_22)) -- the replication [] i in set { 2 }  was replaced with one process
+      /_\ [end_guard_22_1] & END_DIAGRAM))
+    Target_not_attended_23 = (dcl end_guard_23: bool := true @ (dcl end_guard_23_1: bool := true @
+      (
+      (control.23 -> Skip);
+      (sendSignal.<Target_not_attended_S> -> Skip);
+      (control.24 -> Skip);Target_not_attended_23
+      /_\ [end_guard_23] & (interrupted.<fav>.Fault_1_id.2 -> Target_not_attended_23)) -- the replication [] i in set { 2 } was removed
+      /_\ [end_guard_23_1] & END_DIAGRAM))
+	--the value -1 was put in a local variable
+    CNode_24 = (dcl vConst_24: int := -1 @ (control.24 -> update.24!vConst_24 -> CNode_24))
+      /_\ END_DIAGRAM
+    Error_1_detection_25 = (dcl end_guard_25: bool := true @ (dcl end_guard_25_1: bool := true @
+      (update.25!1 -> 
+      ((control.22 -> Skip);
+      acceptEvent.<Error_1_detection_S> -> Skip);
+      (control.25 -> Skip);wait -> Error_1_detection_25
+      /_\ [end_guard_25] & (interrupted.<fav>.Fault_1_id.2 -> Error_1_detection_25)) -- the replication [] i in set { 2 }  was replaced
+      /_\ [end_guard_25_1] & END_DIAGRAM))
+    Start_Recovery_1_26 = (dcl end_guard_26: bool := true @
+      (
+      (control.25 -> Skip);
+      (sendSignal.<Start_Recovery_1_S> -> Skip);
+      (control.26 -> Skip);Start_Recovery_1_26)
+      /_\ [end_guard_26] & END_DIAGRAM)
+    End_Recovery_1_27 = (dcl end_guard_27: bool := true @
+      (
+      (control.26 -> Skip);
+      (acceptEvent.<End_Recovery_1_S> -> Skip);
+      (control.27 -> Skip);End_Recovery_1_27)
+      /_\ [end_guard_27] & END_DIAGRAM)
+    Nodes =
+      (((((((((((((((((((((((((CNode_1 [| {| endDiagram.<fav>, control.1 |} |] Start_rescue_2)
+      [| {| endDiagram.<fav>, control.2 |} |] CNode_3)
+      [| {| endDiagram.<fav>, control.3 |} |] Find_idle_ERUs_4)
+      [| {| endDiagram.<fav>, control.4 |} |] CNode_5)
+      [| {| endDiagram.<fav>, control.5 |} |] Allocate_idle_ERU_6)
+      [| {| endDiagram.<fav>, control.6 |} |] CNode_7)
+      [| {| control.7, endDiagram.<fav> |} |] Send_rescue_info_to_ERU_8)
+      [| {| control.8, endDiagram.<fav> |} |] Process_message_9)
+      [| {| control.9, endDiagram.<fav> |} |] Receive_message_RS_10)
+      [| {| endDiagram.<fav>, control.10 |} |] CNode_11)
+      [| {| endDiagram.<fav>, control.11 |} |] Service_rescue_12)
+      [| {| endDiagram.<fav>, control.12 |} |] CNode_13)
+      [| {| endDiagram.<fav>, control.13 |} |] CNode_14)
+      [| {| endDiagram.<fav>, control.14, control.15 |} |] Wait_15)
+      [| {| control.16, endDiagram.<fav> |} |] Divert_ERU_16)
+      [| {| control.17, endDiagram.<fav>, control.18 |} |] CNode_17)
+      [| {| endDiagram.<fav>, control.19 |} |] Log_diversion_18)
+      [| {| endDiagram.<fav>, control.20 |} |] Start_rescue_19)
+      [| {| endDiagram.<fav>, control.21 |} |] CNode_20)
+      [| {| interrupted.<fav>.Fault_1_id.1, endDiagram.<fav> |} |] Fault_1_activation_21)
+      [| {| endDiagram.<fav>, control.22 |} |] Drop_message_22)
+      [| {| interrupted.<fav>.Fault_1_id.2, endDiagram.<fav>, control.23 |} |] Target_not_attended_23)
+      [| {| endDiagram.<fav>, control.24 |} |] CNode_24)
+      [| {| interrupted.<fav>.Fault_1_id.2, wait, endDiagram.<fav> |} |] Error_1_detection_25)
+      [| {| endDiagram.<fav>, control.25 |} |] Start_Recovery_1_26)
+      [| {| endDiagram.<fav>, control.26, control.27 |} |] End_Recovery_1_27
+    TOKEN_MANAGER = update?o?x -> STARTED_TOKEN_MANAGER(x)
+    STARTED_TOKEN_MANAGER = val nTokens : INT @ (
+    update?o?x -> nTokens := nTokens + x; STARTED_TOKEN_MANAGER(nTokens)
+    []
+    clear?o -> nTokens := 0; endDiagram.<fav> -> Skip)
+    []
+    [nTokens = 0] & endDiagram.<fav> -> Skip
+    INT_ACT_MANAGER = STARTED_INT_ACT_MANAGER(0)
+    STARTED_INT_ACT_MANAGER = val i: NAT @ (
+    inc -> i := i + 1; STARTED_INT_ACT_MANAGER(i)
+    []
+    dec -> i := i - 1; STARTED_INT_ACT_MANAGER(i)
+    []
+    [i = 0] & interruptActivity_fav -> Skip)
+   MAIN =  ((
+    (START_ACTIVITY; ((Nodes [| {|update, clear, wait, endDiagram |} |] TOKEN_MANAGER) [| {| interrupted.<fav>.Fault_1_id.1, control.22, interrupted.<fav>.Fault_1_id.2, control.25 |} |] InterruptibleRegions);
+      endActivity_fav.Fault_1_id-> Skip); MAIN) /_\ interruptActivity_fav -> MAIN) [| {| inc, dec, interruptActivity_fav|} |] INT_ACT_MANAGER \\ Hidden_fav
+ @ MAIN
+end
+
+process ad_Initiate_Rescue_Activation___Fault_1 = val Fault_1_id_3: ID @
+  ad_internal_Initiate_Rescue_Activation___Fault_1(Fault_1_id_3)
+
+
+process ad_internal_Recovery_1 = val Fault_1_id_2: ID @ begin
+  state
+    nToken_1: nat := 0
+  actions
+    START_ACTIVITY_1 = startActivity_rv.Fault_1_id_2 -> Skip   --      atomic -> ()
+    END_DIAGRAM_1 = endDiagram.<rv> -> Skip
+    CNode_1_2 = (update.1!1 -> (control!1 -> Skip); wait -> Skip)
+      /_\ END_DIAGRAM_1
+    Start_Recovery_1_2 = (dcl end_guard_1_2: bool := true @
+      (
+      (control.1 -> Skip);
+      (acceptEvent.<Start_Recovery_1_S> -> Skip);
+      (control.2 -> Skip);Start_Recovery_1_2)
+      /_\ [end_guard_1_2] & END_DIAGRAM_1)
+    Log_fault_1_3 = (dcl end_guard_1_3: bool := true @
+      (
+      (control.2 -> Skip);
+      (operation.<Log_fault_1_I> -> inc -> end_guard_1_3 := false;
+      operation.<Log_fault_1_O> -> dec -> end_guard_1_3 := true);
+      (control.3 -> Skip);Log_fault_1_3)
+      /_\ [end_guard_1_3] & END_DIAGRAM_1)
+    Resend_rescue_info_to_ERU_4 = (dcl end_guard_2_4: bool := true @
+      (
+      (control.3 -> Skip);
+      (operation.<Resend_rescue_info_to_ERU_I> -> inc -> end_guard_2_4 := false;
+      operation.<Resend_rescue_info_to_ERU_O> -> dec -> end_guard_2_4 := true);
+      (control.4 -> Skip);Resend_rescue_info_to_ERU_4)
+      /_\ [end_guard_2_4] & END_DIAGRAM_1)
+    Process_message_5 = (dcl end_guard_2_5: bool := true @ 
+      (
+      (control.4 -> Skip);
+      (operation.<Process_message_I> -> inc -> end_guard_2_5 := false;
+      operation.<Process_message_O> -> dec -> end_guard_2_5 := true);
+      (control.5 -> Skip);Process_message_5)
+      /_\ [end_guard_2_5] & END_DIAGRAM_1)
+     Receive_message_MPS_6 = (dcl end_guard_2_6: bool := true @
+      (
+      (control.5 -> Skip);
+      (operation.<Receive_message_MPS_I> -> inc -> end_guard_2_6 := false;
+      operation.<Receive_message_MPS_O> -> dec -> end_guard_2_6 := true);
+      (control.6 -> Skip);Receive_message_MPS_6)
+      /_\ [end_guard_2_6] & END_DIAGRAM_1)
+    End_Recovery_1_7 = (dcl end_guard_1_7: bool := true @
+      (
+      (control.6 -> Skip);
+      (sendSignal.<End_Recovery_1_S> -> Skip);
+      (control.7 -> Skip);End_Recovery_1_7)
+      /_\ [end_guard_1_7] & END_DIAGRAM_1)
+    CNode_8 = (control.7 -> clear.8 -> wait -> Skip)
+      /_\ END_DIAGRAM_1
+    Nodes_2 =
+      ((((((CNode_1_2 [| {| endDiagram.<rv>, control.1 |} |] Start_Recovery_1_2)
+      [| {| endDiagram.<rv>, control.2 |} |] Log_fault_1_3)
+      [| {| endDiagram.<rv>, control.3 |} |] Resend_rescue_info_to_ERU_4)
+      [| {| endDiagram.<rv>, control.4 |} |] Process_message_5)
+      [| {| endDiagram.<rv>, control.5 |} |] Receive_message_MPS_6)
+      [| {| endDiagram.<rv>, control.6 |} |] End_Recovery_1_7)
+      [| {| control.7, endDiagram.<rv> |} |] CNode_8
+    TOKEN_MANAGER_2 = update?o?x -> STARTED_TOKEN_MANAGER_2(x)
+    STARTED_TOKEN_MANAGER_2 = val nTokens_2 : INT @ (
+    update?o2?x2 -> nTokens_2 := nTokens_2 + x2; STARTED_TOKEN_MANAGER_2(nTokens_2)
+    []
+    clear?o2 -> nTokens_2 := 0; endDiagram.<rv> -> Skip)
+    []
+    [nTokens_2 = 0] & endDiagram.<rv> -> Skip
+    INT_ACT_MANAGER_2 = STARTED_INT_ACT_MANAGER_2(0)
+    STARTED_INT_ACT_MANAGER_2 = val i_2: NAT @ (
+    inc -> i_2 := i_2 + 1; STARTED_INT_ACT_MANAGER_2(i_2)
+    []
+    dec -> i_2 := i_2 - 1; STARTED_INT_ACT_MANAGER_2(i_2)
+    []
+    [i_2 = 0] & interruptActivity_rv -> Skip)
+    MAIN_2 =  ((
+    (START_ACTIVITY_1; ((Nodes_2 [| {|update, clear, wait, endDiagram |} |] TOKEN_MANAGER_2));
+      endActivity_rv.Fault_1_id_2 -> Skip); MAIN_2) /_\ interruptActivity_rv -> MAIN_2) [| {| inc, dec, interruptActivity_rv|} |] INT_ACT_MANAGER_2 \\ Hidden_rv
+    @ MAIN_2
+end
+
+process ad_Recovery_1 = val Fault_1_id_4: ID @ ad_internal_Recovery_1(Fault_1_id_4)
+
+--small modification in the Fault_1_ads process to consider specific values qhen initialising the auxiliary processes 
+process Fault_1_ads_fav = 
+(ad_Initiate_Rescue_Activation___Fault_1 (<fav>) [| {|  |} |] ad_Recovery_1 (<fav>) ) [| {| sendSignal, acceptEvent |} |] SIGNAL_BUFFER
+
+
+process Fault_1_ads_rv = 
+(ad_Initiate_Rescue_Activation___Fault_1 (<rv>) [| {|  |} |] ad_Recovery_1 (<rv>) ) [| {| sendSignal, acceptEvent |} |] SIGNAL_BUFFER
+
+process SIGNAL_BUFFER =
+begin
+  actions
+    SS_UNIT = val idSS : SigID @ sendSignal.idSS -> SS_UNIT(idSS)
+    FULL_UNIT = val idF : SigID @ sendSignal.idF -> acceptEvent.idF -> FULL_UNIT(idF)
+    AE_UNIT = val idAE : SigID @ acceptEvent.idAE -> AE_UNIT(idAE)
+    FULL = FULL_UNIT(<Start_rescue_S>) ||| FULL_UNIT(<Start_Recovery_1_S>) ||| FULL_UNIT(<End_Recovery_1_S>)
+    AE =  AE_UNIT(<Fault_1_activation_S>) |||  AE_UNIT(<Error_1_detection_S>) 
+    SS = SS_UNIT(<Fault_1_activation_S>) ||| SS_UNIT(<Error_1_detection_S>)  
+  @ FULL_UNIT(<Start_rescue_S>) ||| FULL_UNIT(<Start_Recovery_1_S>) ||| FULL_UNIT(<End_Recovery_1_S>) ||| AE_UNIT(<Fault_1_activation_S>) |||  AE_UNIT(<Error_1_detection_S>) ||| SS_UNIT(<Fault_1_activation_S>) ||| SS_UNIT(<Error_1_detection_S>)
+  
+  -- for some reason, FORMULA raises an error when we use FULL ||| AE ||| SS  
+end

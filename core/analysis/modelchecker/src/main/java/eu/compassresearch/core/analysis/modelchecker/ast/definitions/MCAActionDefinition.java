@@ -54,9 +54,10 @@ public class MCAActionDefinition implements MCPCMLDefinition {
 			MCPParametrisation param = declarations.getFirst();
 			if(param instanceof MCAValParametrisation){
 				MCALocalDefinition localDef = ((MCAValParametrisation) param).getDeclaration();
-				NameValue mapping = new NameValue(localDef.getName(),null);
+				NameValue mapping = new NameValue(localDef.getName(),null,localDef.getType());
 				TypeManipulator typeHandler = TypeManipulator.getInstance();
 				LinkedList<TypeValue> values = typeHandler.getValues(localDef.getType());
+				
 				for (TypeValue typeValue : values) {
 					mapping.setVariableValue(typeValue.toFormula(option));
 					context.localVariablesMapping.add(mapping);
@@ -115,6 +116,15 @@ public class MCAActionDefinition implements MCPCMLDefinition {
 		}
 		return result.toString();
 	}
+
+	
+
+	@Override
+	public String toString() {
+		
+		return this.name;
+	}
+
 
 
 	public LinkedList<MCPParametrisation> getDeclarations() {

@@ -2,7 +2,8 @@ package eu.compassresearch.core.interpreter;
 
 import org.overture.interpreter.runtime.Context;
 
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
+import eu.compassresearch.core.interpreter.api.CmlBehaviour;
+import eu.compassresearch.core.interpreter.api.TransitionEvent;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
 /**
@@ -20,5 +21,5 @@ interface VisitorAccess
 
 	void setChildContexts(Pair<Context, Context> contexts);
 
-	void setWaiting();
+	void newTransitionEvent(TransitionEvent event);
 }

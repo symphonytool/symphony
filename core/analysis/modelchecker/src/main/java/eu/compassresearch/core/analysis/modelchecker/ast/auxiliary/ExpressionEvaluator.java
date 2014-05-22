@@ -17,6 +17,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCALocalDef
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCATypeDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAValueDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAApplyExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCABooleanConstExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAEqualsBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAGreaterEqualNumericBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAGreaterNumericBinaryExp;
@@ -27,16 +28,21 @@ import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCALessNume
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANotEqualsBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANotUnaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAQuoteLiteralExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASetEnumSetExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASetRangeSetExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAUnaryMinusUnaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAVariableExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCAIdentifierPattern;
 import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCPCMLPattern;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCABooleanBasicType;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAFixedInvariantType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAIntNumericBasicType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANamedInvariantType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANatNumericBasicType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAProductType;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAQuoteType;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCASetType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCVoidType;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
@@ -61,11 +67,62 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 			result = this.getTypeFor((MCAVariableExp)exp);
 		} else if(exp instanceof MCAQuoteLiteralExp){
 			result = this.getTypeFor((MCAQuoteLiteralExp)exp);
+		} else if(exp instanceof MCASetEnumSetExp){
+			result = this.getTypeFor((MCASetEnumSetExp)exp);
+		}  else if(exp instanceof MCABooleanConstExp){
+			result = this.getTypeFor((MCABooleanConstExp)exp);
 		}
 		
 		return result;
 	}
 	
+	private MCPCMLType getTypeForIOComm(MCPCMLExp exp){
+		MCPCMLType result = null;
+		if(exp instanceof MCAIntLiteralExp){
+			result = this.getTypeFor((MCAIntLiteralExp)exp);
+		} else if(exp instanceof MCAVariableExp){
+			result = this.getTypeForIOComm((MCAVariableExp)exp);
+		} else if(exp instanceof MCAQuoteLiteralExp){
+			result = this.getTypeForIOComm((MCAQuoteLiteralExp)exp);
+		} else if(exp instanceof MCABooleanConstExp){
+			result = this.getTypeForIOComm((MCABooleanConstExp)exp);
+		}
+		
+		return result;
+	}
+	
+	private MCPCMLType getTypeForIOComm(MCAVariableExp exp){
+		MCPCMLType result = null;
+		
+		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
+		MCAValueDefinition valueDef = context.getValueDefinition(exp.getName());
+		String realValue = "";
+		if(valueDef != null){
+			realValue = valueDef.getExpression().toFormula(MCNode.DEFAULT);
+			result = new MCAFixedInvariantType(realValue);
+		}else{
+			realValue = exp.getName();
+			result = new MCANamedInvariantType(realValue);
+		}
+		
+		
+		return result;
+	}
+	
+	private MCPCMLType getTypeForIOComm(MCAQuoteLiteralExp exp){
+		MCPCMLType result = null;
+		
+		result = new MCAQuoteType(exp.getValue());
+		
+		return result;
+	}
+	private MCPCMLType getTypeForIOComm(MCABooleanConstExp exp){
+		MCPCMLType result = null;
+		
+		result = new MCABooleanBasicType(exp.isValue());
+		
+		return result;
+	}
 	private MCPCMLType getTypeFor(MCPCMLPattern pattern){
 		MCPCMLType result = null;
 		if(pattern instanceof MCAIdentifierPattern){
@@ -75,7 +132,7 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 		return result;
 	}
 	
-	private MCPCMLType getTypeFor(MCPCommunicationParameter param){
+	public MCPCMLType getTypeFor(MCPCommunicationParameter param){
 		MCPCMLType result = null;
 		if(param instanceof MCASignalCommunicationParameter){
 			result = this.getTypeFor((MCASignalCommunicationParameter)param);
@@ -83,6 +140,19 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 			result = this.getTypeFor((MCAReadCommunicationParameter)param);
 		} else if(param instanceof MCAWriteCommunicationParameter){
 			result = this.getTypeFor((MCAWriteCommunicationParameter)param);
+		}
+		
+		return result;
+	}
+	
+	public MCPCMLType getTypeForIOComm(MCPCommunicationParameter param){
+		MCPCMLType result = null;
+		if(param instanceof MCASignalCommunicationParameter){
+			result = this.getTypeForIOComm((MCASignalCommunicationParameter)param);
+		} else if(param instanceof MCAReadCommunicationParameter){
+			result = this.getTypeForIOComm((MCAReadCommunicationParameter)param);
+		} else if(param instanceof MCAWriteCommunicationParameter){
+			result = this.getTypeForIOComm((MCAWriteCommunicationParameter)param);
 		}
 		
 		return result;
@@ -203,25 +273,33 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 		return result;
 	}
 	
-	/*
-	public MCPCMLType instantiateMCTypeFromDecls(LinkedList<MCATypeSingleDeclaration> decls){
+	public MCPCMLType instantiateMCTypeFromCommParamsForIOCommDef(LinkedList<MCPCommunicationParameter> params, String suffix){
 		MCPCMLType result = null;
 		
-		if(decls.size() == 0){
+		if(params.size() == 0){
 			result = new MCVoidType();
-		} else if (decls.size() == 1){
-			result = this.getTypeFor(decls.getFirst());
-		} else if (decls.size() > 1){
+		} else if (params.size() == 1){
+			result = this.getTypeForIOComm(params.getFirst());
+			addSuffixToVarName(result,suffix);
+		} else if (params.size() > 1){
 			LinkedList<MCPCMLType> types = new LinkedList<MCPCMLType>();
-			for (MCATypeSingleDeclaration decl : decls) {
-				types.add(instantiateMCType((MCATypeSingleDeclaration)decl));
+			for (MCPCommunicationParameter param : params) {
+				MCPCMLType type = instantiateMCTypeForIOCommDef(param, suffix);
+				//addSuffixToVarName(type,suffix);
+				types.add(type);
 			}
 			result = new MCAProductType(types);
 		}
 		
 		return result;
 	}
-	*/
+	
+	//it adds a suffix to a name type 
+	private void addSuffixToVarName(MCPCMLType type,String suffix){
+		if(type instanceof MCANamedInvariantType){
+			((MCANamedInvariantType) type).setName(((MCANamedInvariantType) type).getName() + suffix);
+		} 
+	}
 	
 	public MCPCMLType instantiateMCTypeFromDefs(LinkedList<MCALocalDefinition> defs){
 		MCPCMLType result = null;
@@ -261,6 +339,13 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 		params.add(param);
 		
 		return this.instantiateMCTypeFromCommParams(params);
+	}
+	public MCPCMLType instantiateMCTypeForIOCommDef(MCPCommunicationParameter param, String suffix){
+		
+		LinkedList<MCPCommunicationParameter> params = new LinkedList<MCPCommunicationParameter>();
+		params.add(param);
+		
+		return this.instantiateMCTypeFromCommParamsForIOCommDef(params, suffix);
 	}
 	/*
 	public MCPCMLType instantiateMCType(MCATypeSingleDeclaration decl){
@@ -315,6 +400,21 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 		return result;
 	}
 	
+	private MCPCMLType getTypeFor(MCASetEnumSetExp exp){
+		MCPCMLType result = null;
+		
+		result = new MCASetType(null);
+		
+		return result;
+	}
+	private MCPCMLType getTypeFor(MCABooleanConstExp exp){
+		MCPCMLType result = null;
+		
+		result = new MCABooleanBasicType(exp.isValue());
+		
+		return result;
+	}
+	
 	private MCPCMLType getTypeFor(MCAIdentifierPattern exp){
 		MCPCMLType result = new MCANamedInvariantType(exp.getName());;
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
@@ -328,10 +428,22 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 		
 		return result;
 	}
+	private MCPCMLType getTypeForIOComm(MCAIdentifierPattern exp){
+		MCPCMLType result = new MCANamedInvariantType(exp.getName());;
+		
+		return result;
+	}
 	private MCPCMLType getTypeFor(MCASignalCommunicationParameter param){
 		MCPCMLType result = null;
 		
 		result = getTypeFor(param.getExpression());
+		
+		return result;
+	}
+	private MCPCMLType getTypeForIOComm(MCASignalCommunicationParameter param){
+		MCPCMLType result = null;
+		
+		result = getTypeForIOComm(param.getExpression());
 		
 		return result;
 	}
@@ -349,6 +461,21 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 		
 		return result;
 	}
+	private MCPCMLType getTypeForIOComm(MCAReadCommunicationParameter param){
+		MCPCMLType result = null;
+		
+		result = getTypeForIOComm((MCAIdentifierPattern)param.getPattern());
+		
+		return result;
+	}
+	private MCPCMLType getTypeForIOComm(MCAWriteCommunicationParameter param){
+		MCPCMLType result = null;
+		
+		result = getTypeForIOComm(param.getExpression());
+		
+		return result;
+	}
+
 	private MCPCMLType getTypeFor(MCAWriteCommunicationParameter param){
 		MCPCMLType result = null;
 		
@@ -380,10 +507,24 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 		} else if(type instanceof MCANamedInvariantType){
 			NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 			MCATypeDefinition typeDef = context.getTypeDefinition(((MCANamedInvariantType) type).getName());
-			LinkedList<MCPCMLExp> values = this.getValues(typeDef.getInvExpression());
+			LinkedList<MCPCMLExp> values = new LinkedList<MCPCMLExp>();
+			if(typeDef.getInvExpression() != null){
+				values = this.getValues(typeDef.getInvExpression());
+			} else {
+				TypeManipulator typeHandler = TypeManipulator.getInstance();
+				LinkedList<TypeValue> typeValues = typeHandler.getValues(typeDef.getType());
+				for (TypeValue typeValue : typeValues) {
+					MCPCMLExp newExp = new MCAVariableExp(typeValue.toFormula(MCNode.DEFAULT));
+					values.add(newExp);
+				}
+			}
 			if(values.size() > 0){
 				result = values.getFirst();
 			}
+		} else if(type instanceof MCABooleanBasicType){
+			result = new MCABooleanConstExp(false);
+		} else if(type instanceof MCASetType){
+			result = new MCASetEnumSetExp(new LinkedList<MCPCMLExp>());
 		}
 		
 		return result;
@@ -666,6 +807,16 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 		
 		if(expression.getRight() instanceof MCASetRangeSetExp){
 			result = this.getValues((MCASetRangeSetExp)expression.getRight()); 
+		} else if(expression.getRight() instanceof MCAVariableExp){
+			//it can be the name of a value
+			NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
+			String valueName = ((MCAVariableExp)expression.getRight()).getName();
+			MCAValueDefinition valueDef = context.getValueDefinition(valueName);
+			if(valueDef != null){
+				result = this.getValues(valueDef.getExpression());
+			}
+		} else if(expression.getRight() instanceof MCASetEnumSetExp){
+			result = ((MCASetEnumSetExp) expression.getRight()).getMembers(); 
 		}
 		
 		return result; 
@@ -707,6 +858,12 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 		
 		if(expression.getRight() instanceof MCASetRangeSetExp){
 			result = this.getValueSet((MCASetRangeSetExp)expression.getRight()); 
+		} else if (expression.getRight() instanceof MCAVariableExp){
+			NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
+			MCAValueDefinition valueDef = context.getValueDefinition(((MCAVariableExp) expression.getRight()).getName());
+			if(valueDef != null){
+				result = this.getValueSet(valueDef.getExpression());
+			}
 		}
 		
 		return result; 

@@ -1,5 +1,6 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.actions;
 
+import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCPCMLPattern;
 
@@ -33,6 +34,17 @@ public class MCAReadCommunicationParameter implements MCPCommunicationParameter 
 
 	}
 
+	@Override
+	public String toString() {
+		String result = null;
+		if(this.expression != null){
+			result = this.expression.toString();
+		} else if(this.pattern != null){
+			result = this.pattern.toFormula(MCNode.DEFAULT);
+		}
+		
+		return result;
+	}
 
 	public MCPCMLExp getExpression() {
 		return expression;

@@ -157,7 +157,9 @@ public class VanillaCmlTypeChecker extends AbstractTypeChecker
 		{
 			if (e instanceof TypeCheckException)
 			{
-				throw e;// new InternalException(0,e.getMessage()+" "+ ((TypeCheckException)e).location);
+				TypeCheckException tce = (TypeCheckException) e;
+				issueHandler.addTypeError(tce.node, tce.location, e.getMessage());
+				throw e;
 			}
 			e.printStackTrace();
 			throw new InternalException(0, e.getMessage());

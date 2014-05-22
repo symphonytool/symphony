@@ -6,8 +6,8 @@ import java.util.Vector;
 
 import org.overture.ast.intf.lex.ILexLocation;
 
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorState;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
+import eu.compassresearch.core.interpreter.api.CmlBehaviorState;
+import eu.compassresearch.core.interpreter.api.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.utility.LocationExtractor;
 
@@ -50,7 +50,7 @@ public class CmlProcessDTO
 			this.trace = new Vector<String>();
 		}
 		// this.isProcess = process.getNextState().first instanceof PProcess;
-		this.state = null;/*FIXME! do not call this it is a recursive call: process.getState();*/
+		this.state = null;/* FIXME! do not call this it is a recursive call: process.getState(); */
 		this.location = LocationExtractor.extractLocation(process.getNextState().first);
 		this.parent = parent;
 

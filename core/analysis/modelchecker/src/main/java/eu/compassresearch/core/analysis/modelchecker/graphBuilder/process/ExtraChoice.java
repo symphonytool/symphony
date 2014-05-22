@@ -41,7 +41,8 @@ public class ExtraChoice extends Choice {
 	public boolean equals(Object obj) {
 		boolean result = false;
 		if (obj instanceof ExtraChoice) {
-			result =  super.equals(obj);
+			result = this.getFirstProcess().equals(((ExtraChoice) obj).getFirstProcess()) 
+					 && this.getSecondProcess().equals(((ExtraChoice) obj).getSecondProcess());
 		}
 		return result;
 	}

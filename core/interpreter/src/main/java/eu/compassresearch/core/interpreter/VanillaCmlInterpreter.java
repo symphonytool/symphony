@@ -3,8 +3,6 @@ package eu.compassresearch.core.interpreter;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
@@ -16,36 +14,34 @@ import org.overture.ast.types.PType;
 import org.overture.ast.util.definitions.ClassList;
 import org.overture.interpreter.runtime.ClassInterpreter;
 import org.overture.interpreter.runtime.Context;
-import org.overture.interpreter.scheduler.BasicSchedulableThread;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.lex.CmlLexNameToken;
+import eu.compassresearch.core.interpreter.api.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
+import eu.compassresearch.core.interpreter.api.CmlTrace;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.SelectionStrategy;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlTrace;
+import eu.compassresearch.core.interpreter.api.events.CmlBehaviorStateEvent;
+import eu.compassresearch.core.interpreter.api.events.CmlBehaviorStateObserver;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.transitions.ObservableTransition;
+import eu.compassresearch.core.interpreter.api.transitions.TauTransition;
 import eu.compassresearch.core.interpreter.api.transitions.TimedTransition;
 import eu.compassresearch.core.interpreter.api.values.ProcessObjectValue;
 import eu.compassresearch.core.interpreter.debug.Breakpoint;
 import eu.compassresearch.core.interpreter.debug.DebugContext;
-import eu.compassresearch.core.interpreter.utility.CmlInitThread;
 import eu.compassresearch.core.interpreter.utility.LocationExtractor;
 import eu.compassresearch.core.parser.ParserUtil;
+import eu.compassresearch.core.parser.PreParser;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.ICmlTypeChecker;
 
 class VanillaCmlInterpreter extends AbstractCmlInterpreter
 {
-	static
-	{
-		BasicSchedulableThread.setInitialThread(new CmlInitThread(Thread.currentThread()));
-	}
 
 	/**
 	 * 
@@ -155,6 +151,18 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		// start the execution of the top process
 		try
 		{
+			runningTopProcess.onStateChanged().registerObserver(new CmlBehaviorStateObserver()
+			{
+
+				@Override
+				public void onStateChange(CmlBehaviorStateEvent stateEvent)
+				{
+					System.out.println("Top CML behavior: "
+							+ stateEvent.getState().toString());
+
+				}
+			});
+
 			executeTopProcess(runningTopProcess);
 		} catch (AnalysisException e)
 		{
@@ -209,11 +217,11 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	protected void executeTopProcess(CmlBehaviour behaviour)
 			throws AnalysisException, InterruptedException
 	{
+		CmlTransitionSet availableEvents = inspect(behaviour);
+
 		// continue until the top process is not finished and not deadlocked
 		while (!behaviour.finished() && !behaviour.deadlocked())
 		{
-			CmlTransitionSet availableEvents = inspect(behaviour);
-
 			selectedEvent = resolveChoice(availableEvents);
 
 			// if its null we terminate and assume that this happened because of a user interrupt
@@ -232,6 +240,8 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			CmlTrace trace = behaviour.getTraceModel();
 
 			logTransition(behaviour, trace);
+
+			availableEvents = inspect(behaviour);
 
 		}
 
@@ -274,8 +284,14 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 
 	public CmlTransition resolveChoice(CmlTransitionSet availableEvents)
 	{
-		CmlRuntime.logger().fine("Waiting for environment on : "
-				+ availableEvents.getAllEvents());
+		if (availableEvents.hasType(ObservableTransition.class))
+		{
+			Console.out.print("Waiting for environment on : ");
+			availableEvents.displayAllAvaliableEvents(Console.out);
+			Console.out.print("\n");
+		}
+
+		logger.trace("Waiting for environment on : " + availableEvents.asSet());
 
 		logState(availableEvents);
 
@@ -285,12 +301,19 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		setNewState(CmlInterpreterState.WAITING_FOR_ENVIRONMENT);
 		// Get the environment to select the next transition.
 		// this is potentially a blocking call!!
-		return env.resolveChoice();
+		CmlTransition choice = env.resolveChoice();
+		logger.trace("The environment picked : " + choice);
+
+		if (!(choice instanceof TauTransition))
+		{
+			Console.out.println("Executing: " + choice);
+		}
+		return choice;
 	}
 
 	public void logState(CmlTransitionSet availableEvents)
 	{
-		for (CmlTransition event : availableEvents.getAllEvents())
+		for (CmlTransition event : availableEvents)
 		{
 			// TODO this should be handled differently
 			Context context = event.getEventSources().iterator().next().getNextState().second;
@@ -308,7 +331,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 				state = context.toString();
 			}
 
-			CmlRuntime.logger().finer("State for " + event + " : " + state);
+			logger.trace("State for " + event + " : " + state);
 		}
 	}
 
@@ -316,21 +339,21 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	{
 		if (trace.getLastTransition() instanceof ObservableTransition)
 		{
-			CmlRuntime.logger().fine("----------------observable step by '"
-					+ behaviour + "'----------------------");
-			CmlRuntime.logger().fine("Observable trace of '" + behaviour
-					+ "': " + trace.getObservableTrace());
-			CmlRuntime.logger().fine("Eval. Status={ "
-					+ behaviour.nextStepToString() + " }");
-			CmlRuntime.logger().fine("-----------------------------------------------------------------");
+			logger.trace("----------------observable step by '" + behaviour
+					+ "'----------------------");
+			logger.trace("Observable trace of '" + behaviour + "': "
+					+ trace.getObservableTrace());
+			logger.trace("Eval. Status={ " + behaviour.nextStepToString()
+					+ " }");
+			logger.trace("-----------------------------------------------------------------");
 		} else
 		{
-			CmlRuntime.logger().finer("----------------Silent step by '"
-					+ behaviour + "'--------------------");
-			CmlRuntime.logger().finer("Trace of '" + behaviour + "': " + trace);
-			CmlRuntime.logger().finer("Eval. Status={ "
-					+ behaviour.nextStepToString() + " }");
-			CmlRuntime.logger().finer("-----------------------------------------------------------------");
+			logger.trace("----------------Silent step by '" + behaviour
+					+ "'--------------------");
+			logger.trace("Trace of '" + behaviour + "': " + trace);
+			logger.trace("Eval. Status={ " + behaviour.nextStepToString()
+					+ " }");
+			logger.trace("-----------------------------------------------------------------");
 		}
 	}
 
@@ -364,15 +387,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			return availableEvents;
 		}
 
-		SortedSet<CmlTransition> events = new TreeSet<CmlTransition>();
-		for (CmlTransition event : availableEvents.getAllEvents())
-		{
-			if (!(event instanceof TimedTransition))
-			{
-				events.add(event);
-			}
-		}
-		return new CmlTransitionSet(events);
+		return availableEvents.removeAllType(TimedTransition.class);
 	}
 
 	@Override
@@ -468,7 +483,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	@Override
 	public PExp parseExpression(String line, String module) throws Exception
 	{
-		return ParserUtil.parseExpression(new File("Console"), ParserUtil.getCharStream(line, StandardCharsets.UTF_8.name())).exp;
+		return ParserUtil.parseExpression(new File("Console"), ParserUtil.getCharStream(line, StandardCharsets.UTF_8.name()),PreParser.StreamType.Plain).exp;
 	}
 
 }

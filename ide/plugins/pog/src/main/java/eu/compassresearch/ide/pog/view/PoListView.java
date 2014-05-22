@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -18,16 +19,18 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.PartInitException;
+import org.overture.ast.node.INode;
 import org.overture.ide.core.resources.IVdmProject;
 import org.overture.ide.plugins.poviewer.IPoviewerConstants;
 import org.overture.ide.plugins.poviewer.view.PoOverviewTableView;
 import org.overture.ide.ui.utility.EditorUtility;
 import org.overture.pog.pub.IProofObligation;
 import org.overture.pog.pub.IProofObligationList;
-import org.overture.pog.pub.POStatus;
+import org.overture.pog.obligation.POStatus;
 
 import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligation;
 import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligationList;
@@ -36,9 +39,11 @@ import eu.compassresearch.ide.pog.Activator;
 import eu.compassresearch.ide.pog.POConstants;
 
 public class PoListView extends PoOverviewTableView {
-
+	List<INode> astUnderAnalysis;
+	
 	public void clearPos() {
 		this.project = null;
+		astUnderAnalysis = null;
 
 		display.asyncExec(new Runnable() {
 
@@ -50,6 +55,15 @@ public class PoListView extends PoOverviewTableView {
 
 	public ICmlProject getProject() {
 		return (ICmlProject) project.getAdapter(ICmlProject.class);
+	}
+
+	public IProofObligation getCurrentlySelectedPO() {
+		ISelection selection = viewer.getSelection();
+		Object obj = ((IStructuredSelection) selection).getFirstElement();
+		if (obj instanceof IProofObligation) {
+			return (IProofObligation) obj;
+		}
+		return null;
 	}
 
 	@Override
@@ -112,6 +126,13 @@ public class PoListView extends PoOverviewTableView {
 
 			}
 		});
+		
+	    // Core for supporting context menu in POG table
+	    MenuManager menuManager = new MenuManager();
+	    Menu menu = menuManager.createContextMenu(viewer.getTable());
+	    viewer.getTable().setMenu(menu);
+	    getSite().registerContextMenu(menuManager, viewer);
+	    getSite().setSelectionProvider(viewer);
 	}
 
 	public void setDataList(ICmlProject project, final IProofObligationList pol) {
@@ -248,15 +269,26 @@ public class PoListView extends PoOverviewTableView {
 
 			if (data.getStatus() == POStatus.PROVED)
 				imgPath = "icons/cview16/proved.png";
-			
+
 			if (data.getStatus() == POStatus.DISPROVED)
 				imgPath = "icons/cview16/failed.png";
 
+			if (data.getStatus() == POStatus.SUBMITTED)
+				imgPath = "icons/cview16/submitted.png";
+			
 			return Activator.getImageDescriptor(imgPath).createImage();
 		}
-		
-
 
 	}
+
+	public void setAstUnderAnalysis(List<INode> ast) {
+		this.astUnderAnalysis = ast;
+	}
+
+	public List<INode> getAstUnderAnalysis() {
+		return astUnderAnalysis;
+	}	
+	
+	
 
 }

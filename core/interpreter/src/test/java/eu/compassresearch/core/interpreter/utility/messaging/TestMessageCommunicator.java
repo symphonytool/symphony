@@ -25,10 +25,10 @@ import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
 import eu.compassresearch.ast.actions.ASkipAction;
+import eu.compassresearch.core.interpreter.api.CmlBehaviorState;
+import eu.compassresearch.core.interpreter.api.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorState;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlTrace;
+import eu.compassresearch.core.interpreter.api.CmlTrace;
 import eu.compassresearch.core.interpreter.api.events.CmlBehaviorStateObserver;
 import eu.compassresearch.core.interpreter.api.events.EventSource;
 import eu.compassresearch.core.interpreter.api.events.TraceObserver;
@@ -107,13 +107,6 @@ public class TestMessageCommunicator
 
 			@Override
 			public boolean waiting()
-			{
-
-				return false;
-			}
-
-			@Override
-			public boolean started()
 			{
 
 				return false;
@@ -209,13 +202,6 @@ public class TestMessageCommunicator
 					}
 
 					@Override
-					public boolean isComparable(ObservableTransition other)
-					{
-
-						return false;
-					}
-
-					@Override
 					public String toString()
 					{
 						return "a";
@@ -261,6 +247,21 @@ public class TestMessageCommunicator
 					{
 						// TODO Auto-generated method stub
 						return 0;
+					}
+
+					@Override
+					public boolean isSynchronizableWith(
+							ObservableTransition other)
+					{
+						// TODO Auto-generated method stub
+						return false;
+					}
+
+					@Override
+					public boolean isSynchronizedBy(ObservableTransition other)
+					{
+						// TODO Auto-generated method stub
+						return false;
 					}
 				});
 

@@ -70,7 +70,7 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 	public String caseANamedInvariantType(ANamedInvariantType tp, ThmVarsContext vars) throws AnalysisException{
 		String type = "";
 
-		type = "@" + tp.toString();
+		type = "@" + tp.getName().toString();
 		return type;
 	}
 	

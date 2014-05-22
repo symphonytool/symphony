@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 
+import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.interpreter.runtime.ClassContext;
 import org.overture.interpreter.runtime.Context;
@@ -12,12 +13,11 @@ import org.overture.interpreter.runtime.RootContext;
 import org.overture.interpreter.runtime.StateContext;
 import org.overture.interpreter.runtime.ValueException;
 import org.overture.interpreter.values.ObjectValue;
-import org.overture.interpreter.values.ReferenceValue;
 import org.overture.interpreter.values.UpdatableValue;
 import org.overture.interpreter.values.Value;
 
+import eu.compassresearch.core.interpreter.api.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 
 class CmlBehaviourUtility
 {
@@ -75,9 +75,9 @@ class CmlBehaviourUtility
 
 		return result;
 	}
-	
-	
-	private static void replaceObjectMembers(ObjectValue srcObj, ObjectValue dstObj, Context dstContext) throws ValueException
+
+	private static void replaceObjectMembers(ObjectValue srcObj,
+			ObjectValue dstObj, Context dstContext) throws AnalysisException
 	{
 		for (Entry<ILexNameToken, Value> srcEntry : srcObj.getMemberValues().entrySet())
 		{
@@ -85,15 +85,15 @@ class CmlBehaviourUtility
 			if (srcVal instanceof UpdatableValue)
 			{
 				dstObj.getMemberValues().get(srcEntry.getKey()).set(dstContext.location, srcVal.deref(), dstContext);
-			}
-			else if(srcVal instanceof ObjectValue)
+			} else if (srcVal instanceof ObjectValue)
 			{
-				replaceObjectMembers((ObjectValue)srcVal,(ObjectValue)dstObj.getMemberValues().get(srcEntry.getKey()).deref(), dstContext);
+				replaceObjectMembers((ObjectValue) srcVal, (ObjectValue) dstObj.getMemberValues().get(srcEntry.getKey()).deref(), dstContext);
 			}
 		}
 	}
-	
-	private static void replaceMembers(ObjectValue srcObj, Context dstContext) throws ValueException
+
+	private static void replaceMembers(ObjectValue srcObj, Context dstContext)
+			throws AnalysisException
 	{
 		for (Entry<ILexNameToken, Value> entry : srcObj.getMemberValues().entrySet())
 		{
@@ -101,23 +101,22 @@ class CmlBehaviourUtility
 			if (val instanceof UpdatableValue)
 			{
 				dstContext.check(entry.getKey()).set(dstContext.location, entry.getValue().deref(), dstContext);
-			}
-			else if(val instanceof ObjectValue)
+			} else if (val instanceof ObjectValue)
 			{
-				ObjectValue srcObjMember = (ObjectValue)val;
+				ObjectValue srcObjMember = (ObjectValue) val;
 				ObjectValue dstObjMember = dstContext.check(entry.getKey()).objectValue(dstContext);
-				replaceObjectMembers(srcObjMember,dstObjMember,dstContext);
-				
+				replaceObjectMembers(srcObjMember, dstObjMember, dstContext);
+
 			}
-//			else if(val instanceof ReferenceValue)
-//			{
-//				System.out.print("ref !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-//			}
+			// else if(val instanceof ReferenceValue)
+			// {
+			// System.out.print("ref !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+			// }
 		}
 	}
 
-	public static Context mergeAndReplaceState(Context dstContext, Context srcContext)
-			throws ValueException
+	public static Context mergeAndReplaceState(Context dstContext,
+			Context srcContext) throws AnalysisException
 	{
 		// Find the root context, this is the current process object root context
 		RootContext srcRootContext = srcContext.getRoot();
@@ -126,24 +125,24 @@ class CmlBehaviourUtility
 
 		// replace all the members values with the chosen choice node
 		replaceMembers(srcRootObj, dstRootContext);
-//		for (Entry<ILexNameToken, Value> entry : srcRootObj.getMemberValues().entrySet())
-//		{
-//			Value val = entry.getValue();
-//			if (val instanceof UpdatableValue)
-//			{
-//				dstRootContext.check(entry.getKey()).set(dstRootContext.location, entry.getValue().deref(), dstRootContext);
-//			}
-////			else if(val instanceof ObjectValue)
-////			{
-////				ObjectValue objectInstant = (ObjectValue)val;
-////				objectInstant.getMemberValues()
-////				System.out.print("object !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-////			}
-////			else if(val instanceof ReferenceValue)
-////			{
-////				System.out.print("ref !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-////			}
-//		}
+		// for (Entry<ILexNameToken, Value> entry : srcRootObj.getMemberValues().entrySet())
+		// {
+		// Value val = entry.getValue();
+		// if (val instanceof UpdatableValue)
+		// {
+		// dstRootContext.check(entry.getKey()).set(dstRootContext.location, entry.getValue().deref(), dstRootContext);
+		// }
+		// // else if(val instanceof ObjectValue)
+		// // {
+		// // ObjectValue objectInstant = (ObjectValue)val;
+		// // objectInstant.getMemberValues()
+		// // System.out.print("object !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+		// // }
+		// // else if(val instanceof ReferenceValue)
+		// // {
+		// // System.out.print("ref !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+		// // }
+		// }
 
 		// now we collect all the context below the RootContext for both the copy and the current
 		// First we collect the copy contexts

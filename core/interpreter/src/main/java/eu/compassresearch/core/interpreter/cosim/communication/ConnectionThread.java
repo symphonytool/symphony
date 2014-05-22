@@ -11,6 +11,7 @@ import java.util.concurrent.SynchronousQueue;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
+import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.cosim.IProcessBehaviourDelegationManager;
@@ -55,7 +56,9 @@ public class ConnectionThread extends Thread
 	private Map<String, SynchronousQueue<Boolean>> isFinishedMap = new HashMap<String, SynchronousQueue<Boolean>>();
 
 	Semaphore executingSem = new Semaphore(0);
-	
+	private String registeredProcessName;
+	private AbortMessage abortedMsg;
+
 	public ConnectionThread(ThreadGroup group, Socket conn, boolean principal,
 			IProcessBehaviourDelegationManager delegationManager)
 			throws IOException
@@ -107,6 +110,8 @@ public class ConnectionThread extends Thread
 			// Caused by die(), and CDMJ death
 			if (connected)
 			{
+				System.err.println("Error in connection thread for: "
+						+ registeredProcessName);
 				e.printStackTrace();
 			}
 		} catch (IOException e)
@@ -140,7 +145,8 @@ public class ConnectionThread extends Thread
 		{
 			for (String processName : ((RegisterSubSystemMessage) message).getProcesses())
 			{
-				this.delegationManager.addDelegate(new ProcessDelegate(processName, this));
+				this.registeredProcessName = processName;
+				this.delegationManager.addDelegate(new ProcessDelegate(registeredProcessName, this));
 				availableTransitionsMap.put(processName, new SynchronousQueue<CmlTransitionSet>());
 			}
 		} else if (message instanceof InspectReplyMessage)
@@ -151,9 +157,13 @@ public class ConnectionThread extends Thread
 		{
 			FinishedReplyMessage replyMsg = (FinishedReplyMessage) message;
 			isFinishedMap.get(replyMsg.getProcess()).offer(replyMsg.isFinished());
-		}else if (message instanceof ExecuteCompletedMessage)
+		} else if (message instanceof ExecuteCompletedMessage)
 		{
 			executingSem.release();
+		} else if (message instanceof AbortMessage)
+		{
+			this.delegationManager.abortedBy(this, registeredProcessName, ((AbortMessage) message).getErrorCode(), ((AbortMessage) message).getMessage());
+			this.abortedMsg = (AbortMessage) message;
 		}
 	}
 
@@ -161,6 +171,7 @@ public class ConnectionThread extends Thread
 			throws JsonGenerationException, JsonMappingException, IOException,
 			InterruptedException
 	{
+		checkAbortState();
 		comm.send(new InspectMessage(processName));
 		return availableTransitionsMap.get(processName).take();
 	}
@@ -168,6 +179,8 @@ public class ConnectionThread extends Thread
 	public void execute(CmlTransition transition)
 			throws JsonGenerationException, JsonMappingException, IOException
 	{
+		checkAbortState();
+
 		comm.send(new ExecuteMessage(transition));
 		try
 		{
@@ -179,10 +192,23 @@ public class ConnectionThread extends Thread
 		}
 	}
 
+	private void checkAbortState()
+	{
+		if (abortedMsg != null)
+		{
+			throw new InterpreterRuntimeException("The external co-simulation process "
+					+ registeredProcessName
+					+ " aborted with error: "
+					+ abortedMsg.getErrorCode() + " " + abortedMsg.getMessage());
+		}
+	}
+
 	public boolean isFinished(String processName)
 			throws JsonGenerationException, JsonMappingException, IOException,
 			InterruptedException
 	{
+		checkAbortState();
+
 		if (!isFinishedMap.containsKey(processName))
 		{
 			isFinishedMap.put(processName, new SynchronousQueue<Boolean>());

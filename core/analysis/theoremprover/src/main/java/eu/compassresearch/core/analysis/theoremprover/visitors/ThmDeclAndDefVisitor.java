@@ -81,8 +81,10 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 		PType type = node.getType();
 		String typeStr = "";
 		NodeNameList nodeDeps = new NodeNameList();
-		String inv = "";
-		
+		String invCall = "";
+		LinkedList<String> invparams = new LinkedList<String>();
+		ThmNodeList invNode = null;
+
 		
 		if(type instanceof SInvariantType)
 		{	
@@ -90,26 +92,42 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 			AExplicitFunctionDefinition invFunc = ((SInvariantType) type).getInvDef();
 			if (invFunc != null)
 			{
-				ThmNodeList invNode = invFunc.apply(tpVisitor,vars);
-				
-				for(ThmNode i : invNode)
+				//Get the invariant function using the TPVisitor
+				invNode = invFunc.apply(tpVisitor,vars);
+
+				//Consruct the string for calling the invariant
+				invCall = "inv_"+ name;
+				LinkedList<List<PPattern>> invParamList = invFunc.getParamPatternList();
+				for(List<PPattern> pplist : invParamList)
 				{
-					//Ensure the invariant function depends on the type defintion
-					i.addDep(name);
+					for(PPattern pp : pplist)
+					{
+						invparams.add(((AIdentifierPattern) pp).getName().toString());
+					}
 				}
-				tnl.addAll(invNode);
 			}
 		}
 		if (type instanceof ANamedInvariantType)
 		{
+			//if the named type has an invariant...
+			if (invNode != null)
+			{
+				for(ThmNode i : invNode)
+				{
+					//Add invariant definition to type dependency 
+					nodeDeps.add(i.getId());
+				}
+				tnl.addAll(invNode);
+			}
+			
 			ANamedInvariantType nametype = (ANamedInvariantType) type;
 			PType tp = nametype.getType();
 			//Send to visitor for Type String
-			typeStr = tp.apply(stringVisitor, new ThmVarsContext());//ThmTypeUtil.getIsabelleType(tp);
+			typeStr = tp.apply(stringVisitor, new ThmVarsContext());
 			//Send to visitor for Deplist
-			nodeDeps.addAll(tp.apply(depVisitor, new NodeNameList()));//ThmTypeUtil.getIsabelleTypeDeps(tp));
+			nodeDeps.addAll(tp.apply(depVisitor, new NodeNameList()));
 
-			tn = new ThmNode(name, nodeDeps, new ThmType(name.toString(), typeStr, inv));
+			tn = new ThmNode(name, nodeDeps, new ThmType(name.toString(), typeStr, invCall, invparams));
 			
 		}
 		else if (type instanceof ARecordInvariantType)
@@ -119,7 +137,18 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 			//Send to visitor for Deplist
 			nodeDeps.addAll(rtype.apply(depVisitor, new NodeNameList()));
 
-			tn = new ThmNode(name, nodeDeps, new ThmRecType(name.toString(), rtype.getFields(), inv));
+			String invDefn = "";
+
+			//if the record type has an invariant...
+			if (invNode != null)
+			{
+				//Get the invariant - should only be one.
+				ThmNode i = invNode.firstElement();
+				{
+					invDefn = i.toString();
+				}
+			}
+			tn = new ThmNode(name, nodeDeps, new ThmRecType(name.toString(), rtype.getFields(), invDefn, invCall, invparams));
 		}
 		
 		tnl.add(tn);
@@ -241,32 +270,32 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 		//add the parameter types as dependencies
 		for(PType pTp : ((AFunctionType) node.getType()).getParameters())
 		{
-			nodeDeps.addAll(pTp.apply(depVisitor, new NodeNameList()));//(ThmTypeUtil.getIsabelleTypeDeps(pTp));
+			nodeDeps.addAll(pTp.apply(depVisitor, new NodeNameList()));
 		}
 		
 		//Deal with the function body
 		NodeNameList s = new NodeNameList();
 		ThmVarsContext vc = new ThmVarsContext(s, b);
-		String exp = node.getBody().apply(stringVisitor, vc); //ThmExprUtil.getIsabelleExprStr(s, b, node.getBody());
-		nodeDeps.addAll(node.getBody().apply(depVisitor, b));//(ThmExprUtil.getIsabelleExprDeps(b, node.getBody()));
+		String exp = node.getBody().apply(stringVisitor, vc);
+		nodeDeps.addAll(node.getBody().apply(depVisitor, b));
 
 		//Deal with the function precondition
 		String pre = null;
 		if (node.getPrecondition() != null){
-			pre = node.getPrecondition().apply(stringVisitor, vc); //ThmExprUtil.getIsabelleExprStr(s, b, node.getPrecondition());
-			nodeDeps.addAll(node.getPrecondition().apply(depVisitor, b));//(ThmExprUtil.getIsabelleExprDeps(b, node.getPrecondition()));
+			pre = node.getPrecondition().apply(stringVisitor, vc);
+			nodeDeps.addAll(node.getPrecondition().apply(depVisitor, b));
 		}
 		
 		//Deal with the function postcondition
 		String post = null;
 		if (node.getPostcondition() != null){
-			post = node.getPostcondition().apply(stringVisitor, vc); //ThmExprUtil.getIsabelleExprStr(s, b, node.getPostcondition());
-			nodeDeps.addAll(node.getPostcondition().apply(depVisitor, b));//(ThmExprUtil.getIsabelleExprDeps(b, node.getPostcondition()));
+			post = node.getPostcondition().apply(stringVisitor, vc);
+			nodeDeps.addAll(node.getPostcondition().apply(depVisitor, b));
 		}
 		
 		//Deal with the function result
-		String resType = node.getExpectedResult().apply(stringVisitor, vc); //ThmTypeUtil.getIsabelleType(node.getExpectedResult());
-		nodeDeps.addAll(node.getExpectedResult().apply(depVisitor, b));//(ThmTypeUtil.getIsabelleTypeDeps(node.getExpectedResult()));
+		String resType = node.getType().getResult().apply(stringVisitor, vc);
+		nodeDeps.addAll(node.getType().getResult().apply(depVisitor, b));
 		
 		ThmNode tn = new ThmNode(name, nodeDeps, new ThmExpFunc(name.getName(), exp, post, pre, params, resType));
 		tnl.add(tn);
@@ -453,8 +482,8 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 		//Get the state variable name
 		ILexNameToken sName = node.getName();
 		//obtain the type of the state variable, and the type dependencies
-		String typeString = node.getType().apply(stringVisitor, new ThmVarsContext());//ThmTypeUtil.getIsabelleType(st.getType());
-		NodeNameList nodeDeps = node.getType().apply(depVisitor, new NodeNameList());//(ThmTypeUtil.getIsabelleTypeDeps(st.getType()));
+		String typeString = node.getType().apply(stringVisitor, new ThmVarsContext());
+		NodeNameList nodeDeps = node.getType().apply(depVisitor, new NodeNameList());
 
 		ThmNode stn = new ThmNode(sName, nodeDeps, new ThmState(sName.getName(), typeString));
 		tnl.add(stn);
@@ -481,41 +510,46 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 		LinkedList<APatternListTypePair> params = node.getParameterPatterns();			
 		//Deal with the parameters
 		//Find bound values to exclude from dependency list and add node dependencies
+		
+		LinkedList<String> paramTypes = new LinkedList<String>();
 		for(APatternListTypePair p : params)
 		{
 			for(PPattern pat : p.getPatterns())
 			{
 				vars.addBVar(((AIdentifierPattern) pat).getName());
 			}
-			nodeDeps.addAll(p.getType().apply(depVisitor, vars.getBVars()));//(ThmTypeUtil.getIsabelleTypeDeps(p.getType()));
+			paramTypes.add(p.getType().apply(stringVisitor, vars));
+			nodeDeps.addAll(p.getType().apply(depVisitor, vars.getBVars()));
 		}	
-		//Add return type(s) to dependancy list and list of bound values
+		//Add return type(s) to dependency list and list of bound values
 		APatternTypePair res = node.getResult();
 		String resType = null;
 		if (res != null)// && !(res.isEmpty()) && res.getFirst()!= null)
 		{
-			resType = res.getType().apply(stringVisitor, vars);//ThmTypeUtil.getIsabelleType(res.getFirst().getType());
+			resType = res.getType().apply(stringVisitor, vars);
 			vars.addBVar(((AIdentifierPattern) res.getPattern()).getName());
-			nodeDeps.addAll(res.getType().apply(depVisitor, vars.getBVars()));//ThmTypeUtil.getIsabelleTypeDeps(p.getType()));
+			nodeDeps.addAll(res.getType().apply(depVisitor, vars.getBVars()));
 		}	
+		
+		
 		
 		if (node.getPrecondition() != null)
 		{
-			pre = node.getPrecondition().apply(stringVisitor, vars);// ThmExprUtil.getIsabelleExprStr(svars, bvars, node.getPrecondition());
-			nodeDeps.addAll(node.getPrecondition().apply(depVisitor, vars.getBVars()));//(ThmExprUtil.getIsabelleExprDeps(bvars, node.getPrecondition()));
+			pre = node.getPrecondition().apply(stringVisitor, vars);
+			nodeDeps.addAll(node.getPrecondition().apply(depVisitor, vars.getBVars()));
 		}
 		if (node.getPostcondition() != null)
 		{
 			//Set the expression utility postcondition flag to true - so to generate primed variables
 			ThmExprUtil.setPostExpr(true);
 			stringVisitor.setPostExpr(true);
-			post = node.getPostcondition().apply(stringVisitor, vars); //ThmExprUtil.getIsabelleExprStr(svars, bvars, node.getPostcondition());
+			post = node.getPostcondition().apply(stringVisitor, vars); 
 			ThmExprUtil.setPostExpr(false);
 			stringVisitor.setPostExpr(false);
-			nodeDeps.addAll(node.getPostcondition().apply(depVisitor, vars.getBVars()));//(ThmExprUtil.getIsabelleExprDeps(bvars, node.getPostcondition()));
+			nodeDeps.addAll(node.getPostcondition().apply(depVisitor, vars.getBVars()));
 
 		}
-		tn = new ThmNode(node.getName(), nodeDeps, new ThmImplicitOperation(node.getName().getName(), params, pre, post, res, resType));
+		tn = new ThmNode(node.getName(), nodeDeps, new ThmImplicitOperation(node.getName().getName(), params, pre, post, res, paramTypes, resType));
 		
 		tnl.add(tn);
 		return tnl;
@@ -539,36 +573,43 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 		AOperationType opType = (AOperationType) node.getType();
 		for(PType pType : opType.getParameters())
 		{
-			nodeDeps.addAll(pType.apply(depVisitor, vars.getBVars()));//(ThmTypeUtil.getIsabelleTypeDeps(pType));
+			nodeDeps.addAll(pType.apply(depVisitor, vars.getBVars()));
 		}
 		//Add result type to dependency list
-		nodeDeps.addAll(opType.getResult().apply(depVisitor, vars.getBVars()));//(ThmTypeUtil.getIsabelleTypeDeps(opType.getResult()));
+		nodeDeps.addAll(opType.getResult().apply(depVisitor, vars.getBVars()));
 		
-		String body = node.getBody().apply(stringVisitor, vars);//ThmProcessUtil.getIsabelleActionString(exOp.getBody(), svars, bvars);
+		String body = node.getBody().apply(stringVisitor, vars);
 		String pre = null;
 		String post = null;
 		if (node.getPrecondition() != null)
 		{
-			pre = node.getPrecondition().apply(stringVisitor, vars);// ThmExprUtil.getIsabelleExprStr(svars, bvars, node.getPrecondition());
-			nodeDeps.addAll(node.getPrecondition().apply(depVisitor, vars.getBVars()));//(ThmExprUtil.getIsabelleExprDeps(bvars, node.getPrecondition()));
+			pre = node.getPrecondition().apply(stringVisitor, vars);
+			nodeDeps.addAll(node.getPrecondition().apply(depVisitor, vars.getBVars()));
 		}
 		if (node.getPostcondition() != null)
 		{
 			//Set the expression utility postcondition flag to true - so to generate primed variables
 			ThmExprUtil.setPostExpr(true);
 			stringVisitor.setPostExpr(true);
-			post = node.getPostcondition().apply(stringVisitor, vars); //ThmExprUtil.getIsabelleExprStr(svars, bvars, node.getPostcondition());
+			post = node.getPostcondition().apply(stringVisitor, vars); 
 			ThmExprUtil.setPostExpr(false);
 			stringVisitor.setPostExpr(false);
-			nodeDeps.addAll(node.getPostcondition().apply(depVisitor, vars.getBVars()));//(ThmExprUtil.getIsabelleExprDeps(bvars, node.getPostcondition()));
+			nodeDeps.addAll(node.getPostcondition().apply(depVisitor, vars.getBVars()));
 		}
-		String resType = null;
-		if(! (node.getActualResult() instanceof AVoidType))
+//		String resType = null;
+//		if(! (node.getActualResult() instanceof AVoidType))
+//		{
+//			resType = node.getActualResult().apply(stringVisitor, vars);//ThmTypeUtil.getIsabelleType(node.getActualResult());
+//		}
+
+		LinkedList<String> paramTypes = new LinkedList<String>();
+		for(PType p : ((AOperationType) node.getType()).getParameters())
 		{
-			resType = node.getActualResult().apply(stringVisitor, vars);//ThmTypeUtil.getIsabelleType(node.getActualResult());
+				paramTypes.add(p.apply(stringVisitor, vars));
 		}
+		String resType = ((AOperationType) node.getType()).getResult().apply(stringVisitor, vars);
 		
-		tn = new ThmNode(node.getName(), nodeDeps, new ThmExplicitOperation(node.getName().getName(), params, pre, post, body.toString(), resType));
+		tn = new ThmNode(node.getName(), nodeDeps, new ThmExplicitOperation(node.getName().getName(), params, pre, post, body.toString(), paramTypes, resType));
 		
 		tnl.add(tn);
 		return tnl;

@@ -17,7 +17,7 @@ public class NamespaceUtility
 	{
 		return new CmlLexNameToken("", id.getName(), id.getLocation(), false, false);
 	}
-	
+
 	public static ILexNameToken getRenamingValueName()
 	{
 		return new CmlLexNameToken("|RENAMING|", "values", new LexLocation());
@@ -37,12 +37,12 @@ public class NamespaceUtility
 	{
 		return new CmlLexNameToken("|TIMEOUT|", "STARTTIME", new LexLocation());
 	}
-	
+
 	public static ILexNameToken getStartsByTimeName()
 	{
 		return new CmlLexNameToken("|STARTSBY|", "STARTTIME", new LexLocation());
 	}
-	
+
 	public static ILexNameToken getEndsByTimeName()
 	{
 		return new CmlLexNameToken("|ENDSBY|", "STARTTIME", new LexLocation());
@@ -50,12 +50,22 @@ public class NamespaceUtility
 
 	public static ILexNameToken getSeqForName()
 	{
-		return new CmlLexNameToken("|FORSEQ|", "v", new LexLocation());
+		return new CmlLexNameToken("|FOR_SEQ|", "v", new LexLocation());
 	}
-	
+
 	public static ILexNameToken getForAllName()
 	{
-		return new CmlLexNameToken("|FORSEQ|", "v", new LexLocation());
+		return new CmlLexNameToken("|FOR_ALL|", "v", new LexLocation());
+	}
+
+	public static ILexNameToken getForIndexByName()
+	{
+		return new CmlLexNameToken("|FOR_INDEX|", "by", new LexLocation());
+	}
+
+	public static ILexNameToken getForIndexToName()
+	{
+		return new CmlLexNameToken("|FOR_INDEX|", "to", new LexLocation());
 	}
 
 	public static ILexNameToken getNamesetName()

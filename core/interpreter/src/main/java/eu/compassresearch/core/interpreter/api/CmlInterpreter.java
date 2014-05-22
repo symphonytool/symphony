@@ -8,7 +8,6 @@ import org.overture.ast.types.PType;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.Value;
 
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.events.CmlInterpreterStateObserver;
 import eu.compassresearch.core.interpreter.api.events.EventSource;
 import eu.compassresearch.core.interpreter.debug.Breakpoint;

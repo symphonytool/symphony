@@ -24,7 +24,11 @@ package eu.compassresearch.core.analysis.modelchecker.ast;
 		
 	//the named translation (where parameters are used to change the parameter names only)
 	public static final String PARAM_RENAMED = "PARAM_NAMED";
+
+	//the option to generate values by extension
+	public static final String EXTENSION = "EXTENSION";
 		
 	public String toFormula(String option);
+	
 	
 }

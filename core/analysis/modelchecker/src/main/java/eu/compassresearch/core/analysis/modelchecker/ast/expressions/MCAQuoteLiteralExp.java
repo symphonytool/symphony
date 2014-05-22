@@ -31,6 +31,13 @@ public class MCAQuoteLiteralExp implements MCPCMLExp {
 		// TODO Auto-generated method stub
 
 	}
+	
+	
+
+	@Override
+	public String toString() {
+		return this.value;
+	}
 
 	public String getValue() {
 		return value;

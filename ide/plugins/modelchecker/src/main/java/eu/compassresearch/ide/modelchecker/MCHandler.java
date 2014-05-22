@@ -138,7 +138,7 @@ public class MCHandler extends AbstractHandler {
 							//job.schedule();
 							
 							if(outputFile != null){
-								MCProgressView p = new MCProgressView(outputFile, propertyToCheck, mcFolder, selectedUnit, cmlFile, event,mainProcessName);
+								MCProgressView p = new MCProgressView(outputFile, propertyToCheck, mcFolder, selectedUnit, cmlFile, event, mainProcessName);
 								p.execute();
 								if(p.getThread().getException() != null){
 									throw p.getThread().getException();
@@ -239,8 +239,10 @@ public class MCHandler extends AbstractHandler {
 		}
 		IFile outputFile = null;
 		if(mainProcessName != null){
-			String name = selectedCmlSourceUnit.getFile().getName();
-			String formulaFileName = name.substring(0,name.length()-selectedCmlSourceUnit.getFile().getFileExtension().length())+"4ml";
+			//String name = selectedCmlSourceUnit.getFile().getName();
+			String name = mainProcessName;
+			//String formulaFileName = name.substring(0,name.length()-selectedCmlSourceUnit.getFile().getFileExtension().length())+"4ml";
+			String formulaFileName = name +".4ml";
 			outputFile = mcFolder.getFile(formulaFileName);
 			
 			

@@ -155,7 +155,6 @@ import org.overture.ast.types.AVoidType;
 
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismReplicatedAction;
-import eu.compassresearch.ast.actions.ACallAction;
 import eu.compassresearch.ast.actions.AChannelRenamingAction;
 import eu.compassresearch.ast.actions.AChaosAction;
 import eu.compassresearch.ast.actions.ACommonInterleavingReplicatedAction;
@@ -458,7 +457,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseABooleanConstExp(ABooleanConstExp node)
 			throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseABooleanConstExp(node);
@@ -674,13 +673,6 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 		super.caseAAltNonDeterministicStm(node);
 	}
 
-	@Override
-	public void caseACallAction(ACallAction arg0) throws AnalysisException {
-		unsupported=false;
-		// TODO Uncomment the above line to signal support for this node
-		// Do not remove the super call below.
-		super.caseACallAction(arg0);
-	}
 
 	@Override
 	public void caseADoNonDeterministicStm(ADoNonDeterministicStm arg0)
@@ -1132,7 +1124,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseAExternalChoiceReplicatedProcess(
 			AExternalChoiceReplicatedProcess node) throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseAExternalChoiceReplicatedProcess(node);
@@ -1445,7 +1437,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 
 	@Override
 	public void caseAIfExp(AIfExp node) throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseAIfExp(node);
@@ -1947,7 +1939,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseAModNumericBinaryExp(AModNumericBinaryExp node)
 			throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseAModNumericBinaryExp(node);
@@ -2609,7 +2601,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseASeqCompSeqExp(ASeqCompSeqExp node)
 			throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseASeqCompSeqExp(node);

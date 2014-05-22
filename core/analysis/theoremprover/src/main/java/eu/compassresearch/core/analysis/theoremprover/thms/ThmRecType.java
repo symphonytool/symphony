@@ -14,40 +14,53 @@ public class ThmRecType extends ThmDecl {
 
 	//Private components of record types
 	private String name;
-	private LinkedList<AFieldField> fields;
-	private String invariant = "";
+	private String invCall = "";
+	private String invDefn = "";
+	private String fields = "";
+	private String tags = "";
+	private String defn = "";
 	
-	public ThmRecType(String name, LinkedList<AFieldField> fields)
+	public ThmRecType(String name, LinkedList<AFieldField> flds)
 	{
 		this.name = name;
-		this.fields = fields;
+		this.tags = createTagsStr();
+		this.fields = createFieldsStr(flds);
+		this.defn = createDefnStr(flds);
 	}
 	
-	public ThmRecType(String name, LinkedList<AFieldField> fields, String inv)
+	public ThmRecType(String name, LinkedList<AFieldField> flds, String invDefn, String invname, LinkedList<String> invparams)
 	{
 		this.name = name;
-		this.fields = fields;
-		this.invariant = inv;
+		this.tags = createTagsStr();
+		this.fields = createFieldsStr(flds);
+		this.invCall = createInvCall(invname, invparams);
+		this.invDefn = invDefn + "\n\n";
+		this.defn = createDefnStr(flds);
 	}
-	
-	/*****
-	 * Return a string for the record type. This string is rather complex, as needs to declare each field as a tag
-	 *****/
-	@Override
-	public String toString(){
 
-		StringBuilder sb = new StringBuilder();
+	private String createTagsStr() {
+		StringBuilder sbtag = new StringBuilder();
+	
+		sbtag.append("typedef " + name + "_Tag = \"{True}\" by auto \n");
+		sbtag.append("instantiation " + name + "_Tag :: tag\n");
+		sbtag.append("begin \n");
+		sbtag.append(ThmTypeUtil.isaType + " \"tagName_" + name + "_Tag (x::" + name + "_Tag) = \'\'"+ name +"\'\'\" \n");
+		sbtag.append("instance  \n");
+		sbtag.append("by (intro_classes, metis (full_types) Abs_" + name +"_Tag_cases singleton_iff) \n");
+		sbtag.append("end \n\n");
+	
+		String tagStr = sbtag.toString();
 		
-		sb.append("typedef " + name + "_Tag = \"{True}\" by auto \n");
-		sb.append("instantiation " + name + "_Tag :: tag\n");
-		sb.append("begin \n");
-		sb.append(ThmTypeUtil.isaType + " \"tagName_" + name + "_Tag (x::" + name + "_Tag) = \'\'"+ name +"\'\'\" \n");
-		sb.append("instance  \n");
-		sb.append("by (intro_classes, metis (full_types) Abs_" + name +"_Tag_cases singleton_iff) \n");
-		sb.append("end \n\n");
-
+		return tagStr;
+	}
+	
+	
+	private String createFieldsStr(LinkedList<AFieldField> flds) {
+		
+		StringBuilder sbfield = new StringBuilder();
+		
 		int count = 1;
-		for (AFieldField field: fields)
+		for (AFieldField field: flds)
 		{
 			String fldNm = field.getTag();
 			String fldTp = "";
@@ -58,39 +71,79 @@ public class ThmRecType extends ThmDecl {
 				e.printStackTrace();
 			}//ThmTypeUtil.getIsabelleType(field.getType());
 	
-			sb.append(ThmTypeUtil.isaAbbr + "\"" + fldNm +"_fld " + ThmTypeUtil.isaEquiv + " MkField TYPE(" + name + "_Tag) #" + count+ ThmTypeUtil.typeDelim + fldTp + ThmTypeUtil.typeDelim + "\"\n");  
+			sbfield.append(ThmTypeUtil.isaAbbr + "\"" + fldNm +"_fld " + ThmTypeUtil.isaEquiv + " MkField TYPE(" + name + "_Tag) #" + count+ ThmTypeUtil.typeDelim + fldTp + ThmTypeUtil.typeDelim + "\"\n");  
 		
 			count ++;
 		}
-		sb.append("\n");
+		sbfield.append("\n");
 
-		for (AFieldField field: fields)
+		for (AFieldField field: flds)
 		{
 			String fldNm = field.getTag();
 		
-			sb.append(ThmTypeUtil.isaAbbr + "\"" + fldNm + " " + ThmTypeUtil.isaEquiv + " SelectRec " + fldNm + "_fld\"\n");  
+			sbfield.append(ThmTypeUtil.isaAbbr + "\"" + fldNm + " " + ThmTypeUtil.isaEquiv + " SelectRec " + fldNm + "_fld\"\n");  
 				
 		}
-		sb.append("\n");
+		sbfield.append("\n");
 				
-		sb.append(ThmTypeUtil.isaType +"\n");
-		sb.append("\"" + name + " " + ThmTypeUtil.isaEquiv + ThmTypeUtil.typeDelim + "[");
+		String fldStr = sbfield.toString();
+		return fldStr;
+	}
+
+	private String createInvCall(String invname, LinkedList<String> invparams) {
+		if (invname != "")
+		{
+			//generate the list of parameters
+			String paramList = "";
+			String funccalllist = "";
+			for (Iterator<String> p = invparams.listIterator(); p.hasNext(); ) {
+				String pname = p.next();
+				paramList = paramList + pname + " ";
+				funccalllist = funccalllist + "&"+ pname;
+				if(p.hasNext())
+				{
+					funccalllist = funccalllist + ", ";
+				}
+			}
+			//make the invariant call
+			String invString  = " inv " + paramList + "== " + invname +"(" + funccalllist + ")";
+			
+			return invString;
+		}
+		else return "";
+	}
+
+	private String createDefnStr(LinkedList<AFieldField> flds) {
+		StringBuilder sbdefn = new StringBuilder();
+		
+		sbdefn.append(ThmTypeUtil.isaType +"\n");
+		sbdefn.append("\"" + name + " " + ThmTypeUtil.isaEquiv + ThmTypeUtil.typeDelim + "[");
 		
 		
 		//For each type in the product, add it to the string
-		for (Iterator<AFieldField> itr = fields.listIterator(); itr.hasNext(); ) {
+		for (Iterator<AFieldField> itr = flds.listIterator(); itr.hasNext(); ) {
 			AFieldField fld = itr.next();
-			sb.append(fld.getTag() + "_fld");
+			sbdefn.append(fld.getTag() + "_fld");
 			
 			//If there are remaining fields, add a ","
 			if(itr.hasNext()){	
-				sb.append(", ");
+				sbdefn.append(", ");
 			}
 		}
-		sb.append("]" + invariant + ThmTypeUtil.typeDelim + "\"\n" + tacHook(name) + "\n\n");
-		sb.append(ThmTypeUtil.isaType + " \"mk_" + name + ThmTypeUtil.isaEquiv + "MkRec "+ name+ "\"\n" + tacHook("mk_"+name));
+		sbdefn.append("]" + invCall + ThmTypeUtil.typeDelim + "\"\n" + tacHook(name) + "\n\n");
+		sbdefn.append(ThmTypeUtil.isaType + " \"mk_" + name + ThmTypeUtil.isaEquiv + "MkRec "+ name+ "\"\n" + tacHook("mk_"+name));
 		
-		return sb.toString();
+		String defnStr = sbdefn.toString();
+		return defnStr;
+	}
+	
+	/*****
+	 * Return a string for the record type. This string is rather complex, as needs to declare each field as a tag
+	 *****/
+	@Override
+	public String toString(){
+
+		return tags + fields + invDefn + defn;
 	}
 	
 }

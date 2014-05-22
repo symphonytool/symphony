@@ -36,7 +36,7 @@ import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.lex.CmlLexNameToken;
 import eu.compassresearch.core.interpreter.api.values.ActionValue;
-import eu.compassresearch.core.interpreter.api.values.CMLChannelValue;
+import eu.compassresearch.core.interpreter.api.values.CmlChannel;
 import eu.compassresearch.core.interpreter.api.values.LatticeTopValue;
 import eu.compassresearch.core.interpreter.api.values.ProcessObjectValue;
 
@@ -85,7 +85,7 @@ class CmlDefinitionVisitor extends
 			Context question) throws AnalysisException
 	{
 		NameValuePairList vpl = new NameValuePairList();
-		vpl.add(new NameValuePair(node.getName(), new ProcessObjectValue(node, null)));
+		vpl.add(new NameValuePair(node.getName(), new ProcessObjectValue(question.assistantFactory, node, null)));
 		return vpl;
 	}
 
@@ -101,7 +101,7 @@ class CmlDefinitionVisitor extends
 			AInstanceVariableDefinition node, Context question)
 			throws AnalysisException
 	{
-		return PDefinitionAssistantInterpreter.getNamedValues(node, question);
+		return question.assistantFactory.createPDefinitionAssistant().getNamedValues(node, question);
 	}
 
 	@Override
@@ -222,7 +222,7 @@ class CmlDefinitionVisitor extends
 		// NameValuePairList vpl = new NameValuePairList();
 		// vpl.add(new NameValuePair(node.getName().clone(), CmlValueFactory.createOperationValue(node, question)));
 
-		return PDefinitionAssistantInterpreter.getNamedValues(node, question);
+		return  question.assistantFactory.createPDefinitionAssistant().getNamedValues(node, question);
 	}
 
 	@Override
@@ -235,7 +235,7 @@ class CmlDefinitionVisitor extends
 		// vpl.add(new NameValuePair(node.getName(), CmlValueFactory.createOperationValue(node, question)));
 		//
 		// return vpl;
-		return PDefinitionAssistantInterpreter.getNamedValues(node, question);
+		return  question.assistantFactory.createPDefinitionAssistant().getNamedValues(node, question);
 	}
 
 	@Override
@@ -281,7 +281,7 @@ class CmlDefinitionVisitor extends
 	{
 		NameValuePairList vpl = new NameValuePairList();
 		ILexNameToken name = NamespaceUtility.createChannelName(node.getName());
-		vpl.add(new NameValuePair(name, new CMLChannelValue(node.getType(), name)));
+		vpl.add(new NameValuePair(name, new CmlChannel(node.getType(), name)));
 		return vpl;
 	}
 

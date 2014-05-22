@@ -132,6 +132,27 @@ public class TPVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContext, ThmNodeL
 		initialize();
 	}
 	
+
+	public static String generateEmptyThyStr(String thyFileName) 
+	{
+		StringBuilder sb = new StringBuilder();
+		//generate theory name without extension
+		String thyName = thyFileName.substring(0, thyFileName.lastIndexOf('.'));
+		//new file name for user files
+		String usrThyName = thyName+ "_User";
+
+		//Add thy header 
+		sb.append("theory " + usrThyName + " \n" + "  imports utp_cml " + thyName +"\n"
+				+ "begin \n" + "\n");
+		sb.append("text {* Auto-generated THY file for user created proof with "+  usrThyName + ".thy *}\n\n");
+
+
+		sb.append("\n\n\n" + "end");
+		
+		return sb.toString();
+	}
+	
+	
 	/*****
 	 * Method to generate the String for a Isabelle Theory file, given the theory file name
 	 * and a list of AST nodes for a CML model
@@ -192,7 +213,62 @@ public class TPVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContext, ThmNodeL
 		return sb.toString();
 	}
 	
+	
+	/****
+	 * Generates Theory String for a list of proof obligations
+	 * @param ast
+	 * @param poList
+	 * @param thyFileName
+	 * @return
+	 */
+	public static String generatePoStr(List<INode> ast, IProofObligation po) 
+	{
+		String poOutput = "";
+		ThmTheorem poThy = null;
+		
+		//First, obtain all the state variable names so that the theorem expressions use the correct
+		//variable identifiers : $ or ^^
+		NodeNameList svars = new NodeNameList();// ThmProcessUtil.getStateNames(statements);
+		for (INode node : ast) {
+			try {
+				if (node instanceof AProcessDefinition){
+					AProcessDefinition proc = (AProcessDefinition) node;
+					if (proc.getProcess() instanceof AActionProcess)
+					{
+						AActionProcess act = (AActionProcess) proc.getProcess();
+						svars.addAll(ThmProcessUtil.getProcessStatementNames(act));
+					}
+				}
+			}
+			catch (Exception e)
+			{
+				poOutput = "(*Thy gen error:*)\n" + 
+						"(*Could not generate Isabelle syntax for POs - please submit bug report with CML file*)\n\n";
+			}
+		}
+	
+		try {
+				//THIS BIT NEEDS MORE EFFORT!
+				AVdmPoTree poValTree = po.getValueTree();
+				PExp poExp = poValTree.getPredicate();
+				NodeNameList bvars = new NodeNameList();
+				String theoryBody = poExp.apply(new ThmStringVisitor(), new ThmVarsContext(svars, bvars));//ThmExprUtil.getIsabelleExprStr(svars, bvars, poExp);//"true";
+				poThy = new ThmTheorem("po" + po.getIsaName(), theoryBody, "by (cml_auto_tac)");
+				poOutput = poThy.toString();
+		}
+		catch (Exception e)
+		{
+			poOutput = "(*Thy gen error:*)\n" + 
+					"(*Could not generate Isabelle syntax for POs - please submit bug report with CML file*)\n\n";
+		}
 
+		return poOutput;
+	}
+
+	
+	//
+
+	
 	/*******
 	 * Method to sort a list of nodes into dependent-order
 	 * @param tpnodes - list of ThmNodes to sort
@@ -234,104 +310,6 @@ public class TPVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContext, ThmNodeL
 			}
 		}
 		return sortedNodes;
-	}
-	
-
-	public static String generateEmptyThyStr(String thyFileName) 
-	{
-		StringBuilder sb = new StringBuilder();
-		//generate theory name without extension
-		String thyName = thyFileName.substring(0, thyFileName.lastIndexOf('.'));
-		//new file name for user files
-		String usrThyName = thyName+ "_User";
-
-		//Add thy header 
-		sb.append("theory " + usrThyName + " \n" + "  imports utp_cml " + thyName +"\n"
-				+ "begin \n" + "\n");
-		sb.append("text {* Auto-generated THY file for user created proof with "+  usrThyName + ".thy *}\n\n");
-
-
-		sb.append("\n\n\n" + "end");
-		
-		return sb.toString();
-	}
-	
-	/****
-	 * PLACEHOLDER FOR THY-PO GENERATION - DOES NOT YET WORK!
-	 * @param ast
-	 * @param poList
-	 * @param thyFileName
-	 * @return
-	 */
-	public static String generatePogThyStr(List<INode> ast, IProofObligationList poList, String thyFileName) 
-	{
-		String pogErrors = "";
-		String pogString = "";
-		ThmTheoremList poThys = new ThmTheoremList();
-		
-		//First, obtain all the state variable names so that the theorem expressions use the correct
-		//variable identifiers : $ or ^^
-		NodeNameList svars = new NodeNameList();// ThmProcessUtil.getStateNames(statements);
-		for (INode node : ast) {
-			try 
-			{
-				if (node instanceof AProcessDefinition)
-				{
-					AProcessDefinition proc = (AProcessDefinition) node;
-					if (proc.getProcess() instanceof AActionProcess)
-					{
-						AActionProcess act = (AActionProcess) proc.getProcess();
-						svars.addAll(ThmProcessUtil.getProcessStatementNames(act));
-					}
-				}
-			}
-			catch (Exception e)
-			{
-				pogErrors = pogErrors + "(*Thy gen error:*)\n" + 
-						"(*Could not generate Isabelle syntax for POs - please submit bug report with CML file*)\n\n";
-			}
-		}
-	
-		try 
-		{
-			//For each proof obligation, create a theorem
-			for (IProofObligation ipo : poList)
-			{
-				ProofObligation po = (ProofObligation) ipo;
-				//THIS BIT NEEDS MORE EFFORT!
-				AVdmPoTree poValTree = po.getValueTree();
-				PExp poExp = poValTree.getPredicate();
-				NodeNameList bvars = new NodeNameList();
-				String theoryBody = poExp.apply(new ThmStringVisitor(), new ThmVarsContext(svars, bvars));//ThmExprUtil.getIsabelleExprStr(svars, bvars, poExp);//"true";
-				poThys.add(new ThmTheorem("po" + po.getIsaName(), theoryBody, "by (cml_auto_tac)"));
-			}
-			pogString = poThys.toString();
-		}
-		catch (Exception e)
-		{
-			pogErrors = pogErrors + "(*Thy gen error:*)\n" + 
-					"(*Could not generate Isabelle syntax for POs - please submit bug report with CML file*)\n\n";
-		}
-
-		//retrieve the file name without the .thy file extension
-		String thyName = thyFileName.substring(0, thyFileName.lastIndexOf('.'));
-		String poThyName = thyName+ "_PO";
-
-		StringBuilder sb = new StringBuilder();
-		//Add thy header 
-		sb.append("theory " + poThyName + " \n" + "  imports utp_cml " + thyName +"\n"
-				+ "begin \n" + "\n");
-		sb.append("text {* Auto-generated THY file for proof obligations generated for "+  thyName + ".cml *}\n\n");
-		
-		//Add any node errors
-		sb.append(pogErrors);
-		
-		//Add generated node strings
-		sb.append(pogString);
-			
-		sb.append("\n" + "end");
-		
-		return sb.toString();
 	}
 
 	@Override

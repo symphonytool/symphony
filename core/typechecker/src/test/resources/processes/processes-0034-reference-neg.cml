@@ -1,0 +1,5 @@
+process P =					begin @   Skip end
+process P1 = val a :int  @	begin @   Skip end
+process P2 = val a :bool @	begin @   Skip end
+
+process C = P ; P() ; P1 ; P2('c')

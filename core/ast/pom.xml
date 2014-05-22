@@ -5,7 +5,7 @@
   <parent>
     <groupId>eu.compassresearch.core</groupId>
     <artifactId>core</artifactId>
-    <version>0.2.7-SNAPSHOT</version>
+    <version>0.3.1-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -13,12 +13,12 @@
   <name>Symphony Core CML Abstract Syntax Tree</name>
 
   <properties>
-    <astcreator.version>1.6.1</astcreator.version>
+    <astcreator.version>1.6.4</astcreator.version>
   </properties>
 
   <dependencies>
     <dependency>
-      <groupId>org.overture.core</groupId>
+      <groupId>org.overturetool.core</groupId>
       <artifactId>ast</artifactId>
       <version>${overture.version}</version>
     </dependency>
@@ -27,7 +27,7 @@
   <build>
     <plugins>
       <plugin>
-	<groupId>org.overture.astcreator</groupId>
+	<groupId>org.overturetool.astcreator</groupId>
 	<artifactId>astcreator-plugin</artifactId>
 	<version>${astcreator.version}</version>
 	<executions>
@@ -57,7 +57,7 @@
 	  <useSrcOutput>false</useSrcOutput>
 
 
-	  <extendedAstGroupId>org.overture.core</extendedAstGroupId>
+	  <extendedAstGroupId>org.overturetool.core</extendedAstGroupId>
 	  <extendedAstArtifactId>ast</extendedAstArtifactId>
 	</configuration>
       </plugin>
@@ -95,7 +95,7 @@
 	      <pluginExecutions>
 		<pluginExecution>
 		  <pluginExecutionFilter>
-		    <groupId>org.overture.astcreator</groupId>
+		    <groupId>org.overturetool.astcreator</groupId>
 		    <artifactId>astcreator-plugin</artifactId>
 		    <versionRange>${astcreator.version}</versionRange>
 		    <goals>

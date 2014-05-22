@@ -1,5 +1,7 @@
 package eu.compassresearch.core.interpreter.cosim;
 
+import eu.compassresearch.core.interpreter.cosim.communication.ConnectionThread;
+
 /**
  * Interface for accessing delegates using in co-simulation
  * 
@@ -41,4 +43,15 @@ public interface IProcessBehaviourDelegationManager
 	 * @return true if successful
 	 */
 	public boolean registerUse(IProcessDelegate delegate);
+
+	/**
+	 * Notify the manager about an error that caused a client to abort.
+	 * 
+	 * @param connectionThread
+	 * @param registeredProcessName
+	 * @param errorCode
+	 * @param message
+	 */
+	public void abortedBy(ConnectionThread connectionThread,
+			String registeredProcessName, int errorCode, String message);
 }

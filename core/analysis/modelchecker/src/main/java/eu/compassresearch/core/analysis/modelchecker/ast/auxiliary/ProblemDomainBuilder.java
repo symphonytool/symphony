@@ -114,7 +114,8 @@ public class ProblemDomainBuilder {
 		for (MCSCmlOperationDefinition opDef : context.operations) {
 			if(opDef instanceof MCAExplicitCmlOperationDefinition){
 				MCAExplicitCmlOperationDefinition op = (MCAExplicitCmlOperationDefinition) opDef;
-				content.append(op.toFormula(MCNode.NAMED));
+				String operationCode = op.toFormula(MCNode.NAMED); 
+				content.append(operationCode);
 			}
 		}
 	}

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.ProcessesCmlTypeCheckerTests">
+<message column="8" line="7" message="The Symbol &quot;init&quot; is undefined." messageType="error" number="3410" resource="processes-0019-neg.cml"/>
+<message column="3" line="7" message="Expecting an action but found  a process deinition:A." messageType="error" number="3420" resource="processes-0019-neg.cml"/>
+<result/>
+</testResult>

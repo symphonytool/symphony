@@ -1,0 +1,70 @@
+types 
+
+ NODE = <SOURCE_NODE>| <SINK_NODE>
+
+channels
+a:bool
+i
+
+n:NODE
+
+
+process BoolReaderCS =
+begin
+
+state 
+
+b:bool := false 
+
+
+actions
+loop = (a?x->b:= x;loop) [] ([b = true]& i->Skip)
+@ loop  
+end
+
+
+process BoolSenderCS =
+begin
+
+state 
+
+b:bool  := false
+actions
+
+loop = (a!b->(b:= not b);loop)
+@ loop /_\ i->Skip
+end
+
+
+process BoolSoS = BoolSenderCS[|{a,i}|]BoolReaderCS
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+process NodeReaderCS =
+begin
+
+state 
+
+b:NODE := <SOURCE_NODE> 
+
+
+actions
+loop = (n?x->b:= x;loop) [] ([b = <SINK_NODE>]& i->Skip)
+@ loop  
+end
+
+
+process NodeSenderCS =
+begin
+
+state 
+
+b:NODE := <SOURCE_NODE>
+actions
+
+loop = n!b->get
+get = (b := <SOURCE_NODE>;loop) [] (b := <SINK_NODE>;loop) 
+@ loop /_\ i->Skip
+end
+
+
+process NodeSoS = NodeSenderCS[|{n,i}|]NodeReaderCS

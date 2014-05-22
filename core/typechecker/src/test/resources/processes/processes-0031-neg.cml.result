@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <testResult type="eu.compassresearch.core.typechecker.ProcessesCmlTypeCheckerTests">
-<message column="11" line="45" message="The Symbol &quot;mainEntryPointState&quot; is undefined." messageType="error" number="3410" resource="processes-0031-neg.cml"/>
+<message column="11" line="45" message="Action 'mainEntryPointState' is not in scope." messageType="error" number="3437" resource="processes-0031-neg.cml"/>
 <result/>
 </testResult>

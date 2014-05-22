@@ -83,13 +83,14 @@ public class NewMCStmVisitor extends
 		MCPStateDesignator target = (MCPStateDesignator) node.getTarget().apply(rootVisitor, question);
 		MCAAssignmentStm result = new MCAAssignmentStm(expression,target);
 		INode ancestor = node.parent();
+		MCAssignDef assignDef = null;
 		if(ancestor instanceof AStmAction){
 			ancestor = ancestor.parent();
 			if(ancestor instanceof AActionStm){
 				ancestor = ancestor.parent();
 				if(!(ancestor instanceof AExplicitOperationDefinition)){
 					//assignments inside operation definitions should not originate assign defs.
-					MCAssignDef assignDef = null;
+					
 					if(target instanceof MCAUnresolvedStateDesignator){
 						assignDef = new MCAssignDef(result.getCounterId(), expression,((MCAUnresolvedStateDesignator) target).getPath(), result);
 					}else if (target instanceof MCAIdentifierStateDesignator){
@@ -98,6 +99,11 @@ public class NewMCStmVisitor extends
 					}
 					question.assignDefs.add(assignDef);
 				}
+			} else{
+				
+				MCAVariableExp name = new MCAVariableExp(target.toFormula(MCNode.DEFAULT));
+				assignDef = new MCAssignDef(result.getCounterId(), expression, name, result);
+				question.assignDefs.add(assignDef);
 			}
 		}
 		

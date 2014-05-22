@@ -57,7 +57,11 @@ public class IOCommEv implements Event {
 
 		@Override
 		public String toString() {
-			return str + "." + this.valueType.toString();
+			String result = str;
+			if(this.valueType.toString().length() > 0){
+				result = result + this.valueType.toString();
+			}
+			return result;
 		}
 		
 		@Override

@@ -2,12 +2,12 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Symphony IDE Product
 Bundle-SymbolicName: eu.compassresearch.ide.platform;singleton:=true
-Bundle-Version: 0.2.7.qualifier
+Bundle-Version: 0.3.1.qualifier
 Bundle-Localization: plugin
 Bundle-Activator: eu.compassresearch.ide.platform.Activator
 Bundle-Vendor: The COMPASS Project
-Export-Package: eu.compassresearch.ide.platform,
- eu.compassresearch.ide.platform.splash
+Export-Package: eu.compassresearch.ide.platform,eu.compassresearch.ide
+ .platform.splash
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ui,
  org.eclipse.ui.intro,

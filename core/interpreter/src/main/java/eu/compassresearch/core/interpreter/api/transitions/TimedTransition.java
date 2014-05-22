@@ -6,7 +6,7 @@ import java.util.TreeSet;
 
 import org.overture.ast.node.INode;
 
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
+import eu.compassresearch.core.interpreter.api.CmlBehaviour;
 
 public class TimedTransition extends AbstractCmlTransition implements
 		ObservableTransition
@@ -75,9 +75,14 @@ public class TimedTransition extends AbstractCmlTransition implements
 	}
 
 	@Override
-	public boolean isComparable(ObservableTransition other)
+	public boolean isSynchronizedBy(ObservableTransition other)
 	{
+		return isSynchronizableWith(other) && this.isSourcesSubset(other);
+	}
 
+	@Override
+	public boolean isSynchronizableWith(ObservableTransition other)
+	{
 		return other instanceof TimedTransition;
 	}
 

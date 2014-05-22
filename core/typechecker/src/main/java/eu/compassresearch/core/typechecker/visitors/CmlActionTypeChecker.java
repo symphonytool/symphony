@@ -40,7 +40,6 @@ import org.overture.typechecker.assistant.pattern.PPatternAssistantTC;
 import eu.compassresearch.ast.CmlAstFactory;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismReplicatedAction;
-import eu.compassresearch.ast.actions.ACallAction;
 import eu.compassresearch.ast.actions.AChannelRenamingAction;
 import eu.compassresearch.ast.actions.AChaosAction;
 import eu.compassresearch.ast.actions.ACommonInterleavingReplicatedAction;
@@ -91,7 +90,7 @@ import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
 import eu.compassresearch.core.typechecker.api.TypeWarningMessages;
-import eu.compassresearch.core.typechecker.assistant.ACallActionAssistant;
+import eu.compassresearch.core.typechecker.assistant.AReferenceAssistant;
 import eu.compassresearch.core.typechecker.assistant.PParametrisationAssistant;
 import eu.compassresearch.core.typechecker.assistant.TypeCheckerUtil;
 
@@ -110,7 +109,6 @@ public class CmlActionTypeChecker extends
 	 */
 	private final QuestionAnswerAdaptor<TypeCheckInfo, PType> nameSetChecker;
 
-	@SuppressWarnings("deprecation")
 	public CmlActionTypeChecker(IQuestionAnswer<TypeCheckInfo, PType> root,
 			ITypeIssueHandler issueHandler,
 			QuestionAnswerAdaptor<TypeCheckInfo, PType> channelSetChecker,
@@ -133,24 +131,29 @@ public class CmlActionTypeChecker extends
 		return node.getType();
 	}
 
+
 	@Override
-	public PType caseACallAction(ACallAction node, TypeCheckInfo question)
+	public PType caseAReferenceAction(AReferenceAction node,
+			org.overture.typechecker.TypeCheckInfo question)
 			throws AnalysisException
 	{
 		List<PType> atypes = question.assistantFactory.createACallObjectStatementAssistant().getArgTypes(node.getArgs(), THIS, question);
 
-		if (question.env.isVDMPP())
+		// Only change the name from 'A' to 'A(int,int)' if 'A' has arguments
+		if (!node.getArgs().isEmpty())
 		{
-			node.getName().setTypeQualifier(atypes);
+			if (question.env.isVDMPP())
+			{
+				node.getName().setTypeQualifier(atypes);
+			}
 		}
 
-		PDefinition opdef = question.env.findName(node.getName(), question.scope);// findDefinition(node.getName(),
-																					// question.env);
+		PDefinition opdef = question.env.findName(node.getName(), question.scope);
 
 		if (opdef == null)
 		{
-			TypeCheckerErrors.report(3437, "Action " + node.getName()
-					+ " is not in scope", node.getLocation(), node);
+			TypeCheckerErrors.report(3437, "Action '" + node.getName()
+					+ "' is not in scope", node.getLocation(), node);
 			question.env.listAlternatives(node.getName());
 			node.setType(AstFactory.newAUnknownType(node.getLocation()));
 			return node.getType();
@@ -171,21 +174,27 @@ public class CmlActionTypeChecker extends
 			// Reset the name's qualifier with the actual operation type so
 			// that runtime search has a simple TypeComparator call.
 
-			if (question.env.isVDMPP())
+			// Only change the name from 'A' to 'A(int,int)' if 'A' has arguments
+			if (!node.getArgs().isEmpty())
 			{
-				node.getName().setTypeQualifier(paramTypes);
+				if (question.env.isVDMPP())
+				{
+					node.getName().setTypeQualifier(paramTypes);
+				}
 			}
 			node.setType(AstFactory.newAVoidReturnType(node.getLocation()));
-			ACallActionAssistant.checkArgTypes(node, node.getType(), paramTypes, atypes);
-
+			AReferenceAssistant.checkArgTypes(node, node.getType(), paramTypes, atypes);
+			node.setActionDefinition(actionDef);
 			return node.getType();
 		} else
 		{
-			TypeCheckerErrors.report(3438, "Name is not an action", node.getLocation(), node);
+			// TypeCheckerErrors.report(3438, "Name is not an action", node.getLocation(), node);
+			issueHandler.addTypeError(node, TypeErrorMessages.EXPECTED_AN_ACTION, " a "
+					+ question.assistantFactory.createPDefinitionAssistant().kind(opdef)
+					+ " deinition:" + node.getName());
 			node.setType(AstFactory.newAUnknownType(node.getLocation()));
 			return node.getType();
 		}
-
 	}
 
 	@Override
@@ -306,7 +315,6 @@ public class CmlActionTypeChecker extends
 			}
 		}
 
-		// FIXME how should we handle write only checks
 		PType repActionType = node.getReplicatedAction().apply(THIS, question.newScope(defs, NameScope.NAMESANDANYSTATE));
 
 		return TypeCheckerUtil.setType(question.assistantFactory, node, repActionType);
@@ -459,14 +467,13 @@ public class CmlActionTypeChecker extends
 			org.overture.typechecker.TypeCheckInfo question)
 			throws AnalysisException
 	{
+		// all channels must exist so just check that the channels exists
+		// then check the action
 
-		// PAction action = node.getAction();
-		//
-		// SRenameChannelExp renameExp = node.getRenameExpression();
+		node.getRenameExpression().apply(THIS, question);
+		node.getAction().apply(THIS, question);
 
-		// FIXME throw new InternalException(0, "caseAChannelRenamingAction not implemented");
 		return setTypeVoid(node);
-		// return new AActionType(node.getLocation(), true);
 	}
 
 	@Override
@@ -740,49 +747,6 @@ public class CmlActionTypeChecker extends
 		PType rightType = right.apply(THIS, question);
 
 		return setType(question.assistantFactory, node, leftType, rightType);
-	}
-
-	@SuppressWarnings("static-access")
-	@Override
-	public PType caseAReferenceAction(AReferenceAction node,
-			org.overture.typechecker.TypeCheckInfo question)
-			throws AnalysisException
-	{
-
-		PDefinition def = question.env.findName(node.getName(), question.scope); // findDefinition(node.getName().getIdentifier(),
-																					// question.env);
-
-		if (def == null)
-		{
-			issueHandler.addTypeError(node, TypeErrorMessages.UNDEFINED_SYMBOL, node.getName()
-					+ "");
-			node.setType(AstFactory.newAUnknownType(node.getLocation()));
-			return node.getType();
-		}
-
-		PType type = null;
-
-		if (!(def instanceof AActionDefinition))
-		{
-			issueHandler.addTypeError(node, TypeErrorMessages.EXPECTED_AN_ACTION, " a "
-					+ question.assistantFactory.createPDefinitionAssistant().kind(def)
-					+ " deinition:" + node.getName());
-
-		} else
-		{
-
-			AActionDefinition actionDef = (AActionDefinition) def;
-			node.setActionDefinition(actionDef);
-		}
-
-		if (type == null)
-
-		{
-			type = AstFactory.newAVoidType(node.getLocation());
-		}
-
-		node.setType(type);
-		return node.getType();
 	}
 
 	@SuppressWarnings("deprecation")
@@ -1113,7 +1077,7 @@ public class CmlActionTypeChecker extends
 			AAlphabetisedParallelismReplicatedAction node,
 			TypeCheckInfo question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+		// FIXME Auto-generated method stub
 		return setTypeVoid(node);
 	}
 

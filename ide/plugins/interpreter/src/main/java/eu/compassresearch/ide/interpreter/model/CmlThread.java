@@ -7,7 +7,7 @@ import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.debug.core.model.IThread;
 import org.overture.ide.debug.core.model.DebugEventHelper;
 
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorState;
+import eu.compassresearch.core.interpreter.api.CmlBehaviorState;
 import eu.compassresearch.core.interpreter.debug.CmlProcessDTO;
 import eu.compassresearch.ide.interpreter.protocol.CmlCommunicationManager;
 import eu.compassresearch.ide.interpreter.protocol.CmlThreadManager;
@@ -210,6 +210,7 @@ public class CmlThread extends CmlDebugElement implements IThread
 	public void updateInfo(CmlProcessDTO t)
 	{
 		this.info = t;
+		stack.update(false);
 		DebugEventHelper.fireChangeEvent(this);
 	}
 

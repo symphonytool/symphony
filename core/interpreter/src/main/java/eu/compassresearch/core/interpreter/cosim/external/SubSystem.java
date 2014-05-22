@@ -16,11 +16,11 @@ import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.core.interpreter.NamespaceUtility;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
+import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionFactory;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
-import eu.compassresearch.core.interpreter.api.transitions.ObservableLabelledTransition;
 import eu.compassresearch.core.interpreter.api.transitions.ObservableTransition;
-import eu.compassresearch.core.interpreter.api.values.CMLChannelValue;
-import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
+import eu.compassresearch.core.interpreter.api.values.ChannelValue;
+import eu.compassresearch.core.interpreter.api.values.CmlChannel;
 import eu.compassresearch.core.interpreter.api.values.LatticeTopValue;
 import eu.compassresearch.core.interpreter.cosim.IProcessDelegate;
 import eu.compassresearch.core.interpreter.cosim.communication.Utils;
@@ -45,62 +45,61 @@ public class SubSystem implements IProcessDelegate
 
 	private ObservableTransition untypedChannel(String name)
 	{
-		CMLChannelValue channel = createChannelValue(name);
-		ChannelNameValue channelName = new ChannelNameValue(channel, new LinkedList<Value>(), null);
-		ObservableTransition transition = new ObservableLabelledTransition(null, channelName);
+		CmlChannel channel = createChannelValue(name);
+		ChannelValue channelName = new ChannelValue(channel, new LinkedList<Value>(), null);
+		ObservableTransition transition = CmlTransitionFactory.newLabelledTransition(null, channelName);
 		return transition;
 	}
 
 	private ObservableTransition sendChannel(String name, int... value)
 	{
-		CMLChannelValue channel = createChannelValue(name, new AIntNumericBasicType());
+		CmlChannel channel = createChannelValue(name, new AIntNumericBasicType());
 		List<Value> values = new Vector<Value>();
 		for (int v : value)
 		{
 			values.add(new IntegerValue(v));
 		}
 
-//		List<ValueConstraint> constraints = new Vector<ValueConstraint>();
+		// List<ValueConstraint> constraints = new Vector<ValueConstraint>();
 
 		// constraints.add(new NoConstraint());
 
-		ChannelNameValue channelName = new ChannelNameValue(channel, values, null);
-		ObservableTransition transition = new ObservableLabelledTransition(null, channelName);
+		ChannelValue channelName = new ChannelValue(channel, values, null);
+		ObservableTransition transition = CmlTransitionFactory.newLabelledTransition(null, channelName);
 		return transition;
 	}
 
 	private ObservableTransition readChannel(String name, PType... value)
 	{
-		CMLChannelValue channel = createChannelValue(name, value);
+		CmlChannel channel = createChannelValue(name, value);
 		List<Value> values = new Vector<Value>();
 		for (PType v : value)
 		{
 			values.add(new LatticeTopValue(v));
 		}
 
-		ChannelNameValue channelName = new ChannelNameValue(channel, values, null);
-		ObservableTransition transition = new ObservableLabelledTransition(null, channelName);
+		ChannelValue channelName = new ChannelValue(channel, values, null);
+		ObservableTransition transition = CmlTransitionFactory.newLabelledTransition(null, channelName);
 		return transition;
 	}
 
-	private static CMLChannelValue createChannelValue(String name)
+	private static CmlChannel createChannelValue(String name)
 	{
 		return createChannelValue(name, (PType[]) null);
 	}
 
-	private static CMLChannelValue createChannelValue(String name,
-			PType... type)
+	private static CmlChannel createChannelValue(String name, PType... type)
 	{
-//		AChannelType channelType = null;
+		// AChannelType channelType = null;
 		// if(type!=null)
 		// {
 		// channelType = new AChannelType(new LexLocation(), false, Arrays.asList(type));
 		// }else
 		// {
-//		channelType = new AChannelType();
+		// channelType = new AChannelType();
 		// }
 
-		return new CMLChannelValue(null, NamespaceUtility.createChannelName(new LexIdentifierToken(name, false, new LexLocation())));
+		return new CmlChannel(null, NamespaceUtility.createChannelName(new LexIdentifierToken(name, false, new LexLocation())));
 	}
 
 	@Override

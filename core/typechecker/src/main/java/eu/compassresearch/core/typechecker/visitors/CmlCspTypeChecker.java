@@ -40,6 +40,7 @@ import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.expressions.SChannelExp;
 import eu.compassresearch.ast.lex.CmlLexNameToken;
 import eu.compassresearch.ast.messages.InternalException;
+import eu.compassresearch.ast.process.AActionProcess;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.ast.statements.AActionStm;
@@ -86,6 +87,11 @@ public class CmlCspTypeChecker extends
 	 */
 	private final CmlChannelExpressionTypeChecker channelExpChecker;
 
+	/**
+	 * Type checker namesets in parallel actions
+	 */
+	private final ParallelNamesetChecker parallelNamesetChecker;
+
 	public CmlCspTypeChecker(ITypeIssueHandler issuehandler)
 	{
 		this.vdmChecker = new CmlVdmTypeCheckVisitor()
@@ -111,14 +117,9 @@ public class CmlCspTypeChecker extends
 
 		this.channelExpChecker = new CmlChannelExpressionTypeChecker(this, issuehandler);
 
-	}
+		this.parallelNamesetChecker = new ParallelNamesetChecker(this.issueHandler);
 
-	public PType caseACallAction(
-			eu.compassresearch.ast.actions.ACallAction node,
-			TypeCheckInfo question) throws AnalysisException
-	{
-		return node.apply(actionChecker, question);
-	};
+	}
 
 	@Override
 	public PType defaultPSource(PSource node, TypeCheckInfo question)
@@ -286,7 +287,30 @@ public class CmlCspTypeChecker extends
 	public PType caseAActionClassDefinition(AActionClassDefinition node,
 			TypeCheckInfo question) throws AnalysisException
 	{
+		// Must be two pass.
 
+		// 1) Resolve action names
+		for (PDefinition def : node.getDefinitions())
+		{
+			if (def instanceof AActionDefinition
+					&& def.getName().getTypeQualifier() != null)
+			{
+				System.out.println(def.getName());
+				for (PType type : def.getName().getTypeQualifier())
+				{
+					System.out.println(type);
+					try
+					{
+						question.assistantFactory.createPTypeAssistant().typeResolve(type, null, vdmChecker, question);
+					} catch (TypeCheckException te)
+					{
+						TypeChecker.report(3427, te.getMessage(), te.location);
+					}
+				}
+			}
+		}
+
+		// 2) TC
 		for (PDefinition def : node.getDefinitions())
 		{
 			if (def instanceof AActionDefinition)
@@ -299,6 +323,20 @@ public class CmlCspTypeChecker extends
 		}
 
 		return AstFactory.newAClassType(node.getLocation(), node);
+	}
+
+	/**
+	 * This method overrides the default path to the super implementation by first calling the super implementation
+	 * forcing all type checking to complete before the name sets of certian parallel actions are checked. This is
+	 * needed due to circlic depenendcy allowance in the language.
+	 */
+	@Override
+	public PType caseAActionProcess(AActionProcess node, TypeCheckInfo question)
+			throws AnalysisException
+	{
+		PType type = super.caseAActionProcess(node, question);
+		node.apply(parallelNamesetChecker);
+		return type;
 	}
 
 	@Override

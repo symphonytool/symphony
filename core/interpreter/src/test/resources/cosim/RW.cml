@@ -1,0 +1,40 @@
+/*
+ * Small example that implements a RW system where the writer writes and the reader (echo) process 
+ * reads the input and echoes it back 
+*/
+channels
+
+a: int
+b: int
+
+values
+
+MAX = 10
+
+process Main = Writer [|{a,b}|] Echo 
+
+process Echo = Reader
+process Reader = 
+begin
+actions
+s= a?x -> 	(
+				[x < MAX] & b!x -> s 
+				[] 
+				[x = MAX] & b!x -> Skip
+			)
+@ s
+end
+
+process Writer = 
+begin
+actions
+s= val x : int @ a!x -> b?y -> 
+		let n = y+1 
+		in 
+			(
+				[n <= MAX] & s(n) 
+				[] 
+				[n > MAX] & Skip
+			)
+@ s(1)
+end

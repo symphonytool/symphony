@@ -9,7 +9,6 @@ import org.overture.typechecker.utilities.FunctionChecker;
 
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismReplicatedAction;
-import eu.compassresearch.ast.actions.ACallAction;
 import eu.compassresearch.ast.actions.AChannelRenamingAction;
 import eu.compassresearch.ast.actions.AChaosAction;
 import eu.compassresearch.ast.actions.ACommonInterleavingReplicatedAction;
@@ -855,14 +854,14 @@ public class AbstractCmlFunctionChecker extends FunctionChecker implements
 	public Boolean caseAActionStm(AActionStm node) throws AnalysisException
 	{
 
-		return null;
+		return false;
 	}
 
 	@Override
 	public Boolean caseAStmAction(AStmAction node) throws AnalysisException
 	{
 
-		return null;
+		return false;
 	}
 
 	@Override
@@ -870,14 +869,14 @@ public class AbstractCmlFunctionChecker extends FunctionChecker implements
 			AUnresolvedStateDesignator node) throws AnalysisException
 	{
 
-		return null;
+		return false;
 	}
 
 	@Override
 	public Boolean caseANewStm(ANewStm node) throws AnalysisException
 	{
 
-		return null;
+		return false;
 	}
 
 	@Override
@@ -885,7 +884,7 @@ public class AbstractCmlFunctionChecker extends FunctionChecker implements
 			throws AnalysisException
 	{
 
-		return null;
+		return false;
 	}
 
 	@Override
@@ -893,7 +892,7 @@ public class AbstractCmlFunctionChecker extends FunctionChecker implements
 			throws AnalysisException
 	{
 
-		return null;
+		return false;
 	}
 
 	@Override
@@ -901,7 +900,7 @@ public class AbstractCmlFunctionChecker extends FunctionChecker implements
 			throws AnalysisException
 	{
 
-		return null;
+		return false;
 	}
 
 	@Override
@@ -919,16 +918,9 @@ public class AbstractCmlFunctionChecker extends FunctionChecker implements
 	}
 
 	@Override
-	public Boolean caseACallAction(ACallAction node) throws AnalysisException
-	{
-
-		return null;
-	}
-
-	@Override
 	public Boolean caseAChannelType(AChannelType node) throws AnalysisException
 	{
-		return null;
+		return false;
 	}
 
 }

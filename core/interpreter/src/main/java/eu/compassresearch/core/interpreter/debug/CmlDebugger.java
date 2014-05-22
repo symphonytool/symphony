@@ -20,6 +20,8 @@ public interface CmlDebugger extends Remote
 
 	public void start(SelectionStrategy strategy);
 
+	public void dicsonnect();
+
 	// public void stop();
 
 	// public CmlDbgpStatus getStatus();

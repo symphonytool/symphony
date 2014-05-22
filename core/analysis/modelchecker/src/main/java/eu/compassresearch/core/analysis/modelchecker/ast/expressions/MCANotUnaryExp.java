@@ -56,7 +56,9 @@ public class MCANotUnaryExp implements MCBooleanExp {
 				
 				result.append(bodyReady.toFormula(option));
 			}
-		} else{
+		} else if (this.exp instanceof MCAVariableExp){
+			result.append(this.exp.toFormula(option) + " = " + "false");
+		}else{
 			result.append(this.exp.toFormula(option));
 		}
 

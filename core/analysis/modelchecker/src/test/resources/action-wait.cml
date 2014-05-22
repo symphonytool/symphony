@@ -1,8 +1,13 @@
 channels 
 a
 
-process A = 
+process Wait4 = 
 begin 
 
 	@ Wait 4 ; a -> Skip
+end
+
+process SimpleVarDecl = 
+begin 
+	@ (dcl x : int := 0 @ x := 1;Stop)
 end

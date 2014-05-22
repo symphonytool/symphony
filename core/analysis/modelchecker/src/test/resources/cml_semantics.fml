@@ -5,6 +5,9 @@
 	//Stop timed
     trans(iS,tock,iS) :- iS is State(st,Stop). 
 	
+	//Div
+	trans(iS,tau,iS) :- iS is State(st,Div). 
+	
 	// a?x -> P
     State(st_,P),
     trans(ini, CommEv(chName,chExp,chType), State(st_,P))
@@ -43,9 +46,9 @@
 
     //using a visible event (external choice: end)
     State(st3,P_),
-    trans(iS,ev,State(st3,P_)) :- iS is State(st,extraChoice(st1,P,st2,Q)), trans(State(st1,P),ev,State(st3,P_)), ev != tau.
+    trans(iS,ev,State(st3,P_)) :- iS is State(st,extraChoice(st1,P,st2,Q)), trans(State(st1,P),ev,State(st3,P_)), ev != tau, ev != tock.
     State(st3,Q_),
-    trans(iS,ev,State(st3,Q_)) :- iS is State(st,extraChoice(st1,P,st2,Q)), trans(State(st2,Q),ev,State(st3,Q_)), ev != tau.
+    trans(iS,ev,State(st3,Q_)) :- iS is State(st,extraChoice(st1,P,st2,Q)), trans(State(st2,Q),ev,State(st3,Q_)), ev != tau, ev != tock.
 
 	// external choice timed
     trans(iS,tock,State(st,extraChoice(stP,P_,stQ,Q_))) :- iS is State(st,extraChoice(stP,P,stQ,Q)), 
@@ -136,7 +139,10 @@
     trans(iS,tau,State(st,Chaos)) :- iS is State(st,seqC(Chaos,Q)).
 
     State(st_,seqC(P_,Q)),
-    trans(iS,ev,State(st_,seqC(P_,Q))) :- iS is State(st,seqC(P,Q)),trans(State(st,P),ev,State(st_,P_)).
+    trans(iS,ev,State(st_,seqC(P_,Q))) :- iS is State(st,seqC(P,Q)),trans(State(st,P),ev,State(st_,P_)), ev != tock.
+
+	State(st_,seqC(P_,Q)),
+	trans(iS,tock,State(st_,seqC(P_,Q))) :- iS is State(st,seqC(P,Q)),trans(State(st,P),tock,State(st_,P_)), P != P_.
 
 	//Sequence timed
     //trans(iS,tock,iS) :- iS is State(st,seqC(P,Q)), P != Skip. 
@@ -180,7 +186,7 @@
                                                                trans(State(stQ,Q),tock,State(stQ,Q_)).
 															   
     // Call reusing state
-    trans(n,tau,State(st,PBody)) :- n is State(st,proc(P,pPar)), ProcDef(P,pP,PBody).
+    trans(n,tau,State(st,PBody)) :- n is State(st,proc(P,pPar)), ProcDef(P,pPar,PBody).
 
     // operations
     trans(n,tau,State(st_,Skip)) :- n is State(st,operation(schN,opPar)), preOpOk(schN,opPar,st), operationDef(schN,opPar,st,st_).

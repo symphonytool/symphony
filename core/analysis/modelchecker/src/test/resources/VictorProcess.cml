@@ -1,0 +1,44 @@
+-- the use of a value to limit data sets in the specification is useful. 
+values
+ STRG_NUMBER: nat = 2
+
+-- types must be limited. this reduces the time of analysis 
+types
+  Storables = nat 
+    inv i == i in set {1,...,STRG_NUMBER}
+     
+-- channels should (strongly recommended) support a finite type in communications 
+channels
+    i, o : Storables
+    
+--functions
+    --testfun (i : int) r : int
+    --pre true
+    --post r = i
+    --testfun : int -> real
+    --testfun (i) == 3 / i
+    --pre false
+    --post true
+
+process Scratch =
+begin
+state
+    stored : Storables := 1
+    
+operations
+    -- operations cannot call other operations. they must use simple and complete assignments
+    Init : () ==> ()
+    Init () ==  stored := 1
+
+    StoreValue : Storables ==> ()
+    StoreValue (i) == stored := i
+
+actions
+    INACT = (i.1 -> StoreValue(1); Skip) [] (i.2 -> StoreValue(2); Skip)
+    INACT2 = (i.1 -> Skip) [] (i.2 -> Skip)
+    OUTACT = val stored3:Storables @ o!stored3 -> Skip --this action must be called with a parameter
+    OUTACT2 = val stored4:Storables @ o!stored4 -> Skip --this action must be called with a parameter
+    MAINACT = (INACT [] OUTACT(1) [] OUTACT(2) [] INACT2 [] OUTACT2(1) [] OUTACT2(2)); MAINACT
+
+@ Init(); MAINACT
+end

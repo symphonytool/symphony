@@ -15,8 +15,6 @@ public class MCAActionStm implements MCPCMLStm {
 
 	@Override
 	public String toFormula(String option) {
-		AActionStm a = null;
-		
 		return this.action.toFormula(option);
 	}
 

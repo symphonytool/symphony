@@ -4,15 +4,12 @@ import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
-import java.util.Set;
-import java.util.SortedSet;
 
 import eu.compassresearch.core.interpreter.Console;
-import eu.compassresearch.core.interpreter.api.transitions.AbstractSilentTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.transitions.LabelledTransition;
-import eu.compassresearch.core.interpreter.debug.CmlDebugger;
+import eu.compassresearch.core.interpreter.api.transitions.TauTransition;
 
 public class ConsoleSelectionStrategy implements SelectionStrategy
 {
@@ -35,11 +32,11 @@ public class ConsoleSelectionStrategy implements SelectionStrategy
 	private boolean isSystemSelect(CmlTransitionSet availableChannelEvents)
 	{
 
-		Set<AbstractSilentTransition> silentTransitions = availableChannelEvents.getSilentTransitionsAsSet();
+		CmlTransitionSet silentTransitions = availableChannelEvents.filterByType(TauTransition.class);
 		// don't let the system run the divergent processes since it will never stop
 		int count = 0;
 
-		for (AbstractSilentTransition st : silentTransitions)
+		for (CmlTransition st : silentTransitions)
 		{
 			count = st.getEventSources().iterator().next().isDivergent() ? count + 1
 					: count;
@@ -48,10 +45,9 @@ public class ConsoleSelectionStrategy implements SelectionStrategy
 		return silentTransitions.size() > count;
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private CmlTransition systemSelect(CmlTransitionSet availableChannelEvents)
 	{
-		rndSelect.choices(new CmlTransitionSet((SortedSet) availableChannelEvents.getSilentTransitionsAsSet()));
+		rndSelect.choices(availableChannelEvents.filterByType(TauTransition.class));
 		return rndSelect.resolveChoice();
 	}
 
@@ -66,7 +62,7 @@ public class ConsoleSelectionStrategy implements SelectionStrategy
 
 	private CmlTransition userSelect(CmlTransitionSet availableChannelEvents)
 	{
-		List<CmlTransition> events = new ArrayList<CmlTransition>(availableChannelEvents.getAllEvents());
+		List<CmlTransition> events = new ArrayList<CmlTransition>(availableChannelEvents.asSet());
 
 		int choiceNumber = -1;
 		while (choiceNumber < 0 || choiceNumber >= events.size())
@@ -137,13 +133,6 @@ public class ConsoleSelectionStrategy implements SelectionStrategy
 			System.out.println("The environment picked: " + t);
 			return t;
 		}
-	}
-
-	@Override
-	public void initialize(CmlInterpreter interpreter, CmlDebugger debugger)
-	{
-		// TODO Auto-generated method stub
-
 	}
 
 }

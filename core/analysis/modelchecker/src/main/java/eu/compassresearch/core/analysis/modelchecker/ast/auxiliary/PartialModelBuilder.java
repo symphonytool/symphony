@@ -38,7 +38,11 @@ public class PartialModelBuilder {
 	private void generateChannels(StringBuilder content, String option){
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 		for (MCAChannelDefinition chanDef : context.channelDefs) {
-			content.append(chanDef.toFormula(option) + "\n");
+			
+			content.append(chanDef.toFormula(option));
+			if(chanDef.isTyped()){
+				content.append("\n");
+			}
 		}
 	}
 	

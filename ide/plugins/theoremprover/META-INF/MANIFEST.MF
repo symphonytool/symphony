@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Symphony Isabelle Plugin
 Bundle-SymbolicName: eu.compassresearch.ide.theoremprover;singleton:=true
-Bundle-Version: 0.2.7.qualifier
+Bundle-Version: 0.3.1.qualifier
 Bundle-Activator: eu.compassresearch.ide.theoremprover.CmlTPPlugin
 Bundle-Vendor: The COMPASS Project
 Bundle-Localization: plugin
@@ -16,11 +16,10 @@ Require-Bundle: org.eclipse.debug.ui,
  eu.compassresearch.ide.core,
  eu.compassresearch.ide.ui,
  org.eclipse.core.runtime,
+ org.eclipse.core.filesystem,
  org.eclipse.debug.core;bundle-version="3.7.100",
  org.eclipse.debug.ui;bundle-version="3.8.2",
  isabelle.eclipse.core;bundle-version="1.2.0",
- isabelle.eclipse.doc;bundle-version="1.2.0",
- isabelle.eclipse.feature.branding;bundle-version="1.2.0",
  isabelle.eclipse.launch;bundle-version="1.2.0",
  isabelle.eclipse.ui;bundle-version="1.2.0",
  isabelle.pide;bundle-version="2013.0.1",

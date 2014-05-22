@@ -1,0 +1,11 @@
+process A = begin
+state
+  x : int := 0
+  z : int := 0
+
+
+actions
+  AssignAct = x := 1
+@
+  AssignAct [|| {x} | {z} ||] z := 1
+end

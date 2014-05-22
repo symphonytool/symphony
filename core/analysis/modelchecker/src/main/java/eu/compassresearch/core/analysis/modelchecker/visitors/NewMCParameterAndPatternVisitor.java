@@ -7,6 +7,7 @@ import org.overture.ast.analysis.QuestionAnswerAdaptor;
 import org.overture.ast.analysis.intf.IQuestionAnswer;
 import org.overture.ast.node.INode;
 import org.overture.ast.patterns.AIdentifierPattern;
+import org.overture.ast.patterns.ASetBind;
 import org.overture.ast.patterns.ATypeMultipleBind;
 import org.overture.ast.patterns.PPattern;
 
@@ -33,6 +34,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAUndefine
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCVoidValue;
 import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCAIdentifierPattern;
+import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCASetBind;
 import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCATypeMultipleBind;
 import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCPCMLPattern;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAChannelType;
@@ -168,6 +170,12 @@ public class NewMCParameterAndPatternVisitor extends QuestionAnswerCMLAdaptor<Ne
 		MCALocalDefinition declaration = (MCALocalDefinition) node.getDeclaration().apply(rootVisitor, question);
 		MCAValParametrisation result = new MCAValParametrisation(declaration);
 		
+		String valName = declaration.getName();
+		MCPCMLType valType = declaration.getType();
+		ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
+		MCPCMLExp expression = evaluator.getDefaultValue(valType);
+		question.maximalBinding = question.maximalBinding.addBinding("nP", valName, expression);
+		
 		return result;
 	}
 	
@@ -183,6 +191,18 @@ public class NewMCParameterAndPatternVisitor extends QuestionAnswerCMLAdaptor<Ne
 			pList.add((MCPCMLPattern) p.apply(rootVisitor, question));
 		}
 		MCATypeMultipleBind result = new MCATypeMultipleBind(pList, type);
+		
+		return result;
+	}
+
+	
+
+	@Override
+	public MCNode caseASetBind(ASetBind node, NewCMLModelcheckerContext question)
+			throws AnalysisException {
+		MCPCMLPattern pattern = (MCPCMLPattern) node.getPattern().apply(rootVisitor, question); 
+		MCPCMLExp set = (MCPCMLExp) node.getSet().apply(rootVisitor, question);
+		MCASetBind result = new MCASetBind(pattern,set);
 		
 		return result;
 	}

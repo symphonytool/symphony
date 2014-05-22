@@ -11,10 +11,12 @@ import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.statements.AAssignmentStm;
 import org.overture.ast.statements.ABlockSimpleBlockStm;
+import org.overture.ast.statements.ACallObjectStm;
 import org.overture.ast.statements.ACallStm;
 import org.overture.ast.statements.AElseIfStm;
 import org.overture.ast.statements.AIfStm;
 import org.overture.ast.statements.ALetStm;
+import org.overture.ast.statements.AReturnStm;
 import org.overture.ast.statements.ASkipStm;
 import org.overture.ast.statements.AWhileStm;
 import org.overture.ast.statements.PStateDesignator;
@@ -60,7 +62,7 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		}
 		
 		ILexNameToken name = a.getName();
-		return name.getName()+ "(" + args.toString() + ")";		
+		return "call " + name.getName()+ "[" + args.toString() + "]";		
 	}
 	
 	public String caseABlockSimpleBlockStm(ABlockSimpleBlockStm a, ThmVarsContext vars) throws AnalysisException{
@@ -79,6 +81,9 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 				if(itr.hasNext()){	
 					assignStr.append("; ");
 				}
+			}
+			if (! a.getStatements().isEmpty()){
+				assignStr.append("; ");
 			}
 		}
 		
@@ -180,9 +185,8 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 	}
 	
 	
-	//DON'T THINK IS HANDLED IN ISABELLE YET
+//	//DON'T THINK IS HANDLED IN ISABELLE YET
 //	public String caseACallObjectStm(ACallObjectStm a, ThmVarsContext vars) throws AnalysisException{
-//		
 //		
 //		String aExp = a.getDesignator().apply(thmStringVisitor, vars);
 //		// String callExp = a.geta.getCall().apply(thmStringVisitor, vars);
@@ -201,6 +205,12 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		return ThmProcessUtil.isaWhile  + ThmProcessUtil.opExpLeft + cond + ThmProcessUtil.isaDo  + ThmProcessUtil.opExpRight + actStr + ThmProcessUtil.isaOd;
 	}
 
+	public String caseAReturnStm(AReturnStm a, ThmVarsContext vars) throws AnalysisException{
+		String exp = a.getExpression().apply(thmStringVisitor, vars);
+		
+		return ThmProcessUtil.isaReturn + exp;
+	}
+	
 	@Override
 	public String createNewReturnValue(INode arg0, ThmVarsContext arg1)
 			throws AnalysisException {
@@ -266,12 +276,6 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 ////           [postcondition]:exp
 //		//MAY GEN LEMMA TO PROVE STATING FRAME NOT VIOLATED
 //		//TODO: NOT YET HANDLED
-//		return ThmProcessUtil.stmtNotHandled;
-//	}
-//	
-//	public String caseAReturnStatementAction(AReturnStatementAction a, ThmVarsContext vars) throws AnalysisException{
-////           [exp]:exp
-//			//TODO: NOT YET HANDLED
 //		return ThmProcessUtil.stmtNotHandled;
 //	}
 //	

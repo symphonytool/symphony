@@ -12,10 +12,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.net.SocketAddress;
-import java.net.UnknownHostException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -35,16 +31,15 @@ import org.json.simple.parser.ParseException;
  */
 public class jsonCommand {
 	
-	private Socket clientSocket;
-	private OutputStream commandStream;
-	private InputStream replyStream;
 	private String rttMbtServer;
 	private Integer rttMbtServerPort;
-	private Boolean isConnected;
+	private Boolean isHttpClient;
 	private Boolean success;
 	private Boolean debugMode;
 	private Boolean debugVerbose;
 	private Boolean debugIMR;
+	private String completeCommand;
+	private String completeReply;
 	protected Boolean hasProgress;
 	protected Boolean hasConsole;
 	protected Boolean hasJobId;
@@ -60,7 +55,6 @@ public class jsonCommand {
 			rttMbtServerPort = client.getRttMbtPort();
 			userName = client.getUserName();
 			userId = client.getUserId();
-			isConnected = false;
 			success = false;
 			resultValue = false;
 			debugMode = false;
@@ -69,6 +63,14 @@ public class jsonCommand {
 			hasProgress = false;
 			hasConsole = false;
 			hasJobId = false;
+			completeCommand = "";
+			completeReply = "";
+			// check if the server is HTTP(S) server.
+			if (rttMbtServer.startsWith("http://") || rttMbtServer.startsWith("https://")) {
+				isHttpClient = true;
+			} else {
+				isHttpClient = false;
+			}
 	}
 
 	public void setDebugMode(Boolean value) { debugMode = value; }
@@ -76,62 +78,40 @@ public class jsonCommand {
 	public void setDebugIMR(Boolean value) { debugIMR = value; }
 	
 	public String executeCommand() {
-		String reply = "";
-		client.setCurrentJobId(null);
 
-		// reset progress to 0% for all tasks
+		// client and progress bar init
+		client.setCurrentJobId(null);
 		if (hasProgress) {
 			client.setProgress(IRttMbtProgressBar.Tasks.ALL, 0);
 		}
 		
-		// connect to server
-		if (!connectToServer()) {
-			System.err.println("*** error: unable to connect to server " + rttMbtServer + "!");
-			return reply;
-		}
+		// add client information JSON word
+		addClientInformation();
 		
-		// send client information
-		sendClientInformation();
+		// add debug information request JSON word (if debugMode)
+		addDebugInformation();
 		
-		// send debug information request (if debugMode)
-		sendDebugInformation();
-		
-		// send command
-		sendCommand(getJsonCommandString());
+		// add actual command
+		addCommand(getJsonCommandString());
 
-		// receive reply
-		reply = receiveReply();
+		// execute command
+		handleCommand();
 
-		// job is complete
+		// job is complete at this point and connections should be closed.
 		client.setCurrentJobId(null);
 		
 		// handle reply
-		processReply(reply);
+		processReply(completeReply);
 		
-		// close connection
-		closeConnection();
-		
-		return reply;
+		return completeReply;
 	}
 	
-	public void sendClientInformation() {
-		if (!isConnected) {
-			if (!connectToServer()) {
-				System.err.println("*** error: unable to connect to server " + rttMbtServer + "!");
-				return;
-			}
-		}
+	public void addClientInformation() {
 		// send client information
-		sendCommand("{\"client-information\":{\"user\":\"" + userName + "\",\"user-id\":\"" + userId + "\"}}");
+		addCommand("{\"client-information\":{\"user\":\"" + userName + "\",\"user-id\":\"" + userId + "\"}}");
 	}
 
-	public void sendDebugInformation() {
-		if (!isConnected) {
-			if (!connectToServer()) {
-				System.err.println("*** error: unable to connect to server " + rttMbtServer + "!");
-				return;
-			}
-		}
+	public void addDebugInformation() {
 		if (!debugMode) {
 			return;
 		}
@@ -140,90 +120,27 @@ public class jsonCommand {
 		String imr;
 		if (debugVerbose) { verbose = "true"; } else { verbose = "false"; }
 		if (debugIMR) { imr = "true"; } else { imr = "false"; }
-		sendCommand("{\"debug-information\":{\"verbose\":\"" + verbose + "\",\"imr-graph\":\"" + imr + "\"}}");
+		addCommand("{\"debug-information\":{\"verbose\":\"" + verbose + "\",\"imr-graph\":\"" + imr + "\"}}");
 	}
 
-	public Boolean connectToServer() {
-		try{
-			//1. creating a socket to connect to the server
-			SocketAddress sockaddr = new InetSocketAddress(rttMbtServer, rttMbtServerPort);
-			clientSocket = new Socket();
-			clientSocket.connect(sockaddr, 10000);
-		}
-		catch(UnknownHostException unknownHost){
-			System.err.println("*** error: unknown host " + rttMbtServer + "!");
-			isConnected = false;
-			return false;
-		}
-		catch(IOException ioException){
-			System.err.println("*** error: unable to connect to " + rttMbtServer + ", port " + rttMbtServerPort + "!");
-			isConnected = false;
-			return false;
-		}
-		finally{
-		}
-		isConnected = true;
-		return true;
+	public void addCommand(String command) {
+		completeCommand = completeCommand + command;
 	}
 
-	public void sendCommand(String command) {
-		if (!isConnected) {
-			return;
-		}
-		try{
-			commandStream = clientSocket.getOutputStream();
-			commandStream.flush();
-			commandStream.write(command.getBytes());
-			commandStream.flush();
-		}
-		catch(IOException ioException){
-			ioException.printStackTrace();
-			System.err.println("*** error: unable to send command!");
-			return;
-		}		
-		finally{
+	public void handleCommand() {
+		if (!isHttpClient) {
+			RttMbtSocketResponseHandler handler = new RttMbtSocketResponseHandler();
+			completeReply = handler.executeCommand(client, rttMbtServer, rttMbtServerPort,
+												   completeCommand, hasConsole, hasProgress);
+		} else {
+			completeReply = RttMbtHttpResponseHandler.executeCommand(client, rttMbtServer,
+					                                                 client.getHttpUsername(), client.getHttpPassword(),
+					                                                 completeCommand, hasConsole, hasProgress);
 		}
 		return;
 	}
-	
-	public Boolean hasJobAcknowledgeItem(String message) {
-		return (message.indexOf("\"job-acknowledge\"") != -1);
-	}
-	
-	public void scanForJobId(String msg) {
-		String message = new String(msg);
-		int start, end, first, last;
-		while (hasJobAcknowledgeItem(message)) {
-			start = message.indexOf("{ \"job-acknowledge\"");
-			end = message.indexOf('}', start);
-			if ((start == -1) || (end == -1)) {
-				return;
-			}
 
-			// extract item
-			String item = message.substring(start, end + 1);
-
-			// extract job identification from item
-			first = item.lastIndexOf(':') + 2;
-			last = item.length() - 2;
-			if ((first < 0) || (last > item.length())) return;
-			String jobIdString = item.substring(first, last);
-			if (client.getCurrentJobId() != null) {
-				hasJobId = true;
-			}
-			client.setCurrentJobId(jobIdString);
-			System.out.println("current job id: " + client.getCurrentJobId());
-
-			// scan again in the rest of the message
-			message = message.substring(end + 1);
-		}
-	}
-
-	public Boolean hasProgressItems(String message) {
-		return (message.indexOf("\"progress-item\"") != -1);
-	}
-	
-	public IRttMbtProgressBar.Tasks String2Task(String taskName) {
+	public static IRttMbtProgressBar.Tasks String2Task(String taskName) {
 		IRttMbtProgressBar.Tasks task = IRttMbtProgressBar.Tasks.Global;
 		
 		if (taskName.equals("Generate Test")) {
@@ -257,146 +174,23 @@ public class jsonCommand {
 		return task;
 	}
 	
-	public int scanForProgressItems(String msg) {
-		String message = new String(msg);
-		int percent = -1;
-		int start, end, first, last, firstDigit, lastDigit;
-
-		// prepare first loop
-		start = message.indexOf("{ \"progress-item\"");
-		end = message.indexOf('}', start);
-		while ((start != -1) && (end != -1) && (percent < 100)) {
-
-			// extract item
-			String item = message.substring(start, end + 1);
-
-			// extract percent from item
-			first = item.indexOf(':') + 3;
-			last = item.lastIndexOf(':');
-			firstDigit = item.lastIndexOf(':') + 2;
-			lastDigit = item.lastIndexOf('\"') ;
-			if ((firstDigit >= 3) && (lastDigit >= firstDigit) && (lastDigit <= firstDigit + 3)) {
-				String taskName = item.substring(first, last);
-				String number = item.substring(firstDigit, lastDigit);
-				percent = Integer.parseInt(number);
-				client.setProgress(String2Task(taskName), percent);
-			}
-
-			// scan again in the rest of the message
-			start = message.indexOf("{ \"progress-item\"", end + 1);
-			end = message.indexOf('}', start);
-		}
-		return percent;
-	}
-
-	public Boolean hasConsoleItems(String message) {
-		return (message.indexOf("\"console-item\"") != -1);
-	}
-
-	public void scanForConsoleItems(String msg) {
-		String message = new String(msg);
-		int start, end, first, last;
-
-		// prepare first loop
-		start = message.indexOf("{ \"console-item\"");
-		end = message.indexOf('}', start);
-		while ((start != -1) && (end != -1)) {
-
-			// extract item
-			String item = message.substring(start, end + 1);
-
-			// extract console message from item
-			first = item.lastIndexOf(':') + 3;
-			last = item.lastIndexOf('\"') ;
-			// - extract base64 encoded string
-			String base64content = item.substring(first, last);
-			// base64 decode encoded into content
-			String content = new String(Base64.decodeBase64(base64content));
-			// remove trailing newlines
-			while (content.endsWith("\n")) {
-				content = content.substring(0, content.length() -1);
-			}
-			// remove leading newlines
-			while (content.startsWith("\n")) {
-				content = content.substring(1);
-			}
-			if (content.length() > 0) {
-				client.addLogMessage(content);			
-			}
-			// scan again in the rest of the message
-			start = message.indexOf("{ \"console-item\"", end + 1);
-			end = message.indexOf('}', start);
-		}
-	}
-	
-	public String receiveReply() {
-		String message = "";
-		int progress = -1;
-		try{
-
-			// read file content into buffer
-			replyStream = clientSocket.getInputStream();
-			int max_chunk_size = 1024*1024;
-			int buffer_size = max_chunk_size;
-			byte buffer[] = new byte[buffer_size];
-			int offset = 0;
-			int bytes_read = 0;
-			while ((offset < buffer_size) && (bytes_read >= 0)) {
-				bytes_read = replyStream.read(buffer, offset, buffer_size - offset);
-				// only scan for progress and console items
-				// if they are expected for this command
-				if (hasProgress || hasConsole || (!hasJobId)) {
-					byte[] chunkBuffer = null;
-					String chunk = null;
-					if (bytes_read > 0) {
-						chunkBuffer = new byte[bytes_read];
-						System.arraycopy(buffer, offset, chunkBuffer, 0, bytes_read);
-						chunk = new String(chunkBuffer);
-						if (!hasJobId) {
-							scanForJobId(chunk);
-						}
-						if ((progress < 100) && (hasProgress)) {
-							progress = scanForProgressItems(chunk);
-						}
-						if ((hasConsole) &&
-							(client.getVerboseLogging()) &&
-							(hasConsoleItems(chunk))) {
-							scanForConsoleItems(chunk);
-						}
-					}
-				}
-				offset += bytes_read;
-				if (offset == buffer_size) {
-					// use new chunk
-					byte[] old = buffer;
-					buffer_size += max_chunk_size;
-					buffer = new byte[buffer_size];
-					System.arraycopy(old, 0, buffer, 0, buffer_size - max_chunk_size);
-				}
-			}
-
-			// restrict buffer length to the number of bytes actually read
-			if (offset < buffer_size) {
-				byte[] binary = new byte[offset + 1];
-				System.arraycopy(buffer, 0, binary, 0, offset + 1);
-				buffer = binary;
-			}
-
-			// copy buffer to string for return type
-			message = new String(buffer);
-		
-		}
-		catch(IOException ioException){
-			System.err.println("*** error: unable to receive reply!");
-			ioException.printStackTrace();
-			return message;
-		}		
-		finally{
-		}
-		return message;
-	}
-
 	public void processReply(String replyString) {
+
+		if (replyString == null) {
+			client.addErrorMessage("no reply received!");
+			return;
+		}
+
+		// for HTTP server URL, get rid of HTTP header
+		if (!replyString.startsWith("{")) {
+			int pos = replyString.indexOf('{');
+			if (pos == -1) {
+				client.addErrorMessage("unable to parse RTT-MBT server reply!");
+				System.err.println("*** error: unable to parse reply '" + replyString + "'!");
+				return;
+			}
+			replyString = replyString.substring(pos);
+		}
 
 		// generate list of JSON words:
 		List<String> jsonWords = new ArrayList<String>();
@@ -426,9 +220,14 @@ public class jsonCommand {
 			}
 			catch (ParseException e) {
 				if (jsonWords.get(idx).length() <= 1024) {
-					System.err.println("*** error: unable to parse reply '" + jsonWords.get(idx) + "'!");					
+					client.addErrorMessage("unable to parse RTT-MBT server reply '" + jsonWords.get(idx) + "'!");
+					System.err.println("*** error: unable to parse reply '" + jsonWords.get(idx) + "'!");
 				} else {
+					client.addErrorMessage("unable to parse RTT-MBT server reply '" + jsonWords.get(idx).substring(0, 1024) + "...'!");
 					System.err.println("*** error: unable to parse reply '" + jsonWords.get(idx).substring(0, 1024) + "...'" );
+				}
+				if (client.getVerboseLogging()) {
+					client.addLogMessage("Parser exception details:" + e.toString());
 				}
 				e.printStackTrace();
 			}
@@ -518,24 +317,6 @@ public class jsonCommand {
 		return errorMsgs;
 	}
 	
-	public void closeConnection() {
-		if (!isConnected) {
-			return;
-		}
-		//Closing connection
-		try{
-			if (commandStream != null) commandStream.close();
-			if (replyStream != null) replyStream.close();
-			clientSocket.close();
-		}
-		catch(IOException ioException){
-			ioException.printStackTrace();
-		}
-		finally{
-		}
-		return;
-	}
-
     public byte[] gzipByteArray(byte[] content) {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         try{
@@ -734,14 +515,12 @@ public class jsonCommand {
 
 		try{
 			// check if parent directory exists (and create it if not)
-			int pos = filename.lastIndexOf(File.separator);
-			if (pos > 0) { 
-				File dir = new File(filename.substring(0, pos));
-				if (!dir.exists()) {
-					if (!dir.mkdirs()) {
-						System.err.println("*** error: problem writing content to file " + filename + ": unable to create parent directory");
-						return false;
-					}
+			File target = new File(filename);
+			File dir = target.getParentFile();
+			if ((dir != null) && (!dir.exists())) {
+				if (!dir.mkdirs()) {
+					client.addErrorMessage("problem writing content to file " + filename + ": unable to create parent directory " + dir.getAbsolutePath());
+					return false;
 				}
 			}
 			File file = new File(filename);

@@ -5,7 +5,7 @@
   <parent>
     <groupId>eu.compassresearch.core.analysis</groupId>
     <artifactId>analysis</artifactId>
-    <version>0.2.7-SNAPSHOT</version>
+    <version>0.3.1-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -50,7 +50,7 @@
     </dependency>
 
     <!-- dependency>
-      <groupId>org.overture.core</groupId>
+      <groupId>org.overturetool.core</groupId>
       <artifactId>ast</artifactId>
       <version>${overture.version}</version>
     </dependency-->

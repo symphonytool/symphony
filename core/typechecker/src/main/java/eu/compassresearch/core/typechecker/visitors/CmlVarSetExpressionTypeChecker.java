@@ -58,7 +58,6 @@ public class CmlVarSetExpressionTypeChecker extends
 	private final ITypeIssueHandler issueHandler;// = VanillaFactory.newCollectingIssueHandle();
 	private final VarSetCheckType type;
 
-	@SuppressWarnings("deprecation")
 	public CmlVarSetExpressionTypeChecker(
 			IQuestionAnswer<TypeCheckInfo, PType> root,
 			ITypeIssueHandler issueHandler, VarSetCheckType type)
@@ -292,7 +291,6 @@ public class CmlVarSetExpressionTypeChecker extends
 
 	}
 
-	@SuppressWarnings("static-access")
 	public boolean validateChannelNameDefinition(TypeCheckInfo question,
 			ANameChannelExp chanName, PDefinition idDef)
 	{

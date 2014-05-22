@@ -103,29 +103,30 @@ public class MessageCommunicator
 
 			}
 
-			mapper = new ObjectMapper();
+			ObjectMapper m = new ObjectMapper();
 			MyModule module = new MyModule();
 			// module.addAbstractTypeMapping(org.overture.ast.intf.lex.ILexNameToken.class,DefaultCmlLexNameToken.class);
 			// module.a.addAbstractTypeMapping(org.overture.ast.node.NodeList.class, NodeListJsonWrapper.class);
 
-			mapper.enableDefaultTyping();
-			mapper.registerModule(module);
-			mapper.enableDefaultTyping();
-			mapper.configure(MapperFeature.AUTO_DETECT_GETTERS, false);
-			mapper.configure(MapperFeature.AUTO_DETECT_IS_GETTERS, false);
-			mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
-			mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-			mapper.configure(Feature.FLUSH_PASSED_TO_STREAM, false);
-			mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-			mapper.configure(Feature.AUTO_CLOSE_TARGET, false);
+			m.enableDefaultTyping();
+			m.registerModule(module);
+			m.enableDefaultTyping();
+			m.configure(MapperFeature.AUTO_DETECT_GETTERS, false);
+			m.configure(MapperFeature.AUTO_DETECT_IS_GETTERS, false);
+			m.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
+			m.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+			m.configure(Feature.FLUSH_PASSED_TO_STREAM, false);
+			m.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+			m.configure(Feature.AUTO_CLOSE_TARGET, false);
+			mapper = m;
 
 		}
 
 		return mapper;
 	}
 
-	public static void sendMessage(OutputStream outStream, AbstractMessage message)
-			throws IOException
+	public static void sendMessage(OutputStream outStream,
+			AbstractMessage message) throws IOException
 	{
 		MessageContainer messageContainer = new MessageContainer(message);
 		sendRawMessage(outStream, messageContainer);
@@ -136,9 +137,9 @@ public class MessageCommunicator
 	{
 		logger.debug("Sending..." + message);
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		mapperInstance().writeValue(out,new Object[]{ message});
-		logger.trace("Send RAW: "+out.toString());
-		mapperInstance().writeValue(outStream,new Object[]{ message});
+		mapperInstance().writeValue(out, new Object[] { message });
+		logger.trace("Send RAW: " + out.toString());
+		mapperInstance().writeValue(outStream, new Object[] { message });
 		outStream.write(System.lineSeparator().getBytes());
 		outStream.flush();
 	}
@@ -157,23 +158,24 @@ public class MessageCommunicator
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T> T receiveRawMessage(BufferedReader requestReader) throws IOException
+	public static <T> T receiveRawMessage(BufferedReader requestReader)
+			throws IOException
 	{
 		T message = null;
 		String strMessage = requestReader.readLine();
-		
-		logger.trace("Read RAW: "+strMessage);
+
+		logger.trace("Read RAW: " + strMessage);
 		if (strMessage != null)
 		{
 			try
 			{
 				Object[] data = mapperInstance().readValue(strMessage, Object[].class);
-				if(data!=null && data.length>0)
+				if (data != null && data.length > 0)
 				{
 					message = (T) data[0];
-					logger.debug("Read "+message);
+					logger.debug("Read " + message);
 				}
-				
+
 			} catch (Exception e)
 			{
 				e.printStackTrace();

@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Symphony IDE CML Core
 Bundle-SymbolicName: eu.compassresearch.ide.core;singleton:=true
-Bundle-Version: 0.2.7.qualifier
+Bundle-Version: 0.3.1.qualifier
 Bundle-Activator: eu.compassresearch.ide.core.CmlCorePlugin
 Bundle-Vendor: The COMPASS Project
 Bundle-Localization: plugin
@@ -21,7 +21,6 @@ Export-Package: eu.compassresearch.ast.actions,
  eu.compassresearch.ast.statements,
  eu.compassresearch.ast.typechecker,
  eu.compassresearch.ast.types,
- eu.compassresearch.core.common,
  eu.compassresearch.core.parser,
  eu.compassresearch.core.typechecker,
  eu.compassresearch.core.typechecker.api,
@@ -41,7 +40,6 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ClassPath: .,
  jars/antlr-runtime.jar,
  jars/ast.jar,
- jars/common.jar,
  jars/parser.jar,
  jars/typechecker.jar
 

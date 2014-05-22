@@ -13,10 +13,12 @@ import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.process.AActionProcess;
 import eu.compassresearch.ast.process.AAlphabetisedParallelismReplicatedProcess;
+import eu.compassresearch.ast.process.AExternalChoiceReplicatedProcess;
 import eu.compassresearch.ast.process.AGeneralisedParallelismProcess;
 import eu.compassresearch.ast.process.AHidingProcess;
 import eu.compassresearch.ast.process.AReferenceProcess;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAExternalChoiceReplicatedAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAGeneralisedParallelismParallelAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCPSingleDeclaration;
@@ -26,6 +28,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPVarsetExpression;
 import eu.compassresearch.core.analysis.modelchecker.ast.process.MCAActionProcess;
 import eu.compassresearch.core.analysis.modelchecker.ast.process.MCAAlphabetisedParallelismReplicatedProcess;
+import eu.compassresearch.core.analysis.modelchecker.ast.process.MCAExternalChoiceReplicatedProcess;
 import eu.compassresearch.core.analysis.modelchecker.ast.process.MCAGeneralisedParallelismProcess;
 import eu.compassresearch.core.analysis.modelchecker.ast.process.MCAHidingProcess;
 import eu.compassresearch.core.analysis.modelchecker.ast.process.MCAReferenceProcess;
@@ -129,6 +132,26 @@ public class NewMCProcessVisitor extends
 		
 		return result;
 	}
+
+	
+	@Override
+	public MCNode caseAExternalChoiceReplicatedProcess(
+			AExternalChoiceReplicatedProcess node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+
+		LinkedList<PSingleDeclaration> replicationDecls = node.getReplicationDeclaration();
+		LinkedList<MCPSingleDeclaration> replicationDeclarations = new LinkedList<MCPSingleDeclaration>();
+		for (PSingleDeclaration pSingleDecl : replicationDecls) {
+			replicationDeclarations.add((MCPSingleDeclaration) pSingleDecl.apply(rootVisitor, question));
+		}
+		MCPProcess replicatedProc = (MCPProcess) node.getReplicatedProcess().apply(rootVisitor, question);
+		MCAExternalChoiceReplicatedProcess result = 
+				new MCAExternalChoiceReplicatedProcess(replicationDeclarations, replicatedProc);
+		
+		return result;
+	}
+
+
 
 	@Override
 	public MCNode caseAReferenceProcess(AReferenceProcess node,
