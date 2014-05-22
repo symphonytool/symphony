@@ -141,12 +141,12 @@ public List<CmlParserError> getErrors() {
 
 private PAction stm2action(PStm stm)
 {
-	return new AStmAction((stm!=null?stm.getLocation():null),stm);
+    return new AStmAction((stm!=null?stm.getLocation():null),stm);
 }
 
 private PStm action2stm(PAction action)
 {
-	return new AActionStm((action!=null?action.getLocation():null),null,action);
+    return new AActionStm((action!=null?action.getLocation():null),null,action);
 }
 
 
@@ -519,11 +519,10 @@ processDefinition returns[AProcessDefinition def]
 
 process returns[PProcess proc]
 @after { $proc.setLocation(extractLexLocation($start, $stop)); }
-    : process0 processSuffix?
-        {
-            $proc = $process0.proc;
-            PProcess suffix = $processSuffix.suffix;
-            if (suffix != null) {
+    : process0                  { $proc = $process0.proc; }
+        ( processSuffix
+            {
+                PProcess suffix = $processSuffix.suffix;
                 if (suffix instanceof AStartDeadlineProcess)
                     ((AStartDeadlineProcess)suffix).setLeft($proc);
                 else if (suffix instanceof AEndDeadlineProcess)
@@ -533,7 +532,7 @@ process returns[PProcess proc]
                 suffix.setLocation(extractLexLocation($start,$processSuffix.stop));
                 $proc = suffix;
             }
-        }
+        )*
     | processReplicated
         {
             $proc = $processReplicated.proc;
@@ -985,11 +984,10 @@ actionList returns[List<PAction> actions]
     ;
 
 action returns[PAction action]
-    : action0 actionSuffix?
-        {
-            $action = $action0.action;
-            PAction suffix = $actionSuffix.suffix;
-            if (suffix != null) {
+    : action0                   { $action = $action0.action; }
+        ( actionSuffix
+            {
+                PAction suffix = $actionSuffix.suffix;
                 if (suffix instanceof AStartDeadlineAction)
                     ((AStartDeadlineAction)suffix).setLeft($action);
                 else if (suffix instanceof AEndDeadlineAction)
@@ -999,7 +997,7 @@ action returns[PAction action]
                 suffix.setLocation(extractLexLocation($start,$actionSuffix.stop));
                 $action = suffix;
             }
-        }
+        )*
     | actionReplicated  {$actionReplicated.action.setLocation(extractLexLocation($start,$actionReplicated.stop));$action = $actionReplicated.action; }
     ;
 
@@ -1286,8 +1284,8 @@ leadingIdAction returns[PAction action]
         {
             CmlLexNameToken name = new CmlLexNameToken("", $id.getText(), extractLexLocation($start));
             $action = new AReferenceAction(null, name, new ArrayList<PExp>());
-			//in case of a channel renaming action; then the location must be set here else only the outer action will have a location set
-			$action.setLocation(extractLexLocation($start,$id));
+            //in case of a channel renaming action; then the location must be set here else only the outer action will have a location set
+            $action.setLocation(extractLexLocation($start,$id));
         }
         ( renamingExpr
             // action call plus rename
@@ -2183,8 +2181,8 @@ functionDefinition returns[SFunctionDefinition def]
                 $def = $expl.tail;
                 if ( !$IDENTIFIER.getText().equals($def.getName().getName()) ) {
                     //fixes bug 172
-			         String msg = "Mismatch in function definition.  Signature has " + $IDENTIFIER.getText() + ", definition has " + $def.getName().getName();
-			         errors.add(new CmlParserError(msg, new RecognitionException(), sourceFileName, $IDENTIFIER));
+                     String msg = "Mismatch in function definition.  Signature has " + $IDENTIFIER.getText() + ", definition has " + $def.getName().getName();
+                     errors.add(new CmlParserError(msg, new RecognitionException(), sourceFileName, $IDENTIFIER));
 
                 }
             } else {
@@ -2439,17 +2437,17 @@ operationDef returns[SOperationDefinition def]
                 // FIXME --- check that the IDENTIFIERs match and
                 // throw a MismatchedTokenException (if that's the
                 // right exception)
-				if(!$id.getText().equals($secondId.getText()))
-				{
-					 //relates to bug 172
-			         String msg = "Mismatch in operation definition.  Signature has " + $id.getText() + ", definition has " + $secondId.getText();
-			         errors.add(new CmlParserError(msg, new RecognitionException(), sourceFileName, $secondId));
-				}
+                if(!$id.getText().equals($secondId.getText()))
+                {
+                     //relates to bug 172
+                     String msg = "Mismatch in operation definition.  Signature has " + $id.getText() + ", definition has " + $secondId.getText();
+                     errors.add(new CmlParserError(msg, new RecognitionException(), sourceFileName, $secondId));
+                }
 
                 AActionStm bodyWrapper = new AActionStm();
-				bodyWrapper.setAction($operationBody.body);
-				bodyWrapper.setLocation($operationBody.body.getLocation());
-               
+                bodyWrapper.setAction($operationBody.body);
+                bodyWrapper.setLocation($operationBody.body.getLocation());
+
                 AExplicitOperationDefinition opdef =
                     AstFactory.newAExplicitOperationDefinition(
                         new CmlLexNameToken("", $id.getText(), extractLexLocation($id)),
