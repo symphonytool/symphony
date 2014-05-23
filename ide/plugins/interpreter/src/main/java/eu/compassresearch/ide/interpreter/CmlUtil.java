@@ -25,6 +25,7 @@ import org.overture.ast.intf.lex.ILexLocation;
 
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ide.core.resources.ICmlModel;
+import eu.compassresearch.ide.interpreter.model.CmlDebugTarget;
 import eu.compassresearch.ide.ui.editor.core.CmlEditor;
 
 public final class CmlUtil
