@@ -1389,13 +1389,10 @@ leadingIdAction returns[PAction action]
                             // ok, so we can just pass on the work
                             // done in the first block.
 
-                        } else if ( selectors.size() == 0 ) { 
-                            // this is of the form x.y.... without () at the end; therefore error
-                            throw new StuckException(input, "This must be either a simple identifier or an operation call (ending with parentheses).");
-
-                        } else if ( ! ( selectors.get(selectors.size() - 1) instanceof AApplyExp) ) {
-                            // this is simply an error, as it ends with anything other than ()
-                            throw new StuckException(input, "This must be either a simple identifier or an operation call (ending with parentheses).(b)");
+                        } else if ( selectors.size() == 0
+                                    || ! ( selectors.get(selectors.size() - 1) instanceof AApplyExp) ) { 
+                            // this has a complex form (so cannot be a bare action reference), but has no () at the end; therefore error
+                            throw new StuckException(input, "This must be either a simple identifier for an action reference, or end with () for an operation call.");
 
                         } else if ( selectors.size() == 1 && ($ids == null || $ids.size() == 0) ) {
                             // this is a simple call of the form Op(...)
