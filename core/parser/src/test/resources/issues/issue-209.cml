@@ -1,0 +1,44 @@
+types
+  Meter :: device : Device
+
+class Device = begin
+operations
+  public op : () ==> ()
+  op() == Skip
+end
+
+process SmartGrid = begin
+state
+  meters : map nat to Meter := {|->}
+
+actions
+  OK_OBJ =
+    (dcl m : Meter @
+      m.device.op())
+
+  OK_MAP =
+    (dcl m_map : map nat to Meter @
+        (dcl dev : Device @
+            dev := m_map(1).device;
+            dev.op()))
+
+
+/*  FAIL_MAP = --comment this to make it fail
+    (dcl m_map : map nat to Meter @
+        meters(1).device.op())*/
+
+
+  OK_SEQ =
+    (dcl ms : seq of Meter @
+        (dcl m : Meter @
+            m := ms(1);
+            m.device.op()))
+
+/*
+  FAIL_SEQ =
+    (dcl ms : seq of Meter @
+        ms(1).device.op())
+*/
+
+@ Skip
+end

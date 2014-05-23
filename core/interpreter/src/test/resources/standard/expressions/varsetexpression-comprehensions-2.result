@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testResult>
+   <exception>ContextException</exception>
+  <interpreterState></interpreterState>
+  <trace>
+    <events></events>
+  </trace>
+
+</testResult>
