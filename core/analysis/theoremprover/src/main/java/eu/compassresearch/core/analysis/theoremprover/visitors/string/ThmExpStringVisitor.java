@@ -172,9 +172,9 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		return "(" + ex.getLeft().apply(thmStringVisitor, vars) + ThmExprUtil.notInSet +  ex.getRight().apply(thmStringVisitor, vars)+ ")";
 	}
 
-//	public String caseAPlusPlusBinaryExp(APlusPlusBinaryExp ex, ThmVarsContext vars) throws AnalysisException{
-//		return "(" + ex.getLeft().apply(thmStringVisitor, vars) + ThmExprUtil.plusPlus +  ex.getRight().apply(thmStringVisitor, vars)+ ")";
-//	}
+	public String caseAPlusPlusBinaryExp(APlusPlusBinaryExp ex, ThmVarsContext vars) throws AnalysisException{
+		return "(" + ex.getLeft().apply(thmStringVisitor, vars) + ThmExprUtil.plusPlus +  ex.getRight().apply(thmStringVisitor, vars)+ ")";
+	}
 
 	public String caseAProperSubsetBinaryExp(AProperSubsetBinaryExp ex, ThmVarsContext vars) throws AnalysisException{
 		return "(" + ex.getLeft().apply(thmStringVisitor, vars) + ThmExprUtil.properSubset  +  ex.getRight().apply(thmStringVisitor, vars)+ ")";
@@ -622,10 +622,10 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		return "<<''" + value + "''>>";
 	}
 
-//	public String caseASubseqExp(ASubseqExp ex, ThmVarsContext vars) throws AnalysisException{
-//		
-//		return ex.getSeq().apply(thmStringVisitor, vars) + "(" + ex.getFrom().apply(thmStringVisitor, vars) + ",...," + ex.getTo().apply(thmStringVisitor, vars) + ")";
-//	}
+	public String caseASubseqExp(ASubseqExp ex, ThmVarsContext vars) throws AnalysisException{
+		
+		return ex.getSeq().apply(thmStringVisitor, vars) + "(" + ex.getFrom().apply(thmStringVisitor, vars) + ",...," + ex.getTo().apply(thmStringVisitor, vars) + ")";
+	}
 
 	public String caseATupleExp(ATupleExp ex, ThmVarsContext vars) throws AnalysisException{
 		StringBuilder sb = new StringBuilder();
@@ -740,56 +740,56 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 
 
 
-//	public String caseAMapCompMapExp(AMapCompMapExp ex, ThmVarsContext vars) throws AnalysisException{
-//
-//		StringBuilder bindstr = new StringBuilder();
-//		
-//		LinkedList<PMultipleBind> binds = ex.getBindings();
-////		NodeNameList boundvars = new NodeNameList();
-////		boundvars.addAll(bvars);
-//		
-//		for(PMultipleBind b: binds)
-//		{
-//			if (b instanceof ATypeMultipleBind)
-//			{
-//				ATypeMultipleBind tmb = (ATypeMultipleBind) b;
-//				for (Iterator<PPattern> itr = tmb.getPlist().listIterator(); itr.hasNext(); ) {
-//					AIdentifierPattern p = (AIdentifierPattern) itr.next();
-//					
-//					bindstr.append(p.getName());
-//					vars.addBVar(p.getName());
-//					//If there are remaining patterns, add a ","
-//					if(itr.hasNext()){	
-//						bindstr.append(", ");
-//					}
-//				}
-//				bindstr.append(" : ");
-//				bindstr.append("@" + tmb.getType().toString()); //SHOULD USE VISITOR TO GET THIS?
-//			}
-//			else if (b instanceof ASetMultipleBind)
-//			{
-//				ASetMultipleBind smb = (ASetMultipleBind) b;
-//				for (Iterator<PPattern> itr = smb.getPlist().listIterator(); itr.hasNext(); ) {
-//					AIdentifierPattern p = (AIdentifierPattern) itr.next();
-//					
-//					bindstr.append(p.getName());
-//					vars.addBVar(p.getName());
-//					//If there are remaining patterns, add a ","
-//					if(itr.hasNext()){	
-//						bindstr.append(", ");
-//					}
-//				}
-//			//	sb.append(smb.getPlist().toString());
-//				bindstr.append(" in @set ");
-//				bindstr.append(smb.getSet().apply(thmStringVisitor, vars));
-//			}
-//		}
-//		String firstString =  ex.getFirst().apply(thmStringVisitor, vars);
-//		String predString =  ex.getPredicate().apply(thmStringVisitor, vars);
-//	//	String firstString = ThmExprUtil.getIsabelleExprStr(svars, boundvars, comp.getFirst()); 
-//	//	String predString = ThmExprUtil.getIsabelleExprStr(svars, boundvars, comp.getPredicate()); 
-//		return "{" + firstString + " | " + bindstr + " @ " + predString + "}";
-//	}
+	public String caseAMapCompMapExp(AMapCompMapExp ex, ThmVarsContext vars) throws AnalysisException{
+
+		StringBuilder bindstr = new StringBuilder();
+		
+		LinkedList<PMultipleBind> binds = ex.getBindings();
+//		NodeNameList boundvars = new NodeNameList();
+//		boundvars.addAll(bvars);
+		
+		for(PMultipleBind b: binds)
+		{
+			if (b instanceof ATypeMultipleBind)
+			{
+				ATypeMultipleBind tmb = (ATypeMultipleBind) b;
+				for (Iterator<PPattern> itr = tmb.getPlist().listIterator(); itr.hasNext(); ) {
+					AIdentifierPattern p = (AIdentifierPattern) itr.next();
+					
+					bindstr.append(p.getName());
+					vars.addBVar(p.getName());
+					//If there are remaining patterns, add a ","
+					if(itr.hasNext()){	
+						bindstr.append(", ");
+					}
+				}
+				bindstr.append(" : ");
+				bindstr.append("@" + tmb.getType().toString()); //SHOULD USE VISITOR TO GET THIS?
+			}
+			else if (b instanceof ASetMultipleBind)
+			{
+				ASetMultipleBind smb = (ASetMultipleBind) b;
+				for (Iterator<PPattern> itr = smb.getPlist().listIterator(); itr.hasNext(); ) {
+					AIdentifierPattern p = (AIdentifierPattern) itr.next();
+					
+					bindstr.append(p.getName());
+					vars.addBVar(p.getName());
+					//If there are remaining patterns, add a ","
+					if(itr.hasNext()){	
+						bindstr.append(", ");
+					}
+				}
+			//	sb.append(smb.getPlist().toString());
+				bindstr.append(" in @set ");
+				bindstr.append(smb.getSet().apply(thmStringVisitor, vars));
+			}
+		}
+		String firstString =  ex.getFirst().apply(thmStringVisitor, vars);
+		String predString =  ex.getPredicate().apply(thmStringVisitor, vars);
+	//	String firstString = ThmExprUtil.getIsabelleExprStr(svars, boundvars, comp.getFirst()); 
+	//	String predString = ThmExprUtil.getIsabelleExprStr(svars, boundvars, comp.getPredicate()); 
+		return "{" + firstString + " | " + bindstr + " @ " + predString + "}";
+	}
 
 	public String caseAMapEnumMapExp(AMapEnumMapExp ex, ThmVarsContext vars) throws AnalysisException{
 
@@ -823,7 +823,10 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		//bindstr.append(ThmExprUtil.getIsabelleExprStr(svars, bvars, bind.getSet()));
 
 		String firstString =  ex.getFirst().apply(thmStringVisitor, vars);
-		String predString =  ex.getPredicate().apply(thmStringVisitor, vars);
+		String predString = "true";
+		if (ex.getPredicate() != null) {
+			predString =  ex.getPredicate().apply(thmStringVisitor, vars);
+		}
 	//	String firstString = ThmExprUtil.getIsabelleExprStr(svars, boundvars, ex.getFirst()); 
 	//	String predString = ThmExprUtil.getIsabelleExprStr(svars, boundvars, ex.getPredicate()); 
 		return "{" + firstString + " | " + bindstr.toString() + " @ " + predString + "}";
@@ -846,52 +849,55 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		return "[" + sb.toString() +"]";
 	}
 
-//	public String caseASetCompSetExp(ASetCompSetExp ex, ThmVarsContext vars) throws AnalysisException{
-//		StringBuilder bindstr = new StringBuilder();
-//		
-//		LinkedList<PMultipleBind> binds = ex.getBindings();
-//		
-//		for(PMultipleBind b: binds)
-//		{
-//			if (b instanceof ATypeMultipleBind)
-//			{
-//				ATypeMultipleBind tmb = (ATypeMultipleBind) b;
-//				for (Iterator<PPattern> itr = tmb.getPlist().listIterator(); itr.hasNext(); ) {
-//					AIdentifierPattern p = (AIdentifierPattern) itr.next();
-//					
-//					bindstr.append(p.getName());
-//					vars.addBVar(p.getName());
-//					//If there are remaining patterns, add a ","
-//					if(itr.hasNext()){	
-//						bindstr.append(", ");
-//					}
-//				}
-//				bindstr.append(" : ");
-//				bindstr.append("@" + tmb.getType().toString()); //SHOULD USE TYPE VISITOR?
-//			}
-//			else if (b instanceof ASetMultipleBind)
-//			{
-//				ASetMultipleBind smb = (ASetMultipleBind) b;
-//				for (Iterator<PPattern> itr = smb.getPlist().listIterator(); itr.hasNext(); ) {
-//					AIdentifierPattern p = (AIdentifierPattern) itr.next();
-//					
-//					bindstr.append(p.getName());
-//					vars.addBVar(p.getName());
-//					//If there are remaining patterns, add a ","
-//					if(itr.hasNext()){	
-//						bindstr.append(", ");
-//					}
-//				}
-//				bindstr.append(" in @set ");
-//				bindstr.append(smb.getSet().apply(thmStringVisitor, vars));
-//			}
-//		}
-//		
-//		String firstString =  ex.getFirst().apply(thmStringVisitor, vars);
-//		String predString =  ex.getPredicate().apply(thmStringVisitor, vars);
-//
-//		return "{" + firstString + " | " + bindstr.toString() + " @ " + predString + "}";
-//	}
+	public String caseASetCompSetExp(ASetCompSetExp ex, ThmVarsContext vars) throws AnalysisException{
+		StringBuilder bindstr = new StringBuilder();
+		
+		LinkedList<PMultipleBind> binds = ex.getBindings();
+		
+		for(PMultipleBind b: binds)
+		{
+			if (b instanceof ATypeMultipleBind)
+			{
+				ATypeMultipleBind tmb = (ATypeMultipleBind) b;
+				for (Iterator<PPattern> itr = tmb.getPlist().listIterator(); itr.hasNext(); ) {
+					AIdentifierPattern p = (AIdentifierPattern) itr.next();
+					
+					bindstr.append(p.getName());
+					vars.addBVar(p.getName());
+					//If there are remaining patterns, add a ","
+					if(itr.hasNext()){	
+						bindstr.append(", ");
+					}
+				}
+				bindstr.append(" : ");
+				bindstr.append("@" + tmb.getType().toString()); //SHOULD USE TYPE VISITOR?
+			}
+			else if (b instanceof ASetMultipleBind)
+			{
+				ASetMultipleBind smb = (ASetMultipleBind) b;
+				for (Iterator<PPattern> itr = smb.getPlist().listIterator(); itr.hasNext(); ) {
+					AIdentifierPattern p = (AIdentifierPattern) itr.next();
+					
+					bindstr.append(p.getName());
+					vars.addBVar(p.getName());
+					//If there are remaining patterns, add a ","
+					if(itr.hasNext()){	
+						bindstr.append(", ");
+					}
+				}
+				bindstr.append(" in @set ");
+				bindstr.append(smb.getSet().apply(thmStringVisitor, vars));
+			}
+		}
+		
+		String firstString =  ex.getFirst().apply(thmStringVisitor, vars);
+		String predString =  "true";
+	    if (ex.getPredicate() != null) {
+	    	predString = ex.getPredicate().apply(thmStringVisitor, vars);
+	    }
+
+		return "{" + firstString + " | " + bindstr.toString() + " @ " + predString + "}";
+	}
 
 	public String caseASetEnumSetExp(ASetEnumSetExp ex, ThmVarsContext vars) throws AnalysisException{
 		StringBuilder sb = new StringBuilder();
@@ -909,12 +915,12 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		return "{" + sb.toString() +"}";
 	}
 
-//	public String caseASetRangeSetExp(ASetRangeSetExp ex, ThmVarsContext vars) throws AnalysisException{
-//		String first = ex.getFirst().apply(thmStringVisitor, vars);
-//		String last = ex.getLast().apply(thmStringVisitor, vars);
-//		
-//		return "{" + first + ", ..., " + last + "}";
-//	}
+	public String caseASetRangeSetExp(ASetRangeSetExp ex, ThmVarsContext vars) throws AnalysisException{
+		String first = ex.getFirst().apply(thmStringVisitor, vars);
+		String last = ex.getLast().apply(thmStringVisitor, vars);
+		
+		return "{" + first + ", ..., " + last + "}";
+	}
 
 	public String caseADivideNumericBinaryExp(ADivideNumericBinaryExp ex, ThmVarsContext vars) throws AnalysisException{
 		return "(" +ex.getLeft().apply(thmStringVisitor, vars) + " / " + ex.getRight().apply(thmStringVisitor, vars)+ ")";
