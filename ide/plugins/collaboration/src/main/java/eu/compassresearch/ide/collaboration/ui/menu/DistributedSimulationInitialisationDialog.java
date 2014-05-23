@@ -6,11 +6,21 @@ import java.util.List;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
+import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.jface.viewers.ArrayContentProvider;
+import org.eclipse.jface.viewers.ComboViewer;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -28,6 +38,7 @@ public class DistributedSimulationInitialisationDialog extends TitleAreaDialog
 	private List<String> processes;
 	private List<String> collaborators;
 	private DistributedSimulationManager distributedSimulationManager;
+	private Composite containerMain;
 
 	public DistributedSimulationInitialisationDialog(List<String> processes,
 			List<String> collaborators,
@@ -59,53 +70,61 @@ public class DistributedSimulationInitialisationDialog extends TitleAreaDialog
 	protected Control createDialogArea(Composite parent)
 	{
 		Composite area = (Composite) super.createDialogArea(parent);
-
-		createTitle(area);
+		
+		Composite topProcessComposite = new Composite(area, SWT.NULL);
+		topProcessComposite.setLayout(new RowLayout());
+		
+		Label lblTitleExternalProcess = new Label(topProcessComposite, SWT.FILL);
+		lblTitleExternalProcess.setText("Select Coordinating process");
+		
+		final ComboViewer viewer = new ComboViewer(topProcessComposite, SWT.READ_ONLY);
+		viewer.setContentProvider(ArrayContentProvider.getInstance());
+		viewer.setInput(processes);
+		viewer.addSelectionChangedListener(new ISelectionChangedListener()
+		{
+			@Override
+			public void selectionChanged(SelectionChangedEvent event)
+			{
+				 IStructuredSelection selection = (IStructuredSelection) event.getSelection();
+			}
+		});
+		
+		Composite radioComposite = new Composite(area, SWT.NULL);
+	    radioComposite.setLayout(new RowLayout());
+	    
+		btnSimulate = new Button (radioComposite, SWT.RADIO);
+		btnSimulate.setText ("Simulate");
+		btnSimulate.setSelection(true);
+		
+		Button btnAnimate = new Button (radioComposite, SWT.RADIO);
+		btnAnimate.setText ("Animate");
+		
+		final Composite listComposite = new Composite(area, SWT.NONE);
+		listComposite.setLayout(GridLayoutFactory.fillDefaults().create());
+		
+		createTitle(listComposite);
+		
+		final ScrolledComposite sc = new ScrolledComposite(listComposite, SWT.BORDER | SWT.V_SCROLL);
+		sc.setLayoutData(GridDataFactory.fillDefaults().grab(true, true).hint(600, 400).create());
+		sc.setExpandHorizontal(true);
+		sc.setExpandVertical(true);
+		
+		containerMain = new Composite(sc, SWT.FILL);
+		containerMain.setLayout(GridLayoutFactory.swtDefaults().numColumns(1).create());
 
 		for (String p : processes)
 		{
-			createLine(p, collaborators, area);
-		}
+			createLine(p, collaborators, containerMain);
+		}		
+		sc.setContent(containerMain);
+		sc.setMinSize(containerMain.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 
 		return area;
 	}
-
-	@Override
-	protected void createButtonsForButtonBar(Composite parent)
+	
+	protected void selectTopProcess()
 	{
-		createButton(parent, IDialogConstants.CANCEL_ID, "Cancel", false);
-		btnRequestSimulation = createButton(parent, IDialogConstants.PROCEED_ID, "Request Simulation", true);
-		btnRequestSimulation.setEnabled(false);
-		btnRequestSimulation.addSelectionListener(new SelectionAdapter()
-		{
-			@Override
-			public void widgetSelected(SelectionEvent e)
-			{
-				requestSimulation();
-			}
-		});
-
-		btnSimulate = createButton(parent, IDialogConstants.OK_ID, "Start Simulatation", true);
-		btnSimulate.setEnabled(false);
-	}
-
-	protected void requestSimulation()
-	{
-		for (DistributedSimulationEntry entry : simulationEntries)
-		{
-			if (entry.hasSelection())
-			{
-				DistributedSimulationConfiguration distConfig = new DistributedSimulationConfiguration(entry.getProcess(), entry.getSelectedCollaborator());
-
-				distributedSimulationManager.addConfiguration(distConfig, entry);
-			}
-			entry.disableSelection();
-		}
-
-		btnRequestSimulation.setEnabled(false);
-		btnRequestSimulation.setText("Request sent ..");
-
-		distributedSimulationManager.requestSimulationFromCollaborators();
+		
 	}
 
 	private void createTitle(Composite area)
@@ -131,9 +150,9 @@ public class DistributedSimulationInitialisationDialog extends TitleAreaDialog
 	}
 
 	private void createLine(String process, List<String> collaboratorList,
-			Composite area)
+			Composite parent)
 	{
-		DistributedSimulationEntry distributedSimulationEntry = new DistributedSimulationEntry(process, collaboratorList, area, SWT.NONE);
+		DistributedSimulationEntry distributedSimulationEntry = new DistributedSimulationEntry(process, collaboratorList, parent, SWT.NONE);
 		simulationEntries.add(distributedSimulationEntry);
 
 		distributedSimulationEntry.addSelectionChangedListener(new SelectionAdapter()
@@ -144,6 +163,25 @@ public class DistributedSimulationInitialisationDialog extends TitleAreaDialog
 				entriesSelectionChanged();
 			}
 		});
+	}
+
+	@Override
+	protected void createButtonsForButtonBar(Composite parent)
+	{
+		createButton(parent, IDialogConstants.CANCEL_ID, "Cancel", false);
+		btnRequestSimulation = createButton(parent, IDialogConstants.PROCEED_ID, "Request Simulation", true);
+		btnRequestSimulation.setEnabled(false);
+		btnRequestSimulation.addSelectionListener(new SelectionAdapter()
+		{
+			@Override
+			public void widgetSelected(SelectionEvent e)
+			{
+				requestSimulation();
+			}
+		});
+
+		btnSimulate = createButton(parent, IDialogConstants.OK_ID, "Start Simulatation", true);
+		btnSimulate.setEnabled(false);
 	}
 
 	protected void entriesSelectionChanged()
@@ -167,10 +205,41 @@ public class DistributedSimulationInitialisationDialog extends TitleAreaDialog
 			btnRequestSimulation.setEnabled(false);
 		}
 	}
-
+	
 	public void readyForSimulation()
 	{
 		btnRequestSimulation.setText("Simulation Ready");
 		btnSimulate.setEnabled(true);
+	}
+	
+	protected void requestSimulation()
+	{
+		for (DistributedSimulationEntry entry : simulationEntries)
+		{
+			if (entry.hasSelection())
+			{
+				DistributedSimulationConfiguration distConfig = new DistributedSimulationConfiguration(entry.getProcess(), entry.getSelectedCollaborator());
+
+				distributedSimulationManager.addConfiguration(distConfig, entry);
+			}
+			entry.disableSelection();
+			
+			if(btnSimulate.getSelection()) {
+				distributedSimulationManager.setLaunchMode(false);
+			} else {
+				distributedSimulationManager.setLaunchMode(true);
+			}
+		}
+
+		btnRequestSimulation.setEnabled(false);
+		btnRequestSimulation.setText("Request sent ..");
+
+		distributedSimulationManager.requestSimulationFromCollaborators();
+	}
+
+	@Override
+	protected Point getInitialSize()
+	{
+		return new Point(700, 600);
 	}
 }

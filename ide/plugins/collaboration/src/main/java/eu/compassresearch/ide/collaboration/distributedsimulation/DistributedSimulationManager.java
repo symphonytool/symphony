@@ -37,6 +37,7 @@ import eu.compassresearch.ide.core.resources.ICmlProject;
 import eu.compassresearch.ide.interpreter.CmlUtil;
 import eu.compassresearch.ide.interpreter.ICmlDebugConstants;
 
+
 public class DistributedSimulationManager
 {
 	private Map<String, List<DistributedSimulationConfiguration>> configurations;
@@ -45,12 +46,15 @@ public class DistributedSimulationManager
 	String host;
 	private CollaborationProject projectForcurrentSession;
 	private DistributedSimulationInitialisationDialog distSimDlg;
+	private boolean do_animation;
 
 	public DistributedSimulationManager(ConnectionManager connectionManager)
 	{
 		this.connectionManager = connectionManager;
 		configurations = new HashMap<String, List<DistributedSimulationConfiguration>>();
 		listeners = new HashMap<String, List<IDistributedSimulationListener>>();
+		
+		do_animation = false;
 	}
 
 	public void addConfiguration(
@@ -105,7 +109,6 @@ public class DistributedSimulationManager
 		{
 			return;
 		}
-
 		ICmlProject cmlProj = (ICmlProject) iProject.getAdapter(ICmlProject.class);
 		ICmlModel model = cmlProj.getModel();
 		List<String> processes = CmlUtil.getGlobalProcessesFromSourceAsString(model);
@@ -116,11 +119,27 @@ public class DistributedSimulationManager
 			return;
 		}
 
-		if (collaborators.isEmpty())
-		{
-			CollaborationDialogs.getInstance().displayNotificationPopup("Distributed Simulation", Notification.Dist_Simulation_ERROR_NO_COLLABORATORS);
-			return;
-		}
+//		if (collaborators.isEmpty())
+//		{
+//			CollaborationDialogs.getInstance().displayNotificationPopup("Distributed Simulation", Notification.Dist_Simulation_ERROR_NO_COLLABORATORS);
+//			return;
+//		}
+		
+		processes.add("t");
+		processes.add("t");
+		processes.add("t");
+		processes.add("t");
+		processes.add("t");
+		processes.add("t");
+		processes.add("t");
+		processes.add("t");
+		processes.add("t");
+		processes.add("t");
+		processes.add("t");
+		processes.add("t");
+		processes.add("t");
+		processes.add("t");
+		processes.add("t");
 
 		try
 		{
@@ -218,7 +237,7 @@ public class DistributedSimulationManager
 			lcwc.setAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_PROJECT, eclipseProject.getName());
 
 			// launch mode
-			lcwc.setAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_IS_ANIMATION, true);
+			lcwc.setAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_IS_ANIMATION, do_animation);
 			// is coordinator
 			lcwc.setAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_COSIM_IS_COORDINATOR, true);
 
@@ -410,5 +429,10 @@ public class DistributedSimulationManager
 		configurations.clear();
 		distSimDlg = null;
 		host = "";
+	}
+
+	public void setLaunchMode(boolean animation)
+	{
+		do_animation = animation;
 	}
 }

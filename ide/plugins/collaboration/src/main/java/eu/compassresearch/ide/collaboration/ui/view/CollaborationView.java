@@ -63,7 +63,6 @@ import eu.compassresearch.ide.collaboration.files.FileComparison;
 import eu.compassresearch.ide.collaboration.notifications.Notification;
 import eu.compassresearch.ide.collaboration.ui.menu.AddCollaboratorRosterMenuContributionItem;
 import eu.compassresearch.ide.collaboration.ui.menu.CollaborationDialogs;
-import eu.compassresearch.ide.interpreter.ICmlDebugConstants;
 
 /**
  * @see ViewPart
