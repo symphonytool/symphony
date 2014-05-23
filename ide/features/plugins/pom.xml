@@ -22,5 +22,6 @@
     <module>rtt-mbt</module>
     <module>modelchecker</module>
     <module>faulttolerance</module>
+    <module>collaboration</module>
   </modules>
 </project>
