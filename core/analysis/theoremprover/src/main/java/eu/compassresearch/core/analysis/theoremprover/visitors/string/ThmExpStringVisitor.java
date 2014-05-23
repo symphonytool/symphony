@@ -276,9 +276,9 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		return "("+ ThmExprUtil.powerSet + "(" + ex.getExp().apply(thmStringVisitor, vars)+ "))";
 	}
 
-//	public String caseAReverseUnaryExp(AReverseUnaryExp ex, ThmVarsContext vars) throws AnalysisException{
-//		return "("+ ThmExprUtil.reverse + "(" + ex.getExp().apply(thmStringVisitor, vars)+ "))";
-//	}
+	public String caseAReverseUnaryExp(AReverseUnaryExp ex, ThmVarsContext vars) throws AnalysisException{
+		return "("+ ThmExprUtil.reverse + "(" + ex.getExp().apply(thmStringVisitor, vars)+ "))";
+	}
 
 	public String caseATailUnaryExp(ATailUnaryExp ex, ThmVarsContext vars) throws AnalysisException{
 		return "("+ ThmExprUtil.tail + "(" + ex.getExp().apply(thmStringVisitor, vars)+ "))";
@@ -809,25 +809,25 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		
 	}
 	
-//	public String caseASeqCompSeqExp(ASeqCompSeqExp ex, ThmVarsContext vars) throws AnalysisException{
-//		StringBuilder bindstr = new StringBuilder();
-//		
-//		ASetBind bind = ex.getSetBind();
-//	//	NodeNameList boundvars = new NodeNameList();
-//	//	boundvars.addAll(bvars);
-//		
-//		bindstr.append(bind.getPattern().toString());
-//		vars.addBVar(((AIdentifierPattern) bind.getPattern()).getName());
-//		bindstr.append(" in @set ");
-//		bindstr.append(bind.getSet().apply(thmStringVisitor, vars));
-//		//bindstr.append(ThmExprUtil.getIsabelleExprStr(svars, bvars, bind.getSet()));
-//
-//		String firstString =  ex.getFirst().apply(thmStringVisitor, vars);
-//		String predString =  ex.getPredicate().apply(thmStringVisitor, vars);
-//	//	String firstString = ThmExprUtil.getIsabelleExprStr(svars, boundvars, ex.getFirst()); 
-//	//	String predString = ThmExprUtil.getIsabelleExprStr(svars, boundvars, ex.getPredicate()); 
-//		return "{" + firstString + " | " + bindstr.toString() + " @ " + predString + "}";
-//	}
+	public String caseASeqCompSeqExp(ASeqCompSeqExp ex, ThmVarsContext vars) throws AnalysisException{
+		StringBuilder bindstr = new StringBuilder();
+		
+		ASetBind bind = ex.getSetBind();
+	//	NodeNameList boundvars = new NodeNameList();
+	//	boundvars.addAll(bvars);
+		
+		bindstr.append(bind.getPattern().toString());
+		vars.addBVar(((AIdentifierPattern) bind.getPattern()).getName());
+		bindstr.append(" in @set ");
+		bindstr.append(bind.getSet().apply(thmStringVisitor, vars));
+		//bindstr.append(ThmExprUtil.getIsabelleExprStr(svars, bvars, bind.getSet()));
+
+		String firstString =  ex.getFirst().apply(thmStringVisitor, vars);
+		String predString =  ex.getPredicate().apply(thmStringVisitor, vars);
+	//	String firstString = ThmExprUtil.getIsabelleExprStr(svars, boundvars, ex.getFirst()); 
+	//	String predString = ThmExprUtil.getIsabelleExprStr(svars, boundvars, ex.getPredicate()); 
+		return "{" + firstString + " | " + bindstr.toString() + " @ " + predString + "}";
+	}
 
 	public String caseASeqEnumSeqExp(ASeqEnumSeqExp ex, ThmVarsContext vars) throws AnalysisException{
 		

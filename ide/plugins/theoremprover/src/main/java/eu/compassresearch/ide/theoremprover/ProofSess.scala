@@ -109,7 +109,9 @@ class ProofSess(val poEDM: EditDocumentModel, val proj: ICmlProject, val pol: IP
           poPending match {
             case (pt :: pts) => {
               val node = sess.snapshot(poEDM.name).node
-              val cmd = node.command_at(pt.byPos).map(_._1)
+              val rng = node.command_range(pt.byPos)
+              val cm = if (rng.hasNext) Some(rng.next) else None
+              val cmd = cm.map(_._1)
               cmd match {
                 case Some(c) => { poMap += (c -> pt); poPending = pts }
                 case None => {}
