@@ -449,7 +449,7 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 	private Iterable<Value> getIterator(Value val, Context question)
 			throws ValueException
 	{
-		if (val instanceof SetValue)
+		if (val.deref() instanceof SetValue)
 		{
 			return val.setValue(question);
 		} else

@@ -329,7 +329,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 								nextContext = CmlContextFactory.newContext(node.getAction().getLocation(), "input communication context", question);
 							}
 
-							nextContext.putList(PPatternAssistantInterpreter.getNamedValues(pattern, value, nextContext));
+							nextContext.putList(question.assistantFactory.createPPatternAssistant().getNamedValues(pattern, value, nextContext));
 						}
 					}
 				}

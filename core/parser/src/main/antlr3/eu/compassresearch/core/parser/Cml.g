@@ -141,12 +141,12 @@ public List<CmlParserError> getErrors() {
 
 private PAction stm2action(PStm stm)
 {
-	return new AStmAction((stm!=null?stm.getLocation():null),stm);
+    return new AStmAction((stm!=null?stm.getLocation():null),stm);
 }
 
 private PStm action2stm(PAction action)
 {
-	return new AActionStm((action!=null?action.getLocation():null),null,action);
+    return new AActionStm((action!=null?action.getLocation():null),null,action);
 }
 
 
@@ -289,7 +289,7 @@ private ILexLocation extractLexLocation(CommonToken start, CommonToken end) {
     int spos = start.getCharPositionInLine();
     int epos = end.getCharPositionInLine() + end.getText().length();
     int soffset = start.getStartIndex();
-    int eoffset = end.getStopIndex();
+    int eoffset = end.getStartIndex() + end.getText().length();
     return new LexLocation(this.sourceFileName,
                            "",
                            sline, spos,
@@ -519,11 +519,10 @@ processDefinition returns[AProcessDefinition def]
 
 process returns[PProcess proc]
 @after { $proc.setLocation(extractLexLocation($start, $stop)); }
-    : process0 processSuffix?
-        {
-            $proc = $process0.proc;
-            PProcess suffix = $processSuffix.suffix;
-            if (suffix != null) {
+    : process0                  { $proc = $process0.proc; }
+        ( processSuffix
+            {
+                PProcess suffix = $processSuffix.suffix;
                 if (suffix instanceof AStartDeadlineProcess)
                     ((AStartDeadlineProcess)suffix).setLeft($proc);
                 else if (suffix instanceof AEndDeadlineProcess)
@@ -533,7 +532,7 @@ process returns[PProcess proc]
                 suffix.setLocation(extractLexLocation($start,$processSuffix.stop));
                 $proc = suffix;
             }
-        }
+        )*
     | processReplicated
         {
             $proc = $processReplicated.proc;
@@ -884,25 +883,47 @@ renamePairList returns[List<ARenamePair> pairs]
     ;
 
 renamePair returns[ARenamePair pair]
-    : fid=IDENTIFIER ( '.' fexp=expression )? '<-' tid=IDENTIFIER ( '.' texp=expression )?
+@init { List<PExp> texprs = new ArrayList<PExp>(); List<PExp> fexprs = new ArrayList<PExp>(); }
+    : tid=IDENTIFIER ( '.'
+            ( teid=IDENTIFIER
+                {
+                    ILexLocation loc = extractLexLocation($teid);
+                    ILexNameToken lexname = new CmlLexNameToken("", $teid.getText(), loc, false, false);
+                    texprs.add(new AVariableExp(loc, lexname, lexname.getName()));
+                }
+            | '(' teexp=expression ')'    { texprs.add($teexp.exp); }
+            | tesle=symbolicLiteralExpr   { texprs.add($tesle.exp); }
+            | terte=recordTupleExprs      { texprs.add($terte.exp); }
+            )
+        )*
+        '<-'
+        fid=IDENTIFIER ( '.'
+            ( tEid=IDENTIFIER
+                {
+                    ILexLocation loc = extractLexLocation($tEid);
+                    ILexNameToken lexname = new CmlLexNameToken("", $tEid.getText(), loc, false, false);
+                    fexprs.add(new AVariableExp(loc, lexname, lexname.getName()));
+                }
+            | '(' feexp=expression ')'    { fexprs.add($feexp.exp); }
+            | fesle=symbolicLiteralExpr   { fexprs.add($fesle.exp); }
+            | ferte=recordTupleExprs      { fexprs.add($ferte.exp); }
+            )
+        )*
         {
             // FIXME --- We really ought take #Channel out of the exp tree in the AST
             ILexLocation floc = extractLexLocation($fid);
-            List<PExp> fexprs = new ArrayList<PExp>();
-            if ($fexp.exp != null)
-                fexprs.add($fexp.exp);
             ANameChannelExp fromExp = new ANameChannelExp(floc, new CmlLexNameToken("", $fid.getText(), floc), fexprs);
-            if ($fexp.exp != null)
-                fromExp.setLocation(extractLexLocation($fid,$fexp.stop));
+            if (fexprs.size() > 0) {
+                fromExp.setLocation(extractLexLocation(floc,fexprs.get(fexprs.size() - 1).getLocation()));
+            }
 
             ILexLocation tloc = extractLexLocation($tid);
-            List<PExp> texprs = new ArrayList<PExp>();
-            if ($texp.exp != null)
-                texprs.add($texp.exp);
             ANameChannelExp toExp = new ANameChannelExp(tloc, new CmlLexNameToken("", $tid.getText(), tloc), texprs);
-            if ($texp.exp != null)
-                toExp.setLocation(extractLexLocation($tid,$texp.stop));
+            if (texprs.size() > 0) {
+                toExp.setLocation(extractLexLocation(tloc,texprs.get(texprs.size() - 1).getLocation()));
+            }
 
+            // ARenamePairs don't have locations as such; perhaps they should? -jwc/22May2014
             $pair = new ARenamePair(false, fromExp, toExp);
         }
     ;
@@ -963,11 +984,10 @@ actionList returns[List<PAction> actions]
     ;
 
 action returns[PAction action]
-    : action0 actionSuffix?
-        {
-            $action = $action0.action;
-            PAction suffix = $actionSuffix.suffix;
-            if (suffix != null) {
+    : action0                   { $action = $action0.action; }
+        ( actionSuffix
+            {
+                PAction suffix = $actionSuffix.suffix;
                 if (suffix instanceof AStartDeadlineAction)
                     ((AStartDeadlineAction)suffix).setLeft($action);
                 else if (suffix instanceof AEndDeadlineAction)
@@ -977,7 +997,7 @@ action returns[PAction action]
                 suffix.setLocation(extractLexLocation($start,$actionSuffix.stop));
                 $action = suffix;
             }
-        }
+        )*
     | actionReplicated  {$actionReplicated.action.setLocation(extractLexLocation($start,$actionReplicated.stop));$action = $actionReplicated.action; }
     ;
 
@@ -1264,8 +1284,8 @@ leadingIdAction returns[PAction action]
         {
             CmlLexNameToken name = new CmlLexNameToken("", $id.getText(), extractLexLocation($start));
             $action = new AReferenceAction(null, name, new ArrayList<PExp>());
-			//in case of a channel renaming action; then the location must be set here else only the outer action will have a location set
-			$action.setLocation(extractLexLocation($start,$id));
+            //in case of a channel renaming action; then the location must be set here else only the outer action will have a location set
+            $action.setLocation(extractLexLocation($start,$id));
         }
         ( renamingExpr
             // action call plus rename
@@ -1321,7 +1341,7 @@ leadingIdAction returns[PAction action]
                                 // an Exception.  This should be
                                 // factored out, above, to look for an
                                 // explicit (exprList) directly.
-                                throw new RecognitionException(input);
+                                throw new StuckException(input,"If this is a raw operation call, the wrong selector, the best that can be done right now is to throw  an Exception. This should be factored out, above, to look for an  explicit (exprList) directly.");
                             }
 
                             List<LexIdentifierToken> idList = new ArrayList<LexIdentifierToken>();
@@ -1370,10 +1390,12 @@ leadingIdAction returns[PAction action]
 
                                 $action = stm2action(AstFactory.newACallObjectStm(designator,name.getIdentifier(),apply.getArgs()));
                             }
-                        }else
+                        } else
                         {
                             //  This is from having something like 'x.a' as a statement on its own --- this cannot be a AReferenceAction as actions cannot be referenced with dots, and it cannot be a operation call as it is missing () at the end (the selectorOptList was empty) --- so this is a Parse Error -jwc/29Oct2013
-                            //FIXME throw new RecognitionException(input);
+                            if ($ids != null && $ids.size() > 0) {
+                                throw new StuckException(input, "This must be either a simple identifier or an operation call that ends with ().");
+                            }
                         }
                     }
                 | ':='
@@ -1898,17 +1920,13 @@ varsetNameList returns[List<ANameChannelExp> names]
     ;
 
 varsetName returns[ANameChannelExp name]
-@init {
-    ILexLocation loc;
-    CmlLexNameToken lex;
-    List<PExp> exprs = new ArrayList<PExp>();
-}
+@init { List<PExp> exprs = new ArrayList<PExp>(); }
 @after { $name.setLocation(extractLexLocation($start,$stop)); }
     : base=IDENTIFIER
         ( '.'
             ( id=IDENTIFIER
                 {
-                    loc = extractLexLocation($id);
+                    ILexLocation loc = extractLexLocation($id);
                     ILexNameToken lexname = new CmlLexNameToken("", $id.getText(), loc, false, false);
                     exprs.add(new AVariableExp(loc, lexname, lexname.getName()));
                 }
@@ -1918,7 +1936,7 @@ varsetName returns[ANameChannelExp name]
             )
         )*
         {
-            loc = extractLexLocation($base);
+            ILexLocation loc = extractLexLocation($base);
             LexIdentifierToken lexid = new LexIdentifierToken($base.getText(), false, loc);
             $name = new ANameChannelExp();
             $name.setIdentifier(lexid);
@@ -2165,8 +2183,8 @@ functionDefinition returns[SFunctionDefinition def]
                 $def = $expl.tail;
                 if ( !$IDENTIFIER.getText().equals($def.getName().getName()) ) {
                     //fixes bug 172
-			         String msg = "Mismatch in function definition.  Signature has " + $IDENTIFIER.getText() + ", definition has " + $def.getName().getName();
-			         errors.add(new CmlParserError(msg, new RecognitionException(), sourceFileName, $IDENTIFIER));
+                     String msg = "Mismatch in function definition.  Signature has " + $IDENTIFIER.getText() + ", definition has " + $def.getName().getName();
+                     errors.add(new CmlParserError(msg, new RecognitionException(), sourceFileName, $IDENTIFIER));
 
                 }
             } else {
@@ -2421,17 +2439,17 @@ operationDef returns[SOperationDefinition def]
                 // FIXME --- check that the IDENTIFIERs match and
                 // throw a MismatchedTokenException (if that's the
                 // right exception)
-				if(!$id.getText().equals($secondId.getText()))
-				{
-					 //relates to bug 172
-			         String msg = "Mismatch in operation definition.  Signature has " + $id.getText() + ", definition has " + $secondId.getText();
-			         errors.add(new CmlParserError(msg, new RecognitionException(), sourceFileName, $secondId));
-				}
+                if(!$id.getText().equals($secondId.getText()))
+                {
+                     //relates to bug 172
+                     String msg = "Mismatch in operation definition.  Signature has " + $id.getText() + ", definition has " + $secondId.getText();
+                     errors.add(new CmlParserError(msg, new RecognitionException(), sourceFileName, $secondId));
+                }
 
                 AActionStm bodyWrapper = new AActionStm();
-				bodyWrapper.setAction($operationBody.body);
-				bodyWrapper.setLocation($operationBody.body.getLocation());
-               
+                bodyWrapper.setAction($operationBody.body);
+                bodyWrapper.setLocation($operationBody.body.getLocation());
+
                 AExplicitOperationDefinition opdef =
                     AstFactory.newAExplicitOperationDefinition(
                         new CmlLexNameToken("", $id.getText(), extractLexLocation($id)),

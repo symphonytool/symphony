@@ -83,7 +83,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 			{
 				tmpEvalContext = CmlContextFactory.newContext(node.getLocation(), "case alternative", question);
 				// this thows an exception if the pattern does not match
-				tmpEvalContext.putList(PPatternAssistantInterpreter.getNamedValues(c.getPattern(), val, question));
+				tmpEvalContext.putList(question.assistantFactory.createPPatternAssistant().getNamedValues(c.getPattern(), val, question));
 				// if we get here we found the case
 				dstTmpNode = c.getResult();
 				break;
@@ -572,7 +572,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 			{
 				try
 				{
-					question.putList(PPatternAssistantInterpreter.getNamedValues(node.getPattern(), x, question));
+					question.putList(question.assistantFactory.createPPatternAssistant().getNamedValues(node.getPattern(), x, question));
 				} catch (PatternMatchException e)
 				{
 					// Ignore mismatches
@@ -632,7 +632,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 			{
 				try
 				{
-					question.putList(PPatternAssistantInterpreter.getNamedValues(node.getPatternBind().getPattern(), x, question));
+					question.putList(question.assistantFactory.createPPatternAssistant().getNamedValues(node.getPatternBind().getPattern(), x, question));
 				} catch (PatternMatchException e)
 				{
 					// Ignore mismatches

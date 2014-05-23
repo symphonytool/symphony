@@ -189,8 +189,7 @@ public class InterpretAllCmlFilesTest
 		}
 		Pattern trace = testResult.getExpectedEventTracePattern();
 		Matcher matcher = trace.matcher(eventTrace);
-		assertTrue(testResult.getExpectedEventTracePattern() + " != "
-				+ eventTrace, matcher.matches());
+		assertTrue("The actual trace: '" + eventTrace+"' does not match expected: '"+testResult.getExpectedEventTracePattern()+"'" , matcher.matches());
 
 		// TimedTrace
 		if (testResult.hasTimedTrace())

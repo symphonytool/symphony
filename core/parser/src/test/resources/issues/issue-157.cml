@@ -1,0 +1,8 @@
+channels 
+  a b
+
+process A = begin 
+  @ (a -> b -> Skip) \\ {|b|} \\ {|a|}
+end
+
+process B = A \\ {|b|} \\ {|a|}
