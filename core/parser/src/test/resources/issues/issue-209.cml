@@ -23,9 +23,9 @@ actions
             dev.op()))
 
 
-/*  FAIL_MAP = --comment this to make it fail
+  DEEP_MAP =
     (dcl m_map : map nat to Meter @
-        meters(1).device.op())*/
+        meters(1).device.op())
 
 
   OK_SEQ =
@@ -34,11 +34,9 @@ actions
             m := ms(1);
             m.device.op()))
 
-/*
-  FAIL_SEQ =
+  DEEP_SEQ =
     (dcl ms : seq of Meter @
         ms(1).device.op())
-*/
 
 @ Skip
 end
