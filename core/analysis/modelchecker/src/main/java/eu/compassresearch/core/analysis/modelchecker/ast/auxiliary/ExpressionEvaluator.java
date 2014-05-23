@@ -59,7 +59,7 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 	}
 	
 	
-	private MCPCMLType getTypeFor(MCPCMLExp exp){
+	public MCPCMLType getTypeFor(MCPCMLExp exp){
 		MCPCMLType result = null;
 		if(exp instanceof MCAIntLiteralExp){
 			result = this.getTypeFor((MCAIntLiteralExp)exp);
@@ -71,6 +71,8 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 			result = this.getTypeFor((MCASetEnumSetExp)exp);
 		}  else if(exp instanceof MCABooleanConstExp){
 			result = this.getTypeFor((MCABooleanConstExp)exp);
+		} else if(exp instanceof MCAInSetBinaryExp){
+			result = this.getTypeFor((MCAInSetBinaryExp)exp);
 		}
 		
 		return result;
@@ -416,6 +418,13 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 		MCPCMLType result = null;
 		
 		result = new MCABooleanBasicType(exp.isValue());
+		
+		return result;
+	}
+	private MCPCMLType getTypeFor(MCAInSetBinaryExp exp){
+		MCPCMLType result = null;
+		
+		result = new MCASetType(null);
 		
 		return result;
 	}

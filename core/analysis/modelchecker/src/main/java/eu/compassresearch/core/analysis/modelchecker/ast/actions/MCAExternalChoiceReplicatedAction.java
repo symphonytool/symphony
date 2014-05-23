@@ -2,6 +2,7 @@ package eu.compassresearch.core.analysis.modelchecker.ast.actions;
 
 import java.util.LinkedList;
 
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ExpressionEvaluator;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.NameValue;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.SingleTypeValue;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.TypeManipulator;
@@ -73,13 +74,32 @@ public class MCAExternalChoiceReplicatedAction extends MCSReplicatedActionBase {
 	private StringBuilder buildReplicatedAction(NewCMLModelcheckerContext context,
 			LinkedList<MCPCMLExp> indexes,String option) {
 
-		 
+		MCPSingleDeclaration sDecl = this.getReplicationDeclaration().getFirst();
+		String identifier = null;
+		MCPCMLType identifierType = null;
+		ExpressionEvaluator expressionHandler = ExpressionEvaluator.getInstance();
+		
+		if (sDecl instanceof MCAExpressionSingleDeclaration) {
+			identifier = ((MCAExpressionSingleDeclaration)sDecl).getIdentifier();
+			identifierType = expressionHandler.getTypeFor(((MCAExpressionSingleDeclaration)sDecl).getExpression());
+		} else if (sDecl instanceof MCATypeSingleDeclaration){
+			identifier = ((MCATypeSingleDeclaration)sDecl).getIdentifier();
+			identifierType = ((MCATypeSingleDeclaration)sDecl).getType();
+		}
+	
 		StringBuilder result = new StringBuilder();
 		MCPAction replicatedAction = this.getReplicatedAction();
+		NameValue mapping = new NameValue(identifier,null,identifierType);
+		
 		if(indexes.size() == 1){
+			
+			
 			LinkedList<MCPCMLExp> realArgs = new LinkedList<MCPCMLExp>();
 			MCPCMLExp firstArg = indexes.removeFirst();
 			realArgs.add(firstArg);
+			mapping.setVariableValue(firstArg.toFormula(option));
+			context.localIndexedVariablesMapping.push(mapping);
+			
 			if(replicatedAction instanceof MCAReferenceAction){
 				((MCAReferenceAction) replicatedAction).setArgs(realArgs);
 			} else if (replicatedAction instanceof MCACommunicationAction){
@@ -87,8 +107,11 @@ public class MCAExternalChoiceReplicatedAction extends MCSReplicatedActionBase {
 				
 			}
 			result.append(this.getReplicatedAction().toFormula(option));
+			context.localIndexedVariablesMapping.pop();
 		}else if (indexes.size() > 1) {
 			MCPCMLExp firstArg = indexes.removeFirst();
+			mapping.setVariableValue(firstArg.toFormula(option));
+			context.localIndexedVariablesMapping.push(mapping);
 			result.append("eChoice(");
 			
 			
@@ -106,6 +129,7 @@ public class MCAExternalChoiceReplicatedAction extends MCSReplicatedActionBase {
 			}
 			result.append(replicatedAction.toFormula(option));
 			result.append(",");
+			context.localIndexedVariablesMapping.pop();
 			
 			StringBuilder rest = buildReplicatedAction(context,indexes,option);
 			result.append(rest.toString());

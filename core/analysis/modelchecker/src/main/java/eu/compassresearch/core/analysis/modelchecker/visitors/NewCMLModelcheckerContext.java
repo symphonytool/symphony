@@ -64,6 +64,7 @@ public class NewCMLModelcheckerContext {
 	public ArrayList<ActionChannelDependency> channelDependencies;
 	public ArrayListSet<MCPVarsetExpression> globalChanSets;
 	public ArrayListSet<NameValue> localVariablesMapping;
+	public Stack<NameValue> localIndexedVariablesMapping;
 	public ArrayList<MCASBinaryExp> setExpressioFacts;
 	public LinkedList<MCAChansetDefinition> chansetDefs;
 	public int maxClock;
@@ -240,6 +241,7 @@ public class NewCMLModelcheckerContext {
 		globalChanSets = new ArrayListSet<MCPVarsetExpression>();
 		realLieInFacts = new ArrayListSet<MCLieInFact>();
 		localVariablesMapping = new ArrayListSet<NameValue>();
+		localIndexedVariablesMapping = new Stack<NameValue>();
 		setExpressioFacts = new ArrayList<MCASBinaryExp>(); 
 		chansetDefs = new LinkedList<MCAChansetDefinition>();
 		directNameMapping = new HashMap<String,String>();
