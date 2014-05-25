@@ -108,6 +108,7 @@ public class MCAExternalChoiceReplicatedAction extends MCSReplicatedActionBase {
 			}
 			result.append(this.getReplicatedAction().toFormula(option));
 			context.localIndexedVariablesMapping.pop();
+			context.localIndexedVariablesDiscarded.add(identifier);
 		}else if (indexes.size() > 1) {
 			MCPCMLExp firstArg = indexes.removeFirst();
 			mapping.setVariableValue(firstArg.toFormula(option));

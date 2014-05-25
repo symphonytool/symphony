@@ -65,6 +65,7 @@ public class NewCMLModelcheckerContext {
 	public ArrayListSet<MCPVarsetExpression> globalChanSets;
 	public ArrayListSet<NameValue> localVariablesMapping;
 	public Stack<NameValue> localIndexedVariablesMapping;
+	public ArrayListSet<String> localIndexedVariablesDiscarded;
 	public ArrayList<MCASBinaryExp> setExpressioFacts;
 	public LinkedList<MCAChansetDefinition> chansetDefs;
 	public int maxClock;
@@ -220,6 +221,21 @@ public class NewCMLModelcheckerContext {
 		return result;
 	}
 	
+	public NameValue getNameValueInIndexedVariables(String variableName){
+		NameValue result = null;
+		Stack<NameValue> copy = new Stack<NameValue>();
+		copy.addAll(localIndexedVariablesMapping);
+		while(!copy.isEmpty()){
+			NameValue item = copy.pop();
+			if(item.getVariableName().equals(variableName)){
+				result = item;
+				break;
+			}
+		}
+		
+		return result;
+	}
+	
 	
 	public NewCMLModelcheckerContext() {
 		setStack = new NewSetStack<MCPVarsetExpression>();
@@ -242,6 +258,7 @@ public class NewCMLModelcheckerContext {
 		realLieInFacts = new ArrayListSet<MCLieInFact>();
 		localVariablesMapping = new ArrayListSet<NameValue>();
 		localIndexedVariablesMapping = new Stack<NameValue>();
+		localIndexedVariablesDiscarded = new ArrayListSet<String>();
 		setExpressioFacts = new ArrayList<MCASBinaryExp>(); 
 		chansetDefs = new LinkedList<MCAChansetDefinition>();
 		directNameMapping = new HashMap<String,String>();

@@ -9,7 +9,8 @@ channels
 process Simple = 
 begin
 actions
-  loop = ([]i in set {1} @  (a.i -> loop [] [i = 1] & Skip)) //must skip since if can only choose the number 1 from the set
+  -- loop = ([]i in set {1} @  (a.i -> loop [] [i = 1] & Skip)) //must skip since if can only choose the number 1 from the set
+  loop = []i in set {1,2} @  (a.i -> loop [] Skip) //must skip since if can only choose the number 1 from the set
 @ loop /_\ c -> Skip
 
 end
