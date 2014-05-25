@@ -358,7 +358,7 @@ public class NewMCVisitor extends
 		//String cml_file = "src/test/resources/Dphils.cml";
 		//String cml_file = "src/test/resources/BeoAVDeviceDiscovery-final-version-model-checker.cml";
 		//String cml_file = "src/test/resources/beo-spec.cml";
-		String cml_file = "src/test/resources/simpleStop.cml";
+		String cml_file = "src/test/resources/BEO_StreamingSoS_MC.cml";
 		//String cml_file = "src/test/resources/cmlfile5.cml";
 		//String cml_file = "src/test/resources/simpler-insielImpl-final-modelchecker.cml";
 		//String cml_file = "src/test/resources/action-prefix-skip.cml";
@@ -379,7 +379,7 @@ public class NewMCVisitor extends
 		//String mainProcessName = "Test_TurnOnProduct";
 		//String mainProcessName = "RegisterProc";
 		//String mainProcessName = "N_LAZY_Q";
-		String mainProcessName = "Simple";
+		String mainProcessName = "StreamingPlayerCSProcess";
 		//String mainProcessName = "ad_Initiate_Rescue_Activation___Fault_1";
 		//String mainProcessName = "Test4";
 		//String mainProcessName = "ERUs";

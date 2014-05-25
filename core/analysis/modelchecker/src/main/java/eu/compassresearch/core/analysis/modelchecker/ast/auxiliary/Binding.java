@@ -12,4 +12,5 @@ public interface Binding {
 	public StringBuilder generateAllFetchFacts(int number);
 	public StringBuilder generateAllUpdFacts(int number);
 	public StringBuilder generateAllDelFacts(int number);
+	public boolean containsVariable(String name);
 }
