@@ -51,6 +51,19 @@
       <url>http://overture.au.dk/maven/mirror-external-m2repo/</url>
       <layout>default</layout>
     </repository>
+    <repository>
+      <id>overture-m2</id>
+      <url>http://overture.au.dk/maven/symphony-overture-development/</url>
+      <layout>default</layout>
+      <releases>
+        <enabled>true</enabled>
+        <updatePolicy>always</updatePolicy>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+        <updatePolicy>always</updatePolicy>
+      </snapshots>
+    </repository>
   </repositories>
 
   <build>
