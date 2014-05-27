@@ -76,6 +76,9 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
 	private Integer BacktrackingProperty;
 	private Integer LoggerProperty;
 	private Integer MaxModelCoverageProperty;
+	private Integer VerbosityLevel;
+	private RttMbtAdvConfParser advancedConf = new RttMbtAdvConfParser();
+	private RttMbtMaxStepsParser maxSteps = new RttMbtMaxStepsParser();
 
 	public RttMbtProjectPropertiesPage() {
 		super(GRID);
@@ -144,24 +147,15 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
 	 * into property variables
 	 */
 	private void readTgenConfig() {
-		RttMbtAdvConfParser advancedConf = new RttMbtAdvConfParser();
-		RttMbtMaxStepsParser maxSteps = new RttMbtMaxStepsParser();
 		advancedConf.readAdvancedConfig(path + File.separator + "conf" + File.separator + "advanced.conf");
 		maxSteps.readMaxSteps(path + File.separator + "conf" + File.separator + "max_steps.txt");
-		MaxSolverStepsProperty = maxSteps.getMaxSolverSteps();
-		MaxSimStepsProperty = maxSteps.getMaxSimulationSteps();
+		// read properties without editors
 		GoalCoverageProperty = advancedConf.getGC() ? 1 : 0;
 		BacktrackingProperty = advancedConf.getBT() ? 1 : 0;
 		LoggerProperty = advancedConf.getLO() ? 1 : 0;
-		AbstractInterpreterProperty = advancedConf.getAI() ? 1 : 0;
 		MaxModelCoverageProperty = advancedConf.getMM() ? 1 : 0;
 		SanityChecksProperty = advancedConf.getSC() ? 1 : 0;
-		RobustnessTestingProperty = advancedConf.getRB() ? 1 : 0;
-		RobustnessPercentageProperty = advancedConf.getRP();
-		MaxSimultaneousInputChangesProperty = advancedConf.getCI();
-		MinDurationBetweenInputChangesProperty = advancedConf.getDI();
-		MaxDurationBetweenInputChangesProperty = advancedConf.getLI();
-		ModelCheckingProperty = advancedConf.getMC() ? 1 : 0;
+		VerbosityLevel = advancedConf.getVL();
 	}
 
 	/**
@@ -196,6 +190,7 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
 			bWriter.write("DI;" + Integer.toString(MinDurationBetweenInputChangesProperty) + ";minimal duration between two input changes\n");
 			bWriter.write("LI;" + Integer.toString(MaxDurationBetweenInputChangesProperty) + ";upper limit for duration between two input changes\n");
 			bWriter.write("MC;" + Integer.toString(ModelCheckingProperty) + ";Perform model checking instead of test generation, if 1\n");
+			bWriter.write("VL;" + Integer.toString(VerbosityLevel) + ";Defines the verbosity level for the output (Range 0..4)\n");
 			bWriter.close();
 		} catch (IOException e) {
 			client.addErrorMessage("problem writing test procedure generation context properties!");
@@ -315,6 +310,7 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
     				"Max. Solver Steps:",
     				getFieldEditorParent());
     		MaxSolverStepsField.setPreferenceStore(null);
+    		MaxSolverStepsProperty = maxSteps.getMaxSolverSteps();
     		MaxSolverStepsField.setStringValue(MaxSolverStepsProperty.toString());
     		MaxSolverStepsField.getLabelControl(getFieldEditorParent()).setToolTipText(tooltip);
     		MaxSolverStepsField.getTextControl(getFieldEditorParent()).setToolTipText(tooltip);
@@ -340,6 +336,7 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
     				"Max. Simulator Steps:",
     				getFieldEditorParent());
     		MaxSimStepsField.setPreferenceStore(null);
+    		MaxSimStepsProperty = maxSteps.getMaxSimulationSteps();
     		MaxSimStepsField.setStringValue(MaxSimStepsProperty.toString());
     		MaxSimStepsField.getLabelControl(getFieldEditorParent()).setToolTipText(tooltip);
     		MaxSimStepsField.getTextControl(getFieldEditorParent()).setToolTipText(tooltip);
@@ -363,6 +360,7 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
     				"Max. Number of simultaneous Input Changes:",
     				getFieldEditorParent());
     		MaxSimultaneousInputChangesField.setPreferenceStore(null);
+    		MaxSimultaneousInputChangesProperty = advancedConf.getCI();
     		MaxSimultaneousInputChangesField.setStringValue(MaxSimultaneousInputChangesProperty.toString());
     		MaxSimultaneousInputChangesField.getLabelControl(getFieldEditorParent()).setToolTipText(tooltip);
     		MaxSimultaneousInputChangesField.getTextControl(getFieldEditorParent()).setToolTipText(tooltip);
@@ -381,6 +379,7 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
     				"Min. Duration between Input Changes:",
     				getFieldEditorParent());
     		MinDurationBetweenInputChangesField.setPreferenceStore(null);
+    		MinDurationBetweenInputChangesProperty = advancedConf.getDI();
     		MinDurationBetweenInputChangesField.setStringValue(MinDurationBetweenInputChangesProperty.toString());
     		MinDurationBetweenInputChangesField.getLabelControl(getFieldEditorParent()).setToolTipText(tooltip);
     		MinDurationBetweenInputChangesField.getTextControl(getFieldEditorParent()).setToolTipText(tooltip);
@@ -398,9 +397,10 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
     				"Otherwise it would be possible to define configuration in which " +
     				"the checker will never find problems in the SUT outputs.";
     		MaxDurationBetweenInputChangesField = new IntegerFieldEditor("RttMbtMaxDurationBetweenInputChanges",
-    				"Min. Duration between Input Changes::",
+    				"Max. Duration between Input Changes::",
     				getFieldEditorParent());
     		MaxDurationBetweenInputChangesField.setPreferenceStore(null);
+    		MaxDurationBetweenInputChangesProperty = advancedConf.getLI();
     		MaxDurationBetweenInputChangesField.setStringValue(MaxDurationBetweenInputChangesProperty.toString());
     		MaxDurationBetweenInputChangesField.getLabelControl(getFieldEditorParent()).setToolTipText(tooltip);
     		MaxDurationBetweenInputChangesField.getTextControl(getFieldEditorParent()).setToolTipText(tooltip);
@@ -412,6 +412,7 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
     				"Use Abstract Interpreter:",
     				getFieldEditorParent());
     		AbstractInterpreterField.setPreferenceStore(null);
+    		AbstractInterpreterProperty = advancedConf.getAI() ? 1 : 0;
     		AbstractInterpreterField.setStringValue(AbstractInterpreterProperty.toString());
     		AbstractInterpreterField.getLabelControl(getFieldEditorParent()).setToolTipText(tooltip);
     		AbstractInterpreterField.getTextControl(getFieldEditorParent()).setToolTipText(tooltip);
@@ -431,6 +432,7 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
     				"Robustness Testing:",
     				getFieldEditorParent());
     		RobustnessTestingField.setPreferenceStore(null);
+    		RobustnessTestingProperty = advancedConf.getRB() ? 1 : 0;
     		RobustnessTestingField.setStringValue(RobustnessTestingProperty.toString());
     		RobustnessTestingField.getLabelControl(getFieldEditorParent()).setToolTipText(tooltip);
     		RobustnessTestingField.getTextControl(getFieldEditorParent()).setToolTipText(tooltip);
@@ -450,6 +452,7 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
     				"Robustess Percentage:",
     				getFieldEditorParent());
     		RobustnessPercentageField.setPreferenceStore(null);
+    		RobustnessPercentageProperty = advancedConf.getRP();
     		RobustnessPercentageField.setStringValue(RobustnessPercentageProperty.toString());
     		RobustnessPercentageField.getLabelControl(getFieldEditorParent()).setToolTipText(tooltip);
     		RobustnessPercentageField.getTextControl(getFieldEditorParent()).setToolTipText(tooltip);
@@ -461,6 +464,7 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
     				"Model Checking:",
     				getFieldEditorParent());
     		ModelCheckingField.setPreferenceStore(null);
+    		ModelCheckingProperty = advancedConf.getMC() ? 1 : 0;
     		ModelCheckingField.setStringValue(ModelCheckingProperty.toString());
     		ModelCheckingField.getLabelControl(getFieldEditorParent()).setToolTipText(tooltip);
     		ModelCheckingField.getTextControl(getFieldEditorParent()).setToolTipText(tooltip);
@@ -505,7 +509,34 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
 			// file ignore pattern for upload/download
 			setPropertyValue("RttMbtFileIgnorePattern", ignorePatternUploadField.getStringValue());
 
-	    	if ((path != null) && (RttMbtClient.isRttMbtTestProcedure(path))) {
+			// max solver steps
+			setPropertyValue("RttMbtMaxSolverSteps", MaxSolverStepsField.getStringValue());
+
+			// max simulation steps
+			setPropertyValue("RttMbtMaxSimSteps", MaxSimStepsField.getStringValue());
+
+			// abstract interpreter
+			setPropertyValue("RttMbtAbstractInterpreter", AbstractInterpreterField.getStringValue());
+
+			// robustness testing
+			setPropertyValue("RttMbtRobustnessTesting", RobustnessTestingField.getStringValue());
+
+			// robustness percentage
+			setPropertyValue("RttMbtRobustnessPercentage", RobustnessPercentageField.getStringValue());
+
+			// max. simultanious inputs
+			setPropertyValue("RttMbtMaxSimultaneousInputChanges", MaxSimultaneousInputChangesField.getStringValue());
+
+			// min. duration between input changes
+			setPropertyValue("RttMbtMinDurationBetweenInputChanges", MinDurationBetweenInputChangesField.getStringValue());
+
+			// max. duration between input changes
+			setPropertyValue("RttMbtMaxDurationBetweenInputChanges", MaxDurationBetweenInputChangesField.getStringValue());
+
+			// model checking
+			setPropertyValue("RttMbtModelChecking", ModelCheckingField.getStringValue());
+
+			if ((path != null) && (RttMbtClient.isRttMbtTestProcedure(path))) {
 	    		// copy from Integer field string values to property variables
 	    		MaxSolverStepsProperty = Integer.parseInt(MaxSolverStepsField.getStringValue());
 	    		MaxSimStepsProperty = Integer.parseInt(MaxSimStepsField.getStringValue());

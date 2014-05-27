@@ -3,6 +3,8 @@ RTTPLUGIN_0.3.1
 
 Changes:
 
+- adjusted solver properties section in project properties.
+- fixed download of templates during project creation and model import.
 - added test procedure generation context properties to RT-Tester properties.
 - added user manual and help content
 - added papyrus client mode that enables direct syntax/livelock check of model.uml files.
