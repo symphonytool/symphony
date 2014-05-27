@@ -22,23 +22,20 @@ public class SimulationRequestMessageHandler extends BaseMessageHandler<Simulati
 	@Override
 	public void process(final SimulationRequestMessage msg)
 	{
-		final ConnectionManager connectionManager = Activator.getDefault().getConnectionManager();
-		final String collabProjectId = msg.getProjectID();
-		final ID currentUser = connectionManager.getConnectedUser();
 		final CollaborationDataModelManager modelMgm = Activator.getDefault().getDataModelManager();
-		final String process = msg.getProcess();
-		final String host = msg.getHost();
 		
 		Display.getDefault().asyncExec(new Runnable()
 		{
 			public void run()
 			{
+				String collabProjectId = msg.getProjectID();
 				CollaborationProject collaborationProject = modelMgm.getCollaborationProjectFromID(collabProjectId);
 				
 				String sender = msg.getSenderID().getName();
-				
+				String remoteHost = msg.getHost();
+				String process = msg.getProcess();
 				DistributedSimulationManager distributedSimulationManager = Activator.getDefault().getDistributedSimulationManager();
-				distributedSimulationManager.newSimulationRequest(sender, collaborationProject, process);
+				distributedSimulationManager.newSimulationRequest(sender, collaborationProject, process, remoteHost);
 			}
 		});
 		

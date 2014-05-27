@@ -57,7 +57,7 @@ public class AddCollaboratorRosterMenuContributionItem extends
 			//if only one connected account, create simpler menu
 			for (IContributionItem item : contributions)
 			{
-				//loose seperators
+				//loose separators
 				if(item instanceof MenuManager)
 				{
 					MenuManager menuConnectedAccounts = (MenuManager) item;

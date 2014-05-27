@@ -37,16 +37,18 @@ import eu.compassresearch.ide.core.resources.ICmlProject;
 import eu.compassresearch.ide.interpreter.CmlUtil;
 import eu.compassresearch.ide.interpreter.ICmlDebugConstants;
 
-
 public class DistributedSimulationManager
 {
+	//collaborator to external process mapping
 	private Map<String, List<DistributedSimulationConfiguration>> configurations;
+	//to update GUI
 	private Map<String, List<IDistributedSimulationListener>> listeners;
 	private ConnectionManager connectionManager;
-	String host;
-	private CollaborationProject projectForcurrentSession;
+	private CollaborationProject projectForCurrentSession;
 	private DistributedSimulationInitialisationDialog distSimDlg;
 	private boolean do_animation;
+	private String serverHostAddress;
+	private String selectedTopProcess;
 
 	public DistributedSimulationManager(ConnectionManager connectionManager)
 	{
@@ -57,6 +59,7 @@ public class DistributedSimulationManager
 		do_animation = false;
 	}
 
+	//Server Side 
 	public void addConfiguration(
 			DistributedSimulationConfiguration distributedConfiguration,
 			IDistributedSimulationListener notify)
@@ -73,22 +76,12 @@ public class DistributedSimulationManager
 		addListener(collaborator, notify);
 	}
 
-	public void addListener(String collaborator,
-			IDistributedSimulationListener notify)
-	{
-		if (!listeners.containsKey(collaborator))
-		{
-
-			listeners.put(collaborator, new ArrayList<IDistributedSimulationListener>());
-		}
-		listeners.get(collaborator).add(notify);
-	}
-
+	//Server Side
 	public void initiateCollaborationOnProject(CollaborationProject project)
 	{
 		newSimulationSession();
 
-		projectForcurrentSession = project;
+		projectForCurrentSession = project;
 		String projectWorkspaceName = project.getProjectWorkspaceName();
 		List<User> joinedCollaborators = project.getCollaboratorGroup().getJoinedCollaborators();
 
@@ -119,73 +112,29 @@ public class DistributedSimulationManager
 			return;
 		}
 
-//		if (collaborators.isEmpty())
-//		{
-//			CollaborationDialogs.getInstance().displayNotificationPopup("Distributed Simulation", Notification.Dist_Simulation_ERROR_NO_COLLABORATORS);
-//			return;
-//		}
-		
-		processes.add("t");
-		processes.add("t");
-		processes.add("t");
-		processes.add("t");
-		processes.add("t");
-		processes.add("t");
-		processes.add("t");
-		processes.add("t");
-		processes.add("t");
-		processes.add("t");
-		processes.add("t");
-		processes.add("t");
-		processes.add("t");
-		processes.add("t");
-		processes.add("t");
-
-		try
+		if (collaborators.isEmpty())
 		{
-			host = InetAddress.getLocalHost().getHostAddress();
+			CollaborationDialogs.getInstance().displayNotificationPopup("Distributed Simulation", Notification.Dist_Simulation_ERROR_NO_COLLABORATORS);
+			return;
+		}
 
-			distSimDlg = CollaborationDialogs.getInstance().getDistributedSimulationInitialisationDialog(processes, collaborators, this);
+		distSimDlg = CollaborationDialogs.getInstance().getDistributedSimulationInitialisationDialog(processes, collaborators, this);
 
-			if (distSimDlg.open() == Window.OK)
-			{
-				startDistributedSimulation(project);
-			}
-
-		} catch (UnknownHostException e)
+		if (distSimDlg.open() == Window.OK)
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			startDistributedSimulation(project);
 		}
 	}
 
-	public void requestSimulationFromCollaborators()
-	{
-		CollaborationGroup collaboratorGroup = projectForcurrentSession.getCollaboratorGroup();
-		String uniqueID = projectForcurrentSession.getUniqueID();
-		ID sender = connectionManager.getConnectedUser();
-
-		for (Entry<String, List<DistributedSimulationConfiguration>> configEntry : configurations.entrySet())
-		{
-			User user = collaboratorGroup.getUser(configEntry.getKey());
-			if (user != null)
-			{
-				for (DistributedSimulationConfiguration config : configEntry.getValue())
-				{
-					SimulationRequestMessage simRequest = new SimulationRequestMessage(sender, uniqueID, config.getProcess(), host);
-					connectionManager.sendTo(user, simRequest);
-				}
-			}
-		}
-	}
-
+	//Server Side
 	public void startDistributedSimulation(
 			CollaborationProject collaborationProject)
 	{
 		CollaborationGroup collaboratorGroup = collaborationProject.getCollaboratorGroup();
 		ID sender = connectionManager.getConnectedUser();
 		String uniqueID = collaborationProject.getUniqueID();
-
+		String hostAddress = getServerHostAddress();
+		
 		// notify collaborators that simulation is starting
 		for (Entry<String, List<DistributedSimulationConfiguration>> configEntry : configurations.entrySet())
 		{
@@ -196,7 +145,7 @@ public class DistributedSimulationManager
 				{
 					if (config.isApproved())
 					{
-						SimulationStartMessage simStartMsg = new SimulationStartMessage(sender, uniqueID, config.getProcess(), host);
+						SimulationStartMessage simStartMsg = new SimulationStartMessage(sender, uniqueID, config.getProcess());
 						connectionManager.sendTo(user, simStartMsg);
 					}
 				}
@@ -217,12 +166,13 @@ public class DistributedSimulationManager
 			}
 		}
 
-		launchSimulatorServerSide(collaborationProject, "P", externalProcessStrBld.toString());
+		launchSimulatorServerSide(collaborationProject, selectedTopProcess, externalProcessStrBld.toString(), hostAddress);
 	}
 
+	//Server Side
 	private void launchSimulatorServerSide(
 			CollaborationProject collaborationProject, String topProcess,
-			String externalProceses)
+			String externalProceses, String hostAddress)
 	{
 		IProject eclipseProject = ResourcesPlugin.getWorkspace().getRoot().getProject(collaborationProject.getProjectWorkspaceName());
 
@@ -241,68 +191,13 @@ public class DistributedSimulationManager
 			// is coordinator
 			lcwc.setAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_COSIM_IS_COORDINATOR, true);
 
-			// TODO get topProcess from GUI
 			// top process
 			lcwc.setAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_PROCESS_NAME, topProcess);
 			// set processes
 			lcwc.setAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_COSIM_EXTERNAL_PROCESSES, externalProceses);
 
 			// set host
-			lcwc.setAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_COSIM_HOST, /* host */ "localhost:8882");
-
-			// start debugger
-			DebugUITools.launch(lcwc, "debug");
-
-		} catch (CoreException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		// lcwc.setAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_PROCESS_NAME, processName);
-
-		// <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-		// <launchConfiguration type="eu.compassresearch.ide.interpreter.launchConfigurationTypeCoSim">
-		// <stringAttribute key="cml_launch_config_cosim_external_processes" value=""/>
-		// <stringAttribute key="cml_launch_config_cosim_host" value="localhost:8882"/>
-		// <booleanAttribute key="cml_launch_config_cosim_is_coordinator" value="true"/>
-		// <booleanAttribute key="cml_launch_config_enable_logging" value="false"/>
-		// <stringAttribute key="cml_launch_config_process_name" value="P"/>
-		// <stringAttribute key="cml_launch_config_project" value="EmergencyMgm"/>
-		// <booleanAttribute key="cml_launch_config_remote_debug" value="false"/>
-		// <booleanAttribute key="eu.compassresearch.ide.interpreter.is_animation" value="true"/>
-		// </launchConfiguration>
-	}
-
-	private void launchClientSide(CollaborationProject collaborationProject,
-			String topProcess)
-	{
-		IProject eclipseProject = ResourcesPlugin.getWorkspace().getRoot().getProject(collaborationProject.getProjectWorkspaceName());
-
-		ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
-		ILaunchConfigurationType ctype = launchManager.getLaunchConfigurationType("eu.compassresearch.ide.interpreter.launchConfigurationTypeCoSim");
-
-		ILaunchConfigurationWorkingCopy lcwc;
-		try
-		{
-			lcwc = ctype.newInstance(null, launchManager.generateLaunchConfigurationName(collaborationProject.getName()));
-
-			// eclipse project
-			lcwc.setAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_PROJECT, eclipseProject.getName());
-
-			// launch mode
-			lcwc.setAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_IS_ANIMATION, true);
-			// is coordinator
-			lcwc.setAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_COSIM_IS_COORDINATOR, false);
-
-			// TODO get from GUI
-			// top process
-			lcwc.setAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_PROCESS_NAME, topProcess);
-			// set processes
-			// lcwc.setAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_COSIM_EXTERNAL_PROCESSES, externalProceses);
-
-			// set host
-			lcwc.setAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_COSIM_HOST, /* host */ "localhost:8882");
+			lcwc.setAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_COSIM_HOST,  /*hostAddress*/  "localhost:8882");
 
 			// start debugger
 			DebugUITools.launch(lcwc, "debug");
@@ -313,47 +208,8 @@ public class DistributedSimulationManager
 			e.printStackTrace();
 		}
 	}
-
-	public void newSimulationRequest(String sender,
-			CollaborationProject collaborationProject, String process)
-	{
-		newSimulationSession();
-
-		DistributedSimulationRequestDialog distributedSimulationRequestDialog = 
-				CollaborationDialogs.getInstance().getDistributedSimulationRequestDialog(sender, collaborationProject, process, this);
-
-		if (distributedSimulationRequestDialog.open() == Window.OK)
-		{
-			launchClientSide(collaborationProject, process);
-		}
-
-		System.out.println("");
-	}
-
-	public void approveSimulation(String user,
-			CollaborationProject collaborationProject, String process,
-			IDistributedSimulationListener notifyOnStart)
-	{
-		User userObj = collaborationProject.getCollaboratorGroup().getUser(user);
-		final ID sender = connectionManager.getConnectedUser();
-
-		SimulationReplyMessage replyMsg = new SimulationReplyMessage(sender, collaborationProject.getUniqueID(), process, true);
-		connectionManager.sendTo(userObj, replyMsg);
-
-		addListener(userObj.getName(), notifyOnStart);
-	}
-
-	public void declineSimulation(String user,
-			CollaborationProject collaborationProject, String process)
-	{
-		User userObj = collaborationProject.getCollaboratorGroup().getUser(user);
-		final ID sender = connectionManager.getConnectedUser();
-
-		SimulationReplyMessage replyMsg = new SimulationReplyMessage(sender, collaborationProject.getUniqueID(), process, false);
-
-		connectionManager.sendTo(userObj, replyMsg);
-	}
-
+	
+	//Server Side
 	public void simulationRequestUpdate(String collaborator, String projectID,
 			String process, boolean accepted)
 	{
@@ -396,6 +252,7 @@ public class DistributedSimulationManager
 		}
 	}
 
+	//Server Side
 	private ArrayList<DistributedSimulationConfiguration> getConfigurations()
 	{
 		ArrayList<DistributedSimulationConfiguration> configList = new ArrayList<DistributedSimulationConfiguration>();
@@ -406,11 +263,86 @@ public class DistributedSimulationManager
 
 		return configList;
 	}
-
-	public void simulationStarting(String collaborator, String projectID,
-			String process, String remoteHost)
+	
+	//Server Side
+	public void setTopProcess(String selectedTopProcess)
 	{
-		host = remoteHost;
+		this.selectedTopProcess = selectedTopProcess;
+	}
+	
+	//Server Side
+	public void setLaunchMode(boolean animation)
+	{
+		do_animation = animation;
+	}
+
+	//Server side
+	public void requestSimulationFromCollaborators()
+	{
+		CollaborationGroup collaboratorGroup = projectForCurrentSession.getCollaboratorGroup();
+		String uniqueID = projectForCurrentSession.getUniqueID();
+		ID sender = connectionManager.getConnectedUser();
+		String serverHostAddress = getServerHostAddress();
+		
+		for (Entry<String, List<DistributedSimulationConfiguration>> configEntry : configurations.entrySet())
+		{
+			User user = collaboratorGroup.getUser(configEntry.getKey());
+			if (user != null)
+			{
+				for (DistributedSimulationConfiguration config : configEntry.getValue())
+				{
+					SimulationRequestMessage simRequest = new SimulationRequestMessage(sender, uniqueID, config.getProcess(), serverHostAddress);
+					connectionManager.sendTo(user, simRequest);
+				}
+			}
+		}
+	}
+
+	//Client Side
+	public void newSimulationRequest(String sender,
+			CollaborationProject collaborationProject, String process, String remoteHost)
+	{
+		newSimulationSession();
+
+		DistributedSimulationRequestDialog distributedSimulationRequestDialog = 
+				CollaborationDialogs.getInstance().getDistributedSimulationRequestDialog(sender, collaborationProject, process, this);
+
+		if (distributedSimulationRequestDialog.open() == Window.OK)
+		{
+			launchClientSide(collaborationProject, process, remoteHost);
+		}
+	}
+
+	//Client Side
+	public void approveSimulation(String requestedByUser,
+			CollaborationProject collaborationProject, String process,
+			IDistributedSimulationListener notifyOnStart)
+	{
+		User requestedByuserObj = collaborationProject.getCollaboratorGroup().getUser(requestedByUser);
+		final ID sender = connectionManager.getConnectedUser();
+
+		SimulationReplyMessage replyMsg = new SimulationReplyMessage(sender, collaborationProject.getUniqueID(), process, true);
+		connectionManager.sendTo(requestedByuserObj, replyMsg);
+
+		addListener(requestedByuserObj.getName(), notifyOnStart);
+	}
+
+	//Client Side
+	public void declineSimulation(String user,
+			CollaborationProject collaborationProject, String process)
+	{
+		User userObj = collaborationProject.getCollaboratorGroup().getUser(user);
+		final ID sender = connectionManager.getConnectedUser();
+
+		SimulationReplyMessage replyMsg = new SimulationReplyMessage(sender, collaborationProject.getUniqueID(), process, false);
+
+		connectionManager.sendTo(userObj, replyMsg);
+	}
+
+	//Client Side
+	public void simulationStarting(String collaborator, String projectID,
+			String process)
+	{
 		// update UI
 		if (listeners.containsKey(collaborator))
 		{
@@ -422,17 +354,78 @@ public class DistributedSimulationManager
 			}
 		}
 	}
+	
+	//Client Side
+	private void launchClientSide(CollaborationProject collaborationProject,
+			String topProcess, String remoteHost)
+	{
+		IProject eclipseProject = ResourcesPlugin.getWorkspace().getRoot().getProject(collaborationProject.getProjectWorkspaceName());
+
+		ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
+		ILaunchConfigurationType ctype = launchManager.getLaunchConfigurationType("eu.compassresearch.ide.interpreter.launchConfigurationTypeCoSim");
+
+		ILaunchConfigurationWorkingCopy lcwc;
+		try
+		{
+			lcwc = ctype.newInstance(null, launchManager.generateLaunchConfigurationName(collaborationProject.getName()));
+
+			// eclipse project
+			lcwc.setAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_PROJECT, eclipseProject.getName());
+
+			// launch mode
+			lcwc.setAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_IS_ANIMATION, true);
+			// is coordinator
+			lcwc.setAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_COSIM_IS_COORDINATOR, false);
+
+			// TODO get from GUI
+			// top process
+			lcwc.setAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_PROCESS_NAME, topProcess);
+			
+			// set host
+			lcwc.setAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_COSIM_HOST,  /*remoteHost*/ "localhost:8882" );
+
+			// start debugger
+			DebugUITools.launch(lcwc, "debug");
+
+		} catch (CoreException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	//Client Side
+	public void addListener(String collaborator,
+			IDistributedSimulationListener notify)
+	{
+		if (!listeners.containsKey(collaborator))
+		{
+			listeners.put(collaborator, new ArrayList<IDistributedSimulationListener>());
+		}
+		
+		listeners.get(collaborator).add(notify);
+	}
 
 	private void newSimulationSession()
 	{
 		listeners.clear();
 		configurations.clear();
 		distSimDlg = null;
-		host = "";
+		serverHostAddress = null;
+		selectedTopProcess = null;
 	}
-
-	public void setLaunchMode(boolean animation)
+	
+	private String getServerHostAddress()
 	{
-		do_animation = animation;
+		try
+		{
+			serverHostAddress = InetAddress.getLocalHost().getHostAddress();
+		} catch (UnknownHostException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return serverHostAddress;
 	}
 }

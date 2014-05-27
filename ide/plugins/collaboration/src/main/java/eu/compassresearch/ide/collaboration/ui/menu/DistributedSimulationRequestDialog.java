@@ -26,7 +26,7 @@ import eu.compassresearch.ide.collaboration.distributedsimulation.IDistributedSi
 public class DistributedSimulationRequestDialog extends TitleAreaDialog
 		implements IDistributedSimulationListener
 {
-	private String user;
+	private String requestedByUser;
 	private CollaborationProject collaborationProject;
 	private String process;
 	private Button btnRequestSimulation;
@@ -35,13 +35,13 @@ public class DistributedSimulationRequestDialog extends TitleAreaDialog
 	private Button btnAbort;
 	private Label lblTitleStatus;
 
-	public DistributedSimulationRequestDialog(String user,
+	public DistributedSimulationRequestDialog(String requestedByUser,
 			CollaborationProject collaborationProject, String process,
 			DistributedSimulationManager distributedSimulationManager,
 			Shell parentShell)
 	{
 		super(parentShell);
-		this.user = user;
+		this.requestedByUser = requestedByUser;
 		this.collaborationProject = collaborationProject;
 		this.process = process;
 		this.distributedSimulationManager = distributedSimulationManager;
@@ -54,7 +54,7 @@ public class DistributedSimulationRequestDialog extends TitleAreaDialog
 	{
 		super.create();
 
-		String msg = user
+		String msg = requestedByUser
 				+ " requested this symphony instance to collaborate in a distributed simulation. Participate?";
 
 		setTitle("Distributed Simulation requested.");
@@ -128,13 +128,13 @@ public class DistributedSimulationRequestDialog extends TitleAreaDialog
 
 	protected void declinedSimulation()
 	{
-		distributedSimulationManager.declineSimulation(user, collaborationProject, process);
+		distributedSimulationManager.declineSimulation(requestedByUser, collaborationProject, process);
 		this.close();
 	}
 
 	protected void approveSimulation()
 	{
-		distributedSimulationManager.approveSimulation(user, collaborationProject, process, this);
+		distributedSimulationManager.approveSimulation(requestedByUser, collaborationProject, process, this);
 		btnRequestSimulation.setEnabled(false);
 		btnAbort.setEnabled(false);
 		lblSimulationStatus.setText("Pending simulation start");

@@ -34,9 +34,10 @@ public class DistributedSimulationInitialisationDialog extends TitleAreaDialog
 {
 	private Button btnSimulate;
 	private Button btnRequestSimulation;
-	private List<DistributedSimulationEntry> simulationEntries;
 	private List<String> processes;
 	private List<String> collaborators;
+	private String selectedTopProcess;
+	private List<DistributedSimulationEntry> simulationEntries;
 	private DistributedSimulationManager distributedSimulationManager;
 	private Composite containerMain;
 
@@ -52,6 +53,7 @@ public class DistributedSimulationInitialisationDialog extends TitleAreaDialog
 		this.setHelpAvailable(false);
 
 		simulationEntries = new ArrayList<>();
+		selectedTopProcess = "";
 	}
 
 	@Override
@@ -86,6 +88,10 @@ public class DistributedSimulationInitialisationDialog extends TitleAreaDialog
 			public void selectionChanged(SelectionChangedEvent event)
 			{
 				 IStructuredSelection selection = (IStructuredSelection) event.getSelection();
+				 
+				 Object selectedValue = selection.getFirstElement();
+				 
+				 selectedTopProcess = selectedValue.toString();
 			}
 		});
 		
@@ -120,11 +126,6 @@ public class DistributedSimulationInitialisationDialog extends TitleAreaDialog
 		sc.setMinSize(containerMain.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 
 		return area;
-	}
-	
-	protected void selectTopProcess()
-	{
-		
 	}
 
 	private void createTitle(Composite area)
@@ -235,6 +236,7 @@ public class DistributedSimulationInitialisationDialog extends TitleAreaDialog
 		btnRequestSimulation.setText("Request sent ..");
 
 		distributedSimulationManager.requestSimulationFromCollaborators();
+		distributedSimulationManager.setTopProcess(selectedTopProcess);
 	}
 
 	@Override

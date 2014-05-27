@@ -21,7 +21,7 @@ public class SimulationStartMessageHandler extends BaseMessageHandler<Simulation
 			public void run()
 			{
 				DistributedSimulationManager distributedSimulationManager = Activator.getDefault().getDistributedSimulationManager();
-				distributedSimulationManager.simulationStarting(msg.getSenderID().getName(), msg.getProjectID(), msg.getProcess(), msg.getHost());
+				distributedSimulationManager.simulationStarting(msg.getSenderID().getName(), msg.getProjectID(), msg.getProcess());
 			}
 		});
 	}
