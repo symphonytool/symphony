@@ -1,5 +1,6 @@
 types
   Meter :: device : Device
+  Box :: m : Meter
 
 class Device = begin
 operations
@@ -23,20 +24,25 @@ actions
             dev.op()))
 
 
-  DEEP_MAP =
-    (dcl m_map : map nat to Meter @
-        meters(1).device.op())
-
-
+--   DEEP_MAP =
+--     (dcl m_map : map nat to Meter @
+--         meters(1).device.op())
+-- 
+-- 
   OK_SEQ =
     (dcl ms : seq of Meter @
         (dcl m : Meter @
             m := ms(1);
             m.device.op()))
 
-  DEEP_SEQ =
-    (dcl ms : seq of Meter @
-        ms(1).device.op())
+--   DEEP_SEQ =
+--     (dcl ms : seq of Meter @
+--         ms(1).device.op())
+-- 
+
+  DEEP_REC =
+     (dcl box : Box @
+         box.m.device.op())
 
 @ Skip
 end
