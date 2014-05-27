@@ -1,5 +1,6 @@
 types
   Meter :: device : Device
+  Box :: m : Meter
 
 class Device = begin
 operations
@@ -23,10 +24,9 @@ actions
             dev.op()))
 
 
-/*  FAIL_MAP = --comment this to make it fail
-    (dcl m_map : map nat to Meter @
-        meters(1).device.op())*/
-
+--   DEEP_MAP =
+--     (dcl m_map : map nat to Meter @
+--         meters(1).device.op())
 
   OK_SEQ =
     (dcl ms : seq of Meter @
@@ -34,11 +34,17 @@ actions
             m := ms(1);
             m.device.op()))
 
-/*
-  FAIL_SEQ =
-    (dcl ms : seq of Meter @
-        ms(1).device.op())
-*/
+--   DEEP_SEQ =
+--     (dcl ms : seq of Meter @
+--         ms(1).device.op())
+
+  DEEP_REC =
+     (dcl box : Box @
+         box.m.device.op())
+
+--   DEEP_TUPLE =
+--      (dcl pair: Meter * Meter @
+--          pair.#1.device.op())
 
 @ Skip
 end
