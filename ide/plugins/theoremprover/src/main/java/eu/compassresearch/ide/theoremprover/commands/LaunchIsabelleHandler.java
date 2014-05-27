@@ -54,7 +54,7 @@ public class LaunchIsabelleHandler extends AbstractHandler implements IHandler {
 
 		if (!LaunchIsabelleHandler.isWindowsPlatform() // The theory files are
 														// not set through the
-														// preferece pane in
+														// preference pane in
 														// windows so we must
 														// skip the check
 				&& CmlTPPlugin.getDefault().getPreferenceStore()
