@@ -35,7 +35,6 @@ import eu.compassresearch.ide.collaboration.datamodel.CollaborationGroup;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationProject;
 import eu.compassresearch.ide.collaboration.datamodel.User;
 import eu.compassresearch.ide.collaboration.notifications.Notification;
-import eu.compassresearch.ide.collaboration.ui.menu.CollaborationDialogs;
 
 public class ConnectionManager implements IPresenceListener
 {

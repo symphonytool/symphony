@@ -38,7 +38,7 @@ public class Activator extends AbstractUIPlugin
 
 		//load data models
 		dataModelManager = new CollaborationDataModelManager();
-		dataModelManager.loadModel();
+		dataModelManager.loadModels();
 		
 		//track changes in workspace
 		fileChangeManager = new FileChangeListener();
@@ -61,7 +61,7 @@ public class Activator extends AbstractUIPlugin
 		}
 		
 		//Persist data model
-		dataModelManager.saveModel();
+		dataModelManager.saveModels();
 	
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		workspace.removeResourceChangeListener(fileChangeManager);

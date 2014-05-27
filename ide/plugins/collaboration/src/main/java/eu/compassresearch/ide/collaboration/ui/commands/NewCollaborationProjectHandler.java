@@ -19,7 +19,7 @@ public class NewCollaborationProjectHandler extends AbstractHandler
 	public Object execute(ExecutionEvent arg0) throws ExecutionException
 	{
 		CollaborationDataModelManager dataModelManager = Activator.getDefault().getDataModelManager();
-		collaborationProjectDialog = CollaborationDialogs.getInstance().getCollaborationProjectDialog(dataModelManager.getExistingProjects());
+		collaborationProjectDialog = CollaborationDialogs.getInstance().getCollaborationProjectDialog(dataModelManager.getCollaborationProjects());
 		
 		if(collaborationProjectDialog.open() == Window.OK) 
 		{

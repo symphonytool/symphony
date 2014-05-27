@@ -1,16 +1,12 @@
 package eu.compassresearch.ide.collaboration.communication.handlers;
 
-import org.eclipse.ecf.core.identity.ID;
 import org.eclipse.swt.widgets.Display;
 
 import eu.compassresearch.ide.collaboration.Activator;
-import eu.compassresearch.ide.collaboration.communication.ConnectionManager;
 import eu.compassresearch.ide.collaboration.communication.messages.SimulationRequestMessage;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationDataModelManager;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationProject;
 import eu.compassresearch.ide.collaboration.distributedsimulation.DistributedSimulationManager;
-import eu.compassresearch.ide.collaboration.ui.menu.CollaborationDialogs;
-import eu.compassresearch.ide.collaboration.ui.menu.DistributedSimulationRequestDialog;
 
 public class SimulationRequestMessageHandler extends BaseMessageHandler<SimulationRequestMessage>
 {

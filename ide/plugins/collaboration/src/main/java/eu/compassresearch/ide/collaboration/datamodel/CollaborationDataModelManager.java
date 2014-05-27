@@ -37,34 +37,31 @@ import eu.compassresearch.ide.collaboration.notifications.Notification;
 public class CollaborationDataModelManager
 {
 	private CollaborationDataModelRoot datamodel;
-
+	
 	public CollaborationDataModelManager()
 	{
 		datamodel = new CollaborationDataModelRoot();
 	}
 
+	/**
+	 *  Get root element of data model
+	 */
 	public CollaborationDataModelRoot getDataModel()
 	{
 		return datamodel;
 	}
-
-	public void addCollaborationProject(String project, String title,
-			String description)
-	{
-		datamodel.addCollaborationProject(project, title, description);
-	}
 	
-	public void addReceivedCollaborationProject(String project, String title,
-			String description, String collabProjectId)
-	{
-		datamodel.addCollaborationProject(project, title, description, collabProjectId);
-	}
-
-	public List<CollaborationProject> getExistingProjects()
+	/**
+	 * Get all collaboration projects in the data model
+	 */
+	public List<CollaborationProject> getCollaborationProjects()
 	{
 		return datamodel.getCollaborationProjects();
 	}
-
+	
+	/**
+	 *  Get the collaboration project attached to a certain workspace
+	 */
 	public CollaborationProject getCollaborationProject(
 			String workspaceProjectName)
 	{
@@ -78,36 +75,38 @@ public class CollaborationDataModelManager
 
 		return null;
 	}
-
-	public CollaborationProject getCollaborationProjectFromID(String id)
+	
+	/**
+	 *  Get collaboration project based on the project id
+	 */
+	public CollaborationProject getCollaborationProjectFromID(String projectID)
 	{
-		return datamodel.getCollaborationProjectFromID(id);
+		return datamodel.getCollaborationProjectFromID(projectID);
 	}
 
-	public FileStatus addFileWithLimitedVisibility(IFile file,
-			List<String> collaboratorNames)
+	/**
+	 * Add a new collaboration project. 
+	 * Effectively, creates a new collaboration project object in the data model with a new project id
+	 */
+	public void addCollaborationProject(String project, String title,
+			String description)
 	{
-		// handle file normally
-		FileStatus fileStatus = handleFile(file);
-
-		// now limit scope of file
-		if (fileStatus.getState() == FileState.ADDED)
-		{
-			String projectName = file.getProject().getName();
-			CollaborationProject collaborationProject = getCollaborationProject(projectName);
-
-			Configuration newestConfiguration = collaborationProject.getNewestConfiguration();
-			File addedFile = newestConfiguration.getFile(file.getName());
-
-			for (String name : collaboratorNames)
-			{
-				addedFile.addVisibility(name);
-			}
-		}
-
-		return fileStatus;
+		datamodel.addCollaborationProject(project, title, description);
 	}
 
+	/**
+	 * Add a collaboration project received from another collaborator. 
+	 * This creates a collaboration project on the basis of the received project id.  
+	 */
+	public void addReceivedCollaborationProject(String project, String title,
+			String description, String collabProjectId)
+	{
+		datamodel.addCollaborationProject(project, title, description, collabProjectId);
+	}
+	
+	/**
+	 * Add a new file or update an existing file if its status changes
+	 */
 	public FileStatus handleFile(IFile file)
 	{
 		if(file == null) return null;
@@ -166,7 +165,37 @@ public class CollaborationDataModelManager
 
 		return fileStatus;
 	}
+	
+	/**
+	 * Add a file that can only be seen by certain collaborators
+	 */
+	public FileStatus addFileWithLimitedVisibility(IFile file,
+			List<String> collaboratorNames)
+	{
+		// handle file normally
+		FileStatus fileStatus = handleFile(file);
 
+		// now limit scope of file
+		if (fileStatus.getState() == FileState.ADDED)
+		{
+			String projectName = file.getProject().getName();
+			CollaborationProject collaborationProject = getCollaborationProject(projectName);
+
+			Configuration newestConfiguration = collaborationProject.getNewestConfiguration();
+			File addedFile = newestConfiguration.getFile(file.getName());
+
+			for (String name : collaboratorNames)
+			{
+				addedFile.addVisibility(name);
+			}
+		}
+
+		return fileStatus;
+	}
+
+	/**
+	 * Calculate file hash and create a FileStatus object that the data model understands
+	 */
 	private FileStatus createFileStatus(IFile file)
 	{
 		String hash = FileHandler.calculateSha(file);
@@ -174,11 +203,16 @@ public class CollaborationDataModelManager
 		return fileStatus;
 	}
 
-	public IFile getFile(File file, CollaborationProject collaborationProject)
+	/**
+	 * Get the data resource on the basis of an File object in the data model.  
+	 */
+	public IFile getFile(File file)
 			throws CoreException, IOException
 	{
 		IFile iFile = null;
-
+		
+		CollaborationProject collaborationProject = file.getCollaborationProject();
+		
 		// has file already been stored previously, get it from the collaboration dir
 		if (file.isStored())
 		{
@@ -191,12 +225,11 @@ public class CollaborationDataModelManager
 
 		return iFile;
 	}
+	
 
-	public boolean hasCollaborationProjects()
-	{
-		return !datamodel.getCollaborationProjects().isEmpty();
-	}
-
+	/**
+	 * Is the resource already attached to the collaboration project
+	 */
 	public boolean isKnownFile(IFile file)
 	{
 		FileStatus fileStatus = createFileStatus(file);
@@ -214,6 +247,17 @@ public class CollaborationDataModelManager
 		}
 	}
 
+	/**
+	 * Are there currently any collaboration projects
+	 */
+	public boolean hasCollaborationProjects()
+	{
+		return !datamodel.getCollaborationProjects().isEmpty();
+	}
+
+	/**
+	 * Make configuration read-only, sign it with the users id, and send to collaborators. 
+	 */
 	public void signAndShareConfiguration(Configuration config)
 			throws CoreException
 	{
@@ -227,14 +271,15 @@ public class CollaborationDataModelManager
 		}
 		
 		ConnectionManager connectionManager = Activator.getDefault().getConnectionManager();
-		ID connectedUser = connectionManager.getConnectedUser();
 		
 		config.addSentTo(sendTo);
-		
 		config.setSignedBy(connectionManager.getConnectedUser().getName());
 		config.setConfigurationShared();
 	}
 
+	/**
+	 * Send configuration to all collaborators
+	 */
 	private List<User> shareWithAll(Configuration config)
 			throws SerializationException
 	{
@@ -260,6 +305,9 @@ public class CollaborationDataModelManager
 		return new ArrayList<User>(sendTo);
 	}
 
+	/**
+	 * Only send certain files in a configuration to specific collaborators
+	 */
 	private List<User> shareWithLimitedVisibility(Configuration config)
 			throws SerializationException
 	{
@@ -335,7 +383,7 @@ public class CollaborationDataModelManager
 
 			//only add if there are changes 
 			if(!newConfigurationMessage.getFileDTOs().isEmpty()){
-				// store our configuration. 
+				// add our configuration. 
 				configurationsToSend.put(user, newConfigurationMessage);
 			}
 		}
@@ -350,6 +398,9 @@ public class CollaborationDataModelManager
 		 return new ArrayList<User>(configurationsToSend.keySet());
 	}
 
+	/**
+	 * Only send certain files in a configuration to specific collaborators
+	 */
 	private FileDTO createFileDTO(File file)
 	{
 		// create DTO for sending the file info and content
@@ -367,6 +418,9 @@ public class CollaborationDataModelManager
 		return fileDTO;
 	}
 
+	/**
+	 * Compare a configuration with the previous (parent) configuration
+	 */
 	public ConfigurationComparison compareConfigurationWithPrev(
 			Configuration targetConfiguration)
 	{
@@ -375,7 +429,10 @@ public class CollaborationDataModelManager
 		return compare;
 	}
 
-	private ConfigurationComparison compareConfigurations(Configuration target,
+	/**
+	 * Compare two configurations
+	 */
+	public ConfigurationComparison compareConfigurations(Configuration target,
 			Configuration compareTo)
 	{
 		if (target == null || compareTo == null)
@@ -406,11 +463,12 @@ public class CollaborationDataModelManager
 		return configComparison;
 	}
 
+	/**
+	 * Compare a file with the equally named file from the previous (parent) configuration
+	 */
 	public FileComparison compareFileWithPrev(File targetFile)
 			throws CoreException, IOException
 	{
-		CollaborationProject collaborationProject = targetFile.getCollaborationProject();
-
 		Configuration thisConfiguration = (Configuration) targetFile.getParent();
 		Configuration previousConfiguration = thisConfiguration.getParentConfiguration();
 
@@ -426,15 +484,19 @@ public class CollaborationDataModelManager
 			return null;
 		}
 
-		IFile iTargetFile = getFile(targetFile, collaborationProject);
+		IFile iTargetFile = getFile(targetFile);
 		String targetContent = CollaborationPluginUtils.convertStreamToString(iTargetFile.getContents());
 
-		IFile iPrevFile = getFile(previousFile, collaborationProject);
+		IFile iPrevFile = getFile(previousFile);
 		String prevContent = CollaborationPluginUtils.convertStreamToString(iPrevFile.getContents());
 
 		return new FileComparison(targetFile, targetContent, previousFile, prevContent);
 	}
 
+
+	/**
+	 * Compare a file with the equally named file from the previous (parent) configuration
+	 */
 	public void activateConfiguration(Configuration configToActivate)
 			throws CoreException
 	{
@@ -442,30 +504,10 @@ public class CollaborationDataModelManager
 		FileHandler.copyFilesToProjectWorkspace(files.getFilesList(), configToActivate.getCollaborationProject());
 	}
 
-	public void saveModel() throws CoreException, IOException
-	{
-		FileHandler filehandler = new FileHandler();
-		for (CollaborationProject collabProject : datamodel.getCollaborationProjects())
-		{
-			filehandler.saveCollaborationProject(collabProject);
-		}
-	}
-
-	public void loadModel()
-	{
-		IProject[] projectsInWorkbench = CollaborationPluginUtils.getProjectsInWorkbench();
-		FileHandler filehandler = new FileHandler();
-
-		for (IProject iProject : projectsInWorkbench)
-		{
-			CollaborationProject project = filehandler.loadCollaborationProject(iProject);
-			if (project != null)
-			{
-				datamodel.addCollaborationProject(project);
-			}
-		}
-	}
-
+	
+	/**
+	 * Approve a received configuration and send status to all collaborators
+	 */
 	public void approveConfiguration(Configuration configToApprove)
 			throws CoreException
 	{
@@ -479,6 +521,9 @@ public class CollaborationDataModelManager
 		configToApprove.setStatus(connectedUser, ConfigurationNegotiationStatus.ACCEPT);
 	}
 	
+	/**
+	 * Reject a received configuration and send status to all collaborators
+	 */
 	public void rejectConfiguration(Configuration configurationToReject)
 	{
 		ConnectionManager connectionManager = Activator.getDefault().getConnectionManager();
@@ -491,6 +536,9 @@ public class CollaborationDataModelManager
 		configurationToReject.setStatus(connectedUser, ConfigurationNegotiationStatus.REJECT);
 	}
 
+	/**
+	 * Updated a received configuration status sent by a collaborator
+	 */
 	public void updateConfigurationStatus(ID id, String configurationId,
 			ConfigurationNegotiationStatus negotiationStatus, String projectId)
 	{
@@ -499,6 +547,33 @@ public class CollaborationDataModelManager
 		configuration.setStatus(id, negotiationStatus);
 	}
 
+	/**
+	 * Add a new collaborator to a collaboration group in a project, and send them a join request
+	 */
+	public void addNewCollaborator(IUser receiver, CollaborationGroup group, String description) throws SerializationException
+	{
+			ConnectionManager connectionManager = Activator.getDefault().getConnectionManager();
+			ID connectedUser = connectionManager.getConnectedUser();
+			
+			CollaborationProject project = group.getCollaborationProject();
+			
+			//build reply
+			CollaborationRequest msg = new CollaborationRequest(connectionManager.getConnectedUser(), project.getUniqueID(), project.getTitle(), description);
+			connectionManager.sendTo(receiver.getID(), msg);
+			
+			//add collaborator locally, currently as not joined. 
+			group.addCollaborator(receiver.getID(), false);	
+			
+			//we are inviting others, so we should be part of the collaboration ourself.  
+			if(!group.hasCollaborator(connectedUser.getName())){
+				group.addCollaborator(connectedUser, true);
+			}
+	}
+	
+	/**
+	 * Sets collaborator as having joined the collaboration group when a collaborator accepts joining the collaboration 
+	 * and notifies all members of the collaboration group.
+	 */
 	public void collaboratorJoining(ID senderID, boolean joining, String projectID, boolean notifyCollaborators) throws SerializationException
 	{
 		CollaborationProject collaborationProject = getCollaborationProjectFromID(projectID);
@@ -533,6 +608,10 @@ public class CollaborationDataModelManager
 		}
 	}
 
+	/**
+	 * Adds new members to the collaboration group in a project, without notifying other collaborators.
+	 * For instance when receiving a notification from another collaborator that new collaborators have joined the group 
+	 */
 	public void updateCollaborationGroup(List<ID> collaborationGroupMembers,
 			String projectID)
 	{
@@ -544,7 +623,6 @@ public class CollaborationDataModelManager
 		}
 		
 		CollaborationGroup collaboratorGroup = collaborationProject.getCollaboratorGroup();
-		
 		for (ID id : collaborationGroupMembers)
 		{
 			if(!collaboratorGroup.hasCollaborator(id.getName())){
@@ -553,22 +631,34 @@ public class CollaborationDataModelManager
 		}
 	}
 
-	public void addNewCollaborator(IUser receiver, CollaborationGroup group,
-			CollaborationProject project, String description) throws SerializationException
+
+	/**
+	 * Persist data models on disk
+	 */
+	public void saveModels() throws CoreException, IOException
 	{
-			ConnectionManager connectionManager = Activator.getDefault().getConnectionManager();
-			ID connectedUser = connectionManager.getConnectedUser();
-			
-			//build reply
-			CollaborationRequest msg = new CollaborationRequest(connectionManager.getConnectedUser(), project.getUniqueID(), project.getTitle(), description);
-			connectionManager.sendTo(receiver.getID(), msg);
-			
-			//add collaborator locally, currently as not joined. 
-			group.addCollaborator(receiver.getID(), false);	
-			
-			//we are inviting others, so we should be part of the collaboration ourself.  
-			if(!group.hasCollaborator(connectedUser.getName())){
-				group.addCollaborator(connectedUser, true);
+		FileHandler filehandler = new FileHandler();
+		for (CollaborationProject collabProject : datamodel.getCollaborationProjects())
+		{
+			filehandler.saveCollaborationProject(collabProject);
+		}
+	}
+
+	/**
+	 * Load persisted data model on disk
+	 */
+	public void loadModels()
+	{
+		IProject[] projectsInWorkbench = CollaborationPluginUtils.getProjectsInWorkbench();
+		FileHandler filehandler = new FileHandler();
+
+		for (IProject iProject : projectsInWorkbench)
+		{
+			CollaborationProject project = filehandler.loadCollaborationProject(iProject);
+			if (project != null)
+			{
+				datamodel.addCollaborationProject(project);
 			}
+		}
 	}
 }

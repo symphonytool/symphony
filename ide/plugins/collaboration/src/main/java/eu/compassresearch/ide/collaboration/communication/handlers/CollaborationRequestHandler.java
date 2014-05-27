@@ -31,7 +31,7 @@ public class CollaborationRequestHandler extends
 		{
 			public void run()
 			{
-				CollaborationRequestedDialog collabRequestedDialog = new CollaborationRequestedDialog(msg.getSenderID().getName(), msg.getTitle(), msg.getMessage(), modelMgm.getExistingProjects(), null);
+				CollaborationRequestedDialog collabRequestedDialog = new CollaborationRequestedDialog(msg.getSenderID().getName(), msg.getTitle(), msg.getMessage(), modelMgm.getCollaborationProjects(), null);
 				collabRequestedDialog.create();
 				boolean join = collabRequestedDialog.open() == Window.OK;
 

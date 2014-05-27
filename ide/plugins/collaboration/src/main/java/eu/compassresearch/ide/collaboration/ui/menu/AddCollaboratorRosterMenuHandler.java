@@ -78,7 +78,7 @@ public class AddCollaboratorRosterMenuHandler extends AbstractRosterMenuHandler
 				CollaborationDataModelManager dataModelManager = Activator.getDefault().getDataModelManager();
 				try
 				{
-					dataModelManager.addNewCollaborator(receiver, group, project, collabReqDia.getDescription());
+					dataModelManager.addNewCollaborator(receiver, group, collabReqDia.getDescription());
 				} catch (SerializationException e)
 				{
 					ResourcesPlugin.getPlugin().getLog().log(new Status(IStatus.ERROR, Activator.PLUGIN_ID, 0, e.getMessage(), e));
