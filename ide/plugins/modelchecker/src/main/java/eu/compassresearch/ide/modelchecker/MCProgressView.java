@@ -23,6 +23,7 @@ public class MCProgressView extends ExtensionFactory {
 	private MCThread thread;
 	private IWorkbenchWindow window;
 	private Exception exception;
+	private MCHandler uiManager;
 	
 	public MCProgressView() {
 		super();
@@ -30,9 +31,10 @@ public class MCProgressView extends ExtensionFactory {
 
 	public MCProgressView(IFile out, String property, IFolder mcFolder,
 			ICmlSourceUnit selectedUnit, IResource cmlFile,
-			ExecutionEvent event, String analysedProcess) {
+			ExecutionEvent event, String analysedProcess, MCHandler uiManager) {
 		try {
 			window = HandlerUtil.getActiveWorkbenchWindowChecked(event);
+			this.uiManager = uiManager;
 			this.thread = new MCThread(out, property, mcFolder, selectedUnit,
 					cmlFile, window, analysedProcess);
 		} catch (ExecutionException e) {
@@ -50,7 +52,7 @@ public class MCProgressView extends ExtensionFactory {
 				thread.start();
 				int i = 20;
 				monitor.worked(i);
-				while (thread.getStatus() != MCStatus.FINISHED) { // && i <= 80
+				while (thread.getStatus() != MCStatus.FINISHED && thread.getStatus() != MCStatus.ERROR) { // && i <= 80
 					try {
 						Thread.sleep(500);
 						i += 10;
@@ -59,7 +61,9 @@ public class MCProgressView extends ExtensionFactory {
 							String msg = "";
 							if(thread.getException() != null){
 								msg = thread.getException().getMessage();
-							} else msg = thread.getExcep().getMessage();
+							} else {
+								msg = thread.getExcep().getMessage();
+							}
 							 
 						}
 					} catch (InterruptedException e) {
@@ -75,7 +79,11 @@ public class MCProgressView extends ExtensionFactory {
 					}
 				}
 				monitor.done();
-				exception = thread.getException();
+				if(thread.getStatus() == MCStatus.ERROR){
+					exception = thread.getException();
+					uiManager.popErrorMessage(exception);
+				}
+				
 				return Status.OK_STATUS;
 			}
 		};
@@ -89,7 +97,9 @@ public class MCProgressView extends ExtensionFactory {
 		return thread;
 	}
 
-	
+	public Exception getException() {
+		return exception;
+	}
 
 	public void setException(Exception exception) {
 		this.exception = exception;

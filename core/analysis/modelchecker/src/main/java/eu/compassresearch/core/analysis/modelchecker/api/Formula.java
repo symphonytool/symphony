@@ -19,10 +19,6 @@ import javax.swing.filechooser.FileSystemView;
 
 import eu.compassresearch.core.analysis.modelchecker.visitors.Utilities;
 
-
-
-
-
 public class Formula implements IFORMULAInvoker {
 
 	public static final String DEFAULT_MODEL_NAME = "StartProcModel";
@@ -45,6 +41,8 @@ public class Formula implements IFORMULAInvoker {
 
     public synchronized static Formula getInstance() throws IOException, FormulaIntegrationException{
     	if (instance == null){
+    		instance = new Formula();
+    	} else if (instance.processStatus == ProcessStatus.TERMINATED){
     		instance = new Formula();
     	}
     	return instance;
@@ -131,18 +129,6 @@ public class Formula implements IFORMULAInvoker {
 		result.setSolveCmdMessage(msg.toString());
 	}
 
-	/*
-	private void save(String content, String filePath) throws IOException, FormulaIntegrationException {
-		//String outputFile = generateFactsFileName(filePath);
-		String outputFile = filePath;
-		FileWriter fr = new FileWriter(outputFile);
-		BufferedWriter br = new BufferedWriter(fr);
-		br.write(content);
-		br.close();
-		fr.close();
-	}
-	*/
-	
 	private void knows(FormulaResult result) throws IOException, FormulaIntegrationException {
 		String knowsCommand = 	FORMULA_KNOWS_CMD + " " +
 				DEFAULT_MODEL_NAME + "\n";
@@ -303,14 +289,21 @@ public class Formula implements IFORMULAInvoker {
 
     public void finalizeProcess() throws IOException{
         if (process != null) {
-        	this.exit();
-            process.destroy();
-            this.processStatus = ProcessStatus.TERMINATED;
-            this.formulaStatus= FormulaStatus.NOT_INSTALLED;
-            //JavaFormulaLogger.obterInstancia().log("Analysis of " + analysedFile + " finalized.");
+        	try {
+				this.exit();
+			} catch (IOException e) {
+				defaultLogger.log(e.getMessage());
+			}finally{
+				process.destroy();
+				this.processStatus = ProcessStatus.TERMINATED;
+			}
         }
     }
     
+    @Override
+	public void resetInstance() throws IOException{
+		finalizeProcess();
+	}
 	 public static String generateFactsFileName(String formulaFileName){
 		 String result = new String(formulaFileName);
 		 int indexOfDot = result.lastIndexOf('.');

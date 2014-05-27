@@ -20,6 +20,7 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
@@ -138,12 +139,16 @@ public class MCHandler extends AbstractHandler {
 							//job.schedule();
 							
 							if(outputFile != null){
-								MCProgressView p = new MCProgressView(outputFile, propertyToCheck, mcFolder, selectedUnit, cmlFile, event, mainProcessName);
+								MCProgressView p = new MCProgressView(outputFile, propertyToCheck, mcFolder, selectedUnit, cmlFile, event, mainProcessName, this);
 								p.execute();
-								if(p.getThread().getException() != null){
-									throw p.getThread().getException();
-								}
 							}
+							//if(outputFile != null){
+							//	MCProgressView p = new MCProgressView(outputFile, propertyToCheck, mcFolder, selectedUnit, cmlFile, event, mainProcessName);
+							//	p.execute();
+							//	if(p.getThread().getException() != null){
+							//		throw p.getThread().getException();
+							//	}
+							//}
 							
 							//formulaOutput = p.getFormulaResult();
 							
@@ -167,7 +172,7 @@ public class MCHandler extends AbstractHandler {
 				}
 				
 			} catch(Exception e){
-				logStackTrace(e);
+				//logStackTrace(e);
 				popErrorMessage(e);
 			}
 		}
@@ -248,13 +253,19 @@ public class MCHandler extends AbstractHandler {
 			
 			
 			this.adaptor =  new NewMCVisitor();
-			String specificationContent = this.adaptor.generateFormulaScript(definitions,propertyToCheck,mainProcessName);
+			String specificationContent = "";
+			
 			try{
+				specificationContent = this.adaptor.generateFormulaScript(definitions,propertyToCheck,mainProcessName);
 				if(!outputFile.exists()){
 					outputFile.create(new ByteArrayInputStream(specificationContent.toString().getBytes()), true, new NullProgressMonitor());
 				}else{
 					outputFile.setContents(new ByteArrayInputStream(specificationContent.toString().getBytes()), true, true, new NullProgressMonitor());
 				}
+			}catch(NullPointerException e){
+				throw new AnalysisException("Internal error when accessing some null object during FORMULA script generation.");
+			}catch(ClassCastException e){
+				throw new AnalysisException("Internal error when casting some object during FORMULA script generation.");
 			}catch(CoreException e){
 				Activator.log(e);
 			}
@@ -287,9 +298,18 @@ public class MCHandler extends AbstractHandler {
 		return property;
 	}
 	
-	private void popErrorMessage(Throwable e) {
-		MessageDialog.openInformation(null, "Symphony",
-				"Could not analyse the specification.\n\n" + e.getMessage());
+	public void popErrorMessage(final Throwable e) {
+		Display.getDefault().asyncExec(new Runnable() {
+		    @Override
+		    public void run() {
+		    	MessageDialog.openInformation(null, "Symphony",
+						"Could not analyse the specification.\n\n" + e.getMessage());
+				
+
+		    	
+		    }
+		  });
+		
 	}
 	private void popErrorMessage(String message) {
 		MessageDialog.openInformation(null, "Symphony",message);

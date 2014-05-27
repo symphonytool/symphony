@@ -71,6 +71,11 @@ public class FormulaIntegrator implements IFormulaIntegrator {
 		}
 		super.finalize();
 	}
+	
+	@Override
+	public void resetInstance() throws Throwable {
+		executor.resetInstance();
+	}
 
 	public static void main(String[] args) throws Throwable {
 		String file = "D:\\UFCG\\projects\\COMPASS\\FORMULA\\formula_script_skip.4ml";
