@@ -1,5 +1,10 @@
 package eu.compassresearch.ide.collaboration.ui.view;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
@@ -87,7 +92,17 @@ public class CollaborationContentProvider implements ITreeContentProvider,
 			return shares.getVisibleList().toArray();
 		} else if(parentElement instanceof Files) {
 			Files files = (Files)parentElement;
-			return files.getFilesList().toArray();
+			List<File> filesList = files.getFilesList();
+			
+			Collections.sort(filesList, new Comparator<File>() {
+
+				@Override
+				public int compare(File f1, File f2)
+				{
+					return f1.getName().compareTo(f2.getName());
+				}
+		    });
+			return filesList.toArray();
 		} else if(parentElement instanceof File) {
 			File file = (File)parentElement;
 			return new Object[]{file.getVisibility()};
