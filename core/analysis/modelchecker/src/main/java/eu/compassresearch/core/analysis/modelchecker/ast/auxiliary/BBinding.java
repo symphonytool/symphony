@@ -65,7 +65,7 @@ public class BBinding implements Binding {
 		if(this.head.getVariableName().equals(name)){
 			result = true;
 		}else{
-			this.tail.containsVariable(name);
+			result = this.tail.containsVariable(name);
 		}
 		return result;
 	}

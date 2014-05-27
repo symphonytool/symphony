@@ -53,7 +53,7 @@ public class NewCMLModelcheckerContext {
 	public HashMap<MCPCMLExp, LinkedList<MCGuardDef>> guardDefs;
 	public HashMap<MCPCMLExp, LinkedList<NewMCGuardDef>> stmGuardDefs;
 	public ArrayListSet<MCAssignDef> assignDefs;
-	public LinkedList<MCAChannelDefinition> channelDefs;
+	public ArrayListSet<MCAChannelDefinition> channelDefs;
 	public ArrayListSet<MCSCmlOperationDefinition> operations;
 	public ArrayList<MCSFunctionDefinition> functions;
 	public LinkedList<MCAValueDefinition> valueDefinitions;
@@ -250,7 +250,7 @@ public class NewCMLModelcheckerContext {
 		guardDefs = new HashMap<MCPCMLExp, LinkedList<MCGuardDef>>();
 		stmGuardDefs = new HashMap<MCPCMLExp, LinkedList<NewMCGuardDef>>();
 		assignDefs = new ArrayListSet<MCAssignDef>();
-		channelDefs = new LinkedList<MCAChannelDefinition>();
+		channelDefs = new ArrayListSet<MCAChannelDefinition>();
 		processDefinitions = new ArrayListSet<MCAProcessDefinition>();
 		actionOrProcessDefStack = new Stack<INode>(); 
 		functions = new ArrayList<MCSFunctionDefinition>();

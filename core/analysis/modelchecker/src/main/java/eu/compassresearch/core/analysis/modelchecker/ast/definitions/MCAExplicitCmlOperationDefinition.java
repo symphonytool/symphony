@@ -260,7 +260,11 @@ public class MCAExplicitCmlOperationDefinition implements
 
 	private LinkedList<MCAAssignmentStm> extractAssignStatements(MCPCMLStm body){
 		LinkedList<MCAAssignmentStm> result = new LinkedList<MCAAssignmentStm>();
-		extractAssignStatements(result, (MCAActionStm)body);
+		if(body instanceof MCAActionStm){
+			extractAssignStatements(result, (MCAActionStm)body);
+		} else if(body instanceof MCAAssignmentStm){
+			extractAssignStatements(result, (MCAAssignmentStm)body);
+		}
 
 		return result;
 	}

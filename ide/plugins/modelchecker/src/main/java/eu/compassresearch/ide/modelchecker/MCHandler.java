@@ -167,7 +167,7 @@ public class MCHandler extends AbstractHandler {
 				}
 				
 			} catch(Exception e){
-				//logStackTrace(e);
+				logStackTrace(e);
 				popErrorMessage(e);
 			}
 		}

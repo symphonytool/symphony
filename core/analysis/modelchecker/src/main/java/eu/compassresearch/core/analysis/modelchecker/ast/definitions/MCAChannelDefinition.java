@@ -64,9 +64,12 @@ public class MCAChannelDefinition implements MCPCMLDefinition {
 					if(dependencies.size() > 0){
 						for (Iterator<ActionChannelDependency> iterator = dependencies.iterator(); iterator.hasNext();) {
 							ActionChannelDependency actionChannelDependency = (ActionChannelDependency) iterator.next();
-							result.append(actionChannelDependency.toFormula(option));
-							if(iterator.hasNext()){
-								result.append("\n");
+							String channelFact = actionChannelDependency.toFormula(option);
+							if(result.indexOf(channelFact) == -1){
+								result.append(channelFact);
+								if(iterator.hasNext()){
+									result.append("\n");
+								}
 							}
 						}
 					}else{
@@ -141,6 +144,16 @@ public class MCAChannelDefinition implements MCPCMLDefinition {
 		return result;
 	}
 	
+	
+
+	@Override
+	public boolean equals(Object obj) {
+		boolean result = false;
+		if(obj instanceof MCAChannelDefinition){
+			result = this.name.equals(((MCAChannelDefinition) obj).getName());
+		}
+		return result;
+	}
 
 	public String getName() {
 		return name;
