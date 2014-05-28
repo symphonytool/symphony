@@ -32,6 +32,7 @@ import org.overture.ast.definitions.PDefinition;
 import org.overture.ide.core.resources.IVdmProject;
 
 import eu.compassresearch.ast.definitions.AProcessDefinition;
+import eu.compassresearch.core.analysis.modelchecker.api.FormulaIntegrationException;
 import eu.compassresearch.core.analysis.modelchecker.api.FormulaResult;
 import eu.compassresearch.core.analysis.modelchecker.api.IFormulaIntegrator;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewMCVisitor;
@@ -46,7 +47,7 @@ import eu.compassresearch.ide.ui.utility.CmlProjectUtil;
 public class MCHandler extends AbstractHandler {
 
 	private IWorkbenchWindow window;
-	private MessageConsoleStream console;
+	//private MessageConsoleStream console;
 	private NewMCVisitor adaptor;
 	private IFormulaIntegrator mc;
 	private IProject proj;
@@ -273,6 +274,7 @@ public class MCHandler extends AbstractHandler {
 		}
 		return outputFile;
 	}
+	/*
 	private void writeToConsole(String fileName, FormulaResult formulaOutput)
 			throws IOException {
 		
@@ -285,6 +287,7 @@ public class MCHandler extends AbstractHandler {
 		this.console.write("Base of Facts: \n");
 		this.console.write(formulaOutput.getFacts());
 	}
+	*/
 	
 	private String getProperty(String parameterValue){
 		String property = Utilities.DEADLOCK_PROPERTY;
@@ -302,9 +305,9 @@ public class MCHandler extends AbstractHandler {
 		Display.getDefault().asyncExec(new Runnable() {
 		    @Override
 		    public void run() {
-		    	MessageDialog.openInformation(null, "Symphony",
-						"Could not analyse the specification.\n\n" + e.getMessage());
-				
+		    	//MessageDialog.openInformation(null, "Symphony",
+				//		"Could not analyse the specification.\n\n" + e.getMessage());
+		    	popErrorMessage(e,"Symphony");
 
 		    	
 		    }
@@ -313,6 +316,15 @@ public class MCHandler extends AbstractHandler {
 	}
 	private void popErrorMessage(String message) {
 		MessageDialog.openInformation(null, "Symphony",message);
+	}
+	
+	private void popErrorMessage(final Throwable e, String tittle) {
+		if(e instanceof FormulaIntegrationException){
+			Activator.logErrorMessage(e.getMessage());
+			MessageDialog.openInformation(null, tittle,"Could not analyse the specification.\n\n Internal error in FORMULA. \n\n" + e.getMessage());
+		}else{
+			MessageDialog.openInformation(null, tittle,"Could not analyse the specification.\n\n" + e.getMessage());
+		}
 	}
 	@Override
 	public void dispose() {

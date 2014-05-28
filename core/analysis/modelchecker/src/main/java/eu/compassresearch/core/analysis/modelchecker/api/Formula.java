@@ -240,6 +240,7 @@ public class Formula implements IFORMULAInvoker {
 	}
 	private FormulaResult launchFormula() throws IOException{
 		FormulaResult result = new FormulaResult();
+		
 		if(this.processStatus != ProcessStatus.STARTED){
 			process = Runtime.getRuntime().exec(FORMULA_CMD);
 			

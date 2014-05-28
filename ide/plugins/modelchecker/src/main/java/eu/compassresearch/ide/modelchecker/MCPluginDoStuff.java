@@ -35,8 +35,8 @@ public class MCPluginDoStuff {
 					v = site.getPage().showView(MCConstants.MC_OVERVIEW_TABLE);
 					if(v instanceof MCListView){
 						((MCListView) v).setData(data);
-						MCPluginUtility mcpu = new MCPluginUtility(site);
-						mcpu.openMcviewPerspective();
+						//MCPluginUtility mcpu = new MCPluginUtility(site);
+						//mcpu.openMcviewPerspective();
 					}
 				} catch (PartInitException e)
 				{

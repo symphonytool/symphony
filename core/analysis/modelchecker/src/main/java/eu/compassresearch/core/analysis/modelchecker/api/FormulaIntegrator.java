@@ -6,6 +6,7 @@ public class FormulaIntegrator implements IFormulaIntegrator {
 
 	private static FormulaIntegrator instance;
 	private IFORMULAInvoker executor; 
+	private JavaFormulaLogger logger;
 
 	public static synchronized FormulaIntegrator getInstance() throws FormulaIntegrationException{
 		if(instance == null){
@@ -20,9 +21,12 @@ public class FormulaIntegrator implements IFormulaIntegrator {
 	
 	private FormulaIntegrator() throws FormulaIntegrationException{
 		try {
+			logger = JavaFormulaLogger.obterInstancia();
 			//the real executor must be instantiated
 			executor = Formula.getInstance();
+			
 		} catch (IOException e) {
+			logger.log(e.getMessage());
 			throw new FormulaIntegrationException(e.getMessage());
 		}
 	}
@@ -44,6 +48,7 @@ public class FormulaIntegrator implements IFormulaIntegrator {
 		try {
 			result = executor.runFormula(specificationContent);
 		} catch (IOException e) {
+			logger.log(e.getMessage());
 			throw new FormulaIntegrationException(e.getMessage());
 		}  
 		
@@ -57,6 +62,7 @@ public class FormulaIntegrator implements IFormulaIntegrator {
 		try {
 			result = executor.runFormulaUsingFile(specificationPath);
 		} catch (IOException e) {
+			logger.log(e.getMessage());
 			throw new FormulaIntegrationException(e.getMessage());
 		}  
 		
@@ -65,23 +71,22 @@ public class FormulaIntegrator implements IFormulaIntegrator {
 	
 	@Override
 	public void finalize() throws Throwable {
-		if(executor!=null)
-		{
-			executor.finalizeProcess();
+		try {
+			if(executor!=null){
+				executor.finalizeProcess();
+			}
+		} catch (Exception e) {
+			logger.log(e.getMessage());
 		}
 		super.finalize();
 	}
 	
 	@Override
 	public void resetInstance() throws Throwable {
-		executor.resetInstance();
-	}
-
-	public static void main(String[] args) throws Throwable {
-		String file = "D:\\UFCG\\projects\\COMPASS\\FORMULA\\formula_script_skip.4ml";
-		//String file = "A.4ml";
-		FormulaIntegrator fi = new FormulaIntegrator();
-		fi.analyseFile(file);
-		fi.finalize();
+		try {
+			executor.resetInstance();
+		} catch (Exception e) {
+			logger.log(e.getMessage());
+		}
 	}
 }

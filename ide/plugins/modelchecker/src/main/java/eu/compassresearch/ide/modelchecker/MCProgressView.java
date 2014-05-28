@@ -34,6 +34,8 @@ public class MCProgressView extends ExtensionFactory {
 			ExecutionEvent event, String analysedProcess, MCHandler uiManager) {
 		try {
 			window = HandlerUtil.getActiveWorkbenchWindowChecked(event);
+			MCPluginUtility mcpu = new MCPluginUtility(window.getActivePage().getActivePart().getSite());
+			mcpu.openMcviewPerspective();
 			this.uiManager = uiManager;
 			this.thread = new MCThread(out, property, mcFolder, selectedUnit,
 					cmlFile, window, analysedProcess);
