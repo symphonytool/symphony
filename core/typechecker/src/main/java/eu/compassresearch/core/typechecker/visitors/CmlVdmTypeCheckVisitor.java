@@ -13,6 +13,7 @@ import org.overture.ast.expressions.PExp;
 import org.overture.ast.factory.AstFactory;
 import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.node.INode;
+import org.overture.ast.statements.AApplyObjectDesignator;
 import org.overture.ast.statements.AAssignmentStm;
 import org.overture.ast.statements.AFieldObjectDesignator;
 import org.overture.ast.statements.AFieldStateDesignator;
@@ -187,6 +188,13 @@ public class CmlVdmTypeCheckVisitor extends
 
 			PObjectDesignator object = createObjectDesignator(field.getObject());
 			AFieldObjectDesignator designator = AstFactory.newAFieldObjectDesignator(object, field.getField());
+			return designator;
+		}else if (exp instanceof AApplyExp)
+		{
+			AApplyExp apply = (AApplyExp) exp;
+			
+			PObjectDesignator object = createObjectDesignator(apply.getRoot());
+			AApplyObjectDesignator designator = AstFactory.newAApplyObjectDesignator(object, apply.getArgs());
 			return designator;
 		}
 		// else if(exp instanceof AUnresolvedPathExp &&((AUnresolvedPathExp)exp).getIdentifiers().size()==1)
