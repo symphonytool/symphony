@@ -340,26 +340,25 @@ public AAccessSpecifierAccessSpecifier getPrivateAccessSpecifier(boolean isStati
                                                (isAsync ? new TAsync() : null));
 }
 
-private PExp selectorListAssignableBuilder(PExp base, List<PExp> selectors)
+// private PExp selectorListAssignableBuilder(PExp base, List<PExp> selectors)
+private PExp buildExpFromSelectors(PExp base, List<PExp> selectors)
     throws StuckException {
     PExp tree = base;
 
     for (PExp sel : selectors) { // Iterate through the selectors, building a left->right tree
         
         ILexLocation loc = extractLexLocation(base.getLocation(), sel.getLocation());
-        if (sel instanceof AFieldNumberExp) { // FIXME --- probably shouldn't allow this
+        if (sel instanceof AFieldNumberExp) {
             ((AFieldNumberExp)sel).setTuple(tree);
             sel.setLocation(loc);
             tree = sel;
-            throw new StuckException("Syntax error: AFieldNumberExp in a simpleSelector for calls");
 
         } else if (sel instanceof AApplyExp) {
             ((AApplyExp)sel).setRoot(tree);
             sel.setLocation(loc);
             tree = sel;
 
-        } else if (sel instanceof ASubseqExp) { // FIXME --- probably shouldn't allow this either.
-            System.out.println("Syntax error: ASubseqExp in a simpleSelector for calls");
+        } else if (sel instanceof ASubseqExp) {
             ((ASubseqExp)sel).setSeq(base);
             sel.setLocation(loc);
             tree = sel;
@@ -447,9 +446,8 @@ private PAction buildCallObjectFromLeadingIdAction(ILexNameToken baseName, List<
     // process the baseName and remaining dottedIds into a base expression
     PExp baseExp = buildExpWithDotteds(baseName, dottedIds);
 
-    // re-use the (now poorly named) selectorListAssignableBuilder to
     // handle any remaining selectors
-    baseExp = selectorListAssignableBuilder(baseExp, selectors);
+    baseExp = buildExpFromSelectors(baseExp, selectors);
 
     // bundle the baseExp, opId, and apply into a CallObjectStm
     PObjectDesignator designator = new AUnresolvedObjectDesignator(baseExp.getLocation(), baseExp);
@@ -1436,7 +1434,7 @@ leadingIdAction returns[PAction action]
                             }
                         }
 
-                        assignable = selectorListAssignableBuilder(firstIdExp, selectors);
+                        assignable = buildExpFromSelectors(firstIdExp, selectors);
                     }
                     ( newT='new' name '(' expressionList? rbT=')'
                         // object instantiation
@@ -1648,7 +1646,7 @@ assignableExpression returns[PExp exp]
             else
                 $exp = new ASelfExp(loc, new CmlLexNameToken("", $t.getText(), loc));
 
-            $exp = selectorListAssignableBuilder($exp,$selectorOptList.selectors);
+            $exp = buildExpFromSelectors($exp,$selectorOptList.selectors);
         }
     ;
 
@@ -3167,42 +3165,7 @@ expr11 returns[PExp exp]
         }
     | exprbase selectorOptList //( selector { selectors.add($selector.exp); } )*
         {
-            $exp = $exprbase.exp; // Set the leftmost root
-            //FIXME find out how close this is to selectorListAssignableBuilder
-            for (PExp sel : $selectorOptList.selectors) { // Iterate through the selectors, building a left->right tree
-                ILexLocation loc = extractLexLocation($exp.getLocation(), sel.getLocation());
-                if (sel instanceof AFieldNumberExp) {
-                    ((AFieldNumberExp)sel).setTuple($exp);
-                    sel.setLocation(loc);
-                    $exp = sel;
-                } else if (sel instanceof AApplyExp) {
-                    ((AApplyExp)sel).setRoot($exp);
-                    sel.setLocation(loc);
-                    $exp = sel;
-                } else if (sel instanceof ASubseqExp) {
-                    ((ASubseqExp)sel).setSeq($exp);
-                    sel.setLocation(loc);
-                    $exp = sel;
-                } else if (sel instanceof AUnresolvedPathExp) {
-                    // selector was a ".IDENTIFIER"; now let's figure out what to do
-                    AUnresolvedPathExp aupe = (AUnresolvedPathExp)sel; // avoid many casts
-                    if ($exp instanceof AVariableExp) { // if the left was an IDENTIFIER, then...
-                        AVariableExp ave = (AVariableExp)$exp;
-                        aupe.setLocation(loc);
-                        aupe.getIdentifiers().add(0, ave.getName().getIdentifier());
-                        $exp = aupe;
-                    } else if ($exp instanceof AUnresolvedPathExp) { // if it was an unresolved path...
-                        if ($exp != null) $exp.setLocation(loc);
-                        ((AUnresolvedPathExp)$exp).getIdentifiers().addAll(aupe.getIdentifiers());
-                        // no need to assign to $exp here
-                    } else { // otherwise it must be a field access
-                        // the AUnresolvedPathExp we get from the list
-                        // will only have a single Identifier in it.
-                        ILexIdentifierToken id = aupe.getIdentifiers().get(0);
-                        $exp = AstFactory.newAFieldExp($exp,id);
-                    }
-                }
-            }
+            $exp = buildExpFromSelectors($exprbase.exp, $selectorOptList.selectors);
         }
     ;
 
