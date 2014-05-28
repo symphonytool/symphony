@@ -2124,11 +2124,10 @@ invariantDefinition returns[AClassInvariantDefinition def]
 @after { $def.setLocation(extractLexLocation($start, $stop)); }
     : 'inv' expression
         {
-            $def = new AClassInvariantDefinition();
-            $def.setNameScope(NameScope.GLOBAL);
-            $def.setUsed(true);
-            $def.setPass(Pass.DEFS);
-            $def.setExpression($expression.exp);
+            // The location is set after as well as the name, which is set on the way back.	
+			ILexLocation loc = null;
+			ILexNameToken className = new CmlLexNameToken("", "", loc);
+			$def = AstFactory.newAClassInvariantDefinition(className.getInvName(loc), $expression.exp);
         }
     ;
 
