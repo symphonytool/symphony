@@ -9,7 +9,7 @@ import org.overture.typechecker.TypeCheckerErrors;
 import org.overture.typechecker.TypeComparator;
 
 import eu.compassresearch.ast.actions.AReferenceAction;
-import eu.compassresearch.ast.process.AReferenceProcess;
+import eu.compassresearch.ast.process.PProcess;
 
 public class AReferenceAssistant
 {
@@ -19,7 +19,7 @@ public class AReferenceAssistant
 		checkArgTypes(node, node.getLocation(), type, ptypes, atypes);
 	}
 
-	public static void checkArgTypes(AReferenceProcess node, PType type,
+	public static void checkArgTypes(PProcess node, PType type,
 			List<PType> ptypes, List<PType> atypes)
 	{
 		checkArgTypes(node, node.getLocation(), type, ptypes, atypes);
