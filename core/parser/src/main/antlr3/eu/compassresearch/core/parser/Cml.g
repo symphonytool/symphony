@@ -340,25 +340,25 @@ public AAccessSpecifierAccessSpecifier getPrivateAccessSpecifier(boolean isStati
                                                (isAsync ? new TAsync() : null));
 }
 
-private PExp selectorListAssignableBuilder(PExp base, List<PExp> selectors)
+// private PExp selectorListAssignableBuilder(PExp base, List<PExp> selectors)
+private PExp buildExpFromSelectors(PExp base, List<PExp> selectors)
     throws StuckException {
     PExp tree = base;
 
     for (PExp sel : selectors) { // Iterate through the selectors, building a left->right tree
+        
         ILexLocation loc = extractLexLocation(base.getLocation(), sel.getLocation());
-        if (sel instanceof AFieldNumberExp) { // FIXME --- probably shouldn't allow this
+        if (sel instanceof AFieldNumberExp) {
             ((AFieldNumberExp)sel).setTuple(tree);
             sel.setLocation(loc);
             tree = sel;
-            throw new StuckException("Syntax error: AFieldNumberExp in a simpleSelector for calls");
 
         } else if (sel instanceof AApplyExp) {
             ((AApplyExp)sel).setRoot(tree);
             sel.setLocation(loc);
             tree = sel;
 
-        } else if (sel instanceof ASubseqExp) { // FIXME --- probably shouldn't allow this either.
-            System.out.println("Syntax error: ASubseqExp in a simpleSelector for calls");
+        } else if (sel instanceof ASubseqExp) {
             ((ASubseqExp)sel).setSeq(base);
             sel.setLocation(loc);
             tree = sel;
@@ -388,56 +388,70 @@ private PExp selectorListAssignableBuilder(PExp base, List<PExp> selectors)
     return tree;
 }
 
+private PExp buildExpWithDotteds(ILexNameToken baseName, List<Object> ids) {
+    if (ids == null || ids.size() == 0) {
+        return new AVariableExp(baseName.getLocation(), baseName, baseName.getName());
+    }
+    
+    List<ILexIdentifierToken> typedIds = new ArrayList<ILexIdentifierToken>();
+    typedIds.add(baseName.getIdentifier());
+    ILexLocation loc = baseName.getLocation();
+    for (Object o : ids) {
+        CommonToken id = (CommonToken)o;
+        loc = extractLexLocation(id);
+        ILexIdentifierToken typedId = new LexIdentifierToken(id.getText(), false, loc);
+        typedIds.add(typedId);
+    }
+    return new AUnresolvedPathExp(extractLexLocation(baseName.getLocation(), loc), typedIds);
+}
+
 /* Note: this assumes that the last selector is an AApplyExp
  * should (null? dottedIds) and (match selectors '(AApplyExp)) return a ACallStm instead of a ACallObjectStm?
+ *
+ * only called when selectors.size() >= 1
  */
-private PAction buildCallObjectFromLeadingIdAction(ILexNameToken baseId, List<Object> dottedIds, List<PExp> selectors)
+private PAction buildCallObjectFromLeadingIdAction(ILexNameToken baseName, List<Object> dottedIds, List<PExp> selectors)
     throws StuckException {
-    // we will need to track the last identifier that we encounter to
-    // use for the eventual call statement.
-    ILexIdentifierToken lastSeenId = baseId.getIdentifier();
-    PExp baseExp;
-    if (dottedIds == null || dottedIds.size() == 0) {
-        // no dotted ids, so we start with a variable expression
-        baseExp = new AVariableExp(baseId.getLocation(), baseId, baseId.getName());
-    } else {
-        // we have a sequence of dotted ids, so we start with an unresolved path
-        List<ILexIdentifierToken> dottedIdList = new ArrayList<ILexIdentifierToken>();
-        dottedIdList.add(lastSeenId);
-
-        // convert the list of dotted CommonTokens into a list of LexIdentifierTokens
-        ILexLocation loc = baseId.getLocation();
-        for (Object o : dottedIds) {
-            CommonToken dottedId = (CommonToken)o;
-            loc = extractLexLocation(dottedId);
-            lastSeenId = new LexIdentifierToken(dottedId.getText(), false, loc);
-            dottedIdList.add(lastSeenId);
-        }
-
-        baseExp = new AUnresolvedPathExp(extractLexLocation(baseId.getLocation(), loc), dottedIdList);
+    if (selectors == null || selectors.size() == 0) {
+        throw new StuckException("impossible case: buildCallObjectFromLeadingIdAction() called without any selectors");
     }
 
     // pop the final AApplyExp out of the selectors list
     AApplyExp finalApply = (AApplyExp)selectors.get(selectors.size() - 1);
     selectors.remove(finalApply);
 
-    // re-use the (now poorly named) selectorListAssignableBuilder to
-    // handle the remaining selectors
-    if (selectors.size() > 0) {
-        baseExp = selectorListAssignableBuilder(baseExp, selectors);
-
-        // I suspect if the resulting baseExp is anything but an
-        // unresolved path, then we'll have a type error.
-        // -jwc/23May2014
-        if (baseExp instanceof AUnresolvedPathExp) {
-            List<ILexIdentifierToken> unresolvedIds = ((AUnresolvedPathExp)baseExp).getIdentifiers();
-            lastSeenId = unresolvedIds.get(unresolvedIds.size() - 1);
+    // figure out the operation's identifier
+    ILexIdentifierToken opId = null;
+    if (selectors.size() > 0 ) {
+        PExp sel = selectors.get(selectors.size() - 1);
+        selectors.remove(sel);
+        if (sel instanceof AFieldExp) {
+            opId = ((AFieldExp)sel).getField();
+        } else if (sel instanceof AUnresolvedPathExp) {
+            List<ILexIdentifierToken> unresolvedIds = ((AUnresolvedPathExp)sel).getIdentifiers();
+            opId = unresolvedIds.get(unresolvedIds.size() - 1).clone();
+        } else {
+            throw new StuckException("nope!");
         }
+    } else if (dottedIds == null || dottedIds.size() == 0) {
+        throw new StuckException("impossible case: buildCallObjectFromLeadingIdAction called with one selector and no dottedIds; should have been excluded from call");
+    } else {
+        CommonToken lastDottedId = (CommonToken)dottedIds.get(dottedIds.size() - 1);
+        dottedIds.remove(lastDottedId);
+        opId = new LexIdentifierToken(lastDottedId.getText(), false, extractLexLocation(lastDottedId));
     }
 
-    ILexLocation dLoc = extractLexLocation(baseId.getLocation(), lastSeenId.getLocation());
-    PObjectDesignator designator = new AUnresolvedObjectDesignator(dLoc, baseExp);
-    PAction action = stm2action(AstFactory.newACallObjectStm(designator, lastSeenId, finalApply.getArgs()));
+    // At this point we should be able to just process the dotteds and selectors directly
+    
+    // process the baseName and remaining dottedIds into a base expression
+    PExp baseExp = buildExpWithDotteds(baseName, dottedIds);
+
+    // handle any remaining selectors
+    baseExp = buildExpFromSelectors(baseExp, selectors);
+
+    // bundle the baseExp, opId, and apply into a CallObjectStm
+    PObjectDesignator designator = new AUnresolvedObjectDesignator(baseExp.getLocation(), baseExp);
+    PAction action = stm2action(AstFactory.newACallObjectStm(designator, opId, finalApply.getArgs()));
     return action;
 }
 
@@ -1420,7 +1434,7 @@ leadingIdAction returns[PAction action]
                             }
                         }
 
-                        assignable = selectorListAssignableBuilder(firstIdExp, selectors);
+                        assignable = buildExpFromSelectors(firstIdExp, selectors);
                     }
                     ( newT='new' name '(' expressionList? rbT=')'
                         // object instantiation
@@ -1632,7 +1646,7 @@ assignableExpression returns[PExp exp]
             else
                 $exp = new ASelfExp(loc, new CmlLexNameToken("", $t.getText(), loc));
 
-            $exp = selectorListAssignableBuilder($exp,$selectorOptList.selectors);
+            $exp = buildExpFromSelectors($exp,$selectorOptList.selectors);
         }
     ;
 
@@ -3151,42 +3165,7 @@ expr11 returns[PExp exp]
         }
     | exprbase selectorOptList //( selector { selectors.add($selector.exp); } )*
         {
-            $exp = $exprbase.exp; // Set the leftmost root
-            //FIXME find out how close this is to selectorListAssignableBuilder
-            for (PExp sel : $selectorOptList.selectors) { // Iterate through the selectors, building a left->right tree
-                ILexLocation loc = extractLexLocation($exp.getLocation(), sel.getLocation());
-                if (sel instanceof AFieldNumberExp) {
-                    ((AFieldNumberExp)sel).setTuple($exp);
-                    sel.setLocation(loc);
-                    $exp = sel;
-                } else if (sel instanceof AApplyExp) {
-                    ((AApplyExp)sel).setRoot($exp);
-                    sel.setLocation(loc);
-                    $exp = sel;
-                } else if (sel instanceof ASubseqExp) {
-                    ((ASubseqExp)sel).setSeq($exp);
-                    sel.setLocation(loc);
-                    $exp = sel;
-                } else if (sel instanceof AUnresolvedPathExp) {
-                    // selector was a ".IDENTIFIER"; now let's figure out what to do
-                    AUnresolvedPathExp aupe = (AUnresolvedPathExp)sel; // avoid many casts
-                    if ($exp instanceof AVariableExp) { // if the left was an IDENTIFIER, then...
-                        AVariableExp ave = (AVariableExp)$exp;
-                        aupe.setLocation(loc);
-                        aupe.getIdentifiers().add(0, ave.getName().getIdentifier());
-                        $exp = aupe;
-                    } else if ($exp instanceof AUnresolvedPathExp) { // if it was an unresolved path...
-                        if ($exp != null) $exp.setLocation(loc);
-                        ((AUnresolvedPathExp)$exp).getIdentifiers().addAll(aupe.getIdentifiers());
-                        // no need to assign to $exp here
-                    } else { // otherwise it must be a field access
-                        // the AUnresolvedPathExp we get from the list
-                        // will only have a single Identifier in it.
-                        ILexIdentifierToken id = aupe.getIdentifiers().get(0);
-                        $exp = AstFactory.newAFieldExp($exp,id);
-                    }
-                }
-            }
+            $exp = buildExpFromSelectors($exprbase.exp, $selectorOptList.selectors);
         }
     ;
 
