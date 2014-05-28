@@ -1079,8 +1079,27 @@ public class CmlActionTypeChecker extends
 			AAlphabetisedParallelismReplicatedAction node,
 			TypeCheckInfo question) throws AnalysisException
 	{
-		// FIXME Auto-generated method stub
-		return setTypeVoid(node);
+		PVarsetExpression namesetExp = node.getNamesetExpression();
+		PAction repAction = node.getReplicatedAction();
+		LinkedList<PSingleDeclaration> decls = node.getReplicationDeclaration();
+
+		namesetExp.apply(nameSetChecker, question);
+
+		List<PDefinition> defs = new Vector<PDefinition>();
+
+		for (PSingleDeclaration decl : decls)
+		{
+			PType declType = decl.apply(THIS, question);
+
+			for (PDefinition def : declType.getDefinitions())
+			{
+				defs.add(def);
+			}
+		}
+
+		PType repActionType = repAction.apply(THIS, question.newScope(defs));
+
+		return setType(question.assistantFactory, node, repActionType);
 	}
 
 	public PType createNewReturnValue(INode node, TypeCheckInfo question)
