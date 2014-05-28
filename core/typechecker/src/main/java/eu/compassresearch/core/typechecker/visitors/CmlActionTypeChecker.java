@@ -16,6 +16,7 @@ import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.factory.AstFactory;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
+import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.patterns.PPattern;
@@ -122,6 +123,14 @@ public class CmlActionTypeChecker extends
 
 	/**
 	 * Case to handle statements embedded in actions
+	 * 
+	 * @param node
+	 *            the node
+	 * @param question
+	 *            the question
+	 * @return the type
+	 * @throws AnalysisException
+	 *             if anything goes wrong
 	 */
 	public PType caseAStmAction(AStmAction node, TypeCheckInfo question)
 			throws AnalysisException
@@ -130,7 +139,6 @@ public class CmlActionTypeChecker extends
 		node.setType(stm.apply(THIS, question));
 		return node.getType();
 	}
-
 
 	@Override
 	public PType caseAReferenceAction(AReferenceAction node,
@@ -161,30 +169,9 @@ public class CmlActionTypeChecker extends
 
 		if (opdef instanceof AActionDefinition)
 		{
-			AActionDefinition actionDef = (AActionDefinition) opdef;
-
-			List<PType> paramTypes = new Vector<PType>();
-			for (PParametrisation localDef : actionDef.getDeclarations())
-			{
-				PType t = localDef.getDeclaration().getType();
-				question.assistantFactory.createPTypeAssistant().typeResolve(t, null, THIS, question);
-				paramTypes.add(t);
-			}
-
-			// Reset the name's qualifier with the actual operation type so
-			// that runtime search has a simple TypeComparator call.
-
-			// Only change the name from 'A' to 'A(int,int)' if 'A' has arguments
-			if (!node.getArgs().isEmpty())
-			{
-				if (question.env.isVDMPP())
-				{
-					node.getName().setTypeQualifier(paramTypes);
-				}
-			}
-			node.setType(AstFactory.newAVoidReturnType(node.getLocation()));
-			AReferenceAssistant.checkArgTypes(node, node.getType(), paramTypes, atypes);
-			node.setActionDefinition(actionDef);
+			AActionDefinition adef = (AActionDefinition) opdef;
+			node.setType(checkReferenceAction(node, node.getLocation(), node.getArgs(), adef.getDeclarations(), atypes, question));
+			node.setActionDefinition(adef);
 			return node.getType();
 		} else
 		{
@@ -195,6 +182,40 @@ public class CmlActionTypeChecker extends
 			node.setType(AstFactory.newAUnknownType(node.getLocation()));
 			return node.getType();
 		}
+	}
+
+	protected PType checkReferenceAction(INode node, ILexLocation loc,
+			List<PExp> args, List<PParametrisation> declarations,
+			List<PType> atypes, TypeCheckInfo question)
+			throws AnalysisException
+	{
+
+		// AActionDefinition actionDef = (AActionDefinition) opdef;
+
+		List<PType> paramTypes = new Vector<PType>();
+		for (PParametrisation localDef : declarations)
+		{
+			PType t = localDef.getDeclaration().getType();
+			question.assistantFactory.createPTypeAssistant().typeResolve(t, null, THIS, question);
+			paramTypes.add(t);
+		}
+
+		// Reset the name's qualifier with the actual operation type so
+		// that runtime search has a simple TypeComparator call.
+
+		// Only change the name from 'A' to 'A(int,int)' if 'A' has arguments
+		// if (!args.isEmpty())
+		// {
+		// if (question.env.isVDMPP())
+		// {
+		// name.setTypeQualifier(paramTypes);
+		// }
+		// }
+		PType type = AstFactory.newAVoidReturnType(loc);
+		AReferenceAssistant.checkArgTypes(node, loc, type, paramTypes, atypes);
+		// node.setActionDefinition(actionDef);
+		return type;
+
 	}
 
 	@Override
@@ -979,30 +1000,11 @@ public class CmlActionTypeChecker extends
 	{
 
 		AParametrisedAction action = node.getAction();
-		LinkedList<PExp> args = node.getArgs();
+		action.apply(THIS, question);
+		List<PType> atypes = question.assistantFactory.createACallObjectStatementAssistant().getArgTypes(node.getArgs(), THIS, question);
 
-		List<PDefinition> defs = new Vector<PDefinition>();
-
-		LinkedList<PParametrisation> parameterNames = node.getAction().getParametrisations();
-		int i = 0;
-		for (PExp exp : args)
-		{
-			// FIXME what is this exp for, it is not used in the check
-			/* PType expType = */exp.apply(THIS, question);
-
-			if (i > parameterNames.size())
-			{
-				continue;
-			}
-			PParametrisation pa = parameterNames.get(i++);
-			pa.apply(THIS, question);
-			ALocalDefinition localDef = pa.getDeclaration();
-			defs.add(localDef);
-		}
-
-		PType actionType = action.apply(THIS, question.newScope(defs));
-
-		return setType(question.assistantFactory, node, actionType);
+		node.setType(checkReferenceAction(node, node.getLocation(), node.getArgs(), action.getParametrisations(), atypes, question));
+		return node.getType();
 	}
 
 	@Override

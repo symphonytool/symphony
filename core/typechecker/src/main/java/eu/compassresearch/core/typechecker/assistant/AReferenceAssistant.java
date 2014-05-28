@@ -25,7 +25,7 @@ public class AReferenceAssistant
 		checkArgTypes(node, node.getLocation(), type, ptypes, atypes);
 	}
 
-	protected static void checkArgTypes(INode node, ILexLocation location,
+	public static void checkArgTypes(INode node, ILexLocation location,
 			PType type, List<PType> ptypes, List<PType> atypes)
 	{
 		if (ptypes.size() != atypes.size())
