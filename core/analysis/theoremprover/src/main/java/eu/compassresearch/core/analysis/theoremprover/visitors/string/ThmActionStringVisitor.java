@@ -226,8 +226,8 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		return ThmProcessUtil.undefined;
 	}
 
-	public String caseAInterruptAction(AInterruptAction node, ThmVarsContext vars) throws AnalysisException{
-		return ThmProcessUtil.undefined;
+	public String caseAInterruptAction(AInterruptAction a, ThmVarsContext vars) throws AnalysisException{
+		return a.getLeft().apply(thmStringVisitor, vars) + ThmProcessUtil.interrupt + a.getRight().apply(thmStringVisitor, vars);
 	}
 	
 	public String caseAParametrisedAction(AParametrisedAction node, ThmVarsContext vars) throws AnalysisException{
@@ -252,16 +252,20 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		return ThmProcessUtil.undefined;
 	}
 
-	public String caseATimeoutAction(ATimeoutAction node, ThmVarsContext vars) throws AnalysisException{
-		return ThmProcessUtil.undefined;
+	public String caseATimeoutAction(ATimeoutAction a, ThmVarsContext vars) throws AnalysisException{
+		return a.getLeft().apply(thmStringVisitor, vars) + 
+			   ThmProcessUtil.timeoutLeft + 
+			   a.getTimeoutExpression().apply(thmStringVisitor, vars) +
+			   ThmProcessUtil.timeoutRight +
+			   a.getRight().apply(thmStringVisitor, vars);
 	}
 	
 	public String caseAUntimedTimeoutAction(AUntimedTimeoutAction node, ThmVarsContext vars) throws AnalysisException{
 		return ThmProcessUtil.undefined;
 	}
 
-	public String caseAWaitAction(AWaitAction a, ThmVarsContext vars) throws AnalysisException{
-		return ThmProcessUtil.undefined;
+	public String caseAWaitAction(AWaitAction a, ThmVarsContext vars) throws AnalysisException {
+		return ThmProcessUtil.wait + "(" + a.getExpression().apply(thmStringVisitor, vars) + ")";
 	}
 	
 	public String caseAHidingAction(AHidingAction a, ThmVarsContext vars) throws AnalysisException{

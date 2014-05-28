@@ -992,7 +992,7 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 				sb.append(", ");
 			}
 		}
-		return "{" + sb.toString() +"}";
+		return "{|" + sb.toString() +"|}";
 	}
 
 		

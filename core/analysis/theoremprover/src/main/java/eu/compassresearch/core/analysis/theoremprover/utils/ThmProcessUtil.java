@@ -52,17 +52,18 @@ public class ThmProcessUtil {
 	public static String seqComp = " ; ";
 	public static String extChoice = " \\<box> ";
 	public static String intChoice = " |-| ";
-	public static String interrupt = " /\\ ";
+	public static String interrupt = " /-\\ ";
 	public static String timeIntLeft = "/(";
 	public static String timeIntRight = ")\\";
 	public static String timeout = "[>";
-	public static String timeoutLeft = "[(";
-	public static String timeoutRight = ")>";
+	public static String timeoutLeft = " [(";
+	public static String timeoutRight = ")> ";
 	public static String hiding = " \\\\ ";
 	public static String startsby = " startby ";
 	public static String endsby = " endby ";
 	public static String interleave = " ||| ";
 	public static String syncParallel = " || ";
+	public static String mainAction = "MainAction";
 	
 	public static String ifLeft = "\\<triangleleft>";
 	public static String ifRight = "\\<triangleright>";
