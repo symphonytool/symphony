@@ -22,8 +22,7 @@ public class MCProgressView extends ExtensionFactory {
 
 	private MCThread thread;
 	private IWorkbenchWindow window;
-	private Exception exception;
-	private MCHandler uiManager;
+	private Throwable exception;
 	
 	public MCProgressView() {
 		super();
@@ -34,9 +33,7 @@ public class MCProgressView extends ExtensionFactory {
 			ExecutionEvent event, String analysedProcess, MCHandler uiManager) {
 		try {
 			window = HandlerUtil.getActiveWorkbenchWindowChecked(event);
-			MCPluginUtility mcpu = new MCPluginUtility(window.getActivePage().getActivePart().getSite());
-			mcpu.openMcviewPerspective();
-			this.uiManager = uiManager;
+			MCPluginUtility.showModelcheckerPerspective(window);
 			this.thread = new MCThread(out, property, mcFolder, selectedUnit,
 					cmlFile, window, analysedProcess);
 		} catch (ExecutionException e) {
@@ -63,10 +60,7 @@ public class MCProgressView extends ExtensionFactory {
 							String msg = "";
 							if(thread.getException() != null){
 								msg = thread.getException().getMessage();
-							} else {
-								msg = thread.getExcep().getMessage();
-							}
-							 
+							} 
 						}
 					} catch (InterruptedException e) {
 					} // ignore
@@ -83,7 +77,7 @@ public class MCProgressView extends ExtensionFactory {
 				monitor.done();
 				if(thread.getStatus() == MCStatus.ERROR){
 					exception = thread.getException();
-					uiManager.popErrorMessage(exception);
+					MCPluginUtility.popErrorMessage(exception);
 				}
 				
 				return Status.OK_STATUS;
@@ -93,22 +87,13 @@ public class MCProgressView extends ExtensionFactory {
 		b.schedule();
 	}
 
-	
-
-	public MCThread getThread() {
-		return thread;
-	}
-
-	public Exception getException() {
+	public Throwable getException() {
 		return exception;
 	}
 
-	public void setException(Exception exception) {
+	public void setException(Throwable exception) {
 		this.exception = exception;
 	}
 
-	public synchronized FormulaResult getFormulaResult()
-			throws InterruptedException {
-		return thread.getFormulaResult();
-	}
+	
 }
