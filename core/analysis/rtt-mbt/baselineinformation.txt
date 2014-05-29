@@ -3,6 +3,7 @@ RTTPLUGIN_0.3.1
 
 Changes:
 
+- fixed bug that resetting file cache fails if no file cache exists
 - added support for HTTP(S) front end redirecting to RTT-MBT server.
 - fixed: improve support for spaces in path names
 - added new advanced.conf parameter LI (upper limit for duration between input signal changes).

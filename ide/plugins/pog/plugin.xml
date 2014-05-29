@@ -38,7 +38,7 @@
                minimized="false"
                ratio="0.50"
                relationship="bottom"
-               relative="eu.compassresearch.ide.pog.POsTable"
+               relative="org.eclipse.ui.editorss"
                visible="true">
 			</view>
 		</perspectiveExtension>
