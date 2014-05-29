@@ -93,7 +93,9 @@ class TPListener(session: Session) extends SessionEvents {
 
   def cmdAt(thyNode : Document.Node.Name, offset : Integer): Option[Command] = {
     val node = session.snapshot(thyNode).node
-    node.command_at(offset).map(_._1)
+    val rng = node.command_range(offset)
+    val cm = if (rng.hasNext) Some(rng.next) else None
+    cm.map(_._1)
   }
 
   

@@ -186,4 +186,11 @@ public class CmlEditor extends VdmEditor
 		return r;
 	}
 
+	@Override
+	public INode getElementAt(int offset) {
+		return getElementAt(offset, true);
+	}
+	
+	
+
 }

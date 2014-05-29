@@ -1,0 +1,33 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Symphony IDE Refinement Plugin
+Bundle-SymbolicName: eu.compassresearch.ide.refinementtool;singleton:=true
+Bundle-Version: 0.3.1.qualifier
+Bundle-Activator: eu.compassresearch.ide.refinementtool.Activator
+Bundle-Vendor: The COMPASS Project
+Export-Package: eu.compassresearch.ide.refinementtool
+Require-Bundle: org.eclipse.debug.ui,
+ org.eclipse.ui.workbench.texteditor,
+ org.eclipse.ui.views,
+ org.eclipse.swt,
+ org.eclipse.ui,
+ org.eclipse.ui.ide,
+ org.eclipse.osgi,
+ org.eclipse.ui.console,
+ org.eclipse.core.runtime,
+ org.eclipse.core.resources,
+ org.overture.ide.core,
+ org.overture.ide.ui,
+ org.overture.ide.builders.vdmj,
+ org.overture.ide.debug,
+ eu.compassresearch.ide.core,
+ eu.compassresearch.ide.ui,
+ eu.compassresearch.ide.pog;bundle-version="0.3.1",
+ org.overture.ide.plugins.poviewer;bundle-version="2.0.5",
+ org.eclipse.ui.workbench
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Eclipse-BuddyPolicy: registered
+Eclipse-BundleShape: dir
+Bundle-ActivationPolicy: lazy
+Bundle-ClassPath: .,
+ jars/refinementtool.jar

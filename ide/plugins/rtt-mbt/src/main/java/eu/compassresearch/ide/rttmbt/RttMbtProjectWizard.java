@@ -58,7 +58,7 @@ public class RttMbtProjectWizard extends BasicNewProjectResourceWizard {
 		}
 		IStatus status = workspace.validateProjectLocation(newProject, Path.fromOSString(projectdir.getAbsolutePath()));
 		if (!status.isOK()) {
-			client.addErrorMessage("invalid project location " + projectdir.getAbsolutePath() + ": " + status.toString());
+			System.err.println("invalid project location " + projectdir.getAbsolutePath() + ": " + status.toString());
 		}
 		try {
 			client.addLogMessage("creating Eclipse project resource '" + Path.fromOSString(projectdir.getAbsolutePath()) + "'...");
@@ -91,12 +91,20 @@ public class RttMbtProjectWizard extends BasicNewProjectResourceWizard {
 		client.setProgress(IRttMbtProgressBar.Tasks.Global, 15);
 
 		// download templates
+		String backupWorkspaceProjectPrefix = client.getWorkspaceProjectPrefix();
+		String backupProjectPath = client.getRttProjectPath();
+		client.setWorkspaceProjectPrefix(null); // remove project prefix for templates download
+		client.setRttProjectPath(client.getWorkspacePath() + File.separator + projectName); // set fake project path for templates download
 		if (client.downloadDirectory(client.getWorkspacePath() + File.separator + "templates")) {
 			client.addLogMessage("[PASS]: downloading templates");
 			client.setProgress(IRttMbtProgressBar.Tasks.Global, 75);
+			client.setWorkspaceProjectPrefix(backupWorkspaceProjectPrefix); // restore project prefix again
+			client.setRttProjectPath(backupProjectPath); // restore file system project path
 		} else {
 			client.addErrorMessage("[FAIL]: downloading templates");
 			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
+			client.setWorkspaceProjectPrefix(backupWorkspaceProjectPrefix); // restore project prefix again
+			client.setRttProjectPath(backupProjectPath); // restore file system project path
 			return false;
 		}
 
