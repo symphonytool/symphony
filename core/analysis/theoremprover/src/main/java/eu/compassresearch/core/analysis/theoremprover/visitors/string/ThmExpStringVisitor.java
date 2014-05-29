@@ -594,7 +594,7 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 
 
 	public String caseANotYetSpecifiedExp(ANotYetSpecifiedExp ex, ThmVarsContext vars) throws AnalysisException{
-		return ThmExprUtil.notHandled;
+		return ThmExprUtil.undefined;
 	}
 
 	public String caseAPostOpExp(APostOpExp ex, ThmVarsContext vars) throws AnalysisException{
@@ -668,11 +668,11 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		for(ILexNameToken var : vars.getBVars()){
 			if (varName.getName().equals(var.getName()))
 			{
-				return  "^" + varName.getName() + "^";
+				return  "&" + varName.getName();
 			}
 		}
 		//assume is value?
-		return "^" + varName.getName() + "^";
+		return "&" + varName.getName();
 	}
 
 	public String caseAUnresolvedPathExp(AUnresolvedPathExp ex, ThmVarsContext vars) throws AnalysisException{

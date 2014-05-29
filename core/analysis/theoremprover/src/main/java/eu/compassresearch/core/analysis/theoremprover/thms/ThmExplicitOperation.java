@@ -110,7 +110,7 @@ public class ThmExplicitOperation extends ThmDecl{
 		
 		for(PPattern p : params)
 		{
-			String pName = "^" + ((AIdentifierPattern) p).getName().toString() + "^";
+			String pName = "&" + ((AIdentifierPattern) p).getName().toString();
 			String lambdaName = "@" + inputName +".#" + count;
 		
 			ex = ex.replace(pName, lambdaName);
@@ -118,7 +118,7 @@ public class ThmExplicitOperation extends ThmDecl{
 		}
 		
 		//Replace the keyword "RESULT" with the Lambda post value
-		ex = ex.replace("^RESULT^", "@" + outputName);
+		ex = ex.replace("&RESULT", "@" + outputName);
 		
 		return ex;
 	}

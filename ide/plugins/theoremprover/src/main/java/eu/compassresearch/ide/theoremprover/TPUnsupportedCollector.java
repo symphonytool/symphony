@@ -1094,7 +1094,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 	@Override
 	public void caseAExternalChoiceReplicatedAction(
 			AExternalChoiceReplicatedAction node) throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseAExternalChoiceReplicatedAction(node);
@@ -1297,7 +1297,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 	public void caseAGeneralisedParallelismReplicatedAction(
 			AGeneralisedParallelismReplicatedAction node)
 			throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseAGeneralisedParallelismReplicatedAction(node);
@@ -1566,7 +1566,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 	@Override
 	public void caseAInterleavingReplicatedAction(
 			AInterleavingReplicatedAction node) throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseAInterleavingReplicatedAction(node);
@@ -1601,7 +1601,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 	@Override
 	public void caseAInternalChoiceReplicatedAction(
 			AInternalChoiceReplicatedAction node) throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseAInternalChoiceReplicatedAction(node);
@@ -2085,7 +2085,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 	@Override
 	public void caseANotYetSpecifiedExp(ANotYetSpecifiedExp node)
 			throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseANotYetSpecifiedExp(node);
@@ -2094,7 +2094,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 	@Override
 	public void caseANotYetSpecifiedStm(ANotYetSpecifiedStm node)
 			throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseANotYetSpecifiedStm(node);
@@ -2718,7 +2718,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 	@Override
 	public void caseASpecificationStm(ASpecificationStm node)
 			throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseASpecificationStm(node);

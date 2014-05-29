@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
+import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.patterns.PPattern;
@@ -47,7 +48,11 @@ import eu.compassresearch.ast.actions.AWaitAction;
 import eu.compassresearch.ast.actions.AWriteCommunicationParameter;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.actions.PCommunicationParameter;
+import eu.compassresearch.ast.actions.SReplicatedActionBase;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
+import eu.compassresearch.ast.declarations.AExpressionSingleDeclaration;
+import eu.compassresearch.ast.declarations.PSingleDeclaration;
+import eu.compassresearch.core.analysis.theoremprover.utils.ThmExprUtil;
 import eu.compassresearch.core.analysis.theoremprover.utils.ThmProcessUtil;
 
 public class ThmActionStringVisitor extends
@@ -206,24 +211,47 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		return ThmProcessUtil.undefined;
 	}
 	
+	private String printReplicatedActionBase(
+			SReplicatedActionBase a, ThmVarsContext vars) throws AnalysisException {
+
+		StringBuffer sb = new StringBuffer();
+		
+		for (PSingleDeclaration d : a.getReplicationDeclaration()) {
+			if (d instanceof AExpressionSingleDeclaration) {
+				AExpressionSingleDeclaration d1 = (AExpressionSingleDeclaration) d;
+				sb.append(d1.getIdentifier().toString());
+				sb.append(ThmExprUtil.inSet);
+				sb.append(d1.getExpression().apply(thmStringVisitor, vars));
+				// FIXME: The LexNameToken needs a module, currently empty
+				vars.addBVar(new LexNameToken("", d1.getIdentifier().clone()));
+			}	
+		}
+		
+		sb.append(" @ ");
+		sb.append(a.getReplicatedAction().apply(thmStringVisitor, vars));
+				
+		return sb.toString();
+		
+	}
+	
 	public String caseAExternalChoiceReplicatedAction(
-			AExternalChoiceReplicatedAction node, ThmVarsContext vars) throws AnalysisException{
-		return ThmProcessUtil.undefined;
+			AExternalChoiceReplicatedAction a, ThmVarsContext vars) throws AnalysisException{
+		return (ThmProcessUtil.replExtChoice + printReplicatedActionBase(a, vars));
 	}
 	
 	public String caseAGeneralisedParallelismReplicatedAction(
-			AGeneralisedParallelismReplicatedAction node, ThmVarsContext vars) throws AnalysisException{
-		return ThmProcessUtil.undefined;
+			AGeneralisedParallelismReplicatedAction a, ThmVarsContext vars) throws AnalysisException{
+		return (ThmProcessUtil.replPar + printReplicatedActionBase(a, vars));
 	}
 
 	public String caseAInterleavingReplicatedAction(
-			AInterleavingReplicatedAction node, ThmVarsContext vars) throws AnalysisException{
-		return ThmProcessUtil.undefined;
+			AInterleavingReplicatedAction a, ThmVarsContext vars) throws AnalysisException{
+		return (ThmProcessUtil.replInter + printReplicatedActionBase(a, vars));
 	}
 	
 	public String caseAInternalChoiceReplicatedAction(
-			AInternalChoiceReplicatedAction node, ThmVarsContext vars) throws AnalysisException{
-		return ThmProcessUtil.undefined;
+			AInternalChoiceReplicatedAction a, ThmVarsContext vars) throws AnalysisException{
+		return (ThmProcessUtil.replIntChoice + printReplicatedActionBase(a, vars));
 	}
 
 	public String caseAInterruptAction(AInterruptAction a, ThmVarsContext vars) throws AnalysisException{
@@ -235,13 +263,13 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 	}
 
 	public String caseAParametrisedInstantiatedAction(
-			AParametrisedInstantiatedAction node, ThmVarsContext vars) throws AnalysisException{
+			AParametrisedInstantiatedAction a, ThmVarsContext vars) throws AnalysisException{
 		return ThmProcessUtil.undefined;
 	}
 	
 	public String caseASequentialCompositionReplicatedAction(
-			ASequentialCompositionReplicatedAction node, ThmVarsContext vars) throws AnalysisException{
-		return ThmProcessUtil.undefined;
+			ASequentialCompositionReplicatedAction a, ThmVarsContext vars) throws AnalysisException{
+		return (ThmProcessUtil.replSeq + printReplicatedActionBase(a, vars));
 	}
 
 	public String caseAStartDeadlineAction(AStartDeadlineAction node, ThmVarsContext vars) throws AnalysisException{

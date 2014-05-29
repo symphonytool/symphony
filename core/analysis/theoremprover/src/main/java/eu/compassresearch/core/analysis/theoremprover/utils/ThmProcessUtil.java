@@ -65,6 +65,12 @@ public class ThmProcessUtil {
 	public static String syncParallel = " || ";
 	public static String mainAction = "MainAction";
 	
+	public static String replExtChoice = "[] ";
+	public static String replIntChoice = "|~| ";
+	public static String replPar = "|| ";
+	public static String replInter = "||| ";
+	public static String replSeq = "; ";
+	
 	public static String ifLeft = "\\<triangleleft>";
 	public static String ifRight = "\\<triangleright>";
 	public static String assign = " := ";
