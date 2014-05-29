@@ -11,9 +11,18 @@
   
   <extension
         point="org.eclipse.ui.startup">
-     <startup class="eu.compassresearch.ide.modelchecker.Activator"> </startup>
+     <startup class="eu.compassresearch.ide.modelchecker.CmlMCPlugin"> </startup>
   </extension>
   
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="eu.compassresearch.ide.modelchecker.ModelcheckerSetupPreferencePage"
+            id="eu.compassresearch.ide.modelchecker.setuppage"
+            name="Model Checker Setup">
+      </page>
+   </extension>
+   
   <extension point="org.eclipse.ui.commands">
       <command
             defaultHandler="eu.compassresearch.ide.modelchecker.MCHandler"

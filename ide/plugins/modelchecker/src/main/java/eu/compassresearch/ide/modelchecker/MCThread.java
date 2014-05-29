@@ -97,7 +97,7 @@ public class MCThread extends Thread{
 				outputFile.setContents(new ByteArrayInputStream(result.getFacts().getBytes()), true, true, new NullProgressMonitor());
 			}
 		}catch(CoreException e){
-			Activator.log(e);
+			CmlMCPlugin.log(e);
 		}
 		
 		return outputFile;

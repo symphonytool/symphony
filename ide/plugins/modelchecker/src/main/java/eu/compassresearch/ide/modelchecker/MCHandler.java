@@ -71,8 +71,8 @@ public class MCHandler extends AbstractHandler {
 		//	popErrorMessage("No project selected.");
 		//	return null;
 		//}
-		if(!Activator.FORMULA_OK){
-			MCPluginUtility.popErrorMessage(Activator.formulaNotInstalledMsg);
+		if(!CmlMCPlugin.FORMULA_OK){
+			MCPluginUtility.popErrorMessage(CmlMCPlugin.formulaNotInstalledMsg);
 		}else{
 			try {
 				this.window = HandlerUtil.getActiveWorkbenchWindow(event);
@@ -233,7 +233,7 @@ public class MCHandler extends AbstractHandler {
 			}catch(ClassCastException e){
 				throw new AnalysisException("Internal error when casting some object during FORMULA script generation.");
 			}catch(CoreException e){
-				Activator.log(e);
+				CmlMCPlugin.log(e);
 			}
 		
 		}

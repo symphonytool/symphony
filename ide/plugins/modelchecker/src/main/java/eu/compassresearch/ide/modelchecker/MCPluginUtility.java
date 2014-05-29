@@ -31,6 +31,10 @@ import eu.compassresearch.ide.modelchecker.view.MCUIResult;
 
 public class MCPluginUtility {
 		
+	public static boolean isWindowsPlatform() {
+		return System.getProperty("os.name").toLowerCase().contains("win");
+	}
+	
 	public static void showModelcheckerPerspective(IWorkbenchWindow window){
 		try{
 			PlatformUI.getWorkbench().showPerspective(MCConstants.MC_PERSPECTIVE_ID, window);
@@ -73,7 +77,7 @@ public class MCPluginUtility {
 	private static void popErrorMessage(final Throwable e, String tittle) {
 		if(e instanceof FormulaIntegrationException){
 			MessageDialog.openInformation(null, tittle,"Could not analyse the specification.\n\n Internal error in FORMULA.");
-			Activator.logErrorMessage(e.getMessage());
+			CmlMCPlugin.logErrorMessage(e.getMessage());
 		}else{
 			MessageDialog.openInformation(null, tittle,"Could not analyse the specification.\n\n" + e.getMessage());
 		}
@@ -82,7 +86,7 @@ public class MCPluginUtility {
 	public static void logStackTrace(Exception e) {
 		StackTraceElement[] trace = e.getStackTrace();
 		for (int i = 0; i < trace.length; i++) {
-			Activator.logErrorMessage(trace[i].toString());
+			CmlMCPlugin.logErrorMessage(trace[i].toString());
 		}
 	}
 	public static ArrayList<IResource> getAllCFilesInProject(IProject project) {
