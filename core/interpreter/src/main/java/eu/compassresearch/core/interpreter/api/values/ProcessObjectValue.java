@@ -100,7 +100,7 @@ public class ProcessObjectValue extends ObjectValue
 		this.invariantExpression = invariantExpression;
 	}
 
-	@Override
+	//@Override
 	public boolean hasDelegate()
 	{
 

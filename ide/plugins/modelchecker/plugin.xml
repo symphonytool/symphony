@@ -22,7 +22,12 @@
             name="Model Checker Setup">
       </page>
    </extension>
-   
+  <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer
+            class="eu.compassresearch.ide.modelchecker.ModelcheckerPreferenceInitializer">
+      </initializer>
+   </extension>
   <extension point="org.eclipse.ui.commands">
       <command
             defaultHandler="eu.compassresearch.ide.modelchecker.MCHandler"

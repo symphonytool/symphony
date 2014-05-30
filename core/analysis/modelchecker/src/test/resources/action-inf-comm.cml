@@ -1,7 +1,11 @@
+types
+    MYNAT = nat -- uniq device ID
+      inv i == i in set {1,...,3}
+      
 channels 
 a:nat
 
 process P = 
 begin 
-	@ a?x -> if (x = 1) then Stop else Skip 
+	@ a?x -> Skip -- if (x = 1) then Stop else Skip 
 end

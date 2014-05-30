@@ -362,6 +362,8 @@ public class NewMCVisitor extends
 		//String cml_file = "src/test/resources/MC_Tests_2.cml";
 		//String cml_file = "src/test/resources/simpleStop.cml";
 		String cml_file = "src/test/resources/action-inf-comm.cml";
+		//String cml_file = "src/test/resources/BeoAVDeviceDiscovery-subtletly.cml";
+		
 		//String cml_file = "src/test/resources/cmlfile5.cml";
 		//String cml_file = "src/test/resources/simpler-insielImpl-final-modelchecker.cml";
 		//String cml_file = "src/test/resources/action-prefix-skip.cml";
@@ -385,18 +387,18 @@ public class NewMCVisitor extends
 		//String mainProcessName = "StreamingPlayerCSProcess";
 		//String mainProcessName = "CoSimulationServer";
 		//String mainProcessName = "Simple";
+		//String mainProcessName = "SourceProduct_DD_SD_InterfaceProtocolView";
 		String mainProcessName = "P";
 		
 		//String mainProcessName = "ad_Initiate_Rescue_Activation___Fault_1";
 		//String mainProcessName = "Test4";
 		//String mainProcessName = "ERUs";
 		
-		
 		String formulaCode = visitor1.generateFormulaScript(source1.getParagraphs(),Utilities.DEADLOCK_PROPERTY,mainProcessName);
 		//String[] codes1 = visitor1.generateFormulaCodeForAll(Utilities.DEADLOCK_PROPERTY);
 		//for (int j = 0; j < codes1.length; j++) {
 		//	System.out.println(codes1[j]);
-			
+		
 		//}
 		System.out.println(formulaCode);
 		

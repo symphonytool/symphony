@@ -69,8 +69,8 @@ public class MCAChannelDefinition implements MCPCMLDefinition {
 					if(realType instanceof MCAChannelType){
 						realType = ((MCAChannelType) realType).getType();
 					}
-					IntroduceCommand introduce = new IntroduceCommand(realType,numberOfInstances); 
-					context.introduceFacts.add(introduce);
+					IntroduceCommand introduce = new IntroduceCommand(realType); 
+					context.addIntroduce(introduce);
 										
 					//lets try to get from the dependencies
 					result.append("\n   //channels obtained from dependencies \n");
@@ -121,7 +121,7 @@ public class MCAChannelDefinition implements MCPCMLDefinition {
 						result.append("\"");
 						result.append(",");
 						result.append(typeValue.toFormula(option));
-						result.append(")");
+						result.append(").");
 						result.append("\n");
 					}
 				}

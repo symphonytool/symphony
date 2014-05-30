@@ -3,6 +3,7 @@ package eu.compassresearch.core.analysis.modelchecker.ast.auxiliary;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCTypeWrapper;
+import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
 
 public class IntroduceCommand {
 
@@ -15,12 +16,19 @@ public class IntroduceCommand {
 		this.numberOfInstances = numberOfInstances;
 	}
 	
+	public IntroduceCommand(MCPCMLType realType) {
+		super();
+		this.realType = realType;
+		this.numberOfInstances = 1;
+	}
+	
 	public String toFormula(String option){
+		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 		StringBuilder result = new StringBuilder();
 		result.append("Introduce(");
 		result.append(MCTypeWrapper.getTypeWrapperString(realType.getClass()));
 		result.append(",");
-		result.append(numberOfInstances);
+		result.append(this.numberOfInstances);
 		result.append(")");
 		return result.toString();
 	}

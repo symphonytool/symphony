@@ -73,7 +73,7 @@ public class NewCMLModelcheckerContext {
 	public ArrayListSet<IntroduceCommand> introduceFacts;
 	public LinkedList<MCAChansetDefinition> chansetDefs;
 	public int maxClock;
-	public int numberOfInstances;
+	public static int numberOfInstances;
 	//a mapping containing new names -> old names. It is necessary to allow 
 	//using variables with same names in CML models when translating to FORMULA
 	public HashMap<String,String> directNameMapping;
@@ -103,7 +103,9 @@ public class NewCMLModelcheckerContext {
 	}
 		
 	public synchronized static void resetInstance(){
+		int oldNumberOfInstances = numberOfInstances; 
 		instance = new NewCMLModelcheckerContext();
+		instance.setNumberOfInstances(oldNumberOfInstances);
 	}
 	
 	
@@ -116,6 +118,10 @@ public class NewCMLModelcheckerContext {
 		return numberOfInstances;
 	}
 
+	public void addIntroduce(IntroduceCommand command){
+		command.setNumberOfInstances(this.numberOfInstances);
+		this.introduceFacts.add(command);
+	}
 	public MCCondition getConditionByExpression(MCPCMLExp expression){
 		
 		MCCondition result = null;

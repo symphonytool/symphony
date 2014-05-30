@@ -35,6 +35,7 @@ import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.core.analysis.modelchecker.api.FormulaIntegrationException;
 import eu.compassresearch.core.analysis.modelchecker.api.FormulaResult;
 import eu.compassresearch.core.analysis.modelchecker.api.IFormulaIntegrator;
+import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewMCVisitor;
 import eu.compassresearch.core.analysis.modelchecker.visitors.Utilities;
 import eu.compassresearch.ide.core.resources.ICmlModel;
@@ -102,6 +103,8 @@ public class MCHandler extends AbstractHandler {
 				//Grab the model from the project
 				final ICmlModel model = cmlProj.getModel();
 				
+				updateNumberOfInstances();
+				
 				//get the selected cmlfile and analyse it
 				ISelection selection = window.getSelectionService().getSelection();
 				if (selection instanceof IStructuredSelection) {
@@ -154,6 +157,11 @@ public class MCHandler extends AbstractHandler {
 		return null;
 	}
 	
+	private void updateNumberOfInstances(){
+		int instancesPref = CmlMCPlugin.getDefault().getPreferenceStore().getInt(MCConstants.INSTANCES_NUMBER);
+		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
+		context.setNumberOfInstances(instancesPref);
+	}  
 	
 	private boolean hasMultipleProcessDefinitions(List<PDefinition> projectSources){
 		boolean result = false;
