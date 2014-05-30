@@ -16,9 +16,11 @@ public class ActionChannelDependency {
 	private LinkedList<MCPCommunicationParameter> parameters;
 	
 	public ActionChannelDependency(String actionName, String channelName, LinkedList<MCPCommunicationParameter> parameters) {
+		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 		this.actionName = actionName;
 		this.channelName = channelName;
 		this.parameters = parameters;
+		this.channelDefinition = context.getChannelDefinition(channelName);
 	}
 	
 	public String toFormula(String option){

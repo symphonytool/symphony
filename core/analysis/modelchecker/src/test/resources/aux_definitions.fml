@@ -78,6 +78,13 @@
 	
 	Type ::= VOID + Boolean + Integer + Natural + String + Real + SeqType + SetType + ProdType /*INCLUDE USER_DEF_TYPES*/.
 
+	//wrappers for all types. They will be used to instantiate data (from inifnite sets) used in channels. 
+	primitive IntegerW ::= (Integer).
+	primitive NaturalW ::= (Natural).
+	primitive RealW ::= (Real).
+	primitive BooleanW ::= (Boolean).
+	primitive StringW ::= (String).
+	
 	// Bindings 
     NullBind            ::= {nBind}. 
 	primitive SingleBind ::= (name: String, val:Type).               

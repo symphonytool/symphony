@@ -31,6 +31,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAChannelD
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCALocalDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAIntLiteralExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAUndefinedExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAVariableExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCVoidValue;
 import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCAIdentifierPattern;
@@ -125,7 +126,13 @@ public class NewMCParameterAndPatternVisitor extends QuestionAnswerCMLAdaptor<Ne
 						//simply use the defaul value for integers
 						expression = new MCAIntLiteralExp("0");
 					}else{
-						expression = evaluator.getDefaultValue(realType);
+						if(chanDef.isInfiniteType()){
+							expression = //evaluator.getDefaultValueForInfiniteType(realType);
+									new MCAVariableExp(pattern.toFormula(MCNode.DEFAULT));
+							//this method must build types using variables to be put in the bindings
+						}else{
+							expression = evaluator.getDefaultValue(realType);
+						}
 					}
 				}
 			} 

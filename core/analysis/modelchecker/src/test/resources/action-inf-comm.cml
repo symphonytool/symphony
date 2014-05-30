@@ -1,0 +1,7 @@
+channels 
+a:nat
+
+process P = 
+begin 
+	@ a?x -> if (x = 1) then Stop else Skip 
+end

@@ -15,7 +15,7 @@ public class MCANatNumericBasicType extends MCPCMLNumericType {
 		StringBuilder result = new StringBuilder();
 		switch (option) {
 		case MCNode.DEFAULT:
-			result.append("Natural");
+			result.append(this.getValue());
 			break;
 		
 		case MCNode.NAMED:

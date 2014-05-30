@@ -360,7 +360,8 @@ public class NewMCVisitor extends
 		//String cml_file = "src/test/resources/beo-spec.cml";
 		//String cml_file = "src/test/resources/BEO_StreamingSoS_MC.cml";
 		//String cml_file = "src/test/resources/MC_Tests_2.cml";
-		String cml_file = "src/test/resources/simpleStop.cml";
+		//String cml_file = "src/test/resources/simpleStop.cml";
+		String cml_file = "src/test/resources/action-inf-comm.cml";
 		//String cml_file = "src/test/resources/cmlfile5.cml";
 		//String cml_file = "src/test/resources/simpler-insielImpl-final-modelchecker.cml";
 		//String cml_file = "src/test/resources/action-prefix-skip.cml";
@@ -383,7 +384,8 @@ public class NewMCVisitor extends
 		//String mainProcessName = "N_LAZY_Q";
 		//String mainProcessName = "StreamingPlayerCSProcess";
 		//String mainProcessName = "CoSimulationServer";
-		String mainProcessName = "Simple";
+		//String mainProcessName = "Simple";
+		String mainProcessName = "P";
 		
 		//String mainProcessName = "ad_Initiate_Rescue_Activation___Fault_1";
 		//String mainProcessName = "Test4";

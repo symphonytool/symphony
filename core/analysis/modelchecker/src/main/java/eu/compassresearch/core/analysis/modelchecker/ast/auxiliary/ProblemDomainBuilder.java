@@ -1,17 +1,20 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.auxiliary;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map.Entry;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAActionDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAChannelDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAExplicitCmlOperationDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAProcessDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAValueDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCSCmlOperationDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
+import eu.compassresearch.core.analysis.modelchecker.visitors.ArrayListSet;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
 
 public class ProblemDomainBuilder {
@@ -49,9 +52,8 @@ public class ProblemDomainBuilder {
 		generateIOCommDefs(content,option);
 		
 		
-		//generate all facts related to set manipulation (required by the toolkit)
-		//some facts have (formula) dependencies. They need to be handled
-		//generateSetFacts(content,option);
+		//generate Channel facts possibly depending on primitive wrappers to deal with infinite types
+		generateChannels(content, option);
 		
 		//generate conforms clause
 		generateConforms(content,option);
@@ -76,7 +78,20 @@ public class ProblemDomainBuilder {
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 		content.append("  State(");
 		content.append(context.maximalBinding.toFormula(option));
-		content.append(",pBody)  :- GivenProc(np), ProcDef(np,nopar,pBody).\n");
+		content.append(",pBody)  :- GivenProc(np), ProcDef(np,nopar,pBody)");
+		//if there is some dependency with some channel and the channel is infinite, then
+		//their values are in the bindings and bindings must depend on the values so be instantiated
+		ArrayList<ActionChannelDependency> chanDeps = context.channelDependencies;
+		for (ActionChannelDependency actionChannelDependency : chanDeps) {
+			MCAChannelDefinition chanDef =  actionChannelDependency.getChannelDefinition();
+			if(chanDef.isInfiniteType()){
+				content.append(",");
+				content.append(actionChannelDependency.toFormula(option));
+			}
+			
+		}
+		
+		content.append(".\n");
 	}
 	
 	private void generateGuardDefinitions(StringBuilder content, String option){
@@ -143,6 +158,15 @@ public class ProblemDomainBuilder {
 		}
 	}
 	
+	private void generateChannels(StringBuilder content, String option){
+		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
+		for (MCAChannelDefinition chanDef : context.channelDefs) {
+			content.append(chanDef.toFormula(option));
+			if(chanDef.isTyped()){
+				content.append("\n");
+			}
+		}
+	}
 	private void generateConforms(StringBuilder content, String option){
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 		content.append("  conforms := " + context.propertiesDomain.getName() + "." + context.propertyToCheck + ".\n");

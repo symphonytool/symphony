@@ -12,6 +12,7 @@ import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ActionChannelDependency;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.Binding;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.Domain;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.IntroduceCommand;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCAssignDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCCondition;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCGuardDef;
@@ -34,6 +35,8 @@ import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASBinaryE
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAVariableExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPVarsetExpression;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAIntNumericBasicType;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANatNumericBasicType;
 
 public class NewCMLModelcheckerContext {
 	
@@ -67,8 +70,10 @@ public class NewCMLModelcheckerContext {
 	public Stack<NameValue> localIndexedVariablesMapping;
 	public ArrayListSet<String> localIndexedVariablesDiscarded;
 	public ArrayList<MCASBinaryExp> setExpressioFacts;
+	public ArrayListSet<IntroduceCommand> introduceFacts;
 	public LinkedList<MCAChansetDefinition> chansetDefs;
 	public int maxClock;
+	public int numberOfInstances;
 	//a mapping containing new names -> old names. It is necessary to allow 
 	//using variables with same names in CML models when translating to FORMULA
 	public HashMap<String,String> directNameMapping;
@@ -96,11 +101,21 @@ public class NewCMLModelcheckerContext {
 		
 		return instance;
 	}
-	
+		
 	public synchronized static void resetInstance(){
 		instance = new NewCMLModelcheckerContext();
 	}
 	
+	
+	public void setNumberOfInstances(int numberOfInstances) {
+		this.numberOfInstances = numberOfInstances;
+	}
+	
+
+	public int getNumberOfInstances() {
+		return numberOfInstances;
+	}
+
 	public MCCondition getConditionByExpression(MCPCMLExp expression){
 		
 		MCCondition result = null;
@@ -265,7 +280,9 @@ public class NewCMLModelcheckerContext {
 		reverseNameMapping = new HashMap<String,String>();
 		processStack = new Stack<AProcessDefinition>();
 		actionStack = new Stack<AActionDefinition>();
+		introduceFacts = new ArrayListSet<IntroduceCommand>();
 		maxClock = 0;
+		numberOfInstances = 1;
 		ASSIGN_COUNTER = 0;
 		GUARD_COUNTER = 0;
 		IOCOMM_COUNTER = 0;
@@ -359,5 +376,15 @@ public class NewCMLModelcheckerContext {
 	public void setPropertyToCheck(String propertyToCheck) {
 		this.propertyToCheck = propertyToCheck;
 	}
-	
+
+	public static void main(String[] args) {
+		ArrayListSet<IntroduceCommand> list = new ArrayListSet<IntroduceCommand>();
+		for (int i = 0; i < 3; i++) {
+			MCAIntNumericBasicType type = new MCAIntNumericBasicType("4");
+			list.add(new IntroduceCommand(type,2));
+		}
+		StringBuilder r = new StringBuilder();
+		r.append(list.toString());
+		System.out.println(r);
+	}
 }

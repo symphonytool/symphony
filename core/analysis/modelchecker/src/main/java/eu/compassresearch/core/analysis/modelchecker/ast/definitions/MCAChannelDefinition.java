@@ -5,6 +5,8 @@ import java.util.LinkedList;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ActionChannelDependency;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ExpressionEvaluator;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.IntroduceCommand;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.TypeManipulator;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.TypeValue;
 import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCATypeSingleDeclaration;
@@ -16,6 +18,8 @@ import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANamedInvariant
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANatNumericBasicType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAProductType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCTypeWrapper;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCTypeWrapperBuilder;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCVoidType;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
 
@@ -57,9 +61,19 @@ public class MCAChannelDefinition implements MCPCMLDefinition {
 			case MCNode.DEFAULT:
 				LinkedList<TypeValue> typeValues = getTypeValues();
 				if(typeValues.size() == 0){ //it is (probably an infinite type and must be instantiated by formula)
-					//lets try to get from the dependendies
 					
 					NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
+					int numberOfInstances = context.getNumberOfInstances();
+					MCPCMLType realType = this.type; 
+					
+					if(realType instanceof MCAChannelType){
+						realType = ((MCAChannelType) realType).getType();
+					}
+					IntroduceCommand introduce = new IntroduceCommand(realType,numberOfInstances); 
+					context.introduceFacts.add(introduce);
+										
+					//lets try to get from the dependencies
+					result.append("\n   //channels obtained from dependencies \n");
 					LinkedList<ActionChannelDependency> dependencies = context.getActionChannelDependendiesByChannelName(this.name);
 					if(dependencies.size() > 0){
 						for (Iterator<ActionChannelDependency> iterator = dependencies.iterator(); iterator.hasNext();) {
@@ -67,6 +81,26 @@ public class MCAChannelDefinition implements MCPCMLDefinition {
 							String channelFact = actionChannelDependency.toFormula(option);
 							if(result.indexOf(channelFact) == -1){
 								result.append(channelFact);
+								//to complete the Channel line if its type is infinite
+								if(this.isTyped()){
+									if(this.isInfiniteType()){
+										result.append(" :- ");
+										
+										result.append(MCTypeWrapper.getTypeWrapperString(realType.getClass()));
+										result.append("(");
+										
+										ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
+										MCPCMLType paramTypes = evaluator.instantiateMCTypeFromCommParams(actionChannelDependency.getParameters());
+										
+										result.append(paramTypes.toFormula(option));
+										result.append(").");
+										//MCTypeWrapper typeWrapper =  MCTypeWrapperBuilder.buildTypeWrapper(realType);
+										//if(typeWrapper != null){
+											//result.append(typeWrapper.toFormula(option));
+											//result.append(typeWrapper.toFormula("."));
+										//}
+									}
+								}
 								if(iterator.hasNext()){
 									result.append("\n");
 								}
@@ -80,7 +114,7 @@ public class MCAChannelDefinition implements MCPCMLDefinition {
 						result.append("_");
 						result.append(")");
 					}
-				} else{
+				} else{ 
 					for (TypeValue typeValue : typeValues) {
 						result.append("  Channel(\"");
 						result.append(this.name);
@@ -105,6 +139,12 @@ public class MCAChannelDefinition implements MCPCMLDefinition {
 		return result.toString();
 	}
 	
+	public boolean isInfiniteType(){
+		boolean result = false;
+		LinkedList<TypeValue> possibleValues = this.getTypeValues();
+		result = this.isTyped() && (possibleValues.size() == 0);
+		return result;
+	}
 	private LinkedList<TypeValue> getTypeValues(){
 		LinkedList<TypeValue> result = new LinkedList<TypeValue>();
 		MCPCMLType realType = this.type; 
@@ -115,13 +155,16 @@ public class MCAChannelDefinition implements MCPCMLDefinition {
 		if(realType instanceof MCAChannelType){
 			realType = ((MCAChannelType) realType).getType();
 				
-			//MCAIntNumericBasicType, MCANatNumericBasicType are infinite, so we let formula to instantiate them
-			
 			//we check if named types have been previously defined and get all possible values for them
 			if(realType instanceof MCANamedInvariantType || realType instanceof MCAProductType || realType instanceof MCABooleanBasicType){ 
 				TypeManipulator typeManipulator = TypeManipulator.getInstance();
 				result = typeManipulator.getValues(realType);
-			}
+			} else{
+				//MCAIntNumericBasicType, MCANatNumericBasicType are infinite, so we let formula to instantiate them
+				if(realType instanceof MCANamedInvariantType){
+					
+				}
+			}  
 		}
 		
 		return result;

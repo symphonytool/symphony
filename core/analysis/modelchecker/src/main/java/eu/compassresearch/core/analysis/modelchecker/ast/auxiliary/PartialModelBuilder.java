@@ -15,7 +15,7 @@ public class PartialModelBuilder {
 		
 		generateLieInFacts(content,option);
 
-		generateChannels(content,option);
+		//generateChannels(content,option);
 		
 		generateClocks(content,option);
 		
