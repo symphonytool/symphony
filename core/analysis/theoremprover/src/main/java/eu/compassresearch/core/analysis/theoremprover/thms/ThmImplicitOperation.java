@@ -109,7 +109,7 @@ public class ThmImplicitOperation extends ThmDecl{
 			//for each parameter, find it in the expression and replace with the lambda value
 			for(PPattern param : pats )
 			{
-				String pName = "^" + ((AIdentifierPattern) param).getName().toString() + "^";
+				String pName = "&" + ((AIdentifierPattern) param).getName().toString();
 				String lambdaName = "@" + inputName + ".#" + count;
 			
 				ex = ex.replace(pName, lambdaName);
@@ -118,7 +118,7 @@ public class ThmImplicitOperation extends ThmDecl{
 		}
 		
 		//And the result too
-		String resName = "^" + ((AIdentifierPattern) result.getPattern()).getName().toString() + "^";	
+		String resName = "&" + ((AIdentifierPattern) result.getPattern()).getName().toString();	
 		//Replace the keyword "RESULT" with the post name
 		ex = ex.replace(resName, "@" + outputName);
 		

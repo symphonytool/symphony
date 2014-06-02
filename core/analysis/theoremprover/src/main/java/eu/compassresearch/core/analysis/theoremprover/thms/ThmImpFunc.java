@@ -48,8 +48,8 @@ public class ThmImpFunc extends ThmDecl {
 			//for each parameter, find it in the expression and replace with the lambda value
 			for(PPattern param : pats )
 			{
-				String pName = "^" + ((AIdentifierPattern) param).getName().toString() + "^";
-				String lambdaName = "^" +ThmTypeUtil.isaFuncLambaVal+"^.#" + count;
+				String pName = "&" + ((AIdentifierPattern) param).getName().toString();
+				String lambdaName = "&" +ThmTypeUtil.isaFuncLambaVal+".#" + count;
 			
 				ex = ex.replace(pName, lambdaName);
 				count++;
@@ -141,8 +141,8 @@ public class ThmImpFunc extends ThmDecl {
 		//the result is therefore the next parameter
 		int resCount = count+1;
 		
-		String pName = "^" + ((AIdentifierPattern) p).getName().toString() + "^";
-		String lambdaName = "^" +ThmTypeUtil.isaFuncLambaVal+"^.#" + resCount;
+		String pName = "&" + ((AIdentifierPattern) p).getName().toString();
+		String lambdaName = "&" +ThmTypeUtil.isaFuncLambaVal+".#" + resCount;
 			
 		ex = ex.replace(pName, lambdaName);
 	
@@ -168,9 +168,8 @@ public class ThmImpFunc extends ThmDecl {
 			for (Iterator<PPattern> itr2 = pats.listIterator(); itr2.hasNext(); ) {
 				
 				PPattern pat = itr2.next();
-				sb.append("^");
+				sb.append("&");
 				sb.append(((AIdentifierPattern) pat).getName().toString());
-				sb.append("^");
 				//If there are remaining parameters, add a ","
 				if(itr2.hasNext()){	
 					sb.append(", ");
@@ -185,7 +184,7 @@ public class ThmImpFunc extends ThmDecl {
 		//if there is a result value
 		if (prepost.equals("post") && res != null)
 		{
-			sb.append("^" + ThmTypeUtil.isaFuncLambdaPostVal + "^");
+			sb.append("&" + ThmTypeUtil.isaFuncLambdaPostVal);
 		}
 		sb.append(")");
 		

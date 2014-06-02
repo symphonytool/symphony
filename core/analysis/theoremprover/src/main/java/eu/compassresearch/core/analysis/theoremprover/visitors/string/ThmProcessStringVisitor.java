@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AInstanceVariableDefinition;
 import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.expressions.PExp;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
@@ -189,19 +190,25 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 	}
 	
 	public String caseAGeneralisedParallelismProcess(
-			AGeneralisedParallelismProcess node, ThmVarsContext vars) throws AnalysisException{
-
-		return ThmProcessUtil.undefined;
+			AGeneralisedParallelismProcess p, ThmVarsContext vars) throws AnalysisException{
+				
+		String left = p.getLeft().apply(thmStringVisitor, vars);
+		String right = p.getRight().apply(thmStringVisitor, vars);
+		String chExp = p.getChansetExpression().apply(thmStringVisitor, vars);
+		
+		return left + "[|" + chExp +"|]" + right;
 	}
 
 	public String caseAGeneralisedParallelismReplicatedProcess(
-			AGeneralisedParallelismReplicatedProcess node, ThmVarsContext vars) throws AnalysisException{
-
+			AGeneralisedParallelismReplicatedProcess p, ThmVarsContext vars) throws AnalysisException{
+		
 		return ThmProcessUtil.undefined;
 	}
 
-	public String caseAHidingProcess(AHidingProcess node, ThmVarsContext vars) throws AnalysisException{
+	public String caseAHidingProcess(AHidingProcess p, ThmVarsContext vars) throws AnalysisException{
 
+		String chExp = p.getChansetExpression().apply(thmStringVisitor, vars);
+		
 		return ThmProcessUtil.undefined;
 	}
 
@@ -237,11 +244,6 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		return ThmProcessUtil.undefined;
 	}
 
-	public String caseAReferenceProcess(AReferenceProcess node, ThmVarsContext vars) throws AnalysisException{
-
-		return ThmProcessUtil.undefined;
-	}
-
 	public String caseASequentialCompositionProcess(
 			ASequentialCompositionProcess node, ThmVarsContext vars) throws AnalysisException{
 
@@ -273,28 +275,28 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 
 		return ThmProcessUtil.undefined;
 	}
-//	
-//	public String caseAReferenceProcess(AReferenceProcess p, ThmVarsContext vars) throws AnalysisException{
-//
-//		StringBuilder argStr = new StringBuilder();
-//		LinkedList<PExp> args = p.getArgs();
-//		if (args.size() != 0)
-//		{
-//			argStr.append("(");
-//			for (Iterator<PExp> itr = p.getArgs().listIterator(); itr.hasNext(); ) {
-//				PExp e = itr.next();
-//				
-//				argStr.append(e.apply(thmStringVisitor, vars));
-//				//If there are remaining expressions, add a ","
-//				if(itr.hasNext()){	
-//					argStr.append(", ");
-//				}
-//			}
-//			argStr.append(")");
-//		}
-//		return p.getProcessName().toString() + argStr.toString();
-//	}
-//	
+	
+	public String caseAReferenceProcess(AReferenceProcess p, ThmVarsContext vars) throws AnalysisException{
+
+		StringBuilder argStr = new StringBuilder();
+		LinkedList<PExp> args = p.getArgs();
+		if (args.size() != 0)
+		{
+			argStr.append("<");
+			for (Iterator<PExp> itr = p.getArgs().listIterator(); itr.hasNext(); ) {
+				PExp e = itr.next();
+				
+				argStr.append(e.apply(thmStringVisitor, vars));
+				//If there are remaining expressions, add a ","
+				if(itr.hasNext()){	
+					argStr.append(", ");
+				}
+			}
+			argStr.append(">");
+		}
+		return p.getProcessName().toString() + argStr.toString();
+	}
+	
 	public String casePProcess(PProcess p, ThmVarsContext vars) throws AnalysisException{
 		return ThmProcessUtil.undefined;
 	}

@@ -27,6 +27,7 @@ import org.overture.ast.types.AVoidType;
 import org.overture.ast.types.PType;
 import org.overture.ast.types.SInvariantType;
 
+import eu.compassresearch.ast.actions.PParametrisation;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionDefinition;
@@ -440,6 +441,14 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 			AActionProcess act = (AActionProcess) process;
 
 			AProcessDefinition parentProcess = act.getAncestor(AProcessDefinition.class);
+			
+			
+			
+			for (PParametrisation p : parentProcess.getLocalState()) {
+				
+			}
+			
+			
 			
 			//get the Isabelle string for the process node's process.
 			String procString = act.apply(stringVisitor, new ThmVarsContext());//= ThmProcessUtil.getIsabelleProcessString(node.getProcess());
