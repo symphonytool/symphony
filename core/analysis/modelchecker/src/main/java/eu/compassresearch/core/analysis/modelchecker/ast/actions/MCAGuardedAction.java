@@ -35,6 +35,7 @@ public class MCAGuardedAction implements MCPAction {
 			// it writes the behaviour in the if-true branch
 			result.append(this.action.toFormula(option));
 			result.append(",");
+			
 			result.append((new MCAStopAction()).toFormula(option));
 			result.append(")");
 			break;

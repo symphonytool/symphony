@@ -12,6 +12,10 @@ public class NullBinding implements Binding {
 	}
 
 	@Override
+	public boolean containsVariable(String name){
+		return false;
+	}
+	@Override
 	public NullBinding copy(){
 		
 		return new NullBinding();

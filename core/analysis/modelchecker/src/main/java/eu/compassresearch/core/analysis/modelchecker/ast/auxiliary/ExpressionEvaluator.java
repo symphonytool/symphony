@@ -59,7 +59,7 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 	}
 	
 	
-	private MCPCMLType getTypeFor(MCPCMLExp exp){
+	public MCPCMLType getTypeFor(MCPCMLExp exp){
 		MCPCMLType result = null;
 		if(exp instanceof MCAIntLiteralExp){
 			result = this.getTypeFor((MCAIntLiteralExp)exp);
@@ -71,6 +71,8 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 			result = this.getTypeFor((MCASetEnumSetExp)exp);
 		}  else if(exp instanceof MCABooleanConstExp){
 			result = this.getTypeFor((MCABooleanConstExp)exp);
+		} else if(exp instanceof MCAInSetBinaryExp){
+			result = this.getTypeFor((MCAInSetBinaryExp)exp);
 		}
 		
 		return result;
@@ -101,8 +103,24 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 			realValue = valueDef.getExpression().toFormula(MCNode.DEFAULT);
 			result = new MCAFixedInvariantType(realValue);
 		}else{
-			realValue = exp.getName();
-			result = new MCANamedInvariantType(realValue);
+			NameValue mapping = context.getNameValueInIndexedVariables(exp.getName());
+			if(mapping != null){
+				result = new MCAFixedInvariantType(mapping.getVariableValue());
+			}else{
+				if(context.localIndexedVariablesDiscarded.contains(exp.getName())){
+					result = new MCAFixedInvariantType(exp.getName());
+				}else{
+				realValue = exp.getName();
+					try {
+						Integer.valueOf(realValue);
+						result = new MCAFixedInvariantType(realValue);
+					} catch (NumberFormatException e) {
+						result = new MCANamedInvariantType(realValue);
+					}
+				}
+			}
+			
+			
 		}
 		
 		
@@ -281,6 +299,7 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 		} else if (params.size() == 1){
 			result = this.getTypeForIOComm(params.getFirst());
 			addSuffixToVarName(result,suffix);
+			
 		} else if (params.size() > 1){
 			LinkedList<MCPCMLType> types = new LinkedList<MCPCMLType>();
 			for (MCPCommunicationParameter param : params) {
@@ -386,7 +405,12 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 		if(mapping != null){
 			result = new MCANamedInvariantType(mapping.getVariableValue());
 		} else{
-			result = new MCANamedInvariantType(exp.getName());
+			mapping = context.getNameValueInIndexedVariables(exp.getName());
+			if(mapping != null){
+				result = new MCANamedInvariantType(mapping.getVariableValue());
+			}else{
+				result = new MCANamedInvariantType(exp.getName());
+			}
 		}
 		
 		return result;
@@ -411,6 +435,13 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 		MCPCMLType result = null;
 		
 		result = new MCABooleanBasicType(exp.isValue());
+		
+		return result;
+	}
+	private MCPCMLType getTypeFor(MCAInSetBinaryExp exp){
+		MCPCMLType result = null;
+		
+		result = new MCASetType(null);
 		
 		return result;
 	}
@@ -830,6 +861,8 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 			result = this.getValueSet((MCASetRangeSetExp)expression);
 		} else if(expression instanceof MCAInSetBinaryExp){
 			result = this.getValueSet((MCAInSetBinaryExp)expression);
+		} else if(expression instanceof MCASetEnumSetExp){
+			result = this.getValueSet((MCASetEnumSetExp)expression);
 		}
 			
 		return result;
@@ -853,6 +886,14 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 		return result;
 	}
 	
+	public LinkedList<String> getValueSet(MCASetEnumSetExp expression){
+		LinkedList<String> result = new LinkedList<String>();
+		for (MCPCMLExp exp : expression.getMembers()) {
+			result.add(this.obtainValue(exp));
+		}
+		
+		return result;
+	}
 	public LinkedList<String> getValueSet(MCAInSetBinaryExp expression){
 		LinkedList<String> result = new LinkedList<String>();
 		
@@ -864,6 +905,10 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 			if(valueDef != null){
 				result = this.getValueSet(valueDef.getExpression());
 			}
+		} else if (expression.getRight() instanceof MCASetEnumSetExp){
+			
+			result = this.getValueSet((MCASetEnumSetExp)expression.getRight());
+			
 		}
 		
 		return result; 
