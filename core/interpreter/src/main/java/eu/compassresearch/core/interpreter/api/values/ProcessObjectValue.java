@@ -101,7 +101,7 @@ public class ProcessObjectValue extends ObjectValue
 	}
 
 	@Override
-	public boolean hasDelegate()
+	public boolean hasDelegate(Context ctxt)
 	{
 
 		IRuntimeState state = VdmRuntime.getNodeState(processDefinition);
