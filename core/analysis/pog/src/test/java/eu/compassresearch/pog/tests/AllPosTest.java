@@ -18,7 +18,7 @@ import eu.compassresearch.pog.tests.utils.TestInputHelper;
  * @author ldc
  *
  */
-public class AllThePos
+public class AllPosTest
 {
 	/**
 	 * Very basic test. Runs the POG on a dummy model that
@@ -35,7 +35,7 @@ public class AllThePos
 	public void noCrash() throws IOException, AnalysisException{
 		
 		String file = "src/test/resources/integration/AllThePOs.cml";
-		int expectedPoCount = 46;
+		int expectedPoCount = 43;
 		
 		List<INode> ast = TestInputHelper.getAstFromName(file);
 		IProofObligationList pol = PogPubUtil.generateProofObligations(ast);

@@ -21,10 +21,10 @@ import org.junit.Assert;
 public class TestFileProvider
 {
 
-	private final static String BASE_INPUTS_FOLDER = "src/test/resources/basetests/";
-	private final static String RESULT_EXTENSION=".RESULT";
+	private final static String BASE_INPUTS_FOLDER = "src/test/resources/basic/";
 	private final static String BUG_REG_ROOT = "src/test/resources/bug-regression";
-
+	private final static String RESULT_EXTENSION=".RESULT";
+	
 	public static Collection<Object[]> bugRegs() {
 		File dir = new File(BUG_REG_ROOT);
 		return files(dir);
