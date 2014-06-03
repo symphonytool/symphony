@@ -35,8 +35,11 @@ import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASBinaryE
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAVariableExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPVarsetExpression;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAChannelType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAIntNumericBasicType;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANamedInvariantType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANatNumericBasicType;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 
 public class NewCMLModelcheckerContext {
 	
@@ -65,6 +68,7 @@ public class NewCMLModelcheckerContext {
 	public ArrayList<MCIOCommDef> ioCommDefs;
 	public Stack<INode> actionOrProcessDefStack;
 	public ArrayList<ActionChannelDependency> channelDependencies;
+	public ArrayList<ActionChannelDependency> infiniteChannelDependencies;
 	public ArrayListSet<MCPVarsetExpression> globalChanSets;
 	public ArrayListSet<NameValue> localVariablesMapping;
 	public Stack<NameValue> localIndexedVariablesMapping;
@@ -73,7 +77,7 @@ public class NewCMLModelcheckerContext {
 	public ArrayListSet<IntroduceCommand> introduceFacts;
 	public LinkedList<MCAChansetDefinition> chansetDefs;
 	public int maxClock;
-	public static int numberOfInstances;
+	public static int numberOfInstances = 1;
 	//a mapping containing new names -> old names. It is necessary to allow 
 	//using variables with same names in CML models when translating to FORMULA
 	public HashMap<String,String> directNameMapping;
@@ -118,10 +122,30 @@ public class NewCMLModelcheckerContext {
 		return numberOfInstances;
 	}
 
+	public MCPCMLType getFinalType(String typeName){
+		MCPCMLType result = null;
+		//pegar a definicao e ver o tipo dela. Se nao for Named entao vai buscando o final até não vir ninguem
+		MCATypeDefinition typeDef = this.getTypeDefinition(typeName);
+		if(typeDef != null){
+			result = typeDef.getType();
+			if(result instanceof MCANamedInvariantType){
+				result = getFinalType(((MCANamedInvariantType) result).getName());
+			}
+		}
+		
+		return result;
+	}
+	
 	public void addIntroduce(IntroduceCommand command){
-		command.setNumberOfInstances(this.numberOfInstances);
+		if(command.isInfinite()){
+			command.setNumberOfInstances(this.numberOfInstances);
+		}
 		this.introduceFacts.add(command);
 	}
+	public boolean instantiatesFromInfiniteDomain(){
+		return this.introduceFacts.size() > 0;
+	}
+	
 	public MCCondition getConditionByExpression(MCPCMLExp expression){
 		
 		MCCondition result = null;
@@ -186,6 +210,7 @@ public class NewCMLModelcheckerContext {
 		return result;
 	}
 	
+	
 	public LinkedList<ActionChannelDependency> getActionChannelDependendiesByChannelName(String channelName){
 		LinkedList<ActionChannelDependency> result = new LinkedList<ActionChannelDependency>();
 		for (ActionChannelDependency actionChannelDependency : this.channelDependencies) {
@@ -196,6 +221,15 @@ public class NewCMLModelcheckerContext {
 		return result;
 	}
 	
+	public LinkedList<ActionChannelDependency> getInfiniteActionChannelDependendiesByChannelName(String channelName){
+		LinkedList<ActionChannelDependency> result = new LinkedList<ActionChannelDependency>();
+		for (ActionChannelDependency actionChannelDependency : this.infiniteChannelDependencies) {
+			if(actionChannelDependency.getChannelName().equals(channelName)){
+				result.add(actionChannelDependency);
+			}
+		}
+		return result;
+	}
 	public MCAChannelDefinition getChannelDefinition(String channelName){
 		MCAChannelDefinition result = null;
 		for (MCAChannelDefinition chanDef : this.channelDefs) {
@@ -256,8 +290,24 @@ public class NewCMLModelcheckerContext {
 		
 		return result;
 	}
+	/*
+	public static String getWrapperForType(String typeName){
+		StringBuilder result = new StringBuilder(); 
+		
+		result.append(typeName + "W");
+		
+		return result.toString();
+	} 
 	
-	
+	public static String getNameForWapper(String wrapperName){
+		StringBuilder result = new StringBuilder(); 
+		int lastIndex = wrapperName.lastIndexOf('W');
+		
+		result.append(wrapperName.substring(0, lastIndex));
+		
+		return result.toString();
+	}
+	*/
 	public NewCMLModelcheckerContext() {
 		setStack = new NewSetStack<MCPVarsetExpression>();
 		lieIn = new ArrayListSet<MCLieInFact>();
@@ -265,6 +315,7 @@ public class NewCMLModelcheckerContext {
 		localActions = new ArrayListSet<MCAActionDefinition>();
 		conditions = new ArrayListSet<MCCondition>();
 		channelDependencies = new ArrayList<ActionChannelDependency>();
+		infiniteChannelDependencies = new ArrayList<ActionChannelDependency>();
 		ioCommDefs = new ArrayList<MCIOCommDef>();
 		valueDefinitions = new LinkedList<MCAValueDefinition>();
 		typeDefinitions = new LinkedList<MCATypeDefinition>();
@@ -310,6 +361,7 @@ public class NewCMLModelcheckerContext {
 				if(value instanceof MCAIntLiteralExp){
 					int clockValue = Integer.parseInt(((MCAIntLiteralExp) value).getValue());
 					if(clockValue > this.maxClock){
+						
 						this.maxClock = clockValue;
 					}
 				}
@@ -317,6 +369,16 @@ public class NewCMLModelcheckerContext {
 		}
 	}
 	
+	public static boolean hasInfiniteChannelInDependencies(LinkedList<ActionChannelDependency> dependencies){
+		boolean result = false;
+		for (ActionChannelDependency actionChannelDependency : dependencies) {
+			if(actionChannelDependency.hasInfiniteTypedChannel()){
+				result = true;
+				break;
+			}
+		}
+		return result;
+	}
 	public String generateName(String originalName){
 		StringBuilder result = new StringBuilder();
 		result.append(originalName);
@@ -387,7 +449,7 @@ public class NewCMLModelcheckerContext {
 		ArrayListSet<IntroduceCommand> list = new ArrayListSet<IntroduceCommand>();
 		for (int i = 0; i < 3; i++) {
 			MCAIntNumericBasicType type = new MCAIntNumericBasicType("4");
-			list.add(new IntroduceCommand(type,2));
+			list.add(new IntroduceCommand(type,2,true));
 		}
 		StringBuilder r = new StringBuilder();
 		r.append(list.toString());

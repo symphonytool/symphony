@@ -9,24 +9,31 @@ public class IntroduceCommand {
 
 	private MCPCMLType realType;
 	private int numberOfInstances;
+	private boolean infinite;
 	
-	public IntroduceCommand(MCPCMLType realType, int numberOfInstances) {
+	public IntroduceCommand(MCPCMLType realType, int numberOfInstances, boolean infinite) {
 		super();
 		this.realType = realType;
 		this.numberOfInstances = numberOfInstances;
+		this.infinite = infinite;
 	}
 	
 	public IntroduceCommand(MCPCMLType realType) {
 		super();
 		this.realType = realType;
-		this.numberOfInstances = 1;
+		this.numberOfInstances = NewCMLModelcheckerContext.getInstance().getNumberOfInstances();
+		this.infinite = false;
 	}
 	
 	public String toFormula(String option){
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 		StringBuilder result = new StringBuilder();
 		result.append("Introduce(");
-		result.append(MCTypeWrapper.getTypeWrapperString(realType.getClass()));
+		String wrapperString = MCTypeWrapper.getTypeWrapperString(realType.getClass());
+		if(wrapperString == null){
+			wrapperString = MCTypeWrapper.getWrapperForType(realType.getTypeAsName());
+		}
+		result.append(wrapperString);
 		result.append(",");
 		result.append(this.numberOfInstances);
 		result.append(")");
@@ -36,7 +43,6 @@ public class IntroduceCommand {
 
 	@Override
 	public String toString() {
-		
 		return toFormula(MCNode.DEFAULT);
 	}
 
@@ -64,6 +70,14 @@ public class IntroduceCommand {
 
 	public void setNumberOfInstances(int numberOfInstances) {
 		this.numberOfInstances = numberOfInstances;
+	}
+
+	public boolean isInfinite() {
+		return infinite;
+	}
+
+	public void setInfinite(boolean infinite) {
+		this.infinite = infinite;
 	}
 	
 	

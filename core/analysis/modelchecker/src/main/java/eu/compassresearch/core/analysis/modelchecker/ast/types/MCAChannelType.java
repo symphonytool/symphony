@@ -28,9 +28,13 @@ public class MCAChannelType implements MCPCMLType {
 
 	@Override
 	public MCPCMLType copy() {
-		// TODO Auto-generated method stub
-		return null;
+		return new MCAChannelType(this.type.copy());
 	}
 
+	@Override
+	public String getTypeAsName() {
+		
+		return this.type.getTypeAsName();
+	}
 	
 }

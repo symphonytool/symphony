@@ -237,7 +237,7 @@ public class MCHandler extends AbstractHandler {
 					outputFile.setContents(new ByteArrayInputStream(specificationContent.toString().getBytes()), true, true, new NullProgressMonitor());
 				}
 			}catch(NullPointerException e){
-				throw new AnalysisException("Internal error when accessing some null object during FORMULA script generation.");
+				throw new AnalysisException("Internal error when accessing some null object during FORMULA script generation.", e);
 			}catch(ClassCastException e){
 				throw new AnalysisException("Internal error when casting some object during FORMULA script generation.");
 			}catch(CoreException e){

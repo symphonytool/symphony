@@ -19,6 +19,7 @@ public abstract class MCTypeWrapper {
 		typeWrapperMap = new HashMap<Class, String>();
 		typeWrapperMap.put(MCAIntNumericBasicType.class, INTEGER_TYPE_WRAPPER_STR);
 		typeWrapperMap.put(MCANatNumericBasicType.class, NATURAL_TYPE_WRAPPER_STR);
+		typeWrapperMap.put(MCABooleanBasicType.class, BOOLEAN_TYPE_WRAPPER_STR);
 		//OTHER TYPES ARE NOT IMPLEMENTED YET
 	}
 	
@@ -29,6 +30,7 @@ public abstract class MCTypeWrapper {
 	public MCTypeWrapper(MCPCMLType internalType) {
 		this.internalType = internalType;
 	}
+	
 	public String toFormula(String option){
 		StringBuilder result = new StringBuilder();
 		String typeWrapper = typeWrapperMap.get(internalType.getClass());
@@ -49,6 +51,22 @@ public abstract class MCTypeWrapper {
 	
 	public abstract MCTypeWrapper copy();
 	
+	public static String getWrapperForType(String typeName){
+		StringBuilder result = new StringBuilder(); 
+		
+		result.append(typeName + "W");
+		
+		return result.toString();
+	} 
+	
+	public static String getNameForWapper(String wrapperName){
+		StringBuilder result = new StringBuilder(); 
+		int lastIndex = wrapperName.lastIndexOf('W');
+		
+		result.append(wrapperName.substring(0, lastIndex));
+		
+		return result.toString();
+	}
 	public MCPCMLType getInternalType() {
 		return internalType;
 	}

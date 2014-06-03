@@ -86,11 +86,33 @@ public class MCAProcessDefinition implements MCPCMLDefinition {
 				LinkedList<ActionChannelDependency> dependencies = context.getActionChannelDependendies(this.name);
 				if(dependencies.size() > 0){
 					result.append(" :- ");
-					for (Iterator<ActionChannelDependency> iterator = dependencies.iterator(); iterator.hasNext();) {
-						ActionChannelDependency actionChannelDependency = (ActionChannelDependency) iterator.next();
-						result.append(actionChannelDependency.toFormula(option));
-						if(iterator.hasNext()){
-							result.append(",");
+					
+					if(dependencies.size() == 1 && context.getNumberOfInstances() == 1){
+						for (Iterator<ActionChannelDependency> iterator = dependencies.iterator(); iterator.hasNext();) {
+							ActionChannelDependency actionChannelDependency = (ActionChannelDependency) iterator.next();
+							result.append(actionChannelDependency.toFormula(option));
+							if(iterator.hasNext()){
+								result.append(",");
+							}
+						}
+					} else {
+						ActionChannelDependency mainDependency = dependencies.getFirst();
+						dependencies = context.getInfiniteActionChannelDependendiesByChannelName(mainDependency.getChannelName());
+						for (Iterator<ActionChannelDependency> iterator = dependencies.iterator(); iterator.hasNext();) {
+							ActionChannelDependency actionChannelDependency = (ActionChannelDependency) iterator.next();
+							result.append(actionChannelDependency.toFormula(option));
+							if(iterator.hasNext()){
+								result.append(",");
+							}
+						}
+						//it adds the combination of differences among instantiated values 
+						if(values.size() > 1){
+							LinkedList<String> expressions = new LinkedList<String>();
+							generateCombinations(dependencies, "!=", expressions);
+							for (String string : expressions) {
+								result.append(", ");
+								result.append(string);
+							}
 						}
 					}
 				}
@@ -111,25 +133,75 @@ public class MCAProcessDefinition implements MCPCMLDefinition {
 			
 			//if the action has dependencies we get them from the context
 			LinkedList<ActionChannelDependency> dependencies = context.getActionChannelDependendies(this.name);
-			if(dependencies.size() > 0){
+			
+			if(NewCMLModelcheckerContext.hasInfiniteChannelInDependencies(dependencies)){
 				result.append(" :- ");
-				for (Iterator<ActionChannelDependency> iterator = dependencies.iterator(); iterator.hasNext();) {
-					ActionChannelDependency actionChannelDependency = (ActionChannelDependency) iterator.next();
-					result.append(actionChannelDependency.toFormula(option));
-					if(iterator.hasNext()){
-						result.append(",");
+				if(dependencies.size() == 1 && context.getNumberOfInstances() == 1){
+						ActionChannelDependency actionChannelDependency = (ActionChannelDependency) dependencies.getFirst();
+						if(actionChannelDependency.hasInfiniteTypedChannel()){
+							result.append(actionChannelDependency.toFormula(option));
+						}
+				} else {
+					dependencies = context.getInfiniteActionChannelDependendiesByChannelName(dependencies.getFirst().getChannelName());
+					for (Iterator<ActionChannelDependency> iterator = dependencies.iterator(); iterator.hasNext();) {
+						ActionChannelDependency actionChannelDependency = (ActionChannelDependency) iterator.next();
+						//if(actionChannelDependency.hasInfiniteTypedChannel()){
+							
+							result.append(actionChannelDependency.toFormula(option));
+							if(iterator.hasNext()){
+								result.append(",");
+							}
+						//}
+					}
+					
+					LinkedList<String> expressions = new LinkedList<String>();
+					
+					generateCombinations(dependencies,"!=",expressions); //PPPPPPPPPPP problema aqui.
+					for (String string : expressions) {
+						result.append(", ");
+						result.append(string);
 					}
 				}
+				/*
+				if(dependencies.size() > 0){
+					result.append(" :- ");
+					for (Iterator<ActionChannelDependency> iterator = dependencies.iterator(); iterator.hasNext();) {
+						ActionChannelDependency actionChannelDependency = (ActionChannelDependency) iterator.next();
+						result.append(actionChannelDependency.toFormula(option));
+						if(iterator.hasNext()){
+							result.append(",");
+						}
+					}
+				}
+				*/
 			}
 			
+			
 			result.append(".\n");
-			}
+		}
 		
 		
 		return result.toString();
 	}
 
-	
+	private void generateCombinations(LinkedList<ActionChannelDependency> chanDefList, String operator, LinkedList<String> result){
+		
+		if(chanDefList.size() == 2){
+			String firstExpression = chanDefList.getFirst().getParameters().getFirst().toString();
+			String secondExpression = chanDefList.getLast().getParameters().getFirst().toString();
+			String expression = firstExpression + " " + operator + " " + secondExpression;
+			result.add(expression);
+		} else if (chanDefList.size() > 2){
+			String firstExpression = chanDefList.pollFirst().getChannelDefinition().getType().getTypeAsName();
+			for (ActionChannelDependency chanDef : chanDefList) {
+				String secondExpression = chanDef.getChannelDefinition().getType().getTypeAsName();
+				String expression = firstExpression + " " + operator + " " + secondExpression;
+				result.add(expression);
+			}
+			generateCombinations(chanDefList,operator,result);
+		}
+		
+	}
 
 	
 

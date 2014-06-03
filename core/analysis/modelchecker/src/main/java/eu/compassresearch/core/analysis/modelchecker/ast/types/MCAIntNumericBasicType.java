@@ -1,5 +1,7 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.types;
 
+import org.overture.ast.types.AIntNumericBasicType;
+
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 
 public class MCAIntNumericBasicType extends MCPCMLNumericType {
@@ -21,6 +23,10 @@ public class MCAIntNumericBasicType extends MCPCMLNumericType {
 		case MCNode.NAMED:
 			result.append(this.getValue());
 			break;
+		
+		case MCNode.SEMANTIC_NAMED:
+			result.append("Integer");
+			break;
 			
 		default:
 			result.append(this.getValue());
@@ -34,4 +40,8 @@ public class MCAIntNumericBasicType extends MCPCMLNumericType {
 		return new MCAIntNumericBasicType(new String(this.getValue()));
 	}
 
+	@Override
+	public String getTypeAsName() {
+		return MCTypeWrapper.getTypeWrapperString(this.getClass());
+	}
 }

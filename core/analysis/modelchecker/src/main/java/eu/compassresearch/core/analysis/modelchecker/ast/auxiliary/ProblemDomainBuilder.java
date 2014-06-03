@@ -81,6 +81,7 @@ public class ProblemDomainBuilder {
 		content.append(",pBody)  :- GivenProc(np), ProcDef(np,nopar,pBody)");
 		//if there is some dependency with some channel and the channel is infinite, then
 		//their values are in the bindings and bindings must depend on the values so be instantiated
+		/*
 		ArrayList<ActionChannelDependency> chanDeps = context.channelDependencies;
 		for (ActionChannelDependency actionChannelDependency : chanDeps) {
 			MCAChannelDefinition chanDef =  actionChannelDependency.getChannelDefinition();
@@ -90,7 +91,7 @@ public class ProblemDomainBuilder {
 			}
 			
 		}
-		
+		*/
 		content.append(".\n");
 	}
 	

@@ -47,7 +47,6 @@ public class MCAActionDefinition implements MCPCMLDefinition {
 	@Override
 	public String toFormula(String option) {
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
-		
 		StringBuilder result = new StringBuilder();
 		
 		
@@ -72,7 +71,20 @@ public class MCAActionDefinition implements MCPCMLDefinition {
 					result.append(this.getAction().toFormula(option));
 					result.append(")");
 					context.localVariablesMapping.remove(mapping);
+					
 					//if the action has dependencies we get them from the context
+					LinkedList<ActionChannelDependency> dependencies = context.getActionChannelDependendies(this.name);
+					if(NewCMLModelcheckerContext.hasInfiniteChannelInDependencies(dependencies)){
+						result.append(" :- ");
+						for (Iterator<ActionChannelDependency> iterator = dependencies.iterator(); iterator.hasNext();) {
+							ActionChannelDependency actionChannelDependency = (ActionChannelDependency) iterator.next();
+							if(actionChannelDependency.hasInfiniteTypedChannel()){
+								result.append(",");
+								result.append(actionChannelDependency.toFormula(option));
+							}
+						}
+					}
+					/*
 					LinkedList<ActionChannelDependency> dependencies = context.getActionChannelDependendies(this.name);
 					if(dependencies.size() > 0){
 						result.append(" :- ");
@@ -84,6 +96,7 @@ public class MCAActionDefinition implements MCPCMLDefinition {
 							}
 						}
 					}
+					*/
 					result.append(".\n");
 				}
 			}
@@ -106,19 +119,58 @@ public class MCAActionDefinition implements MCPCMLDefinition {
 			
 			
 		}else{
-			result.append("  ProcDef(");
-			result.append("\"" + this.name + "\",");
-			
+			result.append("  ProcDef(\"");
+			result.append(this.name);
+			result.append("\",");
 			// parameters
 			ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance(); 
 			MCPCMLType paramType  = evaluator.instantiateMCTypeFromParams(this.declarations);
-	
 			result.append(paramType.toFormula(option));
 			result.append(",");
 			result.append(this.getAction().toFormula(option));
 			result.append(")");
 			
 			//if the action has dependencies we get them from the context
+			LinkedList<ActionChannelDependency> dependencies = context.getActionChannelDependendies(this.name);
+			if(NewCMLModelcheckerContext.hasInfiniteChannelInDependencies(dependencies)){
+				result.append(" :- ");
+				if(dependencies.size() == 1 && context.getNumberOfInstances() == 1){
+					ActionChannelDependency actionChannelDependency = (ActionChannelDependency) dependencies.getFirst();
+					if(actionChannelDependency.hasInfiniteTypedChannel()){
+						result.append(actionChannelDependency.toFormula(option));
+					}
+				} else {
+					dependencies = context.getInfiniteActionChannelDependendiesByChannelName(dependencies.getFirst().getChannelName());
+					for (Iterator<ActionChannelDependency> iterator = dependencies.iterator(); iterator.hasNext();) {
+						ActionChannelDependency actionChannelDependency = (ActionChannelDependency) iterator.next();
+						//if(actionChannelDependency.hasInfiniteTypedChannel()){
+
+						result.append(actionChannelDependency.toFormula(option));
+						if(iterator.hasNext()){
+							result.append(",");
+						}
+						//}
+					}
+
+					LinkedList<String> expressions = new LinkedList<String>();
+
+					generateCombinations(dependencies,"!=",expressions); //PPPPPPPPPPP problema aqui.
+					for (String string : expressions) {
+						result.append(", ");
+						result.append(string);
+					}
+				}
+				/*
+				for (Iterator<ActionChannelDependency> iterator = dependencies.iterator(); iterator.hasNext();) {
+					ActionChannelDependency actionChannelDependency = (ActionChannelDependency) iterator.next();
+					if(actionChannelDependency.hasInfiniteTypedChannel()){
+						result.append(",");
+						result.append(actionChannelDependency.toFormula(option));
+					}
+				}
+				*/
+			}
+			/*
 			LinkedList<ActionChannelDependency> dependencies = context.getActionChannelDependendies(this.name);
 			if(dependencies.size() > 0){
 				result.append(" :- ");
@@ -130,11 +182,30 @@ public class MCAActionDefinition implements MCPCMLDefinition {
 					}
 				}
 			}
+			*/
 			result.append(".\n");
 		}
 		return result.toString();
 	}
 
+	private void generateCombinations(LinkedList<ActionChannelDependency> chanDefList, String operator, LinkedList<String> result){
+		
+		if(chanDefList.size() == 2){
+			String firstExpression = chanDefList.getFirst().getParameters().getFirst().toString();
+			String secondExpression = chanDefList.getLast().getParameters().getFirst().toString();
+			String expression = firstExpression + " " + operator + " " + secondExpression;
+			result.add(expression);
+		} else if (chanDefList.size() > 2){
+			String firstExpression = chanDefList.pollFirst().getChannelDefinition().getType().getTypeAsName();
+			for (ActionChannelDependency chanDef : chanDefList) {
+				String secondExpression = chanDef.getChannelDefinition().getType().getTypeAsName();
+				String expression = firstExpression + " " + operator + " " + secondExpression;
+				result.add(expression);
+			}
+			generateCombinations(chanDefList,operator,result);
+		}
+		
+	}
 	
 
 	@Override

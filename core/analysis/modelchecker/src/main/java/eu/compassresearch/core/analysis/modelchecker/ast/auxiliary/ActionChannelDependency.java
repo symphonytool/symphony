@@ -34,15 +34,22 @@ public class ActionChannelDependency {
 			temp.append(channelDefinition.toFormula(MCNode.GENERIC));
 			int index = temp.lastIndexOf("_");
 			ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
+			
 			MCPCMLType paramTypes = evaluator.instantiateMCTypeFromCommParams(parameters);
 			if(index != -1){
 				temp = temp.replace(index,index + 1, paramTypes.toFormula(option));
+				
 			}
 			result.append(temp.toString());
 		}
 		
 		return result.toString();
 	}
+	
+	public boolean hasInfiniteTypedChannel(){
+		return this.channelDefinition.isInfiniteType();
+	}
+	
 	public String getActionName() {
 		return actionName;
 	}

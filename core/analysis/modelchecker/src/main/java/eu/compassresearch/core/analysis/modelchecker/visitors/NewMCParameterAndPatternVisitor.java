@@ -116,25 +116,30 @@ public class NewMCParameterAndPatternVisitor extends QuestionAnswerCMLAdaptor<Ne
 			if(parent instanceof ACommunicationAction){
 				String channelName = ((ACommunicationAction) parent).getIdentifier().getName();
 				MCAChannelDefinition chanDef = question.getChannelDefinition(channelName);
+				ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
 				MCPCMLType realType = chanDef.getType();
 				if(realType instanceof MCAChannelType){
 					realType = ((MCAChannelType) realType).getType();
-					ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
+					
 					//this is a solution to avoid dealing with product type
 					//becaus only one parameter of the communication can be a read parameter
 					if(realType instanceof MCAProductType){
 						//simply use the defaul value for integers
 						expression = new MCAIntLiteralExp("0");
 					}else{
-						if(chanDef.isInfiniteType()){
-							expression = //evaluator.getDefaultValueForInfiniteType(realType);
-									new MCAVariableExp(pattern.toFormula(MCNode.DEFAULT));
-							//this method must build types using variables to be put in the bindings
-						}else{
+						//if(chanDef.isInfiniteType()){
+							//expression = //evaluator.getDefaultValueForInfiniteType(realType);
+							//		new MCAVariableExp(pattern.toFormula(MCNode.DEFAULT));
+						//}else{
 							expression = evaluator.getDefaultValue(realType);
-						}
+						//}
 					}
 				}
+				if(chanDef.isInfiniteType()){
+					MCPCMLType type = question.getFinalType(realType.toFormula(MCNode.DEFAULT));
+					expression = evaluator.getDefaultValue(type);
+				}
+				
 			} 
 			
 		}

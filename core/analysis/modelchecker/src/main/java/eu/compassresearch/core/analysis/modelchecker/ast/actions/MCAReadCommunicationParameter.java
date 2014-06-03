@@ -1,13 +1,19 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.actions;
 
+import eu.compassresearch.ast.actions.AReadCommunicationParameter;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAChannelDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCPCMLPattern;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAChannelType;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
+import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
 
 public class MCAReadCommunicationParameter implements MCPCommunicationParameter {
 
 	private MCPCMLExp expression;
 	private MCPCMLPattern pattern;
+	private MCACommunicationAction parentAction;
 	
 	
 	public MCAReadCommunicationParameter(MCPCMLExp expression,
@@ -45,6 +51,18 @@ public class MCAReadCommunicationParameter implements MCPCommunicationParameter 
 		
 		return result;
 	}
+	
+	public MCPCMLType getOriginalType(){
+		MCPCMLType result = null;
+		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
+		MCAChannelDefinition chanDef =  context.getChannelDefinition(this.parentAction.getIdentifier());
+		
+		if (chanDef.getType() instanceof MCAChannelType){
+			result = ((MCAChannelType)chanDef.getType()).getType(); 
+		}
+		
+		return result;
+	}
 
 	public MCPCMLExp getExpression() {
 		return expression;
@@ -65,5 +83,16 @@ public class MCAReadCommunicationParameter implements MCPCommunicationParameter 
 		this.pattern = pattern;
 	}
 
+
+	public MCACommunicationAction getParentAction() {
+		return parentAction;
+	}
+
+
+	public void setParentAction(MCACommunicationAction parentAction) {
+		this.parentAction = parentAction;
+	}
+
+	
 	
 }

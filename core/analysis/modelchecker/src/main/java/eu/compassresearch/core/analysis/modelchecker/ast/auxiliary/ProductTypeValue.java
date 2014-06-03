@@ -54,5 +54,11 @@ public class ProductTypeValue extends TypeValue {
 		return null;
 	}
 
+	@Override
+	public String getTypeAsName() {
+		// TODO Auto-generated method stub
+		return this.toString();
+	}
+
 	
 }

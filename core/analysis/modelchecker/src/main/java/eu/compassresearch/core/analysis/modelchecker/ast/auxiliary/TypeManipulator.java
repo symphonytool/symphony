@@ -59,6 +59,7 @@ public class TypeManipulator {
 	}
 	
 	public LinkedList<TypeValue> getValues(MCANamedInvariantType type){
+
 		ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
 		LinkedList<TypeValue> result = new LinkedList<TypeValue>();
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
@@ -84,17 +85,48 @@ public class TypeManipulator {
 				for (MCANameChannelExp mcaNameChannelExp : chansetValues) {
 					result.add(new SingleTypeValue(mcaNameChannelExp.getIdentifier()));
 				}
+			} else{ //name invariant has the same type as the original type
+				typeDef = context.getTypeDefinition(type.getOriginalTypeName());
+				if(typeDef != null){
+					if(typeDef.hasValues()){
+						result = getValues(new MCANamedInvariantType(type.getOriginalTypeName(), type.getOriginalTypeName()));
+					}else{
+						MCPCMLType originalType = getTypeForStringNameType(type.getOriginalTypeName());
+						if(getTypeForStringNameType(type.getOriginalTypeName()) != null){
+							result = getValues(originalType);
+						}
+					}
+				} else {
+					MCPCMLType originalType = getTypeForStringNameType(type.getOriginalTypeName());
+					if(getTypeForStringNameType(type.getOriginalTypeName()) != null){
+						result = getValues(originalType);
+					}
+				}
 			}
 			
 		}
 		return result;
 	}
 	
+	private MCPCMLType getTypeForStringNameType(String nameType){
+		MCPCMLType result = null;
+		if(nameType.equals("nat")){
+			result = new MCANatNumericBasicType("0");
+		} else if (nameType.equals("int")){
+			result = new MCAIntNumericBasicType("0");
+		}
+		return result;
+	} 
+	
 	public LinkedList<TypeValue> getValues(MCANatNumericBasicType type){
 		LinkedList<TypeValue> result = new LinkedList<TypeValue>();
 
-		result.add(new SingleTypeValue("0"));
-
+		//lets put as many variable values in the result as are the number of instances
+		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
+		for (int i = 0; i < context.getNumberOfInstances(); i++) {
+			result.add(new SingleTypeValue("x"+i));
+		}
+		
 		return result;
 	}
 	
@@ -111,7 +143,10 @@ public class TypeManipulator {
 		for (MCPCMLType currType : type.getTypes()) {
 			if(currType instanceof MCAQuoteType){
 				result.add(new SingleTypeValue(((MCAQuoteType) currType).getValue()));
-			} 
+			} else if (currType instanceof MCANamedInvariantType){
+				LinkedList<TypeValue> values = this.getValues(currType);
+				result.addAll(values);
+			}
 		}
 		
 

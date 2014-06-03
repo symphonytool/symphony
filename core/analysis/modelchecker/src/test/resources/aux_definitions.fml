@@ -85,6 +85,9 @@
 	primitive BooleanW ::= (Boolean).
 	primitive StringW ::= (String).
 	
+	//Wrappers for user defined types
+	//WRAPPERS_USER_DEF_TYPES
+	
 	// Bindings 
     NullBind            ::= {nBind}. 
 	primitive SingleBind ::= (name: String, val:Type).               

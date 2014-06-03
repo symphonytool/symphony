@@ -6,6 +6,7 @@ import org.overture.ast.patterns.AIdentifierPattern;
 
 import eu.compassresearch.ast.actions.AValParametrisation;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCACommunicationAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAReadCommunicationParameter;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCASignalCommunicationParameter;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAValParametrisation;
@@ -13,6 +14,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAWriteCommuni
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPCommunicationParameter;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPParametrisation;
 import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCATypeSingleDeclaration;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAChannelDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCALocalDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCATypeDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAValueDefinition;
@@ -115,7 +117,7 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 						Integer.valueOf(realValue);
 						result = new MCAFixedInvariantType(realValue);
 					} catch (NumberFormatException e) {
-						result = new MCANamedInvariantType(realValue);
+						result = new MCANamedInvariantType(realValue,realValue);
 					}
 				}
 			}
@@ -187,7 +189,7 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 	private MCPCMLType getTypeFor(MCALocalDefinition def){
 		MCPCMLType result = null;
 		
-		result = new MCANamedInvariantType(def.getName());
+		result = new MCANamedInvariantType(def.getName(), def.getName());
 		
 		return result;
 	}
@@ -403,13 +405,13 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 		NameValue mapping = context.getNameValue(exp.getName());
 		//if there is a local variable with the same name assigned with a value, then use such a value
 		if(mapping != null){
-			result = new MCANamedInvariantType(mapping.getVariableValue());
+			result = new MCANamedInvariantType(mapping.getVariableValue(), mapping.getVariableName());
 		} else{
 			mapping = context.getNameValueInIndexedVariables(exp.getName());
 			if(mapping != null){
-				result = new MCANamedInvariantType(mapping.getVariableValue());
+				result = new MCANamedInvariantType(mapping.getVariableValue(),mapping.getVariableName());
 			}else{
-				result = new MCANamedInvariantType(exp.getName());
+				result = new MCANamedInvariantType(exp.getName(),exp.getName());
 			}
 		}
 		
@@ -419,7 +421,7 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 	private MCPCMLType getTypeFor(MCAQuoteLiteralExp exp){
 		MCPCMLType result = null;
 		
-		result = new MCANamedInvariantType(exp.getValue());
+		result = new MCANamedInvariantType(exp.getValue(), exp.getValue());
 		
 		return result;
 	}
@@ -447,20 +449,20 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 	}
 	
 	private MCPCMLType getTypeFor(MCAIdentifierPattern exp){
-		MCPCMLType result = new MCANamedInvariantType(exp.getName());;
+		MCPCMLType result = new MCANamedInvariantType(exp.getName(), exp.getName());
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 		NameValue mapping = context.getNameValue(exp.getName());
 		//if there is a local variable with the same name assigned with a value, then use such a value
 		if(mapping != null){
-			result = new MCANamedInvariantType(mapping.getVariableValue());
+			result = new MCANamedInvariantType(mapping.getVariableValue(),mapping.getVariableName());
 		} else{
-			result = new MCANamedInvariantType(exp.getName());
+			result = new MCANamedInvariantType(exp.getName(),exp.getName());
 		}
 		
 		return result;
 	}
 	private MCPCMLType getTypeForIOComm(MCAIdentifierPattern exp){
-		MCPCMLType result = new MCANamedInvariantType(exp.getName());;
+		MCPCMLType result = new MCANamedInvariantType(exp.getName(),exp.getName());
 		
 		return result;
 	}
@@ -487,14 +489,40 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 	}
 	private MCPCMLType getTypeFor(MCAReadCommunicationParameter param){
 		MCPCMLType result = null;
+		if(param.getExpression() != null){
+			if(!param.getExpression().toFormula(MCNode.DEFAULT).equals(param.getPattern().toFormula(MCNode.DEFAULT))){
+				result = getTypeFor(new MCAIdentifierPattern(param.getExpression().toFormula(MCNode.DEFAULT)));
+			} else{
+				result = getTypeFor((MCAIdentifierPattern)param.getPattern());
+			}
+		} else{
+			result = getTypeFor((MCAIdentifierPattern)param.getPattern());
+		}
+		((MCANamedInvariantType)result).setOriginalTypeName(param.getOriginalType().toFormula(MCNode.DEFAULT));
 		
-		result = getTypeFor((MCAIdentifierPattern)param.getPattern());
 		
 		return result;
 	}
 	private MCPCMLType getTypeForIOComm(MCAReadCommunicationParameter param){
 		MCPCMLType result = null;
+		/*
+		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance(); 
 		
+		MCACommunicationAction parentAction = param.getParentAction();
+		if(parentAction != null){
+			String channelName = parentAction.getIdentifier();
+			MCAChannelDefinition chanDef = context.getChannelDefinition(channelName);
+			if(chanDef != null){
+				if(chanDef.isInfiniteType()){
+					 result = new MCAFixedInvariantType(param.getPattern().toFormula(MCNode.DEFAULT));
+				} else {
+					result = getTypeForIOComm((MCAIdentifierPattern)param.getPattern());
+				}
+			}
+		} else {
+			result = getTypeForIOComm((MCAIdentifierPattern)param.getPattern());
+		}
+		*/
 		result = getTypeForIOComm((MCAIdentifierPattern)param.getPattern());
 		
 		return result;
@@ -530,25 +558,44 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 	
 	public MCPCMLExp getDefaultValue(MCPCMLType type){
 		MCPCMLExp result = null;
+		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 		
 		if(type instanceof MCAIntNumericBasicType){
 			result = new MCAIntLiteralExp("0");
 		} else if(type instanceof MCANatNumericBasicType){
 			result = new MCAIntLiteralExp("0");
 		} else if(type instanceof MCANamedInvariantType){
-			NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
+			
 			MCATypeDefinition typeDef = context.getTypeDefinition(((MCANamedInvariantType) type).getName());
 			LinkedList<MCPCMLExp> values = new LinkedList<MCPCMLExp>();
+			TypeManipulator typeHandler = TypeManipulator.getInstance();
+			
 			if(typeDef.getInvExpression() != null){
 				values = this.getValues(typeDef.getInvExpression());
 			} else {
-				TypeManipulator typeHandler = TypeManipulator.getInstance();
 				LinkedList<TypeValue> typeValues = typeHandler.getValues(typeDef.getType());
 				for (TypeValue typeValue : typeValues) {
 					MCPCMLExp newExp = new MCAVariableExp(typeValue.toFormula(MCNode.DEFAULT));
 					values.add(newExp);
 				}
 			}
+			/*
+			type = context.getFinalType(type.toFormula(MCNode.DEFAULT));
+			
+			LinkedList<MCPCMLExp> values = new LinkedList<MCPCMLExp>();
+			TypeManipulator typeHandler = TypeManipulator.getInstance();
+			if(type != null){
+				
+				LinkedList<TypeValue> typeValues = typeHandler.getValues(type);
+				for (TypeValue typeValue : typeValues) {
+					MCPCMLExp newExp = new MCAVariableExp(typeValue.toFormula(MCNode.DEFAULT));
+					values.add(newExp);
+				}
+			}
+			*/
+			/*
+			
+			*/
 			if(values.size() > 0){
 				result = values.getFirst();
 			}
@@ -556,6 +603,20 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 			result = new MCABooleanConstExp(false);
 		} else if(type instanceof MCASetType){
 			result = new MCASetEnumSetExp(new LinkedList<MCPCMLExp>());
+		}
+		
+		return result;
+	}
+	
+	public boolean isInfinite(MCPCMLType type){
+		boolean result = false;
+		if(type instanceof MCANatNumericBasicType || type instanceof MCAIntNumericBasicType){
+			result = true;
+		} else if (type instanceof MCANamedInvariantType){
+			type = NewCMLModelcheckerContext.getInstance().getFinalType(((MCANamedInvariantType) type).getName());
+			if (type != null){
+				result = isInfinite(type);
+			}
 		}
 		
 		return result;

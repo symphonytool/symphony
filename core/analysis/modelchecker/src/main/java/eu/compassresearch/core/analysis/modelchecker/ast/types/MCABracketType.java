@@ -21,4 +21,9 @@ public class MCABracketType implements MCPCMLType {
 		return new MCABracketType(this.type);
 	}
 
+	@Override
+	public String getTypeAsName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

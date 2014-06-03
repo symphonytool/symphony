@@ -80,6 +80,7 @@ public class MCPluginUtility {
 			CmlMCPlugin.logErrorMessage(e.getMessage());
 		}else{
 			MessageDialog.openInformation(null, tittle,"Could not analyse the specification.\n\n" + e.getMessage());
+			CmlMCPlugin.logErrorMessage(e.getCause().getMessage());
 		}
 	}
 	

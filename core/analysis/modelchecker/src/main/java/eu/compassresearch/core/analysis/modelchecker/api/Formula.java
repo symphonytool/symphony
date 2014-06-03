@@ -17,11 +17,13 @@ import java.util.StringTokenizer;
 
 import javax.swing.filechooser.FileSystemView;
 
+import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
 import eu.compassresearch.core.analysis.modelchecker.visitors.Utilities;
 
 public class Formula implements IFORMULAInvoker {
 
 	public static final String DEFAULT_MODEL_NAME = "StartProcModel";
+	public static final String SPECIFIC_MODEL_NAME = "StartProcModel#1";
 	public static final String MAIN_QUERY_CLAUSE = "conforms";
 	public static final String FORMULA_CMD = "formula";
 	public static final String FORMULA_LOAD_CMD = "load";
@@ -132,7 +134,13 @@ public class Formula implements IFORMULAInvoker {
 	private void knows(FormulaResult result) throws IOException, FormulaIntegrationException {
 		String knowsCommand = 	FORMULA_KNOWS_CMD + " " +
 				DEFAULT_MODEL_NAME + "\n";
-
+		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
+		
+		if(context.instantiatesFromInfiniteDomain()){
+			knowsCommand = 	FORMULA_KNOWS_CMD + " " +
+					SPECIFIC_MODEL_NAME + "\n";
+		}
+			
 		OutputStream stdin = process.getOutputStream();
 	    InputStream stdout = process.getInputStream();
 	    BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(stdin));

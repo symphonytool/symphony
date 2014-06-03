@@ -42,5 +42,10 @@ public class MCAFixedInvariantType implements MCPCMLType {
 		return new MCAFixedInvariantType(new String(this.getName()));
 	}
 
+	@Override
+	public String getTypeAsName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 	
 }

@@ -74,7 +74,7 @@ public class NewMCTypeAndValueVisitor extends
 	public MCNode caseANamedInvariantType(ANamedInvariantType node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
 		
-		MCANamedInvariantType result = new MCANamedInvariantType(node.getName().toString());
+		MCANamedInvariantType result = new MCANamedInvariantType(node.getName().toString(), node.getType().toString());
 		
 		return result;
 	}
