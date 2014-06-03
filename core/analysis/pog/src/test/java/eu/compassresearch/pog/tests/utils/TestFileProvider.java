@@ -11,16 +11,14 @@ import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.apache.commons.io.filefilter.RegexFileFilter;
 import org.junit.Assert;
 
-import eu.compassresearch.pog.tests.ParameterizedBaseTest;
-
 
 /**
- * Very simple class. Simple holds a list of file names
- * and provides them to the {@link ParameterizedBaseTest} class.
+ * Helper Class for the POG test framework. Provides lists of test inputs 
+ * (typically CML sources) and results (string/json files) .
  * @author ldc
  *
  */
-public class BaseInputProvider
+public class TestFileProvider
 {
 
 	private final static String BASE_INPUTS_FOLDER = "src/test/resources/basetests/";

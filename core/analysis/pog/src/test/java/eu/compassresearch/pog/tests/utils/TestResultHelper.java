@@ -17,10 +17,7 @@ import org.overture.pog.pub.IProofObligationList;
 import eu.compassresearch.pog.tests.PoResult;
 
 /**
- * Helper Class for the POG test framework. Helps generate test results.
- * 
- * This classes does I/O and interaction
- * with the COMPASS TC and Parser.
+ * Helper Class for the POG test framework. Helps compare test outputs and results.
  * @author ldc
  *
  */

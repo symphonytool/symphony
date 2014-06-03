@@ -21,7 +21,7 @@ import org.overture.pog.pub.ProofObligationGenerator;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-import eu.compassresearch.pog.tests.utils.BaseInputProvider;
+import eu.compassresearch.pog.tests.utils.TestFileProvider;
 import eu.compassresearch.pog.tests.utils.TestInputHelper;
 import eu.compassresearch.pog.tests.utils.TestResultHelper;
 
@@ -46,7 +46,7 @@ public class BugRegressionTest
 	@Parameters(name = "{index} : {1}")
 	public static Collection<Object[]> testData()
 	{
-		return BaseInputProvider.bugRegs();
+		return TestFileProvider.bugRegs();
 	}
 
 	@Test
