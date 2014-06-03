@@ -9,10 +9,10 @@ import org.overture.ast.types.AFieldField;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.expressions.ABracketedExp;
 
-public class ExpSub extends QuestionAnswerCMLAdaptor<Substitutions, PExp> {
+public class VariableSubVisitor extends QuestionAnswerCMLAdaptor<Substitution, PExp> {
 
 	@Override
-	public PExp caseABracketedExp(ABracketedExp node, Substitutions question)
+	public PExp caseABracketedExp(ABracketedExp node, Substitution question)
 			throws AnalysisException {
 		PExp sub = node.getExpression().apply(this, question);
 		node.setExpression(sub);
@@ -21,84 +21,73 @@ public class ExpSub extends QuestionAnswerCMLAdaptor<Substitutions, PExp> {
 
 	@Override
 	public PExp caseAAbsoluteUnaryExp(AAbsoluteUnaryExp node,
-			Substitutions question) throws AnalysisException {
+			Substitution question) throws AnalysisException {
 		PExp sub = node.getExp().apply(this, question);
 		node.setExp(sub);
 		return node;
 	}
-
+	
 	@Override
-	public PExp caseAAndBooleanBinaryExp(AAndBooleanBinaryExp node,
-			Substitutions question) throws AnalysisException {
+	public PExp defaultSBinaryExp(SBinaryExp node, Substitution question)
+			throws AnalysisException {
 		PExp subl = node.getLeft().apply(this,question);
 		PExp subr = node.getRight().apply(this,question);
 		node.setLeft(subl);
 		node.setRight(subr);
-		return node;
-
+		return node.clone();
 	}
 
 	@Override
-	public PExp caseAApplyExp(AApplyExp node, Substitutions question)
+	public PExp caseAApplyExp(AApplyExp node, Substitution question)
 			throws AnalysisException {
-
-		// List<PExp> rs = new LinkedList<PExp>();
-		// for (PExp p : node.getArgs()){
-		// rs.add(p.apply(this,question));
-		// }
-		//
-		// PExp combi = question.combine(rs);
-		//
-		//
-		// node.get
 		// TODO Auto-generated method stub
 		return super.caseAApplyExp(node, question);
 	}
 
 	@Override
 	public PExp caseABooleanConstExp(ABooleanConstExp node,
-			Substitutions question) throws AnalysisException {
+			Substitution question) throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseABooleanConstExp(node, question);
 	}
 
 	@Override
 	public PExp caseACardinalityUnaryExp(ACardinalityUnaryExp node,
-			Substitutions question) throws AnalysisException {
+			Substitution question) throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseACardinalityUnaryExp(node, question);
 	}
 
 	@Override
-	public PExp caseACasesExp(ACasesExp node, Substitutions question)
+	public PExp caseACasesExp(ACasesExp node, Substitution question)
 			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseACasesExp(node, question);
 	}
 
 	@Override
-	public PExp caseACasesStm(ACasesStm node, Substitutions question)
+	public PExp caseACasesStm(ACasesStm node, Substitution question)
 			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseACasesStm(node, question);
 	}
 
 	@Override
-	public PExp caseACharLiteralExp(ACharLiteralExp node, Substitutions question)
+	public PExp caseACharLiteralExp(ACharLiteralExp node, Substitution question)
 			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseACharLiteralExp(node, question);
 	}
 
 	@Override
-	public PExp caseACompBinaryExp(ACompBinaryExp node, Substitutions question)
+	public PExp caseACompBinaryExp(ACompBinaryExp node, Substitution question)
 			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseACompBinaryExp(node, question);
 	}
 
 	@Override
-	public PExp caseADefExp(ADefExp node, Substitutions question)
+	public PExp caseADefExp(ADefExp node, Substitution question)
 			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseADefExp(node, question);
@@ -106,133 +95,127 @@ public class ExpSub extends QuestionAnswerCMLAdaptor<Substitutions, PExp> {
 
 	@Override
 	public PExp caseADistConcatUnaryExp(ADistConcatUnaryExp node,
-			Substitutions question) throws AnalysisException {
+			Substitution question) throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseADistConcatUnaryExp(node, question);
 	}
 
 	@Override
 	public PExp caseADistIntersectUnaryExp(ADistIntersectUnaryExp node,
-			Substitutions question) throws AnalysisException {
+			Substitution question) throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseADistIntersectUnaryExp(node, question);
 	}
 
 	@Override
 	public PExp caseADistMergeUnaryExp(ADistMergeUnaryExp node,
-			Substitutions question) throws AnalysisException {
+			Substitution question) throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseADistMergeUnaryExp(node, question);
 	}
 
 	@Override
 	public PExp caseADistUnionUnaryExp(ADistUnionUnaryExp node,
-			Substitutions question) throws AnalysisException {
+			Substitution question) throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseADistUnionUnaryExp(node, question);
 	}
 
 	@Override
 	public PExp caseADivNumericBinaryExp(ADivNumericBinaryExp node,
-			Substitutions question) throws AnalysisException {
+			Substitution question) throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseADivNumericBinaryExp(node, question);
 	}
 
 	@Override
 	public PExp caseADivideNumericBinaryExp(ADivideNumericBinaryExp node,
-			Substitutions question) throws AnalysisException {
+			Substitution question) throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseADivideNumericBinaryExp(node, question);
 	}
 
 	@Override
 	public PExp caseADomainResByBinaryExp(ADomainResByBinaryExp node,
-			Substitutions question) throws AnalysisException {
+			Substitution question) throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseADomainResByBinaryExp(node, question);
 	}
 
 	@Override
 	public PExp caseADomainResToBinaryExp(ADomainResToBinaryExp node,
-			Substitutions question) throws AnalysisException {
+			Substitution question) throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseADomainResToBinaryExp(node, question);
 	}
 
 	@Override
 	public PExp caseAElementsUnaryExp(AElementsUnaryExp node,
-			Substitutions question) throws AnalysisException {
+			Substitution question) throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseAElementsUnaryExp(node, question);
 	}
 
 	@Override
-	public PExp caseAElseIfExp(AElseIfExp node, Substitutions question)
+	public PExp caseAElseIfExp(AElseIfExp node, Substitution question)
 			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseAElseIfExp(node, question);
 	}
 
-	@Override
-	public PExp caseAEqualsBinaryExp(AEqualsBinaryExp node,
-			Substitutions question) throws AnalysisException {
-		// TODO Auto-generated method stub
-		return super.caseAEqualsBinaryExp(node, question);
-	}
 
 	@Override
 	public PExp caseAEquivalentBooleanBinaryExp(
-			AEquivalentBooleanBinaryExp node, Substitutions question)
+			AEquivalentBooleanBinaryExp node, Substitution question)
 			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseAEquivalentBooleanBinaryExp(node, question);
 	}
 
 	@Override
-	public PExp caseAExists1Exp(AExists1Exp node, Substitutions question)
+	public PExp caseAExists1Exp(AExists1Exp node, Substitution question)
 			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseAExists1Exp(node, question);
 	}
 
 	@Override
-	public PExp caseAExistsExp(AExistsExp node, Substitutions question)
+	public PExp caseAExistsExp(AExistsExp node, Substitution question)
 			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseAExistsExp(node, question);
 	}
 
 	@Override
-	public PExp caseAFieldExp(AFieldExp node, Substitutions question)
+	public PExp caseAFieldExp(AFieldExp node, Substitution question)
 			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseAFieldExp(node, question);
 	}
 
 	@Override
-	public PExp caseAFieldField(AFieldField node, Substitutions question)
+	public PExp caseAFieldField(AFieldField node, Substitution question)
 			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseAFieldField(node, question);
 	}
 
 	@Override
-	public PExp caseAFieldNumberExp(AFieldNumberExp node, Substitutions question)
+	public PExp caseAFieldNumberExp(AFieldNumberExp node, Substitution question)
 			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseAFieldNumberExp(node, question);
 	}
 
 	@Override
-	public PExp caseAFloorUnaryExp(AFloorUnaryExp node, Substitutions question)
+	public PExp caseAFloorUnaryExp(AFloorUnaryExp node, Substitution question)
 			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseAFloorUnaryExp(node, question);
 	}
 
 	@Override
-	public PExp caseAForAllExp(AForAllExp node, Substitutions question)
+	public PExp caseAForAllExp(AForAllExp node, Substitution question)
 			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseAForAllExp(node, question);
@@ -240,7 +223,7 @@ public class ExpSub extends QuestionAnswerCMLAdaptor<Substitutions, PExp> {
 
 	@Override
 	public PExp caseAGreaterEqualNumericBinaryExp(
-			AGreaterEqualNumericBinaryExp node, Substitutions question)
+			AGreaterEqualNumericBinaryExp node, Substitution question)
 			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseAGreaterEqualNumericBinaryExp(node, question);
@@ -248,27 +231,27 @@ public class ExpSub extends QuestionAnswerCMLAdaptor<Substitutions, PExp> {
 
 	@Override
 	public PExp caseAGreaterNumericBinaryExp(AGreaterNumericBinaryExp node,
-			Substitutions question) throws AnalysisException {
+			Substitution question) throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseAGreaterNumericBinaryExp(node, question);
 	}
 
 	@Override
-	public PExp caseAHeadUnaryExp(AHeadUnaryExp node, Substitutions question)
+	public PExp caseAHeadUnaryExp(AHeadUnaryExp node, Substitution question)
 			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseAHeadUnaryExp(node, question);
 	}
 
 	@Override
-	public PExp caseAHistoryExp(AHistoryExp node, Substitutions question)
+	public PExp caseAHistoryExp(AHistoryExp node, Substitution question)
 			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseAHistoryExp(node, question);
 	}
 
 	@Override
-	public PExp caseAIfExp(AIfExp node, Substitutions question)
+	public PExp caseAIfExp(AIfExp node, Substitution question)
 			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseAIfExp(node, question);
@@ -276,13 +259,13 @@ public class ExpSub extends QuestionAnswerCMLAdaptor<Substitutions, PExp> {
 
 	@Override
 	public PExp caseAImpliesBooleanBinaryExp(AImpliesBooleanBinaryExp node,
-			Substitutions question) throws AnalysisException {
+			Substitution question) throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseAImpliesBooleanBinaryExp(node, question);
 	}
 
 	@Override
-	public PExp caseAInSetBinaryExp(AInSetBinaryExp node, Substitutions question)
+	public PExp caseAInSetBinaryExp(AInSetBinaryExp node, Substitution question)
 			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseAInSetBinaryExp(node, question);
@@ -290,27 +273,27 @@ public class ExpSub extends QuestionAnswerCMLAdaptor<Substitutions, PExp> {
 
 	@Override
 	public PExp caseAIndicesUnaryExp(AIndicesUnaryExp node,
-			Substitutions question) throws AnalysisException {
+			Substitution question) throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseAIndicesUnaryExp(node, question);
 	}
 
 	@Override
-	public PExp caseAIntLiteralExp(AIntLiteralExp node, Substitutions question)
+	public PExp caseAIntLiteralExp(AIntLiteralExp node, Substitution question)
 			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseAIntLiteralExp(node, question);
 	}
 
 	@Override
-	public PExp caseAIotaExp(AIotaExp node, Substitutions question)
+	public PExp caseAIotaExp(AIotaExp node, Substitution question)
 			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseAIotaExp(node, question);
 	}
 
 	@Override
-	public PExp caseAIsExp(AIsExp node, Substitutions question)
+	public PExp caseAIsExp(AIsExp node, Substitution question)
 			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseAIsExp(node, question);
@@ -318,27 +301,27 @@ public class ExpSub extends QuestionAnswerCMLAdaptor<Substitutions, PExp> {
 
 	@Override
 	public PExp caseAIsOfBaseClassExp(AIsOfBaseClassExp node,
-			Substitutions question) throws AnalysisException {
+			Substitution question) throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseAIsOfBaseClassExp(node, question);
 	}
 
 	@Override
-	public PExp caseAIsOfClassExp(AIsOfClassExp node, Substitutions question)
+	public PExp caseAIsOfClassExp(AIsOfClassExp node, Substitution question)
 			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseAIsOfClassExp(node, question);
 	}
 
 	@Override
-	public PExp caseALambdaExp(ALambdaExp node, Substitutions question)
+	public PExp caseALambdaExp(ALambdaExp node, Substitution question)
 			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseALambdaExp(node, question);
 	}
 
 	@Override
-	public PExp caseALenUnaryExp(ALenUnaryExp node, Substitutions question)
+	public PExp caseALenUnaryExp(ALenUnaryExp node, Substitution question)
 			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseALenUnaryExp(node, question);
@@ -346,34 +329,34 @@ public class ExpSub extends QuestionAnswerCMLAdaptor<Substitutions, PExp> {
 
 	@Override
 	public PExp caseALessEqualNumericBinaryExp(ALessEqualNumericBinaryExp node,
-			Substitutions question) throws AnalysisException {
+			Substitution question) throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseALessEqualNumericBinaryExp(node, question);
 	}
 
 	@Override
 	public PExp caseALessNumericBinaryExp(ALessNumericBinaryExp node,
-			Substitutions question) throws AnalysisException {
+			Substitution question) throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseALessNumericBinaryExp(node, question);
 	}
 
 	@Override
-	public PExp caseALetBeStExp(ALetBeStExp node, Substitutions question)
+	public PExp caseALetBeStExp(ALetBeStExp node, Substitution question)
 			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseALetBeStExp(node, question);
 	}
 
 	@Override
-	public PExp caseALetDefExp(ALetDefExp node, Substitutions question)
+	public PExp caseALetDefExp(ALetDefExp node, Substitution question)
 			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseALetDefExp(node, question);
 	}
 
 	@Override
-	public PExp caseAMapCompMapExp(AMapCompMapExp node, Substitutions question)
+	public PExp caseAMapCompMapExp(AMapCompMapExp node, Substitution question)
 			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseAMapCompMapExp(node, question);
@@ -381,13 +364,13 @@ public class ExpSub extends QuestionAnswerCMLAdaptor<Substitutions, PExp> {
 
 	@Override
 	public PExp caseAMapDomainUnaryExp(AMapDomainUnaryExp node,
-			Substitutions question) throws AnalysisException {
+			Substitution question) throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseAMapDomainUnaryExp(node, question);
 	}
 
 	@Override
-	public PExp caseAMapEnumMapExp(AMapEnumMapExp node, Substitutions question)
+	public PExp caseAMapEnumMapExp(AMapEnumMapExp node, Substitution question)
 			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseAMapEnumMapExp(node, question);
@@ -395,41 +378,41 @@ public class ExpSub extends QuestionAnswerCMLAdaptor<Substitutions, PExp> {
 
 	@Override
 	public PExp caseAMapInverseUnaryExp(AMapInverseUnaryExp node,
-			Substitutions question) throws AnalysisException {
+			Substitution question) throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseAMapInverseUnaryExp(node, question);
 	}
 
 	@Override
 	public PExp caseAMapRangeUnaryExp(AMapRangeUnaryExp node,
-			Substitutions question) throws AnalysisException {
+			Substitution question) throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseAMapRangeUnaryExp(node, question);
 	}
 
 	@Override
 	public PExp caseAMapUnionBinaryExp(AMapUnionBinaryExp node,
-			Substitutions question) throws AnalysisException {
+			Substitution question) throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseAMapUnionBinaryExp(node, question);
 	}
 
 	@Override
-	public PExp caseAMapletExp(AMapletExp node, Substitutions question)
+	public PExp caseAMapletExp(AMapletExp node, Substitution question)
 			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseAMapletExp(node, question);
 	}
 
 	@Override
-	public PExp caseAMkBasicExp(AMkBasicExp node, Substitutions question)
+	public PExp caseAMkBasicExp(AMkBasicExp node, Substitution question)
 			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseAMkBasicExp(node, question);
 	}
 
 	@Override
-	public PExp caseAMkTypeExp(AMkTypeExp node, Substitutions question)
+	public PExp caseAMkTypeExp(AMkTypeExp node, Substitution question)
 			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseAMkTypeExp(node, question);
@@ -437,27 +420,27 @@ public class ExpSub extends QuestionAnswerCMLAdaptor<Substitutions, PExp> {
 
 	@Override
 	public PExp caseAModNumericBinaryExp(AModNumericBinaryExp node,
-			Substitutions question) throws AnalysisException {
+			Substitution question) throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseAModNumericBinaryExp(node, question);
 	}
 
 	@Override
-	public PExp caseANarrowExp(ANarrowExp node, Substitutions question)
+	public PExp caseANarrowExp(ANarrowExp node, Substitution question)
 			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseANarrowExp(node, question);
 	}
 
 	@Override
-	public PExp caseANewExp(ANewExp node, Substitutions question)
+	public PExp caseANewExp(ANewExp node, Substitution question)
 			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseANewExp(node, question);
 	}
 
 	@Override
-	public PExp caseANilExp(ANilExp node, Substitutions question)
+	public PExp caseANilExp(ANilExp node, Substitution question)
 			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseANilExp(node, question);
@@ -465,20 +448,20 @@ public class ExpSub extends QuestionAnswerCMLAdaptor<Substitutions, PExp> {
 
 	@Override
 	public PExp caseANotEqualBinaryExp(ANotEqualBinaryExp node,
-			Substitutions question) throws AnalysisException {
+			Substitution question) throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseANotEqualBinaryExp(node, question);
 	}
 
 	@Override
 	public PExp caseANotInSetBinaryExp(ANotInSetBinaryExp node,
-			Substitutions question) throws AnalysisException {
+			Substitution question) throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseANotInSetBinaryExp(node, question);
 	}
 
 	@Override
-	public PExp caseANotUnaryExp(ANotUnaryExp node, Substitutions question)
+	public PExp caseANotUnaryExp(ANotUnaryExp node, Substitution question)
 			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseANotUnaryExp(node, question);
@@ -486,34 +469,34 @@ public class ExpSub extends QuestionAnswerCMLAdaptor<Substitutions, PExp> {
 
 	@Override
 	public PExp caseANotYetSpecifiedExp(ANotYetSpecifiedExp node,
-			Substitutions question) throws AnalysisException {
+			Substitution question) throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseANotYetSpecifiedExp(node, question);
 	}
 
 	@Override
 	public PExp caseAOrBooleanBinaryExp(AOrBooleanBinaryExp node,
-			Substitutions question) throws AnalysisException {
+			Substitution question) throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseAOrBooleanBinaryExp(node, question);
 	}
 
 	@Override
 	public PExp caseAPlusNumericBinaryExp(APlusNumericBinaryExp node,
-			Substitutions question) throws AnalysisException {
+			Substitution question) throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseAPlusNumericBinaryExp(node, question);
 	}
 
 	@Override
 	public PExp caseAPlusPlusBinaryExp(APlusPlusBinaryExp node,
-			Substitutions question) throws AnalysisException {
+			Substitution question) throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseAPlusPlusBinaryExp(node, question);
 	}
 
 	@Override
-	public PExp caseAPostOpExp(APostOpExp node, Substitutions question)
+	public PExp caseAPostOpExp(APostOpExp node, Substitution question)
 			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseAPostOpExp(node, question);
@@ -521,20 +504,20 @@ public class ExpSub extends QuestionAnswerCMLAdaptor<Substitutions, PExp> {
 
 	@Override
 	public PExp caseAPowerSetUnaryExp(APowerSetUnaryExp node,
-			Substitutions question) throws AnalysisException {
+			Substitution question) throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseAPowerSetUnaryExp(node, question);
 	}
 
 	@Override
-	public PExp caseAPreExp(APreExp node, Substitutions question)
+	public PExp caseAPreExp(APreExp node, Substitution question)
 			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseAPreExp(node, question);
 	}
 
 	@Override
-	public PExp caseAPreOpExp(APreOpExp node, Substitutions question)
+	public PExp caseAPreOpExp(APreOpExp node, Substitution question)
 			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseAPreOpExp(node, question);
@@ -542,34 +525,34 @@ public class ExpSub extends QuestionAnswerCMLAdaptor<Substitutions, PExp> {
 
 	@Override
 	public PExp caseAProperSubsetBinaryExp(AProperSubsetBinaryExp node,
-			Substitutions question) throws AnalysisException {
+			Substitution question) throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseAProperSubsetBinaryExp(node, question);
 	}
 
 	@Override
 	public PExp caseAQuoteLiteralExp(AQuoteLiteralExp node,
-			Substitutions question) throws AnalysisException {
+			Substitution question) throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseAQuoteLiteralExp(node, question);
 	}
 
 	@Override
 	public PExp caseARangeResByBinaryExp(ARangeResByBinaryExp node,
-			Substitutions question) throws AnalysisException {
+			Substitution question) throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseARangeResByBinaryExp(node, question);
 	}
 
 	@Override
 	public PExp caseARangeResToBinaryExp(ARangeResToBinaryExp node,
-			Substitutions question) throws AnalysisException {
+			Substitution question) throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseARangeResToBinaryExp(node, question);
 	}
 
 	@Override
-	public PExp caseARealLiteralExp(ARealLiteralExp node, Substitutions question)
+	public PExp caseARealLiteralExp(ARealLiteralExp node, Substitution question)
 			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseARealLiteralExp(node, question);
@@ -577,41 +560,41 @@ public class ExpSub extends QuestionAnswerCMLAdaptor<Substitutions, PExp> {
 
 	@Override
 	public PExp caseARemNumericBinaryExp(ARemNumericBinaryExp node,
-			Substitutions question) throws AnalysisException {
+			Substitution question) throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseARemNumericBinaryExp(node, question);
 	}
 
 	@Override
 	public PExp caseAReverseUnaryExp(AReverseUnaryExp node,
-			Substitutions question) throws AnalysisException {
+			Substitution question) throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseAReverseUnaryExp(node, question);
 	}
 
 	@Override
 	public PExp caseASameBaseClassExp(ASameBaseClassExp node,
-			Substitutions question) throws AnalysisException {
+			Substitution question) throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseASameBaseClassExp(node, question);
 	}
 
 	@Override
-	public PExp caseASameClassExp(ASameClassExp node, Substitutions question)
+	public PExp caseASameClassExp(ASameClassExp node, Substitution question)
 			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseASameClassExp(node, question);
 	}
 
 	@Override
-	public PExp caseASelfExp(ASelfExp node, Substitutions question)
+	public PExp caseASelfExp(ASelfExp node, Substitution question)
 			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseASelfExp(node, question);
 	}
 
 	@Override
-	public PExp caseASeqCompSeqExp(ASeqCompSeqExp node, Substitutions question)
+	public PExp caseASeqCompSeqExp(ASeqCompSeqExp node, Substitution question)
 			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseASeqCompSeqExp(node, question);
@@ -619,20 +602,20 @@ public class ExpSub extends QuestionAnswerCMLAdaptor<Substitutions, PExp> {
 
 	@Override
 	public PExp caseASeqConcatBinaryExp(ASeqConcatBinaryExp node,
-			Substitutions question) throws AnalysisException {
+			Substitution question) throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseASeqConcatBinaryExp(node, question);
 	}
 
 	@Override
-	public PExp caseASeqEnumSeqExp(ASeqEnumSeqExp node, Substitutions question)
+	public PExp caseASeqEnumSeqExp(ASeqEnumSeqExp node, Substitution question)
 			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseASeqEnumSeqExp(node, question);
 	}
 
 	@Override
-	public PExp caseASetCompSetExp(ASetCompSetExp node, Substitutions question)
+	public PExp caseASetCompSetExp(ASetCompSetExp node, Substitution question)
 			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseASetCompSetExp(node, question);
@@ -640,13 +623,13 @@ public class ExpSub extends QuestionAnswerCMLAdaptor<Substitutions, PExp> {
 
 	@Override
 	public PExp caseASetDifferenceBinaryExp(ASetDifferenceBinaryExp node,
-			Substitutions question) throws AnalysisException {
+			Substitution question) throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseASetDifferenceBinaryExp(node, question);
 	}
 
 	@Override
-	public PExp caseASetEnumSetExp(ASetEnumSetExp node, Substitutions question)
+	public PExp caseASetEnumSetExp(ASetEnumSetExp node, Substitution question)
 			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseASetEnumSetExp(node, question);
@@ -654,13 +637,13 @@ public class ExpSub extends QuestionAnswerCMLAdaptor<Substitutions, PExp> {
 
 	@Override
 	public PExp caseASetIntersectBinaryExp(ASetIntersectBinaryExp node,
-			Substitutions question) throws AnalysisException {
+			Substitution question) throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseASetIntersectBinaryExp(node, question);
 	}
 
 	@Override
-	public PExp caseASetRangeSetExp(ASetRangeSetExp node, Substitutions question)
+	public PExp caseASetRangeSetExp(ASetRangeSetExp node, Substitution question)
 			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseASetRangeSetExp(node, question);
@@ -668,20 +651,20 @@ public class ExpSub extends QuestionAnswerCMLAdaptor<Substitutions, PExp> {
 
 	@Override
 	public PExp caseASetUnionBinaryExp(ASetUnionBinaryExp node,
-			Substitutions question) throws AnalysisException {
+			Substitution question) throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseASetUnionBinaryExp(node, question);
 	}
 
 	@Override
 	public PExp caseAStarStarBinaryExp(AStarStarBinaryExp node,
-			Substitutions question) throws AnalysisException {
+			Substitution question) throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseAStarStarBinaryExp(node, question);
 	}
 
 	@Override
-	public PExp caseAStateInitExp(AStateInitExp node, Substitutions question)
+	public PExp caseAStateInitExp(AStateInitExp node, Substitution question)
 			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseAStateInitExp(node, question);
@@ -689,20 +672,20 @@ public class ExpSub extends QuestionAnswerCMLAdaptor<Substitutions, PExp> {
 
 	@Override
 	public PExp caseAStringLiteralExp(AStringLiteralExp node,
-			Substitutions question) throws AnalysisException {
+			Substitution question) throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseAStringLiteralExp(node, question);
 	}
 
 	@Override
 	public PExp caseASubclassResponsibilityExp(ASubclassResponsibilityExp node,
-			Substitutions question) throws AnalysisException {
+			Substitution question) throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseASubclassResponsibilityExp(node, question);
 	}
 
 	@Override
-	public PExp caseASubseqExp(ASubseqExp node, Substitutions question)
+	public PExp caseASubseqExp(ASubseqExp node, Substitution question)
 			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseASubseqExp(node, question);
@@ -710,34 +693,34 @@ public class ExpSub extends QuestionAnswerCMLAdaptor<Substitutions, PExp> {
 
 	@Override
 	public PExp caseASubsetBinaryExp(ASubsetBinaryExp node,
-			Substitutions question) throws AnalysisException {
+			Substitution question) throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseASubsetBinaryExp(node, question);
 	}
 
 	@Override
 	public PExp caseASubtractNumericBinaryExp(ASubtractNumericBinaryExp node,
-			Substitutions question) throws AnalysisException {
+			Substitution question) throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseASubtractNumericBinaryExp(node, question);
 	}
 
 	@Override
-	public PExp caseATailUnaryExp(ATailUnaryExp node, Substitutions question)
+	public PExp caseATailUnaryExp(ATailUnaryExp node, Substitution question)
 			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseATailUnaryExp(node, question);
 	}
 
 	@Override
-	public PExp caseAThreadIdExp(AThreadIdExp node, Substitutions question)
+	public PExp caseAThreadIdExp(AThreadIdExp node, Substitution question)
 			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseAThreadIdExp(node, question);
 	}
 
 	@Override
-	public PExp caseATimeExp(ATimeExp node, Substitutions question)
+	public PExp caseATimeExp(ATimeExp node, Substitution question)
 			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseATimeExp(node, question);
@@ -745,13 +728,13 @@ public class ExpSub extends QuestionAnswerCMLAdaptor<Substitutions, PExp> {
 
 	@Override
 	public PExp caseATimesNumericBinaryExp(ATimesNumericBinaryExp node,
-			Substitutions question) throws AnalysisException {
+			Substitution question) throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseATimesNumericBinaryExp(node, question);
 	}
 
 	@Override
-	public PExp caseATupleExp(ATupleExp node, Substitutions question)
+	public PExp caseATupleExp(ATupleExp node, Substitution question)
 			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseATupleExp(node, question);
@@ -759,27 +742,27 @@ public class ExpSub extends QuestionAnswerCMLAdaptor<Substitutions, PExp> {
 
 	@Override
 	public PExp caseAUnaryMinusUnaryExp(AUnaryMinusUnaryExp node,
-			Substitutions question) throws AnalysisException {
+			Substitution question) throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseAUnaryMinusUnaryExp(node, question);
 	}
 
 	@Override
 	public PExp caseAUnaryPlusUnaryExp(AUnaryPlusUnaryExp node,
-			Substitutions question) throws AnalysisException {
+			Substitution question) throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseAUnaryPlusUnaryExp(node, question);
 	}
 
 	@Override
-	public PExp caseAUndefinedExp(AUndefinedExp node, Substitutions question)
+	public PExp caseAUndefinedExp(AUndefinedExp node, Substitution question)
 			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseAUndefinedExp(node, question);
 	}
 
 	@Override
-	public PExp caseAVariableExp(AVariableExp node, Substitutions question)
+	public PExp caseAVariableExp(AVariableExp node, Substitution question)
 			throws AnalysisException {
 		if (question.containsKey(node)) {
 			return question.get(node);
@@ -788,13 +771,13 @@ public class ExpSub extends QuestionAnswerCMLAdaptor<Substitutions, PExp> {
 	}
 	
 	@Override
-	public PExp defaultPExp(PExp node, Substitutions question)
+	public PExp defaultPExp(PExp node, Substitution question)
 			throws AnalysisException {
 		return node;
 	}
 
 	@Override
-	public PExp createNewReturnValue(Object arg0, Substitutions arg1)
+	public PExp createNewReturnValue(Object arg0, Substitution arg1)
 			throws AnalysisException {
 		throw new AnalysisException(
 				"Substitution visitor applied to non-expression object "
@@ -802,7 +785,7 @@ public class ExpSub extends QuestionAnswerCMLAdaptor<Substitutions, PExp> {
 	}
 
 	@Override
-	public PExp createNewReturnValue(INode arg0, Substitutions arg1)
+	public PExp createNewReturnValue(INode arg0, Substitution arg1)
 			throws AnalysisException {
 		throw new AnalysisException(
 				"Substitution visitor applied to non-expression object "

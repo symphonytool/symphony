@@ -386,7 +386,6 @@ public class POGDeclAndDefVisitor extends
 				pol.add(sto);
 			}
 		}
-
 		return pol;
 	}
 

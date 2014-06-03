@@ -4,10 +4,10 @@ import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.node.INode;
+import org.overture.pog.obligation.POContextStack;
 import org.overture.pog.obligation.ProofObligationList;
 import org.overture.pog.pub.IProofObligationList;
 
-import eu.compassresearch.core.analysis.pog.obligations.CmlPOContextStack;
 import eu.compassresearch.core.analysis.pog.visitors.ProofObligationGenerator;
 
 public class PogPubUtil {
@@ -17,7 +17,7 @@ public class PogPubUtil {
 		IProofObligationList r = new ProofObligationList();
 		for (INode node : ast) {
 			r.addAll(node.apply(new ProofObligationGenerator(),
-					new CmlPOContextStack()));
+					new POContextStack()));
 		}
 		r.renumber();
 		return r;

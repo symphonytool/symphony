@@ -10,7 +10,7 @@ import org.overture.pog.pub.IPOContext;
 import org.overture.pog.pub.IPOContextStack;
 
 @SuppressWarnings("serial")
-public class CmlPOContextStack extends Stack<IPOContext> implements
+public abstract class CmlPOContextStack extends Stack<IPOContext> implements
 		IPOContextStack
 {
 	public String getName()

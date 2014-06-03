@@ -41,7 +41,7 @@ public class POGProcessVisitor extends
 	{
 		CmlProofObligationList pol = new CmlProofObligationList();
 
-		// Get subparts
+		// FIXME invariant processing
 		LinkedList<PDefinition> pdef = node.getActionDefinition().getDefinitions();
 		PAction action = node.getAction();
 		pol.addAll(action.apply(parentPOG,question));
