@@ -18,6 +18,7 @@ import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.services.ISourceProviderService;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.node.INode;
+import org.overture.pog.obligation.POContextStack;
 import org.overture.pog.obligation.ProofObligationList;
 import org.overture.pog.pub.IProofObligationList;
 
@@ -33,7 +34,7 @@ public abstract class PogPluginUtils {
 		IProofObligationList r = new ProofObligationList();
 		for (INode node : ast) {
 			r.addAll(node.apply(new ProofObligationGenerator(),
-					new CmlPOContextStack()));
+					new POContextStack()));
 		}
 		r.renumber();
 		return r;
