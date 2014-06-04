@@ -185,6 +185,7 @@ public class MCACommunicationAction implements MCPAction {
 		}else{
 			MCPCMLType type = evaluator.instantiateMCTypeFromCommParams(this.communicationParameters);
 			result.append(type.toFormula(option));
+			
 		}
 		return result.toString();
 	}

@@ -5,6 +5,7 @@ import org.overture.ast.definitions.AExplicitFunctionDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAInSetBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAQuoteType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 
 public class MCATypeDefinition implements MCPCMLDefinition {
@@ -37,7 +38,13 @@ public class MCATypeDefinition implements MCPCMLDefinition {
 				result.append(this.invExpression.toFormula(option));
 			}
 		} else if (this.type != null){
+			if(this.type instanceof MCAQuoteType){
+				result.append("{");
+			}
 			result.append(this.type.toFormula(option));
+			if(this.type instanceof MCAQuoteType){
+				result.append("}");
+			}
 		}
 		result.append(".");
 		

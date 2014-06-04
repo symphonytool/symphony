@@ -11,6 +11,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ExpressionEva
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.NameValue;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.TypeManipulator;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.TypeValue;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAProductType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
 
@@ -49,8 +50,10 @@ public class MCAActionDefinition implements MCPCMLDefinition {
 		
 		StringBuilder result = new StringBuilder();
 		
+		
 		if(declarations.size() > 0){
-			//for the moment we assume that processes have only one parameter
+			
+			 //for the moment we assume that processes have only one parameter
 			MCPParametrisation param = declarations.getFirst();
 			if(param instanceof MCAValParametrisation){
 				MCALocalDefinition localDef = ((MCAValParametrisation) param).getDeclaration();
@@ -85,6 +88,21 @@ public class MCAActionDefinition implements MCPCMLDefinition {
 				}
 			}
 			
+			/*
+			TypeManipulator typeHandler = TypeManipulator.getInstance();
+			LinkedList<MCPCMLType> paramTypes = new LinkedList<MCPCMLType>();
+			for (MCPParametrisation param : declarations) {
+				if(param instanceof MCAValParametrisation){
+					MCALocalDefinition localDef = ((MCAValParametrisation) param).getDeclaration();
+					paramTypes.add(localDef.getType());
+					LinkedList<TypeValue> values = typeHandler.getValues(localDef.getType());
+					NameValue mapping = new NameValue(localDef.getName(),null,localDef.getType());
+					context.localVariablesMapping.add(mapping);
+				}
+			}
+			
+			MCAProductType prodType = new MCAProductType(paramTypes);
+			*/
 			
 			
 		}else{

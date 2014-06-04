@@ -31,22 +31,27 @@ public class MCAReferenceAction implements MCPAction {
 		StringBuilder result = new StringBuilder();
 		
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
+		
+		String nameToSearch = context.reverseNameMapping.get(this.name);
 		ArrayList<MCAActionDefinition> localActions = context.localActions;
 		boolean callResolved = false;
 		MCGenericCall call = null;
 		
 		if(localActions.size() > 0){ //if there are auxiliary actions
 			for (MCAActionDefinition localAction : localActions) {
-				if(localAction.getName().toString().equals(this.name.toString())){
+				//if(localAction.getName().toString().equals(this.name.toString())){
+				if(localAction.getName().toString().equals(nameToSearch)){
 					callResolved = true;
 					//this call forces the generation of lieIn facts
 					//if(localAction.getAction() instanceof MCACommunicationAction){
 					//	localAction.toFormula(option);
 					//}
 					if(localAction.getDeclarations().size() == 0){
-						call = new MCActionCall(name, new LinkedList<MCPCMLExp>());
+						//call = new MCActionCall(name, new LinkedList<MCPCMLExp>());
+						call = new MCActionCall(nameToSearch, new LinkedList<MCPCMLExp>());
 					}else{
-						call = new MCActionCall(name, args);
+						//call = new MCActionCall(name, args);
+						call = new MCActionCall(nameToSearch, args);
 					}
 					break;
 					
