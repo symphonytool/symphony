@@ -1,13 +1,10 @@
-process DSa = 
-begin
-
+process P = begin
 state
-x : int :=1
-y : real
-inv x =1
+y : int :=10
 
-
-
-@Skip
-
+operations 
+op : () ==> real
+op () == return 10/y
+		 
+@ Skip
 end

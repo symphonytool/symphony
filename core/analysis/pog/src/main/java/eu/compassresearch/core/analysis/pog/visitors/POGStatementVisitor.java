@@ -1,6 +1,7 @@
 package eu.compassresearch.core.analysis.pog.visitors;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.definitions.AInstanceVariableDefinition;
 import org.overture.ast.node.INode;
 import org.overture.ast.statements.AAssignmentStm;
 import org.overture.ast.statements.AAtomicStm;
@@ -8,7 +9,9 @@ import org.overture.ast.statements.ABlockSimpleBlockStm;
 import org.overture.ast.statements.PStm;
 import org.overture.pog.obligation.POContextStack;
 import org.overture.pog.pub.IPOContextStack;
+import org.overture.pog.visitors.AssignmentContext;
 import org.overture.pog.visitors.PogParamStmVisitor;
+import org.overture.pog.visitors.VariableSubVisitor;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligationList;
@@ -73,11 +76,13 @@ public class POGStatementVisitor extends
 		cpos.addAll(node.apply(overtureVisitor, question));
 		return cpos;
 	}
+	
+	
 
 	@Override
 	public CmlProofObligationList caseAAssignmentStm(AAssignmentStm node,
 			IPOContextStack question) throws AnalysisException {
-		question.push(new AssignmentContext(node));
+		question.push(new AssignmentContext(node, new VariableSubVisitor()));
 
 		CmlProofObligationList cmlpos = new CmlProofObligationList();
 		cmlpos.addAll(node.apply(overtureVisitor, question));
