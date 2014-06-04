@@ -7,6 +7,7 @@ import org.overture.ast.definitions.AAssignmentDefinition;
 import org.overture.ast.definitions.AValueDefinition;
 import org.overture.ast.expressions.AApplyExp;
 import org.overture.ast.expressions.AFieldExp;
+import org.overture.ast.expressions.AFieldNumberExp;
 import org.overture.ast.expressions.ANewExp;
 import org.overture.ast.expressions.AVariableExp;
 import org.overture.ast.expressions.PExp;
@@ -189,13 +190,19 @@ public class CmlVdmTypeCheckVisitor extends
 			PObjectDesignator object = createObjectDesignator(field.getObject());
 			AFieldObjectDesignator designator = AstFactory.newAFieldObjectDesignator(object, field.getField());
 			return designator;
-		}else if (exp instanceof AApplyExp)
+		} else if (exp instanceof AApplyExp)
 		{
 			AApplyExp apply = (AApplyExp) exp;
-			
+
 			PObjectDesignator object = createObjectDesignator(apply.getRoot());
 			AApplyObjectDesignator designator = AstFactory.newAApplyObjectDesignator(object, apply.getArgs());
 			return designator;
+		} else if (exp instanceof AFieldNumberExp)
+		{
+			AFieldNumberExp fnumExp = (AFieldNumberExp) exp;
+			TypeCheckerErrors.report(3445, "#" + fnumExp.getField()
+					+ " not allowed in an object state designators", fnumExp.getLocation(), fnumExp);
+			return createObjectDesignator(fnumExp.getTuple());
 		}
 		// else if(exp instanceof AUnresolvedPathExp &&((AUnresolvedPathExp)exp).getIdentifiers().size()==1)
 		// {
@@ -240,6 +247,12 @@ public class CmlVdmTypeCheckVisitor extends
 			AMapSeqStateDesignator designator = AstFactory.newAMapSeqStateDesignator(mapseq, apply.getArgs().get(0));
 			return designator;
 
+		}else if(exp instanceof AFieldNumberExp)
+		{
+			AFieldNumberExp fnumExp = (AFieldNumberExp) exp;
+			TypeCheckerErrors.report(3445, "#" + fnumExp.getField()
+					+ " not allowed in a state designators", fnumExp.getLocation(), fnumExp);
+			return createStateDesignator(fnumExp.getTuple());
 		}
 
 		throw new RuntimeException("hit case for unresolved state designator: "
