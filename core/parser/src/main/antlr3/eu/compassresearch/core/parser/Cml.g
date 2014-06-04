@@ -389,18 +389,16 @@ private PExp buildExpFromSelectors(PExp base, List<PExp> selectors)
 }
 
 private PExp buildExpWithDotteds(ILexNameToken baseName, List<Object> ids) {
-    if (ids == null || ids.size() == 0) {
-        return new AVariableExp(baseName.getLocation(), baseName, baseName.getName());
-    }
-    
     List<ILexIdentifierToken> typedIds = new ArrayList<ILexIdentifierToken>();
     typedIds.add(baseName.getIdentifier());
     ILexLocation loc = baseName.getLocation();
-    for (Object o : ids) {
-        CommonToken id = (CommonToken)o;
-        loc = extractLexLocation(id);
-        ILexIdentifierToken typedId = new LexIdentifierToken(id.getText(), false, loc);
-        typedIds.add(typedId);
+    if (ids != null) {
+        for (Object o : ids) {
+            CommonToken id = (CommonToken)o;
+            loc = extractLexLocation(id);
+            ILexIdentifierToken typedId = new LexIdentifierToken(id.getText(), false, loc);
+            typedIds.add(typedId);
+        }
     }
     return new AUnresolvedPathExp(extractLexLocation(baseName.getLocation(), loc), typedIds);
 }
