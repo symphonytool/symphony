@@ -2,8 +2,10 @@ package eu.compassresearch.core.analysis.theoremprover.visitors.string;
 
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.definitions.AClassInvariantDefinition;
 import org.overture.ast.definitions.AInstanceVariableDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
@@ -74,9 +76,11 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		//relationships within and outside the process can be dealt with.
 		NodeNameList procNodeNames = ThmProcessUtil.getProcessNames(act);
 		NodeNameList svars = ThmProcessUtil.getProcessStatementNames(act);
+		List<AClassInvariantDefinition> invs = ThmProcessUtil.getProcessInvariants(act);
 		//Placeholder for main action - only changed if there are state variables
 		String mainActStateStr = " = `";
-		AActionClassDefinition actdef = (AActionClassDefinition) act.getActionDefinition();	
+		AActionClassDefinition actdef = (AActionClassDefinition) act.getActionDefinition();
+		
 		
 		for (PDefinition pdef : actdef.getDefinitions())
 		{
@@ -132,6 +136,11 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 			actTnl.add(stn);		
 			
 			mainActStateStr = " = ` call IsabelleStateInit[]; ";
+		}
+		
+		// Handle process invariants
+		for (AClassInvariantDefinition i : invs) {
+			// FIXME: Output the invariants formulae
 		}
 		
 		//sort the state, operation and actions, so that they are in dependency order
@@ -207,9 +216,10 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 
 	public String caseAHidingProcess(AHidingProcess p, ThmVarsContext vars) throws AnalysisException{
 
+	    String exp   = p.getLeft().apply(thmStringVisitor, vars);
 		String chExp = p.getChansetExpression().apply(thmStringVisitor, vars);
 		
-		return ThmProcessUtil.undefined;
+		return exp + ThmProcessUtil.hiding + chExp;
 	}
 
 	public String caseAInstantiationProcess(AInstantiationProcess node, ThmVarsContext vars) throws AnalysisException{
@@ -217,9 +227,13 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		return ThmProcessUtil.undefined;
 	}
 
-	public String caseAInterleavingProcess(AInterleavingProcess node, ThmVarsContext vars) throws AnalysisException{
+	public String caseAInterleavingProcess(AInterleavingProcess p, ThmVarsContext vars) throws AnalysisException{
+		
+		String left = p.getLeft().apply(thmStringVisitor, vars);
+		String right = p.getRight().apply(thmStringVisitor, vars);
 
-		return ThmProcessUtil.undefined;
+		return left + ThmProcessUtil.interleave + right;
+		
 	}
 
 	public String caseAInterleavingReplicatedProcess(
@@ -228,9 +242,11 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		return ThmProcessUtil.undefined;
 	}
 
-	public String caseAInternalChoiceProcess(AInternalChoiceProcess node, ThmVarsContext vars) throws AnalysisException{
+	public String caseAInternalChoiceProcess(AInternalChoiceProcess p, ThmVarsContext vars) throws AnalysisException{
+		String left = p.getLeft().apply(thmStringVisitor, vars);
+		String right = p.getRight().apply(thmStringVisitor, vars);
 
-		return ThmProcessUtil.undefined;
+		return left + ThmProcessUtil.intChoice + right;
 	}
 
 	public String caseAInternalChoiceReplicatedProcess(
@@ -245,9 +261,11 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 	}
 
 	public String caseASequentialCompositionProcess(
-			ASequentialCompositionProcess node, ThmVarsContext vars) throws AnalysisException{
+			ASequentialCompositionProcess p, ThmVarsContext vars) throws AnalysisException{
+		String left = p.getLeft().apply(thmStringVisitor, vars);
+		String right = p.getRight().apply(thmStringVisitor, vars);
 
-		return ThmProcessUtil.undefined;
+		return left + ThmProcessUtil.seqComp + right;
 	}
 
 	public String caseASequentialCompositionReplicatedProcess(
@@ -266,14 +284,19 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		return ThmProcessUtil.undefined;
 	}
 
-	public String caseATimeoutProcess(ATimeoutProcess node, ThmVarsContext vars) throws AnalysisException{
-
-		return ThmProcessUtil.undefined;
+	public String caseATimeoutProcess(ATimeoutProcess p, ThmVarsContext vars) throws AnalysisException{
+		String left = p.getLeft().apply(thmStringVisitor, vars);
+		String right = p.getRight().apply(thmStringVisitor, vars);
+		String time  = p.getTimeoutExpression().apply(thmStringVisitor, vars);
+		
+		return left + ThmProcessUtil.timeoutLeft + time + ThmProcessUtil.timeoutRight + right;
 	}
 
-	public String caseAUntimedTimeoutProcess(AUntimedTimeoutProcess node, ThmVarsContext vars) throws AnalysisException{
+	public String caseAUntimedTimeoutProcess(AUntimedTimeoutProcess p, ThmVarsContext vars) throws AnalysisException{
+		String left = p.getLeft().apply(thmStringVisitor, vars);
+		String right = p.getRight().apply(thmStringVisitor, vars);
 
-		return ThmProcessUtil.undefined;
+		return left + ThmProcessUtil.timeout + right;
 	}
 	
 	public String caseAReferenceProcess(AReferenceProcess p, ThmVarsContext vars) throws AnalysisException{
@@ -294,7 +317,7 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 			}
 			argStr.append(">");
 		}
-		return p.getProcessName().toString() + argStr.toString();
+		return "(@" + p.getProcessName().toString() +")" + argStr.toString();
 	}
 	
 	public String casePProcess(PProcess p, ThmVarsContext vars) throws AnalysisException{

@@ -1,7 +1,9 @@
 package eu.compassresearch.core.analysis.theoremprover.utils;
 
 import java.util.LinkedList;
+import java.util.List;
 
+import org.overture.ast.definitions.AClassInvariantDefinition;
 import org.overture.ast.definitions.AExplicitFunctionDefinition;
 import org.overture.ast.definitions.AExplicitOperationDefinition;
 import org.overture.ast.definitions.AImplicitFunctionDefinition;
@@ -10,6 +12,7 @@ import org.overture.ast.definitions.AInstanceVariableDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.definitions.SOperationDefinition;
 import org.overture.ast.lex.LexNameToken;
+import org.overture.ast.statements.AClassInvariantStm;
 
 import eu.compassresearch.ast.definitions.AActionClassDefinition;
 import eu.compassresearch.ast.definitions.AActionDefinition;
@@ -159,7 +162,20 @@ public class ThmProcessUtil {
 	}
 	
 	
-
+	public static List<AClassInvariantDefinition> getProcessInvariants(AActionProcess act){
+		AExplicitOperationDefinition o = act.getActionDefinition().getInvariant();
+		
+		List<AClassInvariantDefinition> defs = new LinkedList<AClassInvariantDefinition>();
+		
+		if (o != null && o.getBody() instanceof AClassInvariantStm) {
+			
+			for (PDefinition p : ((AClassInvariantStm)o.getBody()).getInvDefs()) {
+				if (p instanceof AClassInvariantDefinition) 
+					defs.add((AClassInvariantDefinition) p);
+			}
+		} 
+		return defs;
+	}
 	
 	/***
 	 * Method to retrieve all function names from a collection of explicit functions

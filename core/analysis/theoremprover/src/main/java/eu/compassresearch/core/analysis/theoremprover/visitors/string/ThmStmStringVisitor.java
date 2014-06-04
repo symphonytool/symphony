@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AAssignmentDefinition;
+import org.overture.ast.definitions.AClassInvariantDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.intf.lex.ILexNameToken;
@@ -15,6 +16,7 @@ import org.overture.ast.statements.AAtomicStm;
 import org.overture.ast.statements.ABlockSimpleBlockStm;
 import org.overture.ast.statements.ACallObjectStm;
 import org.overture.ast.statements.ACallStm;
+import org.overture.ast.statements.AClassInvariantStm;
 import org.overture.ast.statements.AElseIfStm;
 import org.overture.ast.statements.AExternalClause;
 import org.overture.ast.statements.AIfStm;
@@ -296,6 +298,20 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		}
 		
 		return sb.toString();
+	}
+
+	@Override
+	public String caseAClassInvariantStm(AClassInvariantStm node,
+			ThmVarsContext vars) throws AnalysisException {
+		// TODO Auto-generated method stub
+		return super.caseAClassInvariantStm(node, vars);
+	}
+
+	@Override
+	public String caseAClassInvariantDefinition(AClassInvariantDefinition node,
+			ThmVarsContext vars) throws AnalysisException {
+		// TODO Auto-generated method stub
+		return super.caseAClassInvariantDefinition(node, vars);
 	}
 	
 //	public String caseANonDeterministicDoStatementAction(ANonDeterministicDoStatementAction a, ThmVarsContext vars) throws AnalysisException{
