@@ -21,8 +21,8 @@ public class ThmProcessUtil {
 	
 	public static String isaProc = "definition";
 	public static String isaAct = "definition";
-	public static String procDelimLeft = "\\<parallel>";
-	public static String procDelimRight = "\\<parallel>";
+	public static String procDelimLeft = "`";
+	public static String procDelimRight = "`";
 	public static String isaActProc = "locale";
 	public static String isaProcBegin = "begin";
 	public static String isaProcEnd = "end";

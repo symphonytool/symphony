@@ -11,6 +11,7 @@ import org.overture.ast.expressions.PExp;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.statements.AAssignmentStm;
+import org.overture.ast.statements.AAtomicStm;
 import org.overture.ast.statements.ABlockSimpleBlockStm;
 import org.overture.ast.statements.ACallObjectStm;
 import org.overture.ast.statements.ACallStm;
@@ -191,6 +192,7 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 	}
 	
 	
+	
 //	//DON'T THINK IS HANDLED IN ISABELLE YET
 //	public String caseACallObjectStm(ACallObjectStm a, ThmVarsContext vars) throws AnalysisException{
 //		
@@ -276,6 +278,24 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 	public String caseANotYetSpecifiedStm(ANotYetSpecifiedStm node,
 			ThmVarsContext question) throws AnalysisException {
 		return ThmStateUtil.notYetSpecStmt;
+	}
+
+	@Override
+	public String caseAAtomicStm(AAtomicStm node, ThmVarsContext vars)
+			throws AnalysisException {
+		// FIXME: Warning atomic statements are semantically no different to a sequence of assignments!
+		StringBuffer sb = new StringBuffer();
+		
+		Iterator<AAssignmentStm> i = node.getAssignments().iterator();
+		
+		while (i.hasNext()) {
+			sb.append(i.next().apply(thmStringVisitor, vars));
+			if (i.hasNext()) {
+				sb.append("; ");
+			}
+		}
+		
+		return sb.toString();
 	}
 	
 //	public String caseANonDeterministicDoStatementAction(ANonDeterministicDoStatementAction a, ThmVarsContext vars) throws AnalysisException{

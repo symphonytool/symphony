@@ -430,7 +430,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 
 	@Override
 	public void caseAAtomicStm(AAtomicStm node) throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseAAtomicStm(node);
