@@ -668,11 +668,11 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		for(ILexNameToken var : vars.getBVars()){
 			if (varName.getName().equals(var.getName()))
 			{
-				return  "&" + varName.getName();
+				return  "^" + varName.getName() + "^";
 			}
 		}
 		//assume is value?
-		return "&" + varName.getName();
+		return "^" + varName.getName() + "^";
 	}
 
 	public String caseAUnresolvedPathExp(AUnresolvedPathExp ex, ThmVarsContext vars) throws AnalysisException{
@@ -986,7 +986,7 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 					
 			//ILexIdentifierToken
 			sb.append(chan.getIdentifier().getName().toString());
-			sb.append(ThmExprUtil.isaDown );
+			// sb.append(ThmExprUtil.isaDown );
 			//If there are remaining channels, add a ","
 			if(itr.hasNext()){	
 				sb.append(", ");
@@ -1014,13 +1014,13 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		for (Iterator<ANameChannelExp> itr = ex.getChannelNames().listIterator(); itr.hasNext(); ) {
 			ANameChannelExp chan = itr.next();
 			sb.append(chan.getIdentifier().getName().toString());
-			sb.append(ThmExprUtil.isaDown );
+			// sb.append(ThmExprUtil.isaDown );
 			//If there are remaining channels, add a ","
 			if(itr.hasNext()){	
 				sb.append(", ");
 			}
 		}
-		return "{" + sb.toString() +"}";
+		return "{|" + sb.toString() +"|}";
 	}
 
 		

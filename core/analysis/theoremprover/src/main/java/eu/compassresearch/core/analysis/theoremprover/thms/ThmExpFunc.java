@@ -73,15 +73,15 @@ public class ThmExpFunc extends ThmDecl {
 		{
 			for(PPattern p : pat )
 			{
-				String pName = "&" + ((AIdentifierPattern) p).getName().toString();
-				String lambdaName = "&" +ThmTypeUtil.isaFuncLambaVal+".#" + count;
+				String pName = "^" + ((AIdentifierPattern) p).getName().toString() + "^";
+				String lambdaName = "^" +ThmTypeUtil.isaFuncLambaVal+"^.#" + count;
 			
 				ex = ex.replace(pName, lambdaName);
 				count++;
 			}
 		}
 		//Replace the keyword "RESULT" with the Lambda post value
-		ex = ex.replace("&RESULT", "&" + ThmTypeUtil.isaFuncLambdaPostVal);
+		ex = ex.replace("^RESULT^", "^" + ThmTypeUtil.isaFuncLambdaPostVal + "^");
 		
 		return ex;
 	}
@@ -130,7 +130,7 @@ public class ThmExpFunc extends ThmDecl {
 		int resCount = count+1;
 		
 		//replace the keyword RESULT with the result parameter
-		String lambdaName = "&" +ThmTypeUtil.isaFuncLambaVal+".#" + resCount;
+		String lambdaName = "^" +ThmTypeUtil.isaFuncLambaVal+"^.#" + resCount;
 		ex = ex.replace("&RESULT", lambdaName);
 	
 		return ex;
@@ -153,8 +153,9 @@ public class ThmExpFunc extends ThmDecl {
 			for (Iterator<PPattern> itr = para.listIterator(); itr.hasNext(); ) {
 				
 				PPattern pat = itr.next();
-				sb.append("&");
+				sb.append("^");
 				sb.append(((AIdentifierPattern) pat).getName().toString());
+				sb.append("^");
 				//If there are remaining parameters, add a ","
 				if(itr.hasNext() || prepost.equals("post")){	
 					sb.append(", ");
@@ -164,7 +165,7 @@ public class ThmExpFunc extends ThmDecl {
 		//if there is a result value
 		if (prepost.equals("post"))
 		{
-			sb.append("&" + ThmTypeUtil.isaFuncLambdaPostVal);
+			sb.append("^" + ThmTypeUtil.isaFuncLambdaPostVal + "^");
 		}
 		sb.append(")");
 

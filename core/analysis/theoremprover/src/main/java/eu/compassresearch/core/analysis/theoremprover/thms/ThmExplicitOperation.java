@@ -110,7 +110,7 @@ public class ThmExplicitOperation extends ThmDecl{
 		
 		for(PPattern p : params)
 		{
-			String pName = "&" + ((AIdentifierPattern) p).getName().toString();
+			String pName = "^" + ((AIdentifierPattern) p).getName().toString() + "^";
 			String lambdaName = "@" + inputName +".#" + count;
 		
 			ex = ex.replace(pName, lambdaName);
