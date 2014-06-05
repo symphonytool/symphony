@@ -44,17 +44,6 @@ public class POGProcessVisitor extends
 		LinkedList<PDefinition> pdef = node.getActionDefinition()
 				.getDefinitions();
 
-		for (PDefinition single : pdef) {
-			if (single instanceof AInstanceVariableDefinition) {
-				AInstanceVariableDefinition ivdef = (AInstanceVariableDefinition) single;
-				if (ivdef.getInitialized()) {
-					question.push(new AssignmentContext(
-							(AInstanceVariableDefinition) ivdef,
-							new CmlVarSubVisitor()));
-				}
-			}
-		}
-
 		PAction action = node.getAction();
 		pol.addAll(action.apply(parentPOG, question));
 
