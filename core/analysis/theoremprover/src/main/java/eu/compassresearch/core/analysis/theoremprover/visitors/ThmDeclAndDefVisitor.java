@@ -27,6 +27,7 @@ import org.overture.ast.types.AVoidType;
 import org.overture.ast.types.PType;
 import org.overture.ast.types.SInvariantType;
 
+import eu.compassresearch.ast.actions.AValParametrisation;
 import eu.compassresearch.ast.actions.PParametrisation;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
@@ -442,10 +443,18 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 
 			AProcessDefinition parentProcess = act.getAncestor(AProcessDefinition.class);
 			
-			
+			List<String> param = new LinkedList<String>();
 			
 			for (PParametrisation p : parentProcess.getLocalState()) {
+				StringBuffer sb = new StringBuffer();
 				
+				sb.append("fixes ");
+				sb.append(p.getDeclaration().getName().toString() + "\n");
+				sb.append("assumes \"`\\<lparr>^");
+				sb.append(p.getDeclaration().getName().toString() + "^ hasType ");
+				sb.append(p.getDeclaration().getType().apply(stringVisitor, new ThmVarsContext()));
+				sb.append("\\<rparr>`\"");
+				param.add(sb.toString());
 			}
 			
 			
@@ -455,7 +464,7 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 			//obtain the process dependencies
 			NodeNameList nodeDeps = act.apply(depVisitor, new NodeNameList());//ThmProcessUtil.getIsabelleProcessDeps(node.getProcess());
 			
-			tn = new ThmNode(parentProcess.getName(), nodeDeps, new ThmProcAction(parentProcess.getName().toString(), procString));
+			tn = new ThmNode(parentProcess.getName(), nodeDeps, new ThmProcAction(parentProcess.getName().toString(), param, procString));
 		}
 		else
 		{
