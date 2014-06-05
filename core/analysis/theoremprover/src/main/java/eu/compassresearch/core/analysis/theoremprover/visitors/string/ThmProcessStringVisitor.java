@@ -86,7 +86,7 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		{
 			ThmNodeList defNodes = new ThmNodeList();
 			
-			defNodes.addAll(pdef.apply(new TPVisitor(), new ThmVarsContext(svars, new NodeNameList())));//(ThmProcessUtil.getAExplicitFunctionDefinition(f));
+			defNodes.addAll(pdef.apply(new TPVisitor(), new ThmVarsContext(svars, vars.getBVars())));//(ThmProcessUtil.getAExplicitFunctionDefinition(f));
 			
 			//restrict the function dependencies to only those names used within the process
 			defNodes = defNodes.restrictExtOperationsDeps(procNodeNames);
@@ -305,7 +305,7 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		LinkedList<PExp> args = p.getArgs();
 		if (args.size() != 0)
 		{
-			argStr.append("<");
+			argStr.append("(");
 			for (Iterator<PExp> itr = p.getArgs().listIterator(); itr.hasNext(); ) {
 				PExp e = itr.next();
 				
@@ -315,9 +315,9 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 					argStr.append(", ");
 				}
 			}
-			argStr.append(">");
+			argStr.append(")");
 		}
-		return "(@" + p.getProcessName().toString() +")" + argStr.toString();
+		return "(@" + p.getProcessName().toString() + argStr.toString() + ")";
 	}
 	
 	public String casePProcess(PProcess p, ThmVarsContext vars) throws AnalysisException{

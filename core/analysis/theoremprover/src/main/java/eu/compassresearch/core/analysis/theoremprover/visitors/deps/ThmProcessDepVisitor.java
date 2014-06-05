@@ -92,7 +92,7 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 		{
 			ThmNodeList defNodes = new ThmNodeList();
 			
-			defNodes.addAll(pdef.apply(new TPVisitor(), new ThmVarsContext(svars, new NodeNameList())));//(ThmProcessUtil.getAExplicitFunctionDefinition(f));
+			defNodes.addAll(pdef.apply(new TPVisitor(), new ThmVarsContext(svars, bvars)));//(ThmProcessUtil.getAExplicitFunctionDefinition(f));
 
 			//Add all dependencies to the list of process dependencies
 			nodeDeps.addAll(defNodes.getAllNodeDeps());

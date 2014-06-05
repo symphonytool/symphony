@@ -432,7 +432,7 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 	public ThmNodeList caseAProcessDefinition(AProcessDefinition node, ThmVarsContext vars) throws AnalysisException
 	{
 		ThmNodeList tnl = new ThmNodeList();
-		ThmNode tn = null;		
+		ThmNode tn = null;
 		
 		PProcess process = node.getProcess();
 		ILexNameToken processName = node.getName();
@@ -445,24 +445,30 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 			
 			List<String> param = new LinkedList<String>();
 			
+			ThmVarsContext bvars = new ThmVarsContext();
+			NodeNameList nnl = new NodeNameList();
+			
+			// Add potential parameters to the process and mark them as bound
 			for (PParametrisation p : parentProcess.getLocalState()) {
 				StringBuffer sb = new StringBuffer();
 				
-				sb.append("fixes ");
+				// FIXME: Abstract this out
+				
+				sb.append("  fixes ");
 				sb.append(p.getDeclaration().getName().toString() + "\n");
-				sb.append("assumes \"`\\<lparr>^");
+				sb.append("  assumes \"`\\<lparr>^");
 				sb.append(p.getDeclaration().getName().toString() + "^ hasType ");
 				sb.append(p.getDeclaration().getType().apply(stringVisitor, new ThmVarsContext()));
 				sb.append("\\<rparr>`\"");
 				param.add(sb.toString());
+				nnl.add(p.getDeclaration().getName());
+				bvars.addBVar(p.getDeclaration().getName());
 			}
 			
-			
-			
 			//get the Isabelle string for the process node's process.
-			String procString = act.apply(stringVisitor, new ThmVarsContext());//= ThmProcessUtil.getIsabelleProcessString(node.getProcess());
+			String procString = act.apply(stringVisitor, bvars);//= ThmProcessUtil.getIsabelleProcessString(node.getProcess());
 			//obtain the process dependencies
-			NodeNameList nodeDeps = act.apply(depVisitor, new NodeNameList());//ThmProcessUtil.getIsabelleProcessDeps(node.getProcess());
+			NodeNameList nodeDeps = act.apply(depVisitor, nnl);//ThmProcessUtil.getIsabelleProcessDeps(node.getProcess());
 			
 			tn = new ThmNode(parentProcess.getName(), nodeDeps, new ThmProcAction(parentProcess.getName().toString(), param, procString));
 		}
