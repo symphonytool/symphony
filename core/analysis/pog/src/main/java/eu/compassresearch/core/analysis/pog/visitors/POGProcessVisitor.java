@@ -21,9 +21,6 @@ public class POGProcessVisitor extends
 		QuestionAnswerCMLAdaptor<IPOContextStack, CmlProofObligationList> {
 	private ProofObligationGenerator parentPOG;
 
-	// FIXME figure out how to dispatch chan and varsets to the apropriate
-	// visitors
-
 	public POGProcessVisitor(ProofObligationGenerator parent) {
 		this.parentPOG = parent;
 	}
@@ -40,7 +37,9 @@ public class POGProcessVisitor extends
 			IPOContextStack question) throws AnalysisException {
 		CmlProofObligationList pol = new CmlProofObligationList();
 
-		// FIXME invariant processing
+		// FIXME check if process invariant handling considers variable instantiations correctly
+		
+		
 		LinkedList<PDefinition> pdef = node.getActionDefinition()
 				.getDefinitions();
 

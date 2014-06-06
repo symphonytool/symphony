@@ -37,7 +37,7 @@ import eu.compassresearch.pog.tests.utils.TestResultHelper;
  */
 @RunWith(Parameterized.class)
 public class BasicTests {
-	// FIXME Add POG test results
+	// FIXME Use JSon stuff from Overture POG tests
 	private String micromodel;
 	private String poresult;
 	private String testfolder;
@@ -70,8 +70,6 @@ public class BasicTests {
 		return TestFileProvider.files();
 	}
 
-
-
 	/**
 	 * A poor test. Runs the POG and checks that pos exist
 	 */
@@ -79,22 +77,16 @@ public class BasicTests {
 	public void printPOs() throws IOException, AnalysisException {
 		String modelpath = testfolder + micromodel;
 		String resultpath = testfolder + poresult;
-	
+
 		String testResult;
 
-		// FIXME Remove catch of absent RESULT files
-		try {
-			testResult = TestResultHelper.getResultAsString(resultpath);
-		} catch (FileNotFoundException e) {
-			testResult = "N/A yet";
-		}
-
-
+		testResult = "N/A yet";
 
 		try {
 			List<INode> ast = TestInputHelper.getAstFromName(modelpath);
-			IProofObligationList polist = PogPubUtil.generateProofObligations(ast);
-		
+			IProofObligationList polist = PogPubUtil
+					.generateProofObligations(ast);
+
 			if (polist.isEmpty()) {
 				System.out.println("No proof obligations.");
 			}
@@ -110,6 +102,5 @@ public class BasicTests {
 		}
 
 	}
-
 
 }

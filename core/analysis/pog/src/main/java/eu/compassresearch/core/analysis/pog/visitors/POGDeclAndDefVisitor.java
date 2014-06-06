@@ -119,23 +119,6 @@ public class POGDeclAndDefVisitor extends
 			throws AnalysisException {
 		CmlProofObligationList pol = new CmlProofObligationList();
 
-		// FIXME Process Name Context Generation is strange atm
-		// OLD one was
-		// LexNameList params = new LexNameList();
-		// LinkedList<ATypeSingleDeclaration> ls = node.getLocalState();
-		// if (ls != null)
-		// {
-		// for (ATypeSingleDeclaration s : ls)
-		// {
-		// for (PDefinition def : s.getType().getDefinitions())
-		// {
-		// params.add(def.getName().clone());
-		// }
-		// }
-		// }
-		//
-		// question.push(new PONameContext(params));
-
 		PProcess process = node.getProcess();
 		PONameContext name = process.apply(new MakerNameContexts());
 

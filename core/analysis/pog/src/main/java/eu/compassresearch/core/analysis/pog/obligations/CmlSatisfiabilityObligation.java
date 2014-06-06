@@ -178,7 +178,6 @@ public class CmlSatisfiabilityObligation extends CmlProofObligation
 			AExistsExp existsExp = new AExistsExp();
 			List<PExp> postArglist = new Vector<PExp>(arglist);
 
-			//FIXME please check this conversion of op.getResult() it is no longer a list but a tuple
 			APatternTypePair res = op.getResult();
 
 			// *****Making assumption result should be single identifier pattern*****
