@@ -15,6 +15,8 @@ import org.overture.ast.node.INode;
 import org.overture.ast.patterns.PPattern;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
+import eu.compassresearch.ast.declarations.AExpressionSingleDeclaration;
+import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionClassDefinition;
 import eu.compassresearch.ast.process.AActionProcess;
 import eu.compassresearch.ast.process.AAlphabetisedParallelismProcess;
@@ -44,6 +46,7 @@ import eu.compassresearch.core.analysis.theoremprover.thms.NodeNameList;
 import eu.compassresearch.core.analysis.theoremprover.thms.ThmExplicitOperation;
 import eu.compassresearch.core.analysis.theoremprover.thms.ThmNode;
 import eu.compassresearch.core.analysis.theoremprover.thms.ThmNodeList;
+import eu.compassresearch.core.analysis.theoremprover.utils.ThmExprUtil;
 import eu.compassresearch.core.analysis.theoremprover.utils.ThmProcessUtil;
 import eu.compassresearch.core.analysis.theoremprover.utils.ThySortException;
 import eu.compassresearch.core.analysis.theoremprover.visitors.TPVisitor;
@@ -173,12 +176,31 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 	}
 	
 	public String caseAAlphabetisedParallelismReplicatedProcess(AAlphabetisedParallelismReplicatedProcess p, ThmVarsContext vars) throws AnalysisException{
+
+		StringBuffer sb = new StringBuffer();
 		
-		return ThmProcessUtil.undefined;
+		for (PSingleDeclaration d : p.getReplicationDeclaration()) {
+			if (d instanceof AExpressionSingleDeclaration) {
+				AExpressionSingleDeclaration d1 = (AExpressionSingleDeclaration) d;
+				sb.append(d1.getIdentifier().toString());
+				sb.append(ThmExprUtil.inSet);
+				sb.append(d1.getExpression().apply(thmStringVisitor, vars));
+				// FIXME: The LexNameToken needs a module, currently empty
+				vars.addBVar(new LexNameToken("", d1.getIdentifier().clone()));
+			}	
+		}
+
+		sb.append(" @ [");
+		sb.append(p.getChansetExpression().apply(thmStringVisitor, vars));
+		sb.append("] ");
+		
+		sb.append(p.getReplicatedProcess().apply(thmStringVisitor, vars));
+		
+		return sb.toString();
+		
 	}
 	
-	public String caseAChannelRenamingProcess(AChannelRenamingProcess node, ThmVarsContext vars) throws AnalysisException{
-	
+	public String caseAChannelRenamingProcess(AChannelRenamingProcess a, ThmVarsContext vars) throws AnalysisException{
 		return ThmProcessUtil.undefined;
 	}
 	
@@ -303,9 +325,10 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 
 		StringBuilder argStr = new StringBuilder();
 		LinkedList<PExp> args = p.getArgs();
+		argStr.append("(");
 		if (args.size() != 0)
 		{
-			argStr.append("(");
+			
 			for (Iterator<PExp> itr = p.getArgs().listIterator(); itr.hasNext(); ) {
 				PExp e = itr.next();
 				
@@ -315,8 +338,8 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 					argStr.append(", ");
 				}
 			}
-			argStr.append(")");
 		}
+		argStr.append(")");
 		return "(@" + p.getProcessName().toString() + argStr.toString() + ")";
 	}
 	

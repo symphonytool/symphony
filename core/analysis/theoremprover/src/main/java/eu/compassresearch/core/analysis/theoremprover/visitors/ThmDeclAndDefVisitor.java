@@ -1,5 +1,6 @@
 package eu.compassresearch.core.analysis.theoremprover.visitors;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -22,6 +23,7 @@ import org.overture.ast.patterns.PPattern;
 import org.overture.ast.types.AFunctionType;
 import org.overture.ast.types.ANamedInvariantType;
 import org.overture.ast.types.AOperationType;
+import org.overture.ast.types.AProductType;
 import org.overture.ast.types.ARecordInvariantType;
 import org.overture.ast.types.AVoidType;
 import org.overture.ast.types.PType;
@@ -56,6 +58,7 @@ import eu.compassresearch.core.analysis.theoremprover.thms.ThmType;
 import eu.compassresearch.core.analysis.theoremprover.thms.ThmValue;
 import eu.compassresearch.core.analysis.theoremprover.utils.ThmExprUtil;
 import eu.compassresearch.core.analysis.theoremprover.utils.ThmProcessUtil;
+import eu.compassresearch.core.analysis.theoremprover.utils.ThmTypeUtil;
 import eu.compassresearch.core.analysis.theoremprover.visitors.deps.ThmDepVisitor;
 import eu.compassresearch.core.analysis.theoremprover.visitors.string.ThmStringVisitor;
 import eu.compassresearch.core.analysis.theoremprover.visitors.string.ThmVarsContext;
@@ -372,15 +375,15 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 	{
 		ThmNodeList tnl = new ThmNodeList();
 		ILexNameToken name = null;
-		String type = "";
+		String type = "()";
 		NodeNameList nodeDeps =  new NodeNameList();
 		
 		name = node.getName();
 		PType chanType = node.getType();
 		if (chanType != null)
 		{
-			type = chanType.apply(stringVisitor, new ThmVarsContext()); //ThmTypeUtil.getIsabelleType(((AChannelType) chan.getType()).getType());
 			nodeDeps = chanType.apply(depVisitor, new NodeNameList());//ThmChanUtil.getIsabelleChanDeps(node);
+			type = chanType.apply(stringVisitor, new ThmVarsContext()); //ThmTypeUtil.getIsabelleType(((AChannelType) chan.getType()).getType());
 		}
 		ThmNode tn = new ThmNode(name, nodeDeps, new ThmChannel(name.toString(), type));
 		tnl.add(tn);

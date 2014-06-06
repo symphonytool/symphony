@@ -6,9 +6,12 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AInstanceVariableDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
+import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
+import eu.compassresearch.ast.declarations.AExpressionSingleDeclaration;
+import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionClassDefinition;
 import eu.compassresearch.ast.process.AActionProcess;
 import eu.compassresearch.ast.process.AAlphabetisedParallelismProcess;
@@ -35,6 +38,7 @@ import eu.compassresearch.ast.process.ATimeoutProcess;
 import eu.compassresearch.ast.process.AUntimedTimeoutProcess;
 import eu.compassresearch.core.analysis.theoremprover.thms.NodeNameList;
 import eu.compassresearch.core.analysis.theoremprover.thms.ThmNodeList;
+import eu.compassresearch.core.analysis.theoremprover.utils.ThmExprUtil;
 import eu.compassresearch.core.analysis.theoremprover.utils.ThmProcessUtil;
 import eu.compassresearch.core.analysis.theoremprover.visitors.TPVisitor;
 import eu.compassresearch.core.analysis.theoremprover.visitors.string.ThmVarsContext;
@@ -114,6 +118,18 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 
 	public NodeNameList caseAAlphabetisedParallelismReplicatedProcess(AAlphabetisedParallelismReplicatedProcess p, NodeNameList bvars) throws AnalysisException{
 		NodeNameList nodeDeps = new NodeNameList();
+
+		for (PSingleDeclaration d : p.getReplicationDeclaration()) {
+			if (d instanceof AExpressionSingleDeclaration) {
+				AExpressionSingleDeclaration d1 = (AExpressionSingleDeclaration) d;
+				// FIXME: The LexNameToken needs a module, currently empty
+				bvars.add(new LexNameToken("", d1.getIdentifier().clone()));
+			}	
+		}
+
+		nodeDeps.addAll(p.getReplicatedProcess().apply(thmDepVisitor, bvars));
+		nodeDeps.addAll(p.getChansetExpression().apply(thmDepVisitor, bvars));
+		
 		return nodeDeps;
 	}
 
@@ -125,20 +141,26 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 	public NodeNameList caseAEndDeadlineProcess(AEndDeadlineProcess p, NodeNameList bvars)
 			throws AnalysisException {
 		NodeNameList nodeDeps = new NodeNameList();
+		nodeDeps.addAll(p.getLeft().apply(thmDepVisitor, bvars));
 		return nodeDeps;
 	}
 
 	public NodeNameList caseAExternalChoiceProcess(AExternalChoiceProcess p, NodeNameList bvars)
 			throws AnalysisException {
 		NodeNameList nodeDeps = new NodeNameList();
+		nodeDeps.addAll(p.getLeft().apply(thmDepVisitor, bvars));
+		nodeDeps.addAll(p.getRight().apply(thmDepVisitor, bvars));
 		return nodeDeps;
 	}
 
 
 	public NodeNameList caseAExternalChoiceReplicatedProcess(
-			AExternalChoiceReplicatedProcess node, NodeNameList bvars)
+			AExternalChoiceReplicatedProcess p, NodeNameList bvars)
 			throws AnalysisException {
 		NodeNameList nodeDeps = new NodeNameList();
+		
+		nodeDeps.addAll(p.getReplicatedProcess().apply(thmDepVisitor, bvars));
+		
 		return nodeDeps;
 	}
 
@@ -152,16 +174,18 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 
 
 	public NodeNameList caseAGeneralisedParallelismReplicatedProcess(
-			AGeneralisedParallelismReplicatedProcess node, NodeNameList bvars)
+			AGeneralisedParallelismReplicatedProcess p, NodeNameList bvars)
 			throws AnalysisException {
 		NodeNameList nodeDeps = new NodeNameList();
+		nodeDeps.addAll(p.getReplicatedProcess().apply(thmDepVisitor, bvars));
 		return nodeDeps;
 	}
 
 
-	public NodeNameList caseAHidingProcess(AHidingProcess node, NodeNameList bvars)
+	public NodeNameList caseAHidingProcess(AHidingProcess p, NodeNameList bvars)
 			throws AnalysisException {
 		NodeNameList nodeDeps = new NodeNameList();
+		nodeDeps.addAll(p.getLeft().apply(thmDepVisitor, bvars));
 		return nodeDeps;
 	}
 
@@ -188,31 +212,38 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 	}
 
 
-	public NodeNameList caseAInternalChoiceProcess(AInternalChoiceProcess node, NodeNameList bvars)
+	public NodeNameList caseAInternalChoiceProcess(AInternalChoiceProcess p, NodeNameList bvars)
 			throws AnalysisException {
 		NodeNameList nodeDeps = new NodeNameList();
+		nodeDeps.addAll(p.getLeft().apply(thmDepVisitor, bvars));
+		nodeDeps.addAll(p.getRight().apply(thmDepVisitor, bvars));
 		return nodeDeps;
 	}
 
 
 	public NodeNameList caseAInternalChoiceReplicatedProcess(
-			AInternalChoiceReplicatedProcess node, NodeNameList bvars)
+			AInternalChoiceReplicatedProcess p, NodeNameList bvars)
 			throws AnalysisException {
 		NodeNameList nodeDeps = new NodeNameList();
+		nodeDeps.addAll(p.getReplicatedProcess().apply(thmDepVisitor, bvars));
 		return nodeDeps;
 	}
 
 
-	public NodeNameList caseAInterruptProcess(AInterruptProcess node, NodeNameList bvars)
+	public NodeNameList caseAInterruptProcess(AInterruptProcess p, NodeNameList bvars)
 			throws AnalysisException {
 		NodeNameList nodeDeps = new NodeNameList();
+		nodeDeps.addAll(p.getLeft().apply(thmDepVisitor, bvars));
+		nodeDeps.addAll(p.getRight().apply(thmDepVisitor, bvars));
 		return nodeDeps;
 	}
 
 	public NodeNameList caseASequentialCompositionProcess(
-			ASequentialCompositionProcess node, NodeNameList bvars)
+			ASequentialCompositionProcess p, NodeNameList bvars)
 			throws AnalysisException {
 		NodeNameList nodeDeps = new NodeNameList();
+		nodeDeps.addAll(p.getLeft().apply(thmDepVisitor, bvars));
+		nodeDeps.addAll(p.getRight().apply(thmDepVisitor, bvars));
 		return nodeDeps;
 	}
 

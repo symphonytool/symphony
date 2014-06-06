@@ -355,7 +355,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 	public void caseAAlphabetisedParallelismReplicatedAction(
 			AAlphabetisedParallelismReplicatedAction node)
 			throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseAAlphabetisedParallelismReplicatedAction(node);
@@ -365,7 +365,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 	public void caseAAlphabetisedParallelismReplicatedProcess(
 			AAlphabetisedParallelismReplicatedProcess node)
 			throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseAAlphabetisedParallelismReplicatedProcess(node);

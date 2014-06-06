@@ -244,9 +244,13 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 	}
 	
 	public NodeNameList caseAAlphabetisedParallelismReplicatedAction(
-			AAlphabetisedParallelismReplicatedAction node, NodeNameList bvars)
+			AAlphabetisedParallelismReplicatedAction a, NodeNameList bvars)
 			throws AnalysisException {
 		NodeNameList nodeDeps = new NodeNameList();
+		
+		nodeDeps.addAll(a.getReplicatedAction().apply(thmDepVisitor, bvars));
+		nodeDeps.addAll(a.getNamesetExpression().apply(thmDepVisitor, bvars));
+		
 		return nodeDeps;
 	}
 
@@ -270,9 +274,12 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 	}
 	
 	public NodeNameList caseAExternalChoiceReplicatedAction(
-			AExternalChoiceReplicatedAction node, NodeNameList bvars)
+			AExternalChoiceReplicatedAction a, NodeNameList bvars)
 			throws AnalysisException {
 		NodeNameList nodeDeps = new NodeNameList();
+
+		nodeDeps.addAll(a.getReplicatedAction().apply(thmDepVisitor, bvars));
+		
 		return nodeDeps;
 	}
 	
