@@ -1,10 +1,18 @@
-process P = begin
-state
-y : int :=10
+process Alfalfa = begin 
 
-operations 
-op : () ==> real
-op () == return 10/y
-		 
-@ Skip
+
+state 
+y:int
+x : int
+
+operations
+op1 : () ==> int
+op1() == (y:=0; return 1)
+post y =0
+
+op2 : () ==> real
+op2() == y :=1; x :=op1(); return (x/y)
+
+@Skip
+
 end

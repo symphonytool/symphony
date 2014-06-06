@@ -12,6 +12,8 @@ import eu.compassresearch.ast.expressions.ABracketedExp;
 
 public class CmlVarSubVisitor extends QuestionAnswerCMLAdaptor<Substitution, PExp> implements IVariableSubVisitor {
 
+	VariableSubVisitor ovtVisitor = new VariableSubVisitor(this);
+	
 	@Override
 	public PExp caseABracketedExp(ABracketedExp node, Substitution question)
 			throws AnalysisException {
@@ -38,7 +40,7 @@ public class CmlVarSubVisitor extends QuestionAnswerCMLAdaptor<Substitution, PEx
 	@Override
 	public PExp defaultINode(INode node, Substitution question)
 			throws AnalysisException {
-		return node.apply(new VariableSubVisitor(this),question);
+		return node.apply(ovtVisitor,question);
 
 	}
 

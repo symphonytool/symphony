@@ -45,7 +45,7 @@ public class POGProcessVisitor extends
 				.getDefinitions();
 
 		PAction action = node.getAction();
-		pol.addAll(action.apply(parentPOG, question));
+		//pol.addAll(action.apply(parentPOG, question));
 
 		for (PDefinition def : pdef) {
 			PONameContext name = def.apply(new MakerNameContexts());
@@ -56,6 +56,7 @@ public class POGProcessVisitor extends
 			} else {
 				pol.addAll(def.apply(parentPOG, question));
 			}
+			question.clearStateContexts();
 		}
 
 		// TODO: Consider any AActionProcess POs
