@@ -149,7 +149,7 @@ public class MCIOCommDef implements MCNode {
 			LinkedList<MCPCommunicationParameter> parameters = parentAction.getCommunicationParameters();
 			for (MCPCommunicationParameter param : parameters) {
 				if(param instanceof MCASignalCommunicationParameter){
-					MCPCMLExp expression = ((MCASignalCommunicationParameter) param).getExpression();
+					MCPCMLExp expression = ((MCPCommunicationParameter) param).getExpression();
 					if(expression instanceof MCAVariableExp){
 						MCPCMLExp newValue = new MCAVariableExp(((MCAVariableExp) expression).getName()+ "Old");
 						binding.updateBinding(((MCAVariableExp) expression).getName(), newValue);

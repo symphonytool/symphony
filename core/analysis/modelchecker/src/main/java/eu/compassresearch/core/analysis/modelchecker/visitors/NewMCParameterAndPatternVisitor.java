@@ -25,6 +25,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAReadCommunic
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCASignalCommunicationParameter;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAValParametrisation;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAWriteCommunicationParameter;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPCommunicationParameter;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ExpressionEvaluator;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.TypeManipulator;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAChannelDefinition;
@@ -157,7 +158,7 @@ public class NewMCParameterAndPatternVisitor extends QuestionAnswerCMLAdaptor<Ne
 		
 		MCPCMLExp expression = (MCPCMLExp) node.getExpression().apply(rootVisitor, question);
 		
-		MCASignalCommunicationParameter result = new MCASignalCommunicationParameter(expression);
+		MCPCommunicationParameter result = new MCASignalCommunicationParameter(expression);
 		
 		return result;
 	}

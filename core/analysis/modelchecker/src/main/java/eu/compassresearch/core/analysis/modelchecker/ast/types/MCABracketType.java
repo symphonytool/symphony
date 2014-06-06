@@ -26,4 +26,14 @@ public class MCABracketType implements MCPCMLType {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	public MCPCMLType getType() {
+		return type;
+	}
+
+	public void setType(MCPCMLType type) {
+		this.type = type;
+	}
+	
+	
 }

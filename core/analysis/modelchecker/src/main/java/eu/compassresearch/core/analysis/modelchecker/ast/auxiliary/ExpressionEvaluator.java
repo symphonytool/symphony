@@ -152,6 +152,7 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 		return result;
 	}
 	
+	
 	public MCPCMLType getTypeFor(MCPCommunicationParameter param){
 		MCPCMLType result = null;
 		if(param instanceof MCASignalCommunicationParameter){
@@ -165,6 +166,7 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 		return result;
 	}
 	
+	
 	public MCPCMLType getTypeForIOComm(MCPCommunicationParameter param){
 		MCPCMLType result = null;
 		if(param instanceof MCASignalCommunicationParameter){
@@ -177,6 +179,7 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 		
 		return result;
 	}
+	
 	/*
 	private MCPCMLType getTypeFor(MCATypeSingleDeclaration decl){
 		MCPCMLType result = null;
@@ -473,7 +476,7 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 		
 		return result;
 	}
-	private MCPCMLType getTypeForIOComm(MCASignalCommunicationParameter param){
+	public MCPCMLType getTypeForIOComm(MCASignalCommunicationParameter param){
 		MCPCMLType result = null;
 		
 		result = getTypeForIOComm(param.getExpression());

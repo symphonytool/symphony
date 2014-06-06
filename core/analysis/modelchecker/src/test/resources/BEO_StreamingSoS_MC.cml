@@ -37,7 +37,7 @@ ch_genericEvent:StreamingLayerReplyEvent
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // this process are supose to be very VDM heavy, and the intened use is for verification
 // using the COMPASS PO and TO tools
-
+/*
 process StreamingPlayerCSProcess =
 begin
 
@@ -113,6 +113,7 @@ actions
    @ch_init ->act_mainEntryPointState
 end
 
+*/
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //test sections
@@ -122,17 +123,21 @@ process TestTraces1 = -- test the sunshine seq of the interface impl.
 begin
 
 actions
-    act_connect = ch_streamingControl.(<CONNECT>)->ch_streamingReply.<CONNECTED>->act_setstream
-    act_setstream = ch_streamingControl.(<SETUPSTREAM>)->ch_streamingReply.(<STREAM_READY>)->act_play 
-    act_play = ch_streamingControl.(<PLAY>)->ch_streamingReply.(<PLAYING>)->act_stop 
-    act_stop = ch_streamingControl.(<STOP>)->ch_streamingReply.(<STOPPED>)->act_disconnect
-    act_disconnect = ch_streamingControl.(<DISCONNECT>)->ch_streamingReply.(<DISCONNECTED>)->ch_init->Skip
+    act_connect = Stop -- ch_streamingControl.(<CONNECT>)-> ch_streamingReply.<CONNECTED>->act_setstream
+    --act_setstream = ch_streamingControl.(<SETUPSTREAM>)->ch_streamingReply.(<STREAM_READY>)->act_play 
+    --act_play = ch_streamingControl.(<PLAY>)->ch_streamingReply.(<PLAYING>)->act_stop 
+    --act_stop = ch_streamingControl.(<STOP>)->ch_streamingReply.(<STOPPED>)->act_disconnect
+    --act_disconnect = ch_streamingControl.(<DISCONNECT>)->ch_streamingReply.(<DISCONNECTED>)->ch_init->Skip
 @ ch_init->act_connect ///_\ ch_init->Skip reomve this for auto testing, the tool will chosse this event at stop the test right away. not that we want.....
 
 end
 
+
+/*
 //Test SoS process
 process TestTPCS1 = TestTraces1 [|{|ch_init,ch_genericEvent,ch_streamingReply|}|]StreamingPlayerCSProcess -- do not syn aopn the error channel, want to deadlock i any sync happens on the error reply channel
+
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 //  test process, testing a CS sourcegraph refineement of the interface rqa regarding must alway reply (error or OK)
@@ -150,10 +155,9 @@ actions
 @ ch_init->act_connect
 
 end
-
+*/
 //Test SoS process
-process TestTPCS2 = TestTraces2 [|{|ch_init,ch_genericEvent,ch_streamingReply,ch_streamingLayerError|}|]StreamingPlayerCSProcess
-
+//process TestTPCS2 = TestTraces2 [|{|ch_init,ch_genericEvent,ch_streamingReply,ch_streamingLayerError|}|]StreamingPlayerCSProcess
 
 
 

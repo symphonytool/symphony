@@ -58,9 +58,8 @@ public class MCAProcessDefinition implements MCPCMLDefinition {
 	public String toFormula(String option) {
 		StringBuilder result = new StringBuilder();
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
-		
-		//probably we have to generate more than one procdef because of the arguments
-		//the argument has a type. for all values of such a type we generate a procdef
+		String actionString = "";
+		context.mcProcOrActionsStack.push(this);
 		if(this.localState.size() > 0){
 			TypeManipulator typeHandler = TypeManipulator.getInstance();
 			
@@ -128,41 +127,46 @@ public class MCAProcessDefinition implements MCPCMLDefinition {
 			MCPCMLType decls =  evaluator.instantiateMCTypeFromParams(this.localState);
 			result.append(decls.toFormula(MCNode.NAMED));
 			result.append(",");
-			result.append(this.process.toFormula(option));
+			actionString = this.process.toFormula(option);
+			result.append(actionString);
 			result.append(")");
 			
 			//if the action has dependencies we get them from the context
 			LinkedList<ActionChannelDependency> dependencies = context.getActionChannelDependendies(this.name);
-			
-			if(NewCMLModelcheckerContext.hasInfiniteChannelInDependencies(dependencies)){
+			if(NewCMLModelcheckerContext.hasInfiniteChannelInDependencies(dependencies)
+					|| NewCMLModelcheckerContext.hasStateDependencies(this.name)){
 				result.append(" :- ");
-				if(dependencies.size() == 1 && context.getNumberOfInstances() == 1){
+
+				boolean hasChannelDependencies = NewCMLModelcheckerContext.hasInfiniteChannelInDependencies(dependencies);
+				if(hasChannelDependencies){
+
+					if(dependencies.size() == 1 && context.getNumberOfInstances() == 1){
 						ActionChannelDependency actionChannelDependency = (ActionChannelDependency) dependencies.getFirst();
 						if(actionChannelDependency.hasInfiniteTypedChannel()){
 							result.append(actionChannelDependency.toFormula(option));
 						}
-				} else {
-					dependencies = context.getInfiniteActionChannelDependendiesByChannelName(dependencies.getFirst().getChannelName());
-					for (Iterator<ActionChannelDependency> iterator = dependencies.iterator(); iterator.hasNext();) {
-						ActionChannelDependency actionChannelDependency = (ActionChannelDependency) iterator.next();
-						//if(actionChannelDependency.hasInfiniteTypedChannel()){
-							
+					} else {
+						dependencies = context.getInfiniteActionChannelDependendiesByChannelName(dependencies.getFirst().getChannelName());
+						for (Iterator<ActionChannelDependency> iterator = dependencies.iterator(); iterator.hasNext();) {
+							ActionChannelDependency actionChannelDependency = (ActionChannelDependency) iterator.next();
+							//if(actionChannelDependency.hasInfiniteTypedChannel()){
+
 							result.append(actionChannelDependency.toFormula(option));
 							if(iterator.hasNext()){
 								result.append(",");
 							}
-						//}
+							//}
+						}
+
+						LinkedList<String> expressions = new LinkedList<String>();
+
+						generateCombinations(dependencies,"!=",expressions); //PPPPPPPPPPP problema aqui.
+						for (String string : expressions) {
+							result.append(", ");
+							result.append(string);
+						}
 					}
-					
-					LinkedList<String> expressions = new LinkedList<String>();
-					
-					generateCombinations(dependencies,"!=",expressions); //PPPPPPPPPPP problema aqui.
-					for (String string : expressions) {
-						result.append(", ");
-						result.append(string);
-					}
-				}
-				/*
+					/*
 				if(dependencies.size() > 0){
 					result.append(" :- ");
 					for (Iterator<ActionChannelDependency> iterator = dependencies.iterator(); iterator.hasNext();) {
@@ -173,13 +177,36 @@ public class MCAProcessDefinition implements MCPCMLDefinition {
 						}
 					}
 				}
-				*/
+					 */
+				}
+				
+				if(NewCMLModelcheckerContext.hasStateDependencies(this.name)){
+					if(!context.mcProcOrActionsStack.isEmpty()){
+						MCPCMLDefinition currentDef = context.mcProcOrActionsStack.peek();
+						String defName = "";
+						if(currentDef instanceof MCAActionDefinition){
+							defName = ((MCAActionDefinition) currentDef).getName();
+						} else if(currentDef instanceof MCAProcessDefinition){
+							defName = ((MCAProcessDefinition) currentDef).getName();
+						}
+						if(defName.equals(this.name)){
+							if(hasChannelDependencies){
+								result.append(",");
+							}
+							result.append("State(");
+							result.append(context.maximalBinding.toFormula(MCNode.NAMED));
+							result.append(",");
+							result.append(actionString);
+							result.append(")");
+
+						}
+					}
+				}
 			}
-			
 			
 			result.append(".\n");
 		}
-		
+		context.mcProcOrActionsStack.pop();
 		
 		return result.toString();
 	}

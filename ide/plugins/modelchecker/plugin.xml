@@ -160,7 +160,7 @@
 			<view
                id="eu.compassresearch.ide.modelchecker.view.progressview"
                minimized="false"
-               ratio="0.80"
+               ratio="0.70"
                relationship="bottom"
                relative="eu.compassresearch.ide.ui.CmlNavigator"
                visible="true">

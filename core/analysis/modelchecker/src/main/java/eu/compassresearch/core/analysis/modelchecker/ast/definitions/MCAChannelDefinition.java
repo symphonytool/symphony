@@ -67,6 +67,7 @@ public class MCAChannelDefinition implements MCPCMLDefinition {
 				break;
 			
 			case MCNode.DEFAULT:
+				
 				LinkedList<TypeValue> typeValues = getTypeValues();
 				
 				if(this.isInfiniteType()){ //it is an infinite type and must be instantiated by formula
@@ -240,6 +241,12 @@ public class MCAChannelDefinition implements MCPCMLDefinition {
 			result = this.name.equals(((MCAChannelDefinition) obj).getName());
 		}
 		return result;
+	}
+
+	
+	@Override
+	public String toString() {
+		return this.name;
 	}
 
 	public String getName() {

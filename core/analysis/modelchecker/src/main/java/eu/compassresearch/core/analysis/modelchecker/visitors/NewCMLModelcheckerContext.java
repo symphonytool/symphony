@@ -2,6 +2,7 @@ package eu.compassresearch.core.analysis.modelchecker.visitors;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Stack;
 
@@ -9,6 +10,7 @@ import org.overture.ast.node.INode;
 
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.StateDependency;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ActionChannelDependency;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.Binding;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.Domain;
@@ -28,6 +30,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAExplicit
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAProcessDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCATypeDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAValueDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCPCMLDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCSCmlOperationDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCSFunctionDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAIntLiteralExp;
@@ -68,13 +71,15 @@ public class NewCMLModelcheckerContext {
 	public ArrayList<MCIOCommDef> ioCommDefs;
 	public Stack<INode> actionOrProcessDefStack;
 	public ArrayList<ActionChannelDependency> channelDependencies;
-	public ArrayList<ActionChannelDependency> infiniteChannelDependencies;
+	public ArrayListSet<ActionChannelDependency> infiniteChannelDependencies;
+	public ArrayListSet<StateDependency> actionProcStateDependencies;
 	public ArrayListSet<MCPVarsetExpression> globalChanSets;
 	public ArrayListSet<NameValue> localVariablesMapping;
 	public Stack<NameValue> localIndexedVariablesMapping;
 	public ArrayListSet<String> localIndexedVariablesDiscarded;
 	public ArrayList<MCASBinaryExp> setExpressioFacts;
 	public ArrayListSet<IntroduceCommand> introduceFacts;
+	public Stack<MCPCMLDefinition> mcProcOrActionsStack;
 	public LinkedList<MCAChansetDefinition> chansetDefs;
 	public int maxClock;
 	public static int numberOfInstances = 1;
@@ -124,15 +129,20 @@ public class NewCMLModelcheckerContext {
 
 	public MCPCMLType getFinalType(String typeName){
 		MCPCMLType result = null;
+		if(typeName.equals("nat")){
+			result = new MCANatNumericBasicType("0");
+		}else if(typeName.equals("int")){
+			result = new MCAIntNumericBasicType("0");
+		}else{
 		//pegar a definicao e ver o tipo dela. Se nao for Named entao vai buscando o final até não vir ninguem
 		MCATypeDefinition typeDef = this.getTypeDefinition(typeName);
-		if(typeDef != null){
-			result = typeDef.getType();
-			if(result instanceof MCANamedInvariantType){
-				result = getFinalType(((MCANamedInvariantType) result).getName());
+			if(typeDef != null){
+				result = typeDef.getType();
+				if(result instanceof MCANamedInvariantType){
+					result = getFinalType(((MCANamedInvariantType) result).getName());
+				}
 			}
 		}
-		
 		return result;
 	}
 	
@@ -315,7 +325,8 @@ public class NewCMLModelcheckerContext {
 		localActions = new ArrayListSet<MCAActionDefinition>();
 		conditions = new ArrayListSet<MCCondition>();
 		channelDependencies = new ArrayList<ActionChannelDependency>();
-		infiniteChannelDependencies = new ArrayList<ActionChannelDependency>();
+		infiniteChannelDependencies = new ArrayListSet<ActionChannelDependency>();
+		actionProcStateDependencies = new ArrayListSet<StateDependency>();
 		ioCommDefs = new ArrayList<MCIOCommDef>();
 		valueDefinitions = new LinkedList<MCAValueDefinition>();
 		typeDefinitions = new LinkedList<MCATypeDefinition>();
@@ -338,6 +349,7 @@ public class NewCMLModelcheckerContext {
 		processStack = new Stack<AProcessDefinition>();
 		actionStack = new Stack<AActionDefinition>();
 		introduceFacts = new ArrayListSet<IntroduceCommand>();
+		mcProcOrActionsStack = new Stack<MCPCMLDefinition>();
 		maxClock = 0;
 		numberOfInstances = 1;
 		ASSIGN_COUNTER = 0;
@@ -379,6 +391,39 @@ public class NewCMLModelcheckerContext {
 		}
 		return result;
 	}
+	
+	public static boolean hasStateDependencies(String name){
+		boolean result = false;
+		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
+		if(!context.mcProcOrActionsStack.isEmpty()){
+			MCPCMLDefinition currentDef = context.mcProcOrActionsStack.peek();
+			String defName = "";
+			if(currentDef instanceof MCAActionDefinition){
+				defName = ((MCAActionDefinition) currentDef).getName();
+			} else if(currentDef instanceof MCAProcessDefinition){
+				defName = ((MCAProcessDefinition) currentDef).getName();
+			}
+			if(defName.equals(name)){
+				StateDependency contextDependency = context.getStateDependency(defName);
+				result = contextDependency != null;
+			}
+		}
+		return result;
+	}
+	
+	public StateDependency getStateDependency(String name){
+		StateDependency result = null;
+		Iterator<StateDependency> it = this.actionProcStateDependencies.iterator();
+		while (it.hasNext()) {
+			StateDependency stateDependency = (StateDependency) it.next();
+			if (stateDependency.getActionOrProcessName().equals(name)){
+				result = stateDependency;
+				break;
+			}
+		}
+		return result;
+	}
+	
 	public String generateName(String originalName){
 		StringBuilder result = new StringBuilder();
 		result.append(originalName);

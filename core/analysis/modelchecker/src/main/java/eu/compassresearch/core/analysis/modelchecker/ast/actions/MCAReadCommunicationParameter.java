@@ -9,16 +9,15 @@ import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAChannelType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
 
-public class MCAReadCommunicationParameter implements MCPCommunicationParameter {
+public class MCAReadCommunicationParameter extends MCPCommunicationParameter {
 
-	private MCPCMLExp expression;
 	private MCPCMLPattern pattern;
 	private MCACommunicationAction parentAction;
 	
 	
 	public MCAReadCommunicationParameter(MCPCMLExp expression,
 			MCPCMLPattern pattern) {
-		this.expression = expression;
+		super(expression);
 		this.pattern = pattern;
 	}
 
@@ -63,16 +62,6 @@ public class MCAReadCommunicationParameter implements MCPCommunicationParameter 
 		
 		return result;
 	}
-
-	public MCPCMLExp getExpression() {
-		return expression;
-	}
-
-
-	public void setExpression(MCPCMLExp expression) {
-		this.expression = expression;
-	}
-
 
 	public MCPCMLPattern getPattern() {
 		return pattern;

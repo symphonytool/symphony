@@ -1,8 +1,10 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.auxiliary;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAReadCommunicationParameter;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPCommunicationParameter;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAChannelDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
@@ -46,6 +48,28 @@ public class ActionChannelDependency {
 		return result.toString();
 	}
 	
+	
+	@Override
+	public boolean equals(Object obj) {
+		boolean result = false;
+		int size = this.parameters.size();
+		if(obj instanceof ActionChannelDependency){
+			result = this.channelName.equals(((ActionChannelDependency) obj).getChannelName())
+					&& size == ((ActionChannelDependency) obj).getParameters().size();
+			
+			for (int i = 0; i < size && result; i++) {
+				MCPCommunicationParameter thisParam = this.parameters.get(i);
+				MCPCommunicationParameter otherParam = ((ActionChannelDependency) obj).getParameters().get(i);
+				if (thisParam instanceof MCAReadCommunicationParameter && otherParam instanceof MCAReadCommunicationParameter){
+					result = result && ((MCAReadCommunicationParameter)thisParam).getExpression().equals(((MCAReadCommunicationParameter)otherParam).getExpression());
+				}
+			}
+			
+		}
+		return result;
+		
+	}
+
 	public boolean hasInfiniteTypedChannel(){
 		return this.channelDefinition.isInfiniteType();
 	}
