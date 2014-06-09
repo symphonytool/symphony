@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.definitions.AClassInvariantDefinition;
 import org.overture.ast.definitions.AExplicitFunctionDefinition;
 import org.overture.ast.definitions.AExplicitOperationDefinition;
 import org.overture.ast.definitions.AImplicitFunctionDefinition;
@@ -54,6 +55,7 @@ import eu.compassresearch.core.analysis.theoremprover.thms.ThmProcAction;
 import eu.compassresearch.core.analysis.theoremprover.thms.ThmProcStand;
 import eu.compassresearch.core.analysis.theoremprover.thms.ThmRecType;
 import eu.compassresearch.core.analysis.theoremprover.thms.ThmState;
+import eu.compassresearch.core.analysis.theoremprover.thms.ThmStateInv;
 import eu.compassresearch.core.analysis.theoremprover.thms.ThmType;
 import eu.compassresearch.core.analysis.theoremprover.thms.ThmValue;
 import eu.compassresearch.core.analysis.theoremprover.utils.ThmExprUtil;
@@ -679,10 +681,26 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 	}
 	
 	
-	
-	
-	
-	
+	@Override
+	public ThmNodeList caseAClassInvariantDefinition(
+			AClassInvariantDefinition inv, ThmVarsContext vars)
+			throws AnalysisException {
+		ThmNodeList tnl = new ThmNodeList();
+		
+		ILexNameToken sName = inv.getName();
+		
+		String invName = sName.toString().replace("$", ""); 		
+		// inv.getClassDefinition().getDefinitions().getFirst().getName().getName();
+		//obtain the invariant expression, and dependencies
+
+		String exprString = inv.getExpression().apply(stringVisitor, vars);
+		NodeNameList nodeDeps = inv.getExpression().apply(depVisitor, new NodeNameList());
+
+		ThmNode stn = new ThmNode(sName, nodeDeps, new ThmStateInv(invName, exprString));
+		tnl.add(stn);
+		
+		return tnl;
+	}
 	
 	@Override
 	public ThmNodeList defaultPSingleDeclaration(PSingleDeclaration node, ThmVarsContext vars)

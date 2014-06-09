@@ -165,10 +165,15 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 	}
 
 
-	public NodeNameList caseAGeneralisedParallelismProcess(
-			AGeneralisedParallelismProcess node, NodeNameList bvars)
+	public NodeNameList caseAGeneralisedParllelismProcess(
+			AGeneralisedParallelismProcess p, NodeNameList bvars)
 			throws AnalysisException {
 		NodeNameList nodeDeps = new NodeNameList();
+		
+		nodeDeps.addAll(p.getLeft().apply(thmDepVisitor, bvars));
+		nodeDeps.addAll(p.getRight().apply(thmDepVisitor, bvars));
+		nodeDeps.addAll(p.getChansetExpression().apply(thmDepVisitor, bvars));
+		
 		return nodeDeps;
 	}
 
@@ -178,6 +183,7 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 			throws AnalysisException {
 		NodeNameList nodeDeps = new NodeNameList();
 		nodeDeps.addAll(p.getReplicatedProcess().apply(thmDepVisitor, bvars));
+		nodeDeps.addAll(p.getChansetExpression().apply(thmDepVisitor, bvars));
 		return nodeDeps;
 	}
 
@@ -186,6 +192,7 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 			throws AnalysisException {
 		NodeNameList nodeDeps = new NodeNameList();
 		nodeDeps.addAll(p.getLeft().apply(thmDepVisitor, bvars));
+		nodeDeps.addAll(p.getChansetExpression().apply(thmDepVisitor, bvars));
 		return nodeDeps;
 	}
 
@@ -197,17 +204,24 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 	}
 
 
-	public NodeNameList caseAInterleavingProcess(AInterleavingProcess node, NodeNameList bvars)
+	public NodeNameList caseAInterleavingProcess(AInterleavingProcess p, NodeNameList bvars)
 			throws AnalysisException {
 		NodeNameList nodeDeps = new NodeNameList();
+		
+		nodeDeps.addAll(p.getLeft().apply(thmDepVisitor, bvars));
+		nodeDeps.addAll(p.getRight().apply(thmDepVisitor, bvars));
+		
 		return nodeDeps;
 	}
 
 
 	public NodeNameList caseAInterleavingReplicatedProcess(
-			AInterleavingReplicatedProcess node, NodeNameList bvars)
+			AInterleavingReplicatedProcess p, NodeNameList bvars)
 			throws AnalysisException {
 		NodeNameList nodeDeps = new NodeNameList();
+		
+		nodeDeps.addAll(p.getReplicatedProcess().apply(thmDepVisitor, bvars));
+		
 		return nodeDeps;
 	}
 
@@ -249,9 +263,10 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 
 
 	public NodeNameList caseASequentialCompositionReplicatedProcess(
-			ASequentialCompositionReplicatedProcess node, NodeNameList bvars)
+			ASequentialCompositionReplicatedProcess p, NodeNameList bvars)
 			throws AnalysisException {
 		NodeNameList nodeDeps = new NodeNameList();
+		nodeDeps.addAll(p.getReplicatedProcess().apply(thmDepVisitor, bvars));
 		return nodeDeps;
 	}
 
@@ -270,22 +285,21 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 	}
 
 
-	public NodeNameList caseATimeoutProcess(ATimeoutProcess node, NodeNameList bvars)
+	public NodeNameList caseATimeoutProcess(ATimeoutProcess p, NodeNameList bvars)
 			throws AnalysisException {
 		NodeNameList nodeDeps = new NodeNameList();
+		nodeDeps.addAll(p.getLeft().apply(thmDepVisitor, bvars));
 		return nodeDeps;
 	}
 
 
-	public NodeNameList caseAUntimedTimeoutProcess(AUntimedTimeoutProcess node, NodeNameList bvars)
+	public NodeNameList caseAUntimedTimeoutProcess(AUntimedTimeoutProcess p, NodeNameList bvars)
 			throws AnalysisException {
 		NodeNameList nodeDeps = new NodeNameList();
+		nodeDeps.addAll(p.getLeft().apply(thmDepVisitor, bvars));
 		return nodeDeps;
 	}
 
-	
-	
-	
 	public NodeNameList caseAReferenceProcess(AReferenceProcess p, NodeNameList bvars)
 			throws AnalysisException {
 		NodeNameList nodeDeps = new NodeNameList();

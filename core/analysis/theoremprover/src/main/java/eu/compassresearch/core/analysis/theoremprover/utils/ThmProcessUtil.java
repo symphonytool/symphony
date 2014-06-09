@@ -53,7 +53,7 @@ public class ThmProcessUtil {
 	public static String guardRightBrack = "\\<rparr>]";
 	public static String guardSep = " & ";
 	public static String seqComp = " ; ";
-	public static String extChoice = " \\<box> ";
+	public static String extChoice = " [] ";
 	public static String intChoice = " |-| ";
 	public static String interrupt = " /-\\ ";
 	public static String timeIntLeft = "/(";

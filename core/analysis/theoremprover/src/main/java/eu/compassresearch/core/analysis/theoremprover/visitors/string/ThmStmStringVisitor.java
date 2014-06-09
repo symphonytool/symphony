@@ -303,15 +303,17 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 	@Override
 	public String caseAClassInvariantStm(AClassInvariantStm node,
 			ThmVarsContext vars) throws AnalysisException {
+		return "";
 		// TODO Auto-generated method stub
-		return super.caseAClassInvariantStm(node, vars);
+		// return super.caseAClassInvariantStm(node, vars);
 	}
 
 	@Override
 	public String caseAClassInvariantDefinition(AClassInvariantDefinition node,
 			ThmVarsContext vars) throws AnalysisException {
+		return "";
 		// TODO Auto-generated method stub
-		return super.caseAClassInvariantDefinition(node, vars);
+		// return super.caseAClassInvariantDefinition(node, vars);
 	}
 	
 //	public String caseANonDeterministicDoStatementAction(ANonDeterministicDoStatementAction a, ThmVarsContext vars) throws AnalysisException{
