@@ -7,6 +7,8 @@ import java.util.Stack;
 
 import org.overture.ast.node.INode;
 
+import eu.compassresearch.ast.definitions.AActionDefinition;
+import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ActionChannelDependency;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.Binding;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.Domain;
@@ -62,9 +64,20 @@ public class NewCMLModelcheckerContext {
 	public ArrayList<ActionChannelDependency> channelDependencies;
 	public ArrayListSet<MCPVarsetExpression> globalChanSets;
 	public ArrayListSet<NameValue> localVariablesMapping;
+	public Stack<NameValue> localIndexedVariablesMapping;
+	public ArrayListSet<String> localIndexedVariablesDiscarded;
 	public ArrayList<MCASBinaryExp> setExpressioFacts;
 	public LinkedList<MCAChansetDefinition> chansetDefs;
 	public int maxClock;
+	//a mapping containing new names -> old names. It is necessary to allow 
+	//using variables with same names in CML models when translating to FORMULA
+	public HashMap<String,String> directNameMapping;
+	
+	//a mapping from old names to new names (volatile to be used in reference calls).
+	public HashMap<String,String> reverseNameMapping;
+	
+	public Stack<AProcessDefinition> processStack;
+	public Stack<AActionDefinition> actionStack;
 	
 	
 	
@@ -208,6 +221,21 @@ public class NewCMLModelcheckerContext {
 		return result;
 	}
 	
+	public NameValue getNameValueInIndexedVariables(String variableName){
+		NameValue result = null;
+		Stack<NameValue> copy = new Stack<NameValue>();
+		copy.addAll(localIndexedVariablesMapping);
+		while(!copy.isEmpty()){
+			NameValue item = copy.pop();
+			if(item.getVariableName().equals(variableName)){
+				result = item;
+				break;
+			}
+		}
+		
+		return result;
+	}
+	
 	
 	public NewCMLModelcheckerContext() {
 		setStack = new NewSetStack<MCPVarsetExpression>();
@@ -229,8 +257,14 @@ public class NewCMLModelcheckerContext {
 		globalChanSets = new ArrayListSet<MCPVarsetExpression>();
 		realLieInFacts = new ArrayListSet<MCLieInFact>();
 		localVariablesMapping = new ArrayListSet<NameValue>();
+		localIndexedVariablesMapping = new Stack<NameValue>();
+		localIndexedVariablesDiscarded = new ArrayListSet<String>();
 		setExpressioFacts = new ArrayList<MCASBinaryExp>(); 
 		chansetDefs = new LinkedList<MCAChansetDefinition>();
+		directNameMapping = new HashMap<String,String>();
+		reverseNameMapping = new HashMap<String,String>();
+		processStack = new Stack<AProcessDefinition>();
+		actionStack = new Stack<AActionDefinition>();
 		maxClock = 0;
 		ASSIGN_COUNTER = 0;
 		GUARD_COUNTER = 0;
@@ -258,6 +292,40 @@ public class NewCMLModelcheckerContext {
 				}
 			}
 		}
+	}
+	
+	public String generateName(String originalName){
+		StringBuilder result = new StringBuilder();
+		result.append(originalName);
+		if(!this.processStack.isEmpty()){
+			AProcessDefinition procDef = this.processStack.peek();
+			result.append(procDef.getName().toString());
+		}
+		
+		this.directNameMapping.put(result.toString(), originalName);
+		this.reverseNameMapping.put(originalName, result.toString());
+		
+		return result.toString();
+	}
+	
+	public String generateVariableName(String originalName){
+		StringBuilder result = new StringBuilder();
+		result.append(originalName);
+		if(!this.processStack.isEmpty()){
+			AProcessDefinition procDef = this.processStack.peek();
+			result.append(procDef.getName().toString());
+			if(!this.actionStack.isEmpty()){
+				AActionDefinition actionDef = actionStack.peek();
+				result.append(Utilities.extractFunctionName(actionDef.getName().toString()));
+				
+			}
+			this.directNameMapping.put(result.toString(), originalName);
+			this.reverseNameMapping.put(originalName, result.toString());
+		}
+		
+		this.directNameMapping.put(result.toString(), originalName);
+		
+		return result.toString();
 	}
 	
 	public MCAValueDefinition getValueDefinition(String valueName){

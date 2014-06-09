@@ -1,8 +1,11 @@
 package eu.compassresearch.core.analysis.theoremprover.visitors.deps;
 
+import java.util.LinkedList;
+
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AInstanceVariableDefinition;
 import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.expressions.PExp;
 import org.overture.ast.node.INode;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
@@ -206,14 +209,6 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 		return nodeDeps;
 	}
 
-
-	public NodeNameList caseAReferenceProcess(AReferenceProcess node, NodeNameList bvars)
-			throws AnalysisException {
-		NodeNameList nodeDeps = new NodeNameList();
-		return nodeDeps;
-	}
-
-
 	public NodeNameList caseASequentialCompositionProcess(
 			ASequentialCompositionProcess node, NodeNameList bvars)
 			throws AnalysisException {
@@ -259,23 +254,23 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 
 	
 	
-//	
-//	public NodeNameList caseAReferenceProcess(AReferenceProcess p, NodeNameList bvars)
-//			throws AnalysisException {
-//		NodeNameList nodeDeps = new NodeNameList();
-//
-//		LinkedList<PExp> args = p.getArgs();
-//		nodeDeps.add(p.getProcessName());
-//		if (args.size() != 0)
-//		{
-//			for (PExp e: p.getArgs()) 
-//			{
-//				nodeDeps.addAll(e.apply(thmDepVisitor, bvars));	
-//			}
-//		}
-//	
-//		return nodeDeps;
-//	}
+	
+	public NodeNameList caseAReferenceProcess(AReferenceProcess p, NodeNameList bvars)
+			throws AnalysisException {
+		NodeNameList nodeDeps = new NodeNameList();
+
+		LinkedList<PExp> args = p.getArgs();
+		nodeDeps.add(p.getProcessName());
+		if (args.size() != 0)
+		{
+			for (PExp e: p.getArgs()) 
+			{
+				nodeDeps.addAll(e.apply(thmDepVisitor, bvars));	
+			}
+		}
+	
+		return nodeDeps;
+	}
 
 	@Override
 	public NodeNameList createNewReturnValue(INode arg0, NodeNameList arg1)

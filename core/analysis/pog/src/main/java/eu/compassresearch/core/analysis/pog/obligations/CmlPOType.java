@@ -27,7 +27,7 @@
  
 package eu.compassresearch.core.analysis.pog.obligations;
 
-import org.overture.pog.pub.POType;
+import org.overture.pog.obligation.POType;
 
 //Extending/copying the overture enums. Will need to encapsulate better.
 public enum CmlPOType
@@ -65,6 +65,10 @@ public enum CmlPOType
 	OPERATION_PATTERNS("operation parameter patterns"),
 	OP_SATISFIABILITY("operation satisfiability"),
 	NON_ZERO_TIME("non-zero time"),
+	REFINE_PROVISO("refinement proviso"),
+	OPERATION_REFINE ("operation refinement"),
+	ACTION_REFINE("action refinement"),
+	PROCESS_REFINE("process refinement"),
 	TEST("test");
 	
 	private String kind;

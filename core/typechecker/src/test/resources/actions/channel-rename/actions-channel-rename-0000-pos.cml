@@ -1,0 +1,22 @@
+
+
+
+channels
+
+a: nat
+b:nat*nat
+
+
+
+process P = 
+ begin
+ actions
+ A=Skip
+   @
+     A
+     	[[
+     		a 	<-	b.1, 
+     		b.2 <-	a,
+     		a	<-	b.1.2
+     	]]
+ end

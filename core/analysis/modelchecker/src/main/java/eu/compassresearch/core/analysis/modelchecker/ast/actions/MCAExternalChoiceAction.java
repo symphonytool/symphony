@@ -24,6 +24,7 @@ public class MCAExternalChoiceAction implements MCPAction {
 		case MCNode.DEFAULT:
 			result.append("eChoice(");
 			result.append(this.left.toFormula(option));
+			
 			result.append(",");
 			result.append(this.right.toFormula(option));
 			result.append(")");

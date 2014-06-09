@@ -7,6 +7,7 @@ import org.overture.ast.statements.AAssignmentStm;
 
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCASequentialCompositionAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCASingleGeneralAssignmentStatementAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAStmAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPAction;
@@ -22,6 +23,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCPCMLPattern;
 import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCAActionStm;
 import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCAAssignmentStm;
+import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCABlockSimpleBlockStm;
 import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCAIdentifierStateDesignator;
 import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCAUnresolvedStateDesignator;
 import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCPCMLStm;
@@ -112,25 +114,56 @@ public class MCAExplicitCmlOperationDefinition implements
 		result.append("st_ = ");
 		Binding maximalCopy = context.maximalBinding.copy();
 		MCPCMLStm body = this.body;
-		MCAAssignmentStm assignmentBody = null;
+		LinkedList<MCAAssignmentStm> assignStatements = extractAssignStatements(body);
 		
-		if(body instanceof MCAAssignmentStm){
-			assignmentBody = (MCAAssignmentStm) body;
-		}else if(body instanceof MCAActionStm){
-			MCPAction innerAction = ((MCAActionStm) body).getAction();
-			if(innerAction instanceof MCAStmAction){
-				MCPCMLStm stm = ((MCAStmAction) innerAction).getStatement();
-				if(stm instanceof MCAAssignmentStm){
-					assignmentBody = (MCAAssignmentStm) stm;
+		StringBuilder assignExpressions = new StringBuilder(); 
+		
+		for (MCAAssignmentStm assignmentBody : assignStatements) {
+			String newValueVarName = "";
+			if(assignmentBody != null){
+				MCPStateDesignator stateDesignator = assignmentBody.getTarget();
+				if(stateDesignator instanceof MCAUnresolvedStateDesignator){
+					MCPCMLExp path = ((MCAUnresolvedStateDesignator) stateDesignator).getPath();
+					if(path instanceof MCAVariableExp){
+						String varName = path.toFormula(MCNode.NAMED);
+						newValueVarName = varName + "_";
+						MCPCMLExp newVarValue = new MCAVariableExp(newValueVarName);
+						maximalCopy.updateBinding(varName,newVarValue);
+						//apenas os bindings envolvendo nomes com _ devem ser impressos na forma DEFAULT. Os outrs devem ser na forma NAMED
+						//result.append(maximalCopy.toFormula(MCNode.NAMED)); 
+					}
+				} else if (stateDesignator instanceof MCAIdentifierStateDesignator){
+					String varName = ((MCAIdentifierStateDesignator) stateDesignator).getName();
+					newValueVarName = varName + "_";
+					MCPCMLExp newVarValue = new MCAVariableExp(newValueVarName);
+					maximalCopy.updateBinding(varName,newVarValue);
+					//result.append(maximalCopy.toFormula(MCNode.DEFAULT));
+				}
+			}
+			//THE EXPRESSION OF THE ASSIGNMENT
+			if(assignmentBody.getExpression() != null){
+				assignExpressions.append(", ");
+				MCPCMLExp realExpression = assignmentBody.getExpression();
+				if(realExpression instanceof MCASetUnionBinaryExp){
+					((MCASetUnionBinaryExp) realExpression).setNewVarName(newValueVarName);
+					assignExpressions.append(realExpression.toFormula(option)); //expression assignment
+				}else if(realExpression instanceof MCASetDifferenceBinaryExp){
+					((MCASetDifferenceBinaryExp) realExpression).setNewVarName(newValueVarName);
+					assignExpressions.append(realExpression.toFormula(option)); //expression assignment
+				}else{
+					//DEVE PRODUZIR ALGO SEMELHANTE A ISSO PORQUE OS FATOS UNION NAO ESTAO MUDANDO OS BINDINGS
+					//PODEMOS MUDAR OS BINDINGS EXPLICITAMENTE
+					assignExpressions.append(newValueVarName + " = " + assignmentBody.getExpression().toFormula(option)); //expression assignment
 				}
 			}
 		}
+		result.append(maximalCopy.toFormula(MCNode.NAMED));
+		result.append(assignExpressions.toString());
 		
 		
-		
-		String newValueVarName = "";
-		
-		if(assignmentBody != null){
+		/*
+		 if(assignmentBody != null){
+		 
 			MCPStateDesignator stateDesignator = assignmentBody.getTarget();
 			if(stateDesignator instanceof MCAUnresolvedStateDesignator){
 				MCPCMLExp path = ((MCAUnresolvedStateDesignator) stateDesignator).getPath();
@@ -150,7 +183,9 @@ public class MCAExplicitCmlOperationDefinition implements
 				result.append(maximalCopy.toFormula(MCNode.DEFAULT));
 			}
 		}
+		*/
 		
+		/*
 		//THE EXPRESSION OF THE ASSIGNMENT
 		if(assignmentBody.getExpression() != null){
 			result.append(", ");
@@ -167,6 +202,7 @@ public class MCAExplicitCmlOperationDefinition implements
 				result.append(newValueVarName + " = " + assignmentBody.getExpression().toFormula(option)); //expression assignment
 			}
 		}
+		*/
 		result.append(".");
 		result.append("\n");
 		
@@ -180,7 +216,54 @@ public class MCAExplicitCmlOperationDefinition implements
 		result.append("\n");
 		return result.toString();
 	}
+	
 
+	private void extractAssignStatements(LinkedList<MCAAssignmentStm> assignStms, MCAAssignmentStm stm){
+		assignStms.add(stm);
+	}
+	
+	private void extractAssignStatements(LinkedList<MCAAssignmentStm> assignStms, MCAStmAction stmAction){
+		extractAssignStatements(assignStms,stmAction.getStatement());
+	}
+	
+	private void extractAssignStatements(LinkedList<MCAAssignmentStm> assignStms, MCPAction stmAction){
+		if(stmAction instanceof MCAStmAction){
+			extractAssignStatements(assignStms, (MCAStmAction)stmAction);
+		}else if (stmAction instanceof  MCASequentialCompositionAction){
+			extractAssignStatements(assignStms, (MCASequentialCompositionAction)stmAction);
+		}
+	}
+	
+	private void extractAssignStatements(LinkedList<MCAAssignmentStm> assignStms, MCASequentialCompositionAction stmAction){
+		extractAssignStatements(assignStms,(MCAStmAction)stmAction.getLeft());
+		extractAssignStatements(assignStms,(MCAStmAction)stmAction.getRight());
+	}
+	
+	private void extractAssignStatements(LinkedList<MCAAssignmentStm> assignStms, MCAActionStm actionStm){
+		extractAssignStatements(assignStms,actionStm.getAction());
+	}
+	private void extractAssignStatements(LinkedList<MCAAssignmentStm> assignStms, MCPCMLStm actionStm){
+		if(actionStm instanceof MCAAssignmentStm){
+			extractAssignStatements(assignStms,(MCAAssignmentStm)actionStm);
+		}else if (actionStm instanceof MCABlockSimpleBlockStm){
+			extractAssignStatements(assignStms,(MCABlockSimpleBlockStm)actionStm);
+		}else if (actionStm instanceof MCAActionStm){
+			extractAssignStatements(assignStms,(MCAActionStm)actionStm);
+		}
+		
+	}
+	private void extractAssignStatements(LinkedList<MCAAssignmentStm> assignStms, MCABlockSimpleBlockStm stmAction){
+		for (MCPCMLStm stm : stmAction.getStatements()) {
+			extractAssignStatements(assignStms,stm);
+		}
+	}
+
+	private LinkedList<MCAAssignmentStm> extractAssignStatements(MCPCMLStm body){
+		LinkedList<MCAAssignmentStm> result = new LinkedList<MCAAssignmentStm>();
+		extractAssignStatements(result, (MCAActionStm)body);
+
+		return result;
+	}
 
 	public MCPCMLExp getPrecondition() {
 		return precondition;

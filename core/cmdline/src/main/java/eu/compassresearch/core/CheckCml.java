@@ -67,23 +67,25 @@ public class CheckCml
 	 */
 	private static enum Switch
 	{
-		DOT("dot", "Dot Graph, -dot=<out> write ast dot graph to file <out>.",
-				true),
+		DOT("dot",
+			"Dot Graph, -dot=<out> write ast dot graph to file <out>.",
+			true),
 
 		DOT_PATH("dotpath",
-				"Path to dot, -dotpath=<out> a path where dot can be found.",
-				true),
+			"Path to dot, -dotpath=<path> a path where dot can be found.",
+			true),
 
 		POG("pog",
-				"Proof Obligation Generator, the proof obligation generator",
-				false),
+			"Proof Obligation Generator, the proof obligation generator",
+			false),
 
 		INTER("i", "Interactive mode", false),
 
-		EXEC(
-				"e",
-				"Simulation, -e=<processID>, simulate the process identified by <processID>",
-				true);
+		EXEC("e",
+			"Simulation, -e=<processID>, simulate the process identified by <processID>",
+			true),
+
+		NO_TC("no-tc", "Disable typechecking", false);
 
 		// Switch state
 		private String sw;
@@ -229,7 +231,10 @@ public class CheckCml
 				}
 			}
 
-			typeCheck(sources);
+			if (!input.isSwitchOn(Switch.NO_TC))
+			{
+				typeCheck(sources);
+			}
 
 			if (input.isSwitchOn(Switch.DOT))
 			{
@@ -314,7 +319,7 @@ public class CheckCml
 
 	private static void printUsage()
 	{
-		System.out.println("\nUsage: cmlc [switches] <file1>, ...,<fileN>\nSwitches:");
+		System.out.println("\nUsage: cmlc [switches] <file1> ... <fileN>\nSwitches:");
 		System.out.println(Switch.listSwitches());
 	}
 

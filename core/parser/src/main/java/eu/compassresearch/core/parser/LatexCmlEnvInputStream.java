@@ -28,7 +28,7 @@ public class LatexCmlEnvInputStream extends InputStream
 
 	private void add(int e)
 	{
-		if (q.size() > 10)
+		if (q.size() > BEGIN_CML.length())
 		{
 			q.poll();
 		}

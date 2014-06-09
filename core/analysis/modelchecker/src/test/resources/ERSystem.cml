@@ -1,3 +1,6 @@
+values
+	total_erus: int = 5
+
 types
 	SystemID = <CC> | <RS> | <ERU> | <MPS>
 
@@ -6,8 +9,6 @@ channels
 	divert_eru, log_diversion, wait, fault_1_activation, 
 	drop_message, error_1_detection, target_not_attended, start_recovery_1,
 	end_recovery_1, service_rescue, log_fault_1, resend_rescue_info_to_eru
-	idle_eru: bool 
-	
 	process_message, receive_message: SystemID
 	
 chansets
@@ -22,16 +23,45 @@ chansets
 		divert_eru, log_diversion, wait, fault_1_activation, 
 		drop_message, error_1_detection, target_not_attended, start_recovery_1,
 		end_recovery_1, service_rescue, log_fault_1, resend_rescue_info_to_eru,
-		idle_eru, process_message, receive_message
+		process_message, receive_message
 	|}
-	
+
+
+process ERUs = 
+begin
+	state
+		allocated: int := 0
+		--inv allocated >= 0 and allocated <= total_erus
+		
+	operations
+		allocate: () ==> ()
+		allocate() ==
+			allocated := allocated + 1
+		--pre allocated < total_erus
+
+		deallocate: () ==> ()
+		deallocate() ==
+			allocated := allocated - 1
+		--pre allocated > 0
+	actions
+		INIT =  
+			if allocated = 0 
+				then ALLOCATE
+				else if allocated = total_erus
+				then SERVICE 
+				else (ALLOCATE [] SERVICE)
+		ALLOCATE = allocate_idle_eru -> if (allocated < total_erus) then (allocate();Skip) else Skip; INIT
+		SERVICE = service_rescue -> if(allocated > 0) then (deallocate();Skip) else Skip; INIT
+	@ INIT
+end
+
 process InitiateRescueFault1Activation = 
 begin
-	actions
+	actions 
 		CallCentreStart = StartRescue
 		StartRescue = start_rescue -> FindIdleEru
-		FindIdleEru = find_idle_erus -> idle_eru?idle ->
-			if idle=true then IdleEru else NoIdleEru
+		FindIdleEru = find_idle_erus -> 
+			(IdleEru [] NoIdleEru)
 		IdleEru = allocate_idle_eru -> SendInfo
 		SendInfo = send_rescue_info_to_eru -> IR1
 		IR1 = (process_message!<RS> -> IR1Out) [] IR1Event
@@ -44,7 +74,7 @@ begin
 		IR2Event = error_1_detection -> CCStartRecovery
 		NoIdleEru = wait -> FindIdleEru
 		CCStartRecovery = start_recovery_1 -> CCEndRecovery
-		CCEndRecovery = end_recovery_1 -> ServiceRescue
+		CCEndRecovery = end_recovery_1 -> CallCentreStart
 	@ CallCentreStart
 end
 
@@ -56,15 +86,15 @@ begin
 		Resend = resend_rescue_info_to_eru -> MPSProcessMessage
 		MPSProcessMessage = process_message!<MPS> -> MPSReceiveMessage
 		MPSReceiveMessage = receive_message!<MPS> -> MPSEnd
-		MPSEnd = end_recovery_1 -> Recovery1Start
+		MPSEnd = service_rescue -> end_recovery_1 -> Recovery1Start
 	@ Recovery1Start
 end 
 
+process ERSystem_NoRecovery = 
+	InitiateRescueFault1Activation 
+	[| {| allocate_idle_eru, service_rescue |} |] 
+	ERUs
+
 process ERSystem = 
-	InitiateRescueFault1Activation [|RecoverySignals|] Recovery1
-	
-/*process ERSystemFT = 
-	InitiateRescueFault1Activation [|RecoverySignals|] 
-	(Recovery1 [[ process_message.<MPS> <- process_message.<RS>,
-					receive_message.<MPS> <- receive_message.<RS> ]])
-					*/
+	ERSystem_NoRecovery [|RecoverySignals|] Recovery1
+

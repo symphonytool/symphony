@@ -100,7 +100,7 @@ public class CmlVarSetExpressionTypeChecker extends
 		{
 			issueHandler.addTypeError(node, TypeErrorMessages.UNDEFINED_SYMBOL, node
 					+ "");
-			return null;
+			return AstFactory.newAUnknownType(node.getLocation());
 		}
 
 		if (idDef.getType() == null)
@@ -115,7 +115,7 @@ public class CmlVarSetExpressionTypeChecker extends
 				if (!(idDef instanceof AChansetDefinition || idDef instanceof AChannelDefinition))
 				{
 					issueHandler.addTypeError(node, TypeErrorMessages.EXPECTING_A_CHANNEL_OR_CHANSET_DEFINITION, idDef.apply(question.assistantFactory.getKindFinder()));
-					return null;
+					return AstFactory.newAUnknownType(node.getLocation());
 				}
 				break;
 			}
@@ -125,7 +125,7 @@ public class CmlVarSetExpressionTypeChecker extends
 						|| idDef instanceof AInstanceVariableDefinition || idDef instanceof AStateDefinition))
 				{
 					issueHandler.addTypeError(node, TypeErrorMessages.EXPECTED_STATE_OR_NAMESET_DEFINITION, idDef.apply(question.assistantFactory.getKindFinder()));
-					return null;
+					return AstFactory.newAUnknownType(node.getLocation());
 				}
 				break;
 			}

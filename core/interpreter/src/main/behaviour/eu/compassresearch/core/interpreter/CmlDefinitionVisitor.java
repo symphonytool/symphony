@@ -101,7 +101,7 @@ class CmlDefinitionVisitor extends
 			AInstanceVariableDefinition node, Context question)
 			throws AnalysisException
 	{
-		return PDefinitionAssistantInterpreter.getNamedValues(node, question);
+		return question.assistantFactory.createPDefinitionAssistant().getNamedValues(node, question);
 	}
 
 	@Override
@@ -222,7 +222,7 @@ class CmlDefinitionVisitor extends
 		// NameValuePairList vpl = new NameValuePairList();
 		// vpl.add(new NameValuePair(node.getName().clone(), CmlValueFactory.createOperationValue(node, question)));
 
-		return PDefinitionAssistantInterpreter.getNamedValues(node, question);
+		return  question.assistantFactory.createPDefinitionAssistant().getNamedValues(node, question);
 	}
 
 	@Override
@@ -235,7 +235,7 @@ class CmlDefinitionVisitor extends
 		// vpl.add(new NameValuePair(node.getName(), CmlValueFactory.createOperationValue(node, question)));
 		//
 		// return vpl;
-		return PDefinitionAssistantInterpreter.getNamedValues(node, question);
+		return  question.assistantFactory.createPDefinitionAssistant().getNamedValues(node, question);
 	}
 
 	@Override

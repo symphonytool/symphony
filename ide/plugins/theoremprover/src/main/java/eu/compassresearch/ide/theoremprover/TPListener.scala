@@ -3,7 +3,7 @@ package eu.compassresearch.ide.theoremprover
 import scala.actors.Actor.loop
 import scala.actors.Actor.react
 import scala.collection.JavaConversions
-import org.overture.pog.pub.POStatus
+import org.overture.pog.obligation.POStatus
 import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligationList
 import eu.compassresearch.ide.pog.POConstants
 import eu.compassresearch.ide.core.resources.ICmlModel
@@ -93,7 +93,9 @@ class TPListener(session: Session) extends SessionEvents {
 
   def cmdAt(thyNode : Document.Node.Name, offset : Integer): Option[Command] = {
     val node = session.snapshot(thyNode).node
-    node.command_at(offset).map(_._1)
+    val rng = node.command_range(offset)
+    val cm = if (rng.hasNext) Some(rng.next) else None
+    cm.map(_._1)
   }
 
   

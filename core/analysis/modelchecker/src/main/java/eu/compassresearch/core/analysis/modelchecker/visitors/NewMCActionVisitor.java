@@ -4,10 +4,8 @@ import java.util.LinkedList;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.QuestionAnswerAdaptor;
-import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.node.INode;
-import org.overture.ast.statements.AIfStm;
 
 import eu.compassresearch.ast.actions.AChaosAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
@@ -40,12 +38,8 @@ import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
-import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCABlockStatementAction;
-import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCACallAction;
-import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCACallStatementAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAChaosAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCACommunicationAction;
-import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCADeclareStatementAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCADivAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAExternalChoiceAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAExternalChoiceReplicatedAction;
@@ -53,7 +47,6 @@ import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAGeneralisedP
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAGeneralisedParallelismReplicatedAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAGuardedAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAHidingAction;
-import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAIfStatementAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAInterleavingParallelAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAInterleavingReplicatedAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAInternalChoiceAction;
@@ -72,14 +65,10 @@ import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAWaitAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPCommunicationParameter;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ActionChannelDependency;
-import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCAssignDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.GuardDefGenerator;
-import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCCondition;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCGuardDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCIOCommDef;
-import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.NewMCGuardDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCPSingleDeclaration;
-import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCPCMLDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPVarsetExpression;
 import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCPCMLStm;
@@ -391,7 +380,8 @@ public class NewMCActionVisitor extends
 				INode parentAction = question.actionOrProcessDefStack.peek();
 				if(parentAction instanceof AActionDefinition){
 					String actionName = Utilities.extractFunctionName(((AActionDefinition) parentAction).getName().toString());
-					ActionChannelDependency actionChanDep = new ActionChannelDependency(actionName, identifier, mcParameters);
+					String actionNameToUse = question.generateName(actionName); 
+					ActionChannelDependency actionChanDep = new ActionChannelDependency(actionNameToUse, identifier, mcParameters);
 					question.channelDependencies.add(actionChanDep);
 				} else if (parentAction instanceof AProcessDefinition){
 					String processName = Utilities.extractFunctionName(((AProcessDefinition) parentAction).getName().toString());

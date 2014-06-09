@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.TicketsCmlTypeCheckerTests">
+<message column="10" line="19" message="#1 not allowed in an object state designators." messageType="error" number="3445" resource="issue-209-DEEP_TUPLE-pos.cml"/>
+<message column="10" line="19" message="Field assignment is not of a class or record type. Expression: pair Type: (Meter * Meter)" messageType="error" number="3262" resource="issue-209-DEEP_TUPLE-pos.cml"/>
+<message column="10" line="19" message="Member op() is not in scope." messageType="error" number="3209" resource="issue-209-DEEP_TUPLE-pos.cml"/>
+<result/>
+</testResult>
