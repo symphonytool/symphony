@@ -8,6 +8,7 @@ import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.node.INode;
 import org.overture.pog.obligation.PONameContext;
 import org.overture.pog.pub.IPOContextStack;
+import org.overture.pog.utility.UniqueNameGenerator;
 import org.overture.pog.visitors.AssignmentContext;
 
 import eu.compassresearch.ast.actions.PAction;
@@ -39,6 +40,7 @@ public class POGProcessVisitor extends
 
 		// FIXME check if process invariant handling considers variable instantiations correctly
 		
+		question.setGenerator(new UniqueNameGenerator(node.getActionDefinition()));
 		
 		LinkedList<PDefinition> pdef = node.getActionDefinition()
 				.getDefinitions();
@@ -57,6 +59,9 @@ public class POGProcessVisitor extends
 			}
 			question.clearStateContexts();
 		}
+		
+		question.setGenerator(null);
+		
 
 		// TODO: Consider any AActionProcess POs
 		return pol;
