@@ -22,6 +22,7 @@ public interface ICmlChannel
 
 	/**
 	 * Signals that this channel is selected by the environment to all the channel listeners
+	 * @param channelActivity 
 	 */
 	public void signalChannelEvent(ChannelEventTypeActivity channelActivity);
 
