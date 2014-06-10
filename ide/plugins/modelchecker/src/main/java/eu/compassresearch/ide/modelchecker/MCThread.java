@@ -56,7 +56,7 @@ public class MCThread extends Thread{
 	
 	
 	@Override
-	public synchronized void run(){
+	public void run(){
 		this.status = MCStatus.RUNNING;
 		try {
 			mc = FormulaIntegrator.getInstance();
@@ -84,8 +84,17 @@ public class MCThread extends Thread{
 		this.status = MCStatus.FINISHED;
 	}
 
+	public void cancelExecution(){
+		mc = FormulaIntegrator.getInstance();
+		try {
+			mc.resetInstance();
+		} catch (Throwable e1) {
+			// formula instance is finished 
+		}
+		this.status = MCStatus.FINISHED;
+	}
+	
 	private IFile writeFormulaOutputTofile(IFile selectedCmlSourceUnit, IFolder mcFolder, FormulaResult result){
-		//String name = selectedCmlSourceUnit.getFile().getName();
 		String name = selectedCmlSourceUnit.getName();
 		String formulaFileName = name.substring(0,name.length()-selectedCmlSourceUnit.getFileExtension().length())+"facts";
 		IFile outputFile = mcFolder.getFile(formulaFileName);
