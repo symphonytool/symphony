@@ -2,6 +2,7 @@ package eu.compassresearch.core.analysis.modelchecker.ast.actions;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.Stack;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCActionCall;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCGenericCall;
@@ -9,6 +10,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCOperationCa
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAActionDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAExplicitCmlOperationDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAProcessDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCPCMLDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCSCmlOperationDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
@@ -33,6 +35,21 @@ public class MCAReferenceAction implements MCPAction {
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 		
 		String nameToSearch = context.reverseNameMapping.get(this.name);
+		Stack<MCPCMLDefinition> copy = new Stack<MCPCMLDefinition>();
+		copy.addAll(context.mcProcOrActionsStack);
+		if(!copy.isEmpty()){
+			MCPCMLDefinition currentDef = copy.peek();
+			if(currentDef instanceof MCAActionDefinition){
+				//it has to get the process definition 
+				copy.pop();
+				currentDef = copy.peek();
+				
+			} 
+			if(currentDef instanceof MCAProcessDefinition){
+				nameToSearch = this.name + ((MCAProcessDefinition) currentDef).getName();
+			}
+		}
+		
 		ArrayList<MCAActionDefinition> localActions = context.localActions;
 		boolean callResolved = false;
 		MCGenericCall call = null;

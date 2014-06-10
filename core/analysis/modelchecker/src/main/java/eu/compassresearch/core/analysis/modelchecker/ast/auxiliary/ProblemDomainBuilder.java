@@ -29,7 +29,7 @@ public class ProblemDomainBuilder {
 		generateValueDefinitions(content,option);
 				
 		//generate auxiliary definitions (actions, operationDefs, iocommdefs, guardDefs, etc.) 
-		generateAuxiliaryActions(content,option);
+		//generateAuxiliaryActions(content,option);
 		
 		//generates process definitions 
 		generateProcessDefinitions(content, option);

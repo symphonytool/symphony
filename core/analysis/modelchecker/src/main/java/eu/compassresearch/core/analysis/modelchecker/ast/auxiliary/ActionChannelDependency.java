@@ -7,6 +7,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAReadCommunicationParameter;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPCommunicationParameter;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAChannelDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAVariableExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
 
@@ -70,6 +71,16 @@ public class ActionChannelDependency {
 		
 	}
 
+	public boolean usesNonConstantVariable(){
+		boolean result = false;
+		for (MCPCommunicationParameter param : this.getParameters()) {
+			if (param.getExpression() instanceof MCAVariableExp){
+				result = true;
+			}
+		}
+		return result;
+	}
+	
 	public boolean hasInfiniteTypedChannel(){
 		return this.channelDefinition.isInfiniteType();
 	}

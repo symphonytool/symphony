@@ -3,38 +3,26 @@ package eu.compassresearch.core.analysis.modelchecker.ast.actions;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import org.overture.ast.node.INode;
-
-import eu.compassresearch.ast.definitions.AActionDefinition;
-import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ActionChannelDependency;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ExpressionEvaluator;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCCommEv;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCLieInFact;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.NameValue;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.SingleTypeValue;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.TypeManipulator;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.TypeValue;
-import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCAExpressionSingleDeclaration;
-import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCATypeSingleDeclaration;
-import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCPSingleDeclaration;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAActionDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAChannelDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAProcessDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCPCMLDefinition;
-import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAEnumVarsetExpression;
-import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAFatEnumVarsetExpression;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANameChannelExp;
-import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAUnionVOpVarsetExpression;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAVariableExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPVarsetExpression;
-import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANamedInvariantType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
-import eu.compassresearch.core.analysis.modelchecker.ast.types.MCVoidType;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewSetStack;
-import eu.compassresearch.core.analysis.modelchecker.visitors.Utilities;
 
 public class MCACommunicationAction implements MCPAction {
 
@@ -116,25 +104,43 @@ public class MCACommunicationAction implements MCPAction {
 		
 		if(chanDef.isInfiniteType()){
 			if(context.getNumberOfInstances() == 1){
+				
 				result.append(buildReplicatedExternalChoice(context, option));
-			}else{
-				for (TypeValue typeValue : valuesCopy) {
+				if(!parameterIsConstantValue()){
 					String actionNameToUse = ""; 
 					LinkedList<MCPCommunicationParameter> paramsCopy = new LinkedList<MCPCommunicationParameter>();
-					//for (MCPCommunicationParameter mcpCommunicationParameter : this.communicationParameters) {
-					MCACommunicationAction originalParentAction =  ((MCAReadCommunicationParameter) this.getCommunicationParameters().getFirst()).getParentAction();
-					MCAReadCommunicationParameter newParam = 
-								new MCAReadCommunicationParameter(new MCAVariableExp(typeValue.getTypeAsName()), ((MCAReadCommunicationParameter) this.getCommunicationParameters().getFirst()).getPattern());
-					//}
-					newParam.setParentAction(originalParentAction);
-					paramsCopy.add(newParam);
-					ActionChannelDependency actionChanDep = new ActionChannelDependency(actionNameToUse, this.identifier, paramsCopy);
-					context.infiniteChannelDependencies.add(actionChanDep);
+					if(this.getCommunicationParameters().getFirst() instanceof MCAReadCommunicationParameter){
+						MCACommunicationAction originalParentAction =  ((MCAReadCommunicationParameter) this.getCommunicationParameters().getFirst()).getParentAction();
+						String paramName = ((MCAReadCommunicationParameter) this.getCommunicationParameters().getFirst()).getPattern().toFormula(MCNode.DEFAULT);
+						MCAReadCommunicationParameter newParam = 
+									new MCAReadCommunicationParameter(new MCAVariableExp(paramName), ((MCAReadCommunicationParameter) this.getCommunicationParameters().getFirst()).getPattern());
+						//}
+						newParam.setParentAction(originalParentAction);
+						paramsCopy.add(newParam);
+						ActionChannelDependency actionChanDep = new ActionChannelDependency(actionNameToUse, this.identifier, paramsCopy);
+						context.infiniteChannelDependencies.add(actionChanDep);
+					}
 				}
-				result.append(buildReplicatedExternalChoice(context, values, option, allParamsCopy));
+			}else{
+				for (TypeValue typeValue : valuesCopy) {
+					if(!parameterIsConstantValue()){
+						String actionNameToUse = ""; 
+						LinkedList<MCPCommunicationParameter> paramsCopy = new LinkedList<MCPCommunicationParameter>();
+						//for (MCPCommunicationParameter mcpCommunicationParameter : this.communicationParameters) {
+						MCACommunicationAction originalParentAction =  ((MCAReadCommunicationParameter) this.getCommunicationParameters().getFirst()).getParentAction();
+						MCAReadCommunicationParameter newParam = 
+									new MCAReadCommunicationParameter(new MCAVariableExp(typeValue.getTypeAsName()), ((MCAReadCommunicationParameter) this.getCommunicationParameters().getFirst()).getPattern());
+						//}
+						newParam.setParentAction(originalParentAction);
+						paramsCopy.add(newParam);
+						ActionChannelDependency actionChanDep = new ActionChannelDependency(actionNameToUse, this.identifier, paramsCopy);
+						context.infiniteChannelDependencies.add(actionChanDep);
+					}
+				}
+				result.append(buildReplicatedExternalChoice(context, values, option, allParamsCopy,true));
 			}
 		} else{
-			result.append(buildReplicatedExternalChoice(context, values, option, allParamsCopy));
+			result.append(buildReplicatedExternalChoice(context, values, option, allParamsCopy,false));
 		}
 		
 		
@@ -143,6 +149,19 @@ public class MCACommunicationAction implements MCPAction {
 		return result.toString();
 	}
 
+	private boolean parameterIsConstantValue(){
+		boolean result = false;
+		if(!this.communicationParameters.isEmpty()){
+			MCPCommunicationParameter param = this.communicationParameters.getFirst();
+			if(param.getExpression() != null){
+				if(! (param.getExpression() instanceof MCAVariableExp)){
+					result = true;
+				}
+			}
+		}
+		
+		return result;
+	}
 	private void generateCombinations(LinkedList<MCAChannelDefinition> chanDefList, String operator, LinkedList<String> result){
 		
 		if(chanDefList.size() == 2){
@@ -170,6 +189,18 @@ public class MCACommunicationAction implements MCPAction {
 		result.append("\"" + buildIOCommExp(option) + "\"");
 		result.append(",");
 		if(currParam != null){
+			if(parametersHasStateVariable(this.communicationParameters)){
+				MCPCMLDefinition actionOrProc = context.mcProcOrActionsStack.peek();
+				StateDependency stateDependency = new StateDependency(null);
+				String name = "";
+				if(actionOrProc instanceof MCAProcessDefinition){
+					name = ((MCAProcessDefinition) actionOrProc).getName().toString();
+				} else if(actionOrProc instanceof MCAActionDefinition){
+					name = ((MCAActionDefinition) actionOrProc).getName().toString();
+				}
+				stateDependency.setActionOrProcessName(name);
+				context.actionProcStateDependencies.add(stateDependency);
+			}
 			result.append(currParam.toFormula(option));
 		} else{
 			result.append(buildIOCommActualParams(option));
@@ -252,7 +283,7 @@ public class MCACommunicationAction implements MCPAction {
 	}
 
 	private StringBuilder buildReplicatedExternalChoice(NewCMLModelcheckerContext context,
-			LinkedList<TypeValue> values,String option, LinkedList<MCPCommunicationParameter> params) {
+			LinkedList<TypeValue> values,String option, LinkedList<MCPCommunicationParameter> params, boolean infinite) {
 
 		StringBuilder result = new StringBuilder();
 		String identifier = null;
@@ -270,6 +301,13 @@ public class MCACommunicationAction implements MCPAction {
 			} else if(values.size() == 1){
 				TypeValue firstValue = values.removeFirst();
 				MCPCommunicationParameter firstParam = params.getFirst();
+				if(!infinite){
+					try {
+						Integer.parseInt(((SingleTypeValue)firstValue).getValue());
+					} catch (NumberFormatException e) {
+						((SingleTypeValue)firstValue).setValue(firstParam.getExpression().toFormula(MCNode.DEFAULT));
+					}
+				}
 				mapping.setVariableName(firstParam.toString());
 				identifier = firstParam.toString();
 				mapping.setVariableValue(firstValue.toFormula(option));
@@ -288,7 +326,7 @@ public class MCACommunicationAction implements MCPAction {
 				result.append(",");
 				context.localIndexedVariablesMapping.pop();
 				
-				StringBuilder rest = buildReplicatedExternalChoice(context,values,option,params);
+				StringBuilder rest = buildReplicatedExternalChoice(context,values,option,params,infinite);
 				result.append(rest.toString());
 				result.append(")");
 			}

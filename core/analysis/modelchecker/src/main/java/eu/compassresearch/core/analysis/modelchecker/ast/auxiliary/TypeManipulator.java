@@ -24,6 +24,7 @@ import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelchecker
 public class TypeManipulator {
 	
 	private static TypeManipulator instance;
+	private static int VARIABLE_NUMBER=1; 
 	
 	private TypeManipulator(){
 		
@@ -135,7 +136,9 @@ public class TypeManipulator {
 		//lets put as many variable values in the result as are the number of instances
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 		for (int i = 0; i < context.getNumberOfInstances(); i++) {
+			//we need to use a new variable generator
 			result.add(new SingleTypeValue("x"+i));
+			//result.add(new SingleTypeValue("x"+VARIABLE_NUMBER++));
 		}
 		
 		return result;

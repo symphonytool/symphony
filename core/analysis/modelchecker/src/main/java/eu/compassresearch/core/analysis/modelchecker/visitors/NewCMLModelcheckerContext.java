@@ -10,6 +10,7 @@ import org.overture.ast.node.INode;
 
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPCommunicationParameter;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.StateDependency;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ActionChannelDependency;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.Binding;
@@ -385,12 +386,15 @@ public class NewCMLModelcheckerContext {
 		boolean result = false;
 		for (ActionChannelDependency actionChannelDependency : dependencies) {
 			if(actionChannelDependency.hasInfiniteTypedChannel()){
-				result = true;
-				break;
+				if(actionChannelDependency.usesNonConstantVariable()){
+					result = true;
+					break;
+				}
 			}
 		}
 		return result;
 	}
+	
 	
 	public static boolean hasStateDependencies(String name){
 		boolean result = false;

@@ -110,8 +110,10 @@ public class MCIOCommDef implements MCNode {
 				
 				ActionChannelDependency actionChannelDependency = (ActionChannelDependency) iterator.next();
 				//if(actionChannelDependency.getChannelDefinition().isInfiniteType()){
+				if(containsParameter(actionChannelDependency.getParameters())){
 					result.append(",");
 					result.append(actionChannelDependency.toFormula(option));
+				}
 				//}
 				//if(iterator.hasNext()){
 				//	result.append(",");
@@ -126,6 +128,18 @@ public class MCIOCommDef implements MCNode {
 		return result.toString();
 	}
 	
+	private boolean containsParameter(LinkedList<MCPCommunicationParameter> parameters){
+		boolean result = false;
+		String parameterToCheck = parameters.getFirst().toFormula(MCNode.DEFAULT);
+		for (MCPCommunicationParameter param : this.parentAction.getCommunicationParameters()) {
+			if(param.toFormula(MCNode.DEFAULT).equals(parameterToCheck)){
+				result = true;
+				break;
+			}
+		}
+		return result;
+		
+	}
 	public String buildIOCommActualParam(MCPCommunicationParameter communicationParam, String option){
 		
 		StringBuilder result = new StringBuilder();

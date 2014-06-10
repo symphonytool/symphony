@@ -1,11 +1,24 @@
 types
     MYNAT = nat -- uniq device ID
-      inv i == i in set {1}
+      -- inv i == i in set {1}
       
 channels 
-a:int
+a:MYNAT
 
 process P = 
 begin 
 	@ a?x -> if (x = 1) then Stop else Skip 
+end
+
+process P2 = 
+begin 
+ state
+  xValue:nat := 0
+  yValue:nat := 1
+ 
+ actions
+   LoadX = a?z -> xValue := z ; Skip
+   LoadY = a?y -> yValue := y ; Skip
+   Test = [xValue = yValue] & Stop  
+	@  LoadX;LoadY;Test
 end
