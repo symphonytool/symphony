@@ -1754,6 +1754,7 @@ channelDef returns[List<AChannelDefinition> def]
                 chanDecl.setNameScope(NameScope.GLOBAL);
                 chanDecl.setUsed(false);
                 chanDecl.setLocation(id.getLocation());
+				chanDecl.setAccess(PAccessSpecifierAssistant.getPublic());
 
                 List<PType> types = new Vector<PType>();
                 ILexLocation typeLocation = loc;
