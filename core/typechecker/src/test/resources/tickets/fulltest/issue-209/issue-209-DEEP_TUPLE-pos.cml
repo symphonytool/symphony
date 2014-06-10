@@ -1,0 +1,22 @@
+types
+  Meter :: device : Device
+  Box :: m : Meter
+
+class Device = begin
+operations
+  public op : () ==> ()
+  op() == Skip
+end
+
+process SmartGrid = begin
+state
+  meters : map nat to Meter := {|->}
+
+actions
+
+   DEEP_TUPLE =
+      (dcl pair: Meter * Meter @
+          pair.#1.device.op())
+
+@ Skip
+end

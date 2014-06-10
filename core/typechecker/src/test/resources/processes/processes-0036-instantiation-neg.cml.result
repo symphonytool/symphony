@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.ProcessesCmlTypeCheckerTests">
+<message column="28" line="5" message="Name 'x' is not in scope." messageType="error" number="3182" resource="processes-0036-instantiation-neg.cml"/>
+<message column="55" line="8" message="Name 'x' is not in scope." messageType="error" number="3182" resource="processes-0036-instantiation-neg.cml"/>
+<message column="34" line="9" message="Name 'x' is not in scope." messageType="error" number="3182" resource="processes-0036-instantiation-neg.cml"/>
+<result/>
+</testResult>

@@ -67,14 +67,14 @@
     <dependency>
       <groupId>isabelle.scala</groupId>
       <artifactId>isabelle.pure</artifactId>
-      <version>2013.0.1-SNAPSHOT</version>
+      <version>2013.2.1-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
 
     <dependency>
       <groupId>isabelle.scala</groupId>
       <artifactId>isabelle.pide</artifactId>
-      <version>2013.0.1-SNAPSHOT</version>
+      <version>2013.2.1-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
 

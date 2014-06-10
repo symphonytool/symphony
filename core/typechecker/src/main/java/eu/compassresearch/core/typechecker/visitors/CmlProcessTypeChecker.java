@@ -294,58 +294,35 @@ public class CmlProcessTypeChecker extends
 		return getVoidType(node);
 	}
 
+	/**
+	 * This case checks the process instantiation<br>
+	 * {@code (val x:int @ begin @ Skip end startsby x)(23)}<br>
+	 * or {@code (val x : int @ A(x))(23)} with {@code process A = val x : int @ Skip} it is assumed that this actually
+	 * means {@code A(23)}
+	 */
 	@Override
 	public PType caseAInstantiationProcess(AInstantiationProcess node,
 			TypeCheckInfo question) throws AnalysisException
 	{
-		// FIXME: what is an instantiation Process is it similar to a reference process. It has arguments
-		LinkedList<PExp> args = node.getArgs();
-		LinkedList<PParametrisation> decl = node.getParametrisations();
-		PProcess proc = node.getProcess();
-
-		for (PExp arg : args)
-		{
-			arg.apply(THIS, question);
-		}
+		List<PType> atypes = question.assistantFactory.createACallObjectStatementAssistant().getArgTypes(node.getArgs(), THIS, question);
 
 		List<PDefinition> definitions = new LinkedList<PDefinition>();
 
-		for (PParametrisation d : decl)
+		List<PType> paramTypes = new Vector<PType>();
+		for (PParametrisation localDef : node.getParametrisations())
 		{
-			PType dType = d.apply(THIS, question);
-
+			PType t = localDef.getDeclaration().getType();
+			question.assistantFactory.createPTypeAssistant().typeResolve(t, null, THIS, question);
+			paramTypes.add(t);
 			// only add if it could be resolved
-			if (dType != null)
+			if (t != null)
 			{
-				definitions.addAll(dType.getDefinitions());
+				definitions.add(localDef.getDeclaration());
 			}
 		}
 
-		if (args.size() != definitions.size())
-		{
-			issueHandler.addTypeError(node, TypeErrorMessages.WRONG_NUMBER_OF_ARGUMENTS, ""
-					+ definitions.size(), "" + args.size());
-		} else
-		{
-
-			List<PDefinition> locals = new Vector<PDefinition>();
-
-			for (int i = 0; i < args.size(); i++)
-			{
-				PExp ithExp = args.get(i);
-				PDefinition ithDef = definitions.get(i);
-				if (!TypeComparator.compatible(ithExp.getType(), ithDef.getType()))
-				{
-					issueHandler.addTypeError(node, TypeErrorMessages.INCOMPATIBLE_TYPE, ""
-							+ ithDef.getType(), "" + ithExp.getType());
-					break;
-				}
-				locals.add(ithDef);
-			}
-
-			proc.apply(THIS, question.newScope(locals));
-		}
-
+		AReferenceAssistant.checkArgTypes(node, AstFactory.newAVoidReturnType(node.getLocation()), paramTypes, atypes);
+		node.getProcess().apply(THIS, question.newScope(definitions));
 		return getVoidType(node);
 	}
 
@@ -446,7 +423,7 @@ public class CmlProcessTypeChecker extends
 
 		PType timeExpType = timeExp.apply(THIS, question);
 
-		if (!TypeComparator.isSubType(timeExpType, new ANatNumericBasicType(), question.assistantFactory))
+		if (!TypeComparator.compatible(new ANatNumericBasicType(), timeExpType))
 		{
 			issueHandler.addTypeError(timeExp, TypeErrorMessages.TIME_UNIT_EXPRESSION_MUST_BE_NAT, node
 					+ "", timeExpType + "");

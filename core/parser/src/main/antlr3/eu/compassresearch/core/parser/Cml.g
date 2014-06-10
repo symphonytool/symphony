@@ -340,27 +340,29 @@ public AAccessSpecifierAccessSpecifier getPrivateAccessSpecifier(boolean isStati
                                                (isAsync ? new TAsync() : null));
 }
 
-private PExp selectorListAssignableBuilder(PExp base, List<PExp> selectors) {
+// private PExp selectorListAssignableBuilder(PExp base, List<PExp> selectors)
+private PExp buildExpFromSelectors(PExp base, List<PExp> selectors)
+    throws StuckException {
     PExp tree = base;
 
     for (PExp sel : selectors) { // Iterate through the selectors, building a left->right tree
+        
         ILexLocation loc = extractLexLocation(base.getLocation(), sel.getLocation());
-        if (sel instanceof AFieldNumberExp) { // FIXME --- probably shouldn't allow this
+        if (sel instanceof AFieldNumberExp) {
             ((AFieldNumberExp)sel).setTuple(tree);
             sel.setLocation(loc);
             tree = sel;
-            throw new java.lang.RuntimeException("Syntax error: AFieldNumberExp in a simpleSelector for calls");
 
         } else if (sel instanceof AApplyExp) {
             ((AApplyExp)sel).setRoot(tree);
             sel.setLocation(loc);
             tree = sel;
 
-        } else if (sel instanceof ASubseqExp) { // FIXME --- probably shouldn't allow this either.
-            System.out.println("Syntax error: ASubseqExp in a simpleSelector for calls");
+        } else if (sel instanceof ASubseqExp) {
             ((ASubseqExp)sel).setSeq(base);
             sel.setLocation(loc);
             tree = sel;
+
         } else if (sel instanceof AUnresolvedPathExp) {
             // selector was a ".IDENTIFIER"; now let's figure out what to do
             AUnresolvedPathExp aupe = (AUnresolvedPathExp)sel; // avoid many casts
@@ -384,6 +386,71 @@ private PExp selectorListAssignableBuilder(PExp base, List<PExp> selectors) {
     }
 
     return tree;
+}
+
+private PExp buildExpWithDotteds(ILexNameToken baseName, List<Object> ids) {
+    List<ILexIdentifierToken> typedIds = new ArrayList<ILexIdentifierToken>();
+    typedIds.add(baseName.getIdentifier());
+    ILexLocation loc = baseName.getLocation();
+    if (ids != null) {
+        for (Object o : ids) {
+            CommonToken id = (CommonToken)o;
+            loc = extractLexLocation(id);
+            ILexIdentifierToken typedId = new LexIdentifierToken(id.getText(), false, loc);
+            typedIds.add(typedId);
+        }
+    }
+    return new AUnresolvedPathExp(extractLexLocation(baseName.getLocation(), loc), typedIds);
+}
+
+/* Note: this assumes that the last selector is an AApplyExp
+ * should (null? dottedIds) and (match selectors '(AApplyExp)) return a ACallStm instead of a ACallObjectStm?
+ *
+ * only called when selectors.size() >= 1
+ */
+private PAction buildCallObjectFromLeadingIdAction(ILexNameToken baseName, List<Object> dottedIds, List<PExp> selectors)
+    throws StuckException {
+    if (selectors == null || selectors.size() == 0) {
+        throw new StuckException("impossible case: buildCallObjectFromLeadingIdAction() called without any selectors");
+    }
+
+    // pop the final AApplyExp out of the selectors list
+    AApplyExp finalApply = (AApplyExp)selectors.get(selectors.size() - 1);
+    selectors.remove(finalApply);
+
+    // figure out the operation's identifier
+    ILexIdentifierToken opId = null;
+    if (selectors.size() > 0 ) {
+        PExp sel = selectors.get(selectors.size() - 1);
+        selectors.remove(sel);
+        if (sel instanceof AFieldExp) {
+            opId = ((AFieldExp)sel).getField();
+        } else if (sel instanceof AUnresolvedPathExp) {
+            List<ILexIdentifierToken> unresolvedIds = ((AUnresolvedPathExp)sel).getIdentifiers();
+            opId = unresolvedIds.get(unresolvedIds.size() - 1).clone();
+        } else {
+            throw new StuckException("nope!");
+        }
+    } else if (dottedIds == null || dottedIds.size() == 0) {
+        throw new StuckException("impossible case: buildCallObjectFromLeadingIdAction called with one selector and no dottedIds; should have been excluded from call");
+    } else {
+        CommonToken lastDottedId = (CommonToken)dottedIds.get(dottedIds.size() - 1);
+        dottedIds.remove(lastDottedId);
+        opId = new LexIdentifierToken(lastDottedId.getText(), false, extractLexLocation(lastDottedId));
+    }
+
+    // At this point we should be able to just process the dotteds and selectors directly
+    
+    // process the baseName and remaining dottedIds into a base expression
+    PExp baseExp = buildExpWithDotteds(baseName, dottedIds);
+
+    // handle any remaining selectors
+    baseExp = buildExpFromSelectors(baseExp, selectors);
+
+    // bundle the baseExp, opId, and apply into a CallObjectStm
+    PObjectDesignator designator = new AUnresolvedObjectDesignator(baseExp.getLocation(), baseExp);
+    PAction action = stm2action(AstFactory.newACallObjectStm(designator, opId, finalApply.getArgs()));
+    return action;
 }
 
 private Collection<? extends PType> getTypeList(APatternListTypePair node) {
@@ -1277,15 +1344,13 @@ specOrGuardedAction returns[PAction action]
  * Touch this only at risk of your sanity.  -jwc/17Mar2013
  */
 leadingIdAction returns[PAction action]
-@init { PExp assignable = null; }
+@init { PExp assignable = null; ILexNameToken name = null; }
 @after { $action.setLocation(extractLexLocation($start,$stop)); }
     : id=IDENTIFIER
         // bare action call
         {
-            CmlLexNameToken name = new CmlLexNameToken("", $id.getText(), extractLexLocation($start));
-            $action = new AReferenceAction(null, name, new ArrayList<PExp>());
-            //in case of a channel renaming action; then the location must be set here else only the outer action will have a location set
-            $action.setLocation(extractLexLocation($start,$id));
+            name = new CmlLexNameToken("", $id.getText(), extractLexLocation($id));
+            $action = new AReferenceAction(extractLexLocation($id), name, new ArrayList<PExp>());
         }
         ( renamingExpr
             // action call plus rename
@@ -1323,79 +1388,31 @@ leadingIdAction returns[PAction action]
                     $action = new ACommunicationAction(null, firstId, comms, $after.action);
                 }
             | selectorOptList
-                ( // If the selectorList is empty, we have the base
-                  // action call created above, and this action should
-                  // be a no-op; if the selectorList is a single
-                  // AApplyExp, then this is a bare operation call;
-                  // otherwise error -> RecognitionException
+                ( // If nothing follows the selector list, we have
+                  // either an action reference or an operation call
+                  // (which may be deeply embedded in a chain of
+                  // structure dereferences leading to a class
+                  // containing the operation...).
                     {
-                        // create raw operation call, if there
-                        List<PExp> selectors = $selectorOptList.selectors;
+                        List<PExp> selectors = $selectorOptList.selectors; // guaranteed not null
 
-                        if (selectors.size() > 0) {
-                            if (selectors.size() != 1 || ! (selectors.get(0) instanceof AApplyExp)) {
-                                // If this is a raw operation call,
-                                // and there are extra selectors, or
-                                // the wrong selector, the best that
-                                // can be done right now is to throw
-                                // an Exception.  This should be
-                                // factored out, above, to look for an
-                                // explicit (exprList) directly.
-                                throw new StuckException(input,"If this is a raw operation call, the wrong selector, the best that can be done right now is to throw  an Exception. This should be factored out, above, to look for an  explicit (exprList) directly.");
-                            }
+                        if ( selectors.size() == 0 && ($ids == null || $ids.size() == 0) ) {
+                            // this is a bare action reference and is
+                            // ok, so we can just pass on the work
+                            // done in the first block.
 
-                            List<LexIdentifierToken> idList = new ArrayList<LexIdentifierToken>();
+                        } else if ( selectors.size() == 0
+                                    || ! ( selectors.get(selectors.size() - 1) instanceof AApplyExp) ) { 
+                            // this has a complex form (so cannot be a bare action reference), but has no () at the end; therefore error
+                            throw new StuckException(input, "This must be either a simple identifier for an action reference, or end with () for an operation call.");
 
-                            // need to merge the first identifier and
-                            // any dotted identifiers into a name
-                            String module = "";
-                            CommonToken dotId = $id;
-                            if ($ids != null && $ids.size() > 0) {
-                                StringBuilder sb = new StringBuilder($id.getText());
-                                idList.add(new LexIdentifierToken($id.getText(),false,extractLexLocation($id)));
-                                ListIterator<Object> iter = $ids.listIterator();
-                                while (iter.hasNext()) {
-                                    dotId = (CommonToken)iter.next();
-                                    idList.add(new LexIdentifierToken(dotId.getText(),false,extractLexLocation(dotId)));
-                                    if (iter.hasNext()) {
-                                        sb.append(".");
-                                        sb.append(dotId.getText());
-                                    }
-                                }
-                                module = sb.toString();
-                            }
-
-                            if(!idList.isEmpty())
-                            {
-                                //we dont want the op name in here
-                                idList = idList.subList(0,idList.size()-1);
-                            }
-                            CmlLexNameToken name = new CmlLexNameToken(module, dotId.getText(), extractLexLocation($id,dotId));
-
-                            // grab the AApplyExp directly
+                        } else if ( selectors.size() == 1 && ($ids == null || $ids.size() == 0) ) {
+                            // this is a simple call of the form Op(...)
                             AApplyExp apply = (AApplyExp)selectors.get(0);
+                            $action = stm2action(AstFactory.newACallStm(name, apply.getArgs()));
 
-                            //FIXME this is the hacked version of call with dots in the module. We should properly use CallObject and place an unresolved state designator with the path instead
-                            //$action = stm2action(AstFactory.newACallStm(name, apply.getArgs()));
-
-                            if($ids== null || $ids.size()==0)
-                            {
-                                $action = stm2action(AstFactory.newACallStm(name, apply.getArgs()));
-                            }else
-                            {
-                                //we have an unresolved path
-                                PExp path = new AUnresolvedPathExp(extractLexLocation($id,dotId),idList);
-                                //the object designator the therefore also unresolved
-                                PObjectDesignator designator = new AUnresolvedObjectDesignator(extractLexLocation($id,dotId),path);
-
-                                $action = stm2action(AstFactory.newACallObjectStm(designator,name.getIdentifier(),apply.getArgs()));
-                            }
-                        } else
-                        {
-                            //  This is from having something like 'x.a' as a statement on its own --- this cannot be a AReferenceAction as actions cannot be referenced with dots, and it cannot be a operation call as it is missing () at the end (the selectorOptList was empty) --- so this is a Parse Error -jwc/29Oct2013
-                            if ($ids != null && $ids.size() > 0) {
-                                throw new StuckException(input, "This must be either a simple identifier or an operation call that ends with ().");
-                            }
+                        } else {
+                            $action = buildCallObjectFromLeadingIdAction(name, $ids, selectors);
                         }
                     }
                 | ':='
@@ -1415,7 +1432,7 @@ leadingIdAction returns[PAction action]
                             }
                         }
 
-                        assignable = selectorListAssignableBuilder(firstIdExp, selectors);
+                        assignable = buildExpFromSelectors(firstIdExp, selectors);
                     }
                     ( newT='new' name '(' expressionList? rbT=')'
                         // object instantiation
@@ -1627,7 +1644,7 @@ assignableExpression returns[PExp exp]
             else
                 $exp = new ASelfExp(loc, new CmlLexNameToken("", $t.getText(), loc));
 
-            $exp = selectorListAssignableBuilder($exp,$selectorOptList.selectors);
+            $exp = buildExpFromSelectors($exp,$selectorOptList.selectors);
         }
     ;
 
@@ -2119,11 +2136,10 @@ invariantDefinition returns[AClassInvariantDefinition def]
 @after { $def.setLocation(extractLexLocation($start, $stop)); }
     : 'inv' expression
         {
-            $def = new AClassInvariantDefinition();
-            $def.setNameScope(NameScope.GLOBAL);
-            $def.setUsed(true);
-            $def.setPass(Pass.DEFS);
-            $def.setExpression($expression.exp);
+            // The location is set after as well as the name, which is set on the way back.	
+			ILexLocation loc = null;
+			ILexNameToken className = new CmlLexNameToken("", "", loc);
+			$def = AstFactory.newAClassInvariantDefinition(className.getInvName(loc), $expression.exp);
         }
     ;
 
@@ -2300,8 +2316,8 @@ implicitFunctionDefinitionTail returns[AImplicitFunctionDefinition tail]
                List<PPattern> patterns = new LinkedList<PPattern>();
                AVariableExp varExp = (AVariableExp)exp.getLeft();
                patterns.add(AstFactory.newAIdentifierPattern(varExp.getName().clone()));
-               ASetMultipleBind bind = AstFactory.newASetMultipleBind(patterns, exp.getRight().clone());
-               body = AstFactory.newALetBeStExp(exp.getLocation(), bind, null, exp.getLeft().clone());
+               //ASetMultipleBind bind = AstFactory.newASetMultipleBind(patterns, exp.getRight().clone());
+               //body = AstFactory.newALetBeStExp(exp.getLocation(), bind, null, exp.getLeft().clone());
             }
 
 
@@ -3147,42 +3163,7 @@ expr11 returns[PExp exp]
         }
     | exprbase selectorOptList //( selector { selectors.add($selector.exp); } )*
         {
-            $exp = $exprbase.exp; // Set the leftmost root
-            //FIXME find out how close this is to selectorListAssignableBuilder
-            for (PExp sel : $selectorOptList.selectors) { // Iterate through the selectors, building a left->right tree
-                ILexLocation loc = extractLexLocation($exp.getLocation(), sel.getLocation());
-                if (sel instanceof AFieldNumberExp) {
-                    ((AFieldNumberExp)sel).setTuple($exp);
-                    sel.setLocation(loc);
-                    $exp = sel;
-                } else if (sel instanceof AApplyExp) {
-                    ((AApplyExp)sel).setRoot($exp);
-                    sel.setLocation(loc);
-                    $exp = sel;
-                } else if (sel instanceof ASubseqExp) {
-                    ((ASubseqExp)sel).setSeq($exp);
-                    sel.setLocation(loc);
-                    $exp = sel;
-                } else if (sel instanceof AUnresolvedPathExp) {
-                    // selector was a ".IDENTIFIER"; now let's figure out what to do
-                    AUnresolvedPathExp aupe = (AUnresolvedPathExp)sel; // avoid many casts
-                    if ($exp instanceof AVariableExp) { // if the left was an IDENTIFIER, then...
-                        AVariableExp ave = (AVariableExp)$exp;
-                        aupe.setLocation(loc);
-                        aupe.getIdentifiers().add(0, ave.getName().getIdentifier());
-                        $exp = aupe;
-                    } else if ($exp instanceof AUnresolvedPathExp) { // if it was an unresolved path...
-                        if ($exp != null) $exp.setLocation(loc);
-                        ((AUnresolvedPathExp)$exp).getIdentifiers().addAll(aupe.getIdentifiers());
-                        // no need to assign to $exp here
-                    } else { // otherwise it must be a field access
-                        // the AUnresolvedPathExp we get from the list
-                        // will only have a single Identifier in it.
-                        ILexIdentifierToken id = aupe.getIdentifiers().get(0);
-                        $exp = AstFactory.newAFieldExp($exp,id);
-                    }
-                }
-            }
+            $exp = buildExpFromSelectors($exprbase.exp, $selectorOptList.selectors);
         }
     ;
 

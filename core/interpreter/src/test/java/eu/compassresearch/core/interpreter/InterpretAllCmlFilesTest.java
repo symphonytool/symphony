@@ -177,9 +177,16 @@ public class InterpretAllCmlFilesTest
 		// testResult.throwsException() => exception != null
 		assertTrue("The test was expected to throw an exception but did not!", !testResult.throwsException()
 				|| exception != null);
+		
+		if(exception!=null)
+		{
+			exception.printStackTrace();
+		}
 		// !testResult.throwsException() => exception == null
 		assertTrue("The test threw an unexpected exception : " + exception, testResult.throwsException()
 				|| exception == null);
+		
+		
 
 		// events
 		String eventTrace = "";
