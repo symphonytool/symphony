@@ -8,7 +8,6 @@ import org.overture.ast.statements.ABlockSimpleBlockStm;
 import org.overture.ast.statements.PStm;
 import org.overture.pog.obligation.POContextStack;
 import org.overture.pog.pub.IPOContextStack;
-import org.overture.pog.visitors.AssignmentContext;
 import org.overture.pog.visitors.PogParamStmVisitor;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
@@ -23,7 +22,7 @@ public class POGStatementVisitor extends
 	public POGStatementVisitor(ProofObligationGenerator parent) {
 		this.parentVisitor = parent;
 		this.overtureVisitor = new PogParamStmVisitor<POContextStack, CmlProofObligationList>(
-				this, this, new CmlPogAssistantFactory(), new CmlVarSubVisitor());
+				this, this, new CmlPogAssistantFactory());
 	}
 
 	// Call Overture for the other statements

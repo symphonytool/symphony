@@ -4,14 +4,26 @@ process Alfalfa = begin
 state 
 y:int
 x : int
+z : real
 
 operations
-op1 : () ==> int
-op1() == (y:=0; return 1)
+op1()
+pre true
+post x = 0
 
-op2 : int ==> real
-op2(a) == op1(); return (x/y)
+op2()
+pre true
+post x = 1
 
+op: () ==> ()
+op() ==
+(
+    op1();
+    op2();
+    z := y / x
+)
+pre x <> 0
+post z = y / x
 @Skip
 
 end

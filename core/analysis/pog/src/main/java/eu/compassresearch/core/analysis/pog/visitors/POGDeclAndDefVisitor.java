@@ -51,7 +51,7 @@ public class POGDeclAndDefVisitor extends
 			CmlPogAssistantFactory assistantFactory) {
 		this.parentPOG = parent;
 		this.overtureVisitor = new PogParamDefinitionVisitor<IPOContextStack, CmlProofObligationList>(
-				this, this, assistantFactory, new CmlVarSubVisitor());
+				this, this, assistantFactory);
 		this.assistantFactory = assistantFactory;
 
 	}

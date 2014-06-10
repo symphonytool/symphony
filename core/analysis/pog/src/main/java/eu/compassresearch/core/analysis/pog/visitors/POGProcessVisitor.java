@@ -40,8 +40,6 @@ public class POGProcessVisitor extends
 
 		// FIXME check if process invariant handling considers variable instantiations correctly
 		
-		question.setGenerator(new UniqueNameGenerator(node.getActionDefinition()));
-		
 		LinkedList<PDefinition> pdef = node.getActionDefinition()
 				.getDefinitions();
 

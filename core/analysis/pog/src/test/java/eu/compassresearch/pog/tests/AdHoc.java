@@ -51,7 +51,7 @@ public class AdHoc {
 
 		System.out.println("ACTUAL POs:");
 		for (IProofObligation po : ipol) {
-			System.out.println(po.getKindString() + " / " + po.getValue());
+			System.out.println(po.getKindString() +" " +po.getLocation() + " / " + po.getValue());
 		}
 
 		if (write_result) {

@@ -25,7 +25,7 @@ public class POGExpressionVisitor extends
 	    QuestionAnswerAdaptor<IPOContextStack, CmlProofObligationList> parentVisitor) {
 	this.rootVisitor = parentVisitor;
 	this.overtureVisitor = new PogParamExpVisitor<IPOContextStack, CmlProofObligationList>(
-		this, this, new CmlVarSubVisitor(), new CmlPogAssistantFactory());
+		this, this, new CmlPogAssistantFactory());
     }
 
     // handle CML expressions
