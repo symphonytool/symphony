@@ -332,7 +332,7 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 			options.add("-Dlog4j.configuration=log4j-off.properties");
 		}
 
-		if (VdmDebugPlugin.getDefault().getPreferenceStore().getBoolean(IDebugPreferenceConstants.PREF_DBGP_ENABLE_EXPERIMENTAL_MODELCHECKER))
+//		if (VdmDebugPlugin.getDefault().getPreferenceStore().getBoolean(IDebugPreferenceConstants.PREF_DBGP_ENABLE_EXPERIMENTAL_MODELCHECKER))
 		{
 			final Bundle bundle = Platform.getBundle(VdmLaunchConfigurationDelegate.ORG_OVERTURE_IDE_PLUGINS_PROBRUNTIME);
 			if (bundle != null)
