@@ -55,18 +55,16 @@ public class ProblemDomainBuilder {
 		//generate Channel facts possibly depending on primitive wrappers to deal with infinite types
 		generateChannels(content, option);
 		
+		//generate lieIn Facts
+		generateLieInFacts(content, option);
+		
 		//generate conforms clause
 		generateConforms(content,option);
 		
 		return content.toString();
 	}
 	
-	private void generateAuxiliaryActions(StringBuilder content, String option){
-		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
-		for (MCAActionDefinition localAction : context.localActions) {
-			content.append(localAction.toFormula(option));
-		}
-	}
+	
 
 	private void generateProcessDefinitions(StringBuilder content, String option){
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
@@ -165,6 +163,19 @@ public class ProblemDomainBuilder {
 			content.append(chanDef.toFormula(option));
 			if(chanDef.isTyped()){
 				content.append("\n");
+			}
+		}
+	}
+	private void generateLieInFacts(StringBuilder content, String option){
+		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
+		for (MCLieInFact lieIn : context.lieIn) {
+			//content.append(lieIn.toFormula(option) + "\n");
+			lieIn.prepareLieInFact();
+		}
+		for (MCLieInFact lieIn :  context.realLieInFacts) {
+			String lieInFactStr = lieIn.toFormula(option);
+			if(content.indexOf(lieInFactStr) == -1){
+				content.append(lieIn.toFormula(option) + ".\n");
 			}
 		}
 	}

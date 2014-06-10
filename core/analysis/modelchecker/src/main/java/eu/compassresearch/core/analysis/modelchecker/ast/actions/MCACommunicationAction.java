@@ -318,7 +318,15 @@ public class MCACommunicationAction implements MCPAction {
 			}else if (values.size() > 1) {
 				TypeValue firstValue = values.removeFirst();
 				MCPCommunicationParameter firstParam = params.getFirst(); 
-				mapping.setVariableName(firstParam.toFormula(MCNode.DEFAULT));
+				if(!infinite){
+					try {
+						Integer.parseInt(((SingleTypeValue)firstValue).getValue());
+					} catch (NumberFormatException e) {
+						((SingleTypeValue)firstValue).setValue(firstParam.getExpression().toFormula(MCNode.DEFAULT));
+					}
+				}
+				mapping.setVariableName(firstParam.toString());
+				identifier = firstParam.toString();
 				mapping.setVariableValue(firstValue.toFormula(option));
 				context.localIndexedVariablesMapping.push(mapping);
 				result.append("eChoice(");

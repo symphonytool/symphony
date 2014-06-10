@@ -384,11 +384,14 @@ public class NewCMLModelcheckerContext {
 	
 	public static boolean hasInfiniteChannelInDependencies(LinkedList<ActionChannelDependency> dependencies){
 		boolean result = false;
+		
 		for (ActionChannelDependency actionChannelDependency : dependencies) {
 			if(actionChannelDependency.hasInfiniteTypedChannel()){
 				if(actionChannelDependency.usesNonConstantVariable()){
-					result = true;
-					break;
+					if(!actionChannelDependency.communicatesStateVariable()){
+						result = true;
+						break;
+					}
 				}
 			}
 		}

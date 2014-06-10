@@ -1,6 +1,6 @@
   types
     Device_Record = nat -- uniq device ID
-      inv i == i in set {1,...,3}
+      -- inv i == i in set {1,...,3}
     ServiceCallData = nat  -- abstation for the service call data structure being sent over the network
       inv i == i in set {1,...,3}
     DeviceEvent = (<INTERUPT>|<POWER_ON>|<POWER_OFF>) -- user device event
@@ -35,6 +35,7 @@
   --chansets --CHANSET DO NOT WORK
   -- DD_SR_chanset = {|IPMulticastChannel,SourceProductPowerChannel,TargetProductPowerChannel|}
    --SR_chanset = {|SourceProductEventChannel,TargetProductEventChannel,BrowsingInterfaceCallChannel,BrowsingInterfaceReplyChannel,IPTCPChannel |}
+
 
 -- CML process modelling the B&O DD protocol for the source product in the network
   process SourceProduct_DD_SD_InterfaceProtocolView =
@@ -91,7 +92,7 @@
   -- test process combining the test process and the SoS process
   process Test_1 = Test_TurnOnProduct [|{SourceProductPowerChannel,TargetProductPowerChannel}|]Beo_DD_SD_InterfaceProtocolViews
   
-  
+
   ----------------------------------------------------------------------------------------------------------------------------------------------------------
   -- section contain the processes for calling AV services over the network, they are currently not described in the case doc
   -- the local veriables cannot have common names. Their names were modified in the local actions of this process
