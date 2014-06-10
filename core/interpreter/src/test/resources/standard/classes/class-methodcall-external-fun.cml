@@ -26,5 +26,11 @@ functions
 		sub(a,b) == is not yet specified
 		pre true
 		
-	@ (dcl v : eu_compassresearch_core_interpreter_testing_classes_external_A, out : int @ v := new eu_compassresearch_core_interpreter_testing_classes_external_A(); out := v.getHello(); let t = sub(2,1)/*v.add(1,2)*/ in out := out+t;a.(out) -> Skip) 
+	operations
+		
+		public sub2: int * int ==> int
+		sub2(a,b) == is not yet specified
+		pre true
+		
+	@ (dcl v : eu_compassresearch_core_interpreter_testing_classes_external_A, out : int @ v := new eu_compassresearch_core_interpreter_testing_classes_external_A(); out := v.getHello(); let t = sub(2,1)+v.add(1,2) in out := sub2(out+t,3);a.(out) -> Skip) 
 end
