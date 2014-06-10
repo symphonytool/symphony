@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Random;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.analysis.intf.IQuestionAnswer;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.lex.LexNameToken;
@@ -51,10 +52,6 @@ public abstract class AbstractInspectionVisitor extends
 	 * Interface that gives access to methods that access protected parts of a CmlBehaviour
 	 */
 	private final VisitorAccess visitorAccess;
-	/**
-	 * Evaluator for definitions
-	 */
-	protected QuestionAnswerCMLAdaptor<Context, NameValuePairList> cmlDefEvaluator = new CmlDefinitionVisitor();
 	/**
 	 * Evaluator for expressions
 	 */

@@ -146,7 +146,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 						processInv = ((AClassInvariantDefinition) def).getExpression();
 					}
 
-					NameValuePairList nvps = def.apply(cmlDefEvaluator, tmpContext);
+					NameValuePairList nvps = def.apply(question.assistantFactory.getNamedValueLister(), tmpContext);
 					tmpContext.putList(nvps);
 
 					// set the correct module on the member names

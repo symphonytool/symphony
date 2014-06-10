@@ -397,7 +397,7 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 		// Convert all the single decls into a NameValuePairList
 		for (PSingleDeclaration singleDecl : replicationDeclaration)
 		{
-			for (NameValuePair nvp : singleDecl.apply(this.cmlDefEvaluator, question))
+			for (NameValuePair nvp : singleDecl.apply(question.assistantFactory.getNamedValueLister(), question))
 			{
 				// We do not allow unbounded replication
 				// FIXME this check is not sufficient, this needs to be more general

@@ -1,8 +1,10 @@
 package eu.compassresearch.core.interpreter;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.analysis.intf.IQuestionAnswer;
 import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
+import org.overture.interpreter.values.NameValuePairList;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
@@ -38,10 +40,6 @@ abstract class AbstractSetupVisitor extends
 	 * Evaluator for expressions
 	 */
 	protected final QuestionAnswerCMLAdaptor<Context, Value> cmlExpressionVisitor = new CmlExpressionVisitor();
-	/**
-	 * Evaluator for definitions
-	 */
-	protected final CmlDefinitionVisitor cmlDefEvaluator = new CmlDefinitionVisitor();
 
 	public AbstractSetupVisitor(CmlBehaviour owner,
 			VisitorAccess visitorAccess, CmlBehaviorFactory cmlBehaviorFactory)
@@ -111,7 +109,6 @@ abstract class AbstractSetupVisitor extends
 	public Pair<INode, Context> createNewReturnValue(INode node,
 			Context question)
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -119,7 +116,6 @@ abstract class AbstractSetupVisitor extends
 	public Pair<INode, Context> createNewReturnValue(Object node,
 			Context question)
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 }

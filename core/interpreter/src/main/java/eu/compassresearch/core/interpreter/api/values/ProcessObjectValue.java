@@ -75,7 +75,7 @@ public class ProcessObjectValue extends ObjectValue
 			AActionProcess actionProcess = (AActionProcess) processDefinition.getProcess();
 			def = actionProcess.getActionDefinition();
 			SClassDefinitionRuntime state = new ProcessDefinitionRuntime(af, def, name);
-			VdmRuntime.setNodeState(processDefinition, state);
+			VdmRuntime.setNodeState(def, state);
 		}
 
 	}
