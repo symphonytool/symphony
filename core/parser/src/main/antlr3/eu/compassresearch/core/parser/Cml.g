@@ -70,6 +70,8 @@ import java.util.Vector;
 import java.util.Locale;
 
 import static org.overture.ast.lex.Dialect.VDM_PP;
+import org.overture.ast.assistant.AstAssistantFactory;
+import org.overture.ast.assistant.IAstAssistantFactory;
 import org.overture.ast.assistant.definition.PDefinitionAssistant;
 import org.overture.ast.factory.AstFactory;
 import org.overture.ast.definitions.*;
@@ -139,6 +141,7 @@ public List<CmlParserError> getErrors() {
 
 @parser::members {
 
+public IAstAssistantFactory af = new AstAssistantFactory();
 private PAction stm2action(PStm stm)
 {
     return new AStmAction((stm!=null?stm.getLocation():null),stm);
@@ -178,7 +181,7 @@ private void configureClass(SClassDefinition c)
     }
 
     // Classes are all effectively public types
-    PDefinitionAssistant.setClassDefinition(c.getDefinitions(),c);
+	af.createPDefinitionAssistant().setClassDefinition(c.getDefinitions(),c);
 }
 
 private List<CmlParserError> errors = new java.util.LinkedList<CmlParserError>();
