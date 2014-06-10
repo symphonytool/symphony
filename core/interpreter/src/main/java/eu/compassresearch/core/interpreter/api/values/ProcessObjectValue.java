@@ -100,8 +100,8 @@ public class ProcessObjectValue extends ObjectValue
 		this.invariantExpression = invariantExpression;
 	}
 
-	//@Override
-	public boolean hasDelegate()
+	@Override
+	public boolean hasDelegate(Context ctxt)
 	{
 
 		IRuntimeState state = VdmRuntime.getNodeState(processDefinition);

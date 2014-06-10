@@ -1,0 +1,23 @@
+types
+  Meter :: device : Device
+  Box :: m : Meter
+
+class Device = begin
+operations
+  public op : () ==> ()
+  op() == Skip
+end
+
+process SmartGrid = begin
+state
+  meters : map nat to Meter := {|->}
+
+actions
+  OK_OBJ =
+    (dcl m : Meter @
+      m.device.op())
+
+ 
+
+@ Skip
+end
