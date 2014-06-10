@@ -71,6 +71,7 @@ import java.util.Locale;
 
 import static org.overture.ast.lex.Dialect.VDM_PP;
 import org.overture.ast.assistant.definition.PDefinitionAssistant;
+import org.overture.ast.assistant.definition.PAccessSpecifierAssistant;
 import org.overture.ast.factory.AstFactory;
 import org.overture.ast.definitions.*;
 import org.overture.ast.expressions.*;
@@ -573,6 +574,7 @@ processDefinition returns[AProcessDefinition def]
         {
             $def = new AProcessDefinition(); // FIXME
             $def.setProcess( $process.proc );
+			$def.setAccess(PAccessSpecifierAssistant.getPublic());
             ILexLocation identifierLocation = extractLexLocation($IDENTIFIER);
             CmlLexNameToken processName = new CmlLexNameToken("", new LexIdentifierToken($IDENTIFIER.getText(), false, identifierLocation));
             $def.setName(processName);
