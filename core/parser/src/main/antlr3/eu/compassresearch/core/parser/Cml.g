@@ -1042,7 +1042,7 @@ actionDef returns[AActionDefinition def]
                 adef.getName().setTypeQualifier(typeQualifiers);
             }
             adef.setAction($action.action);
-
+			adef.setAccess(PAccessSpecifierAssistant.getPublic());
             $def = adef;
         }
     ;
