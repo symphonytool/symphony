@@ -78,6 +78,7 @@ public class CmlCommunicationManager extends Thread
 	 * Sends a command to the running interpreter
 	 * 
 	 * @param cmd
+	 * @throws Exception 
 	 * @throws IOException
 	 * @throws JsonMappingException
 	 * @throws JsonGenerationException
