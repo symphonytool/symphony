@@ -39,8 +39,6 @@ import org.osgi.framework.Constants;
 import org.overture.ide.core.resources.IVdmProject;
 import org.overture.ide.core.resources.IVdmSourceUnit;
 import org.overture.ide.debug.core.IDebugConstants;
-import org.overture.ide.debug.core.IDebugPreferenceConstants;
-import org.overture.ide.debug.core.VdmDebugPlugin;
 import org.overture.ide.debug.core.dbgp.DbgpServer;
 import org.overture.ide.debug.core.launching.VdmLaunchConfigurationDelegate;
 import org.overture.ide.debug.utils.ClassPathCollector;
@@ -413,7 +411,7 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 				}
 			}
 
-			if (VdmDebugPlugin.getDefault().getPreferenceStore().getBoolean(IDebugPreferenceConstants.PREF_DBGP_ENABLE_EXPERIMENTAL_MODELCHECKER))
+//			if (VdmDebugPlugin.getDefault().getPreferenceStore().getBoolean(IDebugPreferenceConstants.PREF_DBGP_ENABLE_EXPERIMENTAL_MODELCHECKER))
 			{
 				bundleIds.add(VdmLaunchConfigurationDelegate.ORG_OVERTURE_IDE_PLUGINS_PROBRUNTIME);
 			}
