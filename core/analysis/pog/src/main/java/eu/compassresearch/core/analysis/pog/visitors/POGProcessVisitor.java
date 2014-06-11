@@ -38,8 +38,6 @@ public class POGProcessVisitor extends
 			IPOContextStack question) throws AnalysisException {
 		CmlProofObligationList pol = new CmlProofObligationList();
 
-		// FIXME check if process invariant handling considers variable instantiations correctly
-		
 		LinkedList<PDefinition> pdef = node.getActionDefinition()
 				.getDefinitions();
 
