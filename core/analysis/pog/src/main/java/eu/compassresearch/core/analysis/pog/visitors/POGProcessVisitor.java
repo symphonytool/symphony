@@ -6,10 +6,10 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AInstanceVariableDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.node.INode;
-import org.overture.pog.obligation.PONameContext;
+import org.overture.pog.contexts.AssignmentContext;
+import org.overture.pog.contexts.PONameContext;
 import org.overture.pog.pub.IPOContextStack;
 import org.overture.pog.utility.UniqueNameGenerator;
-import org.overture.pog.visitors.AssignmentContext;
 
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;

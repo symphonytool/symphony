@@ -11,7 +11,7 @@ import org.overture.pog.pub.IProofObligation
 import eu.compassresearch.core.analysis.theoremprover.visitors.TPVisitor
 import isabelle.eclipse.core.util.SessionEvents
 import isabelle.eclipse.core.util.LoggingActor
-import org.overture.pog.obligation.POStatus
+import org.overture.pog.pub.POStatus
 import org.eclipse.ui.texteditor.IDocumentProvider
 import org.eclipse.core.runtime.NullProgressMonitor
 import isabelle.Protocol

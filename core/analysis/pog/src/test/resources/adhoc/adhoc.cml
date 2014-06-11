@@ -2,28 +2,14 @@ process Alfalfa = begin
 
 
 state 
-y:int
-x : int
-z : real
+y:int :=10
+x : int :=1
+z : real :=3
 
-operations
-op1()
-pre true
-post x = 0
+inv x > z
 
-op2()
-pre true
-post x = 1
 
-op: () ==> ()
-op() ==
-(
-    op1();
-    op2();
-    z := y / x
-)
-pre x <> 0
-post z = y / x
+
 @Skip
 
 end

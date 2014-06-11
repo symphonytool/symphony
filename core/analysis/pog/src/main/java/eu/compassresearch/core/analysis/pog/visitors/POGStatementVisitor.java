@@ -6,7 +6,7 @@ import org.overture.ast.statements.AAssignmentStm;
 import org.overture.ast.statements.AAtomicStm;
 import org.overture.ast.statements.ABlockSimpleBlockStm;
 import org.overture.ast.statements.PStm;
-import org.overture.pog.obligation.POContextStack;
+import org.overture.pog.contexts.POContextStack;
 import org.overture.pog.pub.IPOContextStack;
 import org.overture.pog.visitors.PogParamStmVisitor;
 

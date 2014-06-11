@@ -36,7 +36,7 @@ import org.overture.ast.patterns.ATypeMultipleBind;
 import org.overture.ast.patterns.PMultipleBind;
 import org.overture.ast.patterns.PPattern;
 import org.overture.ast.types.AOperationType;
-import org.overture.pog.obligation.POOperationDefinitionContext;
+import org.overture.pog.contexts.POOperationDefinitionContext;
 
 
 

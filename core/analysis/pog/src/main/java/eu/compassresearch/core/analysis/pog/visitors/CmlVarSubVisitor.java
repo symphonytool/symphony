@@ -3,8 +3,8 @@ package eu.compassresearch.core.analysis.pog.visitors;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.node.INode;
+import org.overture.pog.utility.Substitution;
 import org.overture.pog.visitors.IVariableSubVisitor;
-import org.overture.pog.visitors.Substitution;
 import org.overture.pog.visitors.VariableSubVisitor;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
