@@ -6,14 +6,12 @@ import java.util.List;
 import java.util.Random;
 
 import org.overture.ast.analysis.AnalysisException;
-import org.overture.ast.analysis.intf.IQuestionAnswer;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ValueException;
-import org.overture.interpreter.values.NameValuePairList;
 import org.overture.interpreter.values.ObjectValue;
 import org.overture.interpreter.values.RecordValue;
 import org.overture.interpreter.values.Value;
@@ -67,6 +65,8 @@ public abstract class AbstractInspectionVisitor extends
 	 *            The behavior object that owns this visitor
 	 * @param visitorAccess
 	 *            Gives access to methods that access protected parts of a CmlBehaviour
+	 * @param cmlBehaviorFactory 
+	 * @param parentVisitor 
 	 */
 	public AbstractInspectionVisitor(CmlBehaviour ownerProcess,
 			VisitorAccess visitorAccess, CmlBehaviorFactory cmlBehaviorFactory,

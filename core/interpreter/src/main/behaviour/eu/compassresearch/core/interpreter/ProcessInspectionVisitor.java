@@ -488,6 +488,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 	/**
 	 * see {@link CommonInspectionVisitor#caseStartDeadline(INode, INode, PExp, Context) }
 	 */
+	@SuppressWarnings("javadoc")
 	@Override
 	public Inspection caseAStartDeadlineProcess(
 			final AStartDeadlineProcess node, final Context question)
