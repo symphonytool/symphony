@@ -299,7 +299,10 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 		if (!itQuantifiers.hasNext() && firstRun)
 		{
 			nextNode = factory.getReplicatedNode();
-			return new Pair<INode, Context>(nextNode, factory.createReplicationChildContext(nextValue, nextNode, question));
+			
+			final Context replicationChildContext = factory.createReplicationChildContext(nextValue, nextNode, question);
+			setLeftChild(nextNode, replicationChildContext);
+			return new Pair<INode, Context>(nextNode, replicationChildContext);
 		}
 		/*
 		 * if no more rep values exists and this is NOT the first run then we created the context for the left side

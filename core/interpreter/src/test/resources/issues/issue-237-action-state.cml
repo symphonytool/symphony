@@ -1,0 +1,36 @@
+/*channels
+	a:nat
+
+process Test =
+begin
+
+actions
+ 
+  sendNumber =  ([]i in set {1} @  a.1->Skip;sendNumber;sendNumber)
+  
+@ sendNumber 
+end*/
+
+
+
+
+channels
+a:nat
+
+process Test =
+begin
+
+state
+numbersToSend:set of nat := {1,2}
+
+operations
+
+op:nat ==>()
+op(i)== numbersToSend := numbersToSend\{i}
+
+actions
+ 
+  sendNumber =  ([]i in set numbersToSend @  a.i->(op(i));loop)
+   loop =  (sendNumber [] ([card numbersToSend =0]&Skip))  
+@ loop 
+end
