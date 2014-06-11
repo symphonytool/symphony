@@ -238,6 +238,8 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 			process = pb.start();
 		} else
 		{
+			System.out.println("Full Debugger Arguments:\n"
+					+ getArgumentString(commandArray));
 			System.out.println("Debugger Arguments:\n"
 					+ getArgumentString(commandArray.subList(4, commandArray.size())));
 			process = Runtime.getRuntime().exec("java -version");
@@ -335,7 +337,7 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 			final Bundle bundle = Platform.getBundle(VdmLaunchConfigurationDelegate.ORG_OVERTURE_IDE_PLUGINS_PROBRUNTIME);
 			if (bundle != null)
 			{
-				URL buildInfoUrl = FileLocator.find(bundle, new Path("build_info.txt"), null);
+				URL buildInfoUrl = FileLocator.find(bundle, new Path("prob/build_info.txt"), null);
 
 				try
 				{
