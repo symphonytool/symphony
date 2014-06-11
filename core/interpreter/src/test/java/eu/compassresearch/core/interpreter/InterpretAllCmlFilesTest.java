@@ -120,7 +120,7 @@ public class InterpretAllCmlFilesTest
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			PrintStream ps = new PrintStream(baos);
 			res.printErrors(ps);
-			Assume.assumeTrue("Parser errors", false);
+			Assume.assumeTrue("Parser Errors: \n\n" + baos, false);
 			assertTrue("Parser Errors: \n\n" + baos, res.errors.isEmpty());
 			return;
 		}
