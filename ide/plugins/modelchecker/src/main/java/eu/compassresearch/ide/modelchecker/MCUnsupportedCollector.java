@@ -525,7 +525,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseACardinalityUnaryExp(ACardinalityUnaryExp node)
 			throws AnalysisException {
-		unsupported = false;
+		// unsupported = false;
 		// Do not remove the super call below.
 		super.caseACardinalityUnaryExp(node);
 	}

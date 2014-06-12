@@ -18,14 +18,14 @@ import eu.compassresearch.core.analysis.modelchecker.api.FormulaIntegrationExcep
 import eu.compassresearch.core.analysis.modelchecker.api.FormulaIntegrator;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.util.ProcessController;
 
-public class Activator extends AbstractUIPlugin implements IStartup{
+public class CmlMCPlugin extends AbstractUIPlugin implements IStartup{
 	
 	public static final String PLUGIN_ID = "eu.compassresearch.ide.modelchecker";
 	public static final String SAT_IMG_ID = "sat.png";
 	public static final String UNSAT_IMG_ID = "unsat.png";
     
 	// The shared instance
-	private static Activator plugin;
+	private static CmlMCPlugin plugin;
 	public static boolean FORMULA_OK = true;
 	public static boolean DOT_OK = true;
 	public static final String formulaNotInstalledMsg = "Microsoft FORMULA could not be started.\n If you have installed FORMULA, include the $FORMULA_DIR\\Base System\\ folder  in your PATH environment variable. \n\n" + "The CML model checker depends on FORMULA to work.";
@@ -46,7 +46,7 @@ public class Activator extends AbstractUIPlugin implements IStartup{
 		
 	}
 
-	public Activator() {
+	public CmlMCPlugin() {
 		super();
 		this.plugin = this;
 	}
@@ -99,7 +99,7 @@ public class Activator extends AbstractUIPlugin implements IStartup{
         registry.put(UNSAT_IMG_ID, myImageUnsat);
     }
 	
-    public static Activator getDefault() {
+    public static CmlMCPlugin getDefault() {
 		return plugin;
 	}
     public static ImageDescriptor getImageDescriptor(String path) {
@@ -107,7 +107,7 @@ public class Activator extends AbstractUIPlugin implements IStartup{
     }
     
     public static void log(Exception exception){
-		getDefault().getLog().log(new Status(IStatus.ERROR, MCConstants.PLUGIN_ID, Activator.class.getSimpleName(), exception));
+		getDefault().getLog().log(new Status(IStatus.ERROR, MCConstants.PLUGIN_ID, CmlMCPlugin.class.getSimpleName(), exception));
 	}
 
 	public static void log(String message, Exception exception){

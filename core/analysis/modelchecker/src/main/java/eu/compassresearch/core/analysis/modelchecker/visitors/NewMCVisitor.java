@@ -275,26 +275,6 @@ public class NewMCVisitor extends
 		return codes;
 	}
 	
-	private  MCAProcessDefinition getMainProcess(){
-		MCAProcessDefinition result = null;
-		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
-		
-		String mainProcessName = "OneCard";
-
-		if(context.processDefinitions.size() > 1){
-			for (MCAProcessDefinition proc : context.processDefinitions) {
-				if(proc.getName().startsWith(mainProcessName)){
-					result = proc;
-				}
-			}
-		}else{
-			result = context.processDefinitions.get(0);
-		}
-		
-		
-		return result;
-	}
-	
 	public String generateFormulaScript(List<PDefinition> definitions, String propertyToCheck, String mainProcessName) throws IOException, AnalysisException{
 		
 		NewCMLModelcheckerContext.resetInstance();
@@ -354,13 +334,19 @@ public class NewMCVisitor extends
 		//String cml_file = "src/test/resources/set-manipulation.cml";
 		//String cml_file = "src/test/resources/action-prefix-stop.cml";
 		//String cml_file = "src/test/resources/action-vardecl.cml";
-		//String cml_file = "src/test/resources/simpler-register.cml";
+		String cml_file = "src/test/resources/simpler-register.cml";
 		//String cml_file = "src/test/resources/Dphils.cml";
 		//String cml_file = "src/test/resources/BeoAVDeviceDiscovery-final-version-model-checker.cml";
 		//String cml_file = "src/test/resources/beo-spec.cml";
 		//String cml_file = "src/test/resources/BEO_StreamingSoS_MC.cml";
+		//String cml_file = "src/test/resources/BeoAVDeviceDiscovery-subtletly.cml";
+		//String cml_file = "src/test/resources/action-inf-comm.cml";
+		
 		//String cml_file = "src/test/resources/MC_Tests_2.cml";
-		String cml_file = "src/test/resources/simpleStop.cml";
+		//String cml_file = "src/test/resources/simpleStop.cml";
+		//String cml_file = "src/test/resources/action-inf-comm.cml";
+		//String cml_file = "src/test/resources/BeoAVDeviceDiscovery-subtletly.cml";
+		
 		//String cml_file = "src/test/resources/cmlfile5.cml";
 		//String cml_file = "src/test/resources/simpler-insielImpl-final-modelchecker.cml";
 		//String cml_file = "src/test/resources/action-prefix-skip.cml";
@@ -376,25 +362,28 @@ public class NewMCVisitor extends
 			return;
 		}
 		*/
-		
+		NewCMLModelcheckerContext.getInstance().setNumberOfInstances(1);
 		NewMCVisitor visitor1 = new NewMCVisitor();
 		//String mainProcessName = "Test_TurnOnProduct";
-		//String mainProcessName = "RegisterProc";
+		String mainProcessName = "RegisterProc";
 		//String mainProcessName = "N_LAZY_Q";
 		//String mainProcessName = "StreamingPlayerCSProcess";
 		//String mainProcessName = "CoSimulationServer";
-		String mainProcessName = "Simple";
+		//String mainProcessName = "Simple";
+		//String mainProcessName = "SourceProduct_DD_SD_InterfaceProtocolView";
+		//String mainProcessName = "P2";
+		
+		//String mainProcessName = "TestTraces1";
 		
 		//String mainProcessName = "ad_Initiate_Rescue_Activation___Fault_1";
 		//String mainProcessName = "Test4";
 		//String mainProcessName = "ERUs";
 		
-		
 		String formulaCode = visitor1.generateFormulaScript(source1.getParagraphs(),Utilities.DEADLOCK_PROPERTY,mainProcessName);
 		//String[] codes1 = visitor1.generateFormulaCodeForAll(Utilities.DEADLOCK_PROPERTY);
 		//for (int j = 0; j < codes1.length; j++) {
 		//	System.out.println(codes1[j]);
-			
+		
 		//}
 		System.out.println(formulaCode);
 		

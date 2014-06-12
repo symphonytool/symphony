@@ -23,6 +23,16 @@ public class MCAQuoteType implements MCPCMLType {
 		return new MCAQuoteType(new String(this.getValue()));
 	}
 
+	@Override
+	public String getTypeAsName() {
+		return this.value;
+	}
+	
+	@Override
+	public String toString() {
+		return this.value;
+	}
+
 	public String getValue() {
 		return value;
 	}
@@ -30,6 +40,8 @@ public class MCAQuoteType implements MCPCMLType {
 	public void setValue(String value) {
 		this.value = value;
 	}
+
+	
 
 	
 }

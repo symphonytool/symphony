@@ -119,23 +119,7 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 		
 	}
 
-	/*
-	@Override
-	public MCNode caseAActionsDefinition(AActionsDefinition node,
-			NewCMLModelcheckerContext question) throws AnalysisException {
-		// it applies to each internal definition
-		LinkedList<AActionDefinition> actions = node.getActions();
-		LinkedList<MCAActionDefinition> mcActions = new LinkedList<MCAActionDefinition>();
-		for (AActionDefinition currentActionDefinition : actions) {
-			MCAActionDefinition mcActionDef = (MCAActionDefinition) currentActionDefinition.apply(this, question);
-			question.localActions.add(mcActionDef);
-			mcActions.add(mcActionDef);
-		}
-		
-		MCAActionsDefinition result = new MCAActionsDefinition(mcActions);
-		return result;
-	}
-	*/
+	
 	
 	@Override
 	public MCNode caseAActionDefinition(AActionDefinition node,

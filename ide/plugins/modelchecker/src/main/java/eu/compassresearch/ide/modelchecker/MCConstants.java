@@ -8,4 +8,5 @@ public abstract class MCConstants {
 	 public static final String DEADLOCK_PROPERTY = "Deadlock";
 	 public static final String LIVELOCK_PROPERTY = "Livelock";
 	 public static final String NONDETERMINISM_PROPERTY = "Nondeterminism";
+	 public static String INSTANCES_NUMBER = "eu.compassresearch.ide.modelchecker.INSTANCES_NUMBER";
 }

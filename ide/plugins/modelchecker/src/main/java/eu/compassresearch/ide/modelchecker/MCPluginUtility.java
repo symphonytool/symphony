@@ -14,33 +14,82 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchSite;
 import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.WorkbenchException;
 
+import eu.compassresearch.core.analysis.modelchecker.api.FormulaIntegrationException;
+import eu.compassresearch.ide.modelchecker.view.MCListView;
+import eu.compassresearch.ide.modelchecker.view.MCUIResult;
+
 public class MCPluginUtility {
-	
-	private IWorkbenchSite site;
-	
-	public MCPluginUtility(IWorkbenchSite s) {
-		this.site = s;
+		
+	public static boolean isWindowsPlatform() {
+		return System.getProperty("os.name").toLowerCase().contains("win");
 	}
 	
-	public void openMcviewPerspective()
-	{
-		try
-		{
-			PlatformUI.getWorkbench().showPerspective(MCConstants.MC_PERSPECTIVE_ID, site.getWorkbenchWindow());
-		} catch (WorkbenchException e)
-		{
-
+	public static void showModelcheckerPerspective(IWorkbenchWindow window){
+		try{
+			PlatformUI.getWorkbench().showPerspective(MCConstants.MC_PERSPECTIVE_ID, window);
+		} catch (WorkbenchException e){
 			e.printStackTrace();
 		}
 	}
 
+	public static void refreshMCListView(FormulaResultWrapper frw, IResource file, IWorkbenchWindow window){
+		final IWorkbenchSite site = window.getActivePage().getActivePart().getSite();
+		final MCUIResult data = new MCUIResult(file, frw);
+		window.getShell().getDisplay().asyncExec(new Runnable(){
+			public void run(){
+				IViewPart v;
+				try{
+					v = site.getPage().showView(MCConstants.MC_OVERVIEW_TABLE);
+					if(v instanceof MCListView){
+						((MCListView) v).setData(data);
+					}
+				} catch (PartInitException e){
+					e.printStackTrace();
+				}
+			}
+		});
+	} 
+	
+	public static void popErrorMessage(final Throwable e) {
+		Display.getDefault().asyncExec(new Runnable() {
+		    @Override
+		    public void run() {
+		    	popErrorMessage(e,"Symphony");
+		    }
+		  });
+		
+	}
+	public static void popErrorMessage(String message) {
+		MessageDialog.openInformation(null, "Symphony",message);
+	}
+	
+	private static void popErrorMessage(final Throwable e, String tittle) {
+		if(e instanceof FormulaIntegrationException){
+			MessageDialog.openInformation(null, tittle,"Could not analyse the specification.\n\n Internal error in FORMULA.");
+			CmlMCPlugin.logErrorMessage(e.getMessage());
+		}else{
+			MessageDialog.openInformation(null, tittle,"Could not analyse the specification.\n\n" + e.getMessage());
+			CmlMCPlugin.logErrorMessage(e.getCause().getMessage());
+		}
+	}
+	
+	public static void logStackTrace(Exception e) {
+		StackTraceElement[] trace = e.getStackTrace();
+		for (int i = 0; i < trace.length; i++) {
+			CmlMCPlugin.logErrorMessage(trace[i].toString());
+		}
+	}
 	public static ArrayList<IResource> getAllCFilesInProject(IProject project) {
 		ArrayList<IResource> allCFiles = new ArrayList<IResource>();
 		IWorkspaceRoot myWorkspaceRoot = ResourcesPlugin.getWorkspace()

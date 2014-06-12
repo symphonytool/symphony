@@ -7,7 +7,6 @@ public class MCANatNumericBasicType extends MCPCMLNumericType {
 	
 	public MCANatNumericBasicType(String value) {
 		super(value);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
@@ -15,11 +14,15 @@ public class MCANatNumericBasicType extends MCPCMLNumericType {
 		StringBuilder result = new StringBuilder();
 		switch (option) {
 		case MCNode.DEFAULT:
-			result.append("Natural");
+			result.append(this.getValue());
 			break;
 		
 		case MCNode.NAMED:
 			result.append(this.getValue());
+			break;
+		
+		case MCNode.SEMANTIC_NAMED:
+			result.append("Natural");
 			break;
 			
 		default:
@@ -31,6 +34,11 @@ public class MCANatNumericBasicType extends MCPCMLNumericType {
 	@Override
 	public MCPCMLType copy() {
 		return new MCANatNumericBasicType(new String(this.getValue()));
+	}
+
+	@Override
+	public String getTypeAsName() {
+		return MCTypeWrapper.getTypeWrapperString(this.getClass());
 	}
 
 }

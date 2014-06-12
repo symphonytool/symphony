@@ -44,7 +44,7 @@ public class Activator extends AbstractUIPlugin implements IStartup {
 	}
 
 	public boolean isModelCheckerOk() {
-		return eu.compassresearch.ide.modelchecker.Activator.FORMULA_OK;
+		return eu.compassresearch.ide.modelchecker.CmlMCPlugin.FORMULA_OK;
 	}
 
 	@Override

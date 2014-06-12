@@ -52,6 +52,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAInterleaving
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAInternalChoiceAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAInternalChoiceReplicatedAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAInterruptAction;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAReadCommunicationParameter;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAReferenceAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCASequentialCompositionAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCASequentialCompositionReplicatedAction;
@@ -196,22 +197,6 @@ public class NewMCActionVisitor extends
 		return result;
 	}
 
-	/*
-	@Override
-	public MCNode caseABlockStatementAction(ABlockStatementAction node,
-			NewCMLModelcheckerContext question) throws AnalysisException {
-		
-		MCPAction action = (MCPAction) node.getAction().apply(this, question);
-		MCADeclareStatementAction declareStatement = null;
-		if(node.getDeclareStatement() != null) {
-			declareStatement = (MCADeclareStatementAction) node.getDeclareStatement().apply(rootVisitor, question);
-		}
-		MCABlockStatementAction result  = new MCABlockStatementAction(declareStatement, action);
-		
-		return result;
-	}
-	
-	*/
 	@Override
 	public MCNode caseASequentialCompositionAction(
 			ASequentialCompositionAction node, NewCMLModelcheckerContext question)
@@ -224,24 +209,6 @@ public class NewMCActionVisitor extends
 		return result;
 	}
 	
-	/*
-	@Override
-	public MCNode caseADeclareStatementAction(
-			ADeclareStatementAction node, NewCMLModelcheckerContext question)
-			throws AnalysisException {
-		
-		LinkedList<MCPCMLDefinition>  mcAssignDefs = new LinkedList<MCPCMLDefinition>();
-		
-		LinkedList<PDefinition>  assignDefs = node.getAssignmentDefs();
-		for (PDefinition pDefinition : assignDefs) {
-			MCPCMLDefinition mcPDef =  (MCPCMLDefinition) pDefinition.apply(rootVisitor, question);
-			mcAssignDefs.add(mcPDef);
-		}
-
-		MCADeclareStatementAction result = new MCADeclareStatementAction(mcAssignDefs);
-		return result;
-	}
-	*/
 	@Override
 	public MCNode caseAInterleavingParallelAction(
 			AInterleavingParallelAction node, NewCMLModelcheckerContext question)
@@ -370,7 +337,7 @@ public class NewMCActionVisitor extends
 			NewCMLModelcheckerContext question) throws AnalysisException {
 		
 		LinkedList<PCommunicationParameter> parameters = node.getCommunicationParameters();
-				LinkedList<MCPCommunicationParameter> mcParameters = new LinkedList<MCPCommunicationParameter>();
+		LinkedList<MCPCommunicationParameter> mcParameters = new LinkedList<MCPCommunicationParameter>();
 		for (PCommunicationParameter pCommunicationParameter : parameters) {
 			mcParameters.add((MCPCommunicationParameter) pCommunicationParameter.apply(rootVisitor, question));
 		}
@@ -393,6 +360,12 @@ public class NewMCActionVisitor extends
 
 		MCPAction action = (MCPAction) node.getAction().apply(rootVisitor, question);
 		MCACommunicationAction result = new MCACommunicationAction(identifier, mcParameters, action);
+		
+		for (MCPCommunicationParameter mcpCommunicationParameter : mcParameters) {
+			if(mcpCommunicationParameter instanceof MCAReadCommunicationParameter){
+				((MCAReadCommunicationParameter) mcpCommunicationParameter).setParentAction(result);
+			}
+		}
 		
 		//fr the moment iocomm do not depend on channel. This means that formula wont instantiate communicated values
 		MCIOCommDef ioCommDef = new MCIOCommDef(result.getCounterId(), result);

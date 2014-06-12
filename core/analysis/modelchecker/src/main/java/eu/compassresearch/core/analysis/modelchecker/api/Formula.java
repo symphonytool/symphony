@@ -17,15 +17,13 @@ import java.util.StringTokenizer;
 
 import javax.swing.filechooser.FileSystemView;
 
+import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
 import eu.compassresearch.core.analysis.modelchecker.visitors.Utilities;
-
-
-
-
 
 public class Formula implements IFORMULAInvoker {
 
 	public static final String DEFAULT_MODEL_NAME = "StartProcModel";
+	public static final String SPECIFIC_MODEL_NAME = "StartProcModel#1";
 	public static final String MAIN_QUERY_CLAUSE = "conforms";
 	public static final String FORMULA_CMD = "formula";
 	public static final String FORMULA_LOAD_CMD = "load";
@@ -45,6 +43,8 @@ public class Formula implements IFORMULAInvoker {
 
     public synchronized static Formula getInstance() throws IOException, FormulaIntegrationException{
     	if (instance == null){
+    		instance = new Formula();
+    	} else if (instance.processStatus == ProcessStatus.TERMINATED){
     		instance = new Formula();
     	}
     	return instance;
@@ -131,22 +131,16 @@ public class Formula implements IFORMULAInvoker {
 		result.setSolveCmdMessage(msg.toString());
 	}
 
-	/*
-	private void save(String content, String filePath) throws IOException, FormulaIntegrationException {
-		//String outputFile = generateFactsFileName(filePath);
-		String outputFile = filePath;
-		FileWriter fr = new FileWriter(outputFile);
-		BufferedWriter br = new BufferedWriter(fr);
-		br.write(content);
-		br.close();
-		fr.close();
-	}
-	*/
-	
 	private void knows(FormulaResult result) throws IOException, FormulaIntegrationException {
 		String knowsCommand = 	FORMULA_KNOWS_CMD + " " +
 				DEFAULT_MODEL_NAME + "\n";
-
+		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
+		
+		if(context.instantiatesFromInfiniteDomain()){
+			knowsCommand = 	FORMULA_KNOWS_CMD + " " +
+					SPECIFIC_MODEL_NAME + "\n";
+		}
+			
 		OutputStream stdin = process.getOutputStream();
 	    InputStream stdout = process.getInputStream();
 	    BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(stdin));
@@ -254,6 +248,7 @@ public class Formula implements IFORMULAInvoker {
 	}
 	private FormulaResult launchFormula() throws IOException{
 		FormulaResult result = new FormulaResult();
+		
 		if(this.processStatus != ProcessStatus.STARTED){
 			process = Runtime.getRuntime().exec(FORMULA_CMD);
 			
@@ -303,14 +298,21 @@ public class Formula implements IFORMULAInvoker {
 
     public void finalizeProcess() throws IOException{
         if (process != null) {
-        	this.exit();
-            process.destroy();
-            this.processStatus = ProcessStatus.TERMINATED;
-            this.formulaStatus= FormulaStatus.NOT_INSTALLED;
-            //JavaFormulaLogger.obterInstancia().log("Analysis of " + analysedFile + " finalized.");
+        	try {
+				this.exit();
+			} catch (IOException e) {
+				defaultLogger.log(e.getMessage());
+			}finally{
+				process.destroy();
+				this.processStatus = ProcessStatus.TERMINATED;
+			}
         }
     }
     
+    @Override
+	public void resetInstance() throws IOException{
+		finalizeProcess();
+	}
 	 public static String generateFactsFileName(String formulaFileName){
 		 String result = new String(formulaFileName);
 		 int indexOfDot = result.lastIndexOf('.');
