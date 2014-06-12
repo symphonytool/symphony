@@ -145,6 +145,7 @@ public class CmlCoSimMainLaunchConfigurationTab extends
 		gd.horizontalSpan = 2;
 		gd.horizontalAlignment = SWT.FILL;
 		hostText.setLayoutData(gd);
+		hostText.addModifyListener(fListener);
 
 		label = new Label(group, SWT.MIN);
 		label.setText("External Processes:");

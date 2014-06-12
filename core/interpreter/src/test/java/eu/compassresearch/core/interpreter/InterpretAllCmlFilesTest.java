@@ -120,7 +120,7 @@ public class InterpretAllCmlFilesTest
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			PrintStream ps = new PrintStream(baos);
 			res.printErrors(ps);
-			Assume.assumeTrue("Parser errors", false);
+			Assume.assumeTrue("Parser Errors: \n\n" + baos, false);
 			assertTrue("Parser Errors: \n\n" + baos, res.errors.isEmpty());
 			return;
 		}
@@ -216,8 +216,13 @@ public class InterpretAllCmlFilesTest
 	@Parameters(name = "{index} : {1}")
 	public static Collection<Object[]> getCmlfilePaths()
 	{
-
 		final String initialPath = "src/test/resources/standard";
+		return collectTests(initialPath);
+	}
+
+	protected static Collection<Object[]> collectTests(String initialPath)
+	{
+		
 		List<Object[]> paths = findAllCmlFiles(initialPath);
 
 		// List<Object[]> paths = findAllCmlFiles("src/test/resources/action/parallel-composition");

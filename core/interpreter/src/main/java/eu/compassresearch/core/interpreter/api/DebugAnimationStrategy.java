@@ -29,13 +29,6 @@ public class DebugAnimationStrategy implements SelectionStrategy
 	 */
 	private SynchronousQueue<TransitionDTO> choiceQueue;
 
-	// public AnnimationStrategy(List<TransitionDTO> waitingChoices,
-	// SynchronousQueue<TransitionDTO> choiceQueue)
-	// {
-	// this.waitingChoices = waitingChoices;
-	// this.choiceQueue = choiceQueue;
-	// }
-
 	private boolean isSystemSelect(CmlTransitionSet availableChannelEvents)
 	{
 		return availableChannelEvents.hasType(TauTransition.class);
@@ -136,6 +129,8 @@ public class DebugAnimationStrategy implements SelectionStrategy
 
 	/**
 	 * Initializes the strategy
+	 * @param interpreter 
+	 * @param debugger 
 	 */
 	public void initialize(CmlInterpreter interpreter, CmlDebugger debugger)
 	{

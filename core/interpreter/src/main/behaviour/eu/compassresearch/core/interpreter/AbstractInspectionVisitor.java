@@ -12,7 +12,6 @@ import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ValueException;
-import org.overture.interpreter.values.NameValuePairList;
 import org.overture.interpreter.values.ObjectValue;
 import org.overture.interpreter.values.RecordValue;
 import org.overture.interpreter.values.Value;
@@ -52,10 +51,6 @@ public abstract class AbstractInspectionVisitor extends
 	 */
 	private final VisitorAccess visitorAccess;
 	/**
-	 * Evaluator for definitions
-	 */
-	protected QuestionAnswerCMLAdaptor<Context, NameValuePairList> cmlDefEvaluator = new CmlDefinitionVisitor();
-	/**
 	 * Evaluator for expressions
 	 */
 	protected final QuestionAnswerCMLAdaptor<Context, Value> cmlExpressionVisitor = new CmlExpressionVisitor();
@@ -70,6 +65,8 @@ public abstract class AbstractInspectionVisitor extends
 	 *            The behavior object that owns this visitor
 	 * @param visitorAccess
 	 *            Gives access to methods that access protected parts of a CmlBehaviour
+	 * @param cmlBehaviorFactory 
+	 * @param parentVisitor 
 	 */
 	public AbstractInspectionVisitor(CmlBehaviour ownerProcess,
 			VisitorAccess visitorAccess, CmlBehaviorFactory cmlBehaviorFactory,
