@@ -299,7 +299,10 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 		if (!itQuantifiers.hasNext() && firstRun)
 		{
 			nextNode = factory.getReplicatedNode();
-			return new Pair<INode, Context>(nextNode, factory.createReplicationChildContext(nextValue, nextNode, question));
+			
+			final Context replicationChildContext = factory.createReplicationChildContext(nextValue, nextNode, question);
+			setLeftChild(nextNode, replicationChildContext);
+			return new Pair<INode, Context>(nextNode, replicationChildContext);
 		}
 		/*
 		 * if no more rep values exists and this is NOT the first run then we created the context for the left side
@@ -397,7 +400,7 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 		// Convert all the single decls into a NameValuePairList
 		for (PSingleDeclaration singleDecl : replicationDeclaration)
 		{
-			for (NameValuePair nvp : singleDecl.apply(this.cmlDefEvaluator, question))
+			for (NameValuePair nvp : singleDecl.apply(question.assistantFactory.getNamedValueLister(), question))
 			{
 				// We do not allow unbounded replication
 				// FIXME this check is not sufficient, this needs to be more general
@@ -449,7 +452,7 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 	private Iterable<Value> getIterator(Value val, Context question)
 			throws ValueException
 	{
-		if (val instanceof SetValue)
+		if (val.deref() instanceof SetValue)
 		{
 			return val.setValue(question);
 		} else

@@ -19,6 +19,7 @@ public interface InterpreterFactory
 	 * 
 	 * @param definitions
 	 *            - List of parsed and type-checked CML source to interpret
+	 * @return 
 	 * @throws CmlInterpreterException
 	 */
 	public abstract CmlInterpreter newInterpreter(List<PDefinition> definitions)
@@ -31,6 +32,7 @@ public interface InterpreterFactory
 	 *            - List of parsed and type-checked CML source to interpret
 	 * @param config
 	 *            the configuration that the interpreter should use
+	 * @return 
 	 * @throws CmlInterpreterException
 	 */
 	public abstract CmlInterpreter newInterpreter(

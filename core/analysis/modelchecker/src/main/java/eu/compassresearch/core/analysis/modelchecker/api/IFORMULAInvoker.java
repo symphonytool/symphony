@@ -11,4 +11,5 @@ public interface IFORMULAInvoker {
 	
 	public void finalizeProcess() throws IOException;
 	
+	public void resetInstance() throws IOException;
 }

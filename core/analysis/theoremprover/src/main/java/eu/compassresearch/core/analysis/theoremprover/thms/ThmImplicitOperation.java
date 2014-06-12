@@ -48,7 +48,7 @@ public class ThmImplicitOperation extends ThmDecl{
 		{
 			for(String p: paramT)		
 			{
-				sb.append("(" + p + ")*");
+				sb.append("(" + p + ")**");
 			}
 			sb.append("()");
 		}

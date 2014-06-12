@@ -167,11 +167,6 @@
             name="RTT-MBT">
       </category>
       <command
-            defaultHandler="eu.compassresearch.ide.rttmbt.RttMbtNewProject"
-            id="eu.compassresearch.ide.rttmbt.RttMbtNewProject"
-            name="New Project">
-      </command>
-      <command
             defaultHandler="eu.compassresearch.ide.rttmbt.RttMbtAbort"
             id="eu.compassresearch.ide.rttmbt.RttMbtAbort"
             name="Abort Current Task">

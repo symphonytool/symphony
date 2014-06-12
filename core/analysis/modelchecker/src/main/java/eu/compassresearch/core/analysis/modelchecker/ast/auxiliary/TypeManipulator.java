@@ -10,6 +10,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCATypeDefi
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANameChannelExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPVarsetExpression;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCABooleanBasicType;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCABracketType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAIntNumericBasicType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANamedInvariantType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANatNumericBasicType;
@@ -23,6 +24,7 @@ import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelchecker
 public class TypeManipulator {
 	
 	private static TypeManipulator instance;
+	private static int VARIABLE_NUMBER=1; 
 	
 	private TypeManipulator(){
 		
@@ -54,11 +56,16 @@ public class TypeManipulator {
 			result = this.getValues((MCASetType)type);
 		} else if(type instanceof MCABooleanBasicType){
 			result = this.getValues((MCABooleanBasicType)type);
+		}else if(type instanceof MCABracketType){
+			result = this.getValues((MCABracketType)type);
+		}else if(type instanceof MCAQuoteType){
+			result = this.getValues((MCAQuoteType)type);
 		}
 		return result;
 	}
 	
 	public LinkedList<TypeValue> getValues(MCANamedInvariantType type){
+
 		ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
 		LinkedList<TypeValue> result = new LinkedList<TypeValue>();
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
@@ -84,24 +91,67 @@ public class TypeManipulator {
 				for (MCANameChannelExp mcaNameChannelExp : chansetValues) {
 					result.add(new SingleTypeValue(mcaNameChannelExp.getIdentifier()));
 				}
+			} else{ //name invariant has the same type as the original type
+				typeDef = context.getTypeDefinition(type.getOriginalTypeName());
+				if(typeDef != null){
+					if(typeDef.hasValues()){
+						result = getValues(new MCANamedInvariantType(type.getOriginalTypeName(), type.getOriginalTypeName()));
+					}else{
+						MCPCMLType originalType = context.getFinalType(type.getOriginalTypeName());
+						//originalType = getTypeForStringNameType(type.getOriginalTypeName());
+						originalType = getTypeForStringNameType(originalType.toFormula(MCNode.DEFAULT));
+						//if(getTypeForStringNameType(type.getOriginalTypeName()) != null){
+							result = getValues(originalType);
+						//}
+					}
+				} else {
+					MCPCMLType originalType = getTypeForStringNameType(type.getOriginalTypeName());
+					//if(getTypeForStringNameType(type.getOriginalTypeName()) != null){
+					result = getValues(originalType);
+					//}
+					if (result.size() == 0){
+						TypeValue typeValue = new SingleTypeValue(type.getName());
+						result.add(typeValue);
+					}
+				}
 			}
 			
 		}
 		return result;
 	}
 	
+	private MCPCMLType getTypeForStringNameType(String nameType){
+		MCPCMLType result = null;
+		if(nameType.equals("nat")){
+			result = new MCANatNumericBasicType("0");
+		} else if (nameType.equals("int")){
+			result = new MCAIntNumericBasicType("0");
+		}
+		return result;
+	} 
+	
 	public LinkedList<TypeValue> getValues(MCANatNumericBasicType type){
 		LinkedList<TypeValue> result = new LinkedList<TypeValue>();
 
-		result.add(new SingleTypeValue("0"));
-
+		//lets put as many variable values in the result as are the number of instances
+		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
+		for (int i = 0; i < context.getNumberOfInstances(); i++) {
+			//we need to use a new variable generator
+			result.add(new SingleTypeValue("x"+i));
+			//result.add(new SingleTypeValue("x"+VARIABLE_NUMBER++));
+		}
+		
 		return result;
 	}
 	
 	public LinkedList<TypeValue> getValues(MCAIntNumericBasicType type){
 		LinkedList<TypeValue> result = new LinkedList<TypeValue>();
 
-		result.add(new SingleTypeValue("0"));
+		//result.add(new SingleTypeValue("0"));
+		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
+		for (int i = 0; i < context.getNumberOfInstances(); i++) {
+			result.add(new SingleTypeValue("x"+i));
+		}
 
 		return result;
 	}
@@ -111,10 +161,37 @@ public class TypeManipulator {
 		for (MCPCMLType currType : type.getTypes()) {
 			if(currType instanceof MCAQuoteType){
 				result.add(new SingleTypeValue(((MCAQuoteType) currType).getValue()));
-			} 
+			} else if (currType instanceof MCANamedInvariantType){
+				LinkedList<TypeValue> values = this.getValues(currType);
+				result.addAll(values);
+			}
 		}
 		
 
+		return result;
+	}
+	public LinkedList<TypeValue> getValues(MCABracketType type){
+		LinkedList<TypeValue> result = new LinkedList<TypeValue>();
+		result = getValues(type.getType());
+		/*
+		for (MCPCMLType currType : type.getTypes()) {
+			if(currType instanceof MCAQuoteType){
+				result.add(new SingleTypeValue(((MCAQuoteType) currType).getValue()));
+			} else if (currType instanceof MCANamedInvariantType){
+				LinkedList<TypeValue> values = this.getValues(currType);
+				result.addAll(values);
+			}
+		}
+		*/
+
+		return result;
+	}
+
+	public LinkedList<TypeValue> getValues(MCAQuoteType type){
+		LinkedList<TypeValue> result = new LinkedList<TypeValue>();
+		TypeValue typeValue = new SingleTypeValue(type.getValue());
+		result.add(typeValue);
+		
 		return result;
 	}
 	public LinkedList<TypeValue> getValues(MCABooleanBasicType type){
@@ -129,14 +206,14 @@ public class TypeManipulator {
 		//if(type.getTypes().size() > 0){
 			LinkedList<MCPCMLType> typesCopy = new LinkedList<MCPCMLType>();
 			typesCopy.addAll(type.getTypes());
-					
+			
 			LinkedList<TypeValue> firstValues = this.getValues(typesCopy.getFirst());
 			typesCopy.removeFirst();
 			
 			if(typesCopy.size() > 0){
 				MCAProductType remainingTypes = new MCAProductType(typesCopy);
 				LinkedList<TypeValue> remainingValues = this.getValues(remainingTypes);
-				//int k = 0;
+				
 				
 				for (TypeValue fstTypeValue : firstValues) {
 					for (TypeValue sndTypeValue : remainingValues) {

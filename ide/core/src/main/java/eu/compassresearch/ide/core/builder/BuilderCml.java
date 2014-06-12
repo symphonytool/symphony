@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.overture.ast.intf.lex.ILexLocation;
@@ -23,6 +25,7 @@ import eu.compassresearch.core.typechecker.api.ICmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 import eu.compassresearch.core.typechecker.api.ITypeIssueHandler.CMLTypeError;
 import eu.compassresearch.core.typechecker.api.ITypeIssueHandler.CMLTypeWarning;
+import eu.compassresearch.ide.core.CmlCorePlugin;
 import eu.compassresearch.ide.core.resources.ICmlModel;
 
 public class BuilderCml extends AbstractVdmBuilder
@@ -52,6 +55,13 @@ public class BuilderCml extends AbstractVdmBuilder
 		{
 			// it is the type checkers responsibility to report all errors, this is just to indicate that it stopped
 			// without completion
+		} catch (org.overture.ast.messages.InternalException e)
+		{
+			setProjectError(e.getMessage());
+
+		} catch (eu.compassresearch.ast.messages.InternalException e)
+		{
+			setProjectError(e.getMessage());
 		} catch (Exception e)
 		{
 			e.printStackTrace();
@@ -67,6 +77,21 @@ public class BuilderCml extends AbstractVdmBuilder
 		}
 
 		return setMarkers(errorsThatMatter, warnings);
+	}
+
+	private void setProjectError(String message)
+	{
+		IProject proj = (IProject) getProject().getAdapter(IProject.class);
+		try
+		{
+			IMarker marker = proj.createMarker(IMarker.PROBLEM);
+			marker.setAttribute(IMarker.MESSAGE, message);
+			marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
+			marker.setAttribute(IMarker.SOURCE_ID, IBuilderVdmjConstants.PLUGIN_ID);
+		} catch (CoreException e1)
+		{
+			CmlCorePlugin.log(e1);
+		}
 	}
 
 	private IStatus setMarkers(List<CMLTypeError> errors,

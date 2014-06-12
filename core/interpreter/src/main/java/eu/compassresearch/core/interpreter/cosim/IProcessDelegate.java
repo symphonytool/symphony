@@ -20,8 +20,8 @@ public interface IProcessDelegate
 
 	/**
 	 * Executes the behavior of this process
+	 * @param transition 
 	 * 
-	 * @return
 	 * @throws Exception
 	 */
 	public void execute(CmlTransition transition) throws Exception;

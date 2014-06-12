@@ -37,5 +37,12 @@ public class MCStringType implements MCPCMLType {
 		return null;
 	}
 
+
+	@Override
+	public String getTypeAsName() {
+		// TODO Auto-generated method stub
+		return "String";
+	}
+
 	
 }

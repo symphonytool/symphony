@@ -1,0 +1,10 @@
+channels
+    c: nat*nat
+    
+chansets
+    aux = {|c.x | x: nat @ x = 3|}
+    aux2 = {c.x.x | x: nat @ x = 3} 
+    
+process P = begin
+    @ c?x?y -> Skip
+end

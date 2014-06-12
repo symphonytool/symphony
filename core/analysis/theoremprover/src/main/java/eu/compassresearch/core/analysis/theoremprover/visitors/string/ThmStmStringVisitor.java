@@ -2,22 +2,29 @@ package eu.compassresearch.core.analysis.theoremprover.visitors.string;
 
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AAssignmentDefinition;
+import org.overture.ast.definitions.AClassInvariantDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.statements.AAssignmentStm;
+import org.overture.ast.statements.AAtomicStm;
 import org.overture.ast.statements.ABlockSimpleBlockStm;
 import org.overture.ast.statements.ACallObjectStm;
 import org.overture.ast.statements.ACallStm;
+import org.overture.ast.statements.AClassInvariantStm;
 import org.overture.ast.statements.AElseIfStm;
+import org.overture.ast.statements.AExternalClause;
 import org.overture.ast.statements.AIfStm;
 import org.overture.ast.statements.ALetStm;
+import org.overture.ast.statements.ANotYetSpecifiedStm;
 import org.overture.ast.statements.AReturnStm;
 import org.overture.ast.statements.ASkipStm;
+import org.overture.ast.statements.ASpecificationStm;
 import org.overture.ast.statements.AWhileStm;
 import org.overture.ast.statements.PStateDesignator;
 import org.overture.ast.statements.PStm;
@@ -25,6 +32,7 @@ import org.overture.ast.statements.PStm;
 import eu.compassresearch.ast.statements.AActionStm;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.core.analysis.theoremprover.utils.ThmProcessUtil;
+import eu.compassresearch.core.analysis.theoremprover.utils.ThmStateUtil;
 
 @SuppressWarnings("serial")
 public class ThmStmStringVisitor extends
@@ -73,7 +81,8 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		for(Iterator<AAssignmentDefinition> itr = a.getAssignmentDefs().listIterator(); itr.hasNext();) {
 			AAssignmentDefinition aDef = itr.next();
 
-			varsStr.add(aDef.getName().getName().toString());
+			varsStr.add(aDef.getName().getName().toString() + " : " + aDef.getType().apply(thmStringVisitor, vars));
+			vars.addSVar(aDef.getName());
 			if(aDef.getExpression() != null)
 			{
 				assignStr.append(aDef.getName().getName().toString() + ":=" + aDef.getExpression().apply(thmStringVisitor, vars));
@@ -103,7 +112,7 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		blockStr = assignStr.toString() + blockStr;
 		for(String as : varsStr)
 		{
-			blockStr = "var " + as + "; " + blockStr + "; end " + as; 
+			blockStr = "dcl " + as + " @ (" + blockStr + ")"; 
 		}
 		
 		return "(" + blockStr + ")"; 
@@ -185,6 +194,7 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 	}
 	
 	
+	
 //	//DON'T THINK IS HANDLED IN ISABELLE YET
 //	public String caseACallObjectStm(ACallObjectStm a, ThmVarsContext vars) throws AnalysisException{
 //		
@@ -223,6 +233,87 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public String caseASpecificationStm(ASpecificationStm a,
+			ThmVarsContext vars) throws AnalysisException {
+		List<String> varList = new LinkedList<String>();
+		
+		for (AExternalClause e : a.getExternals()) {
+			if (e.getMode().toString().equals("rw")) {
+				for (ILexNameToken i : e.getIdentifiers()) {
+					varList.add(i.toString());
+				}
+			}
+		}
+		
+		Iterator<String> it = varList.iterator();
+		StringBuffer sb = new StringBuffer();
+		
+		while (it.hasNext()) {
+			sb.append(it.next());
+			if (it.hasNext()) { 
+				sb.append(",");
+			}
+		}
+		
+		if (!varList.isEmpty()) {
+			sb.append(":");
+		}
+		
+		sb.append("[");
+		
+		sb.append(a.getPrecondition().apply(thmStringVisitor, vars));
+		
+		if (a.getPostcondition() != null) {
+			sb.append(", ");
+			sb.append(a.getPostcondition().apply(thmStringVisitor, vars));
+		}
+		
+		sb.append("]");
+		
+		return sb.toString();
+	}
+
+	@Override
+	public String caseANotYetSpecifiedStm(ANotYetSpecifiedStm node,
+			ThmVarsContext question) throws AnalysisException {
+		return ThmStateUtil.notYetSpecStmt;
+	}
+
+	@Override
+	public String caseAAtomicStm(AAtomicStm node, ThmVarsContext vars)
+			throws AnalysisException {
+		// FIXME: Warning atomic statements are semantically no different to a sequence of assignments!
+		StringBuffer sb = new StringBuffer();
+		
+		Iterator<AAssignmentStm> i = node.getAssignments().iterator();
+		
+		while (i.hasNext()) {
+			sb.append(i.next().apply(thmStringVisitor, vars));
+			if (i.hasNext()) {
+				sb.append("; ");
+			}
+		}
+		
+		return sb.toString();
+	}
+
+	@Override
+	public String caseAClassInvariantStm(AClassInvariantStm node,
+			ThmVarsContext vars) throws AnalysisException {
+		return "";
+		// TODO Auto-generated method stub
+		// return super.caseAClassInvariantStm(node, vars);
+	}
+
+	@Override
+	public String caseAClassInvariantDefinition(AClassInvariantDefinition node,
+			ThmVarsContext vars) throws AnalysisException {
+		return "";
+		// TODO Auto-generated method stub
+		// return super.caseAClassInvariantDefinition(node, vars);
 	}
 	
 //	public String caseANonDeterministicDoStatementAction(ANonDeterministicDoStatementAction a, ThmVarsContext vars) throws AnalysisException{

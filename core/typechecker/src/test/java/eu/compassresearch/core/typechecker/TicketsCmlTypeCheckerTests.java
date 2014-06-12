@@ -21,9 +21,9 @@ public class TicketsCmlTypeCheckerTests extends
 	{
 		return combine(
 
-		collectResourcesTestData("tickets", TestType.POSITIVE),
+		collectResourcesTestData("tickets/other", TestType.POSITIVE),
 
-		collectResourcesTestData("tickets", TestType.NEGATIVE),
+		collectResourcesTestData("tickets/other", TestType.NEGATIVE),
 
 		collectResourcesTestData("tickets/fulltest", TestType.NEGATIVE, TestType.COMPARE_RECORDRD),
 

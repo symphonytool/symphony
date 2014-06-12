@@ -38,6 +38,12 @@ public class SingleTypeValue extends TypeValue {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	@Override
+	public String getTypeAsName() {
+		// TODO Auto-generated method stub
+		return this.toString();
+	}
 	
 	
 }

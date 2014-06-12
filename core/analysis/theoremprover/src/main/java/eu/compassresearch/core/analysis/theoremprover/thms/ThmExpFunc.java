@@ -131,7 +131,7 @@ public class ThmExpFunc extends ThmDecl {
 		
 		//replace the keyword RESULT with the result parameter
 		String lambdaName = "^" +ThmTypeUtil.isaFuncLambaVal+"^.#" + resCount;
-		ex = ex.replace("^RESULT^", lambdaName);
+		ex = ex.replace("&RESULT", lambdaName);
 	
 		return ex;
 	}
@@ -215,7 +215,7 @@ public class ThmExpFunc extends ThmDecl {
 			sb.append("then (" + ThmTypeUtil.isaFuncLambdaPost + " " + ThmTypeUtil.isaFuncLambdaPostVal+ " : " + resType + " @ (true and ");
 		}
 		
-		sb.append("^" + ThmTypeUtil.isaFuncLambdaPostVal +  "^ = " + expr +"))\n");
+		sb.append("&" + ThmTypeUtil.isaFuncLambdaPostVal +  " = " + expr +"))\n");
 		sb.append("else " + ThmTypeUtil.isaUndefined);
 		
 		return sb.toString();
@@ -240,7 +240,12 @@ public class ThmExpFunc extends ThmDecl {
 	private String createSimpFuncExp() {
 		StringBuilder sb = new StringBuilder();
 		
-		sb.append("(" + ThmTypeUtil.isaFuncLambdaPost + " " + ThmTypeUtil.isaFuncLambdaPostVal+ " : @bool @ (^" + ThmTypeUtil.isaFuncLambdaPostVal +  "^ = " + expr +"))");		
+		if (expr.equals("true")) {
+			sb.append("true");
+		} else {
+			sb.append("(" + ThmTypeUtil.isaFuncLambdaPost + " " + ThmTypeUtil.isaFuncLambdaPostVal+ " : @bool @ (&" + ThmTypeUtil.isaFuncLambdaPostVal +  " = " + expr +"))");
+		}
+						
 		return sb.toString();
 	}
 	

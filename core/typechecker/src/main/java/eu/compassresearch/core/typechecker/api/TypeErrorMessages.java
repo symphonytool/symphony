@@ -154,7 +154,7 @@ public enum TypeErrorMessages
 			"Namesets for parallel actions must be disjoint. Repeated identifiers: %s"),
 
 	UNSUPPORTED_CONSTRUCT(3444, "Unsupported language construct found: '%s'");
-
+//3445 used for #1 not allowed in state designators
 	;
 
 	public final int number;

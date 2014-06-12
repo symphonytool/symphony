@@ -1,0 +1,24 @@
+types
+  Meter :: device : Device
+  Box :: m : Meter
+
+class Device = begin
+operations
+  public op : () ==> ()
+  op() == Skip
+end
+
+process SmartGrid = begin
+state
+  meters : map nat to Meter := {|->}
+
+actions
+ 
+
+
+   DEEP_MAP =
+     (dcl m_map : map nat to Meter @
+         meters(1).device.op())
+
+@ Skip
+end

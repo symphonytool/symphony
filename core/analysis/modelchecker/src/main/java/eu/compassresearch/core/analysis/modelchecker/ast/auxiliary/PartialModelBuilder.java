@@ -15,7 +15,7 @@ public class PartialModelBuilder {
 		
 		generateLieInFacts(content,option);
 
-		generateChannels(content,option);
+		//generateChannels(content,option);
 		
 		generateClocks(content,option);
 		
@@ -31,14 +31,16 @@ public class PartialModelBuilder {
 			lieIn.prepareLieInFact();
 		}
 		for (MCLieInFact lieIn :  context.realLieInFacts) {
-			content.append(lieIn.toFormula(option) + "\n");
+			String lieInFactStr = lieIn.toFormula(option);
+			if(content.indexOf(lieInFactStr) == -1){
+				content.append(lieIn.toFormula(option) + "\n");
+			}
 		}
 	}
 	
 	private void generateChannels(StringBuilder content, String option){
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 		for (MCAChannelDefinition chanDef : context.channelDefs) {
-			
 			content.append(chanDef.toFormula(option));
 			if(chanDef.isTyped()){
 				content.append("\n");

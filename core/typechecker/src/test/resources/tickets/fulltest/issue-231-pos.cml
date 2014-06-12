@@ -1,0 +1,6 @@
+process P=
+	(trans_
+	[chanset_||chanset_ ]
+	-- define_alphabetised_parallel started
+	A)
+

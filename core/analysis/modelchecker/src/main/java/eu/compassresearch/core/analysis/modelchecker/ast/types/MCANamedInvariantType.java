@@ -7,10 +7,12 @@ import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelchecker
 
 public class MCANamedInvariantType implements MCPCMLType {
 
+	private String originalTypeName;
 	private String name;
 		
-	public MCANamedInvariantType(String name) {
+	public MCANamedInvariantType(String name,String originalTypeName) {
 		this.name = name;
+		this.originalTypeName = originalTypeName;
 	}
 
 	@Override
@@ -39,8 +41,23 @@ public class MCANamedInvariantType implements MCPCMLType {
 	@Override
 	public MCPCMLType copy() {
 	
-		return new MCANamedInvariantType(new String(this.getName()));
+		return new MCANamedInvariantType(new String(this.name), new String(this.originalTypeName));
 	}
 
+	@Override
+	public String getTypeAsName() {
+		
+		return this.name;
+	}
+
+	public String getOriginalTypeName() {
+		return originalTypeName;
+	}
+
+	public void setOriginalTypeName(String originalTypeName) {
+		this.originalTypeName = originalTypeName;
+	}
+
+	
 	
 }

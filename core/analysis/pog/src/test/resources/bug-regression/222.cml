@@ -1,0 +1,16 @@
+process Test =
+begin
+
+state 
+  n : nat
+
+operations
+
+Op(a: nat) 
+frame rd n : nat
+pre a > 42
+post n = a
+
+@ Skip
+
+end
