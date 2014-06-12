@@ -355,7 +355,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 	public void caseAAlphabetisedParallelismReplicatedAction(
 			AAlphabetisedParallelismReplicatedAction node)
 			throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseAAlphabetisedParallelismReplicatedAction(node);
@@ -365,7 +365,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 	public void caseAAlphabetisedParallelismReplicatedProcess(
 			AAlphabetisedParallelismReplicatedProcess node)
 			throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseAAlphabetisedParallelismReplicatedProcess(node);
@@ -430,7 +430,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 
 	@Override
 	public void caseAAtomicStm(AAtomicStm node) throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseAAtomicStm(node);
@@ -637,7 +637,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 	@Override
 	public void caseAClassInvariantDefinition(AClassInvariantDefinition node)
 			throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseAClassInvariantDefinition(node);
@@ -711,7 +711,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 	@Override
 	public void caseAClassInvariantStm(AClassInvariantStm node)
 			throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseAClassInvariantStm(node);
@@ -1068,7 +1068,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 	@Override
 	public void caseAExpressionSingleDeclaration(
 			AExpressionSingleDeclaration node) throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseAExpressionSingleDeclaration(node);
@@ -1085,7 +1085,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 	@Override
 	public void caseAExternalChoiceProcess(AExternalChoiceProcess node)
 			throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseAExternalChoiceProcess(node);
@@ -1103,7 +1103,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 	@Override
 	public void caseAExternalChoiceReplicatedProcess(
 			AExternalChoiceReplicatedProcess node) throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseAExternalChoiceReplicatedProcess(node);
@@ -1307,7 +1307,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 	public void caseAGeneralisedParallelismReplicatedProcess(
 			AGeneralisedParallelismReplicatedProcess node)
 			throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseAGeneralisedParallelismReplicatedProcess(node);
@@ -1355,7 +1355,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 	@Override
 	public void caseAHidingProcess(AHidingProcess node)
 			throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseAHidingProcess(node);
@@ -1557,7 +1557,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 	@Override
 	public void caseAInterleavingProcess(AInterleavingProcess node)
 			throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseAInterleavingProcess(node);
@@ -1575,7 +1575,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 	@Override
 	public void caseAInterleavingReplicatedProcess(
 			AInterleavingReplicatedProcess node) throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseAInterleavingReplicatedProcess(node);
@@ -1592,7 +1592,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 	@Override
 	public void caseAInternalChoiceProcess(AInternalChoiceProcess node)
 			throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseAInternalChoiceProcess(node);
@@ -1610,7 +1610,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 	@Override
 	public void caseAInternalChoiceReplicatedProcess(
 			AInternalChoiceReplicatedProcess node) throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseAInternalChoiceReplicatedProcess(node);
@@ -2580,7 +2580,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 	@Override
 	public void caseASequentialCompositionProcess(
 			ASequentialCompositionProcess node) throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseASequentialCompositionProcess(node);
@@ -2590,7 +2590,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 	public void caseASequentialCompositionReplicatedAction(
 			ASequentialCompositionReplicatedAction node)
 			throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseASequentialCompositionReplicatedAction(node);
@@ -2600,7 +2600,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 	public void caseASequentialCompositionReplicatedProcess(
 			ASequentialCompositionReplicatedProcess node)
 			throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseASequentialCompositionReplicatedProcess(node);
@@ -2930,7 +2930,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 	@Override
 	public void caseATimeoutProcess(ATimeoutProcess node)
 			throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseATimeoutProcess(node);
@@ -3150,7 +3150,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 	@Override
 	public void caseAUntimedTimeoutProcess(AUntimedTimeoutProcess node)
 			throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseAUntimedTimeoutProcess(node);

@@ -236,16 +236,21 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 	}
 
 	public NodeNameList caseAAlphabetisedParallelismParallelAction(
-			AAlphabetisedParallelismParallelAction node, NodeNameList bvars)
+			AAlphabetisedParallelismParallelAction a, NodeNameList bvars)
 			throws AnalysisException {
 		NodeNameList nodeDeps = new NodeNameList();
+		
 		return nodeDeps;
 	}
 	
 	public NodeNameList caseAAlphabetisedParallelismReplicatedAction(
-			AAlphabetisedParallelismReplicatedAction node, NodeNameList bvars)
+			AAlphabetisedParallelismReplicatedAction a, NodeNameList bvars)
 			throws AnalysisException {
 		NodeNameList nodeDeps = new NodeNameList();
+		
+		nodeDeps.addAll(a.getReplicatedAction().apply(thmDepVisitor, bvars));
+		nodeDeps.addAll(a.getNamesetExpression().apply(thmDepVisitor, bvars));
+		
 		return nodeDeps;
 	}
 
@@ -269,36 +274,60 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 	}
 	
 	public NodeNameList caseAExternalChoiceReplicatedAction(
-			AExternalChoiceReplicatedAction node, NodeNameList bvars)
+			AExternalChoiceReplicatedAction a, NodeNameList bvars)
 			throws AnalysisException {
 		NodeNameList nodeDeps = new NodeNameList();
+
+		nodeDeps.addAll(a.getReplicatedAction().apply(thmDepVisitor, bvars));
+		
 		return nodeDeps;
 	}
 	
 	public NodeNameList caseAGeneralisedParallelismReplicatedAction(
-			AGeneralisedParallelismReplicatedAction node, NodeNameList bvars)
+			AGeneralisedParallelismReplicatedAction a, NodeNameList bvars)
 			throws AnalysisException {
 		NodeNameList nodeDeps = new NodeNameList();
+		
+		nodeDeps.addAll(a.getReplicatedAction().apply(thmDepVisitor, bvars));
+		nodeDeps.addAll(a.getNamesetExpression().apply(thmDepVisitor, bvars));
+		
+		// FIXME: Add support declarations with the action
+		
 		return nodeDeps;
 	}
 
 	public NodeNameList caseAInterleavingReplicatedAction(
-			AInterleavingReplicatedAction node, NodeNameList bvars)
+			AInterleavingReplicatedAction a, NodeNameList bvars)
 			throws AnalysisException {
 		NodeNameList nodeDeps = new NodeNameList();
+
+		nodeDeps.addAll(a.getReplicatedAction().apply(thmDepVisitor, bvars));
+		nodeDeps.addAll(a.getNamesetExpression().apply(thmDepVisitor, bvars));
+		
+		// FIXME: Add support declarations with the action		
+				
 		return nodeDeps;
 	}
 	
 	public NodeNameList caseAInternalChoiceReplicatedAction(
-			AInternalChoiceReplicatedAction node, NodeNameList bvars)
+			AInternalChoiceReplicatedAction a, NodeNameList bvars)
 			throws AnalysisException {
 		NodeNameList nodeDeps = new NodeNameList();
+
+		nodeDeps.addAll(a.getReplicatedAction().apply(thmDepVisitor, bvars));
+		
+		// FIXME: Add support declarations with the action		
+				
 		return nodeDeps;
 	}
 
-	public NodeNameList caseAInterruptAction(AInterruptAction node, NodeNameList bvars)
+	public NodeNameList caseAInterruptAction(AInterruptAction a, NodeNameList bvars)
 			throws AnalysisException {
 		NodeNameList nodeDeps = new NodeNameList();
+		
+		nodeDeps.addAll(a.getLeft().apply(thmDepVisitor, bvars));
+		nodeDeps.addAll(a.getRight().apply(thmDepVisitor, bvars));
+		
 		return nodeDeps;
 	}
 	
@@ -316,9 +345,14 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 	}
 	
 	public NodeNameList caseASequentialCompositionReplicatedAction(
-			ASequentialCompositionReplicatedAction node, NodeNameList bvars)
+			ASequentialCompositionReplicatedAction a, NodeNameList bvars)
 			throws AnalysisException {
 		NodeNameList nodeDeps = new NodeNameList();
+		
+		nodeDeps.addAll(a.getReplicatedAction().apply(thmDepVisitor, bvars));
+		
+		// FIXME: Add support declarations with the action		
+		
 		return nodeDeps;
 	}
 
@@ -328,27 +362,44 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 		return nodeDeps;
 	}
 	
-	public NodeNameList caseATimedInterruptAction(ATimedInterruptAction node, NodeNameList bvars)
+	public NodeNameList caseATimedInterruptAction(ATimedInterruptAction a, NodeNameList bvars)
 			throws AnalysisException {
 		NodeNameList nodeDeps = new NodeNameList();
+
+		nodeDeps.addAll(a.getLeft().apply(thmDepVisitor, bvars));
+		nodeDeps.addAll(a.getRight().apply(thmDepVisitor, bvars));
+		nodeDeps.addAll(a.getTimeExpression().apply(thmDepVisitor, bvars));
+
 		return nodeDeps;
 	}
 
-	public NodeNameList caseATimeoutAction(ATimeoutAction node, NodeNameList bvars)
+	public NodeNameList caseATimeoutAction(ATimeoutAction a, NodeNameList bvars)
 			throws AnalysisException {
 		NodeNameList nodeDeps = new NodeNameList();
+
+		nodeDeps.addAll(a.getLeft().apply(thmDepVisitor, bvars));
+		nodeDeps.addAll(a.getRight().apply(thmDepVisitor, bvars));
+		nodeDeps.addAll(a.getTimeoutExpression().apply(thmDepVisitor, bvars));
+				
 		return nodeDeps;
 	}
 	
-	public NodeNameList caseAUntimedTimeoutAction(AUntimedTimeoutAction node, NodeNameList bvars)
+	public NodeNameList caseAUntimedTimeoutAction(AUntimedTimeoutAction a, NodeNameList bvars)
 			throws AnalysisException {
 		NodeNameList nodeDeps = new NodeNameList();
+		
+		nodeDeps.addAll(a.getLeft().apply(thmDepVisitor, bvars));
+		nodeDeps.addAll(a.getRight().apply(thmDepVisitor, bvars));
+				
 		return nodeDeps;
 	}
 
 	public NodeNameList caseAWaitAction(AWaitAction a, NodeNameList bvars)
 			throws AnalysisException {
 		NodeNameList nodeDeps = new NodeNameList();
+		
+		nodeDeps.addAll(a.getExpression().apply(thmDepVisitor, bvars));
+		
 		return nodeDeps;
 	}
 
