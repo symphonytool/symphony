@@ -16,8 +16,8 @@ public class NewMCNegGuardDef extends NewMCGuardDef{
 	public String toFormula(String option) {
 
 		StringBuilder result = new StringBuilder();
-		result.append("  guardNDef(" + this.counterId +","+ max.toFormula(NAMED)+")");
-		result.append(" :- State(" + max.toFormula(NAMED) + "," + parentStm.toFormula(MCNode.DEFAULT) + ")");
+		result.append("  guardNDef(" + this.counterId +","+ max.toFormula(MCNode.NAMED)+")");
+		result.append(" :- State(" + max.toFormula(MCNode.NAMED) + "," + parentStm.toFormula(MCNode.DEFAULT) + ")");
 		result.append(",");
 		MCPCMLExp negCondition = ExpressionNegator.negate(condition); 
 		result.append(negCondition.toFormula(option));

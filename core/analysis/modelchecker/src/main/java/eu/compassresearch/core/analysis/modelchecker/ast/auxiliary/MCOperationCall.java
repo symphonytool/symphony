@@ -47,17 +47,21 @@ public class MCOperationCall extends MCGenericCall{
 		result.append(")");
 		
 		if(argsHasStateVariable(this.args)){
-			if(!context.mcProcOrActionsStack.isEmpty()){
-				MCPCMLDefinition actionOrProc = context.mcProcOrActionsStack.peek();
-				StateDependency stateDependency = new StateDependency(null);
-				String name = "";
-				if(actionOrProc instanceof MCAProcessDefinition){
-					name = ((MCAProcessDefinition) actionOrProc).getName().toString();
-				} else if(actionOrProc instanceof MCAActionDefinition){
-					name = ((MCAActionDefinition) actionOrProc).getName().toString();
+			//it checks if the argument is a varaiable with infinite domain
+			String varname = this.args.getFirst().toFormula(MCNode.DEFAULT);
+			if(!context.variablesInfiniteDomain.contains(varname)){
+				if(!context.mcProcOrActionsStack.isEmpty()){
+					MCPCMLDefinition actionOrProc = context.mcProcOrActionsStack.peek();
+					StateDependency stateDependency = new StateDependency(null);
+					String name = "";
+					if(actionOrProc instanceof MCAProcessDefinition){
+						name = ((MCAProcessDefinition) actionOrProc).getName().toString();
+					} else if(actionOrProc instanceof MCAActionDefinition){
+						name = ((MCAActionDefinition) actionOrProc).getName().toString();
+					}
+					stateDependency.setActionOrProcessName(name);
+					context.actionProcStateDependencies.add(stateDependency);
 				}
-				stateDependency.setActionOrProcessName(name);
-				context.actionProcStateDependencies.add(stateDependency);
 			}
 		}
 		

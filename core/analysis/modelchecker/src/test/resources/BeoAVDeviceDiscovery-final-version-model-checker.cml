@@ -36,7 +36,6 @@
   -- DD_SR_chanset = {|IPMulticastChannel,SourceProductPowerChannel,TargetProductPowerChannel|}
    --SR_chanset = {|SourceProductEventChannel,TargetProductEventChannel,BrowsingInterfaceCallChannel,BrowsingInterfaceReplyChannel,IPTCPChannel |}
 
-
 -- CML process modelling the B&O DD protocol for the source product in the network
   process SourceProduct_DD_SD_InterfaceProtocolView =
   begin
@@ -52,7 +51,8 @@
 		  MarshallData_State = (createDDSDObject();IPMulticastChannel!product_DR -> Skip) [_ timeout _> (Skip) --- simulate IP multicast logic using timeouts  					   
       @ Off_State
   end
-  
+
+
 -- CML process modelling the B&O DD protocol for the target product in the network 
   process TargetProduct_DD_SD_InterfaceProtocolView =
   begin
@@ -73,13 +73,15 @@
 		  Off_State = resetProductSet(); TargetProductPowerChannel.<POWER_ON> -> On_State -- the product if off== not visable in the network
 		  On_State = Start_Discovery_State  /_\ (TargetProductPowerChannel.<POWER_OFF> -> Off_State) -- product on = try finding other B&O product. in this state the product can be power of by a user event
 		  Start_Discovery_State = (DD_SD_Discovery_State ; Wait(targetBroadcastTime) ; Start_Discovery_State)--run the Discovery logic 
-		  DD_SD_Discovery_State =  (IPMulticastChannel?pr -> if IsDeviceInSet(pr,product_DRs) then updateProductSet(pr) else Skip; Skip )[_ timeout _> (Skip) 		                     
+		  DD_SD_Discovery_State =   IPMulticastChannel?pr -> Skip -- (IPMulticastChannel?pr -> if IsDeviceInSet(pr,product_DRs) then updateProductSet(pr) else Skip; Skip )[_ timeout _> (Skip) 		                     
     @ Off_State                     -- simulate IP multicast logic using timeouts
   end	
-   
+
+
 -- SoS leveel process, contaning one source- and one target product
-  process Beo_DD_SD_InterfaceProtocolViews =  SourceProduct_DD_SD_InterfaceProtocolView [|{IPMulticastChannel}|]TargetProduct_DD_SD_InterfaceProtocolView
-  
+//  process Beo_DD_SD_InterfaceProtocolViews =  SourceProduct_DD_SD_InterfaceProtocolView [|{IPMulticastChannel}|]TargetProduct_DD_SD_InterfaceProtocolView
+
+
   --- test process for playing the SoS level process
   process Test_TurnOnProduct = 
   begin
@@ -89,8 +91,10 @@
     
   @ SoS_On
   end
+ 
+
   -- test process combining the test process and the SoS process
-  process Test_1 = Test_TurnOnProduct [|{SourceProductPowerChannel,TargetProductPowerChannel}|]Beo_DD_SD_InterfaceProtocolViews
+ // process Test_1 = Test_TurnOnProduct [|{SourceProductPowerChannel,TargetProductPowerChannel}|]Beo_DD_SD_InterfaceProtocolViews
   
 
   ----------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -112,7 +116,7 @@
 		  ReplayTofunctionCall_State = x4:ServiceCallData @ BrowsingInterfaceReplyChannel!x4->WaitingOnFunctionCall_State  
       @ Off_State
   end 
-  
+
   process SourceProduct_SR_InterfaceProtocolView =
   begin   
 	  actions
@@ -124,6 +128,6 @@
       @ Off_State
   end
   
-  process Beo_RS_InterfaceProtocolViews =  TargetProduct_SR_InterfaceProtocolView [|{IPTCPChannel,IPTCPPORTChannel}|]SourceProduct_SR_InterfaceProtocolView
-  
+  //process Beo_RS_InterfaceProtocolViews =  TargetProduct_SR_InterfaceProtocolView [|{IPTCPChannel,IPTCPPORTChannel}|]SourceProduct_SR_InterfaceProtocolView
+
   

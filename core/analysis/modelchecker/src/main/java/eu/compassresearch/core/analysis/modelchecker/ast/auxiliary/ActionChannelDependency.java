@@ -64,7 +64,8 @@ public class ActionChannelDependency {
 				MCPCommunicationParameter thisParam = this.parameters.get(i);
 				MCPCommunicationParameter otherParam = ((ActionChannelDependency) obj).getParameters().get(i);
 				if (thisParam instanceof MCAReadCommunicationParameter && otherParam instanceof MCAReadCommunicationParameter){
-					result = result && ((MCAReadCommunicationParameter)thisParam).getExpression().equals(((MCAReadCommunicationParameter)otherParam).getExpression());
+					//result = result && ((MCAReadCommunicationParameter)thisParam).getExpression().equals(((MCAReadCommunicationParameter)otherParam).getExpression());
+					result = result && thisParam.equals(otherParam);
 				}
 			}
 			

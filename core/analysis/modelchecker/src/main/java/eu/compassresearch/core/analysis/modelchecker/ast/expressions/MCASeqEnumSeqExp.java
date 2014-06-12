@@ -17,7 +17,7 @@ public class MCASeqEnumSeqExp implements MCPCMLExp{
 	
 	@Override
 	public String toFormula(String option) {
-		return null;
+		return this.members.getFirst().toFormula(option);
 	}
 
 	public LinkedList<MCPCMLExp> getMembers() {

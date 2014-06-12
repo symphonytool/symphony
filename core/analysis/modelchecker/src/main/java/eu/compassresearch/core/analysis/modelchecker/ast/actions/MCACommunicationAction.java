@@ -103,44 +103,32 @@ public class MCACommunicationAction implements MCPAction {
 		valuesCopy.addAll(values);
 		
 		if(chanDef.isInfiniteType()){
-			if(context.getNumberOfInstances() == 1){
-				
-				result.append(buildReplicatedExternalChoice(context, option));
-				if(!parameterIsConstantValue()){
-					String actionNameToUse = ""; 
-					LinkedList<MCPCommunicationParameter> paramsCopy = new LinkedList<MCPCommunicationParameter>();
-					if(this.getCommunicationParameters().getFirst() instanceof MCAReadCommunicationParameter){
-						MCACommunicationAction originalParentAction =  ((MCAReadCommunicationParameter) this.getCommunicationParameters().getFirst()).getParentAction();
-						String paramName = ((MCAReadCommunicationParameter) this.getCommunicationParameters().getFirst()).getPattern().toFormula(MCNode.DEFAULT);
-						MCAReadCommunicationParameter newParam = 
-									new MCAReadCommunicationParameter(new MCAVariableExp(paramName), ((MCAReadCommunicationParameter) this.getCommunicationParameters().getFirst()).getPattern());
-						//}
-						newParam.setParentAction(originalParentAction);
-						paramsCopy.add(newParam);
-						ActionChannelDependency actionChanDep = new ActionChannelDependency(actionNameToUse, this.identifier, paramsCopy);
-						context.infiniteChannelDependencies.add(actionChanDep);
-					}
+			String infiniteVarName = this.communicationParameters.getFirst().toString();
+			context.variablesInfiniteDomain.add(infiniteVarName);
+			result.append(buildPrefix(option, context, true));
+			
+			if(!parameterIsConstantValue()){
+				String actionNameToUse = ""; 
+				LinkedList<MCPCommunicationParameter> paramsCopy = new LinkedList<MCPCommunicationParameter>();
+				if(this.getCommunicationParameters().getFirst() instanceof MCAReadCommunicationParameter){
+					MCACommunicationAction originalParentAction =  ((MCAReadCommunicationParameter) this.getCommunicationParameters().getFirst()).getParentAction();
+					String paramName = ((MCAReadCommunicationParameter) this.getCommunicationParameters().getFirst()).getPattern().toFormula(MCNode.DEFAULT);
+					MCAReadCommunicationParameter newParam = 
+								new MCAReadCommunicationParameter(new MCAVariableExp(paramName), ((MCAReadCommunicationParameter) this.getCommunicationParameters().getFirst()).getPattern());
+					//}
+					newParam.setParentAction(originalParentAction);
+					paramsCopy.add(newParam);
+					ActionChannelDependency actionChanDep = new ActionChannelDependency(actionNameToUse, this.identifier, paramsCopy);
+					context.infiniteChannelDependencies.add(actionChanDep);
 				}
-			}else{
-				for (TypeValue typeValue : valuesCopy) {
-					if(!parameterIsConstantValue()){
-						String actionNameToUse = ""; 
-						LinkedList<MCPCommunicationParameter> paramsCopy = new LinkedList<MCPCommunicationParameter>();
-						//for (MCPCommunicationParameter mcpCommunicationParameter : this.communicationParameters) {
-						MCACommunicationAction originalParentAction =  ((MCAReadCommunicationParameter) this.getCommunicationParameters().getFirst()).getParentAction();
-						MCAReadCommunicationParameter newParam = 
-									new MCAReadCommunicationParameter(new MCAVariableExp(typeValue.getTypeAsName()), ((MCAReadCommunicationParameter) this.getCommunicationParameters().getFirst()).getPattern());
-						//}
-						newParam.setParentAction(originalParentAction);
-						paramsCopy.add(newParam);
-						ActionChannelDependency actionChanDep = new ActionChannelDependency(actionNameToUse, this.identifier, paramsCopy);
-						context.infiniteChannelDependencies.add(actionChanDep);
-					}
-				}
-				result.append(buildReplicatedExternalChoice(context, values, option, allParamsCopy,true));
 			}
+			
+			context.variablesInfiniteDomain.remove(infiniteVarName);
 		} else{
-			result.append(buildReplicatedExternalChoice(context, values, option, allParamsCopy,false));
+			int i = 0;
+			//result.append(buildReplicatedExternalChoice(context, values, option, allParamsCopy,false));
+			result.append(buildPrefix(option, context, false));
+			
 		}
 		
 		
@@ -180,7 +168,7 @@ public class MCACommunicationAction implements MCPAction {
 		}
 		
 	}
-	private String buildPrefix(String option, NewCMLModelcheckerContext context, TypeValue currParam) {
+	private String buildPrefix(String option, NewCMLModelcheckerContext context, boolean infinite) {
 		StringBuilder result = new StringBuilder();
 		
 		result.append("Prefix(IOComm(" + this.counterId + ",");
@@ -188,23 +176,43 @@ public class MCACommunicationAction implements MCPAction {
 		result.append(",");
 		result.append("\"" + buildIOCommExp(option) + "\"");
 		result.append(",");
-		if(currParam != null){
+		result.append(buildIOCommActualParams(option));
+		//if(currParam != null){
+		if(this.communicationParameters.size() > 0){
 			if(parametersHasStateVariable(this.communicationParameters)){
-				MCPCMLDefinition actionOrProc = context.mcProcOrActionsStack.peek();
-				StateDependency stateDependency = new StateDependency(null);
-				String name = "";
-				if(actionOrProc instanceof MCAProcessDefinition){
-					name = ((MCAProcessDefinition) actionOrProc).getName().toString();
-				} else if(actionOrProc instanceof MCAActionDefinition){
-					name = ((MCAActionDefinition) actionOrProc).getName().toString();
+					MCPCommunicationParameter param = this.communicationParameters.getFirst();
+					if(!(param instanceof MCAReadCommunicationParameter)){
+						StateDependency stateDependency = new StateDependency(null);
+						String name = "";
+						if(!context.mcProcOrActionsStack.isEmpty()){
+							MCPCMLDefinition actionOrProc = context.mcProcOrActionsStack.peek();
+							if(actionOrProc instanceof MCAProcessDefinition){
+								name = ((MCAProcessDefinition) actionOrProc).getName().toString();
+							} else if(actionOrProc instanceof MCAActionDefinition){
+								name = ((MCAActionDefinition) actionOrProc).getName().toString();
+							}
+						}
+						stateDependency.setActionOrProcessName(name);
+						//if(infinite){
+							context.actionProcStateDependencies.add(stateDependency);
+						//}
+					}else{
+						//if(!parameterIsConstantValue()){
+							String actionNameToUse = ""; 
+							LinkedList<MCPCommunicationParameter> paramsCopy = new LinkedList<MCPCommunicationParameter>();
+							//if(param instanceof MCAReadCommunicationParameter){
+							paramsCopy.add(param);
+							ActionChannelDependency actionChanDep = new ActionChannelDependency(actionNameToUse, this.identifier, paramsCopy);
+							context.unamedChannelDependencies.add(actionChanDep);
+							//}
+						//}
+					}
+					
+					
+					
 				}
-				stateDependency.setActionOrProcessName(name);
-				context.actionProcStateDependencies.add(stateDependency);
 			}
-			result.append(currParam.toFormula(option));
-		} else{
-			result.append(buildIOCommActualParams(option));
-		}
+		
 		result.append(")"); //closes IOComm
 		result.append(",");
 		if(option.equals(MCNode.MINIMAL_GENERIC) || option.equals(MCNode.STATE_DEFAULT_PROCESS_NAMED)){
@@ -237,21 +245,8 @@ public class MCACommunicationAction implements MCPAction {
 						//break;
 					}
 				}
-				//if(!generateLieIn && chanSetStack.size()==0){
-				//	break;
-			} /*else{
-					if (chanNames.size() > 0){
-						ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
-						MCPCMLType value = evaluator.instantiateMCTypeFromCommParams(this.communicationParameters);
-						
-						MCCommEv commEv = new MCCommEv(this.identifier,this.communicationParameters, value);
-						MCLieInFact lieIn = new MCLieInFact(commEv,setExp); 
-						if(!context.lieIn.contains(lieIn)){
-							context.lieIn.add(lieIn);
-						}
-					}
-				}
-			}*/
+				
+			} 
 			
 		}
 		
@@ -282,77 +277,6 @@ public class MCACommunicationAction implements MCPAction {
 		return result.toString();
 	}
 
-	private StringBuilder buildReplicatedExternalChoice(NewCMLModelcheckerContext context,
-			LinkedList<TypeValue> values,String option, LinkedList<MCPCommunicationParameter> params, boolean infinite) {
-
-		StringBuilder result = new StringBuilder();
-		String identifier = null;
-		MCPCMLType identifierType = null;
-		
-		
-		NameValue mapping = new NameValue(identifier,null,identifierType);
-		
-		if(option.equals(MCNode.STATE_DEFAULT_PROCESS_NAMED)){
-			result.append(this.buildPrefix(option, context, null));
-		}else{
-			
-			if(values.size() == 0){
-				result.append(this.buildPrefix(option, context, null));
-			} else if(values.size() == 1){
-				TypeValue firstValue = values.removeFirst();
-				MCPCommunicationParameter firstParam = params.getFirst();
-				if(!infinite){
-					try {
-						Integer.parseInt(((SingleTypeValue)firstValue).getValue());
-					} catch (NumberFormatException e) {
-						((SingleTypeValue)firstValue).setValue(firstParam.getExpression().toFormula(MCNode.DEFAULT));
-					}
-				}
-				mapping.setVariableName(firstParam.toString());
-				identifier = firstParam.toString();
-				mapping.setVariableValue(firstValue.toFormula(option));
-				context.localIndexedVariablesMapping.push(mapping);
-				result.append(this.buildPrefix(option, context, firstValue));
-				context.localIndexedVariablesMapping.pop();
-				context.localIndexedVariablesDiscarded.add(identifier);
-			}else if (values.size() > 1) {
-				TypeValue firstValue = values.removeFirst();
-				MCPCommunicationParameter firstParam = params.getFirst(); 
-				if(!infinite){
-					try {
-						Integer.parseInt(((SingleTypeValue)firstValue).getValue());
-					} catch (NumberFormatException e) {
-						((SingleTypeValue)firstValue).setValue(firstParam.getExpression().toFormula(MCNode.DEFAULT));
-					}
-				}
-				mapping.setVariableName(firstParam.toString());
-				identifier = firstParam.toString();
-				mapping.setVariableValue(firstValue.toFormula(option));
-				context.localIndexedVariablesMapping.push(mapping);
-				result.append("eChoice(");
-				result.append(this.buildPrefix(option, context, firstValue));
-				result.append(",");
-				context.localIndexedVariablesMapping.pop();
-				
-				StringBuilder rest = buildReplicatedExternalChoice(context,values,option,params,infinite);
-				result.append(rest.toString());
-				result.append(")");
-			}
-		}
-		return result;
-	}
-	
-	private StringBuilder buildReplicatedExternalChoice(NewCMLModelcheckerContext context,String option) {
-
-		StringBuilder result = new StringBuilder();
-
-		if(option.equals(MCNode.STATE_DEFAULT_PROCESS_NAMED)){
-			result.append(this.buildPrefix(option, context, null));
-		}else{
-			result.append(this.buildPrefix(option, context, null));
-		}
-		return result;
-	}
 	
 	private String buildIOCommExp(String option){
 		StringBuilder result = new StringBuilder();
@@ -379,18 +303,6 @@ public class MCACommunicationAction implements MCPAction {
 			MCPCMLType type = evaluator.instantiateMCTypeFromCommParams(this.communicationParameters);
 			result.append(type.toFormula(option));
 			
-			if(parametersHasStateVariable(this.communicationParameters)){
-				MCPCMLDefinition actionOrProc = context.mcProcOrActionsStack.peek();
-				StateDependency stateDependency = new StateDependency(null);
-				String name = "";
-				if(actionOrProc instanceof MCAProcessDefinition){
-					name = ((MCAProcessDefinition) actionOrProc).getName().toString();
-				} else if(actionOrProc instanceof MCAActionDefinition){
-					name = ((MCAActionDefinition) actionOrProc).getName().toString();
-				}
-				stateDependency.setActionOrProcessName(name);
-				context.actionProcStateDependencies.add(stateDependency);
-			}
 		}
 		return result.toString();
 	}
@@ -403,14 +315,15 @@ public class MCACommunicationAction implements MCPAction {
 		
 		while (it.hasNext() && !result) {
 			MCPCommunicationParameter param = (MCPCommunicationParameter) it.next();
-			if(!(param instanceof MCAReadCommunicationParameter)){
-				String varName = param.getExpression().toFormula(MCNode.DEFAULT);
+			//if(!(param instanceof MCAReadCommunicationParameter)){
+				String varName = param.toString();
 				if(context.maximalBinding.containsVariable(varName)){
 					result = true;
+					break;
 				}
-			}else{
-				break;
-			}
+			//}else{
+			//	break;
+			//}
 		}
 
 		return result;

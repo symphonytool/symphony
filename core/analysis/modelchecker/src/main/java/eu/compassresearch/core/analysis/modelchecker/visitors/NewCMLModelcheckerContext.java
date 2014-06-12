@@ -71,13 +71,15 @@ public class NewCMLModelcheckerContext {
 	public ArrayListSet<MCAProcessDefinition> processDefinitions;
 	public ArrayList<MCIOCommDef> ioCommDefs;
 	public Stack<INode> actionOrProcessDefStack;
-	public ArrayList<ActionChannelDependency> channelDependencies;
+	public ArrayListSet<ActionChannelDependency> channelDependencies;
 	public ArrayListSet<ActionChannelDependency> infiniteChannelDependencies;
+	public ArrayListSet<ActionChannelDependency> unamedChannelDependencies;
 	public ArrayListSet<StateDependency> actionProcStateDependencies;
 	public ArrayListSet<MCPVarsetExpression> globalChanSets;
 	public ArrayListSet<NameValue> localVariablesMapping;
 	public Stack<NameValue> localIndexedVariablesMapping;
 	public ArrayListSet<String> localIndexedVariablesDiscarded;
+	public ArrayListSet<String> variablesInfiniteDomain;
 	public ArrayList<MCASBinaryExp> setExpressioFacts;
 	public ArrayListSet<IntroduceCommand> introduceFacts;
 	public Stack<MCPCMLDefinition> mcProcOrActionsStack;
@@ -145,6 +147,25 @@ public class NewCMLModelcheckerContext {
 			}
 		}
 		return result;
+	}
+	
+	public ArrayListSet<ActionChannelDependency> getInfiniteAndUnamedChannelDependencies(){
+		ArrayListSet<ActionChannelDependency> result = new ArrayListSet<ActionChannelDependency>();
+		result.addAll(infiniteChannelDependencies);
+		result.addAll(unamedChannelDependencies);
+		return result;
+	}
+	
+	public void resetInfiniteChannelDependencies(){
+		this.infiniteChannelDependencies = new ArrayListSet<ActionChannelDependency>();
+	}
+	
+	public void resetStateDependencies(){
+		this.actionProcStateDependencies = new ArrayListSet<StateDependency>();
+	}
+	
+	public void resetUnamedChannelDependencies(){
+		this.unamedChannelDependencies = new ArrayListSet<ActionChannelDependency>();
 	}
 	
 	public void addIntroduce(IntroduceCommand command){
@@ -325,9 +346,10 @@ public class NewCMLModelcheckerContext {
 		operations = new ArrayListSet<MCSCmlOperationDefinition>(); 
 		localActions = new ArrayListSet<MCAActionDefinition>();
 		conditions = new ArrayListSet<MCCondition>();
-		channelDependencies = new ArrayList<ActionChannelDependency>();
+		channelDependencies = new ArrayListSet<ActionChannelDependency>();
 		infiniteChannelDependencies = new ArrayListSet<ActionChannelDependency>();
 		actionProcStateDependencies = new ArrayListSet<StateDependency>();
+		unamedChannelDependencies = new ArrayListSet<ActionChannelDependency>();
 		ioCommDefs = new ArrayList<MCIOCommDef>();
 		valueDefinitions = new LinkedList<MCAValueDefinition>();
 		typeDefinitions = new LinkedList<MCATypeDefinition>();
@@ -351,6 +373,7 @@ public class NewCMLModelcheckerContext {
 		actionStack = new Stack<AActionDefinition>();
 		introduceFacts = new ArrayListSet<IntroduceCommand>();
 		mcProcOrActionsStack = new Stack<MCPCMLDefinition>();
+		variablesInfiniteDomain = new ArrayListSet<String>();
 		maxClock = 0;
 		numberOfInstances = 1;
 		ASSIGN_COUNTER = 0;
@@ -398,6 +421,14 @@ public class NewCMLModelcheckerContext {
 		return result;
 	}
 	
+	public LinkedList<ActionChannelDependency> getAllDependencies(){
+		LinkedList<ActionChannelDependency> result = new LinkedList<ActionChannelDependency>();
+		result.addAll(this.channelDependencies);
+		result.addAll(this.infiniteChannelDependencies);
+		result.addAll(this.unamedChannelDependencies);
+
+		return result;
+	}
 	
 	public static boolean hasStateDependencies(String name){
 		boolean result = false;

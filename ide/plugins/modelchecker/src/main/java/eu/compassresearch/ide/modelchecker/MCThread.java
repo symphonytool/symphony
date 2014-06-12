@@ -69,11 +69,8 @@ public class MCThread extends Thread{
 		} catch (FormulaIntegrationException e) {
 			exception = e;
 			this.status = MCStatus.ERROR;
-			try {
-				mc.resetInstance();
-			} catch (Throwable e1) {
-				// formula instance is finished 
-			}
+			MCPluginUtility.popErrorMessage(e);
+			this.cancelExecution();
 			throw e;
 		} catch (Throwable e) {
 			//excep = e;
