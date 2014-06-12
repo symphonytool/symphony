@@ -17,7 +17,7 @@ import eu.compassresearch.core.interpreter.cosim.CoSimulationClient;
 import eu.compassresearch.core.interpreter.cosim.communication.Utils;
 
 /**
- * This is a custom interpreter implementation that changes the {@link VanillaCmlInterpreter} such that a co-simulation
+ * This is a custom interpreter implementation that changes the  VanillaCmlInterpreter such that a co-simulation
  * client can delegate the control flow to a remote coordinator.
  * 
  * @author kel

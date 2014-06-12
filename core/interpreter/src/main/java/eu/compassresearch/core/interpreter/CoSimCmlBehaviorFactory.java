@@ -15,7 +15,7 @@ import eu.compassresearch.core.interpreter.cosim.IProcessDelegate;
 
 /**
  * Custom {@link CmlBehaviorFactory} which replaces the instantiation of behaviors from the default
- * {@link ConcreteCmlBehaviour} with a {@link DelegatedCmlBehaviour} when it is externally provided by a client. <br/>
+ * ConcreteCmlBehaviour with a {@link DelegatedCmlBehaviour} when it is externally provided by a client. <br/>
  * This class is intended to be used for co-simulation when running as a server
  * 
  * @author kel

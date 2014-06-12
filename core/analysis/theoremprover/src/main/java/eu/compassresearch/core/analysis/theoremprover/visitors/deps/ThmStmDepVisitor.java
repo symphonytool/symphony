@@ -10,6 +10,7 @@ import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.node.INode;
 import org.overture.ast.statements.AAssignmentStm;
+import org.overture.ast.statements.AAtomicStm;
 import org.overture.ast.statements.ABlockSimpleBlockStm;
 import org.overture.ast.statements.ACallStm;
 import org.overture.ast.statements.AElseIfStm;
@@ -146,6 +147,8 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 
 		return nodeDeps;
 	}
+	
+	
 	//DON'T THINK IS HANDLED IN ISABELLE YET
 //	public NodeNameList caseAAssignmentCallStatementAction(AAssignmentCallStatementAction a, NodeNameList bvars)
 //			throws AnalysisException {
@@ -323,6 +326,18 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public NodeNameList caseAAtomicStm(AAtomicStm node, NodeNameList bvars)
+			throws AnalysisException {
+		NodeNameList nodeDeps = new NodeNameList();
+		
+		for (AAssignmentStm a : node.getAssignments()) {
+			nodeDeps.addAll(a.getExp().apply(thmDepVisitor, bvars));
+		}
+		
+		return nodeDeps;
 	}
 }
 

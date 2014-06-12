@@ -23,7 +23,6 @@ import org.overture.ast.statements.ALetStm;
 import org.overture.ast.statements.ASpecificationStm;
 import org.overture.ast.statements.AWhileStm;
 import org.overture.ast.statements.PStm;
-import org.overture.interpreter.assistant.pattern.PPatternAssistantInterpreter;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.PatternMatchException;
 import org.overture.interpreter.runtime.ValueException;
@@ -136,7 +135,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 
 					for (PDefinition def : node.getLocalDefs())
 					{
-						NameValuePair nvp = def.apply(cmlDefEvaluator, blockContext).get(0);
+						NameValuePair nvp = def.apply(question.assistantFactory.getNamedValueLister(), blockContext).get(0);
 						blockContext.put(nvp.name, nvp.value.getUpdatable(null));
 					}
 				}
@@ -166,7 +165,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 
 					for (PDefinition def : node.getAssignmentDefs())
 					{
-						NameValuePair nvp = def.apply(cmlDefEvaluator, question).get(0);
+						NameValuePair nvp = def.apply(question.assistantFactory.getNamedValueLister(), question).get(0);
 						blockContext.put(nvp.name, nvp.value.getUpdatable(null));
 					}
 				}
