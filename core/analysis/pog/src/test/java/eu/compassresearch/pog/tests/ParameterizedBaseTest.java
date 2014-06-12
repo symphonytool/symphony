@@ -20,7 +20,7 @@ import eu.compassresearch.core.analysis.pog.obligations.CmlPOContextStack;
 import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligation;
 import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligationList;
 import eu.compassresearch.core.analysis.pog.visitors.ProofObligationGenerator;
-import eu.compassresearch.pog.tests.utils.BaseInputProvider;
+import eu.compassresearch.pog.tests.utils.TestFileProvider;
 import eu.compassresearch.pog.tests.utils.TestInputHelper;
 import eu.compassresearch.pog.tests.utils.TestResultHelper;
 /**
@@ -55,13 +55,13 @@ public class ParameterizedBaseTest
 	}
 
 	/**
-	 * Generate the test data. Actually just fetches it from {@link BaseInputProvider}.
+	 * Generate the test data. Actually just fetches it from {@link TestFileProvider}.
 	 * @return test data.
 	 */
 	@Parameters(name="{index} : {1}")
 	public static Collection<Object[]> testData()
 	{
-		return BaseInputProvider.files();
+		return TestFileProvider.files();
 	}
 /**
  * A very simple test. Just prints the names of generated test inputs and results.
