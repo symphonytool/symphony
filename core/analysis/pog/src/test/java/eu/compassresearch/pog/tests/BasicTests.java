@@ -74,7 +74,7 @@ public class BasicTests {
 	 * A poor test. Runs the POG and checks that pos exist
 	 */
 	@Test
-	public void printPOs() throws IOException, AnalysisException {
+	public void noCrash() throws IOException, AnalysisException {
 		String modelpath = testfolder + micromodel;
 		String resultpath = testfolder + poresult;
 
@@ -86,10 +86,6 @@ public class BasicTests {
 			List<INode> ast = TestInputHelper.getAstFromName(modelpath);
 			IProofObligationList polist = PogPubUtil
 					.generateProofObligations(ast);
-
-			if (polist.isEmpty()) {
-				System.out.println("No proof obligations.");
-			}
 
 			for (IProofObligation po : polist) {
 				assertNotNull(po);

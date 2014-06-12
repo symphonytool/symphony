@@ -27,8 +27,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.overture.ast.definitions.AAssignmentDefinition;
 import org.overture.ast.definitions.AImplicitOperationDefinition;
+import org.overture.ast.definitions.AInstanceVariableDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.patterns.APatternListTypePair;
@@ -38,12 +38,10 @@ import org.overture.ast.patterns.PPattern;
 import org.overture.ast.types.AOperationType;
 import org.overture.pog.contexts.POOperationDefinitionContext;
 
-
-
 public class CmlOperationDefinitionContext extends POOperationDefinitionContext
 {
 
-	List<AAssignmentDefinition> psdefs;
+	List<AInstanceVariableDefinition> psdefs;
 
 	public CmlOperationDefinitionContext(
 			AImplicitOperationDefinition definition, boolean precond,
@@ -53,13 +51,13 @@ public class CmlOperationDefinitionContext extends POOperationDefinitionContext
 	}
 
 	public CmlOperationDefinitionContext(AImplicitOperationDefinition node,
-			boolean precond, List<AAssignmentDefinition> stateDefs)
+			boolean precond, List<AInstanceVariableDefinition> stateDefs)
 	{
 		super(node.getName(), (AOperationType) node.getType(), getParamPatternList(node), precond, node.getPrecondition(), null, (AImplicitOperationDefinition) null);
 
-		psdefs = new LinkedList<AAssignmentDefinition>();
+		psdefs = new LinkedList<AInstanceVariableDefinition>();
 
-		for (AAssignmentDefinition def : stateDefs)
+		for (AInstanceVariableDefinition def : stateDefs)
 		{
 			psdefs.add(def.clone());
 		}
@@ -79,7 +77,7 @@ public class CmlOperationDefinitionContext extends POOperationDefinitionContext
 
 		return plist;
 	}
-
+	
 	@Override
 	protected void addStateBinds(LinkedList<PMultipleBind> r)
 	{
@@ -88,7 +86,7 @@ public class CmlOperationDefinitionContext extends POOperationDefinitionContext
 			super.addStateBinds(r);
 		} else
 		{
-			for (AAssignmentDefinition pdef : psdefs)
+			for (AInstanceVariableDefinition pdef : psdefs)
 			{
 				ATypeMultipleBind tmBind2 = new ATypeMultipleBind();
 				tmBind2.setType(pdef.getType().clone());

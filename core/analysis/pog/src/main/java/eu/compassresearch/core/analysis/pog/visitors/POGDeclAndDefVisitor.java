@@ -8,6 +8,7 @@ import org.overture.ast.analysis.QuestionAnswerAdaptor;
 import org.overture.ast.definitions.AAssignmentDefinition;
 import org.overture.ast.definitions.AClassClassDefinition;
 import org.overture.ast.definitions.AImplicitOperationDefinition;
+import org.overture.ast.definitions.AInstanceVariableDefinition;
 import org.overture.ast.definitions.AStateDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
@@ -17,7 +18,7 @@ import org.overture.ast.patterns.APatternListTypePair;
 import org.overture.ast.patterns.PPattern;
 import org.overture.ast.types.PType;
 import org.overture.pog.contexts.PONameContext;
-import org.overture.pog.obligation.SubTypeObligation;
+import org.overture.pog.obligation.TypeCompatibility;
 import org.overture.pog.pub.IPOContextStack;
 import org.overture.pog.visitors.PogParamDefinitionVisitor;
 import org.overture.typechecker.TypeComparator;
@@ -231,13 +232,12 @@ public class POGDeclAndDefVisitor extends
 
 			AActionProcess stater = node.getAncestor(AActionProcess.class);
 			if (stater != null) {
-				List<AAssignmentDefinition> stateDefs = stater
+				List<AInstanceVariableDefinition> stateDefs = stater
 						.apply(new ClonerProcessState());
-				stateDefs.size();
 				question.push(new CmlOperationDefinitionContext(node, false,
 						stateDefs));
 				pol.add(new CmlSatisfiabilityObligation(node, stateDefs,
-						question));
+						question,assistantFactory));
 				question.pop();
 			} else {
 				if (node.getClassDefinition() != null) {
@@ -248,7 +248,7 @@ public class POGDeclAndDefVisitor extends
 				question.push(new CmlOperationDefinitionContext(node, false,
 						stateDef));
 				pol.add(new CmlSatisfiabilityObligation(node, stateDef,
-						question));
+						question,assistantFactory));
 				question.pop();
 			}
 		}
@@ -276,7 +276,7 @@ public class POGDeclAndDefVisitor extends
 
 		if (!TypeComparator.isSubType(question.checkType(expression, expType),
 				type, assistantFactory)) {
-			SubTypeObligation sto = SubTypeObligation.newInstance(expression,
+			TypeCompatibility sto = TypeCompatibility.newInstance(expression,
 					type, expType, question, assistantFactory);
 			if (sto != null) {
 				obligations.add(sto);
