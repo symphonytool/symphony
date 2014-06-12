@@ -64,7 +64,7 @@ public class DistributedSimulationRequestDialog extends TitleAreaDialog
 	@Override
 	protected Point getInitialSize()
 	{
-		return new Point(450, 260);
+		return new Point(620, 300);
 	}
 
 	@Override
@@ -73,7 +73,7 @@ public class DistributedSimulationRequestDialog extends TitleAreaDialog
 		Composite area = (Composite) super.createDialogArea(parent);
 
 		Composite container = new Composite(area, SWT.FILL);
-		container.setLayout(new GridLayout(2, true));
+		container.setLayout(new GridLayout(2, false));
 		container.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
 		Label lblTitleCollaborationProject = new Label(container, SWT.FILL);
@@ -163,13 +163,13 @@ public class DistributedSimulationRequestDialog extends TitleAreaDialog
 
 		final DistributedSimulationRequestDialog dialog = this;
 
-		new UIJob("Close Simualtion Request dialog")
+		new UIJob("Close Simulation Request dialog")
 		{
 			public IStatus runInUIThread(IProgressMonitor monitor)
 			{
 				dialog.okPressed();
 				return Status.OK_STATUS;
 			}
-		}.schedule(3000);
+		}.schedule(2500);
 	}
 }

@@ -381,7 +381,7 @@ public class CollaborationView extends ViewPart
 			
 			DistributedSimulationManager simulationManager = Activator.getDefault().getDistributedSimulationManager();
 			
-			simulationManager.initiateCollaborationOnProject(project);
+			simulationManager.initiateDistributedSimulationOnProject(project);
 			
 		}
 	}

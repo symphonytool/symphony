@@ -34,6 +34,7 @@ public class DistributedSimulationInitialisationDialog extends TitleAreaDialog
 {
 	private Button btnSimulate;
 	private Button btnRequestSimulation;
+	private Button btnSimulationRadio;
 	private List<String> processes;
 	private List<String> collaborators;
 	private String selectedTopProcess;
@@ -98,12 +99,12 @@ public class DistributedSimulationInitialisationDialog extends TitleAreaDialog
 		Composite radioComposite = new Composite(area, SWT.NULL);
 	    radioComposite.setLayout(new RowLayout());
 	    
-		btnSimulate = new Button (radioComposite, SWT.RADIO);
-		btnSimulate.setText ("Simulate");
-		btnSimulate.setSelection(true);
+	    btnSimulationRadio = new Button (radioComposite, SWT.RADIO);
+	    btnSimulationRadio.setText ("Simulate");
+	    btnSimulationRadio.setSelection(true);
 		
-		Button btnAnimate = new Button (radioComposite, SWT.RADIO);
-		btnAnimate.setText ("Animate");
+		Button btnAnimateRadio = new Button (radioComposite, SWT.RADIO);
+		btnAnimateRadio.setText ("Animate");
 		
 		final Composite listComposite = new Composite(area, SWT.NONE);
 		listComposite.setLayout(GridLayoutFactory.fillDefaults().create());
@@ -136,11 +137,14 @@ public class DistributedSimulationInitialisationDialog extends TitleAreaDialog
 
 		Label lblTitleExternalProcess = new Label(container, SWT.FILL);
 		lblTitleExternalProcess.setText("External Process");
+		GridData gd = new GridData(GridData.CENTER);
+		gd.widthHint = 230;
+		lblTitleExternalProcess.setLayoutData(gd);
 
 		Label lblTitleCollaborator = new Label(container, SWT.FILL);
 		lblTitleCollaborator.setText("To be simulated by");
-		GridData gd = new GridData(GridData.CENTER);
-		gd.widthHint = 220;
+		gd = new GridData(GridData.CENTER);
+		gd.widthHint = 210;
 		lblTitleCollaborator.setLayoutData(gd);
 
 		Label lblTitleStatus = new Label(container, SWT.FILL);
@@ -225,7 +229,7 @@ public class DistributedSimulationInitialisationDialog extends TitleAreaDialog
 			}
 			entry.disableSelection();
 			
-			if(btnSimulate.getSelection()) {
+			if(btnSimulationRadio.getSelection()) {
 				distributedSimulationManager.setLaunchMode(false);
 			} else {
 				distributedSimulationManager.setLaunchMode(true);
