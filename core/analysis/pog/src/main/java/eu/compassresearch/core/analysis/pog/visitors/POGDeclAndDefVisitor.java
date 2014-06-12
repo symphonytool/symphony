@@ -17,6 +17,7 @@ import org.overture.ast.node.INode;
 import org.overture.ast.patterns.APatternListTypePair;
 import org.overture.ast.patterns.PPattern;
 import org.overture.ast.types.PType;
+import org.overture.pog.contexts.POImpliesContext;
 import org.overture.pog.contexts.PONameContext;
 import org.overture.pog.obligation.TypeCompatibility;
 import org.overture.pog.pub.IPOContextStack;
@@ -40,7 +41,8 @@ import eu.compassresearch.core.analysis.pog.utility.ClonerProcessState;
 import eu.compassresearch.core.analysis.pog.utility.MakerNameContexts;
 
 public class POGDeclAndDefVisitor extends
-		QuestionAnswerCMLAdaptor<IPOContextStack, CmlProofObligationList> {
+		QuestionAnswerCMLAdaptor<IPOContextStack, CmlProofObligationList>
+{
 
 	// Errors and other things are recorded on this guy
 	final private QuestionAnswerAdaptor<IPOContextStack, CmlProofObligationList> parentPOG;
@@ -49,15 +51,15 @@ public class POGDeclAndDefVisitor extends
 
 	public POGDeclAndDefVisitor(
 			QuestionAnswerAdaptor<IPOContextStack, CmlProofObligationList> parent,
-			CmlPogAssistantFactory assistantFactory) {
+			CmlPogAssistantFactory assistantFactory)
+	{
 		this.parentPOG = parent;
-		this.overtureVisitor = new PogParamDefinitionVisitor<IPOContextStack, CmlProofObligationList>(
-				this, this, assistantFactory);
+		this.overtureVisitor = new PogParamDefinitionVisitor<IPOContextStack, CmlProofObligationList>(this, this, assistantFactory);
 		this.assistantFactory = assistantFactory;
 
 	}
-	
-//	caseAins
+
+	// caseAins
 
 	/**
 	 * CML channel definition CURRENTLY JUST PRINT TO SCREEN
@@ -65,7 +67,8 @@ public class POGDeclAndDefVisitor extends
 	@Override
 	public CmlProofObligationList caseAChannelDefinition(
 			AChannelDefinition node, IPOContextStack question)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 
 		CmlProofObligationList pol = new CmlProofObligationList();
 
@@ -80,7 +83,8 @@ public class POGDeclAndDefVisitor extends
 	@Override
 	public CmlProofObligationList caseAChansetDefinition(
 			AChansetDefinition node, IPOContextStack question)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 
 		CmlProofObligationList pol = new CmlProofObligationList();
 
@@ -95,17 +99,21 @@ public class POGDeclAndDefVisitor extends
 	@Override
 	public CmlProofObligationList caseAClassClassDefinition(
 			AClassClassDefinition node, IPOContextStack question)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 
 		CmlProofObligationList pol = new CmlProofObligationList();
 
-		for (PDefinition def : node.getDefinitions()) {
+		for (PDefinition def : node.getDefinitions())
+		{
 			PONameContext name = def.apply(new MakerNameContexts());
-			if (name != null) {
+			if (name != null)
+			{
 				question.push(def.apply(new MakerNameContexts()));
 				pol.addAll(def.apply(parentPOG, question));
 				question.pop();
-			} else {
+			} else
+			{
 				pol.addAll(def.apply(parentPOG, question));
 			}
 
@@ -117,17 +125,20 @@ public class POGDeclAndDefVisitor extends
 	@Override
 	public CmlProofObligationList caseAProcessDefinition(
 			AProcessDefinition node, IPOContextStack question)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 		CmlProofObligationList pol = new CmlProofObligationList();
 
 		PProcess process = node.getProcess();
 		PONameContext name = process.apply(new MakerNameContexts());
 
-		if (name != null) {
+		if (name != null)
+		{
 			question.push(process.apply(new MakerNameContexts()));
 			pol.addAll(process.apply(parentPOG, question));
 			question.pop();
-		} else {
+		} else
+		{
 			pol.addAll(process.apply(parentPOG, question));
 		}
 
@@ -136,10 +147,12 @@ public class POGDeclAndDefVisitor extends
 
 	@Override
 	public CmlProofObligationList caseAStateDefinition(AStateDefinition node,
-			IPOContextStack question) throws AnalysisException {
+			IPOContextStack question) throws AnalysisException
+	{
 		CmlProofObligationList pol = new CmlProofObligationList();
 
-		for (PDefinition def : node.getStateDefs()) {
+		for (PDefinition def : node.getStateDefs())
+		{
 			pol.addAll(def.apply(parentPOG, question));
 		}
 
@@ -148,7 +161,8 @@ public class POGDeclAndDefVisitor extends
 
 	@Override
 	public CmlProofObligationList caseAActionDefinition(AActionDefinition node,
-			IPOContextStack question) throws AnalysisException {
+			IPOContextStack question) throws AnalysisException
+	{
 		CmlProofObligationList pol = new CmlProofObligationList();
 
 		// TODO re-enable pog action visits. for now, not doing it.
@@ -164,7 +178,8 @@ public class POGDeclAndDefVisitor extends
 	@Override
 	public CmlProofObligationList caseAUnresolvedPathExp(
 			AUnresolvedPathExp node, IPOContextStack question)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 		return new CmlProofObligationList();
 	}
 
@@ -172,14 +187,16 @@ public class POGDeclAndDefVisitor extends
 	@Override
 	public CmlProofObligationList defaultPSingleDeclaration(
 			PSingleDeclaration node, IPOContextStack question)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 		return new CmlProofObligationList();
 	}
 
 	// Call Overture for the other defs
 	@Override
 	public CmlProofObligationList defaultPDefinition(PDefinition node,
-			IPOContextStack question) throws AnalysisException {
+			IPOContextStack question) throws AnalysisException
+	{
 		CmlProofObligationList pol = new CmlProofObligationList();
 		pol.addAll(node.apply(overtureVisitor, question));
 		return pol;
@@ -188,7 +205,8 @@ public class POGDeclAndDefVisitor extends
 	// Call the main pog when it's not a defintion/declaration
 	@Override
 	public CmlProofObligationList defaultINode(INode node,
-			IPOContextStack question) throws AnalysisException {
+			IPOContextStack question) throws AnalysisException
+	{
 		CmlProofObligationList pol = new CmlProofObligationList();
 		pol.addAll(node.apply(parentPOG, question));
 		return pol;
@@ -200,7 +218,8 @@ public class POGDeclAndDefVisitor extends
 	@Override
 	public CmlProofObligationList caseAImplicitOperationDefinition(
 			AImplicitOperationDefinition node, IPOContextStack question)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 		CmlProofObligationList pol = new CmlProofObligationList();
 
 		// Taken from Overture - Needed?
@@ -212,43 +231,49 @@ public class POGDeclAndDefVisitor extends
 					pids.add(def.getName());
 
 		// Taken from Overture - Needed?
-		if (pids.hasDuplicates()) {
-			pol.add(new CmlParameterPatternObligation(assistantFactory, node,
-					question));
+		if (pids.hasDuplicates())
+		{
+			pol.add(new CmlParameterPatternObligation(assistantFactory, node, question));
 		}
 
 		// if implicit operation has a precondition, dispatch for PO checking
-		if (node.getPrecondition() != null) {
+		if (node.getPrecondition() != null)
+		{
 			pol.addAll(node.getPrecondition().apply(parentPOG, question));
 		}
 
-		// if implicit operation has a precondition, dispatch for PO checking
-		// and generate OperationPostConditionObligation
+		if (node.getPostcondition() != null)
+		{
+			if (node.getPrecondition() != null)
+			{
+				question.push(new POImpliesContext(node.getPrecondition()));
 
-		if (node.getPostcondition() != null) {
-			pol.addAll(node.getPostcondition().apply(parentPOG, question));
-
+				pol.addAll(node.getPostcondition().apply(parentPOG, question));
+				question.pop();
+			} else
+			{
+				pol.addAll(node.getPostcondition().apply(parentPOG, question));
+			}
 			PDefinition stateDef;
 
 			AActionProcess stater = node.getAncestor(AActionProcess.class);
-			if (stater != null) {
-				List<AInstanceVariableDefinition> stateDefs = stater
-						.apply(new ClonerProcessState());
-				question.push(new CmlOperationDefinitionContext(node, false,
-						stateDefs));
-				pol.add(new CmlSatisfiabilityObligation(node, stateDefs,
-						question,assistantFactory));
+			if (stater != null)
+			{
+				List<AInstanceVariableDefinition> stateDefs = stater.apply(new ClonerProcessState());
+				question.push(new CmlOperationDefinitionContext(node, false, stateDefs));
+				pol.add(new CmlSatisfiabilityObligation(node, stateDefs, question, assistantFactory));
 				question.pop();
-			} else {
-				if (node.getClassDefinition() != null) {
+			} else
+			{
+				if (node.getClassDefinition() != null)
+				{
 					stateDef = node.getClassDefinition().clone();
-				} else {
+				} else
+				{
 					stateDef = node.getStateDefinition();
 				}
-				question.push(new CmlOperationDefinitionContext(node, false,
-						stateDef));
-				pol.add(new CmlSatisfiabilityObligation(node, stateDef,
-						question,assistantFactory));
+				question.push(new CmlOperationDefinitionContext(node, false, stateDef));
+				pol.add(new CmlSatisfiabilityObligation(node, stateDef, question, assistantFactory));
 				question.pop();
 			}
 		}
@@ -263,7 +288,8 @@ public class POGDeclAndDefVisitor extends
 	@Override
 	public CmlProofObligationList caseAAssignmentDefinition(
 			AAssignmentDefinition node, IPOContextStack question)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 		CmlProofObligationList obligations = new CmlProofObligationList();
 
 		if (node.getExpression() == null)
@@ -274,11 +300,11 @@ public class POGDeclAndDefVisitor extends
 
 		obligations.addAll(expression.apply(parentPOG, question));
 
-		if (!TypeComparator.isSubType(question.checkType(expression, expType),
-				type, assistantFactory)) {
-			TypeCompatibility sto = TypeCompatibility.newInstance(expression,
-					type, expType, question, assistantFactory);
-			if (sto != null) {
+		if (!TypeComparator.isSubType(question.checkType(expression, expType), type, assistantFactory))
+		{
+			TypeCompatibility sto = TypeCompatibility.newInstance(expression, type, expType, question, assistantFactory);
+			if (sto != null)
+			{
 				obligations.add(sto);
 			}
 		}
@@ -288,14 +314,16 @@ public class POGDeclAndDefVisitor extends
 
 	@Override
 	public CmlProofObligationList createNewReturnValue(INode node,
-			IPOContextStack question) {
+			IPOContextStack question)
+	{
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public CmlProofObligationList createNewReturnValue(Object node,
-			IPOContextStack question) {
+			IPOContextStack question)
+	{
 		// TODO Auto-generated method stub
 		return null;
 	}

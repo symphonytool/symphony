@@ -37,10 +37,10 @@ public class AdHoc {
 			URISyntaxException {
 
 		// switch this flag to update a test result file
-		boolean write_result = true;
+		boolean write_result = false;
 
 		// switch this flag to print the stored results
-		boolean show_result = true;
+		boolean show_result = false;
 
 		String model = "src/test/resources/adhoc/adhoc.cml";
 		String result = "src/test/resources/adhoc/adhoc.cml.RESULT";
