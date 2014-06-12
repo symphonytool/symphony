@@ -1,15 +1,16 @@
-process Alfalfa = begin 
-
+process Test =
+begin
 
 state 
-y:int :=10
-x : int :=1
-z : real :=3
+  n : nat
 
-inv x > z
+operations
 
+Op(a: nat) 
+frame rd n : nat
+pre a > 42
+post n = a
 
-
-@Skip
+@ Skip
 
 end

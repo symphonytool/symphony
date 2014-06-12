@@ -37,13 +37,13 @@ public class BugRegressionTest
 	{
 	}
 
-	public BugRegressionTest(String model, String result)
+	public BugRegressionTest(String _,String model, String result)
 	{
 		this.modelPath = model;
 		this.resultPath = result;
 	}
 
-	@Parameters(name = "{index} : {1}")
+	@Parameters(name = "{index} : {0}")
 	public static Collection<Object[]> testData()
 	{
 		return TestFileProvider.bugRegs();
