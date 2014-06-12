@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <testResult type="eu.compassresearch.core.typechecker.ProcessesCmlTypeCheckerTests">
-<message column="6" line="4" message="Unsupported language construct found: 'ex!e[e in set I]test'" messageType="error" number="3444" resource="processes-0032-action-channelrename-comprehension-neg.cml"/>
+<message column="28" line="4" message="Empty set used in bind." messageType="warning" number="3264" resource="processes-0032-action-channelrename-comprehension-neg.cml"/>
+<message column="19" line="4" message="Definition 'e' not used." messageType="warning" number="5000" resource="processes-0032-action-channelrename-comprehension-neg.cml"/>
+<message column="28" line="4" message="Name 'I' is not in scope." messageType="error" number="3182" resource="processes-0032-action-channelrename-comprehension-neg.cml"/>
+<message column="32" line="4" message="Name 'test' is not in scope." messageType="error" number="3182" resource="processes-0032-action-channelrename-comprehension-neg.cml"/>
+<message column="13" line="4" message="The Symbol &quot;x!e&quot; is undefined." messageType="error" number="3410" resource="processes-0032-action-channelrename-comprehension-neg.cml"/>
+<message column="13" line="4" message="The Symbol &quot;x!e&quot; is undefined." messageType="error" number="3410" resource="processes-0032-action-channelrename-comprehension-neg.cml"/>
 <message column="5" line="4" message="Action 'A' is not in scope." messageType="error" number="3437" resource="processes-0032-action-channelrename-comprehension-neg.cml"/>
 <result/>
 </testResult>

@@ -7,6 +7,7 @@ import org.overture.ast.analysis.AnalysisException;
 import eu.compassresearch.core.analysis.modelchecker.api.FormulaIntegrationUtilities;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCATypeDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCTypeWrapper;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
 
 public class FormulaSpecification {
@@ -44,17 +45,31 @@ public class FormulaSpecification {
 	private void handleUserTypeDefinitions(){
 		StringBuilder userTypeDefs = new StringBuilder();
 		StringBuilder userTypeNames = new StringBuilder();
+		StringBuilder wappersUserTypeNames = new StringBuilder();
+		
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 		
 		if(context.typeDefinitions.size() > 0){
 			for (MCATypeDefinition typeDef : context.typeDefinitions) {
-				userTypeDefs.append(typeDef.toFormula(MCNode.DEFAULT));
-				userTypeDefs.append("\n");
-				userTypeNames.append(" + " + typeDef.getName());
+				String typeName = typeDef.getName();
+				if(typeDef.hasValues()){
+					userTypeDefs.append(typeDef.toFormula(MCNode.DEFAULT));
+					userTypeDefs.append("\n");
+					userTypeNames.append(" + " + typeName);
+				}
+				wappersUserTypeNames.append("  " + MCTypeWrapper.getWrapperForType(typeName));
+				wappersUserTypeNames.append(" ::= (");
+				if(!typeDef.hasValues()){
+					typeName = context.getFinalType(typeName).toFormula(MCNode.SEMANTIC_NAMED);
+				} 
+				wappersUserTypeNames.append(typeName);
+				wappersUserTypeNames.append(").\n");
+				
 			}
-			this.auxiliaryDomain.replace("//USER_DEF_TYPES", userTypeDefs.toString());
-			this.auxiliaryDomain.replace("/*INCLUDE USER_DEF_TYPES*/", userTypeNames.toString());
 		}
+		this.auxiliaryDomain.replace("//USER_DEF_TYPES", userTypeDefs.toString());
+		this.auxiliaryDomain.replace("/*INCLUDE USER_DEF_TYPES*/", userTypeNames.toString());
+		this.auxiliaryDomain.replace("//WRAPPERS_USER_DEF_TYPES", wappersUserTypeNames.toString());
 	}
 	
 	public String buildFormulaScript() throws IOException, AnalysisException{

@@ -15,22 +15,9 @@
   <name>Symphony IDE Theorem Prover (Isabelle) Plugin</name>
 
   <properties>
-    <scala.version>2.10.1</scala.version>
+    <scala.version>2.10.4</scala.version>
     <scala.maven.version>2.15.2</scala.maven.version>
   </properties>
-
-  <repositories>
-    <repository>
-      <id>isabelle-eclipse</id>
-      <url>http://andriusvelykis.github.io/isabelle-eclipse/updates/isabelle2013/releases/</url>
-      <layout>p2</layout>
-    </repository>
-    <repository>
-      <id>scala-ide</id>
-      <url>http://download.scala-ide.org/sdk/e38/scala210/stable/site</url>
-      <layout>p2</layout>
-    </repository>
-  </repositories>
 
   <!-- these let the scala compile pass, even though they don't affect the packaging -->
   <dependencies>

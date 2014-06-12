@@ -75,6 +75,9 @@ public class ProcessObjectValue extends ObjectValue
 			AActionProcess actionProcess = (AActionProcess) processDefinition.getProcess();
 			def = actionProcess.getActionDefinition();
 			SClassDefinitionRuntime state = new ProcessDefinitionRuntime(af, def, name);
+			//functions
+			VdmRuntime.setNodeState(def, state);
+			//operations
 			VdmRuntime.setNodeState(processDefinition, state);
 		}
 
@@ -101,7 +104,7 @@ public class ProcessObjectValue extends ObjectValue
 	}
 
 	@Override
-	public boolean hasDelegate()
+	public boolean hasDelegate(Context ctxt)
 	{
 
 		IRuntimeState state = VdmRuntime.getNodeState(processDefinition);

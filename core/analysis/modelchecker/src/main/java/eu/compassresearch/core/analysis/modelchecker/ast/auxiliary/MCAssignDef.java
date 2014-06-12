@@ -49,13 +49,28 @@ public class MCAssignDef implements MCNode {
 		String varName = stateDesignator.toFormula(MCNode.NAMED);
 		String newValueVarName = varName + "_";
 		MCPCMLExp newVarValue = new MCAVariableExp(newValueVarName);
-		maxCopy.updateBinding(varName,newVarValue); 
+		if(this.expression instanceof MCAVariableExp){
+			if(max.containsVariable(((MCAVariableExp) this.expression).getName())){
+				maxCopy.updateBinding(varName,newVarValue); 
+			}
+		}else{
+			maxCopy.updateBinding(varName,newVarValue);
+		}
+		
 		result.append(maxCopy.toFormula(MCNode.NAMED)); 
 		
-		//THE EXPRESSION OF THE ASSIGNMENT
-		result.append(", ");
+		//it prints the expression if all expression to be assigned are defined (final values) or 
+		//are in the binding
+		if(this.expression instanceof MCAVariableExp){
+			if(max.containsVariable(((MCAVariableExp) this.expression).getName())){ //is in the biding
+				result.append(", ");
+				result.append(newValueVarName + " = " + expression.toFormula(option)); //expression assignment
+			}
+		}else{
+			result.append(", ");
+			result.append(newValueVarName + " = " + expression.toFormula(option)); //expression assignment
+		}
 		
-		result.append(newValueVarName + " = " + expression.toFormula(option)); //expression assignment
 		
 		result.append(".");
 		

@@ -1,5 +1,6 @@
     primitive lieIn         ::= (ev : Sigma, sourceSet: String).
-    primitive Channel       ::= (chN : String, chT: Type).
+    //primitive Channel       ::= (chN : String, chT: Type).
+	Channel       ::= (chN : String, chT: Type).
     
     primitive CommEv        ::= (chName: String, chExp: String, val: Type).
     primitive IOComm        ::= (id: Natural, chName: String, chExp:String, val: Type).

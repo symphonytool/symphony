@@ -22,4 +22,4 @@ end
 
 process
 
- Cards = || i: nat @ [ {| pay.i,transfer.i |} union { transfer.j.i.n| j:nat,n:nat}] Card(i)
+ Cards = || i: nat @ [ {| pay.i,transfer.i |} union { transfer.j| j:nat}] Card(i)

@@ -1,0 +1,16 @@
+process Test =
+begin
+
+state 
+  m : map nat to nat:= {|->}
+
+operations
+
+Op(a: nat) r : nat
+frame rd m 
+pre a in set dom m
+post r = m(a)
+
+@ Skip
+
+end

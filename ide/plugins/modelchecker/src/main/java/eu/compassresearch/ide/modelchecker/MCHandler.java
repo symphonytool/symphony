@@ -20,6 +20,7 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
@@ -31,8 +32,10 @@ import org.overture.ast.definitions.PDefinition;
 import org.overture.ide.core.resources.IVdmProject;
 
 import eu.compassresearch.ast.definitions.AProcessDefinition;
+import eu.compassresearch.core.analysis.modelchecker.api.FormulaIntegrationException;
 import eu.compassresearch.core.analysis.modelchecker.api.FormulaResult;
 import eu.compassresearch.core.analysis.modelchecker.api.IFormulaIntegrator;
+import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewMCVisitor;
 import eu.compassresearch.core.analysis.modelchecker.visitors.Utilities;
 import eu.compassresearch.ide.core.resources.ICmlModel;
@@ -44,8 +47,8 @@ import eu.compassresearch.ide.ui.utility.CmlProjectUtil;
 
 public class MCHandler extends AbstractHandler {
 
-	private IWorkbenchWindow window;
-	private MessageConsoleStream console;
+	private static IWorkbenchWindow window;
+	//private MessageConsoleStream console;
 	private NewMCVisitor adaptor;
 	private IFormulaIntegrator mc;
 	private IProject proj;
@@ -56,6 +59,11 @@ public class MCHandler extends AbstractHandler {
 		//RegistryFactory factory = eu.compassresearch.core.common.RegistryFactory.getInstance(MCConstants.MC_REGISTRY_ID);
 		//this.registry = factory.getRegistry();
 	}
+	
+	public IWorkbenchWindow getWindow(){
+		return this.window;
+	}
+	
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		
@@ -64,14 +72,14 @@ public class MCHandler extends AbstractHandler {
 		//	popErrorMessage("No project selected.");
 		//	return null;
 		//}
-		if(!Activator.FORMULA_OK){
-			popErrorMessage(Activator.formulaNotInstalledMsg);
+		if(!CmlMCPlugin.FORMULA_OK){
+			MCPluginUtility.popErrorMessage(CmlMCPlugin.formulaNotInstalledMsg);
 		}else{
 			try {
 				this.window = HandlerUtil.getActiveWorkbenchWindow(event);
 				this.proj = MCPluginUtility.getCurrentlySelectedProject();
 				if (proj == null) {
-					popErrorMessage(new RuntimeException("No project is selected."));
+					MCPluginUtility.popErrorMessage(new RuntimeException("No project is selected."));
 					return null;
 				}
 				
@@ -79,24 +87,23 @@ public class MCHandler extends AbstractHandler {
 				ICmlProject cmlProj = (ICmlProject) proj.getAdapter(ICmlProject.class);
 				
 				//Check there are no type errors.
-				if (!CmlProjectUtil.typeCheck(window.getShell(), cmlProj))
-				{
-					popErrorMessage(new RuntimeException("Errors in model."));
+				if (!CmlProjectUtil.typeCheck(window.getShell(), cmlProj)){
+					MCPluginUtility.popErrorMessage(new RuntimeException("There are errors in model."));
 					return null;
 				}
 				
 				// Check compatibility 
-				
-				 List<UnsupportedElementInfo> uns = new MCUnsupportedCollector().getUnsupporteds(cmlProj.getModel().getAst());
+				List<UnsupportedElementInfo> uns = new MCUnsupportedCollector().getUnsupporteds(cmlProj.getModel().getAst());
 				if (!uns.isEmpty()){
 					cmlProj.addUnsupportedMarkers(uns);
 					MessageDialog.openError(null, "Symphony", MCCollectorHandler.UNSUPPORTED_ELEMENTS_MSG);
 					return null;
 				}
 				
-				
 				//Grab the model from the project
 				final ICmlModel model = cmlProj.getModel();
+				
+				updateNumberOfInstances();
 				
 				//get the selected cmlfile and analyse it
 				ISelection selection = window.getSelectionService().getSelection();
@@ -112,9 +119,6 @@ public class MCHandler extends AbstractHandler {
 					if (cmlFile != null) {
 						if("cml".equalsIgnoreCase(cmlFile.getFileExtension())){
 							String propertyToCheck = this.getProperty(event.getParameter("eu.compassresearch.ide.modelchecker.property"));
-						    
-							
-							
 							IFolder mcFolder = cmlProj.getModelBuildPath().getOutput().getFolder(new Path("modelchecker"));
 							if(!mcFolder.exists()){
 								//if generated folder doesn't exist
@@ -132,31 +136,10 @@ public class MCHandler extends AbstractHandler {
 							
 							IFile outputFile = translateCmlToFormula(model, (IFile)cmlFile, mcFolder, propertyToCheck);
 						
-							//FormulaResult formulaOutput = new FormulaResult();
-							//MCJob job = new MCJob("Model checker progress", outputFile);
-							//formulaOutput = job.getFormulaResult();
-							//job.schedule();
-							
 							if(outputFile != null){
-								MCProgressView p = new MCProgressView(outputFile, propertyToCheck, mcFolder, selectedUnit, cmlFile, event, mainProcessName);
+								MCProgressView p = new MCProgressView(outputFile, propertyToCheck, mcFolder, selectedUnit, cmlFile, event, mainProcessName, this);
 								p.execute();
-								if(p.getThread().getException() != null){
-									throw p.getThread().getException();
-								}
 							}
-							
-							//formulaOutput = p.getFormulaResult();
-							
-							//FormulaResultWrapper frw = new FormulaResultWrapper(formulaOutput, null, propertyToCheck, mcFolder, selectedUnit);
-							
-							//if the model is satisfiable then we save the formula output and 
-							//to build the graph of the counterexample on demand.
-							//writeToConsole(cmlFile.getName(), formulaOutput);
-						
-							
-							//MCPluginDoStuff mcp = new MCPluginDoStuff(window.getActivePage().getActivePart().getSite(), cmlFile, frw);
-							//mcp.run();
-							//registry.store(selectedUnit.getParseNode(), frw);
 						}else{
 							MessageDialog.openInformation(
 									window.getShell(),
@@ -168,17 +151,17 @@ public class MCHandler extends AbstractHandler {
 				
 			} catch(Exception e){
 				//logStackTrace(e);
-				popErrorMessage(e);
+				MCPluginUtility.popErrorMessage(e);
 			}
 		}
 		return null;
 	}
-	private void logStackTrace(Exception e) {
-		StackTraceElement[] trace = e.getStackTrace();
-		for (int i = 0; i < trace.length; i++) {
-			Activator.logErrorMessage(trace[i].toString());
-		}
-	}
+	
+	private void updateNumberOfInstances(){
+		int instancesPref = CmlMCPlugin.getDefault().getPreferenceStore().getInt(MCConstants.INSTANCES_NUMBER);
+		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
+		context.setNumberOfInstances(instancesPref);
+	}  
 	
 	private boolean hasMultipleProcessDefinitions(List<PDefinition> projectSources){
 		boolean result = false;
@@ -239,29 +222,32 @@ public class MCHandler extends AbstractHandler {
 		}
 		IFile outputFile = null;
 		if(mainProcessName != null){
-			//String name = selectedCmlSourceUnit.getFile().getName();
 			String name = mainProcessName;
-			//String formulaFileName = name.substring(0,name.length()-selectedCmlSourceUnit.getFile().getFileExtension().length())+"4ml";
 			String formulaFileName = name +".4ml";
 			outputFile = mcFolder.getFile(formulaFileName);
 			
-			
-			
 			this.adaptor =  new NewMCVisitor();
-			String specificationContent = this.adaptor.generateFormulaScript(definitions,propertyToCheck,mainProcessName);
+			String specificationContent = "";
+			
 			try{
+				specificationContent = this.adaptor.generateFormulaScript(definitions,propertyToCheck,mainProcessName);
 				if(!outputFile.exists()){
 					outputFile.create(new ByteArrayInputStream(specificationContent.toString().getBytes()), true, new NullProgressMonitor());
 				}else{
 					outputFile.setContents(new ByteArrayInputStream(specificationContent.toString().getBytes()), true, true, new NullProgressMonitor());
 				}
+			}catch(NullPointerException e){
+				throw new AnalysisException("Internal error when accessing some null object during FORMULA script generation.", e);
+			}catch(ClassCastException e){
+				throw new AnalysisException("Internal error when casting some object during FORMULA script generation.");
 			}catch(CoreException e){
-				Activator.log(e);
+				CmlMCPlugin.log(e);
 			}
 		
 		}
 		return outputFile;
 	}
+	/*
 	private void writeToConsole(String fileName, FormulaResult formulaOutput)
 			throws IOException {
 		
@@ -274,6 +260,7 @@ public class MCHandler extends AbstractHandler {
 		this.console.write("Base of Facts: \n");
 		this.console.write(formulaOutput.getFacts());
 	}
+	*/
 	
 	private String getProperty(String parameterValue){
 		String property = Utilities.DEADLOCK_PROPERTY;
@@ -287,13 +274,29 @@ public class MCHandler extends AbstractHandler {
 		return property;
 	}
 	
-	private void popErrorMessage(Throwable e) {
-		MessageDialog.openInformation(null, "Symphony",
-				"Could not analyse the specification.\n\n" + e.getMessage());
+	/*
+	public void popErrorMessage(final Throwable e) {
+		Display.getDefault().asyncExec(new Runnable() {
+		    @Override
+		    public void run() {
+		    	popErrorMessage(e,"Symphony");
+		    }
+		  });
+		
 	}
 	private void popErrorMessage(String message) {
 		MessageDialog.openInformation(null, "Symphony",message);
 	}
+	
+	private void popErrorMessage(final Throwable e, String tittle) {
+		if(e instanceof FormulaIntegrationException){
+			Activator.logErrorMessage(e.getMessage());
+			MessageDialog.openInformation(null, tittle,"Could not analyse the specification.\n\n Internal error in FORMULA. \n\n" + e.getMessage());
+		}else{
+			MessageDialog.openInformation(null, tittle,"Could not analyse the specification.\n\n" + e.getMessage());
+		}
+	}
+	*/
 	@Override
 	public void dispose() {
 		super.dispose();
@@ -301,7 +304,7 @@ public class MCHandler extends AbstractHandler {
 			try {
 				mc.finalize();
 			} catch (Throwable e) {
-				popErrorMessage(e);
+				MCPluginUtility.popErrorMessage(e);
 			}
 		}
 	}

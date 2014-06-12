@@ -146,7 +146,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 						processInv = ((AClassInvariantDefinition) def).getExpression();
 					}
 
-					NameValuePairList nvps = def.apply(cmlDefEvaluator, tmpContext);
+					NameValuePairList nvps = def.apply(question.assistantFactory.getNamedValueLister(), tmpContext);
 					tmpContext.putList(nvps);
 
 					// set the correct module on the member names
@@ -488,6 +488,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 	/**
 	 * see {@link CommonInspectionVisitor#caseStartDeadline(INode, INode, PExp, Context) }
 	 */
+	@SuppressWarnings("javadoc")
 	@Override
 	public Inspection caseAStartDeadlineProcess(
 			final AStartDeadlineProcess node, final Context question)

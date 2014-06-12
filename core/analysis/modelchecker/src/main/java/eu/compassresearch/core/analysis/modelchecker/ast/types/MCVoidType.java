@@ -19,5 +19,11 @@ public class MCVoidType implements MCPCMLType {
 		return new MCVoidType();
 	}
 
+
+	@Override
+	public String getTypeAsName() {
+		return "void";
+	}
+
 	
 }

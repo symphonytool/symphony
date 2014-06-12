@@ -189,6 +189,7 @@ public class MessageCommunicator
 	 * Constructs a message by deserializing the output from requestReader and returns it in a MessageContainer.
 	 * 
 	 * @param requestReader
+	 * @param defaultMessage 
 	 * @return
 	 * @throws IOException
 	 */

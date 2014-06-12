@@ -1,0 +1,10 @@
+channels
+  c : int
+process P = begin
+@
+  (val x:int @ c!x -> Skip)(23)
+end
+
+process P1 = (val x:int @ begin @ Skip end startsby x)(23)
+process P2 = (val x : int @ A(x))(23)
+process A = val x : int @ begin  @ Skip end

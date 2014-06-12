@@ -10,4 +10,9 @@ public class Test
 	{
 		return new IntegerValue(a.intValue(null) - b.intValue(null));
 	}
+	
+	public static Value sub2(Value a, Value b) throws ValueException
+	{
+		return new IntegerValue(a.intValue(null) - b.intValue(null));
+	}
 }

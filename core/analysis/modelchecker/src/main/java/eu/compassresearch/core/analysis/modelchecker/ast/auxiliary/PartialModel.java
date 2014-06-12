@@ -1,6 +1,7 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.auxiliary;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
+import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
 
 public class PartialModel {
 	
@@ -23,6 +24,12 @@ public class PartialModel {
 	public String toFormula(String option){
 		StringBuilder result = new StringBuilder();
 
+		//it generates the introduce facts if necessary
+		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
+		if(context.introduceFacts.size() > 0){
+			result.append(context.introduceFacts.toString());
+		}
+		result.append("\n");
 		result.append("partial model StartProcModel of ");
 		result.append(this.domain.getName() + "{\n");
 

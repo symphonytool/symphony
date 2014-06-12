@@ -47,7 +47,7 @@ public class ThmExplicitOperation extends ThmDecl{
 		{
 			for(String p: paramT)		
 			{
-				sb.append("(" + p + ")*");
+				sb.append("(" + p + ")**");
 			}
 			sb.append("()");
 		}
@@ -118,7 +118,7 @@ public class ThmExplicitOperation extends ThmDecl{
 		}
 		
 		//Replace the keyword "RESULT" with the Lambda post value
-		ex = ex.replace("^RESULT^", "@" + outputName);
+		ex = ex.replace("&RESULT", "@" + outputName);
 		
 		return ex;
 	}

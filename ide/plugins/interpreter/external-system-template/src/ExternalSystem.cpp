@@ -23,7 +23,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	}
 	catch (...)
 	{
-		std::cerr << " Unknowed error \n";
+		std::cerr << " Unknown error \n";
 	}
 
 	getchar();

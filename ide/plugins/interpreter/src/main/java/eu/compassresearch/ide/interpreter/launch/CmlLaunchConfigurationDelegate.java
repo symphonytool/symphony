@@ -39,8 +39,6 @@ import org.osgi.framework.Constants;
 import org.overture.ide.core.resources.IVdmProject;
 import org.overture.ide.core.resources.IVdmSourceUnit;
 import org.overture.ide.debug.core.IDebugConstants;
-import org.overture.ide.debug.core.IDebugPreferenceConstants;
-import org.overture.ide.debug.core.VdmDebugPlugin;
 import org.overture.ide.debug.core.dbgp.DbgpServer;
 import org.overture.ide.debug.core.launching.VdmLaunchConfigurationDelegate;
 import org.overture.ide.debug.utils.ClassPathCollector;
@@ -240,6 +238,8 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 			process = pb.start();
 		} else
 		{
+			System.out.println("Full Debugger Arguments:\n"
+					+ getArgumentString(commandArray));
 			System.out.println("Debugger Arguments:\n"
 					+ getArgumentString(commandArray.subList(4, commandArray.size())));
 			process = Runtime.getRuntime().exec("java -version");
@@ -332,12 +332,12 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 			options.add("-Dlog4j.configuration=log4j-off.properties");
 		}
 
-		if (VdmDebugPlugin.getDefault().getPreferenceStore().getBoolean(IDebugPreferenceConstants.PREF_DBGP_ENABLE_EXPERIMENTAL_MODELCHECKER))
+//		if (VdmDebugPlugin.getDefault().getPreferenceStore().getBoolean(IDebugPreferenceConstants.PREF_DBGP_ENABLE_EXPERIMENTAL_MODELCHECKER))
 		{
 			final Bundle bundle = Platform.getBundle(VdmLaunchConfigurationDelegate.ORG_OVERTURE_IDE_PLUGINS_PROBRUNTIME);
 			if (bundle != null)
 			{
-				URL buildInfoUrl = FileLocator.find(bundle, new Path("build_info.txt"), null);
+				URL buildInfoUrl = FileLocator.find(bundle, new Path("prob/build_info.txt"), null);
 
 				try
 				{
@@ -413,7 +413,7 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 				}
 			}
 
-			if (VdmDebugPlugin.getDefault().getPreferenceStore().getBoolean(IDebugPreferenceConstants.PREF_DBGP_ENABLE_EXPERIMENTAL_MODELCHECKER))
+//			if (VdmDebugPlugin.getDefault().getPreferenceStore().getBoolean(IDebugPreferenceConstants.PREF_DBGP_ENABLE_EXPERIMENTAL_MODELCHECKER))
 			{
 				bundleIds.add(VdmLaunchConfigurationDelegate.ORG_OVERTURE_IDE_PLUGINS_PROBRUNTIME);
 			}

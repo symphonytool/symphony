@@ -1,0 +1,21 @@
+
+
+
+channels
+
+a: nat
+b:nat*nat
+
+
+
+process P = 
+ begin
+ actions
+ A=Skip
+   @
+	A	[[
+     		a 	<-	b, 
+     		a.1 <-	b.1/*,
+     		a 	<- 	b.1.2.4 -- not sure why this line doesnt parse*/
+       	]]
+ end

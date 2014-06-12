@@ -29,6 +29,7 @@ public class MCAIdentifierPattern implements MCPCMLPattern {
 		return result;
 	}
 
+	
 
 	public String getName() {
 		return name;
