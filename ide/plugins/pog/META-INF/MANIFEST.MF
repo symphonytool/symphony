@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Symphony IDE POG Plugin
 Bundle-SymbolicName: eu.compassresearch.ide.pog;singleton:=true
-Bundle-Version: 0.3.1.qualifier
+Bundle-Version: 0.3.2
 Bundle-Activator: eu.compassresearch.ide.pog.Activator
 Bundle-Vendor: The COMPASS Project
 Import-Package: eu.compassresearch.ast.actions,
