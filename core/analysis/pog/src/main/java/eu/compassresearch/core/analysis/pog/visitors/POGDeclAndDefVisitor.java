@@ -21,7 +21,6 @@ import org.overture.pog.contexts.POImpliesContext;
 import org.overture.pog.contexts.PONameContext;
 import org.overture.pog.obligation.TypeCompatibility;
 import org.overture.pog.pub.IPOContextStack;
-import org.overture.pog.visitors.PogParamDefinitionVisitor;
 import org.overture.typechecker.TypeComparator;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
@@ -46,7 +45,7 @@ public class POGDeclAndDefVisitor extends
 
 	// Errors and other things are recorded on this guy
 	final private QuestionAnswerAdaptor<IPOContextStack, CmlProofObligationList> parentPOG;
-	final private PogParamDefinitionVisitor<IPOContextStack, CmlProofObligationList> overtureVisitor;
+	final private SpecialDefinitionVisitor overtureVisitor;
 	final CmlPogAssistantFactory assistantFactory;
 
 	public POGDeclAndDefVisitor(
@@ -54,9 +53,8 @@ public class POGDeclAndDefVisitor extends
 			CmlPogAssistantFactory assistantFactory)
 	{
 		this.parentPOG = parent;
-		this.overtureVisitor = new PogParamDefinitionVisitor<IPOContextStack, CmlProofObligationList>(this, this, assistantFactory);
+		this.overtureVisitor = new SpecialDefinitionVisitor(this, this, assistantFactory);
 		this.assistantFactory = assistantFactory;
-
 	}
 
 	// caseAins

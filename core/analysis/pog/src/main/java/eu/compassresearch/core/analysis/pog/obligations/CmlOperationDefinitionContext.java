@@ -23,10 +23,10 @@
 
 package eu.compassresearch.core.analysis.pog.obligations;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.overture.ast.definitions.AExplicitOperationDefinition;
 import org.overture.ast.definitions.AImplicitOperationDefinition;
 import org.overture.ast.definitions.AInstanceVariableDefinition;
 import org.overture.ast.definitions.PDefinition;
@@ -50,10 +50,17 @@ public class CmlOperationDefinitionContext extends POOperationDefinitionContext
 		super(definition.getName(), (AOperationType) definition.getType(), getParamPatternList(definition), precond, definition.getPrecondition(), stateDefinition, (AImplicitOperationDefinition) null);
 	}
 
-	public CmlOperationDefinitionContext(AImplicitOperationDefinition node,
+	public CmlOperationDefinitionContext(
+			AExplicitOperationDefinition definition, boolean precond,
+			PDefinition stateDefinition)
+	{
+		super(definition, precond, stateDefinition);
+	}
+
+	public CmlOperationDefinitionContext(AExplicitOperationDefinition node,
 			boolean precond, List<AInstanceVariableDefinition> stateDefs)
 	{
-		super(node.getName(), (AOperationType) node.getType(), getParamPatternList(node), precond, node.getPrecondition(), null, (AImplicitOperationDefinition) null);
+		super(node.getName(), (AOperationType) node.getType(), node.getParameterPatterns(), precond, node.getPrecondition(), null, node);
 
 		psdefs = new LinkedList<AInstanceVariableDefinition>();
 
@@ -65,10 +72,25 @@ public class CmlOperationDefinitionContext extends POOperationDefinitionContext
 		psdefs = stateDefs;
 	}
 
-	public static List<PPattern> getParamPatternList(
+	public CmlOperationDefinitionContext(AImplicitOperationDefinition node,
+			boolean precond, List<AInstanceVariableDefinition> stateDefs)
+	{
+		super(node.getName(), (AOperationType) node.getType(), getParamPatternList(node), precond, node.getPrecondition(), null, node);
+
+		psdefs = new LinkedList<AInstanceVariableDefinition>();
+
+		for (AInstanceVariableDefinition def : stateDefs)
+		{
+			psdefs.add(def.clone());
+		}
+
+		psdefs = stateDefs;
+	}
+
+	private static LinkedList<PPattern> getParamPatternList(
 			AImplicitOperationDefinition definition)
 	{
-		List<PPattern> plist = new ArrayList<PPattern>();
+		LinkedList<PPattern> plist = new LinkedList<PPattern>();
 
 		for (APatternListTypePair pl : definition.getParameterPatterns())
 		{
@@ -77,7 +99,7 @@ public class CmlOperationDefinitionContext extends POOperationDefinitionContext
 
 		return plist;
 	}
-	
+
 	@Override
 	protected void addStateBinds(LinkedList<PMultipleBind> r)
 	{
@@ -86,6 +108,7 @@ public class CmlOperationDefinitionContext extends POOperationDefinitionContext
 			super.addStateBinds(r);
 		} else
 		{
+			// FIXME filter variables according to rd/wr frames
 			for (AInstanceVariableDefinition pdef : psdefs)
 			{
 				ATypeMultipleBind tmBind2 = new ATypeMultipleBind();
@@ -99,6 +122,14 @@ public class CmlOperationDefinitionContext extends POOperationDefinitionContext
 				r.add(tmBind2);
 			}
 		}
+	}
+
+	@Override
+	protected boolean anyBinds()
+	{
+		if (psdefs == null)
+			return super.anyBinds();
+		return (!psdefs.isEmpty()) || super.anyBinds();
 	}
 
 }
