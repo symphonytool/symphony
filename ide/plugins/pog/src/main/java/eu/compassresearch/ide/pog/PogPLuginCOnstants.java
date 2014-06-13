@@ -1,6 +1,6 @@
 package eu.compassresearch.ide.pog;
 
-public abstract class POConstants
+public abstract class PogPLuginCOnstants
 {
 	public static final String PO_REGISTRY_ID = "PO_REGISTRY";
 	public static final String PO_PERSPECTIVE_ID = "eu.compassresearch.ide.pog.pog-perspective";

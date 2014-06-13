@@ -3,6 +3,7 @@ package eu.compassresearch.ide.pog;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IPerspectiveDescriptor;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchSite;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -21,16 +22,19 @@ import eu.compassresearch.ide.pog.view.PoDetailView;
 import eu.compassresearch.ide.pog.view.PoListView;
 import eu.compassresearch.ide.ui.utility.CmlProjectUtil;
 
-public class PogPluginRunner {
+public class PogPluginRunner
+{
 	private IWorkbenchWindow window;
 	private IWorkbenchSite site;
 	private ICmlProject cmlProj;
 
-	public void runPog() {
+	public void runPog()
+	{
 
 		clearPoViews();
 
-		if (!CmlProjectUtil.typeCheck(this.window.getShell(), cmlProj)) {
+		if (!CmlProjectUtil.typeCheck(this.window.getShell(), cmlProj))
+		{
 			PogPluginUtils.popErrorMessage(window, "Errors in model.");
 			return;
 		}
@@ -39,74 +43,81 @@ public class PogPluginRunner {
 
 		IProofObligationList polist = genPos(model);
 
-		if (!polist.isEmpty()) {
-			showPos(cmlProj,polist);
+		if (!polist.isEmpty())
+		{
+			showPos(cmlProj, polist);
 		}
 
 	}
 
-	private void clearPoViews() {
-		IViewPart v;
-		try {
-			v = site.getPage().showView(POConstants.PO_OVERVIEW_TABLE);
-			if (v instanceof PoListView) {
+	private void clearPoViews()
+	{
+		try
+		{
+			IPerspectiveDescriptor descriptor = window.getWorkbench().getPerspectiveRegistry().findPerspectiveWithId(PogPLuginCOnstants.PO_PERSPECTIVE_ID);
+			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().setPerspective(descriptor);
+
+			IViewPart v;
+			v = site.getPage().showView(PogPLuginCOnstants.PO_OVERVIEW_TABLE);
+			if (v instanceof PoListView)
+			{
 				((PoListView) v).clearPos();
 			}
-		} catch (PartInitException e) {
-			e.printStackTrace();
-		}
 
-		IViewPart v2;
-		try {
-			v2 = site.getPage().showView(POConstants.PO_DETAIL_VIEW);
-			if (v2 instanceof PoDetailView) {
+			IViewPart v2;
+			v2 = site.getPage().showView(PogPLuginCOnstants.PO_DETAIL_VIEW);
+			if (v2 instanceof PoDetailView)
+			{
 				((PoDetailView) v2).clearPoView();
 			}
-		} catch (PartInitException e) {
+		} catch (PartInitException e)
+		{
 			e.printStackTrace();
 		}
 
 	}
 
-	private IProofObligationList genPos(ICmlModel model) {
+	private IProofObligationList genPos(ICmlModel model)
+	{
 
 		IProofObligationList poList = new CmlProofObligationList();
 
-		try {
+		try
+		{
 			poList = PogPubUtil.generateProofObligations(model.getAst());
 			return poList;
-		} catch (Exception e) {
-			PogPluginUtils
-					.popErrorMessage(
-							window,
-							"Internal POG error. Please submit a bug report at: \n\nhttps://github.com/symphonytool/symphony/issues/new");
+		} catch (Exception e)
+		{
+			PogPluginUtils.popErrorMessage(window, "Internal POG error. Please submit a bug report at: \n\nhttps://github.com/symphonytool/symphony/issues/new");
 			e.printStackTrace();
 			return poList;
 		}
 	}
 
-	public static void redrawPos(ICmlProject proj, IProofObligationList polist) {
+	public static void redrawPos(ICmlProject proj, IProofObligationList polist)
+	{
 		// FIXME Check if the data in the viewer table is still not being
 		final IProofObligationList pol = polist;
 		final ICmlProject project = proj;
-		Display.getDefault().asyncExec(new Runnable() {
+		Display.getDefault().asyncExec(new Runnable()
+		{
 
-			public void run() {
+			public void run()
+			{
 				IViewPart v;
 
-				try {
-					v = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-							.getActivePage()
-							.findView(POConstants.PO_OVERVIEW_TABLE);
-					if (v instanceof PoOverviewTableView) {
-						((PoOverviewTableView) v).setDataList(
-								(IVdmProject) project
-										.getAdapter(IVdmProject.class), pol);
+				try
+				{
+					v = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().findView(PogPLuginCOnstants.PO_OVERVIEW_TABLE);
+					if (v instanceof PoOverviewTableView)
+					{
+						((PoOverviewTableView) v).setDataList((IVdmProject) project.getAdapter(IVdmProject.class), pol);
 
 					}
 					// PogPluginUtility ppu = new PogPluginUtility(site);
 					// ppu.openPoviewPerspective();
-				} catch (Exception e) {
+				} catch (Exception e)
+				{
 					e.printStackTrace();
 				}
 			}
@@ -114,50 +125,54 @@ public class PogPluginRunner {
 
 	}
 
-	private void showPos(final ICmlProject project, IProofObligationList pos) {
+	private void showPos(final ICmlProject project, IProofObligationList pos)
+	{
 		final IProofObligationList pol = pos;
 
-		site.getPage().getWorkbenchWindow().getShell().getDisplay()
-				.asyncExec(new Runnable() {
+		site.getPage().getWorkbenchWindow().getShell().getDisplay().asyncExec(new Runnable()
+		{
 
-					public void run() {
-						IViewPart v;
+			public void run()
+			{
+				IViewPart v;
 
-						try {
-							v = site.getPage().showView(
-									POConstants.PO_OVERVIEW_TABLE);
-							if (v instanceof PoListView) {
-								((PoListView) v).setDataList(project, pol);
+				try
+				{
+					v = site.getPage().showView(PogPLuginCOnstants.PO_OVERVIEW_TABLE);
+					if (v instanceof PoListView)
+					{
+						((PoListView) v).setDataList(project, pol);
 
-							}
-
-							PogPluginUtils.openPoviewPerspective(site);
-						} catch (PartInitException e) {
-							e.printStackTrace();
-						}
 					}
 
-				});
+					PogPluginUtils.openPoviewPerspective(site);
+				} catch (PartInitException e)
+				{
+					e.printStackTrace();
+				}
+			}
+
+		});
 	}
 
 	/**
-	 * Selection in the workbench has been changed. We can change the state of
-	 * the 'real' action here if we want, but this can only happen after the
-	 * delegate has been created.
+	 * Selection in the workbench has been changed. We can change the state of the 'real' action here if we want, but
+	 * this can only happen after the delegate has been created.
 	 * 
 	 * @see IWorkbenchWindowActionDelegate#selectionChanged
 	 */
-	public void selectionChanged(IAction action, ISelection selection) {
+	public void selectionChanged(IAction action, ISelection selection)
+	{
 	}
 
 	/**
-	 * We will cache window object in order to be able to provide parent shell
-	 * for the message dialog.
+	 * We will cache window object in order to be able to provide parent shell for the message dialog.
 	 * 
 	 * @see IWorkbenchWindowActionDelegate#init
 	 */
 	public PogPluginRunner(IWorkbenchWindow window, IWorkbenchSite site,
-			ICmlProject cmlproj) {
+			ICmlProject cmlproj)
+	{
 		this.cmlProj = cmlproj;
 		this.window = window;
 		this.site = window.getActivePage().getActivePart().getSite();

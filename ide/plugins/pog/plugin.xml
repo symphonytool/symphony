@@ -20,8 +20,16 @@
 			<view
                id="eu.compassresearch.ide.ui.CmlNavigator"
                minimized="false"
-               ratio="0.25"
+               ratio="0.20"
                relationship="left"
+               relative="org.eclipse.ui.editorss"
+               visible="true">
+			</view>
+				<view
+               id="eu.compassresearch.ide.pog.PoDetail"
+               minimized="false"
+               ratio="0.70"
+               relationship="bottom"
                relative="org.eclipse.ui.editorss"
                visible="true">
 			</view>
@@ -34,12 +42,14 @@
                visible="true">
 			</view>
 			<view
-               id="eu.compassresearch.ide.pog.PoDetail"
-               minimized="false"
-               ratio="0.50"
-               relationship="bottom"
-               relative="org.eclipse.ui.editorss"
-               visible="true">
+               id="org.eclipse.ui.console.ConsoleView"
+		       relative="eu.compassresearch.ide.pog.PoDetail" 
+               relationship="stack">
+			</view>
+			<view
+               id="org.eclipse.ui.views.ProblemView"
+		       relative="eu.compassresearch.ide.pog.PoDetail" 
+               relationship="stack">
 			</view>
 		</perspectiveExtension>
 	</extension>
@@ -103,7 +113,7 @@
               label="CML-POG">
 				<command
             commandId="eu.compassresearch.ide.pog.generatepos"
-            label="Quick check Proof Obligations"
+            label="Inspect Proof Obligations"
             style="push"
             tooltip="Generate and inspect temporary POs for selected Project">
 				</command>
