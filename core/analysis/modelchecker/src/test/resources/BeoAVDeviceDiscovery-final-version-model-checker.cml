@@ -45,14 +45,14 @@
          createDDSDObject :()==>() --update the data with service status info, needs to be done before each broadcast
          createDDSDObject()== product_DR := 2 -- just simulate updating the device record
 	  actions	  
-		  Off_State = SourceProductPowerChannel.<POWER_ON> -> On_State -- product can be powered on by a user event
-		  On_State = DD_SD_Announcement_State /_\ (SourceProductPowerChannel.<POWER_OFF>->Off_State)  -- the Announcement loop can be interupted by a user event 
-		  DD_SD_Announcement_State = (MarshallData_State; Wait(sourceBroadcastTime);  DD_SD_Announcement_State) -- Announce the device in the network using multicast
-		  MarshallData_State = (createDDSDObject();IPMulticastChannel!product_DR -> Skip) [_ timeout _> (Skip) --- simulate IP multicast logic using timeouts  					   
-      @ Off_State
+		  --Off_State = SourceProductPowerChannel.<POWER_ON> -> On_State -- product can be powered on by a user event
+		  --On_State = DD_SD_Announcement_State /_\ (SourceProductPowerChannel.<POWER_OFF>->Off_State)  -- the Announcement loop can be interupted by a user event 
+		  --DD_SD_Announcement_State = (MarshallData_State; Wait(sourceBroadcastTime);  DD_SD_Announcement_State) -- Announce the device in the network using multicast
+		  MarshallData_State = (createDDSDObject();IPMulticastChannel!product_DR -> Skip) -- [_ timeout _> (Skip) --- simulate IP multicast logic using timeouts  					   
+      @ MarshallData_State -- Off_State
   end
 
-
+/*
 -- CML process modelling the B&O DD protocol for the target product in the network 
   process TargetProduct_DD_SD_InterfaceProtocolView =
   begin
@@ -130,4 +130,4 @@
   
   //process Beo_RS_InterfaceProtocolViews =  TargetProduct_SR_InterfaceProtocolView [|{IPTCPChannel,IPTCPPORTChannel}|]SourceProduct_SR_InterfaceProtocolView
 
-  
+  */

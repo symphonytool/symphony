@@ -23,6 +23,7 @@ public class MCAActionDefinition implements MCPCMLDefinition {
 	private String name;
 	private LinkedList<MCPParametrisation> declarations = new LinkedList<MCPParametrisation>();
 	private MCPAction action;
+	private String parameterString = "void";
 
 	
 	public MCAActionDefinition(String name, LinkedList<MCPParametrisation> declarations,
@@ -53,8 +54,9 @@ public class MCAActionDefinition implements MCPCMLDefinition {
 		StringBuilder result = new StringBuilder();
 		String actionString = "";
 		context.mcProcOrActionsStack.push(this);
+		
+		
 		if(declarations.size() > 0){
-			
 			 //for the moment we assume that processes have only one parameter
 			MCPParametrisation param = declarations.getFirst();
 			if(param instanceof MCAValParametrisation){
@@ -75,30 +77,10 @@ public class MCAActionDefinition implements MCPCMLDefinition {
 					result.append(actionString);
 					result.append(")");
 					context.localVariablesMapping.remove(mapping);
-					
 					addDependencies(option, context, result, actionString);
-					
-					/*
-					//if the action has dependencies we get them from the context
-					LinkedList<ActionChannelDependency> dependencies = context.getActionChannelDependendies(this.name);
-					if(NewCMLModelcheckerContext.hasInfiniteChannelInDependencies(dependencies)){
-						result.append(" :- ");
-						for (Iterator<ActionChannelDependency> iterator = dependencies.iterator(); iterator.hasNext();) {
-							ActionChannelDependency actionChannelDependency = (ActionChannelDependency) iterator.next();
-							if(actionChannelDependency.hasInfiniteTypedChannel()){
-								result.append(",");
-								result.append(actionChannelDependency.toFormula(option));
-							}
-						}
-					}
-					*/
 					result.append(".\n");
 				}
 			}
-			
-			
-			
-			
 		}else{
 			result.append("  ProcDef(\"");
 			result.append(this.name);
@@ -106,7 +88,8 @@ public class MCAActionDefinition implements MCPCMLDefinition {
 			// parameters
 			ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance(); 
 			MCPCMLType paramType  = evaluator.instantiateMCTypeFromParams(this.declarations);
-			result.append(paramType.toFormula(option));
+			parameterString = paramType.toFormula(option); 
+			result.append(parameterString);
 			result.append(",");
 			actionString = this.getAction().toFormula(option);
 			result.append(actionString);
@@ -177,7 +160,8 @@ public class MCAActionDefinition implements MCPCMLDefinition {
 			result.append("State(");
 			result.append(context.maximalBinding.toFormula(MCNode.NAMED));
 			result.append(",");
-			result.append(actionString);
+			//result.append(actionString);
+			result.append("proc(\"" + this.name + "\"," + parameterString + ")");
 			result.append(")");
 		}
 		context.resetStateDependencies();
