@@ -1,0 +1,1 @@
+[{"poKind":"state invariant","poExp":"(0 \u003d 0)"},{"poKind":"state invariant","poExp":"(forall a:nat \u0026 ((n + a) \u003d m))"}]

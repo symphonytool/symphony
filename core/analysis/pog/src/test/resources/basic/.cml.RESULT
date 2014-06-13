@@ -1,0 +1,1 @@
+[{"poKind":"sequence apply","poExp":"(1 in set (inds giver))"},{"poKind":"value binding","poExp":"(exists mk_(x, y):((nat1 * nat1) | nat1) \u0026 (mk_(x, y) \u003d giver(1)))"},{"poKind":"type compatibility","poExp":"is_(giver(1), (nat1 * nat1))"}]

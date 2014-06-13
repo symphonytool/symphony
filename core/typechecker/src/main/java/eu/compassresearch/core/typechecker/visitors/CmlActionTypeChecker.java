@@ -36,7 +36,6 @@ import org.overture.typechecker.TypeCheckInfo;
 import org.overture.typechecker.TypeChecker;
 import org.overture.typechecker.TypeCheckerErrors;
 import org.overture.typechecker.TypeComparator;
-import org.overture.typechecker.assistant.pattern.PPatternAssistantTC;
 
 import eu.compassresearch.ast.CmlAstFactory;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
@@ -844,7 +843,7 @@ public class CmlActionTypeChecker extends
 
 				actualType = question.assistantFactory.createPPatternAssistant().getPossibleType(p);
 
-				names.addAll(PPatternAssistantTC.getVariableNames(p));
+				names.addAll(question.assistantFactory.createPPatternAssistant().getVariableNames(p));
 
 			} else if (commParam instanceof AWriteCommunicationParameter
 					|| commParam instanceof ASignalCommunicationParameter)

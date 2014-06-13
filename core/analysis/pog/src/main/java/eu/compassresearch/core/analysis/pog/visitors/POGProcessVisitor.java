@@ -3,10 +3,13 @@ package eu.compassresearch.core.analysis.pog.visitors;
 import java.util.LinkedList;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.definitions.AInstanceVariableDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.node.INode;
-import org.overture.pog.obligation.PONameContext;
+import org.overture.pog.contexts.AssignmentContext;
+import org.overture.pog.contexts.PONameContext;
 import org.overture.pog.pub.IPOContextStack;
+import org.overture.pog.utility.UniqueNameGenerator;
 
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
@@ -16,49 +19,45 @@ import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligationList;
 import eu.compassresearch.core.analysis.pog.utility.MakerNameContexts;
 
 public class POGProcessVisitor extends
-		QuestionAnswerCMLAdaptor<IPOContextStack, CmlProofObligationList>
-{
+		QuestionAnswerCMLAdaptor<IPOContextStack, CmlProofObligationList> {
 	private ProofObligationGenerator parentPOG;
 
-	// FIXME figure out how to dispatch chan and varsets to the apropriate visitors
-
-	public POGProcessVisitor(ProofObligationGenerator parent)
-	{
+	public POGProcessVisitor(ProofObligationGenerator parent) {
 		this.parentPOG = parent;
 	}
 
 	@Override
 	public CmlProofObligationList defaultPProcess(PProcess node,
-			IPOContextStack question) throws AnalysisException
-	{
+			IPOContextStack question) throws AnalysisException {
 
 		return new CmlProofObligationList();
 	}
 
 	@Override
 	public CmlProofObligationList caseAActionProcess(AActionProcess node,
-			IPOContextStack question) throws AnalysisException
-	{
+			IPOContextStack question) throws AnalysisException {
 		CmlProofObligationList pol = new CmlProofObligationList();
 
-		// Get subparts
-		LinkedList<PDefinition> pdef = node.getActionDefinition().getDefinitions();
+		LinkedList<PDefinition> pdef = node.getActionDefinition()
+				.getDefinitions();
+
 		PAction action = node.getAction();
-		pol.addAll(action.apply(parentPOG,question));
-		
-		for (PDefinition def : pdef)
-		{
+		//pol.addAll(action.apply(parentPOG, question));
+
+		for (PDefinition def : pdef) {
 			PONameContext name = def.apply(new MakerNameContexts());
-			if (name != null)
-			{
+			if (name != null) {
 				question.push(def.apply(new MakerNameContexts()));
 				pol.addAll(def.apply(parentPOG, question));
 				question.pop();
-			} else
-			{
+			} else {
 				pol.addAll(def.apply(parentPOG, question));
 			}
+			question.clearStateContexts();
 		}
+		
+		question.setGenerator(null);
+		
 
 		// TODO: Consider any AActionProcess POs
 		return pol;
@@ -66,16 +65,14 @@ public class POGProcessVisitor extends
 
 	@Override
 	public CmlProofObligationList createNewReturnValue(INode node,
-			IPOContextStack question)
-	{
+			IPOContextStack question) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public CmlProofObligationList createNewReturnValue(Object node,
-			IPOContextStack question)
-	{
+			IPOContextStack question) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -142,7 +139,8 @@ public class POGProcessVisitor extends
 	// }
 	//
 	// @Override
-	// public CmlProofObligationList caseASynchronousParallelismReplicatedProcess(
+	// public CmlProofObligationList
+	// caseASynchronousParallelismReplicatedProcess(
 	// ASynchronousParallelismReplicatedProcess node,
 	// IPOContextStack question) throws AnalysisException {
 	//
@@ -165,7 +163,8 @@ public class POGProcessVisitor extends
 	// }
 	//
 	// @Override
-	// public CmlProofObligationList caseASequentialCompositionReplicatedProcess(
+	// public CmlProofObligationList
+	// caseASequentialCompositionReplicatedProcess(
 	// ASequentialCompositionReplicatedProcess node,
 	// IPOContextStack question) throws AnalysisException {
 	//
@@ -211,7 +210,8 @@ public class POGProcessVisitor extends
 	// }
 	//
 	// @Override
-	// public CmlProofObligationList caseAGeneralisedParallelismReplicatedProcess(
+	// public CmlProofObligationList
+	// caseAGeneralisedParallelismReplicatedProcess(
 	// AGeneralisedParallelismReplicatedProcess node,
 	// IPOContextStack question) throws AnalysisException {
 	//
@@ -259,7 +259,8 @@ public class POGProcessVisitor extends
 	// }
 	//
 	// @Override
-	// public CmlProofObligationList caseAAlphabetisedParallelismReplicatedProcess(
+	// public CmlProofObligationList
+	// caseAAlphabetisedParallelismReplicatedProcess(
 	// AAlphabetisedParallelismReplicatedProcess node,
 	// IPOContextStack question) throws AnalysisException {
 	//
@@ -284,7 +285,8 @@ public class POGProcessVisitor extends
 	// }
 	//
 	// @Override
-	// public CmlProofObligationList caseAInterruptProcess(AInterruptProcess node,
+	// public CmlProofObligationList caseAInterruptProcess(AInterruptProcess
+	// node,
 	// IPOContextStack question) throws AnalysisException {
 	//
 	// CmlProofObligationList pol = new CmlProofObligationList();
@@ -525,7 +527,8 @@ public class POGProcessVisitor extends
 	// }
 	//
 	// @Override
-	// public CmlProofObligationList caseAReferenceProcess(AReferenceProcess node,
+	// public CmlProofObligationList caseAReferenceProcess(AReferenceProcess
+	// node,
 	// IPOContextStack question) throws AnalysisException {
 	//
 	// CmlProofObligationList pol = new CmlProofObligationList();

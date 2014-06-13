@@ -30,17 +30,17 @@ import eu.compassresearch.pog.tests.utils.TestInputHelper;
  * @author ldc
  * 
  */
-public class AdHocTest {
+public class AdHoc {
 
 	@Test
 	public void quickTest() throws AnalysisException, IOException,
 			URISyntaxException {
 
 		// switch this flag to update a test result file
-		boolean write_result = true;
+		boolean write_result = false;
 
 		// switch this flag to print the stored results
-		boolean show_result = true;
+		boolean show_result = false;
 
 		String model = "src/test/resources/adhoc/adhoc.cml";
 		String result = "src/test/resources/adhoc/adhoc.cml.RESULT";
@@ -51,7 +51,7 @@ public class AdHocTest {
 
 		System.out.println("ACTUAL POs:");
 		for (IProofObligation po : ipol) {
-			System.out.println(po.getKindString() + " / " + po.getValue());
+			System.out.println(po.getKindString() +" " +po.getLocation() + " / " + po.getValue());
 		}
 
 		if (write_result) {

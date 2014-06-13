@@ -16,11 +16,11 @@ import org.junit.runners.Parameterized.Parameters;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.node.INode;
 import org.overture.pog.pub.IProofObligationList;
-import org.overture.pog.pub.ProofObligationGenerator;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import eu.compassresearch.core.analysis.pog.utility.PogPubUtil;
 import eu.compassresearch.pog.tests.utils.TestFileProvider;
 import eu.compassresearch.pog.tests.utils.TestInputHelper;
 import eu.compassresearch.pog.tests.utils.TestResultHelper;
@@ -37,13 +37,13 @@ public class BugRegressionTest
 	{
 	}
 
-	public BugRegressionTest(String model, String result)
+	public BugRegressionTest(String _,String model, String result)
 	{
 		this.modelPath = model;
 		this.resultPath = result;
 	}
 
-	@Parameters(name = "{index} : {1}")
+	@Parameters(name = "{index} : {0}")
 	public static Collection<Object[]> testData()
 	{
 		return TestFileProvider.bugRegs();
@@ -55,7 +55,7 @@ public class BugRegressionTest
 	{
 
 		List<INode> ast = TestInputHelper.getAstFromName(modelPath);
-		IProofObligationList ipol = ProofObligationGenerator.generateProofObligations(ast);
+		IProofObligationList ipol = PogPubUtil.generateProofObligations(ast);
 
 		Gson gson = new Gson();
 		String json = IOUtils.toString(new FileReader(resultPath));
