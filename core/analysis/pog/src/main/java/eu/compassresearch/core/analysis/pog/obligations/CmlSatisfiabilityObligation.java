@@ -35,16 +35,16 @@ import org.overture.ast.expressions.AExistsExp;
 import org.overture.ast.expressions.AImpliesBooleanBinaryExp;
 import org.overture.ast.expressions.AVariableExp;
 import org.overture.ast.expressions.PExp;
+import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.lex.LexKeywordToken;
 import org.overture.ast.lex.VDMToken;
 import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.patterns.APatternTypePair;
 import org.overture.ast.patterns.PMultipleBind;
+import org.overture.ast.statements.AExternalClause;
 import org.overture.pog.pub.IPOContextStack;
 import org.overture.pog.pub.IPogAssistantFactory;
 import org.overture.pog.utility.Substitution;
-
-//OR FROM COMPASS?
 
 public class CmlSatisfiabilityObligation extends CmlProofObligation
 {
@@ -83,18 +83,41 @@ public class CmlSatisfiabilityObligation extends CmlProofObligation
 	}
 
 	PExp stateInPost(List<AInstanceVariableDefinition> procState,
-			PExp post_exp, List<PMultipleBind> exists_binds)
-			throws AnalysisException
+			PExp post_exp, List<PMultipleBind> exists_binds,
+			AImplicitOperationDefinition op) throws AnalysisException
 	{
 		if (procState != null)
 		{
-			for (AInstanceVariableDefinition var : procState)
+			if (op.getExternals().size() > 0)
 			{
-				AVariableExp newVar = getVarExp(getUnique(var.getName().getName()));
-				Substitution sub = new Substitution(var.getName().clone(), newVar);
-				post_exp = post_exp.apply(af.getVarSubVisitor(), sub);
-				PMultipleBind pmb = getMultipleTypeBind(var.getType().clone(), newVar.getName().clone());
-				exists_binds.add(pmb);
+				for (AInstanceVariableDefinition var : procState)
+				{
+					for (AExternalClause e : op.getExternals())
+					{
+						for (ILexNameToken i : e.getIdentifiers())
+						{
+							if (i.equals(var.getName()))
+							{
+								AVariableExp newVar = getVarExp(getUnique(var.getName().getName()));
+								Substitution sub = new Substitution(var.getName().clone(), newVar);
+								post_exp = post_exp.apply(af.getVarSubVisitor(), sub);
+								PMultipleBind pmb = getMultipleTypeBind(var.getType().clone(), newVar.getName().clone());
+								exists_binds.add(pmb);
+							}
+						}
+					}
+				}
+			} else
+			{
+
+				for (AInstanceVariableDefinition var : procState)
+				{
+					AVariableExp newVar = getVarExp(getUnique(var.getName().getName()));
+					Substitution sub = new Substitution(var.getName().clone(), newVar);
+					post_exp = post_exp.apply(af.getVarSubVisitor(), sub);
+					PMultipleBind pmb = getMultipleTypeBind(var.getType().clone(), newVar.getName().clone());
+					exists_binds.add(pmb);
+				}
 			}
 		}
 		return post_exp;
@@ -132,7 +155,7 @@ public class CmlSatisfiabilityObligation extends CmlProofObligation
 				postArglist.add(patternToExp(res.getPattern()));
 
 				List<PMultipleBind> exists_binds = new LinkedList<PMultipleBind>();
-				postApply = stateInPost(procState, postApply,exists_binds);
+				postApply = stateInPost(procState, postApply, exists_binds, op);
 
 				exists_binds.add(getMultipleTypeBind(res.getType(), ip.getName()));
 
@@ -153,7 +176,7 @@ public class CmlSatisfiabilityObligation extends CmlProofObligation
 			AExistsExp exists_exp = new AExistsExp();
 
 			List<PMultipleBind> exists_binds = new LinkedList<PMultipleBind>();
-			postApply = stateInPost(procState, postApply, exists_binds);
+			postApply = stateInPost(procState, postApply, exists_binds, op);
 
 			exists_exp.setBindList(exists_binds);
 			exists_exp.setPredicate(postApply);
