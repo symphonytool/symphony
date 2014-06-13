@@ -1,0 +1,13 @@
+process Test =
+begin
+
+state
+y : int
+
+operations
+op : int ==> real
+op (x) == return y/x
+
+@ Skip
+
+end

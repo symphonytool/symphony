@@ -3,8 +3,8 @@ state
 n : nat
 
 operations
-op ()
-post n = 0
+op () r : nat
+post n = r
 
 @Skip
 end

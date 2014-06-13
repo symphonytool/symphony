@@ -18,7 +18,8 @@ import org.apache.commons.io.filefilter.RegexFileFilter;
 public class TestFileProvider
 {
 
-	private final static String BASE_INPUTS_FOLDER = "src/test/resources/basic";
+	private final static String BASE_POS = "src/test/resources/basic/pos";
+	private final static String BASE_CTXTS = "src/test/resources/basic/ctxts";
 	private final static String BUG_REG_ROOT = "src/test/resources/bug-regression";
 	private final static String RESULT_EXTENSION = ".RESULT";
 
@@ -30,8 +31,13 @@ public class TestFileProvider
 
 	public static Collection<Object[]> basics()
 	{
-		File dir = new File(BASE_INPUTS_FOLDER);
-		return files(dir);
+		
+		File dir = new File(BASE_POS);
+		Collection<Object[]> r = files(dir);
+		dir= new File(BASE_CTXTS);
+		r.addAll(files(dir));
+		return r;
+
 	}
 
 	private static Collection<Object[]> files(File dir)
