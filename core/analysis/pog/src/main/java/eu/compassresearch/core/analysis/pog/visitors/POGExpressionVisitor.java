@@ -20,7 +20,7 @@ public class POGExpressionVisitor extends
     final private QuestionAnswerAdaptor<IPOContextStack, CmlProofObligationList> rootVisitor;
     final private PogParamExpVisitor<IPOContextStack, CmlProofObligationList> overtureVisitor;
 
-    //FIXME passe down factory
+    
     public POGExpressionVisitor(
 	    QuestionAnswerAdaptor<IPOContextStack, CmlProofObligationList> parentVisitor) {
 	this.rootVisitor = parentVisitor;

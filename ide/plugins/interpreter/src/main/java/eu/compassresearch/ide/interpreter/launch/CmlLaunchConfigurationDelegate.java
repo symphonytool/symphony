@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -41,7 +40,6 @@ import org.overture.ide.core.resources.IVdmSourceUnit;
 import org.overture.ide.debug.core.IDebugConstants;
 import org.overture.ide.debug.core.dbgp.DbgpServer;
 import org.overture.ide.debug.core.launching.VdmLaunchConfigurationDelegate;
-import org.overture.ide.debug.utils.ClassPathCollector;
 import org.overture.ide.debug.utils.VdmProjectClassPathCollector;
 
 import eu.compassresearch.core.interpreter.debug.CmlDebugDefaultValues;
@@ -160,7 +158,7 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 		List<String> sources = new LinkedList<String>();
 		for (IVdmSourceUnit su : vdmproject.getSpecFiles())
 		{
-			sources.add(su.getSystemFile().getCanonicalPath());
+			sources.add(su.getSystemFile().toURI().toASCIIString());
 		}
 		return sources;
 	}
@@ -220,15 +218,24 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 			}
 		}
 
-		Collection<? extends String> classPath = removeDublicateLogAppenders(VdmProjectClassPathCollector.getClassPath(getProject(configuration), collectRequiredBundleIds(ICmlDebugConstants.ID_CML_PLUGIN_NAME), additionalCpEntries.toArray(new String[] {})));
-		commandArray.addAll(Arrays.asList(new String[] { "-cp",
-				VdmProjectClassPathCollector.toCpCliArgument(classPath) }));
+		IVdmProject project = (IVdmProject) getProject(configuration).getAdapter(IVdmProject.class);
+
+		File overturePropertiesFile = prepareCustomOvertureProperties(project, configuration);
+		additionalCpEntries.add(overturePropertiesFile.getParentFile().getAbsolutePath());
+
 		commandArray.add(ICmlDebugConstants.DEBUG_ENGINE_CLASS);
 		commandArray.addAll(1, getVmArguments(configuration));
+//		commandArray.addAll(1, Arrays.asList(new String[] { "-XshowSettings:all" }));
 		commandArray.add(config);
 
 		// Execute in a new JVM process
 		ProcessBuilder pb = new ProcessBuilder(commandArray);
+
+		Collection<? extends String> classPath = removeDublicateLogAppenders(VdmProjectClassPathCollector.getClassPath(getProject(configuration), collectRequiredBundleIds(ICmlDebugConstants.ID_CML_PLUGIN_NAME), additionalCpEntries.toArray(new String[] {})));
+		String classpathenv = VdmProjectClassPathCollector.toCpEnvString(classPath);
+
+		Map<String, String> env = pb.environment();
+		env.put("CLASSPATH", classpathenv);
 
 		pb.directory(getProject(configuration).getLocation().toFile());
 
@@ -253,6 +260,23 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 		}
 
 		return iprocess;
+	}
+	
+	/**
+	 * Create the custom overture.properties file loaded by the debugger
+	 * @param project
+	 * @param configuration a configuration or null
+	 * @return
+	 * @throws CoreException
+	 */
+	public static File prepareCustomOvertureProperties(IVdmProject project,
+			ILaunchConfiguration configuration) throws CoreException
+	{
+		List<String> properties = new Vector<String>();
+
+			properties.add(VdmLaunchConfigurationDelegate.getProbHomeProperty());
+
+		return VdmLaunchConfigurationDelegate.writePropertyFile(project, "overture.properties", properties);
 	}
 
 	private Collection<? extends String> removeDublicateLogAppenders(
@@ -332,40 +356,6 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 			options.add("-Dlog4j.configuration=log4j-off.properties");
 		}
 
-//		if (VdmDebugPlugin.getDefault().getPreferenceStore().getBoolean(IDebugPreferenceConstants.PREF_DBGP_ENABLE_EXPERIMENTAL_MODELCHECKER))
-		{
-			final Bundle bundle = Platform.getBundle(VdmLaunchConfigurationDelegate.ORG_OVERTURE_IDE_PLUGINS_PROBRUNTIME);
-			if (bundle != null)
-			{
-				URL buildInfoUrl = FileLocator.find(bundle, new Path("prob/build_info.txt"), null);
-
-				try
-				{
-					if (buildInfoUrl != null)
-					{
-						URL buildInfofileUrl = FileLocator.toFileURL(buildInfoUrl);
-						if (buildInfofileUrl != null)
-						{
-							File file = new File(buildInfofileUrl.getFile());
-							if (ClassPathCollector.isWindowsPlatform())
-							{
-								options.add("-Dprob.home=\""
-										+ file.getParentFile().getPath() + "\"");
-							} else
-							{
-								options.add("-Dprob.home="
-										+ file.getParentFile().getPath());
-							}
-						}
-
-					}
-				} catch (IOException e)
-				{
-				}
-			}
-
-		}
-
 		return options;
 	}
 
@@ -413,7 +403,8 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 				}
 			}
 
-//			if (VdmDebugPlugin.getDefault().getPreferenceStore().getBoolean(IDebugPreferenceConstants.PREF_DBGP_ENABLE_EXPERIMENTAL_MODELCHECKER))
+			// if
+			// (VdmDebugPlugin.getDefault().getPreferenceStore().getBoolean(IDebugPreferenceConstants.PREF_DBGP_ENABLE_EXPERIMENTAL_MODELCHECKER))
 			{
 				bundleIds.add(VdmLaunchConfigurationDelegate.ORG_OVERTURE_IDE_PLUGINS_PROBRUNTIME);
 			}

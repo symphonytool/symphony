@@ -64,7 +64,6 @@ public class POGActionVisitor extends
 	private NameSetVisitor nsvisitor;
 	private ChansetVisitor csvisitor;
 
-	// FIXME dispatch chan and varsets to the apropriate visitors
 
 	/**
 	 * Constructor - simply initialise parent POG
@@ -512,7 +511,6 @@ public class POGActionVisitor extends
 		}
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public CmlProofObligationList caseAChaosAction(AChaosAction node,
 			IPOContextStack question) throws AnalysisException
@@ -530,7 +528,6 @@ public class POGActionVisitor extends
 		}
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public CmlProofObligationList caseASequentialCompositionReplicatedAction(
 			ASequentialCompositionReplicatedAction node,
@@ -740,7 +737,6 @@ public class POGActionVisitor extends
 		}
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public CmlProofObligationList caseASkipAction(ASkipAction node,
 			IPOContextStack question) throws AnalysisException
@@ -757,7 +753,6 @@ public class POGActionVisitor extends
 		}
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public CmlProofObligationList caseAExternalChoiceAction(
 			AExternalChoiceAction node, IPOContextStack question)
@@ -856,7 +851,6 @@ public class POGActionVisitor extends
 		}
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public CmlProofObligationList caseAStartDeadlineAction(
 			AStartDeadlineAction node, IPOContextStack question)
@@ -882,7 +876,6 @@ public class POGActionVisitor extends
 		}
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public CmlProofObligationList caseAEndDeadlineAction(
 			AEndDeadlineAction node, IPOContextStack question)

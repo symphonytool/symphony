@@ -36,3 +36,4 @@ Bundle-ClassPath: .,
  jars/slf4j-api.jar,
  jars/log4j.jar,
  jars/slf4j-log4j12.jar
+Export-Package: eu.compassresearch.ide.interpreter
