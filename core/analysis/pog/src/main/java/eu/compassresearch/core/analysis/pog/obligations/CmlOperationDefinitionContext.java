@@ -30,11 +30,13 @@ import org.overture.ast.definitions.AExplicitOperationDefinition;
 import org.overture.ast.definitions.AImplicitOperationDefinition;
 import org.overture.ast.definitions.AInstanceVariableDefinition;
 import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.patterns.APatternListTypePair;
 import org.overture.ast.patterns.ATypeMultipleBind;
 import org.overture.ast.patterns.PMultipleBind;
 import org.overture.ast.patterns.PPattern;
+import org.overture.ast.statements.AExternalClause;
 import org.overture.ast.types.AOperationType;
 import org.overture.pog.contexts.POOperationDefinitionContext;
 
@@ -79,12 +81,34 @@ public class CmlOperationDefinitionContext extends POOperationDefinitionContext
 
 		psdefs = new LinkedList<AInstanceVariableDefinition>();
 
-		for (AInstanceVariableDefinition def : stateDefs)
+		// node.getExternals()
+
+		if (node.getExternals().size() > 0)
 		{
-			psdefs.add(def.clone());
+			for (AInstanceVariableDefinition def : stateDefs)
+			{
+				for (AExternalClause e : node.getExternals())
+				{
+					for (ILexNameToken i : e.getIdentifiers())
+					{
+						if (i.equals(def.getName()))
+						{
+							psdefs.add(def.clone());
+						}
+					}
+				}
+			}
 		}
 
-		psdefs = stateDefs;
+		else
+		{
+			for (AInstanceVariableDefinition def : stateDefs)
+			{
+				psdefs.add(def.clone());
+			}
+		}
+
+
 	}
 
 	private static LinkedList<PPattern> getParamPatternList(

@@ -1,0 +1,14 @@
+process Test =
+begin
+
+state
+y : int
+x : nat
+
+operations
+op (ns : set of nat) n : nat
+frame rd y
+post n in set ns
+@ Skip
+
+end
