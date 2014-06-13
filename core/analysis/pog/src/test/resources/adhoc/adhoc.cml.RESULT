@@ -1,1 +1,1 @@
-[{"poKind":"map apply","poExp":"((a in set (dom m)) \u003d\u003e (a in set (dom m)))"},{"poKind":"operation satisfiability","poExp":"(forall a:nat, m:map (nat) to (nat) \u0026 ((a in set (dom m)) \u003d\u003e (exists m1:map (nat) to (nat), r:nat \u0026 (r \u003d m(a)))))"}]
+[{"poKind":"state invariant","poExp":"(0 \u003d 0)"},{"poKind":"state invariant","poExp":"(forall a:nat, n:nat, m:nat \u0026 ((n + a) \u003d m))"}]

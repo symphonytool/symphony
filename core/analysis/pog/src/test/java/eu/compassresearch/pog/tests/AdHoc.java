@@ -37,7 +37,7 @@ public class AdHoc {
 			URISyntaxException {
 
 		// switch this flag to update a test result file
-		boolean write_result = false;
+		boolean write_result = true;
 
 		// switch this flag to print the stored results
 		boolean show_result = false;
