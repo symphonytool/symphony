@@ -30,7 +30,7 @@ public class BugRegressionTest
 {
 
 	private String modelPath;
-	private String resultPath;
+	private String resultpath;
 
 	@Before
 	public void setup()
@@ -40,7 +40,7 @@ public class BugRegressionTest
 	public BugRegressionTest(String _,String model, String result)
 	{
 		this.modelPath = model;
-		this.resultPath = result;
+		this.resultpath = result;
 	}
 
 	@Parameters(name = "{index} : {0}")
@@ -58,14 +58,13 @@ public class BugRegressionTest
 		IProofObligationList ipol = PogPubUtil.generateProofObligations(ast);
 
 		Gson gson = new Gson();
-		String json = IOUtils.toString(new FileReader(resultPath));
+		String json = IOUtils.toString(new FileReader(resultpath));
 		Type datasetListType = new TypeToken<Collection<PoResult>>()
 		{
 		}.getType();
 		List<PoResult> results = gson.fromJson(json, datasetListType);
 
 		TestResultHelper.checkSameElements(results, ipol);
-
 	}
 
 }

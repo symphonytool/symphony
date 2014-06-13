@@ -7,11 +7,11 @@ import org.overture.ast.factory.AstFactory;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.types.AOperationType;
 import org.overture.ast.types.PType;
-import org.overture.pog.obligation.TypeCompatibility;
+import org.overture.pog.obligation.TypeCompatibilityObligation;
 import org.overture.pog.pub.IPOContextStack;
 import org.overture.pog.pub.IPogAssistantFactory;
 
-public class CmlSubTypeObligation extends TypeCompatibility
+public class CmlSubTypeObligation extends TypeCompatibilityObligation
 {
 	/**
 	 * 

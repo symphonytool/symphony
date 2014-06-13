@@ -35,7 +35,7 @@ import eu.compassresearch.pog.tests.utils.TestResultHelper;
 public class BasicTest
 {
 	private String micromodel;
-	private String poresult;
+	private String resultpath;
 
 	/**
 	 * Constructor for the test. Initialized with parameters from {@link #testData()}.
@@ -49,7 +49,7 @@ public class BasicTest
 	public BasicTest(String _, String testParameter, String resultParameter)
 	{
 		this.micromodel = testParameter;
-		this.poresult = resultParameter;
+		this.resultpath = resultParameter;
 	}
 
 	/**
@@ -75,7 +75,7 @@ public class BasicTest
 			IProofObligationList polist = PogPubUtil.generateProofObligations(ast);
 
 			Gson gson = new Gson();
-			String json = IOUtils.toString(new FileReader(poresult));
+			String json = IOUtils.toString(new FileReader(resultpath));
 			Type datasetListType = new TypeToken<Collection<PoResult>>()
 			{
 			}.getType();
