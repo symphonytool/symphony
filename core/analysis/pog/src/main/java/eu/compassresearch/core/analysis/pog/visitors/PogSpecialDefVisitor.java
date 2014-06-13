@@ -16,11 +16,11 @@ import eu.compassresearch.ast.process.AActionProcess;
 import eu.compassresearch.core.analysis.pog.obligations.CmlOperationDefinitionContext;
 import eu.compassresearch.core.analysis.pog.utility.ClonerProcessState;
 
-public class SpecialDefinitionVisitor extends
+public class PogSpecialDefVisitor extends
 		PogParamDefinitionVisitor<IPOContextStack, IProofObligationList>
 {
 
-	public SpecialDefinitionVisitor(
+	public PogSpecialDefVisitor(
 			QuestionAnswerAdaptor<IPOContextStack, ? extends IProofObligationList> parentVisitor,
 			QuestionAnswerAdaptor<IPOContextStack, ? extends IProofObligationList> mainVisitor,
 			IPogAssistantFactory assistantFactory)

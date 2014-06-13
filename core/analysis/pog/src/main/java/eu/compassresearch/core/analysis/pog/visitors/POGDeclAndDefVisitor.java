@@ -45,7 +45,7 @@ public class POGDeclAndDefVisitor extends
 
 	// Errors and other things are recorded on this guy
 	final private QuestionAnswerAdaptor<IPOContextStack, CmlProofObligationList> parentPOG;
-	final private SpecialDefinitionVisitor overtureVisitor;
+	final private PogSpecialDefVisitor overtureVisitor;
 	final CmlPogAssistantFactory assistantFactory;
 
 	public POGDeclAndDefVisitor(
@@ -53,7 +53,7 @@ public class POGDeclAndDefVisitor extends
 			CmlPogAssistantFactory assistantFactory)
 	{
 		this.parentPOG = parent;
-		this.overtureVisitor = new SpecialDefinitionVisitor(this, this, assistantFactory);
+		this.overtureVisitor = new PogSpecialDefVisitor(this, this, assistantFactory);
 		this.assistantFactory = assistantFactory;
 	}
 
