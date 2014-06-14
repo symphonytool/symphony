@@ -70,7 +70,10 @@ import java.util.Vector;
 import java.util.Locale;
 
 import static org.overture.ast.lex.Dialect.VDM_PP;
+import org.overture.ast.assistant.AstAssistantFactory;
+import org.overture.ast.assistant.IAstAssistantFactory;
 import org.overture.ast.assistant.definition.PDefinitionAssistant;
+import org.overture.ast.assistant.definition.PAccessSpecifierAssistant;
 import org.overture.ast.factory.AstFactory;
 import org.overture.ast.definitions.*;
 import org.overture.ast.expressions.*;
@@ -139,6 +142,7 @@ public List<CmlParserError> getErrors() {
 
 @parser::members {
 
+public IAstAssistantFactory af = new AstAssistantFactory();
 private PAction stm2action(PStm stm)
 {
     return new AStmAction((stm!=null?stm.getLocation():null),stm);
@@ -178,7 +182,7 @@ private void configureClass(SClassDefinition c)
     }
 
     // Classes are all effectively public types
-    PDefinitionAssistant.setClassDefinition(c.getDefinitions(),c);
+	af.createPDefinitionAssistant().setClassDefinition(c.getDefinitions(),c);
 }
 
 private List<CmlParserError> errors = new java.util.LinkedList<CmlParserError>();
@@ -573,6 +577,7 @@ processDefinition returns[AProcessDefinition def]
         {
             $def = new AProcessDefinition(); // FIXME
             $def.setProcess( $process.proc );
+			$def.setAccess(PAccessSpecifierAssistant.getPublic());
             ILexLocation identifierLocation = extractLexLocation($IDENTIFIER);
             CmlLexNameToken processName = new CmlLexNameToken("", new LexIdentifierToken($IDENTIFIER.getText(), false, identifierLocation));
             $def.setName(processName);
@@ -1040,7 +1045,7 @@ actionDef returns[AActionDefinition def]
                 adef.getName().setTypeQualifier(typeQualifiers);
             }
             adef.setAction($action.action);
-
+			adef.setAccess(PAccessSpecifierAssistant.getPublic());
             $def = adef;
         }
     ;
@@ -1752,6 +1757,7 @@ channelDef returns[List<AChannelDefinition> def]
                 chanDecl.setNameScope(NameScope.GLOBAL);
                 chanDecl.setUsed(false);
                 chanDecl.setLocation(id.getLocation());
+				chanDecl.setAccess(PAccessSpecifierAssistant.getPublic());
 
                 List<PType> types = new Vector<PType>();
                 ILexLocation typeLocation = loc;

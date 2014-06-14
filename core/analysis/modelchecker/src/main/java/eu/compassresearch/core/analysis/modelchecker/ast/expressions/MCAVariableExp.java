@@ -56,6 +56,16 @@ public class MCAVariableExp implements MCNumericExp {
 		return this.name;
 	}
 
+	
+
+	@Override
+	public boolean equals(Object obj) {
+		boolean result = false;
+		if(obj instanceof MCAVariableExp){
+			result = this.name.equals(((MCAVariableExp) obj).getName());
+		}
+		return result;
+	}
 
 	public String getName() {
 		return name;

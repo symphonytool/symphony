@@ -25,6 +25,10 @@ public class MCABooleanBasicType implements MCPCMLType {
 		return new MCABooleanBasicType(value);
 	}
 
+	@Override
+	public String getTypeAsName() {
+		return MCTypeWrapper.getTypeWrapperString(this.getClass());
+	}
 	
 	@Override
 	public String toString() {
@@ -38,6 +42,8 @@ public class MCABooleanBasicType implements MCPCMLType {
 	public void setValue(boolean value) {
 		this.value = value;
 	}
+
+	
 
 	
 	

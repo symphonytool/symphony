@@ -8,7 +8,7 @@ import org.overture.ast.definitions.AStateDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.lex.LexNameList;
 import org.overture.ast.node.INode;
-import org.overture.pog.obligation.PONameContext;
+import org.overture.pog.contexts.PONameContext;
 import org.overture.pog.pub.IPogAssistantFactory;
 import org.overture.pog.utility.POException;
 

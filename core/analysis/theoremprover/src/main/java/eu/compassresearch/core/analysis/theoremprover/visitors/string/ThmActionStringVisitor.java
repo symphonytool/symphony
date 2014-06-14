@@ -194,8 +194,28 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 	}
 	
 	public String caseAAlphabetisedParallelismReplicatedAction(
-			AAlphabetisedParallelismReplicatedAction node, ThmVarsContext vars) throws AnalysisException{
-		return ThmProcessUtil.undefined;
+			AAlphabetisedParallelismReplicatedAction a, ThmVarsContext vars) throws AnalysisException{
+
+		StringBuffer sb = new StringBuffer();
+		
+		for (PSingleDeclaration d : a.getReplicationDeclaration()) {
+			if (d instanceof AExpressionSingleDeclaration) {
+				AExpressionSingleDeclaration d1 = (AExpressionSingleDeclaration) d;
+				sb.append(d1.getIdentifier().toString());
+				sb.append(ThmExprUtil.inSet);
+				sb.append(d1.getExpression().apply(thmStringVisitor, vars));
+				// FIXME: The LexNameToken needs a module, currently empty
+				vars.addBVar(new LexNameToken("", d1.getIdentifier().clone()));
+			}	
+		}
+
+		sb.append(" @ [");
+		sb.append(a.getNamesetExpression().apply(thmStringVisitor, vars));
+		sb.append("] ");
+		
+		sb.append(a.getReplicatedAction().apply(thmStringVisitor, vars));
+		
+		return sb.toString();
 	}
 
 	public String caseAChannelRenamingAction(AChannelRenamingAction node, ThmVarsContext vars) throws AnalysisException{

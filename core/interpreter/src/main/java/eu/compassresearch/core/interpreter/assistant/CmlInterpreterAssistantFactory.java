@@ -3,10 +3,13 @@ package eu.compassresearch.core.interpreter.assistant;
 import java.util.List;
 
 import org.overture.ast.analysis.AnswerAdaptor;
+import org.overture.ast.analysis.QuestionAnswerAdaptor;
 import org.overture.ast.analysis.intf.IAnswer;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.lex.LexNameList;
 import org.overture.interpreter.assistant.InterpreterAssistantFactory;
+import org.overture.interpreter.runtime.Context;
+import org.overture.interpreter.values.NameValuePairList;
 
 import eu.compassresearch.core.typechecker.assistant.CmlDefinitionCollector;
 import eu.compassresearch.core.typechecker.assistant.CmlFunctionChecker;
@@ -27,17 +30,6 @@ public class CmlInterpreterAssistantFactory extends InterpreterAssistantFactory
 		init(new CmlInterpreterAssistantFactory());
 	}
 
-	// @Override
-	// public SClassDefinitionAssistantTC createSClassDefinitionAssistant()
-	// {
-	// return new CmlSClassDefinitionAssistant(this);
-	// }
-	//
-	// @Override
-	// public PDefinitionListAssistantTC createPDefinitionListAssistant()
-	// {
-	// return new CmlPDefinitionListAssistant(this);
-	// }
 
 	@Override
 	public IAnswer<String> getKindFinder()
@@ -61,5 +53,11 @@ public class CmlInterpreterAssistantFactory extends InterpreterAssistantFactory
 	public IAnswer<LexNameList> getVariableNameCollector()
 	{
 		return new CmlVariableNameCollector(this);
+	}
+	
+	@Override
+	public QuestionAnswerAdaptor<Context, NameValuePairList> getNamedValueLister()
+	{
+		return new CmlNamedValueLister(this);
 	}
 }

@@ -2,15 +2,11 @@ package eu.compassresearch.core.analysis.modelchecker.ast.actions;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 
-public class MCAWriteCommunicationParameter implements
+public class MCAWriteCommunicationParameter extends
 		MCPCommunicationParameter {
 
-	private MCPCMLExp expression;
-	
-	
 	public MCAWriteCommunicationParameter(MCPCMLExp expression) {
-		super();
-		this.expression = expression;
+		super(expression);
 	}
 
 
@@ -34,15 +30,5 @@ public class MCAWriteCommunicationParameter implements
 	public String toString() {
 		return this.expression.toString();
 	}
-
-	public MCPCMLExp getExpression() {
-		return expression;
-	}
-
-
-	public void setExpression(MCPCMLExp expression) {
-		this.expression = expression;
-	}
-	
 
 }

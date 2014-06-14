@@ -28,6 +28,11 @@ public class MCAFunctionType implements MCPCMLType{
 		return null;
 	}
 
+	@Override
+	public String getTypeAsName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 	public LinkedList<MCPCMLType> getParameters() {
 		return parameters;
 	}

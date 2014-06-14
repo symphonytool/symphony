@@ -2,15 +2,11 @@ package eu.compassresearch.core.analysis.modelchecker.ast.actions;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 
-public class MCASignalCommunicationParameter implements
+public class MCASignalCommunicationParameter extends
 		MCPCommunicationParameter {
 
-	private MCPCMLExp expression;
-	
-	
 	public MCASignalCommunicationParameter(MCPCMLExp expression) {
-		super();
-		this.expression = expression;
+		super(expression);
 	}
 
 
@@ -23,7 +19,7 @@ public class MCASignalCommunicationParameter implements
 	public boolean equals(Object obj) {
 		boolean result = false;
 		if(obj instanceof MCASignalCommunicationParameter){
-			result = this.expression.equals(((MCASignalCommunicationParameter) obj).getExpression());
+			result = this.expression.equals(((MCPCommunicationParameter) obj).getExpression());
 		}
 		return result;
 	}
@@ -36,14 +32,10 @@ public class MCASignalCommunicationParameter implements
 	}
 
 
+	@Override
 	public MCPCMLExp getExpression() {
 		return expression;
 	}
 
 
-	public void setExpression(MCPCMLExp expression) {
-		this.expression = expression;
-	}
-
-	
 }

@@ -18,6 +18,7 @@ import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.lex.CmlLexNameToken;
+import eu.compassresearch.ast.process.AActionProcess;
 import eu.compassresearch.core.interpreter.api.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
@@ -63,6 +64,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	 * 
 	 * @param definitions
 	 *            - Source containing CML Paragraphs for type checking.
+	 * @param config 
 	 */
 	public VanillaCmlInterpreter(List<PDefinition> definitions, Config config)
 	{
@@ -96,12 +98,58 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		}
 		try
 		{
-			new ClassInterpreter(classes);// this stores an internal static reference needed later
-											// Interpreter.getInstance()
+			new CmlClassInterpreter(classes);// this stores an internal static reference needed later
+												// Interpreter.getInstance()
 		} catch (Exception e)
 		{
 			throw new AnalysisException("Faild to initialize class interpreter", e);
 		}
+	}
+
+	/**
+	 * Extension of the VDM class interpreter to enable delegate calls to find the delegate of the class embeded inside
+	 * a process
+	 * 
+	 * @author kel
+	 */
+	private class CmlClassInterpreter extends ClassInterpreter
+	{
+
+		public CmlClassInterpreter(ClassList classes) throws Exception
+		{
+			super(classes);
+		}
+
+		/**
+		 * Extends the findclass method to handle process internal action process classes. See
+		 * {@link ProcessObjectValue#configureRuntime}
+		 */
+		@Override
+		public SClassDefinition findClass(String classname)
+		{
+			if (classname.startsWith("$"))
+			{
+				// internal process class
+				for (PDefinition def : sourceForest)
+				{
+					if (def instanceof AProcessDefinition)
+					{
+						AProcessDefinition pdef = (AProcessDefinition) def;
+						if (pdef.getProcess() instanceof AActionProcess)
+						{
+							AActionProcess aprocess = (AActionProcess) pdef.getProcess();
+							if (aprocess.getActionDefinition().getName().getName().equals(classname))
+							{
+								return aprocess.getActionDefinition();
+							}
+						}
+					}
+
+				}
+			}
+			return super.findClass(classname);
+		}
+
 	}
 
 	@Override
@@ -483,7 +531,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	@Override
 	public PExp parseExpression(String line, String module) throws Exception
 	{
-		return ParserUtil.parseExpression(new File("Console"), ParserUtil.getCharStream(line, StandardCharsets.UTF_8.name()),PreParser.StreamType.Plain).exp;
+		return ParserUtil.parseExpression(new File("Console"), ParserUtil.getCharStream(line, StandardCharsets.UTF_8.name()), PreParser.StreamType.Plain).exp;
 	}
 
 }

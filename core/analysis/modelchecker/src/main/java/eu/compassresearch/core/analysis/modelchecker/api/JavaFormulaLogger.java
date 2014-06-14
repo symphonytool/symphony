@@ -8,7 +8,7 @@ import java.util.logging.Logger;
 public class JavaFormulaLogger{
 	private static Logger logger;
 	private static FileHandler fh;
-	private final static String LOGGER_NAME = "LogBanco"; 
+	private final static String LOGGER_NAME = "LogSymphony.txt"; 
 	private final static int MAX_BYTES = 5000;
 	private final static int MAX_FILES = 1;
 	

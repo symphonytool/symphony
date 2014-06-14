@@ -133,8 +133,7 @@ public class CmlStackFrame extends CmlDebugElement implements IStackFrame
 	}
 
 	/**
-	 * @param frame
-	 * @param depth
+	 * @param newLevel 
 	 * @return
 	 */
 	public CmlStackFrame bind(IDbgpStackLevel newLevel)

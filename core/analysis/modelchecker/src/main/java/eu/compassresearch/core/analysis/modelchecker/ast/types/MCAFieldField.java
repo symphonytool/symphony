@@ -16,6 +16,11 @@ public class MCAFieldField implements MCPCMLType {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	@Override
+	public String getTypeAsName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 	public String getTagName() {
 		return tagName;

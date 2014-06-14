@@ -1,0 +1,8 @@
+process Test = begin 
+
+operations
+op ()
+post true
+
+@Skip
+end

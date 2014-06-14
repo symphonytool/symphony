@@ -43,6 +43,12 @@ public class MCAProductType implements MCPCMLType {
 		}
 		return new MCAProductType(typesCopy);
 	}
+	
+	@Override
+	public String getTypeAsName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 	public LinkedList<MCPCMLType> getTypes() {
 		return types;

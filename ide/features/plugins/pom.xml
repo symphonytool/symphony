@@ -23,5 +23,6 @@
     <module>modelchecker</module>
     <module>faulttolerance</module>
     <module>refinementtool</module>
+    <module>collaboration</module>
   </modules>
 </project>
