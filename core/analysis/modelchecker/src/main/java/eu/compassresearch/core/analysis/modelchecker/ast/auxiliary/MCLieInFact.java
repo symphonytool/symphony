@@ -73,18 +73,20 @@ public class MCLieInFact implements MCNode {
 			lieIn.append(",");
 			lieIn.append(setExp.toFormula(option));
 			lieIn.append(")");
-		//} else{
-		//	for (TypeValue typeValue : typeValues) {
-		//		lieIn.append("  lieIn(");
-				//we need to generate many commev with the communicated values
-		//		MCCommEv ev = new MCCommEv(this.commEvent.getName(), this.commEvent.getParameters(), typeValue);
-		//		lieIn.append(ev.toFormula(option));
-		//		lieIn.append(",");
-		//		lieIn.append(setExp.toFormula(option));
-		//		lieIn.append(")");
-		//		lieIn.append("\n");
-		//	}
-		//}
+			
+			//if the lieIn fact depends on a channel definition then we must generate a :- Channel("name",var)
+			//this is detected by checking if the channel of the event is infinite. If so, then the term Channel(...)
+			//uses the variable value of commEvent
+			MCAChannelDefinition chanDef = context.getChannelDefinition(commEvent.getName());
+			if(chanDef.isInfiniteType()){
+				lieIn.append(" :- ");
+				lieIn.append("Channel(\"");
+				lieIn.append(commEvent.getName());
+				lieIn.append("\",");
+				lieIn.append(commEvent.getValue());
+				lieIn.append(")");
+			}
+			
 		
 		return lieIn.toString();
 	}

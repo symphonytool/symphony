@@ -352,7 +352,7 @@ public class GraphBuilder {
 					realFinalState = current;
 					deadlockFound = true;
 					break;
-				}else if(current.equals(basicTermination)) { //if the state is termination
+				}else if(current.getProcess().equals(basicTermination.getProcess())) { //if the state is termination
 					//do nothing
 				} else {
 					//a new deadlock situation (not default) was found

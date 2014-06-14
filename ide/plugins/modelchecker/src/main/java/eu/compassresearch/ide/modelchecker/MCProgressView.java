@@ -11,6 +11,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.IJobChangeListener;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.ExtensionFactory;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -47,45 +48,35 @@ public class MCProgressView extends ExtensionFactory {
 		Job b = new Job("Model Checker progress") {
 
 			@Override
-			protected synchronized IStatus run(IProgressMonitor monitor) {
+			protected synchronized IStatus run(final IProgressMonitor monitor) {
 				monitor.beginTask("Analysing in FORMULA", 1000);
-				monitor.setCanceled(true);
 				thread.start();
 				int i = 20;
 				monitor.worked(i);
-				while (thread.getStatus() != MCStatus.FINISHED && thread.getStatus() != MCStatus.ERROR) { // && i <= 80
+				while (thread.getStatus() != MCStatus.FINISHED) { 
+					if (monitor.isCanceled()) {
+						thread.cancelExecution();
+						return Status.CANCEL_STATUS;
+					}
 					try {
-						Thread.sleep(500);
-						i += 10;
-						monitor.worked(i);
-						if(thread.getStatus() == MCStatus.ERROR){
-							String msg = "";
-							if(thread.getException() != null){
-								msg = thread.getException().getMessage();
-							} 
+						//the status of the job has to be checked continuously to re-start the thread
+						Thread.sleep(400);
+						i = i + 10;
+						if(i < 800 && thread.getStatus() != MCStatus.FINISHED){
+							monitor.worked(i);
 						}
+						
 					} catch (InterruptedException e) {
+						
 					} // ignore
 				}
-				if (thread.getStatus() == MCStatus.FINISHED && i < 100) {
-					for (int j = i; j < 100; j++) {
-						try {
-							Thread.sleep(10);
-							monitor.worked(j);
-						} catch (InterruptedException e) {
-						} // ignore
-					}
-				}
-				monitor.done();
-				if(thread.getStatus() == MCStatus.ERROR){
-					exception = thread.getException();
-					MCPluginUtility.popErrorMessage(exception);
-				}
 				
+				monitor.done();
+								
 				return Status.OK_STATUS;
 			}
 		};
-
+		
 		b.schedule();
 		
 	}

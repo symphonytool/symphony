@@ -33,7 +33,6 @@ ch_controlLayerInterupt
 ch_genericEvent:StreamingLayerReplyEvent
 
 
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // this process are supose to be very VDM heavy, and the intened use is for verification
 // using the COMPASS PO and TO tools
@@ -131,10 +130,8 @@ actions
 
 end
 
-
-
 //Test SoS process
-process TestTPCS1 = TestTraces1 [|{|ch_init,ch_genericEvent,ch_streamingReply|}|]StreamingPlayerCSProcess -- do not syn aopn the error channel, want to deadlock i any sync happens on the error reply channel
+//process TestTPCS1 = TestTraces1 [|{|ch_init,ch_genericEvent,ch_streamingReply|}|]StreamingPlayerCSProcess -- do not syn aopn the error channel, want to deadlock i any sync happens on the error reply channel
 
 
 
@@ -145,7 +142,7 @@ process TestTraces2 =
 begin
 
 actions
-    act_connect = ch_streamingControl.(<CONNECT>)->ch_streamingReply.<CONNECTED>->act_error_connect
+    act_connect = ch_streamingControl.(<CONNECT>)->ch_streamingReply.<CONNECTED>-> act_error_connect
     act_error_connect = ch_streamingControl.(<CONNECT>)->ch_streamingLayerError.<STATE_ERROR>->act_setstream  -- deadloack if we dont get a error
     act_setstream = ch_streamingControl.(<SETUPSTREAM>)->ch_streamingReply.(<STREAM_READY>)->act_play 
     act_play = ch_streamingControl.(<PLAY>)->ch_streamingReply.(<PLAYING>)->act_stop 
@@ -157,6 +154,7 @@ end
 
 //Test SoS process
 //process TestTPCS2 = TestTraces2 [|{|ch_init,ch_genericEvent,ch_streamingReply,ch_streamingLayerError|}|]StreamingPlayerCSProcess
+
 
 
 

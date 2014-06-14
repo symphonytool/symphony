@@ -1,6 +1,6 @@
   types
     Device_Record = nat -- uniq device ID
-      inv i == i in set {1,...,3}
+      -- inv i == i in set {1,...,3}
     ServiceCallData = nat  -- abstation for the service call data structure being sent over the network
       inv i == i in set {1,...,3}
     DeviceEvent = (<INTERUPT>|<POWER_ON>|<POWER_OFF>) -- user device event
@@ -45,13 +45,14 @@
          createDDSDObject :()==>() --update the data with service status info, needs to be done before each broadcast
          createDDSDObject()== product_DR := 2 -- just simulate updating the device record
 	  actions	  
-		  Off_State = SourceProductPowerChannel.<POWER_ON> -> On_State -- product can be powered on by a user event
-		  On_State = DD_SD_Announcement_State /_\ (SourceProductPowerChannel.<POWER_OFF>->Off_State)  -- the Announcement loop can be interupted by a user event 
-		  DD_SD_Announcement_State = (MarshallData_State; Wait(sourceBroadcastTime);  DD_SD_Announcement_State) -- Announce the device in the network using multicast
-		  MarshallData_State = (createDDSDObject();IPMulticastChannel!product_DR -> Skip) [_ timeout _> (Skip) --- simulate IP multicast logic using timeouts  					   
-      @ Off_State
+		  --Off_State = SourceProductPowerChannel.<POWER_ON> -> On_State -- product can be powered on by a user event
+		  --On_State = DD_SD_Announcement_State /_\ (SourceProductPowerChannel.<POWER_OFF>->Off_State)  -- the Announcement loop can be interupted by a user event 
+		  --DD_SD_Announcement_State = (MarshallData_State; Wait(sourceBroadcastTime);  DD_SD_Announcement_State) -- Announce the device in the network using multicast
+		  MarshallData_State = (createDDSDObject();IPMulticastChannel!product_DR -> Skip) -- [_ timeout _> (Skip) --- simulate IP multicast logic using timeouts  					   
+      @ MarshallData_State -- Off_State
   end
-  
+
+/*
 -- CML process modelling the B&O DD protocol for the target product in the network 
   process TargetProduct_DD_SD_InterfaceProtocolView =
   begin
@@ -72,13 +73,15 @@
 		  Off_State = resetProductSet(); TargetProductPowerChannel.<POWER_ON> -> On_State -- the product if off== not visable in the network
 		  On_State = Start_Discovery_State  /_\ (TargetProductPowerChannel.<POWER_OFF> -> Off_State) -- product on = try finding other B&O product. in this state the product can be power of by a user event
 		  Start_Discovery_State = (DD_SD_Discovery_State ; Wait(targetBroadcastTime) ; Start_Discovery_State)--run the Discovery logic 
-		  DD_SD_Discovery_State =  (IPMulticastChannel?pr -> if IsDeviceInSet(pr,product_DRs) then updateProductSet(pr) else Skip; Skip )[_ timeout _> (Skip) 		                     
+		  DD_SD_Discovery_State =   IPMulticastChannel?pr -> Skip -- (IPMulticastChannel?pr -> if IsDeviceInSet(pr,product_DRs) then updateProductSet(pr) else Skip; Skip )[_ timeout _> (Skip) 		                     
     @ Off_State                     -- simulate IP multicast logic using timeouts
   end	
-   
+
+
 -- SoS leveel process, contaning one source- and one target product
-  process Beo_DD_SD_InterfaceProtocolViews =  SourceProduct_DD_SD_InterfaceProtocolView [|{IPMulticastChannel}|]TargetProduct_DD_SD_InterfaceProtocolView
-  
+//  process Beo_DD_SD_InterfaceProtocolViews =  SourceProduct_DD_SD_InterfaceProtocolView [|{IPMulticastChannel}|]TargetProduct_DD_SD_InterfaceProtocolView
+
+
   --- test process for playing the SoS level process
   process Test_TurnOnProduct = 
   begin
@@ -88,10 +91,12 @@
     
   @ SoS_On
   end
+ 
+
   -- test process combining the test process and the SoS process
-  process Test_1 = Test_TurnOnProduct [|{SourceProductPowerChannel,TargetProductPowerChannel}|]Beo_DD_SD_InterfaceProtocolViews
+ // process Test_1 = Test_TurnOnProduct [|{SourceProductPowerChannel,TargetProductPowerChannel}|]Beo_DD_SD_InterfaceProtocolViews
   
-  
+
   ----------------------------------------------------------------------------------------------------------------------------------------------------------
   -- section contain the processes for calling AV services over the network, they are currently not described in the case doc
   -- the local veriables cannot have common names. Their names were modified in the local actions of this process
@@ -111,7 +116,7 @@
 		  ReplayTofunctionCall_State = x4:ServiceCallData @ BrowsingInterfaceReplyChannel!x4->WaitingOnFunctionCall_State  
       @ Off_State
   end 
-  
+
   process SourceProduct_SR_InterfaceProtocolView =
   begin   
 	  actions
@@ -123,6 +128,6 @@
       @ Off_State
   end
   
-  process Beo_RS_InterfaceProtocolViews =  TargetProduct_SR_InterfaceProtocolView [|{IPTCPChannel,IPTCPPORTChannel}|]SourceProduct_SR_InterfaceProtocolView
-  
-  
+  //process Beo_RS_InterfaceProtocolViews =  TargetProduct_SR_InterfaceProtocolView [|{IPTCPChannel,IPTCPPORTChannel}|]SourceProduct_SR_InterfaceProtocolView
+
+  */

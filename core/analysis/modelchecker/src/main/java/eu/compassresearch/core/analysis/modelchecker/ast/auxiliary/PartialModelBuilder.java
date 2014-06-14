@@ -13,7 +13,7 @@ public class PartialModelBuilder {
 		StringBuilder content = new StringBuilder();
 		String option = MCNode.DEFAULT;
 		
-		generateLieInFacts(content,option);
+		//generateLieInFacts(content,option);
 
 		//generateChannels(content,option);
 		
