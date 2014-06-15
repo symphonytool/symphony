@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAReadCommunicationParameter;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAValParametrisation;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPParametrisation;
@@ -54,8 +55,6 @@ public class MCAActionDefinition implements MCPCMLDefinition {
 		StringBuilder result = new StringBuilder();
 		String actionString = "";
 		context.mcProcOrActionsStack.push(this);
-		
-		
 		if(declarations.size() > 0){
 			 //for the moment we assume that processes have only one parameter
 			MCPParametrisation param = declarations.getFirst();
@@ -92,6 +91,7 @@ public class MCAActionDefinition implements MCPCMLDefinition {
 			result.append(parameterString);
 			result.append(",");
 			actionString = this.getAction().toFormula(option);
+			//int i = 0;
 			result.append(actionString);
 			result.append(")");
 			
@@ -109,53 +109,93 @@ public class MCAActionDefinition implements MCPCMLDefinition {
 	private void addDependencies(String option,NewCMLModelcheckerContext context, StringBuilder result,String actionString) {
 		
 		//if the action has dependencies we get them from the context
+		
 		LinkedList<ActionChannelDependency> dependencies = context.getActionChannelDependendies(this.name);
+		LinkedList<ActionChannelDependency> allDependencies = new LinkedList<ActionChannelDependency>(); 
 		
 		boolean hasNormalDependencies = dependencies.size() > 0;
+		boolean hasNormalDependenciesReal = false;
 		//it adds the normal channel dependencies
 		if(hasNormalDependencies){
-			result.append(" :- ");
+			//result.append(" :- ");
 			
 			for (Iterator<ActionChannelDependency> iterator = dependencies.iterator(); iterator.hasNext();) {
 				ActionChannelDependency actionChannelDependency = (ActionChannelDependency) iterator.next();
-				result.append(actionChannelDependency.toFormula(option));
+				///PPPPPPPPPPPPPPPPPP
+				//if(! (actionChannelDependency.getParameters().getFirst() instanceof MCAReadCommunicationParameter)){
+					if(actionChannelDependency.getParameters().getFirst() instanceof MCAReadCommunicationParameter){
+						//result.append(actionChannelDependency.toFormula(option));
+						//hasNormalDependenciesReal = true;
+						allDependencies.add(actionChannelDependency);
+						//if(iterator.hasNext()){
+							//result.append(",");
+						//}
+					}
+				//}
+			}
+		}
+		
+		//it adds the infinite and unamed channel dependencies and clear them at the end
+		boolean hasInfiniteUnamedDependencies = context.getInfiniteAndUnamedChannelDependencies().size() > 0;
+		
+		//boolean hasInfiniteUnamedDependenciesReal = false;
+		allDependencies.addAll(context.getInfiniteAndUnamedChannelDependencies());
+		/*
+		if(hasInfiniteUnamedDependencies){
+			if(!hasNormalDependencies){
+				//result.append(" :- ");
+			}
+				Iterator<ActionChannelDependency> iterator = context.getInfiniteAndUnamedChannelDependencies().iterator();
+				for (; iterator.hasNext();) {
+					ActionChannelDependency actionChannelDependency = (ActionChannelDependency) iterator.next();
+					String actionChannelDepStr = actionChannelDependency.toFormula(option).trim();
+					
+					if(result.indexOf(actionChannelDepStr) == -1){
+						if(hasNormalDependenciesReal && actionChannelDependency.getParameters().getFirst() instanceof MCAReadCommunicationParameter){
+							result.append(",");
+						}
+						if(actionChannelDependency.getParameters().getFirst() instanceof MCAReadCommunicationParameter){
+							result.append(actionChannelDepStr);
+							hasInfiniteUnamedDependenciesReal = true;
+						}
+					}
+					
+					//if(!allDependencies.contains(actionChannelDependency)){
+						allDependencies.add(actionChannelDependency);
+					//}
+				}
+				
+			
+		}
+		*/
+		//context.resetInfiniteChannelDependencies();
+		//context.resetUnamedChannelDependencies();
+		
+		if(allDependencies.size() > 0){
+			result.append(" :- ");
+			for (Iterator<ActionChannelDependency> iterator = allDependencies.iterator(); iterator.hasNext();) {
+				ActionChannelDependency actionChannelDependency = (ActionChannelDependency) iterator.next();
+				String actionChannelDepStr = actionChannelDependency.toFormula(option);
+				//if(result.indexOf(actionChannelDepStr) == -1){
+				result.append(actionChannelDepStr);
+				//}
 				if(iterator.hasNext()){
 					result.append(",");
 				}
 			}
 		}
 		
-		//it adds the infinite and unamed channel dependencies and clear them at the end
-		boolean hasInfiniteUnamedDependencies = context.getInfiniteAndUnamedChannelDependencies().size() > 0;
-		if(hasInfiniteUnamedDependencies){
-			if(!hasNormalDependencies){
-				result.append(" :- ");
-			}
-				Iterator<ActionChannelDependency> iterator = context.getInfiniteAndUnamedChannelDependencies().iterator();
-				for (; iterator.hasNext();) {
-					ActionChannelDependency actionChannelDependency = (ActionChannelDependency) iterator.next();
-					String actionChannelDepStr = actionChannelDependency.toFormula(option).trim();
-					if(result.indexOf(actionChannelDepStr) == -1){
-						if(hasNormalDependencies){
-							result.append(",");
-						}
-						result.append(actionChannelDependency.toFormula(option));
-					}
-					
-				}
-				
-			
-		}
-
-		context.resetInfiniteChannelDependencies();
-		context.resetUnamedChannelDependencies();
-		
 		//it adds the state dependencies if they exist
-		if(context.actionProcStateDependencies.size() > 0){
-			if(!hasNormalDependencies && !hasInfiniteUnamedDependencies){
+		boolean hasStateDependencies = context.actionProcStateDependencies.size() > 0; 
+		if(hasStateDependencies){
+			if(result.indexOf(":-") == -1 && hasStateDependencies){
 				result.append(" :- ");
 			}else{
-				result.append(",");
+				//if(hasNormalDependenciesReal || hasInfiniteUnamedDependenciesReal){
+				if(allDependencies.size() > 0 && hasStateDependencies){
+					result.append(",");
+				}
+				//}
 			}
 			result.append("State(");
 			result.append(context.maximalBinding.toFormula(MCNode.NAMED));
@@ -165,6 +205,14 @@ public class MCAActionDefinition implements MCPCMLDefinition {
 			result.append(")");
 		}
 		context.resetStateDependencies();
+		if(!hasNormalDependenciesReal && !hasInfiniteUnamedDependencies && !hasStateDependencies){
+			String separator = " :- ";
+			int index = result.indexOf(separator);
+			if(index != -1){
+				result.replace(index, index + separator.length(), "");
+			}
+		}
+		
 	}
 
 	private void generateCombinations(LinkedList<ActionChannelDependency> chanDefList, String operator, LinkedList<String> result){

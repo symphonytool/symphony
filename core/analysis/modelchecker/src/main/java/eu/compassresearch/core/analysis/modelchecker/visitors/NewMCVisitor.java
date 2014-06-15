@@ -372,7 +372,7 @@ public class NewMCVisitor extends
 		//String mainProcessName = "StreamingPlayerCSProcess";
 		//String mainProcessName = "CoSimulationServer";
 		//String mainProcessName = "Simple";
-		String mainProcessName = "SourceProduct_DD_SD_InterfaceProtocolView";
+		String mainProcessName = "TargetProduct_DD_SD_InterfaceProtocolView";
 		//String mainProcessName = "P";
 		
 		//String mainProcessName = "TestTraces1";

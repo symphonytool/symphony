@@ -125,12 +125,12 @@ public class MCAChannelDefinition implements MCPCMLDefinition {
 							}
 						}
 					}else{
-						result.append("  Channel(\"");
-						result.append(this.name);
-						result.append("\"");
-						result.append(",");
-						result.append("_");
-						result.append(")");
+						//result.append("  Channel(\"");
+						//result.append(this.name);
+						//result.append("\"");
+						//result.append(",");
+						//result.append("_");
+						//result.append(").");
 					}
 				
 				 } else{ 
