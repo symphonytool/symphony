@@ -7,6 +7,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPParametrisat
 import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCATypeSingleDeclaration;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAChansetDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCATypeDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAValueDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANameChannelExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPVarsetExpression;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCABooleanBasicType;
@@ -68,54 +69,64 @@ public class TypeManipulator {
 
 		ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
 		LinkedList<TypeValue> result = new LinkedList<TypeValue>();
+		LinkedList<String> valueSet = new LinkedList<String>();
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
+		//if it is a value definition, its values must be taken from the value definition
+		MCAValueDefinition valueDef = context.getValueDefinition(type.getName());
 		
-		MCATypeDefinition typeDef = context.getTypeDefinition(type.getName());
-		if(typeDef != null){
-			LinkedList<String> valueSet = new LinkedList<String>(); 
-			if(typeDef.getInvExpression() != null){
-				valueSet = evaluator.getValueSet(typeDef.getInvExpression());
-			}else{
-				LinkedList<TypeValue> typeValues = getValues(typeDef.getType());
-				for (TypeValue typeValue : typeValues) {
-					valueSet.add(typeValue.toFormula(MCNode.DEFAULT));
-				}
-			}
+		if(valueDef != null){
+			valueSet = evaluator.getValueSet(valueDef.getExpression());
 			for (String string : valueSet) {
 				result.add(new SingleTypeValue(string));
 			}
-		} else{//the type can be defined in a chanset definition
-			MCAChansetDefinition chansetDef = context.getChansetDefinition(type.getName());
-			if(chansetDef != null){
-				LinkedList<MCANameChannelExp> chansetValues = chansetDef.getChansetExpression().getChannelNames();
-				for (MCANameChannelExp mcaNameChannelExp : chansetValues) {
-					result.add(new SingleTypeValue(mcaNameChannelExp.getIdentifier()));
+		}else{
+			MCATypeDefinition typeDef = context.getTypeDefinition(type.getName());
+			if(typeDef != null){
+				 
+				if(typeDef.getInvExpression() != null){
+					valueSet = evaluator.getValueSet(typeDef.getInvExpression());
+				}else{
+					LinkedList<TypeValue> typeValues = getValues(typeDef.getType());
+					for (TypeValue typeValue : typeValues) {
+						valueSet.add(typeValue.toFormula(MCNode.DEFAULT));
+					}
 				}
-			} else{ //name invariant has the same type as the original type
-				typeDef = context.getTypeDefinition(type.getOriginalTypeName());
-				if(typeDef != null){
-					if(typeDef.hasValues()){
-						result = getValues(new MCANamedInvariantType(type.getOriginalTypeName(), type.getOriginalTypeName()));
-					}else{
-						MCPCMLType originalType = context.getFinalType(type.getOriginalTypeName());
-						//originalType = getTypeForStringNameType(type.getOriginalTypeName());
-						originalType = getTypeForStringNameType(originalType.toFormula(MCNode.DEFAULT));
+				for (String string : valueSet) {
+					result.add(new SingleTypeValue(string));
+				}
+			} else{//the type can be defined in a chanset definition
+				MCAChansetDefinition chansetDef = context.getChansetDefinition(type.getName());
+				if(chansetDef != null){
+					LinkedList<MCANameChannelExp> chansetValues = chansetDef.getChansetExpression().getChannelNames();
+					for (MCANameChannelExp mcaNameChannelExp : chansetValues) {
+						result.add(new SingleTypeValue(mcaNameChannelExp.getIdentifier()));
+					}
+				} else{ //name invariant has the same type as the original type
+					typeDef = context.getTypeDefinition(type.getOriginalTypeName());
+					if(typeDef != null){
+						if(typeDef.hasValues()){
+							result = getValues(new MCANamedInvariantType(type.getOriginalTypeName(), type.getOriginalTypeName()));
+						}else{
+							MCPCMLType originalType = context.getFinalType(type.getOriginalTypeName());
+							//originalType = getTypeForStringNameType(type.getOriginalTypeName());
+							originalType = getTypeForStringNameType(originalType.toFormula(MCNode.DEFAULT));
+							//if(getTypeForStringNameType(type.getOriginalTypeName()) != null){
+								result = getValues(originalType);
+							//}
+						}
+					} else {
+						MCPCMLType originalType = getTypeForStringNameType(type.getOriginalTypeName());
 						//if(getTypeForStringNameType(type.getOriginalTypeName()) != null){
-							result = getValues(originalType);
+						result = getValues(originalType);
 						//}
-					}
-				} else {
-					MCPCMLType originalType = getTypeForStringNameType(type.getOriginalTypeName());
-					//if(getTypeForStringNameType(type.getOriginalTypeName()) != null){
-					result = getValues(originalType);
-					//}
-					if (result.size() == 0){
-						TypeValue typeValue = new SingleTypeValue(type.getName());
-						result.add(typeValue);
+						if (result.size() == 0){
+							TypeValue typeValue = new SingleTypeValue(type.getName());
+							result.add(typeValue);
+						}
 					}
 				}
+				
 			}
-			
 		}
 		return result;
 	}

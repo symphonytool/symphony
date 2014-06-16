@@ -33,6 +33,7 @@ public class NewMCNegGuardDef extends NewMCGuardDef{
 			result.append(basicString);
 			result.append(((MCAOrBooleanBinaryExp) negCondition).getRight().toFormula(option));
 		}else{
+			result.append(basicString);
 			result.append(negCondition.toFormula(option));
 		}
 		result.append(".\n");
