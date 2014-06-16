@@ -36,7 +36,7 @@ import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligation;
 import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligationList;
 import eu.compassresearch.ide.core.resources.ICmlProject;
 import eu.compassresearch.ide.pog.Activator;
-import eu.compassresearch.ide.pog.PogPLuginCOnstants;
+import eu.compassresearch.ide.pog.PogPluginConstants;
 
 public class PoListView extends PoOverviewTableView {
 	List<INode> astUnderAnalysis;
@@ -113,7 +113,7 @@ public class PoListView extends PoOverviewTableView {
 				if (first instanceof IProofObligation) {
 					try {
 						IViewPart v = getSite().getPage().showView(
-								PogPLuginCOnstants.PO_DETAIL_VIEW);
+								PogPluginConstants.PO_DETAIL_VIEW);
 
 						if (v instanceof PoDetailView)
 							((PoDetailView) v).setDataList(project,

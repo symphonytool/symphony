@@ -54,18 +54,18 @@ public class PogPluginRunner
 	{
 		try
 		{
-			IPerspectiveDescriptor descriptor = window.getWorkbench().getPerspectiveRegistry().findPerspectiveWithId(PogPLuginCOnstants.PO_PERSPECTIVE_ID);
+			IPerspectiveDescriptor descriptor = window.getWorkbench().getPerspectiveRegistry().findPerspectiveWithId(PogPluginConstants.PO_PERSPECTIVE_ID);
 			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().setPerspective(descriptor);
 
 			IViewPart v;
-			v = site.getPage().showView(PogPLuginCOnstants.PO_OVERVIEW_TABLE);
+			v = site.getPage().showView(PogPluginConstants.PO_OVERVIEW_TABLE);
 			if (v instanceof PoListView)
 			{
 				((PoListView) v).clearPos();
 			}
 
 			IViewPart v2;
-			v2 = site.getPage().showView(PogPLuginCOnstants.PO_DETAIL_VIEW);
+			v2 = site.getPage().showView(PogPluginConstants.PO_DETAIL_VIEW);
 			if (v2 instanceof PoDetailView)
 			{
 				((PoDetailView) v2).clearPoView();
@@ -108,7 +108,7 @@ public class PogPluginRunner
 
 				try
 				{
-					v = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().findView(PogPLuginCOnstants.PO_OVERVIEW_TABLE);
+					v = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().findView(PogPluginConstants.PO_OVERVIEW_TABLE);
 					if (v instanceof PoOverviewTableView)
 					{
 						((PoOverviewTableView) v).setDataList((IVdmProject) project.getAdapter(IVdmProject.class), pol);
@@ -138,7 +138,7 @@ public class PogPluginRunner
 
 				try
 				{
-					v = site.getPage().showView(PogPLuginCOnstants.PO_OVERVIEW_TABLE);
+					v = site.getPage().showView(PogPluginConstants.PO_OVERVIEW_TABLE);
 					if (v instanceof PoListView)
 					{
 						((PoListView) v).setDataList(project, pol);

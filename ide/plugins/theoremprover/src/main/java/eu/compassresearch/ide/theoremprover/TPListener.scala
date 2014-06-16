@@ -5,7 +5,7 @@ import scala.actors.Actor.react
 import scala.collection.JavaConversions
 import org.overture.pog.pub.POStatus
 import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligationList
-import eu.compassresearch.ide.pog.POConstants
+import eu.compassresearch.ide.pog.PogPluginConstants
 import eu.compassresearch.ide.core.resources.ICmlModel
 import eu.compassresearch.core.analysis.theoremprover.IsabelleTheory
 import isabelle.Command
@@ -65,7 +65,7 @@ class TPListener(session: Session) extends SessionEvents {
 
           for (c <- changed.commands) {
             val model = nodeCMLMap(c.node_name)
-            val poList = model.getAttribute(POConstants.PO_REGISTRY_ID, classOf[CmlProofObligationList]);
+            val poList = model.getAttribute(PogPluginConstants.PO_REGISTRY_ID, classOf[CmlProofObligationList]);
             //FIXME Hardcoded ID string. scala cannot solve the path
             val ithy = model.getAttribute("eu.compassresearch.ide.theoremprover", classOf[IsabelleTheory]);
             TPListener.updatePOListFromThy(poList, ithy)

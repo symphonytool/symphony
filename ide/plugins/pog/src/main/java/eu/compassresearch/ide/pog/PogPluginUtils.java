@@ -51,7 +51,7 @@ public abstract class PogPluginUtils
 	{
 		try
 		{
-			PlatformUI.getWorkbench().showPerspective(PogPLuginCOnstants.PO_PERSPECTIVE_ID, site.getWorkbenchWindow());
+			PlatformUI.getWorkbench().showPerspective(PogPluginConstants.PO_PERSPECTIVE_ID, site.getWorkbenchWindow());
 		} catch (WorkbenchException e)
 		{
 
@@ -75,7 +75,7 @@ public abstract class PogPluginUtils
 
 	public static PoListView getMainView() throws PartInitException
 	{
-		PoListView view = (PoListView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(PogPLuginCOnstants.PO_OVERVIEW_TABLE);
+		PoListView view = (PoListView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(PogPluginConstants.PO_OVERVIEW_TABLE);
 		return view;
 	}
 
