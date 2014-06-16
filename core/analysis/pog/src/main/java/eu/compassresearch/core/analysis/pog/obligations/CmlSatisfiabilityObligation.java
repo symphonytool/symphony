@@ -31,10 +31,13 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AImplicitOperationDefinition;
 import org.overture.ast.definitions.AInstanceVariableDefinition;
 import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.expressions.AAndBooleanBinaryExp;
+import org.overture.ast.expressions.AEqualsBinaryExp;
 import org.overture.ast.expressions.AExistsExp;
 import org.overture.ast.expressions.AImpliesBooleanBinaryExp;
 import org.overture.ast.expressions.AVariableExp;
 import org.overture.ast.expressions.PExp;
+import org.overture.ast.factory.AstExpressionFactory;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.lex.LexKeywordToken;
 import org.overture.ast.lex.VDMToken;
@@ -101,6 +104,13 @@ public class CmlSatisfiabilityObligation extends CmlProofObligation
 								AVariableExp newVar = getVarExp(getUnique(var.getName().getName()));
 								Substitution sub = new Substitution(var.getName().clone(), newVar);
 								post_exp = post_exp.apply(af.getVarSubVisitor(), sub);
+
+								if (e.getMode().is(VDMToken.READ))
+								{ // x~ = x
+									AEqualsBinaryExp unchanged_exp = AstExpressionFactory.newAEqualsBinaryExp(getVarExp(var.getName().clone()), newVar.clone());
+									AAndBooleanBinaryExp and_exp = AstExpressionFactory.newAAndBooleanBinaryExp(post_exp, unchanged_exp);
+									post_exp = and_exp;
+								}
 								PMultipleBind pmb = getMultipleTypeBind(var.getType().clone(), newVar.getName().clone());
 								exists_binds.add(pmb);
 							}
