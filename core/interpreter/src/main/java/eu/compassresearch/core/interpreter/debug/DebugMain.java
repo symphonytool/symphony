@@ -2,6 +2,7 @@ package eu.compassresearch.core.interpreter.debug;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -10,6 +11,7 @@ import java.util.Vector;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.parser.config.Properties;
 
 import eu.compassresearch.core.interpreter.CmlRuntime;
 import eu.compassresearch.core.interpreter.CoSimClientInterpreterFactory;
@@ -65,6 +67,8 @@ public class DebugMain
 
 		try
 		{
+			Properties.init();
+			
 			// ----------- Config -------------------------------------
 
 			// Index 0 of args is the JSON config
@@ -145,7 +149,7 @@ public class DebugMain
 			List<File> sources = new LinkedList<File>();
 			for (String path : sourcesPaths)
 			{
-				sources.add(new File(path));
+				sources.add(new File(new URI(path)));
 			}
 
 			Console.debug.println("Parsing files: " + sourcesPaths);

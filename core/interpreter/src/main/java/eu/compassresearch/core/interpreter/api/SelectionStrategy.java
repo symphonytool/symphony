@@ -13,6 +13,7 @@ public interface SelectionStrategy
 
 	/**
 	 * This method should receive all the available transitions
+	 * @param availableTransitions 
 	 */
 	public void choices(CmlTransitionSet availableTransitions);
 

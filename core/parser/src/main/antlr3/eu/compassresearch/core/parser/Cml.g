@@ -73,6 +73,7 @@ import static org.overture.ast.lex.Dialect.VDM_PP;
 import org.overture.ast.assistant.AstAssistantFactory;
 import org.overture.ast.assistant.IAstAssistantFactory;
 import org.overture.ast.assistant.definition.PDefinitionAssistant;
+import org.overture.ast.assistant.definition.PAccessSpecifierAssistant;
 import org.overture.ast.factory.AstFactory;
 import org.overture.ast.definitions.*;
 import org.overture.ast.expressions.*;
@@ -576,6 +577,7 @@ processDefinition returns[AProcessDefinition def]
         {
             $def = new AProcessDefinition(); // FIXME
             $def.setProcess( $process.proc );
+			$def.setAccess(PAccessSpecifierAssistant.getPublic());
             ILexLocation identifierLocation = extractLexLocation($IDENTIFIER);
             CmlLexNameToken processName = new CmlLexNameToken("", new LexIdentifierToken($IDENTIFIER.getText(), false, identifierLocation));
             $def.setName(processName);
@@ -1043,7 +1045,7 @@ actionDef returns[AActionDefinition def]
                 adef.getName().setTypeQualifier(typeQualifiers);
             }
             adef.setAction($action.action);
-
+			adef.setAccess(PAccessSpecifierAssistant.getPublic());
             $def = adef;
         }
     ;
@@ -1755,6 +1757,7 @@ channelDef returns[List<AChannelDefinition> def]
                 chanDecl.setNameScope(NameScope.GLOBAL);
                 chanDecl.setUsed(false);
                 chanDecl.setLocation(id.getLocation());
+				chanDecl.setAccess(PAccessSpecifierAssistant.getPublic());
 
                 List<PType> types = new Vector<PType>();
                 ILexLocation typeLocation = loc;

@@ -23,6 +23,9 @@ public interface CmlInterpreter
 
 	/**
 	 * Get a string version of the environment.
+	 * 
+	 * @param location
+	 * @return
 	 */
 
 	public Context getInitialContext(LexLocation location);
@@ -41,7 +44,6 @@ public interface CmlInterpreter
 	 * 
 	 * @param name
 	 *            The default name.
-	 * @throws Exception
 	 */
 
 	public void setDefaultName(String name);
@@ -56,6 +58,7 @@ public interface CmlInterpreter
 	/**
 	 * Initializes the interpreter by making a global context and setting the last defined process as the top process
 	 * 
+	 * @throws AnalysisException
 	 * @throws CmlInterpreterException
 	 */
 	public void initialize() throws AnalysisException;
@@ -63,7 +66,7 @@ public interface CmlInterpreter
 	/**
 	 * Executes the defined default process from the given sourceForest
 	 * 
-	 * @param sve
+	 * @param env
 	 *            the top supervisor environment
 	 * @return Ifthe process value of the top process if
 	 * @throws AnalysisException
@@ -100,8 +103,6 @@ public interface CmlInterpreter
 	/**
 	 * Sets the current debug context for the first active process
 	 * 
-	 * @param id
-	 *            the process id
 	 * @param context
 	 *            the current context
 	 * @param location

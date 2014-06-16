@@ -1,4 +1,4 @@
-package eu.compassresearch.core.interpreter;
+package eu.compassresearch.core.interpreter.assistant;
 
 import java.util.List;
 
@@ -7,21 +7,15 @@ import org.overture.ast.definitions.AAssignmentDefinition;
 import org.overture.ast.definitions.AClassClassDefinition;
 import org.overture.ast.definitions.AClassInvariantDefinition;
 import org.overture.ast.definitions.AExplicitFunctionDefinition;
-import org.overture.ast.definitions.AExplicitOperationDefinition;
-import org.overture.ast.definitions.AImplicitFunctionDefinition;
-import org.overture.ast.definitions.AImplicitOperationDefinition;
-import org.overture.ast.definitions.AInstanceVariableDefinition;
 import org.overture.ast.definitions.AStateDefinition;
 import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.AValueDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.intf.lex.ILexNameToken;
-import org.overture.ast.node.INode;
 import org.overture.ast.patterns.AIdentifierPattern;
-import org.overture.interpreter.assistant.definition.PDefinitionAssistantInterpreter;
+import org.overture.interpreter.assistant.IInterpreterAssistantFactory;
 import org.overture.interpreter.runtime.Context;
-import org.overture.interpreter.values.FunctionValue;
 import org.overture.interpreter.values.NameValuePair;
 import org.overture.interpreter.values.NameValuePairList;
 import org.overture.interpreter.values.UndefinedValue;
@@ -35,14 +29,21 @@ import eu.compassresearch.ast.definitions.AChannelDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.lex.CmlLexNameToken;
+import eu.compassresearch.core.interpreter.CmlContextFactory;
+import eu.compassresearch.core.interpreter.CmlExpressionVisitor;
+import eu.compassresearch.core.interpreter.NamespaceUtility;
 import eu.compassresearch.core.interpreter.api.values.ActionValue;
 import eu.compassresearch.core.interpreter.api.values.CmlChannel;
 import eu.compassresearch.core.interpreter.api.values.LatticeTopValue;
 import eu.compassresearch.core.interpreter.api.values.ProcessObjectValue;
 
-class CmlDefinitionVisitor extends
-		QuestionAnswerCMLAdaptor<Context, NameValuePairList>
+public class CmlNamedValueLister extends AbstractNameValueLister
 {
+
+	public CmlNamedValueLister(IInterpreterAssistantFactory af)
+	{
+		super(af);
+	}
 
 	private QuestionAnswerCMLAdaptor<Context, Value> cmlExpressionVisitor = new CmlExpressionVisitor();
 
@@ -96,13 +97,13 @@ class CmlDefinitionVisitor extends
 		return definitionListHelper(node.getStateDefs(), node.getLocation(), question);
 	}
 
-	@Override
-	public NameValuePairList caseAInstanceVariableDefinition(
-			AInstanceVariableDefinition node, Context question)
-			throws AnalysisException
-	{
-		return question.assistantFactory.createPDefinitionAssistant().getNamedValues(node, question);
-	}
+	// @Override
+	// public NameValuePairList caseAInstanceVariableDefinition(
+	// AInstanceVariableDefinition node, Context question)
+	// throws AnalysisException
+	// {// FIXME dublicated
+	// return question.assistantFactory.createPDefinitionAssistant().getNamedValues(node, question);
+	// }
 
 	@Override
 	public NameValuePairList caseAClassInvariantDefinition(
@@ -152,7 +153,9 @@ class CmlDefinitionVisitor extends
 			throws AnalysisException
 	{
 
-		NameValuePairList vpl = new NameValuePairList();
+//		NameValuePairList vpl = new NameValuePairList();
+
+		// FIXME not sure what this if is about, but the rest is dublicated
 		if (node.parent() instanceof ATypeDefinition)
 		{
 			node.setIsTypeInvariant(true);
@@ -160,90 +163,94 @@ class CmlDefinitionVisitor extends
 		{
 			node.setIsTypeInvariant(false);
 		}
+		
+		return super.caseAExplicitFunctionDefinition(node,question);
 
-		// make the pre and post functions
-		FunctionValue postFuncValue = null;
-		FunctionValue preFuncValue = null;
-
-		if (node.getPredef() != null)
-		{
-			preFuncValue = new FunctionValue(node.getPredef(), null, null, null);
-		}
-		if (node.getPostdef() != null)
-		{
-			postFuncValue = new FunctionValue(node.getPostdef(), null, null, null);
-		}
-
-		FunctionValue funcValue = new FunctionValue(node, preFuncValue, postFuncValue, null);
-
-		vpl.add(new NameValuePair(node.getName(), funcValue));
-
-		return vpl;
+//		// make the pre and post functions
+//		FunctionValue postFuncValue = null;
+//		FunctionValue preFuncValue = null;
+//
+//		if (node.getPredef() != null)
+//		{
+//			preFuncValue = new FunctionValue(node.getPredef(), null, null, null);
+//		}
+//		if (node.getPostdef() != null)
+//		{
+//			postFuncValue = new FunctionValue(node.getPostdef(), null, null, null);
+//		}
+//
+//		FunctionValue funcValue = new FunctionValue(node, preFuncValue, postFuncValue, null);
+//
+//		vpl.add(new NameValuePair(node.getName(), funcValue));
+//
+//		return vpl;
 	}
 
-	@Override
-	public NameValuePairList caseAImplicitFunctionDefinition(
-			AImplicitFunctionDefinition node, Context question)
-			throws AnalysisException
-	{
-
-		// make the pre and post functions
-		FunctionValue postFuncValue = null;
-		FunctionValue preFuncValue = null;
-
-		if (node.getPredef() != null)
-		{
-			preFuncValue = new FunctionValue(node.getPredef(), null, null, null);
-		}
-		if (node.getPostdef() != null)
-		{
-			postFuncValue = new FunctionValue(node.getPostdef(), null, null, null);
-		}
-
-		FunctionValue funcValue = new FunctionValue(node, preFuncValue, postFuncValue, null);
-		NameValuePairList vpl = new NameValuePairList();
-		vpl.add(new NameValuePair(node.getName(), funcValue));
-
-		return vpl;
-		// throw new AnalysisException("The function " + node.toString() +
-		// " is implicit. This is not supported by the simulator at the moment");
-	}
+	// @Override
+	// public NameValuePairList caseAImplicitFunctionDefinition(
+	// AImplicitFunctionDefinition node, Context question)
+	// throws AnalysisException
+	// {
+	// // FIXME dublicated
+	// return new NamedValueLister(question.assistantFactory).caseAImplicitFunctionDefinition(node, question);
+	//
+	// // // make the pre and post functions
+	// // FunctionValue postFuncValue = null;
+	// // FunctionValue preFuncValue = null;
+	// //
+	// // if (node.getPredef() != null)
+	// // {
+	// // preFuncValue = new FunctionValue(node.getPredef(), null, null, null);
+	// // }
+	// // if (node.getPostdef() != null)
+	// // {
+	// // postFuncValue = new FunctionValue(node.getPostdef(), null, null, null);
+	// // }
+	// //
+	// // FunctionValue funcValue = new FunctionValue(node, preFuncValue, postFuncValue, null);
+	// // NameValuePairList vpl = new NameValuePairList();
+	// // vpl.add(new NameValuePair(node.getName(), funcValue));
+	// //
+	// // return vpl;
+	// // // throw new AnalysisException("The function " + node.toString() +
+	// // // " is implicit. This is not supported by the simulator at the moment");
+	// }
 
 	/*
 	 * Operations
 	 */
 
-	@Override
-	public NameValuePairList caseAExplicitOperationDefinition(
-			AExplicitOperationDefinition node, Context question)
-			throws AnalysisException
-	{
+	// @Override
+	// public NameValuePairList caseAExplicitOperationDefinition(
+	// AExplicitOperationDefinition node, Context question)
+	// throws AnalysisException
+	// {
+	// // FIXME dublicated
+	// // NameValuePairList vpl = new NameValuePairList();
+	// // vpl.add(new NameValuePair(node.getName().clone(), CmlValueFactory.createOperationValue(node, question)));
+	//
+	// return question.assistantFactory.createPDefinitionAssistant().getNamedValues(node, question);
+	// }
 
-		// NameValuePairList vpl = new NameValuePairList();
-		// vpl.add(new NameValuePair(node.getName().clone(), CmlValueFactory.createOperationValue(node, question)));
-
-		return  question.assistantFactory.createPDefinitionAssistant().getNamedValues(node, question);
-	}
-
-	@Override
-	public NameValuePairList caseAImplicitOperationDefinition(
-			AImplicitOperationDefinition node, Context question)
-			throws AnalysisException
-	{
-
-		// NameValuePairList vpl = new NameValuePairList();
-		// vpl.add(new NameValuePair(node.getName(), CmlValueFactory.createOperationValue(node, question)));
-		//
-		// return vpl;
-		return  question.assistantFactory.createPDefinitionAssistant().getNamedValues(node, question);
-	}
+	// @Override
+	// public NameValuePairList caseAImplicitOperationDefinition(
+	// AImplicitOperationDefinition node, Context question)
+	// throws AnalysisException
+	// {
+	// // FIXME dublicated
+	// // NameValuePairList vpl = new NameValuePairList();
+	// // vpl.add(new NameValuePair(node.getName(), CmlValueFactory.createOperationValue(node, question)));
+	// //
+	// // return vpl;
+	// return question.assistantFactory.createPDefinitionAssistant().getNamedValues(node, question);
+	// }
 
 	@Override
 	public NameValuePairList caseAAssignmentDefinition(
 			AAssignmentDefinition node, Context question)
 			throws AnalysisException
 	{
-
+		// FIXME very similar - dublicated
 		NameValuePairList vpl = new NameValuePairList();
 
 		Value expValue = null;
@@ -293,7 +300,7 @@ class CmlDefinitionVisitor extends
 	public NameValuePairList caseATypeDefinition(ATypeDefinition node,
 			Context question) throws AnalysisException
 	{
-
+		// FIXME this is differnt a new function value is created in overture
 		NameValuePairList vpl = new NameValuePairList();
 		if (node.getInvdef() != null)
 		{
@@ -311,7 +318,7 @@ class CmlDefinitionVisitor extends
 	public NameValuePairList caseAValueDefinition(AValueDefinition node,
 			Context question) throws AnalysisException
 	{
-
+		// fixme the overture version is different and handled more than idenfitiers, something with constsntized
 		NameValuePairList vpl = new NameValuePairList();
 
 		Value val = node.getExpression().apply(cmlExpressionVisitor, question);
@@ -350,19 +357,5 @@ class CmlDefinitionVisitor extends
 		vpl.add(new NameValuePair(new CmlLexNameToken("", node.getIdentifier().clone()), value));
 
 		return vpl;
-	}
-
-	@Override
-	public NameValuePairList createNewReturnValue(INode node, Context question)
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public NameValuePairList createNewReturnValue(Object node, Context question)
-	{
-		// TODO Auto-generated method stub
-		return null;
 	}
 }

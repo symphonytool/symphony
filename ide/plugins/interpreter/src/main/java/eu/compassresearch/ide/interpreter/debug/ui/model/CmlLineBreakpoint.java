@@ -105,6 +105,8 @@ public class CmlLineBreakpoint extends Breakpoint implements
 
 	/**
 	 * Add this breakpoint to the breakpoint manager, or sets it as unregistered.
+	 * @param register 
+	 * @throws CoreException 
 	 */
 	public void register(boolean register) throws CoreException
 	{

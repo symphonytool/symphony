@@ -16,7 +16,6 @@ import org.overture.ast.statements.ASkipStm;
 import org.overture.ast.statements.PStm;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.typechecker.Pass;
-import org.overture.interpreter.assistant.pattern.PPatternAssistantInterpreter;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ContextException;
 import org.overture.interpreter.values.NameValuePair;
@@ -147,45 +146,45 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 		return node.getStatement().apply(this.parentVisitor, question);
 	}
 
-	
-//	/**
-//	 * This implements the 7.5.10 Action Reference transition rule in D23.2.
-//	 */
-//	@Override
-//	public Inspection caseACallAction(final ACallAction node,
-//			final Context question) throws AnalysisException
-//	{
-//		final Value value = lookupName(node.getName(), question);
-//		if (value instanceof ActionValue)
-//		{
-//			// first find the action value in the context
-//			final ActionValue actionVal = (ActionValue) value;
-//
-//			return newInspection(createTauTransitionWithoutTime(actionVal.getActionDefinition().getAction(), null), new CmlCalculationStep()
-//			{
-//
-//				@Override
-//				public Pair<INode, Context> execute(
-//						CmlTransition selectedTransition)
-//						throws AnalysisException
-//				{
-//
-//					//the following if is copied from areference action. Not sure why it is here
-//					if (!owner.getName().getLastAction().equals(node.getName().getName()))
-//					{
-//						owner.getName().addAction(node.getName().getName());
-//					}
-//					
-//					return caseReferenceAction(node.getLocation(), node.getArgs(), actionVal, question);
-//				}
-//			});
-//
-//		} else
-//		{
-//			throw new CmlInterpreterException(node, InterpretationErrorMessages.FATAL_ERROR.customizeMessage());
-//		}
-//	}
-	
+	// /**
+	// * This implements the 7.5.10 Action Reference transition rule in D23.2.
+	// */
+	// @Override
+	// public Inspection caseACallAction(final ACallAction node,
+	// final Context question) throws AnalysisException
+	// {
+	// final Value value = lookupName(node.getName(), question);
+	// if (value instanceof ActionValue)
+	// {
+	// // first find the action value in the context
+	// final ActionValue actionVal = (ActionValue) value;
+	//
+	// return newInspection(createTauTransitionWithoutTime(actionVal.getActionDefinition().getAction(), null), new
+	// CmlCalculationStep()
+	// {
+	//
+	// @Override
+	// public Pair<INode, Context> execute(
+	// CmlTransition selectedTransition)
+	// throws AnalysisException
+	// {
+	//
+	// //the following if is copied from areference action. Not sure why it is here
+	// if (!owner.getName().getLastAction().equals(node.getName().getName()))
+	// {
+	// owner.getName().addAction(node.getName().getName());
+	// }
+	//
+	// return caseReferenceAction(node.getLocation(), node.getArgs(), actionVal, question);
+	// }
+	// });
+	//
+	// } else
+	// {
+	// throw new CmlInterpreterException(node, InterpretationErrorMessages.FATAL_ERROR.customizeMessage());
+	// }
+	// }
+
 	/**
 	 * This implements the 7.5.10 Action Reference transition rule in D23.2.
 	 */
@@ -208,12 +207,12 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 						throws AnalysisException
 				{
 
-					//the following if is copied from areference action. Not sure why it is here
+					// the following if is copied from areference action. Not sure why it is here
 					if (!owner.getName().getLastAction().equals(node.getName().getName()))
 					{
 						owner.getName().addAction(node.getName().getName());
 					}
-					
+
 					return caseReferenceAction(node.getLocation(), node.getArgs(), actionVal, question);
 				}
 			});
@@ -655,8 +654,6 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 		}, node.getChansetExpression(), question);
 	}
 
-
-
 	protected Pair<INode, Context> caseReferenceAction(ILexLocation location,
 			List<PExp> args, ActionValue actionValue, Context question)
 			throws AnalysisException
@@ -745,6 +742,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 	/**
 	 * see {@link CommonInspectionVisitor#caseStartDeadline(INode, INode, PExp, Context) }
 	 */
+	@SuppressWarnings("javadoc")
 	@Override
 	public Inspection caseAStartDeadlineAction(final AStartDeadlineAction node,
 			final Context question) throws AnalysisException

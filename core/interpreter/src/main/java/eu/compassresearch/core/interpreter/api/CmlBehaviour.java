@@ -254,6 +254,7 @@ public interface CmlBehaviour extends Serializable, Comparable<CmlBehaviour>
 	 * @param selectedTransition
 	 *            The executed transtions, this transition must be contained in the possible transitions returned from
 	 *            the inspect method. If not then the behavior is not guaranteed!
+	 * @throws AnalysisException 
 	 */
 	public void execute(CmlTransition selectedTransition)
 			throws AnalysisException;
@@ -262,6 +263,7 @@ public interface CmlBehaviour extends Serializable, Comparable<CmlBehaviour>
 	 * Calculates and returns the possible set of transitions of the behavior.
 	 * 
 	 * @return The next immediate transitions of the behavior.
+	 * @throws AnalysisException 
 	 */
 	public CmlTransitionSet inspect() throws AnalysisException;
 
@@ -353,6 +355,7 @@ public interface CmlBehaviour extends Serializable, Comparable<CmlBehaviour>
 	 * Determines whether this process is deadlocked
 	 * 
 	 * @return true if the process is deadlocked else false
+	 * @throws AnalysisException 
 	 */
 	public boolean deadlocked() throws AnalysisException;
 

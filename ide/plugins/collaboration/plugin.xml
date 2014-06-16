@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="4.2"?>
+<plugin>
+<!-- Collaboration menu in navigator -->
+<extension point="org.eclipse.ui.menus">
+	<menuContribution
+         allPopups="false"
+         locationURI="popup:eu.compassresearch.ide.ui.CmlNavigator">
+		<menu
+              id="eu.compassresearch.ide.collaboration.ui.CollaborativeModelling"
+              label="Collaborative Modelling">
+			<command
+            	commandId="eu.compassresearch.ide.collaboration.ui.AddFileToCollaboration"
+            	label="Include file in collaboration project"
+            	style="push"
+            tooltip="Adds the file to the collaboration project">
+			</command>
+			<command
+            	commandId="eu.compassresearch.ide.collaboration.ui.AddFileToCollaborationWithLimitedVisibility"
+            	label="Include file in collaboration project (with limited visibility)"
+            	style="push"
+            tooltip="Adds the file to the collaboration project, with the file only being visible to selected collaborators">
+			</command>
+			<visibleWhen>
+		 		<or>
+      				<with variable="selection">
+ 						<iterate ifEmtpy="false">
+       						<reference definitionId="eu.compassresearch.ide.collaboration.ui.extensionTest"/>
+     					</iterate>
+      				</with>
+  					<with variable="activeEditorInput">
+        				<reference definitionId="eu.compassresearch.ide.collaboration.ui.extensionTest"/>
+      				</with>
+   				</or>
+			</visibleWhen>
+    	</menu>
+	</menuContribution>		
+	<menuContribution
+         allPopups="false"
+         locationURI="additions:eu.compassresearch.ide.collaboration.ui.view.CollaborationView">
+    	<command
+            commandId="eu.compassresearch.ide.collaboration.ui.ExpandTree"
+            label="Expand All"
+            style="push"
+            tooltip="Expand Tree">
+    	</command>
+    	<command
+            commandId="eu.compassresearch.ide.collaboration.ui.CollapseTree"
+            label="Collapse All"
+            style="push"
+            tooltip="Collapse Tree">
+    	</command>
+    		<command
+            commandId="eu.compassresearch.ide.collaboration.ui.NewCollaborationProject"
+            label="Add new collaboration project"
+            style="push"
+            tooltip="Adds a new collaboration project">
+    	</command>
+	</menuContribution>	
+</extension>
+
+<!-- Definitions -->
+<extension point="org.eclipse.core.expressions.definitions">
+   <definition id="eu.compassresearch.ide.collaboration.ui.extensionTest">
+      <adapt type="org.eclipse.core.resources.IResource">
+         <or>
+             <test property="org.eclipse.core.resources.extension"
+                   value="cml">
+             </test>
+         </or>
+      </adapt>
+   </definition>
+</extension>
+
+
+<!-- ECF setup -->
+<extension point="org.eclipse.ecf.start">
+      <run
+            class="eu.compassresearch.ide.collaboration.ECFInitiation">
+      </run>
+ </extension>
+
+<!-- Collaboration View -->
+<extension
+      id="eu.compassresearch.ide.collaboration.ui.view"
+      name="Collaborative Modelling"
+      point="org.eclipse.ui.views">
+      	<category
+			id="eu.compassresearch.ide.ui.category"
+			name="Symphony"/>
+	  <view
+         name="Collaborative Modelling"
+         category="eu.compassresearch.ide.ui.category"
+         icon="icons/icon_collaboration.gif"
+         class="eu.compassresearch.ide.collaboration.ui.view.CollaborationView"
+         id="eu.compassresearch.ide.collaboration.ui.view.CollaborationView">
+     </view>
+</extension>
+
+<extension point = "org.eclipse.ui.viewActions">
+      <viewContribution 
+         id="eu.compassresearch.ide.collaboration.ui.view.CollaborationView.Connect" 
+         targetID="eu.compassresearch.ide.collaboration.ui.view.CollaborationView">        
+	     <action id="eu.compassresearch.ide.collaboration.ui.view.CollaborationView.connectAction" 
+              class="org.eclipse.ecf.internal.ui.actions.SelectProviderAction" enablesFor="*"
+              label="Connect to IM Provider"
+              definitionId="eu.compassresearch.ide.collaboration.ui.ConnectionToIM" 
+	      	  menubarPath="additions"> 
+	    </action>
+      </viewContribution>
+</extension>
+
+<!-- Commands -->
+<extension point="org.eclipse.ui.commands">
+		<command
+         id="eu.compassresearch.ide.collaboration.ui.NewCollaborationProject"
+         name="Add new collaboration project">
+		</command>
+		<command
+         id="eu.compassresearch.ide.collaboration.ui.ExpandTree"
+         name="Expand Tree">
+		</command>
+		<command
+         id="eu.compassresearch.ide.collaboration.ui.CollapseTree"
+         name="Expand Tree">
+		</command>
+		<command
+         id="eu.compassresearch.ide.collaboration.ui.AddFileToCollaboration"
+         name="Include file in collaboration project">
+		</command>
+		<command
+         id="eu.compassresearch.ide.collaboration.ui.AddFileToCollaborationWithLimitedVisibility"
+         name="Include file in collaboration project (with limited visibility)">
+		</command>
+</extension>
+
+<!--Handlers -->
+<extension point="org.eclipse.ui.handlers">
+	<handler
+	 class ="eu.compassresearch.ide.collaboration.ui.commands.NewCollaborationProjectHandler"
+     commandId="eu.compassresearch.ide.collaboration.ui.NewCollaborationProject">
+	</handler>
+	<handler
+	 class ="eu.compassresearch.ide.collaboration.ui.commands.ExpandTreeHandler"
+     commandId="eu.compassresearch.ide.collaboration.ui.ExpandTree">
+	</handler>
+	<handler
+	 class ="eu.compassresearch.ide.collaboration.ui.commands.CollapseTreeHandler"
+     commandId="eu.compassresearch.ide.collaboration.ui.CollapseTree">
+	</handler>
+	<handler
+	 class ="eu.compassresearch.ide.collaboration.ui.commands.AddFileToCollaborationHandler"
+     commandId="eu.compassresearch.ide.collaboration.ui.AddFileToCollaboration">
+	</handler>
+	<handler
+	 class ="eu.compassresearch.ide.collaboration.ui.commands.AddFileToCollaborationLimitedVisibilityHandler"
+     commandId="eu.compassresearch.ide.collaboration.ui.AddFileToCollaborationWithLimitedVisibility">
+	</handler>
+</extension>
+
+
+</plugin>

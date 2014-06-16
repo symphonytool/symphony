@@ -131,6 +131,8 @@ public class SocketServerCmlDebugger implements CmlDebugger,
 
 	/**
 	 * Connects to the request tcp connection on "localhost" (for now) where the eclipse UI should listening.
+	 * @param host 
+	 * @param port 
 	 * 
 	 * @throws UnknownHostException
 	 * @throws IOException

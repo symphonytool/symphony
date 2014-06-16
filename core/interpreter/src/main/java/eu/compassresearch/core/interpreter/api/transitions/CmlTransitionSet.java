@@ -89,6 +89,7 @@ public class CmlTransitionSet implements Iterable<CmlTransition>
 
 	/**
 	 * Return the first element of type T
+	 * @param <T> 
 	 * 
 	 * @param type
 	 * @return
@@ -165,8 +166,8 @@ public class CmlTransitionSet implements Iterable<CmlTransition>
 
 	/**
 	 * Calculate the union of this alphabet and the given event
+	 * @param other 
 	 * 
-	 * @param event
 	 * @return The union of this alphabet and the given CmlEvent
 	 */
 	public CmlTransitionSet union(CmlTransitionSet other)
@@ -341,6 +342,7 @@ public class CmlTransitionSet implements Iterable<CmlTransition>
 	/**
 	 * This determines whether the alphabet contains the given transition or a transition that is part of a
 	 * synchronization.
+	 * @param transition 
 	 * 
 	 * @return true if the given is contained else false
 	 */

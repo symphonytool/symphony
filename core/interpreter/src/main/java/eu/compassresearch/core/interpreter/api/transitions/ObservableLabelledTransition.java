@@ -55,7 +55,7 @@ public class ObservableLabelledTransition extends AbstractCmlTransition
 	 * Synchronized constructor
 	 * 
 	 * @param baseEvent
-	 * @param syncEvent
+	 * @param otherComEvent 
 	 * @param meetValue
 	 */
 	public ObservableLabelledTransition(CmlTransition baseEvent,

@@ -19,7 +19,20 @@ public class ThmProcStand extends ThmDecl {
 	 */
 	@Override
 	public String toString() {
-		return (ThmProcessUtil.isaProc + " \"" + name + " = " + 
-				ThmProcessUtil.procDelimLeft + body + ThmProcessUtil.procDelimRight + "\"\n" + tacHook(name));
+		
+		StringBuffer sb = new StringBuffer();
+		
+		sb.append(ThmProcessUtil.isaActProc + " " + name);
+				
+		sb.append("\n");
+		
+		sb.append(ThmProcessUtil.isaProcBegin + "\n");
+
+	    sb.append(ThmProcessUtil.isaProc + " \"" + ThmProcessUtil.isaMainAction + " = " 
+	              + ThmProcessUtil.procDelimLeft + body + ThmProcessUtil.procDelimRight + "\"\n" + tacHook(name));
+				  
+		sb.append("\n" + ThmProcessUtil.isaProcEnd);
+
+		return sb.toString();
 	}
 }

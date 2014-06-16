@@ -8,7 +8,7 @@ public class A
 {
 	public static Value getHello()
 	{
-		System.err.println("Yep I got in here");
+		System.out.println("Yep I got in here");
 		return new IntegerValue(2);
 	}
 

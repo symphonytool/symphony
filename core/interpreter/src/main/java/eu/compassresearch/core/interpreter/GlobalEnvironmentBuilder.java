@@ -19,7 +19,8 @@ public class GlobalEnvironmentBuilder extends AnalysisCMLAdaptor
 	private StateContext globalState = null;
 	private List<AProcessDefinition> globalProcesses = null;
 
-	private CmlDefinitionVisitor cmlDefEval = new CmlDefinitionVisitor();
+	// private IQuestionAnswer<Context, NameValuePairList> cmlDefEval
+	// =CmlContextFactory.factory.getNamedValueLister();// new CmlDefinitionVisitor();
 
 	public GlobalEnvironmentBuilder(List<PDefinition> sourceForest)
 			throws AnalysisException
@@ -27,7 +28,6 @@ public class GlobalEnvironmentBuilder extends AnalysisCMLAdaptor
 		buildGlobalEnvironment(sourceForest);
 	}
 
-	@SuppressWarnings("static-access")
 	private void buildGlobalEnvironment(List<PDefinition> sourceForest)
 			throws AnalysisException
 	{
@@ -41,14 +41,8 @@ public class GlobalEnvironmentBuilder extends AnalysisCMLAdaptor
 		 */
 		for (PDefinition def : sourceForest)
 		{
-			// Fix for bug 184 where pre/post functions wasn't created correctly for the global context
-			if (CmlContextFactory.factory.createPDefinitionAssistant().isFunctionOrOperation(def))
-			{
-				globalState.putAllNew(CmlContextFactory.factory.createPDefinitionAssistant().getNamedValues(def, globalState));
-			} else
-			{
-				globalState.putAllNew(def.apply(cmlDefEval, globalState));
-			}
+			// Fix for bug 184 where pre/post functions wasn't created correctly for the global context. Re-fixed by proper implementation of getNamedValueLister in the facotry
+			globalState.putAllNew(def.apply(CmlContextFactory.factory.getNamedValueLister(), globalState));
 		}
 
 		// Search though all the found processes and add them to the process list
