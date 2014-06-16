@@ -1,19 +1,14 @@
 process Test =
 begin
 
-state 
-  n : nat := 0
-  m : nat := 0
-inv n = m 
+state
+y : int
+x : nat
 
 operations
-
-Op: nat ==> () 
-Op(a) ==
-  atomic (
-    n := n + a;
-    m := m + a)
-
+op (ns : set of nat) n : nat
+frame rd y
+post true
 @ Skip
 
 end
