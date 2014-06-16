@@ -1,5 +1,6 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.auxiliary;
 
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAAndBooleanBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAApplyExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAEqualsBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAGreaterEqualNumericBinaryExp;
@@ -11,6 +12,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAModNumer
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANotEqualsBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANotInSetBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANotUnaryExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAOrBooleanBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASeqEnumSeqExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAVariableExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
@@ -42,7 +44,15 @@ public class ExpressionNegator {
 			result = new MCANotUnaryExp(expression);
 		} else if(expression instanceof MCASeqEnumSeqExp){
 			result = negate(((MCASeqEnumSeqExp) expression).getMembers().getFirst());
-		} 
+		} else if(expression instanceof MCAAndBooleanBinaryExp){
+			MCPCMLExp negLeft = negate(((MCAAndBooleanBinaryExp) expression).getLeft());
+			MCPCMLExp negRight = negate(((MCAAndBooleanBinaryExp) expression).getRight());
+			result = new MCAOrBooleanBinaryExp(negLeft,negRight);
+		} else if(expression instanceof MCAOrBooleanBinaryExp){
+			MCPCMLExp negLeft = negate(((MCAOrBooleanBinaryExp) expression).getLeft());
+			MCPCMLExp negRight = negate(((MCAOrBooleanBinaryExp) expression).getRight());
+			result = new MCAAndBooleanBinaryExp(negLeft,negRight);
+		}
 		
 		return result;
 	}

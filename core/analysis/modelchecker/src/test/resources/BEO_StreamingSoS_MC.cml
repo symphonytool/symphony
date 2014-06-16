@@ -64,9 +64,9 @@ actions
                        [currentState <> <DISCONNECTED> ]& act_disconnect --  most always offer to disconnect after the product is connected
                        []
                        --or expressions cannot be used in guards because its formula representation does not allow OR expressions. This is a limitation of formula
-                       [currentState = <CONNECTED> ]& act_connected -- if the product is not playing or is connected it offes prepare a song
-                       []
-                       [currentState = <STOPPED>  ]& act_connected -- if the product is not playing or is connected it offes prepare a song
+                       [currentState = <CONNECTED> or currentState = <STOPPED>]& act_connected -- if the product is not playing or is connected it offes prepare a song
+                       -- []
+                       -- [currentState = <STOPPED>  ]& act_connected -- if the product is not playing or is connected it offes prepare a song
                        []
                        [currentState = <DISCONNECTED> ]& act_waitOnConnect -- if the product is disconnected offer to connect
                        []

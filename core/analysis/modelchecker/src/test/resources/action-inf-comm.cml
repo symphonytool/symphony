@@ -14,16 +14,14 @@ begin
 end
 
 */
-
-process P2 = 
+process P = 
 begin 
- --state
- -- xValue:nat := 0
- -- yValue:nat := 1
- 
- actions
-   --LoadX = a?z -> xValue := z ; Skip
-   --LoadY = a?y -> yValue := y ; Skip
-   --Test = [xValue = yValue] & Stop  
-	@ a?z -> a?y -> if [z <> y] then Stop else Skip
+  state
+   n : MYNAT := 0
+  operations
+   Double:nat ==> ()
+   Double(k) == n := k*k
+  actions
+   MAIN = a?x -> Double(x); a?y -> if (n = y and n > 2) then Stop else Skip 
+ @ MAIN  
 end

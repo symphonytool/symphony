@@ -37,6 +37,9 @@ public class ProblemDomainBuilder {
 		//generate the initial state
 		generateInitialState(content,option);
 		
+		//generates operation definitions
+		generateOperationDefinitions(content,option);
+				
 		//generates guard definitions
 		generateGuardDefinitions(content,option);
 		
@@ -45,8 +48,7 @@ public class ProblemDomainBuilder {
 		generateAssignDefinitions(content, option);
 		
 		
-		//generates operation definitions
-		generateOperationDefinitions(content,option);
+		
 		
 		//generate iocom defs
 		generateIOCommDefs(content,option);
