@@ -211,9 +211,15 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
 		} else if (element instanceof IFile) {
 			IFile file = (IFile)element;
 			project = file.getProject();
+		} else {
+			project = null;
+			return;
 		}
 
 		// check for non-RT-Tester projects
+		if (project == null) {
+			return;
+		}
 		String projectFilesystemPath = RttMbtClient.getAbsolutePathFromFileURI(project.getLocationURI());
 		if (!RttMbtClient.isRttProject(projectFilesystemPath)) {
 			project = null;
@@ -244,7 +250,10 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
                                                    "Project Database Name:",
                                                    getFieldEditorParent());
 		rttProjectDatabaseField.setPreferenceStore(null);
+		rttProjectDatabaseField.setEmptyStringAllowed(true);
+		rttProjectDatabaseField.setStringValue("none");
 		rttProjectDatabaseValue = getPropertyValue("RttMbtrttProjectDatabase");
+		if (rttProjectDatabaseValue == null) { rttProjectDatabaseValue = ""; }
 		rttProjectDatabaseField.setStringValue(rttProjectDatabaseValue);
 		rttProjectDatabaseField.getLabelControl(getFieldEditorParent()).setToolTipText(tooltip);
 		rttProjectDatabaseField.getTextControl(getFieldEditorParent()).setToolTipText(tooltip);
@@ -255,8 +264,11 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
     	rttExeCtxNameField = new StringFieldEditor("RttMbtRttTprocPrefix",
                                                    "Test Execution Context:",
                                                    getFieldEditorParent());
+    	rttExeCtxNameField.setEmptyStringAllowed(true);
+    	rttExeCtxNameField.setStringValue("none");
     	rttExeCtxNameField.setPreferenceStore(null);
     	rttExeCtxName = getPropertyValue("RttMbtRttTprocPrefix");
+		if (rttExeCtxName == null) { rttExeCtxName = ""; }
     	rttExeCtxNameField.setStringValue(rttExeCtxName);
     	rttExeCtxNameField.getLabelControl(getFieldEditorParent()).setToolTipText(tooltip);
     	rttExeCtxNameField.getTextControl(getFieldEditorParent()).setToolTipText(tooltip);
@@ -267,8 +279,11 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
     	rttTgenCtxNameField = new StringFieldEditor("RttMbtTProcGenCtx",
                                                    "Test Generation Context:",
                                                    getFieldEditorParent());
+    	rttTgenCtxNameField.setEmptyStringAllowed(true);
+    	rttTgenCtxNameField.setStringValue("none");
     	rttTgenCtxNameField.setPreferenceStore(null);
     	rttTgenCtxName = getPropertyValue("RttMbtTProcGenCtx");
+		if (rttTgenCtxName == null) { rttTgenCtxName = ""; }
     	rttTgenCtxNameField.setStringValue(rttTgenCtxName);
     	rttTgenCtxNameField.getLabelControl(getFieldEditorParent()).setToolTipText(tooltip);
     	rttTgenCtxNameField.getTextControl(getFieldEditorParent()).setToolTipText(tooltip);
@@ -279,8 +294,11 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
     	makeToolField = new StringFieldEditor("RttMbtSutMakeTool",
                                               "Make tool for SUT code:",
                                               getFieldEditorParent());
+    	makeToolField.setEmptyStringAllowed(true);
+    	makeToolField.setStringValue("none");
     	makeToolField.setPreferenceStore(null);
     	makeToolProperty = getPropertyValue("RttMbtSutMakeTool");
+		if (makeToolProperty == null) { makeToolProperty = ""; }
     	makeToolField.setStringValue(makeToolProperty);
     	makeToolField.getLabelControl(getFieldEditorParent()).setToolTipText(tooltip);
     	makeToolField.getTextControl(getFieldEditorParent()).setToolTipText(tooltip);
@@ -291,8 +309,11 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
     	ignorePatternUploadField = new StringFieldEditor("RttMbtFileIgnorePattern",
                                                          "Ignore Pattern for File Transfer:",
                                                          getFieldEditorParent());
+    	ignorePatternUploadField.setEmptyStringAllowed(true);
+    	ignorePatternUploadField.setStringValue("none");
     	ignorePatternUploadField.setPreferenceStore(null);
     	ignorePatternUploadProperty = getPropertyValue("RttMbtFileIgnorePattern");
+		if (ignorePatternUploadProperty == null) { ignorePatternUploadProperty = ""; }
     	ignorePatternUploadField.setStringValue(ignorePatternUploadProperty);
     	ignorePatternUploadField.getLabelControl(getFieldEditorParent()).setToolTipText(tooltip);
     	ignorePatternUploadField.getTextControl(getFieldEditorParent()).setToolTipText(tooltip);
