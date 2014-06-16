@@ -495,20 +495,20 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
 	}
 
 	public void performDefaults() {
-		rttProjectDatabaseField.setStringValue(client.getDefaultProjectDatabaseName());
-    	rttExeCtxNameField.setStringValue("TestExecution");
-    	rttTgenCtxNameField.setStringValue("TestGeneration");
-		makeToolField.setStringValue("make");
-		ignorePatternUploadField.setStringValue(".svn:.git:*.o");
-		MaxSolverStepsField.setStringValue(Integer.toString(100));
-		MaxSimStepsField.setStringValue(Integer.toString(0));
-		AbstractInterpreterField.setStringValue(Integer.toString(1));
-		RobustnessTestingField.setStringValue(Integer.toString(0));
-		RobustnessPercentageField.setStringValue(Integer.toString(0));
-		MaxSimultaneousInputChangesField.setStringValue(Integer.toString(1));
-		MinDurationBetweenInputChangesField.setStringValue(Integer.toString(10));
-		MaxDurationBetweenInputChangesField.setStringValue(Integer.toString(10000));
-		ModelCheckingField.setStringValue(Integer.toString(0));
+		if (rttProjectDatabaseField != null) { rttProjectDatabaseField.setStringValue(client.getDefaultProjectDatabaseName()); }
+		if (rttExeCtxNameField != null) { rttExeCtxNameField.setStringValue("TestExecution"); }
+		if (rttTgenCtxNameField != null) { rttTgenCtxNameField.setStringValue("TestGeneration"); }
+		if (makeToolField != null) { makeToolField.setStringValue("make"); }
+		if (ignorePatternUploadField != null) { ignorePatternUploadField.setStringValue(".svn:.git:*.o"); }
+		if (MaxSolverStepsField != null) { MaxSolverStepsField.setStringValue(Integer.toString(100)); }
+		if (MaxSimStepsField != null) { MaxSimStepsField.setStringValue(Integer.toString(0)); }
+		if (AbstractInterpreterField != null) { AbstractInterpreterField.setStringValue(Integer.toString(1)); }
+		if (RobustnessTestingField != null) { RobustnessTestingField.setStringValue(Integer.toString(0)); }
+		if (RobustnessPercentageField != null) { RobustnessPercentageField.setStringValue(Integer.toString(0)); }
+		if (MaxSimultaneousInputChangesField != null) { MaxSimultaneousInputChangesField.setStringValue(Integer.toString(1)); }
+		if (MinDurationBetweenInputChangesField != null) { MinDurationBetweenInputChangesField.setStringValue(Integer.toString(10)); }
+		if (MaxDurationBetweenInputChangesField != null) { MaxDurationBetweenInputChangesField.setStringValue(Integer.toString(10000)); }
+		if (ModelCheckingField != null) { ModelCheckingField.setStringValue(Integer.toString(0)); }
 		super.performDefaults();
 	}
 
