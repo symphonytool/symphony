@@ -8,6 +8,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -31,6 +32,7 @@ import org.overture.ast.analysis.AnalysisException;
 import eu.compassresearch.core.interpreter.api.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
+import eu.compassresearch.core.interpreter.api.CmlTrace;
 import eu.compassresearch.core.interpreter.api.RandomSelectionStrategy;
 import eu.compassresearch.core.parser.ParserUtil;
 import eu.compassresearch.core.parser.ParserUtil.ParserResult;
@@ -157,7 +159,25 @@ public class InterpretAllCmlFilesTest
 		{
 			exception = ex;
 		}
-		ExpectedTestResult testResult = ExpectedTestResult.parseTestResultFile(resultPath);
+		
+		if(!new File(resultPath).exists())
+		{
+			final CmlTrace traceModel = interpreter.getTopLevelProcess().getTraceModel();
+			final String traceToString = TraceUtility.traceToString(traceModel.getEventTrace());
+			final String observable = TraceUtility.traceToString(traceModel.getObservableTrace());
+
+			String ex = "";
+			if(exception!=null)
+			{
+			StringWriter sw = new StringWriter();
+			PrintWriter pw = new PrintWriter(sw);
+			exception.printStackTrace(pw);
+			ex = sw.toString();
+			}
+			Assert.fail("Result file doesn't exist: "+resultPath+"\n\nActual result:\nEvents: "+traceToString+"\n\nTime trace: "+observable+ "\n\nException: "+ex);
+			return;
+		}
+			ExpectedTestResult testResult = ExpectedTestResult.parseTestResultFile(resultPath);
 		checkResult(testResult, interpreter, exception);
 	}
 

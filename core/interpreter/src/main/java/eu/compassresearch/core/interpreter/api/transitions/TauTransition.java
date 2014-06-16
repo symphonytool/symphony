@@ -56,16 +56,27 @@ public class TauTransition extends AbstractCmlTransition
 		{
 			return kind
 					+ "("
-					+ transitionSrcNode.getClass().getSimpleName()
+					+ formatNode(transitionSrcNode)//.getClass().getSimpleName()
 					+ (transitionMessage != null ? "--" + transitionMessage
 							+ "->" : "->")
 
-					+ destinationNode.getClass().getSimpleName() + ") : "
+					+ formatNode(destinationNode)/*.getClass().getSimpleName()*/ + ") : "
 					+ getEventSources();
 		} else
 		{
 			return kind;
 		}
+	}
+	
+	String formatNode(INode node)
+	{
+		String s ="'"+ (node+"").replace('\n', ' ').replace('\t', ' ')+"'";
+		final int MAX=30;
+		if(s.length()>MAX)
+		{
+			return s.substring(0,MAX-4)+"...'";
+		}
+		return s;
 	}
 
 	@Override
