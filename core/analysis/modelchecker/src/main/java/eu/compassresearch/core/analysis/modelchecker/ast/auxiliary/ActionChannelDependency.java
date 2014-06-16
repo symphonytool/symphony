@@ -65,7 +65,7 @@ public class ActionChannelDependency {
 				MCPCommunicationParameter otherParam = ((ActionChannelDependency) obj).getParameters().get(i);
 				if (thisParam instanceof MCAReadCommunicationParameter && otherParam instanceof MCAReadCommunicationParameter){
 					//result = result && ((MCAReadCommunicationParameter)thisParam).getExpression().equals(((MCAReadCommunicationParameter)otherParam).getExpression());
-					result = result && thisParam.equals(otherParam);
+					result = result && thisParam.toString().equals(otherParam.toString());//thisParam.equals(otherParam);
 				}
 			}
 			
@@ -85,6 +85,31 @@ public class ActionChannelDependency {
 				result = true;
 			}
 		}
+		return result;
+	}
+	
+	public boolean usesStateVariable(){
+		boolean result = false;
+		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
+		MCPCommunicationParameter param = this.getParameters().getFirst();
+		String varName = param.toString();
+		//System.out.println("VARNAME: " + varName + " CONTAINS: " + context.maximalBinding.containsVariable(varName));
+		if(context.maximalBinding.containsVariable(varName)){
+			result = true;
+			
+		}
+		return result;
+	}
+	
+	public boolean hasConcreteCommunication(){
+		boolean result = false;
+		MCPCommunicationParameter param = this.getParameters().getFirst();
+		if (!(param instanceof MCAReadCommunicationParameter)){
+			if(!usesStateVariable()){
+				result = true;
+			}
+		}
+		
 		return result;
 	}
 	

@@ -106,34 +106,30 @@ public class MCACommunicationAction implements MCPAction {
 			String infiniteVarName = this.communicationParameters.getFirst().toString();
 			context.variablesInfiniteDomain.add(infiniteVarName);
 			result.append(buildPrefix(option, context, true));
-			
+			/*
 			if(!parameterIsConstantValue()){
 				String actionNameToUse = ""; 
 				LinkedList<MCPCommunicationParameter> paramsCopy = new LinkedList<MCPCommunicationParameter>();
 				if(this.getCommunicationParameters().getFirst() instanceof MCAReadCommunicationParameter){
 					MCACommunicationAction originalParentAction =  ((MCAReadCommunicationParameter) this.getCommunicationParameters().getFirst()).getParentAction();
 					String paramName = ((MCAReadCommunicationParameter) this.getCommunicationParameters().getFirst()).getPattern().toFormula(MCNode.DEFAULT);
-					MCAReadCommunicationParameter newParam = 
+					//MCAReadCommunicationParameter newParam = 
 								new MCAReadCommunicationParameter(new MCAVariableExp(paramName), ((MCAReadCommunicationParameter) this.getCommunicationParameters().getFirst()).getPattern());
 					//}
-					newParam.setParentAction(originalParentAction);
-					paramsCopy.add(newParam);
+					//newParam.setParentAction(originalParentAction);
+					paramsCopy.add(this.getCommunicationParameters().getFirst());
 					ActionChannelDependency actionChanDep = new ActionChannelDependency(actionNameToUse, this.identifier, paramsCopy);
 					context.infiniteChannelDependencies.add(actionChanDep);
 				}
 			}
-			
+			*/
 			context.variablesInfiniteDomain.remove(infiniteVarName);
 		} else{
-			int i = 0;
+			//int i = 0;
 			//result.append(buildReplicatedExternalChoice(context, values, option, allParamsCopy,false));
 			result.append(buildPrefix(option, context, false));
 			
 		}
-		
-		
-		
-		
 		return result.toString();
 	}
 
@@ -310,6 +306,17 @@ public class MCACommunicationAction implements MCPAction {
 	public boolean parametersHasStateVariable(LinkedList<MCPCommunicationParameter> parameters){
 		//it works only for one parameter
 		boolean result = false;
+		
+		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
+		MCPCommunicationParameter param = parameters.getFirst();
+		String varName = param.toString();
+		//System.out.println("VARNAME: " + varName + " CONTAINS: " + context.maximalBinding.containsVariable(varName));
+		if(context.maximalBinding.containsVariable(varName)){
+			result = true;
+			
+		}
+		
+		/*
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 		Iterator<MCPCommunicationParameter> it = parameters.iterator();
 		
@@ -325,6 +332,7 @@ public class MCACommunicationAction implements MCPAction {
 			//	break;
 			//}
 		}
+		*/
 
 		return result;
 	}
