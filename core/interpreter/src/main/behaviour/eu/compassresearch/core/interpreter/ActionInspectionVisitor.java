@@ -367,13 +367,16 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 	}
 
 	/**
-	 * External Choice section 7.5.4 D23.2 In terms of the alphabet, we have the following situations: External Choice
-	 * Begin: When no children exists, the External Choice Begin transition rule must be executed. This is a silent
-	 * transition and therefore the alphabet contains only tau event External Choice Silent: If any of the actions can
-	 * take a silent transition they will do it before getting here again. We therefore don't take this situation into
-	 * account External Choice Skip: If one the children is Skip we make a silent transition of the whole choice into
-	 * skip. We therefore just return the tau event External Choice End: The alphabet contains an observable event for
-	 * every child that can engaged in one.
+	 * External Choice section 7.5.4 D23.2 In terms of the alphabet, we have the following situations:
+	 * <ul>
+	 * <li>External Choice Begin: When no children exists, the External Choice Begin transition rule must be executed.
+	 * This is a silent transition and therefore the alphabet contains only tau event</li>
+	 * <li>External Choice Silent: If any of the actions can take a silent transition they will do it before getting
+	 * here again. We therefore don't take this situation into account</li>
+	 * <li>External Choice Skip: If one of the children is Skip we make a silent transition of the whole choice into skip.
+	 * We therefore just return the tau event</li>
+	 * <li>External Choice End: The alphabet contains an observable event for every child that can engaged in one.</li>
+	 * </ul>
 	 */
 	@Override
 	public Inspection caseAExternalChoiceAction(AExternalChoiceAction node,

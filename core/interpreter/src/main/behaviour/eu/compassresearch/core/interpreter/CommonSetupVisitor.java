@@ -22,6 +22,7 @@ import org.overture.interpreter.values.Value;
 import org.overture.interpreter.values.ValueList;
 
 import eu.compassresearch.ast.CmlAstFactory;
+import eu.compassresearch.ast.actions.AStopAction;
 import eu.compassresearch.ast.actions.SReplicatedAction;
 import eu.compassresearch.ast.analysis.DepthFirstAnalysisCMLAdaptor;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
@@ -262,6 +263,7 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 		}
 	}
 
+	@SuppressWarnings("deprecation")
 	protected Pair<INode, Context> caseReplicated(INode node,
 			List<PSingleDeclaration> decls, AbstractReplicationFactory factory,
 			Context question) throws AnalysisException
@@ -302,6 +304,7 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 			
 			final Context replicationChildContext = factory.createReplicationChildContext(nextValue, nextNode, question);
 			setLeftChild(nextNode, replicationChildContext);
+			setRightChild(new AStopAction(question.location), replicationChildContext);//test
 			return new Pair<INode, Context>(nextNode, replicationChildContext);
 		}
 		/*
