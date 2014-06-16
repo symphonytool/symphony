@@ -1,0 +1,14 @@
+channels
+    c: nat*nat
+    
+chansets
+    aux1 = {|c.x | x: nat @ x = 3|}
+    aux2 = {|c.x.i.o | x: nat @ x = 3|}
+    
+    aux3 = {c.x.x.x | x: nat @ x = 3}
+    aux4 = {c.x | x: nat @ x = 3}
+    aux5 = {c.o | x: nat @ x = 3}
+    
+process P = begin
+    @ c?x?y -> Skip
+end

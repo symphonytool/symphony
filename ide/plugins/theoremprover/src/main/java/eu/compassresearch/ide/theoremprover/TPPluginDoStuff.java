@@ -84,6 +84,7 @@ public class TPPluginDoStuff {
 				return;
 			}
 
+			
 			// Test for unsupportted
 			if (checkUnsupporteds(proj)) {
 				return;

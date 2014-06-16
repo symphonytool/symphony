@@ -1,0 +1,19 @@
+process Test =
+begin
+
+state 
+  n : nat := 0
+  m : nat := 0
+inv n = m 
+
+operations
+
+Op: nat ==> () 
+Op(a) ==
+  atomic (
+    n := n + a;
+    m := m + a)
+
+@ Skip
+
+end

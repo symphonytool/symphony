@@ -9,7 +9,7 @@ public class MCAGuardedAction implements MCPAction {
 	private int counterId;
 	private MCPCMLExp expression;
 	private MCPAction action;
-	
+	private String formulaCodeDefault;
 	
 	public MCAGuardedAction(MCPCMLExp expression, MCPAction action) {
 		super();
@@ -21,35 +21,45 @@ public class MCAGuardedAction implements MCPAction {
 
 	@Override
 	public String toFormula(String option) {
-		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 		StringBuilder result = new StringBuilder();
-
-		// it writes the conditional choice constructor
-		result.append("condChoice(");
 		
-		// it writes the condition as an integer and puts the expression
-		result.append(this.counterId + ",");
-
-		switch (option) {
-		case MCNode.DEFAULT:
-			// it writes the behaviour in the if-true branch
-			result.append(this.action.toFormula(option));
-			result.append(",");
-			result.append((new MCAStopAction()).toFormula(option));
-			result.append(")");
-			break;
-
-		case MCNode.GENERIC:
-			// it writes the behaviour in the if-true branch generically
-			result.append("_");
-			result.append(",");
-			result.append("_");
-			result.append(")");
-			break;
-		default:
-			break;
-		}
 		
+			NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
+		
+			// it writes the conditional choice constructor
+			result.append("condChoice(");
+			
+			// it writes the condition as an integer and puts the expression
+			result.append(this.counterId + ",");
+	
+			switch (option) {
+			case MCNode.DEFAULT:
+				if(this.formulaCodeDefault == null){
+					// it writes the behaviour in the if-true branch
+					result.append(this.action.toFormula(option));
+					result.append(",");
+					
+					result.append((new MCAStopAction()).toFormula(option));
+					result.append(")");
+					this.formulaCodeDefault = result.toString();
+				}else{
+					result = new StringBuilder();
+					result.append(this.formulaCodeDefault);
+				}
+				
+				break;
+	
+			case MCNode.GENERIC:
+				// it writes the behaviour in the if-true branch generically
+				result.append("_");
+				result.append(",");
+				result.append("_");
+				result.append(")");
+				break;
+			default:
+				break;
+			}
+			
 		return result.toString();
 	}
 

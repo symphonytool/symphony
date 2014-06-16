@@ -1,0 +1,10 @@
+channels
+  a, b : nat * nat
+  
+process P = begin
+actions
+   A = Skip
+   B = A [[ a.(1).(1) <- b.(1).(1) ]]
+   C = A [[ a.x.y <- b.y.x | x in set {1,2,3}, y in set {1,2,3} ]]
+@ Skip
+end

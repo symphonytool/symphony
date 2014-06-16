@@ -161,7 +161,6 @@ public class VanillaCmlTypeChecker extends AbstractTypeChecker
 				issueHandler.addTypeError(tce.node, tce.location, e.getMessage());
 				throw e;
 			}
-			e.printStackTrace();
 			throw new InternalException(0, e.getMessage());
 		} finally
 		{

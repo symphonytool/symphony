@@ -3,8 +3,12 @@ package eu.compassresearch.core.analysis.modelchecker.ast.definitions;
 import org.overture.ast.definitions.AExplicitFunctionDefinition;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ExpressionEvaluator;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAInSetBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCABracketType;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAQuoteType;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAUnionType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 
 public class MCATypeDefinition implements MCPCMLDefinition {
@@ -37,13 +41,33 @@ public class MCATypeDefinition implements MCPCMLDefinition {
 				result.append(this.invExpression.toFormula(option));
 			}
 		} else if (this.type != null){
+			if(this.type instanceof MCAQuoteType){
+				result.append("{");
+			}
 			result.append(this.type.toFormula(option));
+			if(this.type instanceof MCAQuoteType){
+				result.append("}");
+			}
 		}
 		result.append(".");
 		
 		return result.toString();
 	}
 
+	public boolean hasValues(){
+		boolean result = false;
+		
+		if(this.invExpression != null){
+			ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
+			result = evaluator.getValueSet(invExpression).size() > 0;
+		} else if (this.type != null){
+			if(this.type instanceof MCAQuoteType || this.type instanceof MCABracketType || this.type instanceof MCAUnionType){
+				result = true;
+			}
+		}
+		
+		return result;
+	}
 
 	public String getName() {
 		return name;

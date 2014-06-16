@@ -28,57 +28,48 @@ import java.util.List;
 import java.util.Vector;
 
 import org.overture.ast.analysis.AnalysisException;
-import org.overture.ast.definitions.AAssignmentDefinition;
 import org.overture.ast.definitions.AImplicitOperationDefinition;
-import org.overture.ast.definitions.AStateDefinition;
+import org.overture.ast.definitions.AInstanceVariableDefinition;
 import org.overture.ast.definitions.PDefinition;
-import org.overture.ast.expressions.AApplyExp;
 import org.overture.ast.expressions.AExistsExp;
 import org.overture.ast.expressions.AImpliesBooleanBinaryExp;
+import org.overture.ast.expressions.AVariableExp;
 import org.overture.ast.expressions.PExp;
-import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.lex.LexKeywordToken;
-import org.overture.ast.lex.LexNameToken; //OR FROM COMPASS?
 import org.overture.ast.lex.VDMToken;
 import org.overture.ast.patterns.AIdentifierPattern;
-import org.overture.ast.patterns.APatternListTypePair;
 import org.overture.ast.patterns.APatternTypePair;
 import org.overture.ast.patterns.PMultipleBind;
-import org.overture.ast.patterns.PPattern;
 import org.overture.pog.pub.IPOContextStack;
+import org.overture.pog.pub.IPogAssistantFactory;
+import org.overture.pog.utility.Substitution;
+
+//OR FROM COMPASS?
 
 public class CmlSatisfiabilityObligation extends CmlProofObligation
 {
-	// private final AExplicitFunctionDefinition preexp;
-	// private final LinkedList<APatternListTypePair> paramPatterns;
-	// private final PDefinition stateDefinition;
-	// private final LinkedList<APatternTypePair> res;
-	// private final AExplicitFunctionDefinition postexp;
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
-	private static final ILexNameToken OLD_STATE_ARG = new LexNameToken(null, "oldstate", null);
-	private static final ILexNameToken OLD_SELF_ARG = new LexNameToken(null, "oldself", null);
-	private static final ILexNameToken NEW_STATE_ARG = new LexNameToken(null, "newstate", null);
-	private static final ILexNameToken NEW_SELF_ARG = new LexNameToken(null, "newself", null);
 
+	private IPogAssistantFactory af;
+
+	// FIXME collect only the frame variables
 	public CmlSatisfiabilityObligation(AImplicitOperationDefinition op,
-			List<AAssignmentDefinition> procState, IPOContextStack ctxt)
-			throws AnalysisException
+			List<AInstanceVariableDefinition> procState, IPOContextStack ctxt,
+			IPogAssistantFactory af) throws AnalysisException
 	{
 		super(op, CmlPOType.OP_SATISFIABILITY, ctxt, op.getLocation());
-
+		this.af = af;
 		PExp predExp = buildPredicate(op, null, procState);
 		valuetree.setPredicate(ctxt.getPredWithContext(predExp));
 	}
 
 	public CmlSatisfiabilityObligation(AImplicitOperationDefinition op,
-			PDefinition stateDefinition, IPOContextStack ctxt)
-			throws AnalysisException
+			PDefinition stateDefinition, IPOContextStack ctxt,
+			IPogAssistantFactory af) throws AnalysisException
 	{
 		super(op, CmlPOType.OP_SATISFIABILITY, ctxt, op.getLocation());
+		this.af = af;
 
 		/**
 		 * op: A * B ==> R [pre ...] post ... [pre_op(a, b, state) =>] exists r:R, state:Sigma & post_op(a, b, r,
@@ -91,82 +82,36 @@ public class CmlSatisfiabilityObligation extends CmlProofObligation
 		// valuetree.setContext(ctxt.getContextNodeList());
 	}
 
-	void stateInPre(List<PExp> args, PDefinition stateDefinition,
-			List<AAssignmentDefinition> procState)
+	PExp stateInPost(List<AInstanceVariableDefinition> procState,
+			PExp post_exp, List<PMultipleBind> exists_binds)
+			throws AnalysisException
 	{
 		if (procState != null)
 		{
-			for (AAssignmentDefinition def : procState)
+			for (AInstanceVariableDefinition var : procState)
 			{
-				args.add(getVarExp(def.getName().clone()));
-			}
-		} else
-		{
-			// replace with super call
-			if (stateDefinition instanceof AStateDefinition)
-			{
-				args.add(getVarExp(OLD_STATE_ARG));
-			} else
-			{
-				args.add(getVarExp(OLD_SELF_ARG));
+				AVariableExp newVar = getVarExp(getUnique(var.getName().getName()));
+				Substitution sub = new Substitution(var.getName().clone(), newVar);
+				post_exp = post_exp.apply(af.getVarSubVisitor(), sub);
+				PMultipleBind pmb = getMultipleTypeBind(var.getType().clone(), newVar.getName().clone());
+				exists_binds.add(pmb);
 			}
 		}
-
-	}
-
-	void stateInPost(List<AAssignmentDefinition> procState,
-			List<PMultipleBind> exists_binds,
-			List<PExp> postArglist, PDefinition stateDefinition)
-	{
-		if (procState != null)
-		{
-		
-			for (AAssignmentDefinition def : procState)
-			{
-				StringBuilder sb = new StringBuilder();
-				sb.append("new");
-				sb.append(def.getName().getName());
-				ILexNameToken newname = new eu.compassresearch.ast.lex.CmlLexNameToken("", sb.toString(), null);
-				postArglist.add(getVarExp(newname));
-	//			AAssignmentDefinition newdef = def.clone()
-				exists_binds.add(getMultipleTypeBind(def.getType().clone(), newname.clone()));
-			}
-		} else
-		{
-			// replace with super call
-			if (stateDefinition instanceof AStateDefinition)
-			{
-				postArglist.add(getVarExp(NEW_STATE_ARG));
-				exists_binds = getMultipleTypeBindList(stateDefinition.getType(), NEW_STATE_ARG);
-			} else
-			{
-				postArglist.add(getVarExp(NEW_SELF_ARG));
-				exists_binds = getMultipleTypeBindList(stateDefinition.getType(), NEW_SELF_ARG);
-			}
-		}
+		return post_exp;
 	}
 
 	PExp buildPredicate(AImplicitOperationDefinition op,
-			PDefinition stateDefinition, List<AAssignmentDefinition> procState)
+			PDefinition stateDefinition,
+			List<AInstanceVariableDefinition> procState)
 			throws AnalysisException
 	{
-		List<PExp> arglist = new Vector<PExp>();
 
-		for (APatternListTypePair pltp : op.getParameterPatterns())
-		{
-			for (PPattern pattern : pltp.getPatterns())
-			{
-				arglist.add(patternToExp(pattern));
-			}
-		}
-
-		stateInPre(arglist, stateDefinition, procState);
-		
-		AApplyExp preApply = null;
+		PExp preApply = null;
+		PExp postApply = op.getPostcondition().clone();
 
 		if (op.getPredef() != null)
 		{
-			preApply = getApplyExp(getVarExp(op.getPredef().getName()), arglist);
+			preApply = op.getPrecondition().clone();
 		}
 
 		PExp mainExp;
@@ -176,20 +121,19 @@ public class CmlSatisfiabilityObligation extends CmlProofObligation
 		{
 
 			AExistsExp existsExp = new AExistsExp();
-			List<PExp> postArglist = new Vector<PExp>(arglist);
+			List<PExp> postArglist = new Vector<PExp>();
 
-			//FIXME please check this conversion of op.getResult() it is no longer a list but a tuple
 			APatternTypePair res = op.getResult();
 
 			// *****Making assumption result should be single identifier pattern*****
-			if ( res.getPattern() instanceof AIdentifierPattern)
+			if (res.getPattern() instanceof AIdentifierPattern)
 			{
 				AIdentifierPattern ip = (AIdentifierPattern) res.getPattern();
 				postArglist.add(patternToExp(res.getPattern()));
 
-				List<PMultipleBind> exists_binds = new LinkedList<PMultipleBind>();		
-				stateInPost(procState, exists_binds, postArglist, stateDefinition);
-				
+				List<PMultipleBind> exists_binds = new LinkedList<PMultipleBind>();
+				postApply = stateInPost(procState, postApply,exists_binds);
+
 				exists_binds.add(getMultipleTypeBind(res.getType(), ip.getName()));
 
 				existsExp.setBindList(exists_binds);
@@ -198,7 +142,6 @@ public class CmlSatisfiabilityObligation extends CmlProofObligation
 				throw new RuntimeException("Expecting single identifier pattern in operation result");
 			}
 
-			AApplyExp postApply = getApplyExp(getVarExp(op.getPostdef().getName()), postArglist);
 			existsExp.setPredicate(postApply);
 			mainExp = existsExp;
 		}
@@ -208,14 +151,12 @@ public class CmlSatisfiabilityObligation extends CmlProofObligation
 		{
 
 			AExistsExp exists_exp = new AExistsExp();
-		
-			List<PExp> postArglist = cloneListPExp(arglist);
 
 			List<PMultipleBind> exists_binds = new LinkedList<PMultipleBind>();
-			stateInPost(procState, exists_binds, postArglist, stateDefinition);
-			
+			postApply = stateInPost(procState, postApply, exists_binds);
+
 			exists_exp.setBindList(exists_binds);
-			exists_exp.setPredicate(getApplyExp(getVarExp(op.getPostdef().getName()), new Vector<PExp>(postArglist)));
+			exists_exp.setPredicate(postApply);
 			mainExp = exists_exp;
 		}
 

@@ -7,7 +7,6 @@ import org.overture.ast.statements.AForIndexStm;
 import org.overture.ast.statements.AForPatternBindStm;
 import org.overture.ast.statements.ASkipStm;
 import org.overture.ast.statements.AStopStm;
-import org.overture.interpreter.assistant.pattern.PPatternAssistantInterpreter;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.PatternMatchException;
 import org.overture.interpreter.values.IntegerValue;
@@ -375,7 +374,7 @@ class ActionSetupVisitor extends CommonSetupVisitor
 			{
 				try
 				{
-					context.putList(PPatternAssistantInterpreter.getNamedValues(node.getPatternBind().getPattern(), x, context));
+					context.putList(question.assistantFactory.createPPatternAssistant().getNamedValues(node.getPatternBind().getPattern(), x, context));
 				} catch (PatternMatchException e)
 				{
 					// Ignore mismatches
@@ -446,7 +445,7 @@ class ActionSetupVisitor extends CommonSetupVisitor
 			{
 				try
 				{
-					context.putList(PPatternAssistantInterpreter.getNamedValues(node.getPattern(), x, context));
+					context.putList(question.assistantFactory.createPPatternAssistant().getNamedValues(node.getPattern(), x, context));
 				} catch (PatternMatchException e)
 				{
 					// Ignore mismatches

@@ -1,9 +1,11 @@
 package eu.compassresearch.core.analysis.theoremprover.visitors;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.definitions.AClassInvariantDefinition;
 import org.overture.ast.definitions.AExplicitFunctionDefinition;
 import org.overture.ast.definitions.AExplicitOperationDefinition;
 import org.overture.ast.definitions.AImplicitFunctionDefinition;
@@ -22,11 +24,14 @@ import org.overture.ast.patterns.PPattern;
 import org.overture.ast.types.AFunctionType;
 import org.overture.ast.types.ANamedInvariantType;
 import org.overture.ast.types.AOperationType;
+import org.overture.ast.types.AProductType;
 import org.overture.ast.types.ARecordInvariantType;
 import org.overture.ast.types.AVoidType;
 import org.overture.ast.types.PType;
 import org.overture.ast.types.SInvariantType;
 
+import eu.compassresearch.ast.actions.AValParametrisation;
+import eu.compassresearch.ast.actions.PParametrisation;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionDefinition;
@@ -50,10 +55,12 @@ import eu.compassresearch.core.analysis.theoremprover.thms.ThmProcAction;
 import eu.compassresearch.core.analysis.theoremprover.thms.ThmProcStand;
 import eu.compassresearch.core.analysis.theoremprover.thms.ThmRecType;
 import eu.compassresearch.core.analysis.theoremprover.thms.ThmState;
+import eu.compassresearch.core.analysis.theoremprover.thms.ThmStateInv;
 import eu.compassresearch.core.analysis.theoremprover.thms.ThmType;
 import eu.compassresearch.core.analysis.theoremprover.thms.ThmValue;
 import eu.compassresearch.core.analysis.theoremprover.utils.ThmExprUtil;
 import eu.compassresearch.core.analysis.theoremprover.utils.ThmProcessUtil;
+import eu.compassresearch.core.analysis.theoremprover.utils.ThmTypeUtil;
 import eu.compassresearch.core.analysis.theoremprover.visitors.deps.ThmDepVisitor;
 import eu.compassresearch.core.analysis.theoremprover.visitors.string.ThmStringVisitor;
 import eu.compassresearch.core.analysis.theoremprover.visitors.string.ThmVarsContext;
@@ -370,15 +377,15 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 	{
 		ThmNodeList tnl = new ThmNodeList();
 		ILexNameToken name = null;
-		String type = "";
+		String type = "()";
 		NodeNameList nodeDeps =  new NodeNameList();
 		
 		name = node.getName();
 		PType chanType = node.getType();
 		if (chanType != null)
 		{
-			type = chanType.apply(stringVisitor, new ThmVarsContext()); //ThmTypeUtil.getIsabelleType(((AChannelType) chan.getType()).getType());
 			nodeDeps = chanType.apply(depVisitor, new NodeNameList());//ThmChanUtil.getIsabelleChanDeps(node);
+			type = chanType.apply(stringVisitor, new ThmVarsContext()); //ThmTypeUtil.getIsabelleType(((AChannelType) chan.getType()).getType());
 		}
 		ThmNode tn = new ThmNode(name, nodeDeps, new ThmChannel(name.toString(), type));
 		tnl.add(tn);
@@ -430,7 +437,7 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 	public ThmNodeList caseAProcessDefinition(AProcessDefinition node, ThmVarsContext vars) throws AnalysisException
 	{
 		ThmNodeList tnl = new ThmNodeList();
-		ThmNode tn = null;		
+		ThmNode tn = null;
 		
 		PProcess process = node.getProcess();
 		ILexNameToken processName = node.getName();
@@ -441,12 +448,34 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 
 			AProcessDefinition parentProcess = act.getAncestor(AProcessDefinition.class);
 			
-			//get the Isabelle string for the process node's process.
-			String procString = act.apply(stringVisitor, new ThmVarsContext());//= ThmProcessUtil.getIsabelleProcessString(node.getProcess());
-			//obtain the process dependencies
-			NodeNameList nodeDeps = act.apply(depVisitor, new NodeNameList());//ThmProcessUtil.getIsabelleProcessDeps(node.getProcess());
+			List<String> param = new LinkedList<String>();
 			
-			tn = new ThmNode(parentProcess.getName(), nodeDeps, new ThmProcAction(parentProcess.getName().toString(), procString));
+			ThmVarsContext bvars = new ThmVarsContext();
+			NodeNameList nnl = new NodeNameList();
+			
+			// Add potential parameters to the process and mark them as bound
+			for (PParametrisation p : parentProcess.getLocalState()) {
+				StringBuffer sb = new StringBuffer();
+				
+				// FIXME: Abstract this out
+				
+				sb.append("  fixes ");
+				sb.append(p.getDeclaration().getName().toString() + "\n");
+				sb.append("  assumes \"`\\<lparr>^");
+				sb.append(p.getDeclaration().getName().toString() + "^ hasType ");
+				sb.append(p.getDeclaration().getType().apply(stringVisitor, new ThmVarsContext()));
+				sb.append("\\<rparr>`\"");
+				param.add(sb.toString());
+				nnl.add(p.getDeclaration().getName());
+				bvars.addBVar(p.getDeclaration().getName());
+			}
+			
+			//get the Isabelle string for the process node's process.
+			String procString = act.apply(stringVisitor, bvars);//= ThmProcessUtil.getIsabelleProcessString(node.getProcess());
+			//obtain the process dependencies
+			NodeNameList nodeDeps = act.apply(depVisitor, nnl);//ThmProcessUtil.getIsabelleProcessDeps(node.getProcess());
+			
+			tn = new ThmNode(parentProcess.getName(), nodeDeps, new ThmProcAction(parentProcess.getName().toString(), param, procString));
 		}
 		else
 		{
@@ -652,10 +681,26 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 	}
 	
 	
-	
-	
-	
-	
+	@Override
+	public ThmNodeList caseAClassInvariantDefinition(
+			AClassInvariantDefinition inv, ThmVarsContext vars)
+			throws AnalysisException {
+		ThmNodeList tnl = new ThmNodeList();
+		
+		ILexNameToken sName = inv.getName();
+		
+		String invName = sName.toString().replace("$", ""); 		
+		// inv.getClassDefinition().getDefinitions().getFirst().getName().getName();
+		//obtain the invariant expression, and dependencies
+
+		String exprString = inv.getExpression().apply(stringVisitor, vars);
+		NodeNameList nodeDeps = inv.getExpression().apply(depVisitor, new NodeNameList());
+
+		ThmNode stn = new ThmNode(sName, nodeDeps, new ThmStateInv(invName, exprString));
+		tnl.add(stn);
+		
+		return tnl;
+	}
 	
 	@Override
 	public ThmNodeList defaultPSingleDeclaration(PSingleDeclaration node, ThmVarsContext vars)

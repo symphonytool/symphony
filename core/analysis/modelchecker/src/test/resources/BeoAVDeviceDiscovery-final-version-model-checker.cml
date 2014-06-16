@@ -51,6 +51,7 @@
 		  MarshallData_State = (createDDSDObject();IPMulticastChannel!product_DR -> Skip) [_ timeout _> (Skip) --- simulate IP multicast logic using timeouts  					   
       @ Off_State
   end
+  
 -- CML process modelling the B&O DD protocol for the target product in the network 
   process TargetProduct_DD_SD_InterfaceProtocolView =
   begin

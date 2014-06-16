@@ -88,7 +88,6 @@ abstract class AbstractCmlTransition implements CmlTransition
 	 * 
 	 * @param baseEvent
 	 * @param otherComEvent
-	 * @param meetValue
 	 */
 	public AbstractCmlTransition(CmlTransition baseEvent,
 			CmlTransition otherComEvent)

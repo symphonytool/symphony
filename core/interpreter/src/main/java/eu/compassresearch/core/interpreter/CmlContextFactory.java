@@ -13,7 +13,7 @@ import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.assistant.CmlInterpreterAssistantFactory;
 import eu.compassresearch.core.interpreter.debug.CmlDBGPReader;
 
-class CmlContextFactory
+public class CmlContextFactory
 {
 	final static IInterpreterAssistantFactory factory = new CmlInterpreterAssistantFactory();
 

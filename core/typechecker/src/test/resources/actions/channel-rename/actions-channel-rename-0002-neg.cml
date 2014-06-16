@@ -1,0 +1,19 @@
+
+
+
+channels
+
+a: char
+b:int
+
+
+
+process P = 
+ begin
+ actions
+ A=Skip
+   @
+	A	[[
+     		a 	<-	b
+       	]]
+ end

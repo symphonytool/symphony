@@ -2,10 +2,11 @@ package eu.compassresearch.ide.theoremprover
 
 import scala.actors.Actor.loop
 import scala.actors.Actor.react
-import isabelle.eclipse.core.text.EditDocumentModel
+import scala.collection.mutable.Queue
+
+import org.eclipse.core.runtime.NullProgressMonitor
+import org.eclipse.ui.texteditor.IDocumentProvider
 import org.overture.ast.node.INode
-import org.eclipse.ui.editors.text.TextFileDocumentProvider
-import isabelle.{ Command, Session }
 import org.overture.pog.pub.IProofObligation
 import eu.compassresearch.core.analysis.theoremprover.visitors.TPVisitor
 import isabelle.eclipse.core.util.SessionEvents
@@ -14,10 +15,18 @@ import org.overture.pog.pub.POStatus
 import org.eclipse.ui.texteditor.IDocumentProvider
 import org.eclipse.core.runtime.NullProgressMonitor
 import isabelle.Protocol
-import eu.compassresearch.ide.core.resources.ICmlProject
+
 import org.overture.pog.pub.IProofObligationList
+import eu.compassresearch.core.analysis.theoremprover.visitors.TPVisitor
+
+import eu.compassresearch.ide.core.resources.ICmlProject
 import eu.compassresearch.ide.pog.PogPluginRunner
-import scala.collection.mutable.Stack
+import isabelle.Command
+import isabelle.Protocol
+import isabelle.Session
+import isabelle.eclipse.core.text.EditDocumentModel
+import isabelle.eclipse.core.util.LoggingActor
+import isabelle.eclipse.core.util.SessionEvents
 
 sealed case class PoThm(val offset: Int, val body: String, val byPos: Int, val poNum: Int)
 
@@ -28,7 +37,7 @@ class ProofSess(val poEDM: EditDocumentModel, val proj: ICmlProject, val pol: IP
   var poPending: List[PoThm] = List()
   var poSubmitted: Set[Int] = Set()
   var batchMode: Boolean = false
-  var batchStack: Stack[IProofObligation] = Stack()
+  var batchQ: Queue[IProofObligation] = Queue()
 
   def enqueueAllPOs() {
     batchMode = true
@@ -36,38 +45,28 @@ class ProofSess(val poEDM: EditDocumentModel, val proj: ICmlProject, val pol: IP
     while (it.hasNext()) {
       var ipo = it.next()
       ipo.setStatus(POStatus.SUBMITTED)
-      batchStack.push(ipo)
+      batchQ.enqueue(ipo)
     }
     PogPluginRunner.redrawPos(proj, pol)
     this.enqueueNext()
-    
+
   }
 
   def enqueueNext() {
-    if (!batchStack.isEmpty) {
-      System.out.println("Enqueued a PO!")
-      enqueuePO(batchStack.pop())
+    if (!batchQ.isEmpty) {
+      enqueuePO(batchQ.dequeue)
     }
-  }
-
-  def whitespace(size: Int): String = {
-    var sb = StringBuilder.newBuilder
-    for (i <- 0 to size){
-      sb.append(" ") 
-    }
-    sb.append("\n")
-    sb.toString
   }
 
   def enqueuePO(ipo: IProofObligation) {
 
     // Only enqueue if the ipo has not been submitted yet
     if (!poSubmitted.contains(ipo.getNumber())) {
-      if (ipo.getStatus()==POStatus.UNPROVED){
-    	  ipo.setStatus(POStatus.SUBMITTED)
-    	  PogPluginRunner.redrawPos(proj, pol)
+      if (ipo.getStatus() == POStatus.UNPROVED) {
+        ipo.setStatus(POStatus.SUBMITTED)
+        PogPluginRunner.redrawPos(proj, pol)
       }
-    poSubmitted += ipo.getNumber()
+      poSubmitted += ipo.getNumber()
       val isaPO = TPVisitor.generatePoStr(ast, ipo)
       val doc = poEDM.document
       val offset = doc.getLineOffset(doc.getNumberOfLines() - 1)
@@ -109,7 +108,9 @@ class ProofSess(val poEDM: EditDocumentModel, val proj: ICmlProject, val pol: IP
           poPending match {
             case (pt :: pts) => {
               val node = sess.snapshot(poEDM.name).node
-              val cmd = node.command_at(pt.byPos).map(_._1)
+              val rng = node.command_range(pt.byPos)
+              val cm = if (rng.hasNext) Some(rng.next) else None
+              val cmd = cm.map(_._1)
               cmd match {
                 case Some(c) => { poMap += (c -> pt); poPending = pts }
                 case None => {}
@@ -139,19 +140,18 @@ class ProofSess(val poEDM: EditDocumentModel, val proj: ICmlProject, val pol: IP
                 PogPluginRunner.redrawPos(proj, pol)
 
                 // Remove the failed proof goal
-                var s = poEDM.document.get()
-                val whites = whitespace(pt.body.length)
+                val regex = ".".r
+                val whites = regex.replaceAllIn(pt.body, " ")
                 poEDM.document.replace(pt.offset, pt.body.length(), whites)
-                whites.length()
-                s = poEDM.document.get()
                 thyProvider.saveDocument(new NullProgressMonitor(), null, poEDM.document, true)
+
                 poEDM.submitFullPerspective(new NullProgressMonitor())
 
               }
 
               // Completed a PO. Get next if needed
               if (batchMode) {
-                enqueueNext()
+                this.enqueueNext()
               }
 
             }
