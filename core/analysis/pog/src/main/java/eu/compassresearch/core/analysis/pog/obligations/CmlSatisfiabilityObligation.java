@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Vector;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.definitions.AClassInvariantDefinition;
 import org.overture.ast.definitions.AImplicitOperationDefinition;
 import org.overture.ast.definitions.AInstanceVariableDefinition;
 import org.overture.ast.definitions.PDefinition;
@@ -58,12 +59,13 @@ public class CmlSatisfiabilityObligation extends CmlProofObligation
 
 	// FIXME collect only the frame variables
 	public CmlSatisfiabilityObligation(AImplicitOperationDefinition op,
-			List<AInstanceVariableDefinition> procState, IPOContextStack ctxt,
+			List<AInstanceVariableDefinition> procState,
+			List<PDefinition> invDefs, IPOContextStack ctxt,
 			IPogAssistantFactory af) throws AnalysisException
 	{
 		super(op, CmlPOType.OP_SATISFIABILITY, ctxt, op.getLocation());
 		this.af = af;
-		PExp predExp = buildPredicate(op, null, procState);
+		PExp predExp = buildPredicate(op, null, procState, invDefs);
 		valuetree.setPredicate(ctxt.getPredWithContext(predExp));
 	}
 
@@ -79,68 +81,33 @@ public class CmlSatisfiabilityObligation extends CmlProofObligation
 		 * state~, state) The state argument is either a Sigma(SL) or self(PP).
 		 */
 
-		PExp predExp = buildPredicate(op, stateDefinition, null);
+		PExp predExp = buildPredicate(op, stateDefinition, null, null);
 
 		valuetree.setPredicate(ctxt.getPredWithContext(predExp));
 		// valuetree.setContext(ctxt.getContextNodeList());
 	}
 
-	PExp stateInPost(List<AInstanceVariableDefinition> procState,
-			PExp post_exp, List<PMultipleBind> exists_binds,
-			AImplicitOperationDefinition op) throws AnalysisException
-	{
-		if (procState != null)
-		{
-			if (op.getExternals().size() > 0)
-			{
-				for (AInstanceVariableDefinition var : procState)
-				{
-					for (AExternalClause e : op.getExternals())
-					{
-						for (ILexNameToken i : e.getIdentifiers())
-						{
-							if (i.equals(var.getName()))
-							{
-								AVariableExp newVar = getVarExp(getUnique(var.getName().getName()));
-								Substitution sub = new Substitution(var.getName().clone(), newVar);
-								post_exp = post_exp.apply(af.getVarSubVisitor(), sub);
-
-								if (e.getMode().is(VDMToken.READ))
-								{ // x~ = x
-									AEqualsBinaryExp unchanged_exp = AstExpressionFactory.newAEqualsBinaryExp(getVarExp(var.getName().clone()), newVar.clone());
-									AAndBooleanBinaryExp and_exp = AstExpressionFactory.newAAndBooleanBinaryExp(post_exp, unchanged_exp);
-									post_exp = and_exp;
-								}
-								PMultipleBind pmb = getMultipleTypeBind(var.getType().clone(), newVar.getName().clone());
-								exists_binds.add(pmb);
-							}
-						}
-					}
-				}
-			} else
-			{
-
-				for (AInstanceVariableDefinition var : procState)
-				{
-					AVariableExp newVar = getVarExp(getUnique(var.getName().getName()));
-					Substitution sub = new Substitution(var.getName().clone(), newVar);
-					post_exp = post_exp.apply(af.getVarSubVisitor(), sub);
-					PMultipleBind pmb = getMultipleTypeBind(var.getType().clone(), newVar.getName().clone());
-					exists_binds.add(pmb);
-				}
-			}
-		}
-		return post_exp;
-	}
-
 	PExp buildPredicate(AImplicitOperationDefinition op,
 			PDefinition stateDefinition,
-			List<AInstanceVariableDefinition> procState)
-			throws AnalysisException
+			List<AInstanceVariableDefinition> procState,
+			List<PDefinition> invDefs) throws AnalysisException
 	{
 
 		PExp preApply = null;
-		PExp postApply = op.getPostcondition().clone();
+		PExp postApply = null;
+
+		postApply = op.getPostcondition().clone();
+		if (invDefs.size() > 0)
+		{
+			for (PDefinition d : invDefs)
+			{
+				if (d instanceof AClassInvariantDefinition)
+				{
+					AClassInvariantDefinition i = (AClassInvariantDefinition) d;
+					postApply = AstExpressionFactory.newAAndBooleanBinaryExp(postApply.clone(), i.getExpression().clone());
+				}
+			}
+		}
 
 		if (op.getPredef() != null)
 		{
@@ -204,6 +171,54 @@ public class CmlSatisfiabilityObligation extends CmlProofObligation
 		{
 			return mainExp;
 		}
+	}
+
+	PExp stateInPost(List<AInstanceVariableDefinition> procState,
+			PExp post_exp, List<PMultipleBind> exists_binds,
+			AImplicitOperationDefinition op) throws AnalysisException
+	{
+		if (procState != null)
+		{
+			if (op.getExternals().size() > 0)
+			{
+				for (AInstanceVariableDefinition var : procState)
+				{
+					for (AExternalClause e : op.getExternals())
+					{
+						for (ILexNameToken i : e.getIdentifiers())
+						{
+							if (i.equals(var.getName()))
+							{
+								AVariableExp newVar = getVarExp(getUnique(var.getName().getName()));
+								Substitution sub = new Substitution(var.getName().clone(), newVar);
+								post_exp = post_exp.apply(af.getVarSubVisitor(), sub);
+
+								if (e.getMode().is(VDMToken.READ))
+								{ // x~ = x
+									AEqualsBinaryExp unchanged_exp = AstExpressionFactory.newAEqualsBinaryExp(getVarExp(var.getName().clone()), newVar.clone());
+									AAndBooleanBinaryExp and_exp = AstExpressionFactory.newAAndBooleanBinaryExp(post_exp, unchanged_exp);
+									post_exp = and_exp;
+								}
+								PMultipleBind pmb = getMultipleTypeBind(var.getType().clone(), newVar.getName().clone());
+								exists_binds.add(pmb);
+							}
+						}
+					}
+				}
+			} else
+			{
+
+				for (AInstanceVariableDefinition var : procState)
+				{
+					AVariableExp newVar = getVarExp(getUnique(var.getName().getName()));
+					Substitution sub = new Substitution(var.getName().clone(), newVar);
+					post_exp = post_exp.apply(af.getVarSubVisitor(), sub);
+					PMultipleBind pmb = getMultipleTypeBind(var.getType().clone(), newVar.getName().clone());
+					exists_binds.add(pmb);
+				}
+			}
+		}
+		return post_exp;
 	}
 
 }

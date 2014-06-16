@@ -7,6 +7,7 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.QuestionAnswerAdaptor;
 import org.overture.ast.definitions.AAssignmentDefinition;
 import org.overture.ast.definitions.AClassClassDefinition;
+import org.overture.ast.definitions.AClassInvariantDefinition;
 import org.overture.ast.definitions.AImplicitOperationDefinition;
 import org.overture.ast.definitions.AInstanceVariableDefinition;
 import org.overture.ast.definitions.AStateDefinition;
@@ -21,6 +22,7 @@ import org.overture.pog.contexts.POImpliesContext;
 import org.overture.pog.contexts.PONameContext;
 import org.overture.pog.obligation.TypeCompatibilityObligation;
 import org.overture.pog.pub.IPOContextStack;
+import org.overture.pog.utility.PDefinitionAssistantPOG;
 import org.overture.typechecker.TypeComparator;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
@@ -252,17 +254,18 @@ public class POGDeclAndDefVisitor extends
 			{
 				pol.addAll(node.getPostcondition().apply(parentPOG, question));
 			}
-			PDefinition stateDef;
 
 			AActionProcess stater = node.getAncestor(AActionProcess.class);
 			if (stater != null)
 			{
 				List<AInstanceVariableDefinition> stateDefs = stater.apply(new ClonerProcessState());
+				List<PDefinition> invDefs = assistantFactory.createSClassDefinitionAssistant().getInvDefs(stater.getActionDefinition());
 				question.push(new CmlOperationDefinitionContext(node, false, stateDefs));
-				pol.add(new CmlSatisfiabilityObligation(node, stateDefs, question, assistantFactory));
+				pol.add(new CmlSatisfiabilityObligation(node, stateDefs, invDefs, question, assistantFactory));
 				question.pop();
 			} else
 			{
+				PDefinition stateDef;
 				if (node.getClassDefinition() != null)
 				{
 					stateDef = node.getClassDefinition().clone();
