@@ -119,6 +119,11 @@ public class CmlSatisfiabilityObligation extends CmlProofObligation
 				preApply = inv_exp.clone();
 			}
 		}
+		else{
+			if (op.getPredef() !=null){
+				preApply = op.getPrecondition().clone();
+			}
+		}
 		
 		PExp mainExp;
 
