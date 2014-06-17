@@ -81,7 +81,7 @@ public class AdHoc {
 
 	}
 
-	private void update(IProofObligationList ipol, String resultpath)
+	private void update(IProofObligationList ipol, String result)
 			throws AnalysisException, IOException, URISyntaxException {
 
 		List<PoResult> prl = new LinkedList<PoResult>();
@@ -93,9 +93,9 @@ public class AdHoc {
 		Gson gson = new Gson();
 		String json = gson.toJson(prl);
 
-		IOUtils.write(json, new FileOutputStream(resultpath));
+		IOUtils.write(json, new FileOutputStream(result));
 		
-		System.out.println("\n" +resultpath + " file updated \n");
+		System.out.println("\n" +result + " file updated \n");
 
 	}
 	
