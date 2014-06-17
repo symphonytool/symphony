@@ -3,6 +3,7 @@ package eu.compassresearch.pog.tests.utils;
 import static org.junit.Assert.fail;
 
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -53,6 +54,27 @@ public class TestResultHelper
 		List<PoResult> results = gson.fromJson(json, datasetListType);
 
 		TestResultHelper.checkSameElements(results, ipol);
+	}
+	
+	public static void testUpdate(String input, String result)
+			throws IOException, AnalysisException, FileNotFoundException
+	{
+		List<INode> ast = TestInputHelper.getAstFromName(input);
+		IProofObligationList ipol = PogPubUtil.generateProofObligations(ast);
+
+		List<PoResult> prl = new LinkedList<PoResult>();
+
+		for (IProofObligation po : ipol) {
+			prl.add(new PoResult(po.getKindString(), po.getValue()));
+		}
+
+		Gson gson = new Gson();
+		String json = gson.toJson(prl);
+
+		IOUtils.write(json, new FileOutputStream(result));
+		
+		System.out.println("\n" +result + " file updated \n");
+		
 	}
 
 	private static void checkSameElements(List<PoResult> pRL,

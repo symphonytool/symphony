@@ -2,6 +2,8 @@ package eu.compassresearch.pog.tests;
 
 import java.util.Collection;
 
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import eu.compassresearch.pog.tests.utils.TestFileProvider;
@@ -12,6 +14,7 @@ import eu.compassresearch.pog.tests.utils.TestFileProvider;
  * 
  * @author ldc
  */
+@RunWith(Parameterized.class)
 public class ModelsTest extends BasicTest
 {
 	public ModelsTest(String _, String testParameter, String resultParameter)
