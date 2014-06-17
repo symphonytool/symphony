@@ -74,12 +74,12 @@ public class RttMbtSocketResponseHandler {
 			clientSocket.connect(sockaddr, 10000);
 			isConnected = true;
 		}
-		catch(UnknownHostException unknownHost){
-			System.err.println("*** error: unknown host " + server + "!");
+		catch(UnknownHostException unknownHost) {
+			client.addErrorMessage("*** error: unknown host " + server + "!");
 			return false;
 		}
-		catch(IOException ioException){
-			System.err.println("*** error: unable to connect to " + server + ", port " + port + "!");
+		catch(IOException ioException) {
+			client.addErrorMessage("*** error: unable to connect to " + server + ", port " + port + "!");
 			return false;
 		}
 		finally{
@@ -90,7 +90,6 @@ public class RttMbtSocketResponseHandler {
 	private Boolean sendCommand(String command, String server, int port) {
 		if (!isConnected) {
 			if (!connectToServer(server, port)) {
-				System.err.println("*** error: unable to connect to server " + server + "!");
 				return false;
 			}
 		}
