@@ -608,7 +608,7 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 	}
 
 	public String caseAQuoteLiteralExp(AQuoteLiteralExp ex, ThmVarsContext vars) throws AnalysisException{
-		return "<\'\'" + ex.getValue().getValue() + "\'\'>";
+		return "<" + ex.getValue().getValue() + ">";
 	}
 
 	public String caseARealLiteralExp(ARealLiteralExp ex, ThmVarsContext vars) throws AnalysisException{
@@ -619,7 +619,7 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		String value = ex.getValue().toString();
 		value = value.replaceAll("\"","");
 		
-		return "<<''" + value + "''>>";
+		return "''" + value + "''";
 	}
 
 	public String caseASubseqExp(ASubseqExp ex, ThmVarsContext vars) throws AnalysisException{

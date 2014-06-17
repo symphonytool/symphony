@@ -21,6 +21,7 @@ import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.patterns.APatternListTypePair;
 import org.overture.ast.patterns.APatternTypePair;
 import org.overture.ast.patterns.PPattern;
+import org.overture.ast.statements.AExternalClause;
 import org.overture.ast.types.AFunctionType;
 import org.overture.ast.types.ANamedInvariantType;
 import org.overture.ast.types.AOperationType;
@@ -140,7 +141,6 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 		else if (type instanceof ARecordInvariantType)
 		{
 			ARecordInvariantType rtype = (ARecordInvariantType) type;
-			
 			//Send to visitor for Deplist
 			nodeDeps.addAll(rtype.apply(depVisitor, new NodeNameList()));
 
@@ -152,6 +152,7 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 				//Get the invariant - should only be one.
 				ThmNode i = invNode.firstElement();
 				{
+					((ThmExpFunc) i.getArtifact()).setRecordInv(true);
 					invDefn = i.toString();
 				}
 			}
@@ -263,7 +264,8 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 	{
 		ThmNodeList tnl = new ThmNodeList();
 		NodeNameList nodeDeps = new NodeNameList();
-
+		LinkedList<String> paramTypes = new LinkedList<String>(); 
+		
 		ILexNameToken name = node.getName();
 		
 		//Deal with the parameters
@@ -278,6 +280,7 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 		for(PType pTp : ((AFunctionType) node.getType()).getParameters())
 		{
 			nodeDeps.addAll(pTp.apply(depVisitor, new NodeNameList()));
+			paramTypes.add(pTp.apply(stringVisitor, new ThmVarsContext()));
 		}
 		
 		//Deal with the function body
@@ -304,7 +307,7 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 		String resType = node.getType().getResult().apply(stringVisitor, vc);
 		nodeDeps.addAll(node.getType().getResult().apply(depVisitor, b));
 		
-		ThmNode tn = new ThmNode(name, nodeDeps, new ThmExpFunc(name.getName(), exp, post, pre, params, resType));
+		ThmNode tn = new ThmNode(name, nodeDeps, new ThmExpFunc(name.getName(), exp, post, pre, params, paramTypes, resType));
 		tnl.add(tn);
 		
 		return tnl;
@@ -319,7 +322,8 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 	{
 		ThmNodeList tnl = new ThmNodeList();
 		NodeNameList nodeDeps = new NodeNameList();
-
+		LinkedList<String> paramTypes = new LinkedList<String>();
+		
 		ILexNameToken name = node.getName();
 		LinkedList<APatternListTypePair> params = node.getParamPatterns();
 		APatternTypePair res = node.getResult();
@@ -339,6 +343,7 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 		for(PType pTp : ((AFunctionType) node.getType()).getParameters() )
 		{
 			nodeDeps.addAll(pTp.apply(depVisitor, b));//(ThmTypeUtil.getIsabelleTypeDeps(pTp));
+			paramTypes.add(pTp.apply(stringVisitor, new ThmVarsContext()));
 		}
 		
 		
@@ -361,7 +366,7 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 		String resType = res.getType().apply(stringVisitor, vc);//ThmTypeUtil.getIsabelleType(res.getType());
 		nodeDeps.addAll(res.getType().apply(depVisitor, b));//(ThmTypeUtil.getIsabelleTypeDeps(res.getType()));
 
-		ThmNode tn = new ThmNode(name, nodeDeps, new ThmImpFunc(name.getName(), post, pre, params, res, resType));
+		ThmNode tn = new ThmNode(name, nodeDeps, new ThmImpFunc(name.getName(), post, pre, params, res, paramTypes, resType));
 		tnl.add(tn);
 		
 		return tnl;
@@ -539,15 +544,13 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 		LinkedList<APatternListTypePair> params = node.getParameterPatterns();			
 		//Deal with the parameters
 		//Find bound values to exclude from dependency list and add node dependencies
-		
-		LinkedList<String> paramTypes = new LinkedList<String>();
+	
 		for(APatternListTypePair p : params)
 		{
 			for(PPattern pat : p.getPatterns())
 			{
 				vars.addBVar(((AIdentifierPattern) pat).getName());
 			}
-			paramTypes.add(p.getType().apply(stringVisitor, vars));
 			nodeDeps.addAll(p.getType().apply(depVisitor, vars.getBVars()));
 		}	
 		//Add return type(s) to dependency list and list of bound values
@@ -560,7 +563,19 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 			nodeDeps.addAll(res.getType().apply(depVisitor, vars.getBVars()));
 		}	
 		
+		// Get the frame of this implicit operation
+		LinkedList<String> frame = new LinkedList<String>();
 		
+		if (node.getExternals() != null)
+		{
+			for (AExternalClause ext : node.getExternals()) {
+				if (ext.getMode().toString().equals("wr")) {
+					for (ILexNameToken i : ext.getIdentifiers()) {
+						frame.add(i.toString());
+					}
+				}
+			}
+		}
 		
 		if (node.getPrecondition() != null)
 		{
@@ -578,7 +593,7 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 			nodeDeps.addAll(node.getPostcondition().apply(depVisitor, vars.getBVars()));
 
 		}
-		tn = new ThmNode(node.getName(), nodeDeps, new ThmImplicitOperation(node.getName().getName(), params, pre, post, res, paramTypes, resType));
+		tn = new ThmNode(node.getName(), nodeDeps, new ThmImplicitOperation(node.getName().getName(), params, frame, pre, post, res, resType));
 		
 		tnl.add(tn);
 		return tnl;
