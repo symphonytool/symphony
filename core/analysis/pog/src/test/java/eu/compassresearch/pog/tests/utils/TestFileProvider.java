@@ -21,11 +21,18 @@ public class TestFileProvider
 	private final static String BASE_POS = "src/test/resources/basic/pos";
 	private final static String BASE_CTXTS = "src/test/resources/basic/ctxts";
 	private final static String BUG_REG_ROOT = "src/test/resources/bug-regression";
+	private final static String INTEG_ROOT = "src/test/resources/integration";
 	private final static String RESULT_EXTENSION = ".RESULT";
 
 	public static Collection<Object[]> bugRegs()
 	{
 		File dir = new File(BUG_REG_ROOT);
+		return files(dir);
+	}
+	
+	public static Collection<Object[]> models()
+	{
+		File dir = new File(INTEG_ROOT);
 		return files(dir);
 	}
 
@@ -54,4 +61,6 @@ public class TestFileProvider
 
 		return paths;
 	}
+
+
 }

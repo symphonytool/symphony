@@ -72,7 +72,7 @@ public class BasicTest
 		try
 		{
 			List<INode> ast = TestInputHelper.getAstFromName(micromodel);
-			IProofObligationList polist = PogPubUtil.generateProofObligations(ast);
+			IProofObligationList ipol = PogPubUtil.generateProofObligations(ast);
 
 			Gson gson = new Gson();
 			String json = IOUtils.toString(new FileReader(resultpath));
@@ -81,7 +81,7 @@ public class BasicTest
 			}.getType();
 			List<PoResult> results = gson.fromJson(json, datasetListType);
 
-			TestResultHelper.checkSameElements(results, polist);
+			TestResultHelper.checkSameElements(results, ipol);
 
 		} catch (POException e)
 		{
