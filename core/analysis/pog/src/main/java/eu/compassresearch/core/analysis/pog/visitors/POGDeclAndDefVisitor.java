@@ -7,7 +7,6 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.QuestionAnswerAdaptor;
 import org.overture.ast.definitions.AAssignmentDefinition;
 import org.overture.ast.definitions.AClassClassDefinition;
-import org.overture.ast.definitions.AClassInvariantDefinition;
 import org.overture.ast.definitions.AImplicitOperationDefinition;
 import org.overture.ast.definitions.AInstanceVariableDefinition;
 import org.overture.ast.definitions.AStateDefinition;
@@ -22,7 +21,6 @@ import org.overture.pog.contexts.POImpliesContext;
 import org.overture.pog.contexts.PONameContext;
 import org.overture.pog.obligation.TypeCompatibilityObligation;
 import org.overture.pog.pub.IPOContextStack;
-import org.overture.pog.utility.PDefinitionAssistantPOG;
 import org.overture.typechecker.TypeComparator;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;

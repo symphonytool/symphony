@@ -48,7 +48,7 @@ public class PogSpecialDefVisitor extends
 			{
 				stateDef = node.getState();
 			}
-			question.push(new CmlOperationDefinitionContext(node, false, stateDef));
+			question.push(new CmlOperationDefinitionContext(node, precond, stateDef));
 		}
 	}
 	
