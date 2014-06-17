@@ -60,7 +60,7 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 			sb.append(t.apply(thmStringVisitor, vars));
 			//If there are remaining types, add a isaProd *
 			if(itr.hasNext()){	
-				sb.append(ThmTypeUtil.isaHProd);
+				sb.append(ThmTypeUtil.isaProd);
 			}
 		}
 		
