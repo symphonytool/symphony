@@ -95,25 +95,31 @@ public class CmlSatisfiabilityObligation extends CmlProofObligation
 
 		PExp preApply = null;
 		PExp postApply = null;
-
 		postApply = op.getPostcondition().clone();
+
 		if (invDefs.size() > 0)
 		{
-			for (PDefinition d : invDefs)
+			PExp inv_exp = ((AClassInvariantDefinition) invDefs.get(0)).getExpression().clone();
+
+			for (PDefinition d : invDefs.subList(1, invDefs.size()))
 			{
 				if (d instanceof AClassInvariantDefinition)
 				{
 					AClassInvariantDefinition i = (AClassInvariantDefinition) d;
-					postApply = AstExpressionFactory.newAAndBooleanBinaryExp(postApply.clone(), i.getExpression().clone());
+					inv_exp = AstExpressionFactory.newAAndBooleanBinaryExp(inv_exp, i.getExpression().clone());
 				}
 			}
-		}
 
-		if (op.getPredef() != null)
-		{
-			preApply = op.getPrecondition().clone();
+			postApply = AstExpressionFactory.newAAndBooleanBinaryExp(postApply.clone(), inv_exp.clone());
+			if (op.getPredef() != null)
+			{
+				preApply = AstExpressionFactory.newAAndBooleanBinaryExp(op.getPrecondition().clone(), inv_exp.clone());
+			} else
+			{
+				preApply = inv_exp.clone();
+			}
 		}
-
+		
 		PExp mainExp;
 
 		// Operation Has a Result. Add it in the post condition.
