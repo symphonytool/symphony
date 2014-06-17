@@ -1,11 +1,6 @@
 process A = 
 begin
 
-state
-x: int
-y : int
-inv x = y
-
 operations
 op ()
 post true

@@ -39,7 +39,10 @@ import org.overture.ast.expressions.AImpliesBooleanBinaryExp;
 import org.overture.ast.expressions.AVariableExp;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.factory.AstExpressionFactory;
+<<<<<<< Updated upstream
 import org.overture.ast.intf.lex.ILexNameToken;
+=======
+>>>>>>> Stashed changes
 import org.overture.ast.lex.LexKeywordToken;
 import org.overture.ast.lex.VDMToken;
 import org.overture.ast.patterns.AIdentifierPattern;
@@ -111,6 +114,7 @@ public class CmlSatisfiabilityObligation extends CmlProofObligation
 
 		if (op.getPredef() != null)
 		{
+			//preApply = AstExpressionFactory.newAAndBooleanBinaryExp(INVARIANTS HERE, op.getPrecondition().clone());
 			preApply = op.getPrecondition().clone();
 		}
 
