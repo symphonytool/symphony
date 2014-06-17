@@ -81,6 +81,7 @@ public class ThmImplicitOperation extends ThmDecl{
 		if (!frame.isEmpty()) {
 			res.append("  frame ");
 			for (String x : frame) res.append(x + " ");
+			res.append("\n");
 		}
 		if (pre != null) res.append("  pre \"" + pre + "\"\n");
 		if (post != null) res.append("  post \"" + post + "\"\n");
