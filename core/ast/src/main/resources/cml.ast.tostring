@@ -11,13 +11,24 @@ import eu.compassresearch.ast.util.ToStringUtil;
 
 // Actions
 %action->#Replicated = "Replication of action: " [replicatedAction]
+%action->#Replicated->externalChoice = "[] " +$Utils.listToString($[replicationDeclaration]$,"")$+" @ "+[replicatedAction]
+%action->#Replicated->sequentialComposition = "; " +$Utils.listToString($[replicationDeclaration]$,"")$+" @ "+[replicatedAction]
+%action->#Replicated->internalChoice = "[~] " +$Utils.listToString($[replicationDeclaration]$,"")$+" @ "+[replicatedAction]
+%action->#Replicated->commonInterleaving = "[|| "+[namesetExpression]" ||] " +$Utils.listToString($[replicationDeclaration]$,"")$+" @ "+[replicatedAction]
+%action->#Replicated->interleaving = "||| " +$Utils.listToString($[replicationDeclaration]$,"")$+" @ ["+[namesetExpression]+"] "+[replicatedAction]
+%action->#Replicated->generalisedParallelism ="[| "+ [chansetExpression]" |] " +$Utils.listToString($[replicationDeclaration]$,"")$+" @ ["+[namesetExpression]+"] "+[replicatedAction]
+//%action->#Replicated->alphabetisedParallelism = "; " +$Utils.listToString($[replicationDeclaration]$,"")$+" @ "+[replicatedAction]
+
+
 
 //%action->#Parallel->synchronousParallelism = [leftAction]+ " [| " + [leftNamesetExpression]+" | " + [rightNamesetExpression]+ " |] " +  [rightAction]
 %action->#Parallel->interleaving = [leftAction]+ " [|| " + [leftNamesetExpression]+" | " + [rightNamesetExpression]+ " ||] " +  [rightAction]
 %action->#Parallel->generalisedParallelism = [leftAction]+ " [| " + [leftNamesetExpression]+" | " +[chansetExpression]+ " | "+ [rightNamesetExpression]+ " |] " +  [rightAction]
 %action->#Parallel->alphabetisedParallelism = [leftAction]+ " [ " + [leftNamesetExpression]+" | " +[leftChansetExpression]+ " || "+[rightChansetExpression]+" | "+ [rightNamesetExpression]+ " ] " +  [rightAction]
 
-%action->#Replicated->generalisedParallelism = [chansetExpression]+"" +[replicationDeclaration]+ " @ "+[namesetExpression]+"" +[replicatedAction] 
+//%action->#Replicated->generalisedParallelism = [chansetExpression]+"" +[replicationDeclaration]+ " @ "+[namesetExpression]+"" +[replicatedAction]
+
+ 
 
 %action->communication = [identifier] +$Utils.listToString($[communicationParameters]$,"")$ +" -> " [action]
 %communicationParameter->write ="!" [expression]
@@ -30,6 +41,7 @@ import eu.compassresearch.ast.util.ToStringUtil;
 %action->wait = "Wait"
 %action->sequentialComposition = [left] " ; " [right]
 %action->reference = [name]
+%action->externalChoice = "("[left] " [] "  [right]")"
 %action->#Parallel->interleaving = [leftAction] "|||" [rightAction]
 %action->#Parallel->generalisedParallelism = [leftAction] "[|" [chansetExpression] "|]" [rightAction]
 
