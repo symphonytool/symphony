@@ -340,13 +340,29 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 
 		if (next == null || newNext.first != next.first && !hasChildren())
 		{
-			next = newNext.first.apply(setupVisitor, newNext.second);
+			//Fix for issue: https://github.com/symphonytool/symphony/issues/237
+			next =setup(newNext);
+			
 			return true;
 		} else
 		{
 			next = newNext;
 			return false;
 		}
+	}
+
+	protected Pair<INode, Context> setup(Pair<INode, Context> next) throws AnalysisException
+	{
+		INode tmp =null;
+		
+		Pair<INode, Context> current = next;
+		do
+		{
+			tmp =current.first;
+			current = current.first.apply(setupVisitor, current.second);	
+		}while(current.first != tmp);
+		
+		return current;
 	}
 
 	private void performInspection() throws AnalysisException
