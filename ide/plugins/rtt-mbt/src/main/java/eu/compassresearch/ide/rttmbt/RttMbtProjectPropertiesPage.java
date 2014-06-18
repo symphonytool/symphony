@@ -211,9 +211,15 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
 		} else if (element instanceof IFile) {
 			IFile file = (IFile)element;
 			project = file.getProject();
+		} else {
+			project = null;
+			return;
 		}
 
 		// check for non-RT-Tester projects
+		if (project == null) {
+			return;
+		}
 		String projectFilesystemPath = RttMbtClient.getAbsolutePathFromFileURI(project.getLocationURI());
 		if (!RttMbtClient.isRttProject(projectFilesystemPath)) {
 			project = null;
@@ -244,7 +250,10 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
                                                    "Project Database Name:",
                                                    getFieldEditorParent());
 		rttProjectDatabaseField.setPreferenceStore(null);
+		rttProjectDatabaseField.setEmptyStringAllowed(true);
+		rttProjectDatabaseField.setStringValue("none");
 		rttProjectDatabaseValue = getPropertyValue("RttMbtrttProjectDatabase");
+		if (rttProjectDatabaseValue == null) { rttProjectDatabaseValue = ""; }
 		rttProjectDatabaseField.setStringValue(rttProjectDatabaseValue);
 		rttProjectDatabaseField.getLabelControl(getFieldEditorParent()).setToolTipText(tooltip);
 		rttProjectDatabaseField.getTextControl(getFieldEditorParent()).setToolTipText(tooltip);
@@ -255,8 +264,11 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
     	rttExeCtxNameField = new StringFieldEditor("RttMbtRttTprocPrefix",
                                                    "Test Execution Context:",
                                                    getFieldEditorParent());
+    	rttExeCtxNameField.setEmptyStringAllowed(true);
+    	rttExeCtxNameField.setStringValue("none");
     	rttExeCtxNameField.setPreferenceStore(null);
     	rttExeCtxName = getPropertyValue("RttMbtRttTprocPrefix");
+		if (rttExeCtxName == null) { rttExeCtxName = ""; }
     	rttExeCtxNameField.setStringValue(rttExeCtxName);
     	rttExeCtxNameField.getLabelControl(getFieldEditorParent()).setToolTipText(tooltip);
     	rttExeCtxNameField.getTextControl(getFieldEditorParent()).setToolTipText(tooltip);
@@ -267,8 +279,11 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
     	rttTgenCtxNameField = new StringFieldEditor("RttMbtTProcGenCtx",
                                                    "Test Generation Context:",
                                                    getFieldEditorParent());
+    	rttTgenCtxNameField.setEmptyStringAllowed(true);
+    	rttTgenCtxNameField.setStringValue("none");
     	rttTgenCtxNameField.setPreferenceStore(null);
     	rttTgenCtxName = getPropertyValue("RttMbtTProcGenCtx");
+		if (rttTgenCtxName == null) { rttTgenCtxName = ""; }
     	rttTgenCtxNameField.setStringValue(rttTgenCtxName);
     	rttTgenCtxNameField.getLabelControl(getFieldEditorParent()).setToolTipText(tooltip);
     	rttTgenCtxNameField.getTextControl(getFieldEditorParent()).setToolTipText(tooltip);
@@ -279,8 +294,11 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
     	makeToolField = new StringFieldEditor("RttMbtSutMakeTool",
                                               "Make tool for SUT code:",
                                               getFieldEditorParent());
+    	makeToolField.setEmptyStringAllowed(true);
+    	makeToolField.setStringValue("none");
     	makeToolField.setPreferenceStore(null);
     	makeToolProperty = getPropertyValue("RttMbtSutMakeTool");
+		if (makeToolProperty == null) { makeToolProperty = ""; }
     	makeToolField.setStringValue(makeToolProperty);
     	makeToolField.getLabelControl(getFieldEditorParent()).setToolTipText(tooltip);
     	makeToolField.getTextControl(getFieldEditorParent()).setToolTipText(tooltip);
@@ -291,8 +309,11 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
     	ignorePatternUploadField = new StringFieldEditor("RttMbtFileIgnorePattern",
                                                          "Ignore Pattern for File Transfer:",
                                                          getFieldEditorParent());
+    	ignorePatternUploadField.setEmptyStringAllowed(true);
+    	ignorePatternUploadField.setStringValue("none");
     	ignorePatternUploadField.setPreferenceStore(null);
     	ignorePatternUploadProperty = getPropertyValue("RttMbtFileIgnorePattern");
+		if (ignorePatternUploadProperty == null) { ignorePatternUploadProperty = ""; }
     	ignorePatternUploadField.setStringValue(ignorePatternUploadProperty);
     	ignorePatternUploadField.getLabelControl(getFieldEditorParent()).setToolTipText(tooltip);
     	ignorePatternUploadField.getTextControl(getFieldEditorParent()).setToolTipText(tooltip);
@@ -474,20 +495,20 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
 	}
 
 	public void performDefaults() {
-		rttProjectDatabaseField.setStringValue(client.getDefaultProjectDatabaseName());
-    	rttExeCtxNameField.setStringValue("TestExecution");
-    	rttTgenCtxNameField.setStringValue("TestGeneration");
-		makeToolField.setStringValue("make");
-		ignorePatternUploadField.setStringValue(".svn:.git:*.o");
-		MaxSolverStepsField.setStringValue(Integer.toString(100));
-		MaxSimStepsField.setStringValue(Integer.toString(0));
-		AbstractInterpreterField.setStringValue(Integer.toString(1));
-		RobustnessTestingField.setStringValue(Integer.toString(0));
-		RobustnessPercentageField.setStringValue(Integer.toString(0));
-		MaxSimultaneousInputChangesField.setStringValue(Integer.toString(1));
-		MinDurationBetweenInputChangesField.setStringValue(Integer.toString(10));
-		MaxDurationBetweenInputChangesField.setStringValue(Integer.toString(10000));
-		ModelCheckingField.setStringValue(Integer.toString(0));
+		if (rttProjectDatabaseField != null) { rttProjectDatabaseField.setStringValue(client.getDefaultProjectDatabaseName()); }
+		if (rttExeCtxNameField != null) { rttExeCtxNameField.setStringValue("TestExecution"); }
+		if (rttTgenCtxNameField != null) { rttTgenCtxNameField.setStringValue("TestGeneration"); }
+		if (makeToolField != null) { makeToolField.setStringValue("make"); }
+		if (ignorePatternUploadField != null) { ignorePatternUploadField.setStringValue(".svn:.git:*.o"); }
+		if (MaxSolverStepsField != null) { MaxSolverStepsField.setStringValue(Integer.toString(100)); }
+		if (MaxSimStepsField != null) { MaxSimStepsField.setStringValue(Integer.toString(0)); }
+		if (AbstractInterpreterField != null) { AbstractInterpreterField.setStringValue(Integer.toString(1)); }
+		if (RobustnessTestingField != null) { RobustnessTestingField.setStringValue(Integer.toString(0)); }
+		if (RobustnessPercentageField != null) { RobustnessPercentageField.setStringValue(Integer.toString(0)); }
+		if (MaxSimultaneousInputChangesField != null) { MaxSimultaneousInputChangesField.setStringValue(Integer.toString(1)); }
+		if (MinDurationBetweenInputChangesField != null) { MinDurationBetweenInputChangesField.setStringValue(Integer.toString(10)); }
+		if (MaxDurationBetweenInputChangesField != null) { MaxDurationBetweenInputChangesField.setStringValue(Integer.toString(10000)); }
+		if (ModelCheckingField != null) { ModelCheckingField.setStringValue(Integer.toString(0)); }
 		super.performDefaults();
 	}
 

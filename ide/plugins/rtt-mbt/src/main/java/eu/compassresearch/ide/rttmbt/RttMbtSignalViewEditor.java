@@ -48,7 +48,7 @@ public class RttMbtSignalViewEditor extends EditorPart {
 	private XYGraph graph;
 	private String[] selectedSignals;
 	private RttMbtSignalViewOutlinePage outline;
-	private double xmax, ymax;
+	private double xmax, ymax, max_xmax = 0;
 
 	private ISelectionChangedListener outlineListener = new ISelectionChangedListener() {
 		@Override
@@ -111,6 +111,42 @@ public class RttMbtSignalViewEditor extends EditorPart {
 		return super.getAdapter(adapter);
 	}
 
+	public void getMaxXforSignal(String signalName) {
+		
+		// find signalName
+		Boolean found = false;
+		JSONArray values = null;
+		@SuppressWarnings("unchecked")
+		Iterator<JSONObject> iterator = jsonSignals.iterator();
+		while (iterator.hasNext()) {
+			JSONObject entry = iterator.next();
+			String name = (String) entry.get("name");
+			if (signalName.compareTo(name) == 0) {
+				found = true;
+				values = (JSONArray) entry.get("data");
+			}
+		}
+		if (!found) {
+			return;
+		}
+
+		// check time stamp data
+		double[] xvalues = new double[values.size()];
+		@SuppressWarnings("unchecked")
+		Iterator<JSONArray> valueIterator = values.iterator();
+		int idx = 0;
+		while (valueIterator.hasNext()) {
+			JSONArray valuesEntry = (JSONArray) valueIterator.next();
+			Long x = (Long) valuesEntry.get(0);
+			xvalues[idx] = x.doubleValue();
+			xvalues[idx] = xvalues[idx]/1000;
+			if (xvalues[idx] > max_xmax) {
+				max_xmax = xvalues[idx];
+			}
+			idx++;
+		}
+	}
+
 	public Trace getTraceforSignal(String signalName) {
 		
 		// find signalName
@@ -132,9 +168,9 @@ public class RttMbtSignalViewEditor extends EditorPart {
 
 		// create trace data
 		CircularBufferDataProvider traceDataProvider = new CircularBufferDataProvider(false);
-		traceDataProvider.setBufferSize(values.size());
-		double[] xvalues = new double[values.size()];
-		double[] yvalues = new double[values.size()];
+		traceDataProvider.setBufferSize(values.size() + 1);
+		double[] xvalues = new double[values.size() + 1];
+		double[] yvalues = new double[values.size() + 1];
 		xmax = 0; ymax = 0;
 		@SuppressWarnings("unchecked")
 		Iterator<JSONArray> valueIterator = values.iterator();
@@ -154,6 +190,14 @@ public class RttMbtSignalViewEditor extends EditorPart {
 			if (yvalues[idx] > ymax) ymax = yvalues[idx];
 			idx++;
 		}
+
+		// re-add the last y-value with x-position max_xmax
+		if ((idx > 0) && (idx <= values.size())) {
+			yvalues[idx] = yvalues[idx-1];
+			xvalues[idx] = max_xmax;
+		}
+
+		// set data to trace dat provider
 		traceDataProvider.setCurrentXDataArray(xvalues);
 		traceDataProvider.setCurrentYDataArray(yvalues);
 
@@ -170,6 +214,17 @@ public class RttMbtSignalViewEditor extends EditorPart {
         // Create a child composite to hold the controls
         graphChild = new Composite(graphContainer, SWT.NONE);
         graphChild.setLayout(new FillLayout(SWT.VERTICAL));
+
+        // this loop is necessary to generate the biggest time stamp
+		@SuppressWarnings("unchecked")
+		Iterator<JSONObject> tmp = jsonSignals.iterator();
+		while (tmp.hasNext()) {
+			JSONObject entry = tmp.next();
+			String signalName = (String) entry.get("name");
+			if (isSelected(signalName)) {
+				getMaxXforSignal(signalName);
+			}
+		}
 
 		@SuppressWarnings("unchecked")
 		Iterator<JSONObject> iterator = jsonSignals.iterator();
@@ -199,10 +254,10 @@ public class RttMbtSignalViewEditor extends EditorPart {
 					trace.setTraceColor(new Color(Display.getDefault(), new RGB(0,0,255)));
 					// add trace to graph
 					graph.addTrace(trace);
-					graph.primaryXAxis.setRange(0, xmax + (xmax / 100));
+					graph.primaryXAxis.setRange(0, max_xmax + (max_xmax / 100));
 					graph.primaryYAxis.setRange(0, ymax + (ymax / 20));
 					graph.primaryYAxis.setShowMajorGrid(true);
-					graph.primaryXAxis.setAutoScale(true);
+					graph.primaryXAxis.setAutoScale(false);
 					graph.primaryYAxis.setAutoScale(true);
 					graph.primaryXAxis.setFormatPattern("0.####");
 				}
@@ -213,10 +268,10 @@ public class RttMbtSignalViewEditor extends EditorPart {
 					trace.setTraceColor(new Color(Display.getDefault(), new RGB(255,0,0)));
 					// add trace to graph
 					graph.addTrace(trace);
-					graph.primaryXAxis.setRange(0, xmax + (xmax / 100));
+					graph.primaryXAxis.setRange(0, max_xmax + (max_xmax / 100));
 					graph.primaryYAxis.setRange(0, ymax + (ymax / 20));
 					graph.primaryYAxis.setShowMajorGrid(true);
-					graph.primaryXAxis.setAutoScale(true);
+					graph.primaryXAxis.setAutoScale(false);
 					graph.primaryYAxis.setAutoScale(true);
 					graph.primaryXAxis.setFormatPattern("0.####");
 				}
