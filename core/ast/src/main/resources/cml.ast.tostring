@@ -17,9 +17,7 @@ import eu.compassresearch.ast.util.ToStringUtil;
 %action->#Replicated->commonInterleaving = "[|| "+[namesetExpression]" ||] " +$Utils.listToString($[replicationDeclaration]$,"")$+" @ "+[replicatedAction]
 %action->#Replicated->interleaving = "||| " +$Utils.listToString($[replicationDeclaration]$,"")$+" @ ["+[namesetExpression]+"] "+[replicatedAction]
 %action->#Replicated->generalisedParallelism ="[| "+ [chansetExpression]" |] " +$Utils.listToString($[replicationDeclaration]$,"")$+" @ ["+[namesetExpression]+"] "+[replicatedAction]
-//%action->#Replicated->alphabetisedParallelism = "; " +$Utils.listToString($[replicationDeclaration]$,"")$+" @ "+[replicatedAction]
-
-
+%action->#Replicated->alphabetisedParallelism = "|| " + $Utils.listToString($[replicationDeclaration]$,"")$ + " @ [" + [namesetExpression] + " | " + [chansetExpression] + "] " + [replicatedAction] 
 
 //%action->#Parallel->synchronousParallelism = [leftAction]+ " [| " + [leftNamesetExpression]+" | " + [rightNamesetExpression]+ " |] " +  [rightAction]
 %action->#Parallel->interleaving = [leftAction]+ " [|| " + [leftNamesetExpression]+" | " + [rightNamesetExpression]+ " ||] " +  [rightAction]
