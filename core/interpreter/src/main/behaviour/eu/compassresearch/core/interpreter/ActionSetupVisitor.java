@@ -360,6 +360,7 @@ class ActionSetupVisitor extends CommonSetupVisitor
 	{
 		Context context = CmlContextFactory.newContext(node.getLocation(), "Sequence for loop context", question);
 		Value v = node.getExp().apply(cmlExpressionVisitor, question);
+		v=v.deepCopy();//in case this was a lookup
 		context.putNew(new NameValuePair(NamespaceUtility.getSeqForName(), v));
 
 		// put the front element in scope of the action
