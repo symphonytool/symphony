@@ -65,7 +65,7 @@ public class TestResultHelper
 		List<PoResult> prl = new LinkedList<PoResult>();
 
 		for (IProofObligation po : ipol) {
-			prl.add(new PoResult(po.getKindString(), po.getValue()));
+			prl.add(new PoResult(po.getKindString(), po.getFullPredString()));
 		}
 
 		Gson gson = new Gson();
@@ -84,7 +84,7 @@ public class TestResultHelper
 		List<PoResult> prl_actual = new LinkedList<PoResult>();
 		for (IProofObligation ipo : ipol)
 		{
-			prl_actual.add(new PoResult(ipo.getKindString(), ipo.getValue()));
+			prl_actual.add(new PoResult(ipo.getKindString(), ipo.getFullPredString()));
 		}
 
 		Collection<PoResult> stored_notfound = CollectionUtils.removeAll(pRL, prl_actual);
