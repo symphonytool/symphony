@@ -79,16 +79,22 @@
 
 
 	</extension>
-	<!--extension
-      point="org.eclipse.ui.perspectives">
-		<perspective
-         class="org.overture.ide.plugins.poviewer.ProofObligationPerspectiveFactory"
-         icon="icons/cview16/pog_gen.png"
-         id="org.overture.ide.plugins.poviewer.perspective"
-         name="Proof Obligation">
-		</perspective>
-	</extension-->
 
+  <extension
+        point="org.eclipse.ui.preferencePages">
+     <page
+           category="eu.compassresearch.ide.ui.compass"
+           class="eu.compassresearch.ide.pog.PogPrefPage1"
+           id="eu.compassresearch.ide.pog.pref1"
+           name="POG">
+     </page>
+  </extension>
+  <extension
+        point="org.eclipse.core.runtime.preferences">
+     <initializer
+           class="eu.compassresearch.ide.pog.PogPrefInitializer">
+     </initializer>
+  </extension>
 
 
 

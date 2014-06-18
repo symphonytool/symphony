@@ -36,7 +36,7 @@ public class PogSpecialDefVisitor extends
 		if (stater != null)
 		{
 			List<AInstanceVariableDefinition> stateDefs = stater.apply(new ClonerProcessState());
-			question.push(new CmlOperationDefinitionContext(node, false, stateDefs));
+			question.push(new CmlOperationDefinitionContext(node, precond, stateDefs));
 		} else
 		{
 			PDefinition stateDef;

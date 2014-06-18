@@ -51,7 +51,7 @@ public class AdHoc {
 
 		System.out.println("ACTUAL POs:");
 		for (IProofObligation po : ipol) {
-			System.out.println(po.getKindString() +" " +po.getLocation() + " / " + po.getValue());
+			System.out.println(po.getKindString() +" " +po.getLocation() + " / " + po.getFullPredString());
 		}
 
 		if (write_result) {
@@ -87,7 +87,7 @@ public class AdHoc {
 		List<PoResult> prl = new LinkedList<PoResult>();
 
 		for (IProofObligation po : ipol) {
-			prl.add(new PoResult(po.getKindString(), po.getValue()));
+			prl.add(new PoResult(po.getKindString(), po.getFullPredString()));
 		}
 
 		Gson gson = new Gson();
