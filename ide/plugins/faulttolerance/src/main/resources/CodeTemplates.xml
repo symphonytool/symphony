@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<code-templates>
+  <code-template>
+  <entry>
+  <key>STOP</key>
+  <value><![CDATA[process STOP = begin @ Stop end]]></value>
+  </entry>
+    <entry>
+      <key>ChaosE</key>
+      <value><![CDATA[process ChaosE =
+begin
+    actions
+        Decision = Stop |~| Rec
+        Rec = unwanted?id -> Decision
+    @ Decision
+end]]></value>
+    </entry>
+    <entry>
+      <key>Limit</key>
+      <value><![CDATA[process Limit_%1$s = 
+begin
+    actions
+        Limit = unwanted?id -> Limit
+    @ Limit
+end]]></value>
+    </entry>
+    <entry>
+      <key>NoFaults</key>
+      <value><![CDATA[process NoFaults_%1$s = 
+    (%1$s [| {|unwanted|} |] STOP) \\ H]]></value>
+    </entry>
+    <entry>
+      <key>Lazy</key>
+      <value><![CDATA[process Lazy_%1$s = 
+    (%1$s [| {|unwanted|} |] ChaosE) \\ ({|unwanted|} union H) ]]></value>
+    </entry>
+    <entry>
+      <key>DivergenceFreedom</key>
+      <value><![CDATA[process FT_%1$s_H = %1$s]]></value>
+    </entry>
+    <entry>
+      <key>Semifairness</key>
+      <value><![CDATA[process FT_%1$s_E = %1$s \\ {|unwanted|}]]></value>
+    </entry>
+    <entry>
+      <key>LazyDeadlockCheck</key>
+      <value><![CDATA[process FT_%1$s_Lazy = 
+    NoFaults_%1$s [| Alpha_%1$s |] Lazy_%1$s]]></value>
+    </entry>
+    <entry>
+      <key>LazyLimitDeadlockCheck</key>
+      <value><![CDATA[process FT_%1$s_LazyLimit = 
+    NoFaults_%1$s [| Alpha_%1$s |] LazyLimit_%1$s]]></value>
+    </entry>
+    <entry>
+      <key>LazyLimit</key>
+      <value><![CDATA[process LazyLimit_%1$s = 
+    ((%1$s [| {|unwanted|} |] Limit_%1$s) [| {|unwanted|} |] ChaosE) \\ ({|unwanted|} union H)]]></value>
+    </entry>
+    <entry>
+      <key>Hidden</key>
+      <value><![CDATA[H = ErrorDetectionChannels union (RecoveryChannels union OperationChannels)]]></value>
+    </entry>
+  </code-template>
+</code-templates>
