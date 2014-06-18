@@ -655,9 +655,9 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 				if (isPost)
 				{
 					if (varName.isOld())
-						return  "($" + varName.getName() + ")";
+						return  "$" + varName.getName();
 					else
-						return "($" + varName.getName() + ThmExprUtil.isaAcute + ")";
+						return "$" + varName.getName() + ThmExprUtil.isaAcute;
 				}
 				else
 				{
@@ -693,9 +693,9 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 				if (isPost)
 				{
 					if (first.isOld())
-						sb.append("($" + first.getName().toString() + ").");
+						sb.append("$" + first.getName().toString() + ".");
 					else
-						sb.append("($" + first.getName().toString() + ThmExprUtil.isaAcute +").");
+						sb.append("$" + first.getName().toString() + ThmExprUtil.isaAcute +".");
 				}
 				else
 				{
@@ -795,7 +795,11 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 
 		StringBuilder sb = new StringBuilder();
 		LinkedList<AMapletExp> mem = ex.getMembers();
-
+		
+		if (mem.isEmpty()) {
+			sb.append("|->");
+		}
+		
 		for (Iterator<AMapletExp> itr = mem.listIterator(); itr.hasNext(); ) {
 			PExp m = itr.next();
 			sb.append(m.apply(thmStringVisitor, vars));
