@@ -28,15 +28,15 @@ public class CmlMCPlugin extends AbstractUIPlugin implements IStartup{
 	private static CmlMCPlugin plugin;
 	public static boolean FORMULA_OK = true;
 	public static boolean DOT_OK = true;
-	public static final String formulaNotInstalledMsg = "Microsoft FORMULA could not be started.\n If you have installed FORMULA, include the $FORMULA_DIR\\Base System\\ folder  in your PATH environment variable. \n\n" + "The CML model checker depends on FORMULA to work.";
-	public static final String dotNotInstalledMsg = "GraphViz is not found.\n If you have installed GraphViz, include the $GRAPHVIZ_DIR\\bin\\ folder  in your PATH environment variable. \n\n" + "GraphViz is necessary to build the counterexample.";
+	public static final String formulaNotInstalledMsg = "Microsoft FORMULA could not be started.\n Please download and install it from \n" + 
+	"www.research.microsoft.com/en-us/um/redmond/projects/formula \n\n" + "If you have installed FORMULA, include the <FORMULA_INSTALL_FOLDER>\\Base System\\ folder  in your PATH environment variable. \n\n" + "The CML model checker depends on FORMULA to work.";
+	public static final String dotNotInstalledMsg = "The dot.exe program was not found.\n" + "It is distributed with GraphViz (www.graphviz.org). Please download and install GraphViz.\n" + "If you have installed GraphViz, include the <GRAPHVIZ_INSTALL_FOLDER>\\bin\\ folder  in your PATH environment variable. \n\n" + "The dot.exe program is necessary to build the counterexample.";
 	
-    
-	
+    	
 	public void earlyStartup() {
 		//this line is useful to start Formula (if it is installed)
-		FORMULA_OK = FormulaIntegrator.checkFormulaInstallation();
-    	//checkAuxiliarySoftware();
+		//FORMULA_OK = FormulaIntegrator.checkFormulaInstallation();
+    	checkAuxiliarySoftware();
 	}
 	
 	
@@ -62,11 +62,11 @@ public class CmlMCPlugin extends AbstractUIPlugin implements IStartup{
 	public void checkAuxiliarySoftware(){
 		if(!FormulaIntegrator.checkFormulaInstallation()){
     		FORMULA_OK = false;
-    		logWarningMessage(formulaNotInstalledMsg);
+    		//logWarningMessage(formulaNotInstalledMsg);
     	}
 		if(!ProcessController.checkDotInstallation()){
 			DOT_OK = false;
-			logWarningMessage(dotNotInstalledMsg);
+			//logWarningMessage(dotNotInstalledMsg);
 		}
 	}
 
