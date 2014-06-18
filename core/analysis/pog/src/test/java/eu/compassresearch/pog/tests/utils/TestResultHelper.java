@@ -3,35 +3,81 @@ package eu.compassresearch.pog.tests.utils;
 import static org.junit.Assert.fail;
 
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
+import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.node.INode;
 import org.overture.pog.pub.IProofObligation;
 import org.overture.pog.pub.IProofObligationList;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import eu.compassresearch.core.analysis.pog.utility.PogPubUtil;
 import eu.compassresearch.pog.tests.PoResult;
 
 /**
  * Helper Class for the POG test framework. Helps compare test outputs and results.
+ * 
  * @author ldc
- *
  */
 public class TestResultHelper
 {
 
-	public static String getResultAsString(String resultPath) throws FileNotFoundException, IOException
+	public static String getResultAsString(String resultPath)
+			throws FileNotFoundException, IOException
 	{
 		String sResult = IOUtils.toString(new FileReader(resultPath));
-		
+
 		return sResult;
 	}
+
+	public static void testCompare(String input, String result)
+			throws IOException, AnalysisException, FileNotFoundException
+	{
+		List<INode> ast = TestInputHelper.getAstFromName(input);
+		IProofObligationList ipol = PogPubUtil.generateProofObligations(ast);
+
+		Gson gson = new Gson();
+		String json = IOUtils.toString(new FileReader(result));
+		Type datasetListType = new TypeToken<Collection<PoResult>>()
+		{
+		}.getType();
+		List<PoResult> results = gson.fromJson(json, datasetListType);
+
+		TestResultHelper.checkSameElements(results, ipol);
+	}
 	
-	public static void checkSameElements(List<PoResult> pRL,
+	public static void testUpdate(String input, String result)
+			throws IOException, AnalysisException, FileNotFoundException
+	{
+		List<INode> ast = TestInputHelper.getAstFromName(input);
+		IProofObligationList ipol = PogPubUtil.generateProofObligations(ast);
+
+		List<PoResult> prl = new LinkedList<PoResult>();
+
+		for (IProofObligation po : ipol) {
+			prl.add(new PoResult(po.getKindString(), po.getValue()));
+		}
+
+		Gson gson = new Gson();
+		String json = gson.toJson(prl);
+
+		IOUtils.write(json, new FileOutputStream(result));
+		
+		System.out.println("\n" +result + " file updated \n");
+		
+	}
+
+	private static void checkSameElements(List<PoResult> pRL,
 			IProofObligationList ipol)
 	{
 

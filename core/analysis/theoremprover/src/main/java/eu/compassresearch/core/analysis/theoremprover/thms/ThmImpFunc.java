@@ -16,19 +16,25 @@ public class ThmImpFunc extends ThmDecl {
 	private String name;
 	private String post;
 	private String pre;
+	LinkedList<APatternListTypePair> pattern;
+	private List<String> paramTypes;
 	private String resType;
 	private String preParamList;
 	private APatternTypePair result;
 	private String postParamList;
 	
-	public ThmImpFunc(String name, String post, String pre, LinkedList<APatternListTypePair> params, APatternTypePair res , String resType)
+	public ThmImpFunc(String name, String post, String pre, LinkedList<APatternListTypePair> params, APatternTypePair res , List<String> paramTypes, String resType)
 	{
 		this.name = name;
 		this.preParamList = getPrePostParamList(params, null, "pre");
 		this.postParamList = getPrePostParamList(params, res, "post");
+		this.pattern = params;
 		this.result = res;
-		this.post = createPrePostFunc(name, post, params, "post"); //fixFuncExpr(post,params);
-		this.pre = createPrePostFunc(name, pre, params, "pre"); //fixFuncExpr(pre,params);
+		// this.post = createPrePostFunc(name, post, params, "post"); //fixFuncExpr(post,params);
+		// this.pre = createPrePostFunc(name, pre, params, "pre"); //fixFuncExpr(pre,params);
+		this.post = post;
+		this.pre = pre;
+		this.paramTypes = paramTypes;
 		this.resType = resType;
 	}
 
@@ -241,7 +247,32 @@ public class ThmImpFunc extends ThmDecl {
 	 */
 	public String toString(){
 		StringBuilder res = new StringBuilder();
+
+		res.append("cmlifun " + name + "\n");
+		res.append("  inp ");
+
+		for (Iterator<APatternListTypePair> itr1 = pattern.listIterator(); itr1.hasNext(); ) {
+			APatternListTypePair p = itr1.next();
+			Iterator<String> titr = paramTypes.iterator();
+			LinkedList<PPattern> pats = p.getPatterns();
+			for (Iterator<PPattern> itr2 = pats.listIterator(); itr2.hasNext(); ) {				
+				PPattern pat = itr2.next();
+				String ty = titr.next();
+				res.append(((AIdentifierPattern) pat).getName().toString());
+				res.append(" :: \"" + ty + "\"");
+				if (itr2.hasNext()) res.append (" and ");
+			}
+			if (itr1.hasNext()) res.append (" and ");
+		}
+		res.append("\n");
 		
+		String outVar = ((AIdentifierPattern) result.getPattern()).toString();
+		
+		res.append("  out " + outVar + " :: \"" + resType + "\"\n");
+		if (pre != null) res.append("  pre \"" + pre + "\"\n");
+		if (post != null) res.append("  post \"" + post + "\"\n");
+		
+/*
 		res.append(pre + "\n\n");
 
 		res.append(post + "\n\n");
@@ -249,6 +280,7 @@ public class ThmImpFunc extends ThmDecl {
 		res.append(ThmTypeUtil.isaFunc + " \"" + name + " = " + 
 			ThmTypeUtil.isaFuncBar + ThmTypeUtil.isaFuncLambda + " " +ThmTypeUtil.isaFuncLambaVal+" @ " +
 		    createFuncExp() + ThmTypeUtil.isaFuncBar + "\"\n" + tacHook(name));
+*/
 
 		return res.toString();
 	}

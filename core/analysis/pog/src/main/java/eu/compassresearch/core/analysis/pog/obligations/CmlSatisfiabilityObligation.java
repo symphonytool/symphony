@@ -39,10 +39,7 @@ import org.overture.ast.expressions.AImpliesBooleanBinaryExp;
 import org.overture.ast.expressions.AVariableExp;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.factory.AstExpressionFactory;
-<<<<<<< Updated upstream
 import org.overture.ast.intf.lex.ILexNameToken;
-=======
->>>>>>> Stashed changes
 import org.overture.ast.lex.LexKeywordToken;
 import org.overture.ast.lex.VDMToken;
 import org.overture.ast.patterns.AIdentifierPattern;
@@ -98,26 +95,37 @@ public class CmlSatisfiabilityObligation extends CmlProofObligation
 
 		PExp preApply = null;
 		PExp postApply = null;
-
 		postApply = op.getPostcondition().clone();
+
 		if (invDefs.size() > 0)
 		{
-			for (PDefinition d : invDefs)
+			PExp inv_exp = ((AClassInvariantDefinition) invDefs.get(0)).getExpression().clone();
+
+			for (PDefinition d : invDefs.subList(1, invDefs.size()))
 			{
 				if (d instanceof AClassInvariantDefinition)
 				{
 					AClassInvariantDefinition i = (AClassInvariantDefinition) d;
-					postApply = AstExpressionFactory.newAAndBooleanBinaryExp(postApply.clone(), i.getExpression().clone());
+					inv_exp = AstExpressionFactory.newAAndBooleanBinaryExp(inv_exp, i.getExpression().clone());
 				}
 			}
-		}
 
 		if (op.getPredef() != null)
 		{
 			//preApply = AstExpressionFactory.newAAndBooleanBinaryExp(INVARIANTS HERE, op.getPrecondition().clone());
-			preApply = op.getPrecondition().clone();
+			postApply = AstExpressionFactory.newAAndBooleanBinaryExp(postApply.clone(), inv_exp.clone());
+				preApply = AstExpressionFactory.newAAndBooleanBinaryExp(op.getPrecondition().clone(), inv_exp.clone());
+			} else
+			{
+				preApply = inv_exp.clone();
+			}
 		}
-
+		else{
+			if (op.getPredef() !=null){
+				preApply = op.getPrecondition().clone();
+			}
+		}
+		
 		PExp mainExp;
 
 		// Operation Has a Result. Add it in the post condition.
