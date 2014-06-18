@@ -70,6 +70,13 @@ public class ProblemDomainBuilder {
 
 	private void generateProcessDefinitions(StringBuilder content, String option){
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
+		//it generates the top level process definition
+		
+		StringBuilder topLevelProcDef = new StringBuilder();
+		topLevelProcDef.append("  ProcDef(\"" + context.mainProcessName + "MAIN" + "\",void,proc(\""+ context.mainProcessName + "\",void)).\n\n");
+		content.append(topLevelProcDef.toString());
+
+		//it generates all process definitions
 		for (MCAProcessDefinition processDef : context.processDefinitions) {
 			content.append(processDef.toFormula(option));
 		}

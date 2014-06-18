@@ -940,7 +940,7 @@ public class GraphBuilder {
 		//String filePath = "D:\\COMPASS\\compassresearch-code\\core\\analysis\\modelchecker\\src\\test\\resources\\timed-interrupt2.facts";
 		//String filePath = "D:\\COMPASS\\compassresearch-code\\core\\analysis\\modelchecker\\src\\test\\resources\\simpler-register.facts";
 		//String filePath = "D:\\COMPASS\\compassresearch-code\\core\\analysis\\modelchecker\\src\\test\\resources\\BeoAVDeviceDiscovery-final-version-model-checker.facts";
-		String filePath = "D:\\COMPASS\\compassresearch-code\\core\\analysis\\modelchecker\\src\\test\\resources\\P.facts";
+		String filePath = "D:\\COMPASS\\symphony\\core\\analysis\\modelchecker\\src\\test\\resources\\P.facts";
 		
 		//String filePath = "/examples/NDet2.facts.txt";
 		//String filePath = "/examples/Livelock2.facts.txt";
