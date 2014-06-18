@@ -622,12 +622,20 @@
                   style="push"
                   tooltip="Perform Livelock Check on the model of this RTT-MBT Project">
                <visibleWhen>
-                  <with
-                        variable="eu.compassresearch.ide.rttmbt.IsRttPerspectiveActive">
-                     <equals
-                           value="truumpel">
-                     </equals>
-                  </with>
+                  <or>
+                     <with
+                           variable="eu.compassresearch.ide.rttmbt.IsModelDumpSelected">
+                        <equals
+                              value="truumpel">
+                        </equals>
+                     </with>
+                     <with
+                           variable="eu.compassresearch.ide.rttmbt.IsRttPerspectiveActive">
+                        <equals
+                              value="truumpel">
+                        </equals>
+                     </with>
+                  </or>
                </visibleWhen>
             </command>
             <separator
