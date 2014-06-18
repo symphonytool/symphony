@@ -1,15 +1,19 @@
-process A = 
+process Test =
 begin
 
-state
-x: int
-y : int
-inv x = y
+state 
+  n : nat := 0
+  m : nat := 0
+inv n = m 
 
 operations
-op ()
-post true
 
-@Skip
+Op: nat ==> () 
+Op(a) ==
+  atomic (
+    n := n + a;
+    m := m + a)
+
+@ Skip
 
 end
