@@ -22,7 +22,6 @@ import org.overture.interpreter.values.Value;
 import org.overture.interpreter.values.ValueList;
 
 import eu.compassresearch.ast.CmlAstFactory;
-import eu.compassresearch.ast.actions.AStopAction;
 import eu.compassresearch.ast.actions.SReplicatedAction;
 import eu.compassresearch.ast.analysis.DepthFirstAnalysisCMLAdaptor;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
@@ -225,12 +224,22 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 		 */
 		abstract INode createNextReplication();
 
+//		/**
+//		 * This creates the last node in the replication
+//		 * 
+//		 * @return The last replication node
+//		 */
+//		abstract INode createLastReplication();
+
 		/**
-		 * This creates the last node in the replication
+		 * Creates the terminator for the given node. The default is Skip.
 		 * 
-		 * @return The last replication node
+		 * @return
 		 */
-		abstract INode createLastReplication();
+		INode createTerminator()
+		{
+			return CmlAstFactory.newASkipAction(LocationExtractor.extractLocation(node));
+		}
 
 		Context createReplicationChildContext(NameValuePairList npvl,
 				INode node, Context outer)
@@ -263,115 +272,58 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 		}
 	}
 
-	@SuppressWarnings("deprecation")
 	protected Pair<INode, Context> caseReplicated(INode node,
 			List<PSingleDeclaration> decls, AbstractReplicationFactory factory,
 			Context question) throws AnalysisException
 	{
-		// The name of the value holding the state of the remaining values of the replication
 		ILexNameToken replicationContextValueName = NamespaceUtility.getReplicationNodeName(node);
 		CmlSetQuantifier ql = (CmlSetQuantifier) question.check(replicationContextValueName);
-		// if null then this is the first action of the replication
-		// then we need to evaluate the
-		boolean firstRun = false;
+
 		if (ql == null)
 		{
-			firstRun = true;
-			// Make a set of tuples
-			// nextContext = CmlContextFactory.newContext(LocationExtractor.extractLocation(node),
-			// "replication contexts", question);
+			// evaluate decelerations
 			ql = createQuantifierList(decls, question);
-			// nextContext.putNew(new NameValuePair(replicationContextValueName, ql));
 		}
 
-		INode nextNode;
 		Iterator<NameValuePairList> itQuantifiers = ql.iterator();
 
-		// if no replicated Value exists we return skip since this it what all the operators should return except
-		// for external choice which should be Stop, this is handled specifically in that case
-		if (!itQuantifiers.hasNext())
+		if (/* empty */!itQuantifiers.hasNext())
 		{
-			return new Pair<INode, Context>(CmlAstFactory.newASkipAction(LocationExtractor.extractLocation(node)), question);
-		}
-		// fetch the left value and remove it from the list
-		NameValuePairList nextValue = itQuantifiers.next();
-		itQuantifiers.remove();
-		// if no more rep values exists
-		// and this is the first run then we do no replication and just returns the action/process
-		if (!itQuantifiers.hasNext() && firstRun)
+			/*
+			 * No decelerations exists, thus just terminate it
+			 */
+			return new Pair<INode, Context>(factory.createTerminator(), question);
+		} else
 		{
-			nextNode = factory.getReplicatedNode();
-			
-			final Context replicationChildContext = factory.createReplicationChildContext(nextValue, nextNode, question);
-			setLeftChild(nextNode, replicationChildContext);
-			setRightChild(new AStopAction(question.location), replicationChildContext);//test
-			return new Pair<INode, Context>(nextNode, replicationChildContext);
-		}
-		/*
-		 * if no more rep values exists and this is NOT the first run then we created the context for the left side
-		 * already in the last step and is located above the current context
-		 */
-		else if (!itQuantifiers.hasNext() && !firstRun)
-		{
-			nextNode = factory.createLastReplication();
-			// the outer is the pre-calculated context from the previous run
-			Context leftChildContext = question.outer;
-			// we take the outer.outer because we want the parent context of this one to be the one given to the
-			// replication node
-			Context rightChildContext = factory.createReplicationChildContext(nextValue, nextNode, question.outer.outer);
-			setChildContexts(new Pair<Context, Context>(leftChildContext, rightChildContext));
-			return new Pair<INode, Context>(nextNode, factory.createOperatorContext(nextNode, ql, question.outer.outer));
-		}
+			final NameValuePairList nextChildValue = CmlSetQuantifier.pop(itQuantifiers);
 
-		NameValuePairList afterNextValue = itQuantifiers.next();
-		// itQuantifiers.remove();
-
-		// If no values are left then we have exactly 2 values and thus we must create the last replication
-		if (!itQuantifiers.hasNext() && firstRun)
-		{
-			nextNode = factory.createLastReplication();
-
-			Context leftChildContext = factory.createReplicationChildContext(nextValue, nextNode, question);
-			Context rightChildContext = factory.createReplicationChildContext(afterNextValue, nextNode, question);
-			itQuantifiers.remove();
-			// the replication context, if it exist is lowest. But if this is the first run
-			// then the replication context does not exist
-
-			setChildContexts(new Pair<Context, Context>(leftChildContext, rightChildContext));
-
-			return new Pair<INode, Context>(nextNode, factory.createOperatorContext(nextNode, ql, question));
-		}
-		// If we have more than two replication values then we make an interleaving between the
-		// first value and the rest of the replicated values
-		else
-		{
-			nextNode = factory.createNextReplication();
-			Context leftChildContext;
-			Context rightChildContext;
-
-			// the replication context must always be the lowest
-			if (firstRun)
+			if (!itQuantifiers.hasNext())
 			{
-				// if this is the first run then me must create the right child context and
-				// attach it to the replication context
-				leftChildContext = factory.createReplicationChildContext(nextValue, nextNode, question);
-				rightChildContext = factory.createReplicationChildContext(afterNextValue, nextNode, question);
-				itQuantifiers.remove();
+				/*
+				 * Optimization applies here so avoid subtree with terminator on the right. This allows |~| to use this
+				 * method as well
+				 */
+				final INode nextNode = factory.getReplicatedNode();
+				final Context nextContext = factory.createReplicationChildContext(nextChildValue, nextNode, question);
+
+				return new Pair<INode, Context>(nextNode, nextContext);
 			} else
 			{
-				// if this is not the first run the the replication context already exist
-				// so we can pull out the parent and attach the right child context to this and
-				// then attach the replication
-				leftChildContext = question.outer;
-				rightChildContext = factory.createReplicationChildContext(nextValue, nextNode, question.outer.outer);
+				/* recursive case */
+				final INode nextNode = factory.createNextReplication();
+
+				final Context replicatedContext = new Context(question.assistantFactory, question.location, "Replicated decleration ctxt", question);
+				replicatedContext.put(replicationContextValueName, ql);
+
+				Context leftChildContext = factory.createReplicationChildContext(nextChildValue, nextNode, replicatedContext);
+				Context rightChildContext =replicatedContext;
+
+				setChildContexts(new Pair<Context, Context>(leftChildContext, rightChildContext));
+
+				return new Pair<INode, Context>(nextNode, replicatedContext);
 			}
-
-			rightChildContext = CmlContextFactory.newContext(LocationExtractor.extractLocation(node), "replication contexts", rightChildContext);
-			rightChildContext.putNew(new NameValuePair(replicationContextValueName, ql));
-
-			setChildContexts(new Pair<Context, Context>(leftChildContext, rightChildContext));
-			return new Pair<INode, Context>(nextNode, factory.createOperatorContext(nextNode, ql, question));
 		}
+
 	}
 
 	// FIXME this check is not sufficient

@@ -1,3 +1,22 @@
+/*
+	[]
+	/\
+  S   [] -self
+  
+     []
+	 /\
+	S  S
+	
+--------------------------------------
+	[]
+	/\
+  S   []
+  
+	[]
+	/\
+   S   Stop /Skip - termination
+*/
+
 /*channels
 	a:nat
 
@@ -6,7 +25,7 @@ begin
 
 actions
  
-  sendNumber =  ([]i in set {1} @  a.1->Skip;sendNumber;sendNumber)
+  sendNumber =  ([]i in set {1} @  sendNumber;Skip)
   
 @ sendNumber 
 end*/

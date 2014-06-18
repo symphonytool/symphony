@@ -288,7 +288,9 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 			final INode leftNode, final INode rightNode, final Context question)
 			throws AnalysisException
 	{
-
+		//FIXME debug message must be removed
+		System.out.println("\n\n\n\nInspect.............");
+		CmlBehaviourUtility.printBehaviour(0, owner);
 		// if no children are present we make a silent transition to represent the
 		// external choice begin
 		if (!owner.hasChildren())

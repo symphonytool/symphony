@@ -5,7 +5,6 @@ import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.NameValuePairList;
 
-import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.AStopAction;
 import eu.compassresearch.ast.process.AAlphabetisedParallelismProcess;
 import eu.compassresearch.ast.process.AAlphabetisedParallelismReplicatedProcess;
@@ -139,11 +138,6 @@ class ProcessSetupVisitor extends CommonSetupVisitor
 				return new ASequentialCompositionProcess(node.getLocation(), node.getReplicatedProcess().clone(), node.clone());
 			}
 
-			@Override
-			public INode createLastReplication()
-			{
-				return new ASequentialCompositionProcess(node.getLocation(), node.getReplicatedProcess().clone(), node.getReplicatedProcess().clone());
-			}
 		}, question);
 
 		return res.first.apply(ProcessSetupVisitor.this, res.second);
@@ -164,20 +158,14 @@ class ProcessSetupVisitor extends CommonSetupVisitor
 			}
 
 			@Override
-			public INode createLastReplication()
+			INode createTerminator()
 			{
-				return new AExternalChoiceProcess(node.getLocation(), node.getReplicatedProcess().clone(), node.getReplicatedProcess().clone());
+				return new AStopAction(node.getLocation());
 			}
 
 		}, question);
 
-		if (ret.first instanceof ASkipAction)
-		{
-			return new Pair<INode, Context>(new AStopAction(node.getLocation()), question);
-		} else
-		{
-			return ret;
-		}
+		return ret;
 	}
 
 	@Override
@@ -193,12 +181,6 @@ class ProcessSetupVisitor extends CommonSetupVisitor
 			public INode createNextReplication()
 			{
 				return new AGeneralisedParallelismProcess(node.getLocation(), node.getReplicatedProcess().clone(), node.getChansetExpression().clone(), node.clone());
-			}
-
-			@Override
-			public INode createLastReplication()
-			{
-				return new AGeneralisedParallelismProcess(node.getLocation(), node.getReplicatedProcess().clone(), node.getChansetExpression().clone(), node.getReplicatedProcess().clone());
 			}
 
 		}, question);
@@ -219,12 +201,6 @@ class ProcessSetupVisitor extends CommonSetupVisitor
 				return new AInterleavingProcess(node.getLocation(), node.getReplicatedProcess().clone(), node.clone());
 			}
 
-			@Override
-			public INode createLastReplication()
-			{
-				return new AInterleavingProcess(node.getLocation(), node.getReplicatedProcess().clone(), node.getReplicatedProcess().clone());
-			}
-
 		}, question);
 	}
 
@@ -241,12 +217,6 @@ class ProcessSetupVisitor extends CommonSetupVisitor
 			{
 
 				return new AAlphabetisedParallelismProcess(node.getLocation(), node.getReplicatedProcess().clone(), node.getChansetExpression().clone(), node.getChansetExpression().clone(), node.clone());
-			}
-
-			@Override
-			public INode createLastReplication()
-			{
-				return new AAlphabetisedParallelismProcess(node.getLocation(), node.getReplicatedProcess().clone(), node.getChansetExpression().clone(), node.getChansetExpression().clone(), node.getReplicatedProcess().clone());
 			}
 
 			@Override
@@ -277,6 +247,7 @@ class ProcessSetupVisitor extends CommonSetupVisitor
 					{
 						for (NameValuePairList nvpl : ql)
 						{
+							//FIXME why do we call createReplicationChildContext this is a special context for replication!
 							Context nextChildContext = createReplicationChildContext(nvpl, actualNode, question);
 							rightChanset.addAll((ChannelNameSetValue) eval(actualNode.getRightChansetExpression(), nextChildContext));
 						}
@@ -307,12 +278,6 @@ class ProcessSetupVisitor extends CommonSetupVisitor
 			public INode createNextReplication()
 			{
 				return new AInternalChoiceProcess(node.getLocation(), node.getReplicatedProcess().clone(), node.clone());
-			}
-
-			@Override
-			public INode createLastReplication()
-			{
-				return new AInternalChoiceProcess(node.getLocation(), node.getReplicatedProcess().clone(), node.getReplicatedProcess().clone());
 			}
 
 		}, question);

@@ -120,4 +120,12 @@ public class CmlSetQuantifier extends Value implements
 			valueTuples.values.remove(--valueIndex);
 		}
 	}
+
+	public static NameValuePairList pop(Iterator<NameValuePairList> iterator)
+	{
+		// pop a value
+		NameValuePairList value = iterator.next();
+		iterator.remove();
+		return value;
+	}
 }

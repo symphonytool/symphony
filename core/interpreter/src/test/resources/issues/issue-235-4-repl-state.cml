@@ -1,0 +1,29 @@
+channels
+  s, c : nat
+
+process P = begin
+  state
+    var : nat := 9999
+
+  actions
+    repl = val S: set of nat @
+             [] i in set S @ (
+                var := i ;
+                s.i -> c!var ->Skip
+             )
+
+    test = val S : seq of nat @
+             for n in S do (
+               repl(elems S) [|{s,c}|] s.n -> c.n ->Skip
+             )
+
+@
+  test([1])     ;               -- trace is <s.1,c.1>
+  var :=9999	;
+  test([1,2])   ;               -- <s.1,c.1,s.2,c.2>
+  var :=9999	;
+  test([1,2,3]) ;               -- <s.1,c.1,s.2,c.2,s.3,c.3>
+  var :=9999	;
+  test([])                      -- this last is equivalent to Stop
+  -- Whole test should be the concatenation of the traces
+end
