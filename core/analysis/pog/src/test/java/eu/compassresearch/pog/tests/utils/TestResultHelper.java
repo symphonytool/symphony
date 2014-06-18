@@ -106,7 +106,7 @@ public class TestResultHelper
 			}
 			if (!found_notstored.isEmpty())
 			{
-				sb.append("Found (but not expected) POS: " + "\n");
+				sb.append("\n Found (but not expected) POS: " + "\n");
 				for (PoResult pr : found_notstored)
 				{
 					sb.append(pr.toString() + "\n");
