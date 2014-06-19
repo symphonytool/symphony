@@ -69,9 +69,11 @@ public class MCThread extends Thread{
 		} catch (FormulaIntegrationException e) {
 			exception = e;
 			this.status = MCStatus.ERROR;
-			MCPluginUtility.popErrorMessage(e);
-			this.cancelExecution();
-			throw e;
+			if(!e.getMessage().contains("pipe")){
+				MCPluginUtility.popErrorMessage(e);
+				this.cancelExecution();
+				//throw e;
+			}
 		} catch (Throwable e) {
 			//excep = e;
 			exception = e;
