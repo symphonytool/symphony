@@ -1,1 +1,1 @@
-[{"poKind":"state invariant","poExp":"(x \u003d y)"},{"poKind":"state invariant satisfiable","poExp":"(exists x:int, y:int \u0026 (x \u003d y))"},{"poKind":"operation satisfiability","poExp":"(forall x:int, y:int \u0026 (exists x1:int, y2:int \u0026 (true and (x1 \u003d y2))))"}]
+[{"poKind":"state invariant","poExp":"(0 \u003d 0)"},{"poKind":"state invariant satisfiable","poExp":"(exists n:nat, m:nat \u0026 (n \u003d m))"},{"poKind":"state invariant","poExp":"(forall a:nat, n:nat, m:nat \u0026 ((n + a) \u003d (m + a)))"}]

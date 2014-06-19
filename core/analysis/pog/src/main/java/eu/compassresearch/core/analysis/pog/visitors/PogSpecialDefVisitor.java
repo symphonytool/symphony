@@ -29,6 +29,19 @@ public class PogSpecialDefVisitor extends
 	}
 
 	@Override
+	protected List<AInstanceVariableDefinition> collectState(
+			AExplicitOperationDefinition node) throws AnalysisException
+	{
+		AActionProcess stater = node.getAncestor(AActionProcess.class);
+		if (stater != null)
+		{
+			return stater.apply(new ClonerProcessState());
+		} else
+			return super.collectState(node);
+
+	}
+
+	@Override
 	protected void collectOpCtxt(AExplicitOperationDefinition node,
 			IPOContextStack question, Boolean precond) throws AnalysisException
 	{
@@ -51,7 +64,5 @@ public class PogSpecialDefVisitor extends
 			question.push(new CmlOperationDefinitionContext(node, precond, stateDef));
 		}
 	}
-	
-	
 
 }
