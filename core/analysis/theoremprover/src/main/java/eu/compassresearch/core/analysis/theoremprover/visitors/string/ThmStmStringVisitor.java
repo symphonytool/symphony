@@ -156,7 +156,7 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 	public String caseAIfStm(AIfStm a, ThmVarsContext vars) throws AnalysisException{
 		String ifStr = a.getIfExp().apply(thmStringVisitor, vars);
 		String thenStr = a.getThenStm().apply(thmStringVisitor, vars);	
-		String elseStr = "Skip";
+		String elseStr = "II";
 		if(a.getElseStm() != null)
 		{
 			elseStr = a.getElseStm().apply(thmStringVisitor, vars);	
@@ -166,11 +166,12 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		LinkedList<AElseIfStm> elseIf = a.getElseIf();
 		for(AElseIfStm e : elseIf)
 		{
-			elseIfStr = elseIfStr + "("+ e.apply(thmStringVisitor, vars);	
-			closingIf = ")";
+			elseIfStr = elseIfStr + e.apply(thmStringVisitor, vars);	
 		}
 		
-		return thenStr + ThmProcessUtil.ifLeft + ifStr + ThmProcessUtil.ifRight + elseIfStr + elseStr + closingIf;
+		return "(if (" + ifStr + ") then " + thenStr + " else " + elseIfStr + elseStr + ")";
+				
+		// thenStr + ThmProcessUtil.ifLeft + ifStr + ThmProcessUtil.ifRight + elseIfStr + elseStr + closingIf;
 	}
 	
 	public String caseAElseIfStm(AElseIfStm a, ThmVarsContext vars) throws AnalysisException{
