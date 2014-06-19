@@ -30,21 +30,15 @@ import org.overture.ast.definitions.AExplicitOperationDefinition;
 import org.overture.ast.definitions.AImplicitOperationDefinition;
 import org.overture.ast.definitions.AInstanceVariableDefinition;
 import org.overture.ast.definitions.PDefinition;
-import org.overture.ast.intf.lex.ILexNameToken;
-import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.patterns.APatternListTypePair;
-import org.overture.ast.patterns.ATypeMultipleBind;
-import org.overture.ast.patterns.PMultipleBind;
 import org.overture.ast.patterns.PPattern;
-import org.overture.ast.statements.AExternalClause;
 import org.overture.ast.types.AOperationType;
 import org.overture.pog.contexts.POOperationDefinitionContext;
 
 public class CmlOperationDefinitionContext extends POOperationDefinitionContext
 {
 
-	List<AInstanceVariableDefinition> psdefs;
-
+	
 	public CmlOperationDefinitionContext(
 			AImplicitOperationDefinition definition, boolean precond,
 			PDefinition stateDefinition)
@@ -63,52 +57,12 @@ public class CmlOperationDefinitionContext extends POOperationDefinitionContext
 			boolean precond, List<AInstanceVariableDefinition> stateDefs)
 	{
 		super(node.getName(), (AOperationType) node.getType(), node.getParameterPatterns(), precond, node.getPrecondition(), null, node);
-
-		psdefs = new LinkedList<AInstanceVariableDefinition>();
-
-		for (AInstanceVariableDefinition def : stateDefs)
-		{
-			psdefs.add(def.clone());
-		}
-
-		psdefs = stateDefs;
 	}
 
 	public CmlOperationDefinitionContext(AImplicitOperationDefinition node,
 			boolean precond, List<AInstanceVariableDefinition> stateDefs)
 	{
 		super(node.getName(), (AOperationType) node.getType(), getParamPatternList(node), precond, node.getPrecondition(), null, node);
-
-		psdefs = new LinkedList<AInstanceVariableDefinition>();
-
-		// node.getExternals()
-
-		if (node.getExternals().size() > 0)
-		{
-			for (AInstanceVariableDefinition def : stateDefs)
-			{
-				for (AExternalClause e : node.getExternals())
-				{
-					for (ILexNameToken i : e.getIdentifiers())
-					{
-						if (i.equals(def.getName()))
-						{
-							psdefs.add(def.clone());
-						}
-					}
-				}
-			}
-		}
-
-		else
-		{
-			for (AInstanceVariableDefinition def : stateDefs)
-			{
-				psdefs.add(def.clone());
-			}
-		}
-
-
 	}
 
 	private static LinkedList<PPattern> getParamPatternList(
@@ -122,38 +76,6 @@ public class CmlOperationDefinitionContext extends POOperationDefinitionContext
 		}
 
 		return plist;
-	}
-
-	@Override
-	protected void addStateBinds(LinkedList<PMultipleBind> r)
-	{
-		if (psdefs == null)
-		{
-			super.addStateBinds(r);
-		} else
-		{
-			// FIXME filter variables according to rd/wr frames
-			for (AInstanceVariableDefinition pdef : psdefs)
-			{
-				ATypeMultipleBind tmBind2 = new ATypeMultipleBind();
-				tmBind2.setType(pdef.getType().clone());
-				AIdentifierPattern pattern = new AIdentifierPattern();
-				pattern.setName(pdef.getName().clone());
-
-				List<PPattern> plist = new LinkedList<PPattern>();
-				plist.add(pattern);
-				tmBind2.setPlist(plist);
-				r.add(tmBind2);
-			}
-		}
-	}
-
-	@Override
-	protected boolean anyBinds()
-	{
-		if (psdefs == null)
-			return super.anyBinds();
-		return (!psdefs.isEmpty()) || super.anyBinds();
 	}
 
 }
