@@ -110,9 +110,10 @@ public class CmlSatisfiabilityObligation extends CmlProofObligation
 				}
 			}
 
+		if (op.getPredef() != null)
+		{
+			//preApply = AstExpressionFactory.newAAndBooleanBinaryExp(INVARIANTS HERE, op.getPrecondition().clone());
 			postApply = AstExpressionFactory.newAAndBooleanBinaryExp(postApply.clone(), inv_exp.clone());
-			if (op.getPredef() != null)
-			{
 				preApply = AstExpressionFactory.newAAndBooleanBinaryExp(op.getPrecondition().clone(), inv_exp.clone());
 			} else
 			{
