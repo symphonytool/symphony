@@ -213,7 +213,7 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		String actStr = a.getStatement().apply(thmStringVisitor, vars);
 //	        | {declare}  [assignmentDefs]:definition*
 		
-		return ThmProcessUtil.isaWhile  + ThmProcessUtil.opExpLeft + cond + ThmProcessUtil.isaDo  + ThmProcessUtil.opExpRight + actStr + ThmProcessUtil.isaOd;
+		return ThmProcessUtil.isaWhile + cond + ThmProcessUtil.isaDo + actStr + ThmProcessUtil.isaOd;
 	}
 
 	public String caseAReturnStm(AReturnStm a, ThmVarsContext vars) throws AnalysisException{
