@@ -680,6 +680,7 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 		//get the Isabelle string for the action node's action.
 		String actString = act.getAction().apply(stringVisitor, vars); //ThmProcessUtil.getIsabelleActionString(act.getAction(), svars, bvars);
 		//check for self dependencies - if present, require a MU
+		/*
 		for(ILexNameToken n : nodeDeps)
 		{
 			if(n.getName().equals(actName.getName()))
@@ -688,6 +689,7 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 				break;
 			}
 		}
+		*/
 		//create the theorem node.
 		tn = new ThmNode(actName, nodeDeps, new ThmAction(actName.getName(), actString));
 

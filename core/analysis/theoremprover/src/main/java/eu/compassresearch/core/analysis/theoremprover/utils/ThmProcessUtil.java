@@ -55,9 +55,9 @@ public class ThmProcessUtil {
 	public static String seqComp = " ; ";
 	public static String extChoice = " [] ";
 	public static String intChoice = " |-| ";
-	public static String interrupt = " /-\\ ";
+	public static String interrupt = " /-\\\\ ";
 	public static String timeIntLeft = "/(";
-	public static String timeIntRight = ")\\";
+	public static String timeIntRight = ")\\\\";
 	public static String timeout = "[>";
 	public static String timeoutLeft = " [(";
 	public static String timeoutRight = ")> ";
