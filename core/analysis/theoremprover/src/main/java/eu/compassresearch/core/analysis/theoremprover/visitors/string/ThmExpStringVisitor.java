@@ -359,7 +359,7 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 			//	sb.append(smb.getPlist().toString());
 				sb.append(" in @set ");
 				sb.append(smb.getSet().apply(thmStringVisitor, vars));
-				sb.append(" @ ");
+				sb.append(" @ (");
 			}
 		}
 		return "(" + sb.toString() + ex.getPredicate().apply(thmStringVisitor, vars) + endBrackets.toString() + ")"; 
