@@ -1,28 +1,15 @@
 package eu.compassresearch.pog.tests;
 
-import java.io.FileReader;
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.util.Collection;
-import java.util.List;
 
-import org.apache.commons.io.IOUtils;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.overture.ast.analysis.AnalysisException;
-import org.overture.ast.node.INode;
-import org.overture.pog.pub.IProofObligationList;
-import org.overture.pog.utility.POException;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-
-import eu.compassresearch.core.analysis.pog.utility.PogPubUtil;
 import eu.compassresearch.pog.tests.utils.TestFileProvider;
-import eu.compassresearch.pog.tests.utils.TestInputHelper;
 import eu.compassresearch.pog.tests.utils.TestResultHelper;
 
 /**
@@ -35,7 +22,7 @@ import eu.compassresearch.pog.tests.utils.TestResultHelper;
 public class BasicTest
 {
 	private String micromodel;
-	private String poresult;
+	private String resultpath;
 
 	/**
 	 * Constructor for the test. Initialized with parameters from {@link #testData()}.
@@ -49,7 +36,7 @@ public class BasicTest
 	public BasicTest(String _, String testParameter, String resultParameter)
 	{
 		this.micromodel = testParameter;
-		this.poresult = resultParameter;
+		this.resultpath = resultParameter;
 	}
 
 	/**
@@ -69,24 +56,6 @@ public class BasicTest
 	@Test
 	public void testCompare() throws IOException, AnalysisException
 	{
-		try
-		{
-			List<INode> ast = TestInputHelper.getAstFromName(micromodel);
-			IProofObligationList polist = PogPubUtil.generateProofObligations(ast);
-
-			Gson gson = new Gson();
-			String json = IOUtils.toString(new FileReader(poresult));
-			Type datasetListType = new TypeToken<Collection<PoResult>>()
-			{
-			}.getType();
-			List<PoResult> results = gson.fromJson(json, datasetListType);
-
-			TestResultHelper.checkSameElements(results, polist);
-
-		} catch (POException e)
-		{
-			Assert.fail("POG crashed on " + micromodel);
-			throw e;
-		}
+		TestResultHelper.testCompare(micromodel, resultpath);
 	}
 }

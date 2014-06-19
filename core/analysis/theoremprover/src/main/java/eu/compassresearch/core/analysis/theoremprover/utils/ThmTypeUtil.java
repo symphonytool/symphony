@@ -34,9 +34,8 @@ public class ThmTypeUtil {
  	public static String isaOtpOpen = "[";
  	public static String isaOtpClose = "]";
  	public static String isaProd = "*";
- 	public static String isaHProd = "**";
- 	public static String isaQuoteLeft = "<\'\'";
- 	public static String isaQuoteRight = "\'\'>";
+ 	public static String isaQuoteLeft = "<";
+ 	public static String isaQuoteRight = ">";
  	public static String isaUnion = "|";
 	public static String isaErrTBT= "@unknownBaseType";
  	

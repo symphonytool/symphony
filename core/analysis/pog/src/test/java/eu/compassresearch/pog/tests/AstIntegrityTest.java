@@ -18,7 +18,7 @@ import eu.compassresearch.pog.tests.utils.TestInputHelper;
  * @author ldc
  *
  */
-public class IntegrityAST
+public class AstIntegrityTest
 {
 
 	@Test

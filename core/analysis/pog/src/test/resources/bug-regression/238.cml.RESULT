@@ -1,0 +1,1 @@
+[{"poKind":"legal map application","poExp":"(forall t:nat, r:map (nat) to (bool), oldself:Battery \u0026 ((relay_load in set (dom r)) \u003d\u003e (relay_load in set (dom r))))"}]

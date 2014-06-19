@@ -45,9 +45,11 @@ import eu.compassresearch.ast.process.AUntimedTimeoutProcess;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.ast.process.SReplicatedProcessBase;
 import eu.compassresearch.core.analysis.theoremprover.thms.NodeNameList;
+import eu.compassresearch.core.analysis.theoremprover.thms.ThmAction;
 import eu.compassresearch.core.analysis.theoremprover.thms.ThmExplicitOperation;
 import eu.compassresearch.core.analysis.theoremprover.thms.ThmNode;
 import eu.compassresearch.core.analysis.theoremprover.thms.ThmNodeList;
+import eu.compassresearch.core.analysis.theoremprover.thms.ThmProcAction;
 import eu.compassresearch.core.analysis.theoremprover.thms.ThmStateInv;
 import eu.compassresearch.core.analysis.theoremprover.utils.ThmExprUtil;
 import eu.compassresearch.core.analysis.theoremprover.utils.ThmProcessUtil;
@@ -143,37 +145,43 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 			
 			mainActStateStr = " = ` call IsabelleStateInit[]; ";
 		}
+				
+		// Filter out action nodes as we will handle them in one go at the end
 		
-		/*
-		// Handle process invariants
-		StringBuffer invString = new StringBuffer();
-		Iterator<AClassInvariantDefinition> iitr = invs.iterator();
+		ThmNodeList actions = new ThmNodeList();
 		
-		if (iitr.hasNext()) {
-			invString.append("definition \"StateInvariant = |");
-		}
-		
-		while (iitr.hasNext()) {
-			invString.append(iitr.next().getExpression().apply(thmStringVisitor, new ThmVarsContext(svars, new NodeNameList())));
-			if (iitr.hasNext()) {
-				invString.append(" and ");
-			} else {
-				invString.append("|\"\n");
+		for (Iterator<ThmNode> itr = actTnl.iterator(); itr.hasNext(); ) {
+			ThmNode tn = itr.next();
+			if (tn.getArtifact() instanceof ThmAction) {
+				itr.remove();
+				actions.add(tn);
 			}
 		}
-		*/
 		
-		//sort the state, operation and actions, so that they are in dependency order
-		String actString = "";
+		//sort the state and operations, so that they are in dependency order
+		String stateString = "";
 		try
 		{
 			actTnl = TPVisitor.sortThmNodes(actTnl);
-			actString = actTnl.toString();
 		}
 		catch(ThySortException thye)
 		{
-			actString = "(*Thy gen error:*)\n" + "(*Isabelle Error when sorting nodes - "
-					+ "please submit bug report with CML file*)\n\n" + thye.getSortErrorStatus() + "\n\n"; 
+			stateString = "(*Thy gen error:*)\n" + "(*Isabelle Error when sorting nodes - "
+				    	+ "please submit bug report with CML file*)\n\n" + thye.getSortErrorStatus() + "\n\n"; 
+		}
+		
+		stateString = actTnl.toString();
+		
+		StringBuffer actsb = new StringBuffer();
+		
+		if (!actions.isEmpty()) {
+			actsb.append("cmlacts\n");
+		}
+		
+		for (Iterator<ThmNode> itr = actions.iterator(); itr.hasNext(); ) {
+			actsb.append(itr.next().toString());
+			if (itr.hasNext()) actsb.append (" and");
+			actsb.append("\n");
 		}
 		
 		// Create a definition which accumulates all state invariants
@@ -196,7 +204,7 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		String mainStr = ThmProcessUtil.isaProc + " \"" + ThmProcessUtil.isaMainAction + mainActStateStr + act.getAction().apply(thmStringVisitor, new ThmVarsContext(svars, new NodeNameList())) +  "`\"";
 		
 		//Finally construct the process String
-		return (actString + "\n" + mainInv.toString() + "\n" + mainStr);
+		return (stateString + "\n" + actsb.toString() + mainInv.toString() + "\n" + mainStr);
 	}
 	
 	

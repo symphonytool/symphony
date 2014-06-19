@@ -25,8 +25,8 @@ public class ThmChannel extends ThmDecl {
 	 * To string in form of: definition "init = MkChanD ''init'' \<parallel>()\<parallel>"
 	 */
 	public String toString(){
-		return (ThmChanUtil.isaChan + " \"" + name + " = " + ThmChanUtil.isaMkChan + ThmChanUtil.isaChanQuote +
-				name + ThmChanUtil.isaChanQuote + ThmChanUtil.chanTpDelim + type + ThmChanUtil.chanTpDelim + 
+		return (ThmChanUtil.isaChan + " \"" + name + " = " + ThmChanUtil.isaMkChan + " " + ThmChanUtil.isaChanQuote +
+				name + ThmChanUtil.isaChanQuote + " " + ThmChanUtil.chanTpDelim + type + ThmChanUtil.chanTpDelim + 
 				"\"\n" + tacHook(name));
 	}
 }

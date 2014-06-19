@@ -40,6 +40,6 @@ abstract public class CmlProofObligation extends ProofObligation implements
 	public String toString()
 	{
 		return name + ": " + cmltype + " obligation " + getLocation() + "\n"
-				+ getValue();
+				+ getFullPredString();
 	}
 }
