@@ -1,18 +1,24 @@
 package eu.compassresearch.core.interpreter.runtime;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Map;
 
+import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.interpreter.assistant.IInterpreterAssistantFactory;
 import org.overture.interpreter.runtime.Context;
+import org.overture.interpreter.runtime.ValueException;
 import org.overture.interpreter.values.DelayedUpdatableWrapper;
-import org.overture.interpreter.values.ObjectValue;
 import org.overture.interpreter.values.UpdatableValue;
 import org.overture.interpreter.values.Value;
+import org.overture.typechecker.util.LexNameTokenMap;
 
+/**
+ * Context that create transactions for all state changed and waits for them to be written by a call to
+ * {@link DelayedWriteContext#writeChanges()}
+ * 
+ * @author kel
+ */
 public class DelayedWriteContext extends Context
 {
 	/**
@@ -20,8 +26,7 @@ public class DelayedWriteContext extends Context
 	 */
 	private static final long serialVersionUID = 2677833973970244511L;
 
-
-	private Set<DelayedUpdatableWrapper> obtainedValues = new HashSet<DelayedUpdatableWrapper>();
+	private Map<ILexNameToken, DelayedUpdatableWrapper> obtainedValues = new LexNameTokenMap<DelayedUpdatableWrapper>();
 
 	public DelayedWriteContext(IInterpreterAssistantFactory af,
 			ILexLocation location, String title, Context outer)
@@ -29,20 +34,38 @@ public class DelayedWriteContext extends Context
 		super(af, location, title, outer);
 	}
 
-	// @Override
-	// public Value put(ILexNameToken key, Value value)
-	// {
-	// // TODO Auto-generated method stub
-	// return super.put(key, value);
-	// }
-	
-	public Value wrap(Value val)
+	public Value wrap(Value val, Object name)
 	{
-		if (val instanceof UpdatableValue)
+		if (name instanceof ILexNameToken)
+		{
+			Value v = obtainedValues.get((ILexNameToken) name);
+			for (ILexNameToken var : obtainedValues.keySet())
+			{
+				// This is a relaxed check since we don't completely control the module. But any name that matched the
+				// overridden state will be overridden.
+				if (var.getName().equals(((ILexNameToken) name).getName()))
+				{
+					v = obtainedValues.get(var);
+					break;
+				}
+			}
+			if (v != null)
+			{
+				return v;
+			}
+		}
+
+		if (val instanceof UpdatableValue
+				&& !(val instanceof DelayedUpdatableWrapper))
 		{
 			// this is state
-			DelayedUpdatableWrapper wrappedVal = new DelayedUpdatableWrapper((UpdatableValue)val);
-			obtainedValues.add(wrappedVal);
+			DelayedUpdatableWrapper wrappedVal = new DelayedUpdatableWrapper(this, (UpdatableValue) val);
+
+			if (name instanceof ILexNameToken)
+			{
+				obtainedValues.put((ILexNameToken) name, wrappedVal);
+				put((ILexNameToken) name, wrappedVal);
+			}
 			return wrappedVal;
 		}
 
@@ -52,46 +75,33 @@ public class DelayedWriteContext extends Context
 	@Override
 	public Value lookup(ILexNameToken name)
 	{
-		return wrap( super.lookup(name));
+		return wrap(super.lookup(name), name);
 	}
 
-
-	
 	@Override
 	public Value get(Object name)
 	{
-		return wrap(super.get(name));
+		return wrap(super.get(name), name);
 	}
 
 	@Override
 	public Value check(ILexNameToken name)
 	{
-	return wrap( super.check(name));
+		return wrap(super.check(name), name);
 	}
-	
-	@Override
-	public Context getVisibleVariables()
-	{
-		// TODO Auto-generated method stub
-		return super.getVisibleVariables();
-	}
-	
-	@Override
-	public ObjectValue getSelf()
-	{
-		// TODO Auto-generated method stub
-		return super.getSelf();
-	}
-	
-	@Override
-	public Collection<Value> values()
-	{
-		// TODO Auto-generated method stub
-		return super.values();
-	}
+
 	@Override
 	public String toString()
 	{
-	return "Delayed ctxt: " +super.toString() + " delayed states: "+obtainedValues;
+		return "Delayed ctxt: " + super.toString() + " delayed states: "
+				+ obtainedValues;
+	}
+
+	public void writeChanges() throws ValueException, AnalysisException
+	{
+		for (DelayedUpdatableWrapper val : obtainedValues.values())
+		{
+			val.set();
+		}
 	}
 }

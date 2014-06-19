@@ -45,6 +45,7 @@ import eu.compassresearch.core.interpreter.api.values.ChannelValue;
 import eu.compassresearch.core.interpreter.api.values.CmlChannel;
 import eu.compassresearch.core.interpreter.api.values.NamesetValue;
 import eu.compassresearch.core.interpreter.api.values.RenamingValue;
+import eu.compassresearch.core.interpreter.runtime.DelayedWriteContext;
 import eu.compassresearch.core.interpreter.utility.LocationExtractor;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
@@ -251,9 +252,14 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 			CmlBehaviour theChoosenOne, Context context)
 			throws AnalysisException
 	{
-		Context copyContext = theChoosenOne.getNextState().second;
-		Context newCurrentContext = CmlBehaviourUtility.mergeAndReplaceState(context, copyContext);
-		// Context newCurrentContext = copyContext;
+		Context delayedCtxt = theChoosenOne.getNextState().second;
+
+		if (delayedCtxt instanceof DelayedWriteContext)
+		{
+			((DelayedWriteContext) delayedCtxt).writeChanges();
+		}
+
+		Context newCurrentContext = delayedCtxt;
 
 		if (theChoosenOne.getLeftChild() != null)
 		{
@@ -279,8 +285,8 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 	 * This is a silent transition and therefore the alphabet contains only tau event</li>
 	 * <li>External Choice Silent: If any of the actions can take a silent transition they will do it before getting
 	 * here again. We therefore don't take this situation into account</li>
-	 * <li>External Choice Skip: If one of the children is Skip we make a silent transition of the whole choice into skip.
-	 * We therefore just return the tau event</li>
+	 * <li>External Choice Skip: If one of the children is Skip we make a silent transition of the whole choice into
+	 * skip. We therefore just return the tau event</li>
 	 * <li>External Choice End: The alphabet contains an observable event for every child that can engaged in one.</li>
 	 * </ul>
 	 */
@@ -288,9 +294,6 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 			final INode leftNode, final INode rightNode, final Context question)
 			throws AnalysisException
 	{
-		//FIXME debug message must be removed
-		System.out.println("\n\n\n\nInspect.............");
-		CmlBehaviourUtility.printBehaviour(0, owner);
 		// if no children are present we make a silent transition to represent the
 		// external choice begin
 		if (!owner.hasChildren())
@@ -305,9 +308,9 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 				{
 					Pair<Context, Context> childContexts = getChildContexts(question);
 
-					setLeftChild(leftNode, name().clone(true), CmlBehaviourUtility.deepCopyProcessContext(childContexts.first));
+					setLeftChild(leftNode, name().clone(true), childContexts.first);
 
-					setRightChild(rightNode, name().clone(true), CmlBehaviourUtility.deepCopyProcessContext(childContexts.second));
+					setRightChild(rightNode, name().clone(true), childContexts.second);
 
 					return new Pair<INode, Context>(node, question);
 				}

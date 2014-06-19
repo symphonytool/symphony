@@ -38,6 +38,8 @@ import eu.compassresearch.core.interpreter.api.values.ChannelValue;
 import eu.compassresearch.core.interpreter.api.values.CmlSetQuantifier;
 import eu.compassresearch.core.interpreter.api.values.LatticeTopValue;
 import eu.compassresearch.core.interpreter.api.values.RenamingValue;
+import eu.compassresearch.core.interpreter.runtime.DelayedWriteContext;
+import eu.compassresearch.core.interpreter.runtime.ReplicatedContext;
 import eu.compassresearch.core.interpreter.utility.LocationExtractor;
 import eu.compassresearch.core.interpreter.utility.Pair;
 import eu.compassresearch.core.interpreter.utility.SetMath;
@@ -72,9 +74,10 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 			PVarsetExpression rightChansetExpression, Context question)
 			throws AnalysisException
 	{
+
 		// evaluate the children in the their own context
 		ChannelNameSetValue leftChanset = eval(leftChansetExpression, getChildContexts(question).first);
-		ChannelNameSetValue rightChanset = eval(rightChansetExpression, getChildContexts(question).second);
+		ChannelNameSetValue rightChanset = generateChannelValues(node, rightChansetExpression, getChildContexts(question).second);
 
 		Context chansetContext = CmlContextFactory.newContext(LocationExtractor.extractLocation(node), "Alphabetised parallelism precalcualted channelsets", question);
 
@@ -82,6 +85,50 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 		chansetContext.put(NamespaceUtility.getRightPrecalculatedChannetSet(), rightChanset);
 
 		return new Pair<INode, Context>(node, chansetContext);
+	}
+
+	/**
+	 * Utility method to evaluate or generate channel set values. If called from a context where
+	 * {@link NamespaceUtility#getReplicationNodeReminderName(INode)} is in context for the node parsed then the
+	 * {@link CmlSetQuantifier} is used to evaluate the chanset expression for every value. If not then the chanset is
+	 * evaluated in the context parsed.
+	 * 
+	 * @param node
+	 *            the node where the qualifier reminder name is obtained by
+	 * @param chansetExp
+	 *            the chanset exp to evaluate
+	 * @param ctxt
+	 *            the context where the qualifier reminder name may exist in and the context where the chanset exp
+	 *            should be evaluated
+	 * @return a value holding all the values for the chanset exp
+	 * @throws AnalysisException
+	 */
+	private ChannelNameSetValue generateChannelValues(INode node,
+			PVarsetExpression chansetExp, Context ctxt)
+			throws AnalysisException
+	{
+		final ILexNameToken name = NamespaceUtility.getReplicationNodeReminderName(node);
+		CmlSetQuantifier ql = (CmlSetQuantifier) ctxt.check(name);
+
+		ChannelNameSetValue rightChanset = null;
+
+		if (ql == null)
+		{
+			rightChanset = eval(chansetExp, ctxt);
+		} else
+		{
+			rightChanset = new ChannelNameSetValue();
+
+			for (NameValuePairList nvpl : ql)
+			{
+				Context nextChildContext = new Context(ctxt.assistantFactory, ctxt.location, "local channel context", ctxt);
+				nextChildContext.putList(nvpl);
+				rightChanset.addAll((ChannelNameSetValue) eval(chansetExp, nextChildContext));
+			}
+		}
+
+		return rightChanset;
+
 	}
 
 	protected Pair<INode, Context> caseAInterrupt(INode node, INode leftNode,
@@ -160,45 +207,6 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 
 	}
 
-	// protected Pair<INode, Context> caseATimeout(INode node, INode leftNode,
-	// Context question) throws AnalysisException
-	// {
-	//
-	// Context context = CmlContextFactory.newContext(LocationExtractor.extractLocation(node), "Timeout context",
-	// question);
-	// try
-	// {
-	// context.putNew(new NameValuePair(NamespaceUtility.getStartTimeName(), new IntegerValue(owner.getCurrentTime())));
-	// } catch (Exception e)
-	// {
-	// throw new ValueException(0, e.getMessage(), question);
-	// }
-	// // We setup the child nodes
-	// setLeftChild(leftNode, question);
-	// return new Pair<INode, Context>(node, context);
-	//
-	// }
-
-	// @Override
-	// public Pair<INode, Context> caseAStartDeadlineAction(
-	// AStartDeadlineAction node, Context question)
-	// throws AnalysisException
-	// {
-	// Context context = CmlContextFactory.newContext(LocationExtractor.extractLocation(node), "Timeout context",
-	// question);
-	// try
-	// {
-	// context.putNew(new NameValuePair(NamespaceUtility.getStartsByTimeName(), new
-	// NaturalValue(owner.getCurrentTime())));
-	//
-	// } catch (Exception e)
-	// {
-	// throw new ValueException(0, e.getMessage(), question);
-	// }
-	// setLeftChild(node.getLeft(), question);
-	// return new Pair<INode, Context>(node, context);
-	// }
-
 	/*
 	 * Non public replication helper methods -- Start
 	 */
@@ -224,13 +232,6 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 		 */
 		abstract INode createNextReplication();
 
-//		/**
-//		 * This creates the last node in the replication
-//		 * 
-//		 * @return The last replication node
-//		 */
-//		abstract INode createLastReplication();
-
 		/**
 		 * Creates the terminator for the given node. The default is Skip.
 		 * 
@@ -241,18 +242,21 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 			return CmlAstFactory.newASkipAction(LocationExtractor.extractLocation(node));
 		}
 
+		/**
+		 * Create a new replication child context. This is a context that delays all writes to state
+		 * @param npvl
+		 * @param node
+		 * @param outer
+		 * @return
+		 */
 		Context createReplicationChildContext(NameValuePairList npvl,
 				INode node, Context outer)
 		{
-			Context childContext = CmlContextFactory.newContext(LocationExtractor.extractLocation(node), "", outer);
+			Context childContext = new DelayedWriteContext(outer.assistantFactory, LocationExtractor.extractLocation(node), "delayed write context for "
+					+ outer.title, outer);
 			childContext.putAllNew(npvl);
-			return childContext;
-		}
 
-		Context createOperatorContext(INode node, CmlSetQuantifier remaining,
-				Context question)
-		{
-			return question;
+			return childContext;
 		}
 
 		/**
@@ -283,6 +287,9 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 		{
 			// evaluate decelerations
 			ql = createQuantifierList(decls, question);
+		} else
+		{
+			question = question.outer;
 		}
 
 		Iterator<NameValuePairList> itQuantifiers = ql.iterator();
@@ -305,6 +312,7 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 				 */
 				final INode nextNode = factory.getReplicatedNode();
 				final Context nextContext = factory.createReplicationChildContext(nextChildValue, nextNode, question);
+				storeReplificationQualifierRemainder(nextNode, ql, nextContext);
 
 				return new Pair<INode, Context>(nextNode, nextContext);
 			} else
@@ -312,11 +320,14 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 				/* recursive case */
 				final INode nextNode = factory.createNextReplication();
 
-				final Context replicatedContext = new Context(question.assistantFactory, question.location, "Replicated decleration ctxt", question);
+				final Context replicatedContext = new ReplicatedContext(question.assistantFactory, question.location, "Replicated declaration ctxt", question);
 				replicatedContext.put(replicationContextValueName, ql);
+				storeReplificationQualifierRemainder(nextNode, ql, replicatedContext);
 
-				Context leftChildContext = factory.createReplicationChildContext(nextChildValue, nextNode, replicatedContext);
-				Context rightChildContext =replicatedContext;
+				Context leftChildContext = factory.createReplicationChildContext(nextChildValue, nextNode, question);
+				storeReplificationQualifierRemainder(nextNode, ql, leftChildContext);
+
+				Context rightChildContext = replicatedContext;
 
 				setChildContexts(new Pair<Context, Context>(leftChildContext, rightChildContext));
 
@@ -324,6 +335,14 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 			}
 		}
 
+	}
+
+	private static void storeReplificationQualifierRemainder(INode node,
+			CmlSetQuantifier ql, Context ctxt)
+	{
+		// store the reminder of replication qualifier for channel set expression evaluations of e.g.
+		// AAlphabetisedParallelismReplicatedProcess
+		ctxt.put(NamespaceUtility.getReplicationNodeReminderName(node), ql);
 	}
 
 	// FIXME this check is not sufficient
