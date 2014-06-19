@@ -71,6 +71,10 @@
    <command
         id="eu.compassresearch.ide.theoremprover.suballpos"
         name="Sub All POs">
+	</command>
+	<command
+       id="eu.compassresearch.ide.theoremprover.killsession"
+       name="Terminate TP Session">
 	</command>	
 </extension>
 
@@ -128,6 +132,17 @@
       </command>
    </menuContribution>
    
+      <menuContribution
+         allPopups="false"
+         locationURI="toolbar:eu.compassresearch.ide.pog.POsTable">
+      <command
+            commandId="eu.compassresearch.ide.theoremprover.killsession"
+            icon="icons/kill.png"
+            label="Kill TP"
+            style="push"
+            tooltip="Terminate Theorem Prover Session">
+      </command>
+   </menuContribution>
    
 		<menuContribution
          allPopups="false"
@@ -206,8 +221,17 @@
             name="eu.compassresearch.ide.pog.suballicon"
             priorityLevel="workbench">
       </variable>
-   </sourceProvider>   
+   </sourceProvider> 
+    <sourceProvider
+         provider="eu.compassresearch.ide.theoremprover.IsabelleOn">
+      <variable
+            name="eu.compassresearch.ide.theoremprover.tpon"
+            priorityLevel="workbench">
+      </variable>
+   </sourceProvider> 
 </extension>
+
+
 
 <extension
       point="org.eclipse.ui.handlers">
@@ -223,5 +247,18 @@
                </with>
       </activeWhen>
    </handler>
+   <handler
+         class="eu.compassresearch.ide.theoremprover.commands.KillSessionHandler"
+         commandId="eu.compassresearch.ide.theoremprover.killsession">
+      <activeWhen>
+               <with
+                     variable="eu.compassresearch.ide.theoremprover.tpon">
+                  <equals
+                        value="ON">
+                  </equals>
+               </with>
+      </activeWhen>
+   </handler>
+   
 </extension>
 </plugin>

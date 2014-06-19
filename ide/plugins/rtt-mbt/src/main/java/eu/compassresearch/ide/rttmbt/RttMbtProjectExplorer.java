@@ -227,6 +227,16 @@ public class RttMbtProjectExplorer extends org.eclipse.ui.navigator.CommonNaviga
 		commandStateService.setValue(key,value);    	
     }
     
+    private String getService(String key) {
+	    // get service provider
+	    ISourceProviderService sourceProviderService = 
+	    		(ISourceProviderService) getSite().getService(ISourceProviderService.class);
+	    RttMbtCommandState commandStateService = 
+	    		(RttMbtCommandState) sourceProviderService.getSourceProvider(RttMbtCommandState.keyIsGenerationContextTP);
+	    // get value
+	    return commandStateService.getValue(key);
+    }
+    
     private Boolean hasModelSubdirectory() {
     	// check if the selected object is a directory
     	File thisFolder = new File(selectedObjectPath);
@@ -289,8 +299,12 @@ public class RttMbtProjectExplorer extends org.eclipse.ui.navigator.CommonNaviga
 		if (selectedObject == null) {
 			return false;
 		}
-		return ((selectedObject.compareTo("model_dump.xml") == 0) ||
-				((selectedObject.compareTo("model.uml") == 0)) && (client.getIsPapyrusMode()));
+		return (((selectedObject.compareTo("model_dump.xml") == 0) &&
+				 (getService(RttMbtCommandState.keyIsRttPerspectiveActive).compareTo(RttMbtCommandState.TRUE) == 0))
+				||
+				((selectedObjectPath.substring(selectedObjectPath.length() - 4).compareTo(".uml") == 0)) &&
+				 (client.getIsPapyrusMode())
+			   );
 	}
 
 	public Boolean isMakefileSelected() {
