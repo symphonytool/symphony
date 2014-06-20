@@ -10,6 +10,7 @@ import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.statements.AExternalClause;
 import org.overture.pog.pub.IPOContextStack;
+import org.overture.pog.pub.IPogAssistantFactory;
 import org.overture.pog.utility.POException;
 
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
@@ -63,6 +64,7 @@ public class POGActionVisitor extends
 	private ProofObligationGenerator parentPOG;
 	private NameSetVisitor nsvisitor;
 	private ChansetVisitor csvisitor;
+	private IPogAssistantFactory af = new CmlPogAssistantFactory();
 
 
 	/**
@@ -154,7 +156,7 @@ public class POGActionVisitor extends
 			// check for Non-Zero time obligation and dispatch exp for POG checking
 			// Changing format of CML POs... pol.add(new
 			// CMLNonZeroTimeObligation(timeExp, question));
-			pol.add(new CmlNonZeroTimeObligation(timeExp, question));
+			pol.add(new CmlNonZeroTimeObligation(timeExp, question,af));
 			pol.addAll(timeExp.apply(this, question));
 			// Send right-hand side
 			pol.addAll(right.apply(this, question));
@@ -247,7 +249,7 @@ public class POGActionVisitor extends
 			pol.addAll(left.apply(parentPOG, question));
 			pol.addAll(timedExp.apply(parentPOG, question));
 			// check for Non-Zero time obligation and dispatch exp for POG checking
-			pol.add(new CmlNonZeroTimeObligation(timedExp, question));
+			pol.add(new CmlNonZeroTimeObligation(timedExp, question, af));
 			pol.addAll(right.apply(parentPOG, question));
 
 			// TODO: Any ATimeoutAction POs?

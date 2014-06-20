@@ -201,7 +201,7 @@ public class ProofObligationGenerator extends
 
 		if (node.getSeqType() != null)
 		{
-			list.add(new SeqApplyObligation(node.getMapseq(), node.getExp(), question));
+			list.add(new SeqApplyObligation(node.getMapseq(), node.getExp(), question,assistantFactory));
 		}
 
 		// Maps are OK, as you can create new map domain entries

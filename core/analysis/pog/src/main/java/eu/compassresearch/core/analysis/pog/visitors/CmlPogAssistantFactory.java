@@ -2,6 +2,7 @@ package eu.compassresearch.core.analysis.pog.visitors;
 
 import org.overture.pog.pub.IPogAssistantFactory;
 import org.overture.pog.utility.PogAssistantFactory;
+import org.overture.pog.visitors.ILocaleExtractVisitor;
 import org.overture.pog.visitors.IVariableSubVisitor;
 
 /**
@@ -19,4 +20,10 @@ public class CmlPogAssistantFactory extends PogAssistantFactory implements
 		return new CmlVarSubVisitor();
 	}
 
+	@Override
+	public ILocaleExtractVisitor getLocaleExtractVisitor()
+	{
+		return new CmlLocaleExtractionVisitor();
+	}
+	
 }

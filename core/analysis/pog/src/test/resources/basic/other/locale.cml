@@ -1,0 +1,9 @@
+process Locale =
+begin
+
+state
+x : int := 1/0
+
+@ Skip
+
+end

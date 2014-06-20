@@ -25,6 +25,7 @@ package eu.compassresearch.core.analysis.pog.obligations;
 
 import java.util.List;
 
+import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AExplicitOperationDefinition;
 import org.overture.ast.definitions.AImplicitOperationDefinition;
 import org.overture.ast.expressions.AAndBooleanBinaryExp;
@@ -32,6 +33,7 @@ import org.overture.ast.expressions.AOrBooleanBinaryExp;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.statements.AErrorCase;
 import org.overture.pog.pub.IPOContextStack;
+import org.overture.pog.pub.IPogAssistantFactory;
 
 public class CmlOperationPostConditionObligation extends CmlProofObligation{
 	
@@ -39,16 +41,16 @@ public class CmlOperationPostConditionObligation extends CmlProofObligation{
 	private static final long serialVersionUID = 1L;
 
 	public CmlOperationPostConditionObligation(AExplicitOperationDefinition op,
-				IPOContextStack ctxt)
+				IPOContextStack ctxt, IPogAssistantFactory af) throws AnalysisException
 	{
-		super(op, CmlPOType.OP_POST_CONDITION, ctxt, op.getLocation());
+		super(op, CmlPOType.OP_POST_CONDITION, ctxt, op.getLocation(), af);
 		valuetree.setPredicate(ctxt.getPredWithContext(buildExp(op.getPrecondition(), op.getPostcondition(), null)));
 	}
 
 	public CmlOperationPostConditionObligation(AImplicitOperationDefinition op,
-				IPOContextStack ctxt)
+				IPOContextStack ctxt, IPogAssistantFactory af) throws AnalysisException
 	{
-		super(op, CmlPOType.OP_POST_CONDITION, ctxt, op.getLocation());
+		super(op, CmlPOType.OP_POST_CONDITION, ctxt, op.getLocation(), af);
 		valuetree.setPredicate(ctxt.getPredWithContext(buildExp(op.getPrecondition(), op.getPostcondition(), op.getErrors())));
 	}
 

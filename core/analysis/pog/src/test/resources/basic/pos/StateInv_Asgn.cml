@@ -1,0 +1,18 @@
+process Test =
+begin
+
+state 
+  n : nat := 0
+  m : nat := 0
+inv n = m 
+
+operations
+
+Op: nat ==> () 
+Op(a) ==
+    n := 1;
+    m := 2
+
+@ Skip
+
+end
