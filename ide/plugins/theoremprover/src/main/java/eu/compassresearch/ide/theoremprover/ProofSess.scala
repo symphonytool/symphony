@@ -172,7 +172,7 @@ class ProofSess(val poEDM: EditDocumentModel, val proj: ICmlProject, val pol: IP
               if (cst.is_failed) {
                 // Theorem was rejected by the theorem prover
                 // FIXME: Need new internal error status
-                pol.get(pt.poNum - 1).setStatus(POStatus.DISPROVED)
+                pol.get(pt.poNum - 1).setStatus(POStatus.INTERNAL_ERROR)
                 PogPluginRunner.redrawPos(proj, pol)
 
                 // Remove the failed proof goal

@@ -276,6 +276,9 @@ public class PoListView extends PoOverviewTableView {
 			if (data.getStatus() == POStatus.SUBMITTED)
 				imgPath = "icons/cview16/submitted.png";
 			
+			if (data.getStatus() == POStatus.INTERNAL_ERROR)
+				imgPath = "icons/cview16/error.png";
+			
 			return Activator.getImageDescriptor(imgPath).createImage();
 		}
 
