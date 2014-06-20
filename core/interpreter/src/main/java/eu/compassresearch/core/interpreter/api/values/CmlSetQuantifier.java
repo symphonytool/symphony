@@ -32,7 +32,7 @@ public class CmlSetQuantifier extends Value implements
 	@Override
 	public String toString()
 	{
-		return this.quantifierNames.toString();
+		return this.quantifierNames.toString()+" = "+this.valueTuples;
 	}
 
 	@Override

@@ -17,7 +17,13 @@ process P = begin
                repl(elems S) [|{s,c}|] s.n -> c.n ->Skip
              )
 
-@
+@ /*[] i in set {1,2} @ (
+                var := i ;
+                s.i -> c!var ->Skip
+             )
+*/
+
+
   test([1])     ;               -- trace is <s.1,c.1>
   var :=9999	;
   test([1,2])   ;               -- <s.1,c.1,s.2,c.2>

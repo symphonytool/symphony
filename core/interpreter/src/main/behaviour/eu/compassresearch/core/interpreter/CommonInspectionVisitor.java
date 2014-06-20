@@ -242,6 +242,26 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		}
 	}
 
+//	private static Context removeFirstDelayedContext( Context ctxt)
+//	{
+//		if(ctxt instanceof DelayedWriteContext)
+//		{
+//			return ctxt.outer;
+//		}else
+//		{
+//			do{
+//				if(ctxt.outer instanceof DelayedWriteContext)
+//				{
+//					DelayedWriteContext.setOuter(ctxt,ctxt.outer.outer);
+//					break;
+//				}
+//				
+//				ctxt = ctxt.outer;
+//			}while(ctxt!=null && ctxt.outer!=null);
+//			return ctxt;
+//		}
+//	}
+	
 	/**
 	 * Handles the external choice end rule
 	 * 
@@ -252,14 +272,21 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 			CmlBehaviour theChoosenOne, Context context)
 			throws AnalysisException
 	{
-		Context delayedCtxt = theChoosenOne.getNextState().second;
+		Context newCurrentContext = theChoosenOne.getNextState().second;
+		Context delayedCtxt = newCurrentContext;
 
-		if (delayedCtxt instanceof DelayedWriteContext)
+		//TODO some how it is not the outer one in issue 235
+		while (delayedCtxt != null)
 		{
-			((DelayedWriteContext) delayedCtxt).writeChanges();
+			if (delayedCtxt instanceof DelayedWriteContext)
+			{
+				((DelayedWriteContext) delayedCtxt).writeChanges();
+				break;
+			}
+			delayedCtxt = delayedCtxt.outer;
 		}
-
-		Context newCurrentContext = delayedCtxt;
+		
+//		newCurrentContext = removeFirstDelayedContext( newCurrentContext);
 
 		if (theChoosenOne.getLeftChild() != null)
 		{

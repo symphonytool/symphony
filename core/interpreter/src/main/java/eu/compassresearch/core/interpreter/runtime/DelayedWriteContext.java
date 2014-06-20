@@ -1,5 +1,6 @@
 package eu.compassresearch.core.interpreter.runtime;
 
+import java.lang.reflect.Field;
 import java.util.Map;
 
 import org.overture.ast.analysis.AnalysisException;
@@ -9,6 +10,7 @@ import org.overture.interpreter.assistant.IInterpreterAssistantFactory;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ValueException;
 import org.overture.interpreter.values.DelayedUpdatableWrapper;
+import org.overture.interpreter.values.ObjectValue;
 import org.overture.interpreter.values.UpdatableValue;
 import org.overture.interpreter.values.Value;
 import org.overture.typechecker.util.LexNameTokenMap;
@@ -27,15 +29,27 @@ public class DelayedWriteContext extends Context
 	private static final long serialVersionUID = 2677833973970244511L;
 
 	private Map<ILexNameToken, DelayedUpdatableWrapper> obtainedValues = new LexNameTokenMap<DelayedUpdatableWrapper>();
+	
+	boolean disable = false;
 
 	public DelayedWriteContext(IInterpreterAssistantFactory af,
 			ILexLocation location, String title, Context outer)
 	{
 		super(af, location, title, outer);
 	}
+	
+	protected void disable()
+	{
+		this.disable = true;
+	}
 
 	public Value wrap(Value val, Object name)
 	{
+		if(disable)
+		{
+			return val;
+		}
+		
 		if (name instanceof ILexNameToken)
 		{
 			Value v = obtainedValues.get((ILexNameToken) name);
@@ -89,6 +103,13 @@ public class DelayedWriteContext extends Context
 	{
 		return wrap(super.check(name), name);
 	}
+	
+	@Override
+	public ObjectValue getSelf()
+	{
+		// TODO Auto-generated method stub
+		return super.getSelf();
+	}
 
 	@Override
 	public String toString()
@@ -102,6 +123,31 @@ public class DelayedWriteContext extends Context
 		for (DelayedUpdatableWrapper val : obtainedValues.values())
 		{
 			val.set();
+		}
+		disable();
+	}
+
+	public static void setOuter(Context source, Context newOuter)
+	{
+		for(Field f :source.getClass().getFields())
+		{
+			if(f.getName().equals("outer"))
+			{
+				f.setAccessible(true);
+				try
+				{
+					f.set(source,new Context(newOuter.assistantFactory,newOuter.location,"", newOuter));
+					return;
+				} catch (IllegalArgumentException e)
+				{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IllegalAccessException e)
+				{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 		}
 	}
 }
