@@ -63,7 +63,7 @@ public class CmlSatisfiabilityObligation extends CmlProofObligation
 			List<PDefinition> invDefs, IPOContextStack ctxt,
 			IPogAssistantFactory af) throws AnalysisException
 	{
-		super(op, CmlPOType.OP_SATISFIABILITY, ctxt, op.getLocation());
+		super(op, CmlPOType.OP_SATISFIABILITY, ctxt, op.getLocation(),af);
 		this.af = af;
 		PExp predExp = buildPredicate(op, null, procState, invDefs);
 		valuetree.setPredicate(ctxt.getPredWithContext(predExp));
@@ -73,7 +73,7 @@ public class CmlSatisfiabilityObligation extends CmlProofObligation
 			PDefinition stateDefinition, IPOContextStack ctxt,
 			IPogAssistantFactory af) throws AnalysisException
 	{
-		super(op, CmlPOType.OP_SATISFIABILITY, ctxt, op.getLocation());
+		super(op, CmlPOType.OP_SATISFIABILITY, ctxt, op.getLocation(),af);
 		this.af = af;
 
 		/**
