@@ -32,9 +32,10 @@ public class GenPosDevHandler extends AbstractHandler {
 			// FIXME check for hol-utp session being run
 
 		} else {
-			MessageDialog.openInformation(
-					HandlerUtil.getActiveWorkbenchWindow(event).getShell(),
-					"Symphony", "Theorem Prover is not running.");
+			
+			boolean b = MessageDialog.openConfirm(HandlerUtil.getActiveWorkbenchWindow(event).getShell(),
+						 	 			"Symphony", "Isabelle is not running. Would you like to start it now?");
+			if (b) (new LaunchIsabelleHandler()).execute(event);
 			return null;
 		}
 

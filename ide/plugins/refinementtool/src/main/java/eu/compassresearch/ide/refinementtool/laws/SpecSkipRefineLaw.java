@@ -46,7 +46,13 @@ public class SpecSkipRefineLaw implements IRefineLaw {
 		
 		e.setRight(spec.getPostcondition().clone());
 		
-		CmlRefineProvisoObligation po = new CmlRefineProvisoObligation(e);
+		CmlRefineProvisoObligation po=null;
+		try {
+			po = new CmlRefineProvisoObligation(e);
+		} catch (AnalysisException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		
 		pos.add(po);
 		

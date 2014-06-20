@@ -209,6 +209,7 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		
 		if (!hasInvs) mainInv.append("true");
 		mainInv.append("|\"\n");
+		mainInv.append("declare state_inv_def [evalp]\n");
 		
 		//Obtain the main action string
 		String mainStr = ThmProcessUtil.isaProc + " \"" + ThmProcessUtil.isaMainAction + mainActStateStr + act.getAction().apply(thmStringVisitor, new ThmVarsContext(svars, new NodeNameList())) +  "`\"";

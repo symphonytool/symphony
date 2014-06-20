@@ -57,7 +57,13 @@ public class SpecPostRefineLaw implements IRefineLaw {
 		e.setRight(spec.getPrecondition().clone());
 		
 		
-		CmlRefineProvisoObligation po = new CmlRefineProvisoObligation(e);
+		CmlRefineProvisoObligation po=null;
+		try {
+			po = new CmlRefineProvisoObligation(e);
+		} catch (AnalysisException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
 		
 		pos.add(po);
 
