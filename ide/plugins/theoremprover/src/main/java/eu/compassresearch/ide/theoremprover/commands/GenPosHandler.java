@@ -12,10 +12,8 @@ import org.eclipse.ui.WorkbenchException;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 import eu.compassresearch.ide.core.resources.ICmlProject;
-import eu.compassresearch.ide.pog.POConstants;
 import eu.compassresearch.ide.pog.PogPluginUtils;
 import eu.compassresearch.ide.pog.view.PoListView;
-import eu.compassresearch.ide.theoremprover.ProofSess;
 import eu.compassresearch.ide.theoremprover.TPConstants;
 import eu.compassresearch.ide.theoremprover.TPPluginDoStuff;
 import eu.compassresearch.ide.theoremprover.TPPluginUtils;

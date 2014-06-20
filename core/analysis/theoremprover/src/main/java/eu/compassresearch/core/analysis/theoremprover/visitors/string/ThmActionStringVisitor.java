@@ -104,8 +104,9 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 			else if (p instanceof AWriteCommunicationParameter)
 			{
 				AWriteCommunicationParameter cp = (AWriteCommunicationParameter) p;
-				params.append("!");
+				params.append("!(");
 				params.append(cp.getExpression().apply(thmStringVisitor, vars));
+				params.append(")");
 				
 			}else
 			{

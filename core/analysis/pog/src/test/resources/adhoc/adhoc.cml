@@ -2,14 +2,17 @@ process Test =
 begin
 
 state 
-  m : map nat to nat:= {|->}
+  n : nat := 0
+  m : nat := 0
+inv n = m 
 
 operations
 
-Op(a: nat) r : nat
-frame rd m 
-pre a in set dom m
-post r = m(a)
+Op: nat ==> () 
+Op(a) ==
+  atomic (
+    n := n + a;
+    m := m + a)
 
 @ Skip
 

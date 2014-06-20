@@ -1,0 +1,10 @@
+process Test =
+begin
+
+operations
+op : int ==> real
+op (x) == return 10/x
+
+@ Skip
+
+end

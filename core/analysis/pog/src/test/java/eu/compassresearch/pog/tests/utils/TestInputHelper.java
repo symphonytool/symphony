@@ -2,6 +2,7 @@ package eu.compassresearch.pog.tests.utils;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -116,7 +117,7 @@ public class TestInputHelper {
 			sourceIn.setParagraphs(parser.source());
 			return true;
 		} catch (RecognitionException e) {
-			e.printStackTrace();
+			fail("Test failed while parsing");
 			return false;
 		}
 

@@ -28,23 +28,27 @@ import java.util.List;
 import java.util.Vector;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.definitions.AClassInvariantDefinition;
 import org.overture.ast.definitions.AImplicitOperationDefinition;
 import org.overture.ast.definitions.AInstanceVariableDefinition;
 import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.expressions.AAndBooleanBinaryExp;
+import org.overture.ast.expressions.AEqualsBinaryExp;
 import org.overture.ast.expressions.AExistsExp;
 import org.overture.ast.expressions.AImpliesBooleanBinaryExp;
 import org.overture.ast.expressions.AVariableExp;
 import org.overture.ast.expressions.PExp;
+import org.overture.ast.factory.AstExpressionFactory;
+import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.lex.LexKeywordToken;
 import org.overture.ast.lex.VDMToken;
 import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.patterns.APatternTypePair;
 import org.overture.ast.patterns.PMultipleBind;
+import org.overture.ast.statements.AExternalClause;
 import org.overture.pog.pub.IPOContextStack;
 import org.overture.pog.pub.IPogAssistantFactory;
 import org.overture.pog.utility.Substitution;
-
-//OR FROM COMPASS?
 
 public class CmlSatisfiabilityObligation extends CmlProofObligation
 {
@@ -55,12 +59,13 @@ public class CmlSatisfiabilityObligation extends CmlProofObligation
 
 	// FIXME collect only the frame variables
 	public CmlSatisfiabilityObligation(AImplicitOperationDefinition op,
-			List<AInstanceVariableDefinition> procState, IPOContextStack ctxt,
+			List<AInstanceVariableDefinition> procState,
+			List<PDefinition> invDefs, IPOContextStack ctxt,
 			IPogAssistantFactory af) throws AnalysisException
 	{
 		super(op, CmlPOType.OP_SATISFIABILITY, ctxt, op.getLocation());
 		this.af = af;
-		PExp predExp = buildPredicate(op, null, procState);
+		PExp predExp = buildPredicate(op, null, procState, invDefs);
 		valuetree.setPredicate(ctxt.getPredWithContext(predExp));
 	}
 
@@ -76,44 +81,51 @@ public class CmlSatisfiabilityObligation extends CmlProofObligation
 		 * state~, state) The state argument is either a Sigma(SL) or self(PP).
 		 */
 
-		PExp predExp = buildPredicate(op, stateDefinition, null);
+		PExp predExp = buildPredicate(op, stateDefinition, null, null);
 
 		valuetree.setPredicate(ctxt.getPredWithContext(predExp));
 		// valuetree.setContext(ctxt.getContextNodeList());
 	}
 
-	PExp stateInPost(List<AInstanceVariableDefinition> procState,
-			PExp post_exp, List<PMultipleBind> exists_binds)
-			throws AnalysisException
-	{
-		if (procState != null)
-		{
-			for (AInstanceVariableDefinition var : procState)
-			{
-				AVariableExp newVar = getVarExp(getUnique(var.getName().getName()));
-				Substitution sub = new Substitution(var.getName().clone(), newVar);
-				post_exp = post_exp.apply(af.getVarSubVisitor(), sub);
-				PMultipleBind pmb = getMultipleTypeBind(var.getType().clone(), newVar.getName().clone());
-				exists_binds.add(pmb);
-			}
-		}
-		return post_exp;
-	}
-
 	PExp buildPredicate(AImplicitOperationDefinition op,
 			PDefinition stateDefinition,
-			List<AInstanceVariableDefinition> procState)
-			throws AnalysisException
+			List<AInstanceVariableDefinition> procState,
+			List<PDefinition> invDefs) throws AnalysisException
 	{
 
 		PExp preApply = null;
-		PExp postApply = op.getPostcondition().clone();
+		PExp postApply = null;
+		postApply = op.getPostcondition().clone();
+
+		if (invDefs.size() > 0)
+		{
+			PExp inv_exp = ((AClassInvariantDefinition) invDefs.get(0)).getExpression().clone();
+
+			for (PDefinition d : invDefs.subList(1, invDefs.size()))
+			{
+				if (d instanceof AClassInvariantDefinition)
+				{
+					AClassInvariantDefinition i = (AClassInvariantDefinition) d;
+					inv_exp = AstExpressionFactory.newAAndBooleanBinaryExp(inv_exp, i.getExpression().clone());
+				}
+			}
 
 		if (op.getPredef() != null)
 		{
-			preApply = op.getPrecondition().clone();
+			//preApply = AstExpressionFactory.newAAndBooleanBinaryExp(INVARIANTS HERE, op.getPrecondition().clone());
+			postApply = AstExpressionFactory.newAAndBooleanBinaryExp(postApply.clone(), inv_exp.clone());
+				preApply = AstExpressionFactory.newAAndBooleanBinaryExp(op.getPrecondition().clone(), inv_exp.clone());
+			} else
+			{
+				preApply = inv_exp.clone();
+			}
 		}
-
+		else{
+			if (op.getPredef() !=null){
+				preApply = op.getPrecondition().clone();
+			}
+		}
+		
 		PExp mainExp;
 
 		// Operation Has a Result. Add it in the post condition.
@@ -132,7 +144,7 @@ public class CmlSatisfiabilityObligation extends CmlProofObligation
 				postArglist.add(patternToExp(res.getPattern()));
 
 				List<PMultipleBind> exists_binds = new LinkedList<PMultipleBind>();
-				postApply = stateInPost(procState, postApply,exists_binds);
+				postApply = stateInPost(procState, postApply, exists_binds, op);
 
 				exists_binds.add(getMultipleTypeBind(res.getType(), ip.getName()));
 
@@ -153,7 +165,7 @@ public class CmlSatisfiabilityObligation extends CmlProofObligation
 			AExistsExp exists_exp = new AExistsExp();
 
 			List<PMultipleBind> exists_binds = new LinkedList<PMultipleBind>();
-			postApply = stateInPost(procState, postApply, exists_binds);
+			postApply = stateInPost(procState, postApply, exists_binds, op);
 
 			exists_exp.setBindList(exists_binds);
 			exists_exp.setPredicate(postApply);
@@ -171,6 +183,54 @@ public class CmlSatisfiabilityObligation extends CmlProofObligation
 		{
 			return mainExp;
 		}
+	}
+
+	PExp stateInPost(List<AInstanceVariableDefinition> procState,
+			PExp post_exp, List<PMultipleBind> exists_binds,
+			AImplicitOperationDefinition op) throws AnalysisException
+	{
+		if (procState != null)
+		{
+			if (op.getExternals().size() > 0)
+			{
+				for (AInstanceVariableDefinition var : procState)
+				{
+					for (AExternalClause e : op.getExternals())
+					{
+						for (ILexNameToken i : e.getIdentifiers())
+						{
+							if (i.equals(var.getName()))
+							{
+								AVariableExp newVar = getVarExp(getUnique(var.getName().getName()));
+								Substitution sub = new Substitution(var.getName().clone(), newVar);
+								post_exp = post_exp.apply(af.getVarSubVisitor(), sub);
+
+								if (e.getMode().is(VDMToken.READ))
+								{ // x~ = x
+									AEqualsBinaryExp unchanged_exp = AstExpressionFactory.newAEqualsBinaryExp(getVarExp(var.getName().clone()), newVar.clone());
+									AAndBooleanBinaryExp and_exp = AstExpressionFactory.newAAndBooleanBinaryExp(post_exp, unchanged_exp);
+									post_exp = and_exp;
+								}
+								PMultipleBind pmb = getMultipleTypeBind(var.getType().clone(), newVar.getName().clone());
+								exists_binds.add(pmb);
+							}
+						}
+					}
+				}
+			} else
+			{
+
+				for (AInstanceVariableDefinition var : procState)
+				{
+					AVariableExp newVar = getVarExp(getUnique(var.getName().getName()));
+					Substitution sub = new Substitution(var.getName().clone(), newVar);
+					post_exp = post_exp.apply(af.getVarSubVisitor(), sub);
+					PMultipleBind pmb = getMultipleTypeBind(var.getType().clone(), newVar.getName().clone());
+					exists_binds.add(pmb);
+				}
+			}
+		}
+		return post_exp;
 	}
 
 }
