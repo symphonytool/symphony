@@ -12,6 +12,7 @@ public class MCCommEv implements MCNode {
 	private String name;
 	private LinkedList<MCPCommunicationParameter> parameters;
 	private MCPCMLType value;
+	private boolean literal;
 	
 	
 	public MCCommEv(String name, LinkedList<MCPCommunicationParameter> parameters, MCPCMLType value) {
@@ -94,6 +95,16 @@ public class MCCommEv implements MCNode {
 
 	public void setValue(MCPCMLType value) {
 		this.value = value;
+	}
+
+
+	public boolean isLiteral() {
+		return literal;
+	}
+
+
+	public void setLiteral(boolean literal) {
+		this.literal = literal;
 	}
 
 	

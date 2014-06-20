@@ -3,7 +3,9 @@ package eu.compassresearch.core.analysis.modelchecker.ast.auxiliary;
 import java.util.LinkedList;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPCommunicationParameter;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAChannelDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAVariableExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPVarsetExpression;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCVoidValue;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAChannelType;
@@ -44,6 +46,10 @@ public class MCLieInFact implements MCNode {
 			for (TypeValue typeValue : typeValues) {
 				//we need to generate many commev with the communicated values
 				MCCommEv ev = new MCCommEv(this.commEvent.getName(), this.commEvent.getParameters(), typeValue);
+				
+				if(!isConstantParameter()){
+					ev.setLiteral(true);
+				}
 				MCLieInFact realLieIn = new MCLieInFact(ev, setExp);
 				context.realLieInFacts.add(realLieIn);
 			}
@@ -78,7 +84,7 @@ public class MCLieInFact implements MCNode {
 			//this is detected by checking if the channel of the event is infinite. If so, then the term Channel(...)
 			//uses the variable value of commEvent
 			MCAChannelDefinition chanDef = context.getChannelDefinition(commEvent.getName());
-			if(chanDef.isInfiniteType()){
+			if(chanDef.isInfiniteType() || this.commEvent.isLiteral()){
 				lieIn.append(" :- ");
 				lieIn.append("Channel(\"");
 				lieIn.append(commEvent.getName());
@@ -95,27 +101,69 @@ public class MCLieInFact implements MCNode {
 	private LinkedList<TypeValue> getTypeValues(){
 		LinkedList<TypeValue> result = new LinkedList<TypeValue>();
 
-		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
-		MCAChannelDefinition chanDef = context.getChannelDefinition(this.commEvent.getName());
-		if(chanDef != null){
-			MCPCMLType chanType = chanDef.getType();
-			if(chanType instanceof MCAChannelType){
-				chanType = ((MCAChannelType) chanType).getType();
-				
-				//MCAIntNumericBasicType, MCANatNumericBasicType are infinite, so we let formula to instantiate them
-				
-				//we check if named types have been previously defined and get all possible values for them
-				if(chanType instanceof MCANamedInvariantType || chanType instanceof MCAProductType){ 
-					TypeManipulator typeManipulator = TypeManipulator.getInstance();
-					result = typeManipulator.getValues(chanType);
+		if(this.commEvent.getParameters().size() > 0){
+			//if parameter is a constant value
+			MCPCommunicationParameter param = this.commEvent.getParameters().getFirst();
+			if(!(param.getExpression() instanceof MCAVariableExp)){
+				SingleTypeValue typeValue = null;
+				if(param.getExpression() != null){
+					typeValue = new SingleTypeValue(param.getExpression().toFormula(MCNode.DEFAULT));
+				}else{
+					typeValue = new SingleTypeValue(param.toString());
+				}
+				result.add(typeValue);
+			}else{
+				NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
+				MCAChannelDefinition chanDef = context.getChannelDefinition(this.commEvent.getName());
+				if(chanDef != null){
+					MCPCMLType chanType = chanDef.getType();
+					if(chanType instanceof MCAChannelType){
+						chanType = ((MCAChannelType) chanType).getType();
+						
+						//MCAIntNumericBasicType, MCANatNumericBasicType are infinite, so we let formula to instantiate them
+						
+						//we check if named types have been previously defined and get all possible values for them
+						if(chanType instanceof MCANamedInvariantType || chanType instanceof MCAProductType){ 
+							TypeManipulator typeManipulator = TypeManipulator.getInstance();
+							result = typeManipulator.getValues(chanType);
+						}
+					}
+				}
+			}
+		}else{
+			NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
+			MCAChannelDefinition chanDef = context.getChannelDefinition(this.commEvent.getName());
+			if(chanDef != null){
+				MCPCMLType chanType = chanDef.getType();
+				if(chanType instanceof MCAChannelType){
+					chanType = ((MCAChannelType) chanType).getType();
+					
+					//MCAIntNumericBasicType, MCANatNumericBasicType are infinite, so we let formula to instantiate them
+					
+					//we check if named types have been previously defined and get all possible values for them
+					if(chanType instanceof MCANamedInvariantType || chanType instanceof MCAProductType){ 
+						TypeManipulator typeManipulator = TypeManipulator.getInstance();
+						result = typeManipulator.getValues(chanType);
+					}
 				}
 			}
 		}
 		
+		
 		return result;
 	}
 
-	
+	private boolean isConstantParameter(){
+		boolean result = false;
+		//if parameter is a constant value
+		MCPCommunicationParameter param = this.commEvent.getParameters().getFirst();
+		if(param.getExpression() != null){
+			if(!(param.getExpression() instanceof MCAVariableExp)){
+				result = true;
+			}
+		}
+		return result;
+	}
 	@Override
 	public boolean equals(Object obj) {
 		boolean result = false;
