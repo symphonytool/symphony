@@ -38,44 +38,52 @@ import eu.compassresearch.ide.core.resources.ICmlProject;
 import eu.compassresearch.ide.pog.Activator;
 import eu.compassresearch.ide.pog.PogPluginConstants;
 
-public class PoListView extends PoOverviewTableView {
+public class PoListView extends PoOverviewTableView
+{
 	List<INode> astUnderAnalysis;
-	
-	public void clearPos() {
+
+	public void clearPos()
+	{
 		this.project = null;
 		astUnderAnalysis = null;
 
-		display.asyncExec(new Runnable() {
+		display.asyncExec(new Runnable()
+		{
 
-			public void run() {
+			public void run()
+			{
 				viewer.setInput(new CmlProofObligationList());
 			}
 		});
 	}
 
-	public ICmlProject getProject() {
+	public ICmlProject getProject()
+	{
 		return (ICmlProject) project.getAdapter(ICmlProject.class);
 	}
 
-	public IProofObligation getCurrentlySelectedPO() {
+	public IProofObligation getCurrentlySelectedPO()
+	{
 		ISelection selection = viewer.getSelection();
 		Object obj = ((IStructuredSelection) selection).getFirstElement();
-		if (obj instanceof IProofObligation) {
+		if (obj instanceof IProofObligation)
+		{
 			return (IProofObligation) obj;
 		}
 		return null;
 	}
 
 	@Override
-	public void createPartControl(Composite parent) {
+	public void createPartControl(Composite parent)
+	{
 		viewer = new TableViewer(parent, SWT.FULL_SELECTION | SWT.H_SCROLL
 				| SWT.V_SCROLL);
 		// test setup columns...
 		TableLayout layout = new TableLayout();
-		layout.addColumnData(new ColumnWeightData(20, true));
-		layout.addColumnData(new ColumnWeightData(100, true));
+		layout.addColumnData(new ColumnWeightData(10, false));
+		layout.addColumnData(new ColumnWeightData(10, false));
 		layout.addColumnData(new ColumnWeightData(60, false));
-		layout.addColumnData(new ColumnWeightData(20, false));
+		layout.addColumnData(new ColumnWeightData(30, false));
 		viewer.getTable().setLayout(layout);
 		viewer.getTable().setLinesVisible(true);
 		viewer.getTable().setHeaderVisible(true);
@@ -85,18 +93,22 @@ public class PoListView extends PoOverviewTableView {
 		TableColumn column01 = new TableColumn(viewer.getTable(), SWT.LEFT);
 		column01.setText("No.");
 		column01.setToolTipText("No.");
+		column01.setResizable(false);
 
-		TableColumn column = new TableColumn(viewer.getTable(), SWT.LEFT);
-		column.setText("PO Name");
-		column.setToolTipText("PO Name");
+		TableColumn column02 = new TableColumn(viewer.getTable(), SWT.LAST_LINE_SELECTION);
+		column02.setText("Status");
+		column02.setToolTipText("Show status");
+		column02.setResizable(false);
 
-		TableColumn column2 = new TableColumn(viewer.getTable(), SWT.LEFT);
-		column2.setText("Type");
-		column2.setToolTipText("Show Type");
+		TableColumn column03 = new TableColumn(viewer.getTable(), SWT.LEFT);
+		column03.setText("PO Name");
+		column03.setToolTipText("PO Name");
+		column03.setResizable(false);
 
-		TableColumn column3 = new TableColumn(viewer.getTable(), SWT.CENTER);
-		column3.setText("Status");
-		column3.setToolTipText("Show status");
+		TableColumn column04 = new TableColumn(viewer.getTable(), SWT.LEFT);
+		column04.setText("Type");
+		column04.setToolTipText("Show Type");
+		column04.setResizable(false);
 
 		viewer.setContentProvider(new CmlPoViewContentProvider());
 		viewer.setLabelProvider(new CmlPoViewLabelProvider());
@@ -104,21 +116,23 @@ public class PoListView extends PoOverviewTableView {
 		makeActions();
 		super.hookDoubleClickAction();
 
-		viewer.addSelectionChangedListener(new ISelectionChangedListener() {
+		viewer.addSelectionChangedListener(new ISelectionChangedListener()
+		{
 
-			public void selectionChanged(SelectionChangedEvent event) {
+			public void selectionChanged(SelectionChangedEvent event)
+			{
 
-				Object first = ((IStructuredSelection) event.getSelection())
-						.getFirstElement();
-				if (first instanceof IProofObligation) {
-					try {
-						IViewPart v = getSite().getPage().showView(
-								PogPluginConstants.PO_DETAIL_VIEW);
+				Object first = ((IStructuredSelection) event.getSelection()).getFirstElement();
+				if (first instanceof IProofObligation)
+				{
+					try
+					{
+						IViewPart v = getSite().getPage().showView(PogPluginConstants.PO_DETAIL_VIEW);
 
 						if (v instanceof PoDetailView)
-							((PoDetailView) v).setDataList(project,
-									(IProofObligation) first);
-					} catch (PartInitException e) {
+							((PoDetailView) v).setDataList(project, (IProofObligation) first);
+					} catch (PartInitException e)
+					{
 
 						e.printStackTrace();
 					}
@@ -126,65 +140,70 @@ public class PoListView extends PoOverviewTableView {
 
 			}
 		});
-		
-	    // Core for supporting context menu in POG table
-	    MenuManager menuManager = new MenuManager();
-	    Menu menu = menuManager.createContextMenu(viewer.getTable());
-	    viewer.getTable().setMenu(menu);
-	    getSite().registerContextMenu(menuManager, viewer);
-	    getSite().setSelectionProvider(viewer);
+
+		// Core for supporting context menu in POG table
+		MenuManager menuManager = new MenuManager();
+		Menu menu = menuManager.createContextMenu(viewer.getTable());
+		viewer.getTable().setMenu(menu);
+		getSite().registerContextMenu(menuManager, viewer);
+		getSite().setSelectionProvider(viewer);
 	}
 
-	public void setDataList(ICmlProject project, final IProofObligationList pol) {
+	public void setDataList(ICmlProject project, final IProofObligationList pol)
+	{
 
 		this.project = (IVdmProject) project.getAdapter(IVdmProject.class);
-		display.asyncExec(new Runnable() {
+		display.asyncExec(new Runnable()
+		{
 
-			public void run() {
+			public void run()
+			{
 				if (viewer.getLabelProvider() instanceof CmlPoViewLabelProvider)
-					((CmlPoViewLabelProvider) viewer.getLabelProvider())
-							.resetCounter(); // this
-												// is
-												// needed
-												// to
-												// reset
-												// the
+					((CmlPoViewLabelProvider) viewer.getLabelProvider()).resetCounter(); // this
+																							// is
+																							// needed
+																							// to
+																							// reset
+																							// the
 				// numbering
 
 				viewer.setInput(pol);
-
-				for (TableColumn col : viewer.getTable().getColumns()) {
-					col.pack();
-				}
+//
+//				for (TableColumn col : viewer.getTable().getColumns())
+//				{
+//				//	col.pack();
+//				}
 			}
 
 		});
 
 	}
 
-	protected void makeActions() {
-		doubleClickAction = new Action() {
+	protected void makeActions()
+	{
+		doubleClickAction = new Action()
+		{
 			@Override
-			public void run() {
+			public void run()
+			{
 				ISelection selection = viewer.getSelection();
-				Object obj = ((IStructuredSelection) selection)
-						.getFirstElement();
-				if (obj instanceof IProofObligation) {
+				Object obj = ((IStructuredSelection) selection).getFirstElement();
+				if (obj instanceof IProofObligation)
+				{
 					gotoDefinition((IProofObligation) obj);
 					// showMessage(((ProofObligation) obj).toString());
 				}
 			}
 
-			private void gotoDefinition(IProofObligation po) {
+			private void gotoDefinition(IProofObligation po)
+			{
 				IFile file = project.findIFile(po.getLocation().getFile());
-				if (IVdmProject.externalFileContentType.isAssociatedWith(file
-						.getName())) {
-					EditorUtility.gotoLocation(
-							IPoviewerConstants.ExternalEditorId, file,
-							po.getLocation(), po.getName());
-				} else {
-					EditorUtility.gotoLocation(file, po.getLocation(),
-							po.getName());
+				if (IVdmProject.externalFileContentType.isAssociatedWith(file.getName()))
+				{
+					EditorUtility.gotoLocation(IPoviewerConstants.ExternalEditorId, file, po.getLocation(), po.getName());
+				} else
+				{
+					EditorUtility.gotoLocation(file, po.getLocation(), po.getName());
 				}
 
 			}
@@ -192,15 +211,20 @@ public class PoListView extends PoOverviewTableView {
 
 	}
 
-	class CmlPoViewContentProvider implements IStructuredContentProvider {
-		public void inputChanged(Viewer v, Object oldInput, Object newInput) {
+	class CmlPoViewContentProvider implements IStructuredContentProvider
+	{
+		public void inputChanged(Viewer v, Object oldInput, Object newInput)
+		{
 		}
 
-		public void dispose() {
+		public void dispose()
+		{
 		}
 
-		public Object[] getElements(Object inputElement) {
-			if (inputElement instanceof List) {
+		public Object[] getElements(Object inputElement)
+		{
+			if (inputElement instanceof List)
+			{
 				@SuppressWarnings("rawtypes")
 				List list = (List) inputElement;
 				return list.toArray();
@@ -211,58 +235,69 @@ public class PoListView extends PoOverviewTableView {
 	}
 
 	class CmlPoViewLabelProvider extends LabelProvider implements
-			ITableLabelProvider {
+			ITableLabelProvider
+	{
 
-		public void resetCounter() {
+		public void resetCounter()
+		{
 			count = 0;
 		}
 
 		private Integer count = 0;
 
-		public String getColumnText(Object element, int columnIndex) {
+		public String getColumnText(Object element, int columnIndex)
+		{
 			IProofObligation data = (IProofObligation) element;
 			String columnText;
-			switch (columnIndex) {
-			case 0:
-				count++;
-				columnText = new Integer(data.getNumber()).toString();// count.toString();
-				break;
-			case 1:
-				if (!data.getLocation().getFile().toString().equals(""))
-					columnText = data.getLocation().getFile().getName() + " - "
-							+ data.getName();
-				else
-					columnText = data.getName();
-				break;
-			case 2:
-				columnText = handlePoKind(data);
-				break;
-			case 3:
-				columnText = "";// data.status.toString();
-				break;
-			default:
-				columnText = "not set";
+			switch (columnIndex)
+			{
+				case 0:
+					count++;
+					columnText = new Integer(data.getNumber()).toString();// count.toString();
+					break;
+				case 2:
+					if (!data.getLocation().getFile().toString().equals(""))
+					{
+						columnText = data.getLocation().getFile().getName()
+								+ " - " + data.getName();
+//						columnText = columnText.substring(0, 20);
+					} else
+						columnText = data.getName();//.substring(0, 20);
+					break;
+				case 3:
+					columnText = handlePoKind(data);
+					break;
+				case 1:
+					columnText = "";// data.status.toString();
+					break;
+				default:
+					columnText = "not set";
 			}
 			return columnText;
 
 		}
 
-		private String handlePoKind(IProofObligation data) {
-			if (data instanceof CmlProofObligation) {
+		private String handlePoKind(IProofObligation data)
+		{
+			if (data instanceof CmlProofObligation)
+			{
 				return ((CmlProofObligation) data).cmltype.toString();
 			}
 			return data.getKind().toString();
 		}
 
-		public Image getColumnImage(Object obj, int index) {
-			if (index == 3) {
+		public Image getColumnImage(Object obj, int index)
+		{
+			if (index == 1)
+			{
 				return getImage(obj);
 			}
 			return null;
 		}
 
 		@Override
-		public Image getImage(Object obj) {
+		public Image getImage(Object obj)
+		{
 			IProofObligation data = (IProofObligation) obj;
 
 			String imgPath = "icons/cview16/unproved.png";
@@ -275,23 +310,23 @@ public class PoListView extends PoOverviewTableView {
 
 			if (data.getStatus() == POStatus.SUBMITTED)
 				imgPath = "icons/cview16/submitted.png";
-			
+
 			if (data.getStatus() == POStatus.INTERNAL_ERROR)
 				imgPath = "icons/cview16/error.png";
-			
+
 			return Activator.getImageDescriptor(imgPath).createImage();
 		}
 
 	}
 
-	public void setAstUnderAnalysis(List<INode> ast) {
+	public void setAstUnderAnalysis(List<INode> ast)
+	{
 		this.astUnderAnalysis = ast;
 	}
 
-	public List<INode> getAstUnderAnalysis() {
+	public List<INode> getAstUnderAnalysis()
+	{
 		return astUnderAnalysis;
-	}	
-	
-	
+	}
 
 }
