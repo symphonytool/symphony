@@ -10,7 +10,11 @@ import org.junit.Test;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.node.INode;
 import org.overture.pog.pub.IPogAssistantFactory;
+import org.overture.pog.pub.IProofObligation;
+import org.overture.pog.pub.IProofObligationList;
+import org.overture.pog.pub.ProofObligationGenerator;
 
+import eu.compassresearch.core.analysis.pog.utility.PogPubUtil;
 import eu.compassresearch.core.analysis.pog.visitors.CmlPogAssistantFactory;
 import eu.compassresearch.pog.tests.utils.TestInputHelper;
 
@@ -26,9 +30,10 @@ public class LocaleExtractTest
 	{
 		List<INode> ast = TestInputHelper.getAstFromName(testmodel);
 		List<String> actual = new LinkedList<String>();
-		for (INode n : ast)
+		IProofObligationList ipol = PogPubUtil.generateProofObligations(ast);
+		for (IProofObligation ipo  : ipol)
 		{
-			actual.add(n.apply(af.getLocaleExtractVisitor()));
+			actual.add(ipo.getLocale());
 		}
 		List<String> expected = new LinkedList<String>();
 		expected.add(result);
