@@ -21,6 +21,10 @@ object TPListener {
     var flag: Boolean = false
     for (p <- JavaConversions.asScalaIterable(poList)) {
       // FIXME: Add code to update POs from the theory
+      if (ithy.thmIsRejected("po" + p.getUniqueName())) {
+        p.setStatus(POStatus.DISPROVED);
+        // FIXME: Update the status to failed
+      } else
       if (ithy.thmIsProved("po" + p.getUniqueName())) {
         p.setStatus(POStatus.PROVED);
         println(p.getName() + " is proved!");

@@ -13,6 +13,7 @@ import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.patterns.PPattern;
+import org.overture.ast.types.PType;
 
 import eu.compassresearch.ast.actions.SReplicatedActionBase;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
@@ -89,6 +90,11 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		String mainActStateStr = " = `";
 		AActionClassDefinition actdef = (AActionClassDefinition) act.getActionDefinition();
 		
+		// Create a definition which accumulates all state invariants
+		StringBuffer mainInv = new StringBuffer();
+		boolean hasInvs = false;
+		mainInv.append("definition \"state_inv = |");
+				
 		
 		for (PDefinition pdef : actdef.getDefinitions())
 		{
@@ -109,13 +115,21 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 			//Also generate the invariant functions...
 			LinkedList<String> initExprs = new LinkedList<String>();
 			NodeNameList initExprNodeDeps = new NodeNameList();
-			for (PDefinition pdef : actdef.getDefinitions())
+			for (Iterator<PDefinition> itr = actdef.getDefinitions().iterator(); itr.hasNext(); )
 			{
+				PDefinition pdef = itr.next();
 				if (pdef instanceof AInstanceVariableDefinition)
 				{
 					AInstanceVariableDefinition sdef = (AInstanceVariableDefinition) pdef;
 					//Get the state variable name
 					ILexNameToken sName = pdef.getName();
+					PType sType = pdef.getType();
+					
+					if (hasInvs) mainInv.append(" and "); else hasInvs = true; 
+					mainInv.append( "($" + sName.toString() + ")" 
+							      + ThmExprUtil.hasType 
+							      + sType.apply(thmStringVisitor, new ThmVarsContext(svars, new NodeNameList())));
+					
 					//if the variable is initialised straight away, add it to the initExprs string
 					//and get the dependencies
 					initExprs.add(sName.getName() + ThmProcessUtil.assign + sdef.getExpression().apply(thmStringVisitor,new ThmVarsContext(svars, new NodeNameList()))); //ThmExprUtil.getIsabelleExprStr(svars, new NodeNameList(), st.getExpression()));
@@ -184,10 +198,6 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 			actsb.append("\n");
 		}
 		
-		// Create a definition which accumulates all state invariants
-		StringBuffer mainInv = new StringBuffer();
-		boolean hasInvs = false;
-		mainInv.append("definition \"state_inv = |");
 		
 		for (ThmNode tn : actTnl) {
 			if (tn.getArtifact() instanceof ThmStateInv) {
@@ -204,7 +214,7 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		String mainStr = ThmProcessUtil.isaProc + " \"" + ThmProcessUtil.isaMainAction + mainActStateStr + act.getAction().apply(thmStringVisitor, new ThmVarsContext(svars, new NodeNameList())) +  "`\"";
 		
 		//Finally construct the process String
-		return (stateString + "\n" + actsb.toString() + mainInv.toString() + "\n" + mainStr);
+		return (stateString + "\n" + actsb.toString() + "\n" + mainInv.toString() + "\n" + mainStr);
 	}
 	
 	
