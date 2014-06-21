@@ -47,6 +47,8 @@ import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.values.ProcessObjectValue;
+import eu.compassresearch.core.interpreter.runtime.DelayedWriteContext;
+import eu.compassresearch.core.interpreter.runtime.DelayedWriteObjectContext;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
 public class StatementInspectionVisitor extends AbstractInspectionVisitor
@@ -209,7 +211,29 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 			{
 				// first find the operation value in the context
 				OperationValue opVal = (OperationValue) question.lookup(node.getName()).deref();
-
+				
+				OperationValue op =opVal;
+				DelayedWriteContext delayedCtxt = null;
+				Context tmp = question;
+				
+				while(tmp!=null)
+				{
+					if(tmp instanceof DelayedWriteContext)
+					{
+						delayedCtxt = (DelayedWriteContext) tmp;
+						break;
+					}
+					tmp = tmp.outer;
+				}
+				
+				
+				if(delayedCtxt!=null)
+				{
+				// copy the op and modify self to write protected mode
+					op = (OperationValue) opVal.clone();
+					op.setSelf(new DelayedWriteObjectContext(opVal.getSelf(),delayedCtxt));
+				}
+				
 				// evaluate all the arguments
 				ValueList argValues = new ValueList();
 				for (PExp arg : node.getArgs())
@@ -221,7 +245,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 				// that TransactionValues pass the local "new" value to the far end.
 				// ValueList constValues = argValues.getConstant();
 
-				opVal.eval(node.getLocation(), argValues, question);
+				op.eval(node.getLocation(), argValues, question);
 
 				return new Pair<INode, Context>(CmlAstFactory.newASkipAction(node.getLocation()), question);
 			}

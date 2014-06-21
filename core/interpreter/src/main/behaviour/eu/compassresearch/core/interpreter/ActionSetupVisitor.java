@@ -79,7 +79,7 @@ class ActionSetupVisitor extends CommonSetupVisitor
 		return node.getStatement().apply(this, question);
 	}
 
-	/*
+	/**
 	 * Sequential Composition
 	 */
 	@Override
@@ -175,7 +175,7 @@ class ActionSetupVisitor extends CommonSetupVisitor
 		return setupTimedOperator(node, node.getLeft(), NamespaceUtility.getEndsByTimeName(), question);
 	}
 
-	/*
+	/**
 	 * Timeout
 	 */
 	@Override
@@ -185,10 +185,9 @@ class ActionSetupVisitor extends CommonSetupVisitor
 		return setupTimedOperator(node, node.getLeft(), NamespaceUtility.getStartTimeName(), question);
 	}
 
-	/*
+	/**
 	 * Untimed timeout
 	 */
-
 	@Override
 	public Pair<INode, Context> caseAUntimedTimeoutAction(
 			AUntimedTimeoutAction node, Context question)
@@ -198,10 +197,9 @@ class ActionSetupVisitor extends CommonSetupVisitor
 		return caseAUntimedTimeout(node, node.getLeft(), question);
 	}
 
-	/*
+	/**
 	 * Timed Interrupt
 	 */
-
 	@Override
 	public Pair<INode, Context> caseATimedInterruptAction(
 			ATimedInterruptAction node, Context question)
@@ -210,10 +208,9 @@ class ActionSetupVisitor extends CommonSetupVisitor
 		return caseATimedInterrupt(node, node.getLeft(), question);
 	}
 
-	/*
+	/**
 	 * Replicated actions
 	 */
-
 	@Override
 	public Pair<INode, Context> caseASequentialCompositionReplicatedAction(
 			final ASequentialCompositionReplicatedAction node, Context question)
@@ -228,11 +225,6 @@ class ActionSetupVisitor extends CommonSetupVisitor
 				return new ASequentialCompositionAction(node.getLocation(), node.getReplicatedAction().clone(), node.clone());
 			}
 
-			@Override
-			public INode createLastReplication()
-			{
-				return new ASequentialCompositionAction(node.getLocation(), node.getReplicatedAction().clone(), node.getReplicatedAction().clone());
-			}
 		}, question);
 
 		return res.first.apply(ActionSetupVisitor.this, res.second);
@@ -257,12 +249,6 @@ class ActionSetupVisitor extends CommonSetupVisitor
 				return new AInterleavingParallelAction(node.getLocation(), node.getReplicatedAction().clone(), node.getNamesetExpression().clone(), node.getNamesetExpression().clone(), node.clone());
 			}
 
-			@Override
-			public INode createLastReplication()
-			{
-				// TODO The i'th namesetexpression should be evaluated in the i'th context
-				return new AInterleavingParallelAction(node.getLocation(), node.getReplicatedAction().clone(), node.getNamesetExpression().clone(), node.getNamesetExpression().clone(), node.getReplicatedAction().clone());
-			}
 		}, question);
 	}
 
@@ -280,13 +266,6 @@ class ActionSetupVisitor extends CommonSetupVisitor
 			{
 				// TODO The i'th namesetexpression should be evaluated in the i'th context
 				return new AGeneralisedParallelismParallelAction(node.getLocation(), node.getReplicatedAction().clone(), node.getNamesetExpression(), node.getNamesetExpression(), node.clone(), node.getChansetExpression().clone());
-			}
-
-			@Override
-			public INode createLastReplication()
-			{
-				// TODO The i'th namesetexpression should be evaluated in the i'th context
-				return new AGeneralisedParallelismParallelAction(node.getLocation(), node.getReplicatedAction().clone(), node.getNamesetExpression(), node.getNamesetExpression(), node.getReplicatedAction().clone(), node.getChansetExpression().clone());
 			}
 
 		}, question);
@@ -307,20 +286,14 @@ class ActionSetupVisitor extends CommonSetupVisitor
 			}
 
 			@Override
-			public INode createLastReplication()
+			INode createTerminator()
 			{
-				return new AExternalChoiceAction(node.getLocation(), node.getReplicatedAction().clone(), node.getReplicatedAction().clone());
+				return new AStopAction(node.getLocation());
 			}
 
 		}, question);
 
-		if (ret.first instanceof ASkipAction)
-		{
-			return new Pair<INode, Context>(new AStopAction(node.getLocation()), question);
-		} else
-		{
-			return ret;
-		}
+		return ret;
 	}
 
 	@Override
@@ -336,12 +309,6 @@ class ActionSetupVisitor extends CommonSetupVisitor
 			public INode createNextReplication()
 			{
 				return new AInternalChoiceAction(node.getLocation(), node.getReplicatedAction().clone(), node.clone());
-			}
-
-			@Override
-			public INode createLastReplication()
-			{
-				return new AInternalChoiceAction(node.getLocation(), node.getReplicatedAction().clone(), node.getReplicatedAction().clone());
 			}
 
 		}, question);
@@ -360,6 +327,7 @@ class ActionSetupVisitor extends CommonSetupVisitor
 	{
 		Context context = CmlContextFactory.newContext(node.getLocation(), "Sequence for loop context", question);
 		Value v = node.getExp().apply(cmlExpressionVisitor, question);
+		v = v.deepCopy();// in case this was a lookup
 		context.putNew(new NameValuePair(NamespaceUtility.getSeqForName(), v));
 
 		// put the front element in scope of the action
