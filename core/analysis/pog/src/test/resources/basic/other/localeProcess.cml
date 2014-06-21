@@ -1,0 +1,9 @@
+process Locale =
+begin
+
+state
+x : real := 1/0
+
+@ Skip
+
+end

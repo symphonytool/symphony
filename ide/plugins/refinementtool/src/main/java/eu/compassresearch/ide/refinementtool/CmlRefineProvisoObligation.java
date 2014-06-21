@@ -10,19 +10,20 @@ import org.overture.pog.pub.IPOContextStack;
 
 import eu.compassresearch.core.analysis.pog.obligations.CmlPOType;
 import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligation;
+import eu.compassresearch.core.analysis.pog.visitors.CmlPogAssistantFactory;
 
 public class CmlRefineProvisoObligation extends CmlProofObligation {
 
 	PExp proviso;
 	
 	public CmlRefineProvisoObligation(INode node, CmlPOType kind,
-			IPOContextStack ctxt, ILexLocation location) {
-		super(node, kind, ctxt, location);
+			IPOContextStack ctxt, ILexLocation location) throws AnalysisException {
+		super(node, kind, ctxt, location, new CmlPogAssistantFactory());
 		// TODO Auto-generated constructor stub
 	}
 	
-	public CmlRefineProvisoObligation(PExp p) {
-		super(null, CmlPOType.REFINE_PROVISO, new POContextStack(), null);
+	public CmlRefineProvisoObligation(PExp p) throws AnalysisException {
+		super(null, CmlPOType.REFINE_PROVISO, new POContextStack(), null, new CmlPogAssistantFactory());
 		proviso = p;
 		
 	}
