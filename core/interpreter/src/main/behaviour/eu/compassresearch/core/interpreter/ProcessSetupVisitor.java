@@ -3,9 +3,7 @@ package eu.compassresearch.core.interpreter;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
-import org.overture.interpreter.values.NameValuePairList;
 
-import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.AStopAction;
 import eu.compassresearch.ast.process.AAlphabetisedParallelismProcess;
 import eu.compassresearch.ast.process.AAlphabetisedParallelismReplicatedProcess;
@@ -29,8 +27,6 @@ import eu.compassresearch.ast.process.ATimeoutProcess;
 import eu.compassresearch.ast.process.AUntimedTimeoutProcess;
 import eu.compassresearch.core.interpreter.api.CmlBehaviorFactory;
 import eu.compassresearch.core.interpreter.api.CmlBehaviour;
-import eu.compassresearch.core.interpreter.api.values.ChannelNameSetValue;
-import eu.compassresearch.core.interpreter.api.values.CmlSetQuantifier;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
 @SuppressWarnings("deprecation")
@@ -139,11 +135,6 @@ class ProcessSetupVisitor extends CommonSetupVisitor
 				return new ASequentialCompositionProcess(node.getLocation(), node.getReplicatedProcess().clone(), node.clone());
 			}
 
-			@Override
-			public INode createLastReplication()
-			{
-				return new ASequentialCompositionProcess(node.getLocation(), node.getReplicatedProcess().clone(), node.getReplicatedProcess().clone());
-			}
 		}, question);
 
 		return res.first.apply(ProcessSetupVisitor.this, res.second);
@@ -164,20 +155,14 @@ class ProcessSetupVisitor extends CommonSetupVisitor
 			}
 
 			@Override
-			public INode createLastReplication()
+			INode createTerminator()
 			{
-				return new AExternalChoiceProcess(node.getLocation(), node.getReplicatedProcess().clone(), node.getReplicatedProcess().clone());
+				return new AStopAction(node.getLocation());
 			}
 
 		}, question);
 
-		if (ret.first instanceof ASkipAction)
-		{
-			return new Pair<INode, Context>(new AStopAction(node.getLocation()), question);
-		} else
-		{
-			return ret;
-		}
+		return ret;
 	}
 
 	@Override
@@ -193,12 +178,6 @@ class ProcessSetupVisitor extends CommonSetupVisitor
 			public INode createNextReplication()
 			{
 				return new AGeneralisedParallelismProcess(node.getLocation(), node.getReplicatedProcess().clone(), node.getChansetExpression().clone(), node.clone());
-			}
-
-			@Override
-			public INode createLastReplication()
-			{
-				return new AGeneralisedParallelismProcess(node.getLocation(), node.getReplicatedProcess().clone(), node.getChansetExpression().clone(), node.getReplicatedProcess().clone());
 			}
 
 		}, question);
@@ -219,12 +198,6 @@ class ProcessSetupVisitor extends CommonSetupVisitor
 				return new AInterleavingProcess(node.getLocation(), node.getReplicatedProcess().clone(), node.clone());
 			}
 
-			@Override
-			public INode createLastReplication()
-			{
-				return new AInterleavingProcess(node.getLocation(), node.getReplicatedProcess().clone(), node.getReplicatedProcess().clone());
-			}
-
 		}, question);
 	}
 
@@ -243,55 +216,6 @@ class ProcessSetupVisitor extends CommonSetupVisitor
 				return new AAlphabetisedParallelismProcess(node.getLocation(), node.getReplicatedProcess().clone(), node.getChansetExpression().clone(), node.getChansetExpression().clone(), node.clone());
 			}
 
-			@Override
-			public INode createLastReplication()
-			{
-				return new AAlphabetisedParallelismProcess(node.getLocation(), node.getReplicatedProcess().clone(), node.getChansetExpression().clone(), node.getChansetExpression().clone(), node.getReplicatedProcess().clone());
-			}
-
-			@Override
-			Context createOperatorContext(INode node, CmlSetQuantifier ql,
-					Context question)
-			{
-				/*
-				 * We need to override this because the alphabetised operator expect the left and right channelsets to
-				 * be pre-calculated.
-				 */
-				// first we retreive the already calculated child contexts
-				Pair<Context, Context> createdChildContexts = ProcessSetupVisitor.this.getChildContexts(question);
-				AAlphabetisedParallelismProcess actualNode = (AAlphabetisedParallelismProcess) node;
-				// create the new context and start to calculate the left and right channelsets
-				Context alphabetisedOperatorContext = CmlContextFactory.newContext(question.location, "Alphabetised parallelism precalcualted channelsets", question);
-				try
-				{
-					// the left channelset is always calculated from the defined channelset in the operator
-					// evaluated in the i'th context
-					ChannelNameSetValue leftChanset = (ChannelNameSetValue) eval(actualNode.getLeftChansetExpression(), createdChildContexts.first);
-					alphabetisedOperatorContext.put(NamespaceUtility.getLeftPrecalculatedChannetSet(), leftChanset);
-					// The right is also evaluated as the left but more channels might be added as described below
-					ChannelNameSetValue rightChanset = (ChannelNameSetValue) eval(actualNode.getRightChansetExpression(), createdChildContexts.second);
-					// now we join the rest of the values to the channelset to enable any proceesses further down to be
-					// able
-					// to independently participte in channel events
-					if (actualNode.getRight() instanceof AAlphabetisedParallelismReplicatedProcess)
-					{
-						for (NameValuePairList nvpl : ql)
-						{
-							Context nextChildContext = createReplicationChildContext(nvpl, actualNode, question);
-							rightChanset.addAll((ChannelNameSetValue) eval(actualNode.getRightChansetExpression(), nextChildContext));
-						}
-					}
-
-					alphabetisedOperatorContext.put(NamespaceUtility.getRightPrecalculatedChannetSet(), rightChanset);
-
-				} catch (AnalysisException e)
-				{
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-
-				return alphabetisedOperatorContext;
-			}
 		}, question);
 	}
 
@@ -307,12 +231,6 @@ class ProcessSetupVisitor extends CommonSetupVisitor
 			public INode createNextReplication()
 			{
 				return new AInternalChoiceProcess(node.getLocation(), node.getReplicatedProcess().clone(), node.clone());
-			}
-
-			@Override
-			public INode createLastReplication()
-			{
-				return new AInternalChoiceProcess(node.getLocation(), node.getReplicatedProcess().clone(), node.getReplicatedProcess().clone());
 			}
 
 		}, question);

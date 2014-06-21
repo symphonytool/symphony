@@ -1,3 +1,22 @@
+/*
+	[]
+	/\
+  S   [] -self
+  
+     []
+	 /\
+	S  S
+	
+--------------------------------------
+	[]
+	/\
+  S   []
+  
+	[]
+	/\
+   S   Stop /Skip - termination
+*/
+
 /*channels
 	a:nat
 
@@ -6,7 +25,7 @@ begin
 
 actions
  
-  sendNumber =  ([]i in set {1} @  a.1->Skip;sendNumber;sendNumber)
+  sendNumber =  ([]i in set {1} @  sendNumber;Skip)
   
 @ sendNumber 
 end*/
@@ -16,6 +35,7 @@ end*/
 
 channels
 a:nat
+
 
 process Test =
 begin
@@ -29,8 +49,10 @@ op:nat ==>()
 op(i)== numbersToSend := numbersToSend\{i}
 
 actions
- 
-  sendNumber =  ([]i in set numbersToSend @  a.i->(op(i));loop)
+ //sendNumber =  ([]i in set numbersToSend @  a.i->op(i);loop)
+ //sendNumber =  ([]i in set numbersToSend @  a.i->op(i));loop
+  sendNumber =  ([]i in set numbersToSend @  a.i->(op(i);loop))//This fails - (op(i));loop)
    loop =  (sendNumber [] ([card numbersToSend =0]&Skip))  
-@ loop 
+@ //a.1->op(1);loop [] a.2->op(2);loop
+loop 
 end

@@ -87,6 +87,13 @@ public class NamespaceUtility
 	{
 		// The name of the value holding the state of the remaining values of the replication
 		ILexLocation loc = LocationExtractor.extractLocation(node);
-		return new CmlLexNameToken("|REPLICATION|", loc.toShortString(), loc);
+		return new CmlLexNameToken("|REPLICATION|", "|REPLICATION_QL|"+loc.toShortString(), loc);
+	}
+	
+	public static ILexNameToken getReplicationNodeReminderName(INode node)
+	{
+		// The name of the value holding the state of the remaining values of the replication
+		ILexLocation loc = LocationExtractor.extractLocation(node);
+		return new CmlLexNameToken("|REPLICATION_QL_REMINDER|", "|REPLICATION_QL_REMINDER|"+loc.toShortString(), loc);
 	}
 }
