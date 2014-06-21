@@ -1,0 +1,27 @@
+values n = 100 
+
+types
+  PIPE = nat
+    inv p == p in set {1,...,n}
+
+channels sieve: PIPE * PIPE
+
+process Sieve1 =
+begin
+  state i: PIPE := 1
+@
+  while i<n do
+    sieve.1!i -> Skip
+end
+
+process Sieve = i: int @
+begin @
+  sieve.(i-1)?p -> 
+  while true do
+    sieve.(i-1)?next ->
+      if (next mod p) <> 0 then
+        sieve.i!next -> Skip
+end
+
+process Primes = 
+  [|{|seive.(i-1), seive.i|}|] 

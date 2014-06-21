@@ -1,0 +1,21 @@
+channels 
+  inch,outch: nat
+  c,h: nat
+  here
+
+process Primes =
+begin
+  actions
+    Filter = p: nat @
+      mu X @
+        ( inch?x ->
+            if x mod p <> 0
+            then
+              outch!p -> X )
+            
+    Sieve = p: nat @
+      c!p ->
+        ( (here->Sieve(p+1))[[c <- h]] [|{|h|}|] (Filter(p))[[inch <- h,outch <- c]] ) \\ {|h|}
+@
+  Sieve(2)
+end
