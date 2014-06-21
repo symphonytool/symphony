@@ -2,17 +2,19 @@ process Test =
 begin
 
 state 
-  n : nat := 0
-  m : nat := 0
-inv n = m 
+ x: nat :=0
+inv x =5
 
 operations
 
-Op: nat ==> () 
-Op(a) ==
-  atomic (
-    n := n + a;
-    m := m + a)
+op1 ()
+post x = 1
+
+Op2: () ==> () 
+Op2() ==
+	op1();
+	x :=2
+
 
 @ Skip
 
