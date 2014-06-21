@@ -45,7 +45,7 @@ public class CmlRefineProvisoObligation extends CmlProofObligation {
 	}
 
 	@Override
-	public String getValue() {
+	public String getFullPredString() {
 		try {
 			String s = proviso.apply(new CmlPExprPrettyPrinter()); 
 			return s;

@@ -20,8 +20,16 @@
 			<view
                id="eu.compassresearch.ide.ui.CmlNavigator"
                minimized="false"
-               ratio="0.25"
+               ratio="0.20"
                relationship="left"
+               relative="org.eclipse.ui.editorss"
+               visible="true">
+			</view>
+				<view
+               id="eu.compassresearch.ide.pog.PoDetail"
+               minimized="false"
+               ratio="0.70"
+               relationship="bottom"
                relative="org.eclipse.ui.editorss"
                visible="true">
 			</view>
@@ -34,12 +42,14 @@
                visible="true">
 			</view>
 			<view
-               id="eu.compassresearch.ide.pog.PoDetail"
-               minimized="false"
-               ratio="0.50"
-               relationship="bottom"
-               relative="org.eclipse.ui.editorss"
-               visible="true">
+               id="org.eclipse.ui.console.ConsoleView"
+		       relative="eu.compassresearch.ide.pog.PoDetail" 
+               relationship="stack">
+			</view>
+			<view
+               id="org.eclipse.ui.views.ProblemView"
+		       relative="eu.compassresearch.ide.pog.PoDetail" 
+               relationship="stack">
 			</view>
 		</perspectiveExtension>
 	</extension>
@@ -69,16 +79,22 @@
 
 
 	</extension>
-	<!--extension
-      point="org.eclipse.ui.perspectives">
-		<perspective
-         class="org.overture.ide.plugins.poviewer.ProofObligationPerspectiveFactory"
-         icon="icons/cview16/pog_gen.png"
-         id="org.overture.ide.plugins.poviewer.perspective"
-         name="Proof Obligation">
-		</perspective>
-	</extension-->
 
+  <extension
+        point="org.eclipse.ui.preferencePages">
+     <page
+           category="eu.compassresearch.ide.ui.compass"
+           class="eu.compassresearch.ide.pog.PogPrefPage1"
+           id="eu.compassresearch.ide.pog.pref1"
+           name="POG">
+     </page>
+  </extension>
+  <extension
+        point="org.eclipse.core.runtime.preferences">
+     <initializer
+           class="eu.compassresearch.ide.pog.PogPrefInitializer">
+     </initializer>
+  </extension>
 
 
 
@@ -103,7 +119,7 @@
               label="CML-POG">
 				<command
             commandId="eu.compassresearch.ide.pog.generatepos"
-            label="Quick check Proof Obligations"
+            label="Inspect Proof Obligations"
             style="push"
             tooltip="Generate and inspect temporary POs for selected Project">
 				</command>

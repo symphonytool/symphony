@@ -86,10 +86,8 @@ public class TPPluginDoStuff {
 
 			
 			// Test for unsupportted
-			if (checkUnsupporteds(proj)) {
-				return;
-			}
-
+			checkUnsupporteds(proj);
+			
 			// Get the cml project
 			ICmlProject cmlProj = (ICmlProject) proj
 					.getAdapter(ICmlProject.class);

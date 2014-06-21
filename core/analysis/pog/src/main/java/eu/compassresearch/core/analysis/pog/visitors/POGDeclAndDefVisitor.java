@@ -19,9 +19,8 @@ import org.overture.ast.patterns.PPattern;
 import org.overture.ast.types.PType;
 import org.overture.pog.contexts.POImpliesContext;
 import org.overture.pog.contexts.PONameContext;
-import org.overture.pog.obligation.TypeCompatibility;
+import org.overture.pog.obligation.TypeCompatibilityObligation;
 import org.overture.pog.pub.IPOContextStack;
-import org.overture.pog.visitors.PogParamDefinitionVisitor;
 import org.overture.typechecker.TypeComparator;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
@@ -46,7 +45,7 @@ public class POGDeclAndDefVisitor extends
 
 	// Errors and other things are recorded on this guy
 	final private QuestionAnswerAdaptor<IPOContextStack, CmlProofObligationList> parentPOG;
-	final private PogParamDefinitionVisitor<IPOContextStack, CmlProofObligationList> overtureVisitor;
+	final private PogSpecialDefVisitor overtureVisitor;
 	final CmlPogAssistantFactory assistantFactory;
 
 	public POGDeclAndDefVisitor(
@@ -54,9 +53,8 @@ public class POGDeclAndDefVisitor extends
 			CmlPogAssistantFactory assistantFactory)
 	{
 		this.parentPOG = parent;
-		this.overtureVisitor = new PogParamDefinitionVisitor<IPOContextStack, CmlProofObligationList>(this, this, assistantFactory);
+		this.overtureVisitor = new PogSpecialDefVisitor(this, this, assistantFactory);
 		this.assistantFactory = assistantFactory;
-
 	}
 
 	// caseAins
@@ -254,17 +252,18 @@ public class POGDeclAndDefVisitor extends
 			{
 				pol.addAll(node.getPostcondition().apply(parentPOG, question));
 			}
-			PDefinition stateDef;
 
 			AActionProcess stater = node.getAncestor(AActionProcess.class);
 			if (stater != null)
 			{
 				List<AInstanceVariableDefinition> stateDefs = stater.apply(new ClonerProcessState());
+				List<PDefinition> invDefs = assistantFactory.createSClassDefinitionAssistant().getInvDefs(stater.getActionDefinition());
 				question.push(new CmlOperationDefinitionContext(node, false, stateDefs));
-				pol.add(new CmlSatisfiabilityObligation(node, stateDefs, question, assistantFactory));
+				pol.add(new CmlSatisfiabilityObligation(node, stateDefs, invDefs, question, assistantFactory));
 				question.pop();
 			} else
 			{
+				PDefinition stateDef;
 				if (node.getClassDefinition() != null)
 				{
 					stateDef = node.getClassDefinition().clone();
@@ -302,7 +301,7 @@ public class POGDeclAndDefVisitor extends
 
 		if (!TypeComparator.isSubType(question.checkType(expression, expType), type, assistantFactory))
 		{
-			TypeCompatibility sto = TypeCompatibility.newInstance(expression, type, expType, question, assistantFactory);
+			TypeCompatibilityObligation sto = TypeCompatibilityObligation.newInstance(expression, type, expType, question, assistantFactory);
 			if (sto != null)
 			{
 				obligations.add(sto);

@@ -1,1 +1,0 @@
-[{"poKind":"type compatibility","poExp":"(forall n:int \u0026 (inv_Even(n) and is_(n, int)))"}]

@@ -359,7 +359,7 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 			//	sb.append(smb.getPlist().toString());
 				sb.append(" in @set ");
 				sb.append(smb.getSet().apply(thmStringVisitor, vars));
-				sb.append(" @ ");
+				sb.append(" @ (");
 			}
 		}
 		return "(" + sb.toString() + ex.getPredicate().apply(thmStringVisitor, vars) + endBrackets.toString() + ")"; 
@@ -608,7 +608,7 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 	}
 
 	public String caseAQuoteLiteralExp(AQuoteLiteralExp ex, ThmVarsContext vars) throws AnalysisException{
-		return "<\'\'" + ex.getValue().getValue() + "\'\'>";
+		return "<" + ex.getValue().getValue() + ">";
 	}
 
 	public String caseARealLiteralExp(ARealLiteralExp ex, ThmVarsContext vars) throws AnalysisException{
@@ -619,7 +619,7 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		String value = ex.getValue().toString();
 		value = value.replaceAll("\"","");
 		
-		return "<<''" + value + "''>>";
+		return "''" + value + "''";
 	}
 
 	public String caseASubseqExp(ASubseqExp ex, ThmVarsContext vars) throws AnalysisException{
@@ -795,7 +795,11 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 
 		StringBuilder sb = new StringBuilder();
 		LinkedList<AMapletExp> mem = ex.getMembers();
-
+		
+		if (mem.isEmpty()) {
+			sb.append("|->");
+		}
+		
 		for (Iterator<AMapletExp> itr = mem.listIterator(); itr.hasNext(); ) {
 			PExp m = itr.next();
 			sb.append(m.apply(thmStringVisitor, vars));

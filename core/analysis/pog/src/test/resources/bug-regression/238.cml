@@ -1,0 +1,15 @@
+class Battery  = 
+begin
+
+values
+  private relay_load = 1
+
+state
+  
+operations
+  protected compute : nat * map nat to bool ==> ()
+  compute(t,r) == 
+  if r(relay_load) then Skip else Skip
+  pre relay_load in set dom(r)
+
+end
