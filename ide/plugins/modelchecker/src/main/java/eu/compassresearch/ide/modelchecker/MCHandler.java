@@ -236,12 +236,15 @@ public class MCHandler extends AbstractHandler {
 			String specificationContent = "";
 			
 			try{
-				specificationContent = this.adaptor.generateFormulaScript(definitions,propertyToCheck,mainProcessName);
-				if(!outputFile.exists()){
-					outputFile.create(new ByteArrayInputStream(specificationContent.toString().getBytes()), true, new NullProgressMonitor());
-				}else{
-					outputFile.setContents(new ByteArrayInputStream(specificationContent.toString().getBytes()), true, true, new NullProgressMonitor());
+				if(mainProcessName != null){
+					specificationContent = this.adaptor.generateFormulaScript(definitions,propertyToCheck,mainProcessName);
+					if(!outputFile.exists()){
+						outputFile.create(new ByteArrayInputStream(specificationContent.toString().getBytes()), true, new NullProgressMonitor());
+					}else{
+						outputFile.setContents(new ByteArrayInputStream(specificationContent.toString().getBytes()), true, true, new NullProgressMonitor());
+					}
 				}
+				
 			}catch(NullPointerException e){
 				throw new AnalysisException("Internal error when accessing some null object during FORMULA script generation.", e);
 			}catch(ClassCastException e){
