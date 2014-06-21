@@ -18,7 +18,7 @@ public class ThmStateInv extends ThmDecl {
 	 ********/
 	@Override
 	public String toString() {
-		return (ThmStateUtil.isaState + " \"" + name + " = " + "|" + expr + "|\"\n");
+		return (ThmStateUtil.isaState + " \"" + name + " = " + "|" + expr + "|\"\n" + "declare " + name + "_def [evalp]\n");
 	}
 
 	public String getName() {
