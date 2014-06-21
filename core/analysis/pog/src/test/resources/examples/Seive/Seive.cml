@@ -23,5 +23,4 @@ begin @
         sieve.i!next -> Skip
 end
 
-process Primes = 
-  [|{|seive.(i-1), seive.i|}|] 
+--process Primes = [|{|seive.(i-1), seive.i|}|] 
