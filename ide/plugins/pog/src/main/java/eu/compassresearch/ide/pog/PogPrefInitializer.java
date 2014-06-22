@@ -11,6 +11,7 @@ public class PogPrefInitializer extends AbstractPreferenceInitializer
 	{
 		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
 		store.setDefault(PogPluginPrefConstants.POG_VIEW_CHOICE, PogPluginPrefConstants.CTXT_ETC);
+		//store.setDefault(PogPluginPrefConstants., value);
 	}
 
 }

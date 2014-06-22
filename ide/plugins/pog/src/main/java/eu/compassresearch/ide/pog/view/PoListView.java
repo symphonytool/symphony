@@ -97,17 +97,17 @@ public class PoListView extends PoOverviewTableView
 
 		TableColumn column02 = new TableColumn(viewer.getTable(), SWT.LAST_LINE_SELECTION);
 		column02.setText("Status");
-		column02.setToolTipText("Show status");
+		column02.setToolTipText("PO status");
 		column02.setResizable(false);
 
 		TableColumn column03 = new TableColumn(viewer.getTable(), SWT.LEFT);
-		column03.setText("PO Name");
-		column03.setToolTipText("PO Name");
+		column03.setText("Type");
+		column03.setToolTipText("PO Type");
 		column03.setResizable(false);
 
 		TableColumn column04 = new TableColumn(viewer.getTable(), SWT.LEFT);
-		column04.setText("Type");
-		column04.setToolTipText("Show Type");
+		column04.setText("Source");
+		column04.setToolTipText("PO Source");
 		column04.setResizable(false);
 
 		viewer.setContentProvider(new CmlPoViewContentProvider());
@@ -168,11 +168,11 @@ public class PoListView extends PoOverviewTableView
 				// numbering
 
 				viewer.setInput(pol);
-//
-//				for (TableColumn col : viewer.getTable().getColumns())
-//				{
-//				//	col.pack();
-//				}
+				//
+				// for (TableColumn col : viewer.getTable().getColumns())
+				// {
+				// // col.pack();
+				// }
 			}
 
 		});
@@ -255,16 +255,18 @@ public class PoListView extends PoOverviewTableView
 					count++;
 					columnText = new Integer(data.getNumber()).toString();// count.toString();
 					break;
-				case 2:
+				case 3:
+					String source = (data.getName().equals("") ? "GLOBAL"
+							: data.getName());
+
 					if (!data.getLocation().getFile().toString().equals(""))
 					{
 						columnText = data.getLocation().getFile().getName()
-								+ " - " + data.getName();
-//						columnText = columnText.substring(0, 20);
+								+ " - " + source;
 					} else
-						columnText = data.getName();//.substring(0, 20);
+						columnText = source;
 					break;
-				case 3:
+				case 2:
 					columnText = handlePoKind(data);
 					break;
 				case 1:

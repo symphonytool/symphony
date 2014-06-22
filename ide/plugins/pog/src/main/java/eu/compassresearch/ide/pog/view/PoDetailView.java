@@ -65,7 +65,6 @@ public class PoDetailView extends PoTableView
 				{
 					sb.append(data.getDefPredString());
 				}
-				MessageDialog.openError(display.getActiveShell(), "Error", "Error with PO detail level. Check preferences.");
 				viewer.setText(sb.toString());
 				return;
 			}
