@@ -1,22 +1,3 @@
-\section{The Frog Puzzle}
-
-Consider the following puzzle:
-\begin{enumerate}
-\item three female frogs and three male frogs are sitting on a log
-\item female frogs (pink) move only from left to right
-\item male frogs (blue) move only from right to left
-\item each moves only in one of two ways
-\item either by a single step into an adjacent empty square
-\item or by leap-frogging into an empty square two steps away
-\item what is the fewest number of moves required for the female
-      frogs to exchange places with the males ones?
-\end{enumerate}
-
-This was modelled in CSP at the initial CSP training session at the beginning of the COMPASS
-project. Here it is modelled using CML.
-
-In total we have seven positions
-\begin{cml}
 values
 
   POset = {1,...,7}
@@ -69,4 +50,3 @@ begin
 @
   FrogMarch
 end
-\end{cml}
