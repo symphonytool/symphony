@@ -14,7 +14,7 @@
   <groupId>eu.compassresearch</groupId>
   <artifactId>root</artifactId>
   <name>The Symphony IDE Top-Level</name>
-  <version>0.3.2</version>
+  <version>0.3.3-SNAPSHOT</version>
 
   <modules>
     <module>tools</module>
