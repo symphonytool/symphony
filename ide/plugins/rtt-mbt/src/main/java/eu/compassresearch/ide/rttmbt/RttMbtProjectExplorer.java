@@ -49,6 +49,38 @@ public class RttMbtProjectExplorer extends org.eclipse.ui.navigator.CommonNaviga
 		}
     };
 
+    private void initClient(IProject project) {
+		// set project specific properties
+		String value = RttMbtProjectPropertiesPage.getPropertyValue(project, "RttMbtrttProjectDatabase");
+		if (value != null) {
+			client.setProjectDatabaseName(value);
+		}
+		value = RttMbtProjectPropertiesPage.getPropertyValue(project, "RttMbtRttTprocPrefix");
+		if ((value != null) && (value.length() > 0)) {
+			client.setRttMbtTestProcFolderName(value);
+		} else {
+			client.setRttMbtTestProcFolderName(Activator.getPreferenceValue("RttMbtRttTprocPrefix"));
+		}
+		value = RttMbtProjectPropertiesPage.getPropertyValue(project, "RttMbtTProcGenCtx");
+		if ((value != null) && (value.length() > 0)) {
+			client.setRttMbtTProcGenCtxFolderName(value);
+		} else {
+			client.setRttMbtTProcGenCtxFolderName(Activator.getPreferenceValue("RttMbtTProcGenCtx"));
+		}
+		value = RttMbtProjectPropertiesPage.getPropertyValue(project, "RttMbtSutMakeTool");
+		if ((value != null) && (value.length() > 0)) {
+			client.setMakeToolProperty(value);
+		} else {
+			client.setDefaultMakeToolProperty();
+		}
+		value = RttMbtProjectPropertiesPage.getPropertyValue(project, "RttMbtFileIgnorePattern");
+		if ((value != null) && (value.length() > 0)) {
+			client.setIgnorePatternProperty(value);
+		} else {
+			client.setDefaultIgnorePatternProperty();
+		}
+    }
+
     private void evaluteSelection(IStructuredSelection selection) {
 	    // evaluate selection
 		selectedObject = null;
@@ -107,6 +139,9 @@ public class RttMbtProjectExplorer extends org.eclipse.ui.navigator.CommonNaviga
 					setAllKeysFlase();
 					continue;
 				}
+
+				// init client according to properties of the currently selected project
+				initClient(project);
 
 				// enable RTT-MBT actions
 				if (isGenerationContextSelected() && (wasGenerationContextSelected)) {
@@ -192,6 +227,16 @@ public class RttMbtProjectExplorer extends org.eclipse.ui.navigator.CommonNaviga
 		commandStateService.setValue(key,value);    	
     }
     
+    private String getService(String key) {
+	    // get service provider
+	    ISourceProviderService sourceProviderService = 
+	    		(ISourceProviderService) getSite().getService(ISourceProviderService.class);
+	    RttMbtCommandState commandStateService = 
+	    		(RttMbtCommandState) sourceProviderService.getSourceProvider(RttMbtCommandState.keyIsGenerationContextTP);
+	    // get value
+	    return commandStateService.getValue(key);
+    }
+    
     private Boolean hasModelSubdirectory() {
     	// check if the selected object is a directory
     	File thisFolder = new File(selectedObjectPath);
@@ -254,7 +299,12 @@ public class RttMbtProjectExplorer extends org.eclipse.ui.navigator.CommonNaviga
 		if (selectedObject == null) {
 			return false;
 		}
-		return selectedObject.compareTo("model_dump.xml") == 0;
+		return (((selectedObject.compareTo("model_dump.xml") == 0) &&
+				 (getService(RttMbtCommandState.keyIsRttPerspectiveActive).compareTo(RttMbtCommandState.TRUE) == 0))
+				||
+				((selectedObjectPath.substring(selectedObjectPath.length() - 4).compareTo(".uml") == 0)) &&
+				 (client.getIsPapyrusMode())
+			   );
 	}
 
 	public Boolean isMakefileSelected() {

@@ -1,0 +1,11 @@
+process A = 
+begin
+state
+	x : int
+operations
+op ()
+post x = x~ + 1
+
+@Skip
+
+end

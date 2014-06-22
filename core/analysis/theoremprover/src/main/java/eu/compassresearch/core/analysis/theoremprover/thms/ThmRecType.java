@@ -2,6 +2,7 @@ package eu.compassresearch.core.analysis.theoremprover.thms;
 
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.types.AFieldField;
@@ -60,6 +61,26 @@ public class ThmRecType extends ThmDecl {
 		StringBuilder sbfield = new StringBuilder();
 		
 		int count = 1;
+		
+		String maxty = "maxty_" + name;
+		
+		sbfield.append(ThmTypeUtil.isaAbbr + "\"" + maxty + ThmTypeUtil.isaEquiv + " RecMaximalType " + ThmTypeUtil.typeDelim);
+		
+		for (Iterator<AFieldField> i = flds.iterator(); i.hasNext(); )
+		{
+			AFieldField field = i.next();
+			
+			try {
+			    sbfield.append(field.getType().apply(new ThmStringVisitor(), new ThmVarsContext()));
+			} catch (AnalysisException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			if (i.hasNext()) sbfield.append(ThmTypeUtil.isaProd);
+		}
+		
+		sbfield.append(ThmTypeUtil.typeDelim + " TYPE(" + name + "_Tag)\"\n");
+		
 		for (AFieldField field: flds)
 		{
 			String fldNm = field.getTag();
@@ -71,7 +92,7 @@ public class ThmRecType extends ThmDecl {
 				e.printStackTrace();
 			}//ThmTypeUtil.getIsabelleType(field.getType());
 	
-			sbfield.append(ThmTypeUtil.isaAbbr + "\"" + fldNm +"_fld " + ThmTypeUtil.isaEquiv + " MkField TYPE(" + name + "_Tag) #" + count+ ThmTypeUtil.typeDelim + fldTp + ThmTypeUtil.typeDelim + "\"\n");  
+			sbfield.append(ThmTypeUtil.isaAbbr + "\"" + fldNm +"_fld " + ThmTypeUtil.isaEquiv + " MkField " + maxty + "#[" + count + "] " + ThmTypeUtil.typeDelim + fldTp + ThmTypeUtil.typeDelim + "\"\n");  
 		
 			count ++;
 		}
@@ -117,9 +138,10 @@ public class ThmRecType extends ThmDecl {
 		StringBuilder sbdefn = new StringBuilder();
 		
 		sbdefn.append(ThmTypeUtil.isaType +"\n");
-		sbdefn.append("\"" + name + " " + ThmTypeUtil.isaEquiv + ThmTypeUtil.typeDelim + "[");
+		sbdefn.append("\"" + name + " " + ThmTypeUtil.isaEquiv + ThmTypeUtil.typeDelim);
+		sbdefn.append("@maxty_" + name);
 		
-		
+		/*
 		//For each type in the product, add it to the string
 		for (Iterator<AFieldField> itr = flds.listIterator(); itr.hasNext(); ) {
 			AFieldField fld = itr.next();
@@ -130,7 +152,8 @@ public class ThmRecType extends ThmDecl {
 				sbdefn.append(", ");
 			}
 		}
-		sbdefn.append("]" + invCall + ThmTypeUtil.typeDelim + "\"\n" + tacHook(name) + "\n\n");
+		*/
+		sbdefn.append(invCall + ThmTypeUtil.typeDelim + "\"\n" + tacHook(name) + "\n\n");
 		sbdefn.append(ThmTypeUtil.isaType + " \"mk_" + name + ThmTypeUtil.isaEquiv + "MkRec "+ name+ "\"\n" + tacHook("mk_"+name));
 		
 		String defnStr = sbdefn.toString();

@@ -44,9 +44,9 @@ import org.overture.ast.statements.PStm;
 import org.overture.ast.types.PAccessSpecifier;
 import org.overture.ast.types.PField;
 import org.overture.ast.types.PType;
-import org.overture.pog.obligation.POCaseContext;
-import org.overture.pog.obligation.POContextStack;
-import org.overture.pog.obligation.PONotCaseContext;
+import org.overture.pog.contexts.POCaseContext;
+import org.overture.pog.contexts.POContextStack;
+import org.overture.pog.contexts.PONotCaseContext;
 import org.overture.pog.obligation.SeqApplyObligation;
 import org.overture.pog.pub.IPOContextStack;
 import org.overture.pog.pub.IProofObligationList;
@@ -201,7 +201,7 @@ public class ProofObligationGenerator extends
 
 		if (node.getSeqType() != null)
 		{
-			list.add(new SeqApplyObligation(node.getMapseq(), node.getExp(), question));
+			list.add(new SeqApplyObligation(node.getMapseq(), node.getExp(), question,assistantFactory));
 		}
 
 		// Maps are OK, as you can create new map domain entries

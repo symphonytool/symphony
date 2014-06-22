@@ -37,7 +37,7 @@ import eu.compassresearch.core.analysis.modelchecker.api.FormulaResult;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.GraphBuilder;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.util.GraphViz;
 import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
-import eu.compassresearch.ide.modelchecker.Activator;
+import eu.compassresearch.ide.modelchecker.CmlMCPlugin;
 import eu.compassresearch.ide.modelchecker.MCConstants;
 
 public class MCListView extends ViewPart {
@@ -73,7 +73,7 @@ public class MCListView extends ViewPart {
 			public void doubleClick(DoubleClickEvent event) {
 				
 				if (data.get(viewer.getTable().getSelectionIndex()).getFormulaResult().getResult().isSatisfiable()){
-					if(Activator.DOT_OK){
+					if(CmlMCPlugin.DOT_OK){
 						try {
 							//generate the dot file and compile it to svg, and show in the browser
 								//we build the counterexample
@@ -99,7 +99,7 @@ public class MCListView extends ViewPart {
 								}
 								
 							}catch(CoreException e){
-								Activator.log(e);
+								CmlMCPlugin.log(e);
 							}
 							
 							//compile the generated graphviz
@@ -110,7 +110,7 @@ public class MCListView extends ViewPart {
 							IFile svgFile = ((IFolder)mcFolder).getFile(fileName+".svg");
 							data.get(viewer.getTable().getSelectionIndex()).getFormulaResult().setSvgFile(svgFile);
 							IWorkbenchBrowserSupport support = PlatformUI.getWorkbench().getBrowserSupport();
-							IWebBrowser browser = support.createBrowser(IWorkbenchBrowserSupport.AS_EDITOR, Activator.PLUGIN_ID, "Symphony", "Model checker counterexample");
+							IWebBrowser browser = support.createBrowser(IWorkbenchBrowserSupport.AS_EDITOR, CmlMCPlugin.PLUGIN_ID, "Symphony", "Model checker counterexample");
 							IFile counterExample = data.get(viewer.getTable().getSelectionIndex()).getFormulaResult().getSvgFile();
 							URL url = counterExample.getLocationURI().toURL();
 							browser.openURL(url); 
@@ -122,12 +122,12 @@ public class MCListView extends ViewPart {
 							//log stack trace
 							StackTraceElement[] trace = e.getStackTrace();
 							for (int i = 0; i < trace.length; i++) {
-								Activator.logErrorMessage(trace[i].toString());
+								CmlMCPlugin.logErrorMessage(trace[i].toString());
 							}
 							popErrorMessage(e.getMessage());
 						}
 					}else{
-						popErrorMessage(Activator.dotNotInstalledMsg);
+						popErrorMessage(CmlMCPlugin.dotNotInstalledMsg);
 					}
 				}else{
 					popErrorMessage("Counterexample construction available only for satisfiable models!");
@@ -195,12 +195,12 @@ public class MCListView extends ViewPart {
 			}
 			private Image getImage(MCUIResult data){
 				
-				AbstractUIPlugin plugin = Activator.getDefault();
+				AbstractUIPlugin plugin = CmlMCPlugin.getDefault();
 				
 				ImageRegistry imageRegistry = plugin.getImageRegistry();
-				Image image = imageRegistry.get(Activator.SAT_IMG_ID);;
+				Image image = imageRegistry.get(CmlMCPlugin.SAT_IMG_ID);;
 				if (!data.formulaResult.getResult().isSatisfiable()){
-					image = imageRegistry.get(Activator.UNSAT_IMG_ID);
+					image = imageRegistry.get(CmlMCPlugin.UNSAT_IMG_ID);
 				}
 			
 				return image; 

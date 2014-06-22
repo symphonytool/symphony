@@ -10,6 +10,7 @@ import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.statements.AExternalClause;
 import org.overture.pog.pub.IPOContextStack;
+import org.overture.pog.pub.IPogAssistantFactory;
 import org.overture.pog.utility.POException;
 
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
@@ -63,8 +64,8 @@ public class POGActionVisitor extends
 	private ProofObligationGenerator parentPOG;
 	private NameSetVisitor nsvisitor;
 	private ChansetVisitor csvisitor;
+	private IPogAssistantFactory af = new CmlPogAssistantFactory();
 
-	// FIXME dispatch chan and varsets to the apropriate visitors
 
 	/**
 	 * Constructor - simply initialise parent POG
@@ -155,7 +156,7 @@ public class POGActionVisitor extends
 			// check for Non-Zero time obligation and dispatch exp for POG checking
 			// Changing format of CML POs... pol.add(new
 			// CMLNonZeroTimeObligation(timeExp, question));
-			pol.add(new CmlNonZeroTimeObligation(timeExp, question));
+			pol.add(new CmlNonZeroTimeObligation(timeExp, question,af));
 			pol.addAll(timeExp.apply(this, question));
 			// Send right-hand side
 			pol.addAll(right.apply(this, question));
@@ -248,7 +249,7 @@ public class POGActionVisitor extends
 			pol.addAll(left.apply(parentPOG, question));
 			pol.addAll(timedExp.apply(parentPOG, question));
 			// check for Non-Zero time obligation and dispatch exp for POG checking
-			pol.add(new CmlNonZeroTimeObligation(timedExp, question));
+			pol.add(new CmlNonZeroTimeObligation(timedExp, question, af));
 			pol.addAll(right.apply(parentPOG, question));
 
 			// TODO: Any ATimeoutAction POs?
@@ -512,7 +513,6 @@ public class POGActionVisitor extends
 		}
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public CmlProofObligationList caseAChaosAction(AChaosAction node,
 			IPOContextStack question) throws AnalysisException
@@ -530,7 +530,6 @@ public class POGActionVisitor extends
 		}
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public CmlProofObligationList caseASequentialCompositionReplicatedAction(
 			ASequentialCompositionReplicatedAction node,
@@ -740,7 +739,6 @@ public class POGActionVisitor extends
 		}
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public CmlProofObligationList caseASkipAction(ASkipAction node,
 			IPOContextStack question) throws AnalysisException
@@ -757,7 +755,6 @@ public class POGActionVisitor extends
 		}
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public CmlProofObligationList caseAExternalChoiceAction(
 			AExternalChoiceAction node, IPOContextStack question)
@@ -856,7 +853,6 @@ public class POGActionVisitor extends
 		}
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public CmlProofObligationList caseAStartDeadlineAction(
 			AStartDeadlineAction node, IPOContextStack question)
@@ -882,7 +878,6 @@ public class POGActionVisitor extends
 		}
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public CmlProofObligationList caseAEndDeadlineAction(
 			AEndDeadlineAction node, IPOContextStack question)

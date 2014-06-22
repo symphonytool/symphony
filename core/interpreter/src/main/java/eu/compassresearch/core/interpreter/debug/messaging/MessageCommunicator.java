@@ -103,7 +103,7 @@ public class MessageCommunicator
 
 			}
 
-			ObjectMapper	m = new ObjectMapper();
+			ObjectMapper m = new ObjectMapper();
 			MyModule module = new MyModule();
 			// module.addAbstractTypeMapping(org.overture.ast.intf.lex.ILexNameToken.class,DefaultCmlLexNameToken.class);
 			// module.a.addAbstractTypeMapping(org.overture.ast.node.NodeList.class, NodeListJsonWrapper.class);
@@ -125,8 +125,8 @@ public class MessageCommunicator
 		return mapper;
 	}
 
-	public static void sendMessage(OutputStream outStream, AbstractMessage message)
-			throws IOException
+	public static void sendMessage(OutputStream outStream,
+			AbstractMessage message) throws IOException
 	{
 		MessageContainer messageContainer = new MessageContainer(message);
 		sendRawMessage(outStream, messageContainer);
@@ -137,9 +137,9 @@ public class MessageCommunicator
 	{
 		logger.debug("Sending..." + message);
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		mapperInstance().writeValue(out,new Object[]{ message});
-		logger.trace("Send RAW: "+out.toString());
-		mapperInstance().writeValue(outStream,new Object[]{ message});
+		mapperInstance().writeValue(out, new Object[] { message });
+		logger.trace("Send RAW: " + out.toString());
+		mapperInstance().writeValue(outStream, new Object[] { message });
 		outStream.write(System.lineSeparator().getBytes());
 		outStream.flush();
 	}
@@ -158,23 +158,24 @@ public class MessageCommunicator
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T> T receiveRawMessage(BufferedReader requestReader) throws IOException
+	public static <T> T receiveRawMessage(BufferedReader requestReader)
+			throws IOException
 	{
 		T message = null;
 		String strMessage = requestReader.readLine();
-		
-		logger.trace("Read RAW: "+strMessage);
+
+		logger.trace("Read RAW: " + strMessage);
 		if (strMessage != null)
 		{
 			try
 			{
 				Object[] data = mapperInstance().readValue(strMessage, Object[].class);
-				if(data!=null && data.length>0)
+				if (data != null && data.length > 0)
 				{
 					message = (T) data[0];
-					logger.debug("Read "+message);
+					logger.debug("Read " + message);
 				}
-				
+
 			} catch (Exception e)
 			{
 				e.printStackTrace();
@@ -188,6 +189,7 @@ public class MessageCommunicator
 	 * Constructs a message by deserializing the output from requestReader and returns it in a MessageContainer.
 	 * 
 	 * @param requestReader
+	 * @param defaultMessage 
 	 * @return
 	 * @throws IOException
 	 */

@@ -45,7 +45,9 @@ public class MCIOCommDef implements MCNode {
 		
 		result.append("  IOCommDef(" + this.counterId + ",");
 		//precisa ter um instantiateMCTypeFromCommParamsForIoCommDef para instanciar tipos com nomes modificados varOld 
-		result.append(evaluator.instantiateMCTypeFromCommParamsForIOCommDef(parentAction.getCommunicationParameters(), "Old").toFormula(option));
+		//result.append(evaluator.instantiateMCTypeFromCommParamsForIOCommDef(parentAction.getCommunicationParameters(), "Old").toFormula(option));
+		String parametersStr = evaluator.instantiateMCTypeFromCommParams(parentAction.getCommunicationParameters()).toFormula(option);
+		result.append(parametersStr);
 		result.append(",");
 		Binding maxOldCopy = max.copy();
 		replaceParamValues(maxOldCopy);
@@ -76,7 +78,7 @@ public class MCIOCommDef implements MCNode {
 		result.append(maxOldCopy.toFormula(MCNode.NAMED));
 		result.append(",");
 		
-		result.append(this.parentAction.toFormula(MCNode.MINIMAL_GENERIC));
+		result.append(this.parentAction.toFormula(MCNode.STATE_DEFAULT_PROCESS_NAMED));
 		//result.append(this.parentAction.toFormula(MCNode.NAMED));
 		result.append(")");
 
@@ -98,6 +100,28 @@ public class MCIOCommDef implements MCNode {
 			}
 			
 		}
+		
+		//it adds the channel expressions in RHS involving all infinite types
+		//if the action has dependencies we get them from the context
+		LinkedList<ActionChannelDependency> dependencies = context.getActionChannelDependendiesByChannelName(this.parentAction.getIdentifier());
+		if(dependencies.size() > 0){
+			
+			for (Iterator<ActionChannelDependency> iterator = dependencies.iterator(); iterator.hasNext();) {
+				
+				ActionChannelDependency actionChannelDependency = (ActionChannelDependency) iterator.next();
+				//if(actionChannelDependency.getChannelDefinition().isInfiniteType()){
+				if(containsParameter(actionChannelDependency.getParameters())){
+					if(actionChannelDependency.getParameters().getFirst() instanceof MCAReadCommunicationParameter){
+						result.append(",");
+						result.append(actionChannelDependency.toFormula(option));
+					}
+				}
+				//}
+				//if(iterator.hasNext()){
+				//	result.append(",");
+				//}
+			}
+		}
 		result.append(".");
 		//we still have to generate the modified binding containing values (parameters) communicated
 		//result.append(",");
@@ -106,6 +130,18 @@ public class MCIOCommDef implements MCNode {
 		return result.toString();
 	}
 	
+	private boolean containsParameter(LinkedList<MCPCommunicationParameter> parameters){
+		boolean result = false;
+		String parameterToCheck = parameters.getFirst().toFormula(MCNode.DEFAULT);
+		for (MCPCommunicationParameter param : this.parentAction.getCommunicationParameters()) {
+			if(param.toFormula(MCNode.DEFAULT).equals(parameterToCheck)){
+				result = true;
+				break;
+			}
+		}
+		return result;
+		
+	}
 	public String buildIOCommActualParam(MCPCommunicationParameter communicationParam, String option){
 		
 		StringBuilder result = new StringBuilder();
@@ -129,7 +165,7 @@ public class MCIOCommDef implements MCNode {
 			LinkedList<MCPCommunicationParameter> parameters = parentAction.getCommunicationParameters();
 			for (MCPCommunicationParameter param : parameters) {
 				if(param instanceof MCASignalCommunicationParameter){
-					MCPCMLExp expression = ((MCASignalCommunicationParameter) param).getExpression();
+					MCPCMLExp expression = ((MCPCommunicationParameter) param).getExpression();
 					if(expression instanceof MCAVariableExp){
 						MCPCMLExp newValue = new MCAVariableExp(((MCAVariableExp) expression).getName()+ "Old");
 						binding.updateBinding(((MCAVariableExp) expression).getName(), newValue);

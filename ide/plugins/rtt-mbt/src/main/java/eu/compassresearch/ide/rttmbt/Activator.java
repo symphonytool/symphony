@@ -74,6 +74,14 @@ public class Activator implements BundleActivator {
     							  store.getInt("RttMbtServerPort"),
     							  store.getString("RttMbtUserName"),
     							  store.getString("RttMbtUserId"));
+    	if ((store.getString("RttMbtHttpUsername") != null) &&
+        		(store.getString("RttMbtHttpUsername").compareTo("") != 0)) {
+        		client.setHttpUsername(store.getString("RttMbtHttpUsername"));
+    	}
+    	if ((store.getString("RttMbtHttpPassword") != null) &&
+        		(store.getString("RttMbtHttpPassword").compareTo("") != 0)) {
+        		client.setHttpPassword(store.getString("RttMbtHttpPassword"));
+    	}
     	if ((store.getString("RttMbtRttTprocPrefix") != null) &&
     		(store.getString("RttMbtRttTprocPrefix").compareTo("") != 0)) {
     		client.setRttMbtTestProcFolderName(store.getString("RttMbtRttTprocPrefix"));
@@ -130,6 +138,8 @@ public class Activator implements BundleActivator {
 			client.setRttMbtPort(store.getInt("RttMbtServerPort"));
 			client.setUserName(store.getString("RttMbtUserName"));
 			client.setUserId(store.getString("RttMbtUserId"));
+    		client.setHttpUsername(store.getString("RttMbtHttpUsername"));
+    		client.setHttpPassword(store.getString("RttMbtHttpPassword"));
 			if ((store.getString("RttMbtRttTprocPrefix") != null) &&
 				(store.getString("RttMbtRttTprocPrefix").compareTo("") != 0)) {
 				client.setRttMbtTestProcFolderName(store.getString("RttMbtRttTprocPrefix"));

@@ -5,11 +5,11 @@
   <parent>
     <groupId>eu.compassresearch</groupId>
     <artifactId>root</artifactId>
-    <version>0.3.0</version>
+    <version>0.3.2</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <packaging>pom</packaging>
+    <packaging>pom</packaging>
 
   <groupId>eu.compassresearch.ide</groupId>
   <artifactId>ide</artifactId>
@@ -19,7 +19,7 @@
   <properties>
     <maven.test.skip>true</maven.test.skip>
     <maven.javadoc.skip>true</maven.javadoc.skip>
-    <tycho.version>0.19.0</tycho.version>
+    <tycho.version>0.20.0</tycho.version>
   </properties>
 
   <modules>
@@ -142,14 +142,16 @@
     <!--   <layout>p2</layout> -->
     <!-- </repository> -->
     <repository>
-      <id>overture.au.dk-p2</id>
+      <id>overture-p2</id>
       <url>http://overture.au.dk/p2/symphony-overture-development/</url>
       <layout>p2</layout>
     </repository>
     <repository>
       <id>isabelle-eclipse</id>
       <layout>p2</layout>
-      <url>http://andriusvelykis.github.io/isabelle-eclipse/updates/isabelle2013/releases/</url>
+      <!--<url>http://andriusvelykis.github.io/isabelle-eclipse/updates/isabelle2013/releases/</url>-->
+	  <!-- We are providing a temporay repo for I/E 2013-2 since there is none -ldc/june 2013 -->    
+  <url>http://overture.au.dk/p2/isabelle-eclipse/</url>
     </repository>
     <repository>
       <id>scala-ide</id>

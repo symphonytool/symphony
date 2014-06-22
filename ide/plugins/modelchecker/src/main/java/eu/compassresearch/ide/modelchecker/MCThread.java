@@ -31,9 +31,8 @@ public class MCThread extends Thread{
 	private IFile file;
 	private FormulaResult result;
 	private FormulaIntegrator mc;
-	private FormulaIntegrationException exception;
-	private Throwable excep;
-	private FormulaResultWrapper fmw;
+	private Throwable exception;
+	private FormulaResultWrapper formulaResultWrapper;
 	private String analysedProcess;
 	private String propertyToCheck;
 	private IFolder mcFolder;
@@ -57,33 +56,44 @@ public class MCThread extends Thread{
 	
 	
 	@Override
-	public synchronized void run(){
+	public void run(){
 		this.status = MCStatus.RUNNING;
 		try {
 			mc = FormulaIntegrator.getInstance();
 			String absolutePath = file.getLocation().toPortableString();
 			this.result = mc.analyseFile(absolutePath);
-			//this.writeFormulaOutputTofile(selectedUnit, mcFolder, result);
 			IFile factsFile = this.writeFormulaOutputTofile(file, mcFolder, result);
-			this.fmw = new FormulaResultWrapper(result, null, propertyToCheck, mcFolder, selectedUnit, analysedProcess, factsFile);
-			//MCPluginDoStuff mcp = new MCPluginDoStuff(window.getActivePage().getActivePart().getSite(), cmlFile, this.fmw);
-			MCPluginDoStuff mcp = new MCPluginDoStuff(window.getActivePage().getActivePart().getSite(), file, this.fmw);
-			mcp.run();
-			registry.store(selectedUnit.getParseNode(), fmw);
+			this.formulaResultWrapper = new FormulaResultWrapper(result, null, propertyToCheck, mcFolder, selectedUnit, analysedProcess, factsFile);
+			MCPluginUtility.refreshMCListView(formulaResultWrapper, factsFile, this.window);
+			registry.store(selectedUnit.getParseNode(), formulaResultWrapper);
 		} catch (FormulaIntegrationException e) {
 			exception = e;
 			this.status = MCStatus.ERROR;
-			throw e;
+			if(!e.getMessage().contains("pipe")){
+				MCPluginUtility.popErrorMessage(e);
+				this.cancelExecution();
+				//throw e;
+			}
 		} catch (Throwable e) {
-			excep = e;
+			//excep = e;
+			exception = e;
 			this.status = MCStatus.ERROR;
 			throw e;
 		}
 		this.status = MCStatus.FINISHED;
 	}
 
+	public void cancelExecution(){
+		mc = FormulaIntegrator.getInstance();
+		try {
+			mc.resetInstance();
+		} catch (Throwable e1) {
+			// formula instance is finished 
+		}
+		this.status = MCStatus.FINISHED;
+	}
+	
 	private IFile writeFormulaOutputTofile(IFile selectedCmlSourceUnit, IFolder mcFolder, FormulaResult result){
-		//String name = selectedCmlSourceUnit.getFile().getName();
 		String name = selectedCmlSourceUnit.getName();
 		String formulaFileName = name.substring(0,name.length()-selectedCmlSourceUnit.getFileExtension().length())+"facts";
 		IFile outputFile = mcFolder.getFile(formulaFileName);
@@ -95,7 +105,7 @@ public class MCThread extends Thread{
 				outputFile.setContents(new ByteArrayInputStream(result.getFacts().getBytes()), true, true, new NullProgressMonitor());
 			}
 		}catch(CoreException e){
-			Activator.log(e);
+			CmlMCPlugin.log(e);
 		}
 		
 		return outputFile;
@@ -105,16 +115,10 @@ public class MCThread extends Thread{
 		return this.status;
 	}
 	
-	public Exception getException(){
+	public Throwable getException(){
 		return this.exception;
 	}
 
-	public Throwable getExcep(){
-		return this.excep;
-	}
-
-	public synchronized FormulaResult getFormulaResult() {
-		return this.result;
-	}
+	
 
 }

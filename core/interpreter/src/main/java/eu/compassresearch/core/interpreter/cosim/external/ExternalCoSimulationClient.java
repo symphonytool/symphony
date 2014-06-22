@@ -15,8 +15,8 @@ import java.util.concurrent.SynchronousQueue;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
+import eu.compassresearch.core.interpreter.api.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.transitions.ObservableTransition;
@@ -256,8 +256,9 @@ public class ExternalCoSimulationClient extends Thread
 		this.subsystem = subsystem;
 	}
 
-	public void abort(int error, String message) throws JsonGenerationException, JsonMappingException, IOException
+	public void abort(int error, String message)
+			throws JsonGenerationException, JsonMappingException, IOException
 	{
-		comm.send(new AbortMessage(error,message));
+		comm.send(new AbortMessage(error, message));
 	}
 }

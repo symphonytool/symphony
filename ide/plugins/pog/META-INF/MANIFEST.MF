@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Symphony IDE POG Plugin
 Bundle-SymbolicName: eu.compassresearch.ide.pog;singleton:=true
-Bundle-Version: 0.3.0
+Bundle-Version: 0.3.2
 Bundle-Activator: eu.compassresearch.ide.pog.Activator
 Bundle-Vendor: The COMPASS Project
 Import-Package: eu.compassresearch.ast.actions,
@@ -13,7 +13,6 @@ Import-Package: eu.compassresearch.ast.actions,
  eu.compassresearch.ast.lex,
  eu.compassresearch.ast.process,
  eu.compassresearch.ast.program,
- eu.compassresearch.core.common,
  eu.compassresearch.core.typechecker.api,
  eu.compassresearch.ide.core.resources,
  eu.compassresearch.ide.ui.utility,
@@ -22,8 +21,10 @@ Import-Package: eu.compassresearch.ast.actions,
  org.eclipse.core.runtime,
  org.eclipse.core.runtime.content,
  org.eclipse.core.runtime.jobs,
+ org.eclipse.core.runtime.preferences;version="3.3.0",
  org.eclipse.jface.action,
  org.eclipse.jface.dialogs,
+ org.eclipse.jface.preference,
  org.eclipse.jface.resource,
  org.eclipse.jface.viewers,
  org.eclipse.swt,
@@ -53,6 +54,7 @@ Import-Package: eu.compassresearch.ast.actions,
  org.overture.ide.plugins.poviewer.view,
  org.overture.ide.ui.utility,
  org.overture.pof,
+ org.overture.pog.contexts,
  org.overture.pog.obligation,
  org.overture.pog.pub,
  org.overture.pog.utility,
@@ -61,9 +63,12 @@ Import-Package: eu.compassresearch.ast.actions,
  org.overture.typechecker.assistant,
  org.overture.typechecker.assistant.definition,
  org.overture.typechecker.assistant.type
-Export-Package: eu.compassresearch.core.analysis.pog.obligations,eu.co
- mpassresearch.core.analysis.pog.utility,eu.compassresearch.ide.pog,eu
- .compassresearch.ide.pog.commands,eu.compassresearch.ide.pog.view
+Export-Package: eu.compassresearch.core.analysis.pog.obligations,
+ eu.compassresearch.core.analysis.pog.utility,
+ eu.compassresearch.core.analysis.pog.visitors,
+ eu.compassresearch.ide.pog,
+ eu.compassresearch.ide.pog.commands,
+ eu.compassresearch.ide.pog.view
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Eclipse-BuddyPolicy: registered
 Eclipse-BundleShape: dir

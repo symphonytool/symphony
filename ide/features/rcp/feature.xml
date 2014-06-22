@@ -2,7 +2,7 @@
 <feature
     id="eu.compassresearch.ide.features.rcp"
     label="Symphony IDE RCP"
-    version="0.3.0">
+    version="0.3.2">
 
   <description>
     %description
@@ -47,9 +47,17 @@
   <includes
       id="eu.compassresearch.ide.features.plugins.modelchecker"
       version="0.0.0"/>
+
+  <includes
+      id="eu.compassresearch.ide.features.plugins.collaboration"
+      version="0.0.0"/>
   
   <includes
       id="eu.compassresearch.ide.features.plugins.faulttolerance"
+      version="0.0.0"/>
+      
+  <includes
+      id="eu.compassresearch.ide.features.plugins.refinementtool"
       version="0.0.0"/>
   
   <plugin

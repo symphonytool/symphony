@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.definitions.AClassInvariantDefinition;
 import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.AValueDefinition;
 import org.overture.ast.definitions.PDefinition;
@@ -75,7 +76,7 @@ public class TPVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContext, ThmNodeL
 			throws AnalysisException {		
 			return node.apply(this.declAndDefVisitor, vars);
 		}	
-	
+				
 		@Override
 		public ThmNodeList defaultPDefinition(PDefinition node, ThmVarsContext vars) 
 				throws AnalysisException
@@ -253,7 +254,7 @@ public class TPVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContext, ThmNodeL
 				PExp poExp = poValTree.getPredicate();
 				NodeNameList bvars = new NodeNameList();
 				String theoryBody = poExp.apply(new ThmStringVisitor(), new ThmVarsContext(svars, bvars));//ThmExprUtil.getIsabelleExprStr(svars, bvars, poExp);//"true";
-				poThy = new ThmTheorem("po" + po.getIsaName(), theoryBody, "by (cml_auto_tac)");
+				poThy = new ThmTheorem("po" + po.getIsaName(), theoryBody, "by (cml_auto_tac)", po.getLocale());
 				poOutput = poThy.toString();
 		}
 		catch (Exception e)

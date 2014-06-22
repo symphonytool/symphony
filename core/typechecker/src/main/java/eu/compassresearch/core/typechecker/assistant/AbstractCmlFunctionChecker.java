@@ -9,7 +9,6 @@ import org.overture.typechecker.utilities.FunctionChecker;
 
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismReplicatedAction;
-import eu.compassresearch.ast.actions.ACallAction;
 import eu.compassresearch.ast.actions.AChannelRenamingAction;
 import eu.compassresearch.ast.actions.AChaosAction;
 import eu.compassresearch.ast.actions.ACommonInterleavingReplicatedAction;
@@ -915,13 +914,6 @@ public class AbstractCmlFunctionChecker extends FunctionChecker implements
 	public Boolean caseAUnresolvedObjectDesignator(
 			AUnresolvedObjectDesignator node) throws AnalysisException
 	{
-		return false;
-	}
-
-	@Override
-	public Boolean caseACallAction(ACallAction node) throws AnalysisException
-	{
-
 		return false;
 	}
 

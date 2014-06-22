@@ -60,6 +60,17 @@ public class BBinding implements Binding {
 	}
 
 	@Override
+	public boolean containsVariable(String name){
+		boolean result = false;
+		if(this.head.getVariableName().equals(name)){
+			result = true;
+		}else{
+			result = this.tail.containsVariable(name);
+		}
+		return result;
+	}
+	
+	@Override
 	public BBinding copy(){
 		return new BBinding(this.procName,this.head.copy(),this.tail.copy());
 	}

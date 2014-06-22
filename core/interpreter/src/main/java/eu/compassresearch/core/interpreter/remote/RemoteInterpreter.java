@@ -23,7 +23,7 @@ import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.transitions.LabelledTransition;
 import eu.compassresearch.core.interpreter.api.transitions.TauTransition;
 import eu.compassresearch.core.interpreter.api.values.AbstractValueInterpreter;
-import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
+import eu.compassresearch.core.interpreter.api.values.ChannelValue;
 import eu.compassresearch.core.interpreter.debug.CmlDebugger;
 import eu.compassresearch.core.interpreter.utility.ValueParser;
 
@@ -171,7 +171,7 @@ public class RemoteInterpreter implements IRemoteInterpreter, SelectionStrategy
 
 		LabelledTransition labelledEvent = (LabelledTransition) event;
 
-		ChannelNameValue channnelName = labelledEvent.getChannelName();
+		ChannelValue channnelName = labelledEvent.getChannelName();
 
 		if (getArgumentCount(event) != arguments.length)
 		{
@@ -245,7 +245,7 @@ public class RemoteInterpreter implements IRemoteInterpreter, SelectionStrategy
 
 			LabelledTransition labelledEvent = (LabelledTransition) event;
 
-			ChannelNameValue channnelName = labelledEvent.getChannelName();
+			ChannelValue channnelName = labelledEvent.getChannelName();
 			for (Value v : channnelName.getValues())
 			{
 				if (!AbstractValueInterpreter.isValueMostPrecise(v))

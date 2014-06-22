@@ -18,16 +18,20 @@ public class ThmExpFunc extends ThmDecl {
 	private String post;
 	private String pre;
 	private LinkedList<List<PPattern>> pattern;
+	private List<String> paramTypes;
 	private String resType;
 	private String preParamList;
 	private String postParamList;
+	private boolean recordInv;
 	
-	public ThmExpFunc(String name, String expr, String post, String pre, LinkedList<List<PPattern>> pattern, String resType)
+	public ThmExpFunc(String name, String expr, String post, String pre, LinkedList<List<PPattern>> pattern, List<String> paramTypes, String resType)
 	{
 		this.name = name;
 		this.pattern = pattern;
-		this.expr = fixParamRefs(expr,pattern);
+		// this.expr = fixParamRefs(expr,pattern);
+		this.expr = expr;
 		
+		/*
 		if(pre != null)
 		{
 			//generate function for precondition
@@ -40,7 +44,14 @@ public class ThmExpFunc extends ThmDecl {
 			//generate function for postcondition
 			this.post = createPrePostFunc(name, post, pattern, "post");
 		}
+		*/
+		this.pre = pre;
+		this.post = post;
+		
+		
+		this.paramTypes = paramTypes;
 		this.resType = resType;
+		this.recordInv = false;
 	}
 	
 	/****
@@ -131,7 +142,7 @@ public class ThmExpFunc extends ThmDecl {
 		
 		//replace the keyword RESULT with the result parameter
 		String lambdaName = "^" +ThmTypeUtil.isaFuncLambaVal+"^.#" + resCount;
-		ex = ex.replace("^RESULT^", lambdaName);
+		ex = ex.replace("&RESULT", lambdaName);
 	
 		return ex;
 	}
@@ -171,13 +182,47 @@ public class ThmExpFunc extends ThmDecl {
 
 		return fixParamRefs(sb.toString(), params);
 	}
-
+	
 	/****
 	 * To string method returns the function definition 
 	 */
 	public String toString(){
 		
 		StringBuilder res = new StringBuilder();
+		
+		res.append("cmlefun " + name + "\n");
+		res.append("  inp ");
+		
+		for (List<PPattern> para : pattern)
+		{
+			Iterator<String> titr = paramTypes.iterator();
+			for (Iterator<PPattern> itr = para.listIterator(); itr.hasNext(); ) {				
+				PPattern pat = itr.next();
+				String ty = titr.next();
+				res.append(((AIdentifierPattern) pat).getName().toString());
+				if (!recordInv) 
+				{	
+					res.append(" :: \"" + ty + "\"");
+				}
+				else
+				{
+					// Slightly hacky - if this is a record invariant then we need to
+					// get the maximal type for input, not the record type itself
+					// which has not yet been created...
+					res.append(" :: \"@maxty_" + ty.substring(1) + "\"");
+				}
+				if (itr.hasNext()) res.append (" and ");
+			}
+		}
+		res.append("\n");
+		res.append("  out \"" + resType + "\"\n");
+		if (pre != null) res.append("pre \"" + pre + "\"\n");
+		if (post != null) res.append("post \"" + post + "\"\n");
+		res.append("  is \"" + expr + "\"\n");
+		
+		
+/*		
+		// if (post != null) res.append(post + "\n");
 		
 		if(pre!=null){
 			res.append(pre + "\n\n");
@@ -190,7 +235,7 @@ public class ThmExpFunc extends ThmDecl {
 		res.append(ThmTypeUtil.isaFunc + " \"" + name + " = " + 
 			ThmTypeUtil.isaFuncBar + ThmTypeUtil.isaFuncLambda + " " +ThmTypeUtil.isaFuncLambaVal+" @ " +
 		    createFuncExp() + ThmTypeUtil.isaFuncBar + "\"\n" + tacHook(name));
-
+*/
 		return res.toString();
 	}
 
@@ -215,7 +260,7 @@ public class ThmExpFunc extends ThmDecl {
 			sb.append("then (" + ThmTypeUtil.isaFuncLambdaPost + " " + ThmTypeUtil.isaFuncLambdaPostVal+ " : " + resType + " @ (true and ");
 		}
 		
-		sb.append("^" + ThmTypeUtil.isaFuncLambdaPostVal +  "^ = " + expr +"))\n");
+		sb.append("&" + ThmTypeUtil.isaFuncLambdaPostVal +  " = " + expr +"))\n");
 		sb.append("else " + ThmTypeUtil.isaUndefined);
 		
 		return sb.toString();
@@ -240,8 +285,23 @@ public class ThmExpFunc extends ThmDecl {
 	private String createSimpFuncExp() {
 		StringBuilder sb = new StringBuilder();
 		
-		sb.append("(" + ThmTypeUtil.isaFuncLambdaPost + " " + ThmTypeUtil.isaFuncLambdaPostVal+ " : @bool @ (^" + ThmTypeUtil.isaFuncLambdaPostVal +  "^ = " + expr +"))");		
+		if (expr.equals("true")) {
+			sb.append("true");
+		} else {
+			sb.append("(" + ThmTypeUtil.isaFuncLambdaPost + " " + ThmTypeUtil.isaFuncLambdaPostVal+ " : @bool @ (&" + ThmTypeUtil.isaFuncLambdaPostVal +  " = " + expr +"))");
+		}
+						
 		return sb.toString();
 	}
+
+	public boolean isRecordInv() {
+		return recordInv;
+	}
+
+	public void setRecordInv(boolean recordInv) {
+		this.recordInv = recordInv;
+	}
 	
+
+
 }

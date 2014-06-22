@@ -9,10 +9,13 @@ functions
    uflow : int*int -> bool
    uflow(i,j) == i-j < 0
 
+types
+  MYINT = nat
+    inv i == i in set {1,...,3}
 
 channels
    init, overflow, underflow
-   inc, dec : int
+   inc, dec : MYINT
 
 process RegisterProc = 
  begin

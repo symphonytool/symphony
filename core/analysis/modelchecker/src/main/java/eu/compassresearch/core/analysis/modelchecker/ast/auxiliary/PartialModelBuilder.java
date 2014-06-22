@@ -13,9 +13,9 @@ public class PartialModelBuilder {
 		StringBuilder content = new StringBuilder();
 		String option = MCNode.DEFAULT;
 		
-		generateLieInFacts(content,option);
+		//generateLieInFacts(content,option);
 
-		generateChannels(content,option);
+		//generateChannels(content,option);
 		
 		generateClocks(content,option);
 		
@@ -31,7 +31,10 @@ public class PartialModelBuilder {
 			lieIn.prepareLieInFact();
 		}
 		for (MCLieInFact lieIn :  context.realLieInFacts) {
-			content.append(lieIn.toFormula(option) + "\n");
+			String lieInFactStr = lieIn.toFormula(option);
+			if(content.indexOf(lieInFactStr) == -1){
+				content.append(lieIn.toFormula(option) + "\n");
+			}
 		}
 	}
 	
@@ -57,7 +60,7 @@ public class PartialModelBuilder {
 		
 		content.append("  GivenProc(");
 		content.append("\"");
-		content.append(mainProc.getName());
+		content.append(mainProc.getName() + "MAIN");
 		content.append("\"");
 		content.append(")");
 		content.append("\n");

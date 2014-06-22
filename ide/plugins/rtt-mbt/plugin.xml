@@ -167,11 +167,6 @@
             name="RTT-MBT">
       </category>
       <command
-            defaultHandler="eu.compassresearch.ide.rttmbt.RttMbtNewProject"
-            id="eu.compassresearch.ide.rttmbt.RttMbtNewProject"
-            name="New Project">
-      </command>
-      <command
             defaultHandler="eu.compassresearch.ide.rttmbt.RttMbtAbort"
             id="eu.compassresearch.ide.rttmbt.RttMbtAbort"
             name="Abort Current Task">
@@ -192,6 +187,10 @@
             name="Delete RTT-MBT Resource">
       </command>
       <command
+            id="eu.compassresearch.ide.rttmbt.RttMbtTgenAndExecute"
+            name="Generate and Execute Test">
+      </command>
+      <command
             id="eu.compassresearch.ide.rttmbt.RttMbtCleanTestGenCtx"
             name="Clean Test Generation">
       </command>
@@ -202,6 +201,10 @@
       <command
             id="eu.compassresearch.ide.rttmbt.RttMbtGenerateSimulation"
             name="Generate Simulation">
+      </command>
+      <command
+            id="eu.compassresearch.ide.rttmbt.RttMbtCompileRunDocReplay"
+            name="Execute Test">
       </command>
       <command
             id="eu.compassresearch.ide.rttmbt.RttMbtCleanTest"
@@ -243,6 +246,18 @@
    <extension
          point="org.eclipse.ui.handlers">
       <handler
+            class="eu.compassresearch.ide.rttmbt.RttMbtTgenAndExecute"
+            commandId="eu.compassresearch.ide.rttmbt.RttMbtTgenAndExecute">
+         <activeWhen>
+            <with
+                  variable="eu.compassresearch.ide.rttmbt.IsGenerationContextTP">
+               <equals
+                     value="truumpel">
+               </equals>
+            </with>
+         </activeWhen>
+      </handler>
+      <handler
             class="eu.compassresearch.ide.rttmbt.RttMbtCleanTestProcedureGenerationContext"
             commandId="eu.compassresearch.ide.rttmbt.RttMbtCleanTestGenCtx">
          <activeWhen>
@@ -272,6 +287,18 @@
          <activeWhen>
             <with
                   variable="eu.compassresearch.ide.rttmbt.IsGenerationContextTP">
+               <equals
+                     value="truumpel">
+               </equals>
+            </with>
+         </activeWhen>
+      </handler>
+      <handler
+            class="eu.compassresearch.ide.rttmbt.RttMbtCompileRunDocReplay"
+            commandId="eu.compassresearch.ide.rttmbt.RttMbtCompileRunDocReplay">
+         <activeWhen>
+            <with
+                  variable="eu.compassresearch.ide.rttmbt.IsExecutionContextTP">
                <equals
                      value="truumpel">
                </equals>
@@ -429,6 +456,13 @@
                   visible="true">
             </separator>
             <command
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtTgenAndExecute"
+                  icon="icons/run_tgen.png"
+                  label="Generate and Execute Test"
+                  style="push"
+                  tooltip="Generate and Execute Test Procedure for this Generation Context">
+            </command>
+            <command
                   commandId="eu.compassresearch.ide.rttmbt.RttMbtCleanTestGenCtx"
                   icon="icons/mbt_clean.png"
                   label="Clean Test Generation"
@@ -454,6 +488,13 @@
                   visible="true">
             </separator>
             <command
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtCompileRunDocReplay"
+                  icon="icons/run_tp.png"
+                  label="Execute Test"
+                  style="push"
+                  tooltip="Clean, Compile, Run, Doc and Replay Test Procedure">
+            </command>
+            <command
                   commandId="eu.compassresearch.ide.rttmbt.RttMbtCleanTest"
                   icon="icons/clean.png"
                   label="Clean Test"
@@ -472,14 +513,7 @@
                   icon="icons/run.png"
                   label="Run Test"
                   style="push"
-                  tooltip="Execute Test Procedure">
-            </command>
-            <command
-                  commandId="eu.compassresearch.ide.rttmbt.RttMbtReplayTest"
-                  icon="icons/mbt_replay.png"
-                  label="Replay Test Result"
-                  style="push"
-                  tooltip="Replay Test Result against the Model">
+                  tooltip="Run a compiled Test Procedure">
             </command>
             <command
                   commandId="eu.compassresearch.ide.rttmbt.RttMbtDocTest"
@@ -487,6 +521,13 @@
                   label="Generate Test Documentation"
                   style="push"
                   tooltip="Generate Test Procedure Documentation">
+            </command>
+            <command
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtReplayTest"
+                  icon="icons/mbt_replay.png"
+                  label="Replay Test Result"
+                  style="push"
+                  tooltip="Replay Test Result against the Model">
             </command>
             <separator
                   name="eu.compassresearch.ide.rttmbt.separator-004"
@@ -581,6 +622,33 @@
                   style="push"
                   tooltip="Perform Livelock Check on the model of this RTT-MBT Project">
                <visibleWhen>
+                  <or>
+                     <with
+                           variable="eu.compassresearch.ide.rttmbt.IsModelDumpSelected">
+                        <equals
+                              value="truumpel">
+                        </equals>
+                     </with>
+                     <with
+                           variable="eu.compassresearch.ide.rttmbt.IsRttPerspectiveActive">
+                        <equals
+                              value="truumpel">
+                        </equals>
+                     </with>
+                  </or>
+               </visibleWhen>
+            </command>
+            <separator
+                  name="eu.compassresearch.ide.rttmbt.separator-002"
+                  visible="true">
+            </separator>
+            <command
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtTgenAndExecute"
+                  icon="icons/run_tgen.png"
+                  label="Generate and Execute Test"
+                  style="push"
+                  tooltip="Generate and Execute Test Procedure for this Generation Context">
+               <visibleWhen>
                   <with
                         variable="eu.compassresearch.ide.rttmbt.IsRttPerspectiveActive">
                      <equals
@@ -589,10 +657,6 @@
                   </with>
                </visibleWhen>
             </command>
-            <separator
-                  name="eu.compassresearch.ide.rttmbt.separator-002"
-                  visible="true">
-            </separator>
             <command
                   commandId="eu.compassresearch.ide.rttmbt.RttMbtCleanTestGenCtx"
                   icon="icons/mbt_clean.png"
@@ -643,6 +707,21 @@
                   visible="true">
             </separator>
             <command
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtCompileRunDocReplay"
+                  icon="icons/run_tp.png"
+                  label="Execute Test"
+                  style="push"
+                  tooltip="Clean, Compile, Run, Doc and Replay Test Procedure">
+               <visibleWhen>
+                  <with
+                        variable="eu.compassresearch.ide.rttmbt.IsRttPerspectiveActive">
+                     <equals
+                           value="truumpel">
+                     </equals>
+                  </with>
+               </visibleWhen>
+            </command>
+            <command
                   commandId="eu.compassresearch.ide.rttmbt.RttMbtCleanTest"
                   icon="icons/clean.png"
                   label="Clean Test"
@@ -688,11 +767,11 @@
                </visibleWhen>
             </command>
             <command
-                  commandId="eu.compassresearch.ide.rttmbt.RttMbtReplayTest"
-                  icon="icons/mbt_replay.png"
-                  label="Replay Test Result"
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtDocTest"
+                  icon="icons/documentate.png"
+                  label="Generate Test Documentation"
                   style="push"
-                  tooltip="Replay Test Result against the Model">
+                  tooltip="Generate Test Procedure Documentation">
                <visibleWhen>
                   <with
                         variable="eu.compassresearch.ide.rttmbt.IsRttPerspectiveActive">
@@ -703,11 +782,11 @@
                </visibleWhen>
             </command>
             <command
-                  commandId="eu.compassresearch.ide.rttmbt.RttMbtDocTest"
-                  icon="icons/documentate.png"
-                  label="Generate Test Documentation"
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtReplayTest"
+                  icon="icons/mbt_replay.png"
+                  label="Replay Test Result"
                   style="push"
-                  tooltip="Generate Test Procedure Documentation">
+                  tooltip="Replay Test Result against the Model">
                <visibleWhen>
                   <with
                         variable="eu.compassresearch.ide.rttmbt.IsRttPerspectiveActive">
@@ -904,6 +983,13 @@
                id="eu.compassresearch.ide.rttmbt.RttMbtTPgenContextMenu"
                label="Test Generation Context">
             <command
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtTgenAndExecute"
+                  icon="icons/run_tgen.png"
+                  label="Generate and Execute Test"
+                  style="push"
+                  tooltip="Generate and Execute Test Procedure for this Generation Context">
+            </command>
+            <command
                   commandId="eu.compassresearch.ide.rttmbt.RttMbtCleanTestGenCtx"
                   icon="icons/mbt_clean.png"
                   label="Clean Test Generation"
@@ -942,6 +1028,13 @@
                id="eu.compassresearch.ide.rttmbt.RttMbtTestProcedureMenu"
                label="Test Execution Context">
             <command
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtCompileRunDocReplay"
+                  icon="icons/run_tp.png"
+                  label="Execute Test"
+                  style="push"
+                  tooltip="Clean, Compile, Run, Doc and Replay Test Procedure">
+            </command>
+            <command
                   commandId="eu.compassresearch.ide.rttmbt.RttMbtCleanTest"
                   icon="icons/clean.png"
                   label="Clean Test"
@@ -963,18 +1056,18 @@
                   tooltip="Execute Test Procedure">
             </command>
             <command
-                  commandId="eu.compassresearch.ide.rttmbt.RttMbtReplayTest"
-                  icon="icons/mbt_replay.png"
-                  label="Replay Test Result"
-                  style="push"
-                  tooltip="Replay Test Result against the Model">
-            </command>
-            <command
                   commandId="eu.compassresearch.ide.rttmbt.RttMbtDocTest"
                   icon="icons/documentate.png"
                   label="Generate Test Documentation"
                   style="push"
                   tooltip="Generate Test Procedure Documentation">
+            </command>
+            <command
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtReplayTest"
+                  icon="icons/mbt_replay.png"
+                  label="Replay Test Result"
+                  style="push"
+                  tooltip="Replay Test Result against the Model">
             </command>
             <visibleWhen
                   checkEnabled="false">
@@ -1079,6 +1172,13 @@
             id="eu.compassresearch.ide.cml.rttplugin.rttprojectproperty"
             name="RT-Tester">
       </page>
+   </extension>
+   <extension
+         point="org.eclipse.help.toc">
+      <toc
+            file="toc/book.xml"
+            primary="true">
+      </toc>
    </extension>
 
 </plugin>

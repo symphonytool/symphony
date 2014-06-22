@@ -1,0 +1,84 @@
+types
+
+-- NODE_IDs are natural numbers
+  NODE_ID = nat 
+	inv n == n in set node_ids 	
+
+ values
+
+  node_ids : set of nat = {0,...,2} -- the set of node identifiers 
+
+channels
+
+  leaderClaim : NODE_ID * bool
+  on, off : NODE_ID
+  init
+  
+process Spec = 
+ begin
+ state  
+
+ q_period : nat := 3 
+ all_nodes : set of NODE_ID := {0,1,2}
+ all_nodes_nat : set of nat := {0,1,2}
+ 
+operations
+ 
+--  unite: set of NODE_ID * set of NODE_ID -> set of NODE_ID
+--  unite(s1,s2) == s1 union s2
+
+--  unite: set of NODE_ID * set of NODE_ID ==> set of NODE_ID
+--  unite(s1,s2) == return s1 union s2
+  
+ actions
+  
+   Alive = alive : set of NODE_ID, t: nat @ 
+   (
+    ([t > q_period] & Stable(alive))
+    []
+    ([t <= q_period] & 
+     ( 
+      (
+       ([] i in set alive @ leaderClaim!i.true -> Alive(alive,t))
+       []                
+       ([] i in set alive @ off!i -> Alive(alive\{i},0))
+       []
+       ([] i in set (all_nodes\alive) @ on!i -> Alive(alive union {i},0))
+      ) 
+     [_1_> 
+     Alive(alive,t+1)
+     ) 
+    )
+   )  
+-- leaderClaim.i.true offers a non-deterministic choice between the set of all nodes in alive.  
+-- In the case where a node has previously been leader, we know that the model resolves this implementation by favoring the older node. 
+-- however, is is worth noting that the specification does not require this solution: it is non-detministic here, and any of the available 
+-- cases is a valid implementation. 
+  
+   Stable = alive : set of NODE_ID @
+   (
+--  Wait(1);time!t -> Stable(alive)
+    ([] i in set alive @ leaderClaim!i.true -> LeaderChosen(i,alive) )
+    []
+    ([] i in set alive @ off!i -> Alive(alive\{i},0) )  
+    []
+    ([]i in set (all_nodes\alive) @ on!i -> Alive(alive union {i},0) )
+   )
+   
+-- doesn't need timed behaviour
+ LeaderChosen = ldr : NODE_ID, alive : set of NODE_ID @
+   if ldr in set alive then
+    (
+     (leaderClaim!ldr.true -> LeaderChosen(ldr,alive))
+     []
+     ([] i in set alive @ off!i -> Alive(alive\{i},0)) -- if a follower node turns off, we may not care.
+     []
+     ([] i in set all_nodes\alive @ on!i -> Alive(alive union {i},0)  )
+    )
+   else 
+    Stop -- deadlock, because ldr not in set alive is a problem   
+  @ 
+   init -> Alive({},0)  -- begin with no nodes on and no time passed  
+ end
+
+

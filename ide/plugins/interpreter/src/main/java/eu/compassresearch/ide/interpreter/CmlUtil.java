@@ -24,6 +24,8 @@ import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.intf.lex.ILexLocation;
 
 import eu.compassresearch.ast.definitions.AProcessDefinition;
+import eu.compassresearch.ide.core.resources.ICmlModel;
+import eu.compassresearch.ide.interpreter.model.CmlDebugTarget;
 import eu.compassresearch.ide.ui.editor.core.CmlEditor;
 
 public final class CmlUtil
@@ -169,7 +171,18 @@ public final class CmlUtil
 		}
 
 		return processes;
-
 	}
 
+	public static List<String> getGlobalProcessesFromSourceAsString(ICmlModel model)
+	{
+		List<PDefinition> defs = model.getDefinitions();
+		List<AProcessDefinition> globalProcessesFromSource = getGlobalProcessesFromSource(defs);
+		Vector<String> processList = new Vector<String>();
+		for (AProcessDefinition processDef : globalProcessesFromSource)
+		{
+			processList.add(processDef.getName().getName());
+		}
+
+		return processList;
+	}
 }

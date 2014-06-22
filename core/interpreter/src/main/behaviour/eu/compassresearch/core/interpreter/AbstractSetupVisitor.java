@@ -6,9 +6,10 @@ import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorFactory;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour.BehaviourName;
+import eu.compassresearch.core.interpreter.api.CmlBehaviorFactory;
+import eu.compassresearch.core.interpreter.api.CmlBehaviour;
+import eu.compassresearch.core.interpreter.api.CmlBehaviour.BehaviourName;
+import eu.compassresearch.core.interpreter.api.TransitionEvent;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
 /**
@@ -37,10 +38,6 @@ abstract class AbstractSetupVisitor extends
 	 * Evaluator for expressions
 	 */
 	protected final QuestionAnswerCMLAdaptor<Context, Value> cmlExpressionVisitor = new CmlExpressionVisitor();
-	/**
-	 * Evaluator for definitions
-	 */
-	protected final CmlDefinitionVisitor cmlDefEvaluator = new CmlDefinitionVisitor();
 
 	public AbstractSetupVisitor(CmlBehaviour owner,
 			VisitorAccess visitorAccess, CmlBehaviorFactory cmlBehaviorFactory)
@@ -96,6 +93,11 @@ abstract class AbstractSetupVisitor extends
 		this.controlAccess.setChildContexts(preBuildContexts);
 	}
 
+	protected void newTransitionEvent(TransitionEvent event)
+	{
+		this.controlAccess.newTransitionEvent(event);
+	}
+
 	protected Pair<Context, Context> getChildContexts(Context context)
 	{
 		return this.controlAccess.getChildContexts(context);
@@ -105,7 +107,6 @@ abstract class AbstractSetupVisitor extends
 	public Pair<INode, Context> createNewReturnValue(INode node,
 			Context question)
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -113,7 +114,6 @@ abstract class AbstractSetupVisitor extends
 	public Pair<INode, Context> createNewReturnValue(Object node,
 			Context question)
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 }

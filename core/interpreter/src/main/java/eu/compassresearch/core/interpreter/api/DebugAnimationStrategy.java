@@ -2,14 +2,12 @@ package eu.compassresearch.core.interpreter.api;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.SortedSet;
 import java.util.concurrent.SynchronousQueue;
 
 import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.node.INode;
 
 import eu.compassresearch.core.interpreter.Console;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.transitions.LabelledTransition;
@@ -31,19 +29,11 @@ public class DebugAnimationStrategy implements SelectionStrategy
 	 */
 	private SynchronousQueue<TransitionDTO> choiceQueue;
 
-	// public AnnimationStrategy(List<TransitionDTO> waitingChoices,
-	// SynchronousQueue<TransitionDTO> choiceQueue)
-	// {
-	// this.waitingChoices = waitingChoices;
-	// this.choiceQueue = choiceQueue;
-	// }
-
 	private boolean isSystemSelect(CmlTransitionSet availableChannelEvents)
 	{
 		return availableChannelEvents.hasType(TauTransition.class);
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private CmlTransition systemSelect()
 	{
 		this.rndSelect.choices(this.availableChannelEvents.filterByType(TauTransition.class));
@@ -139,6 +129,8 @@ public class DebugAnimationStrategy implements SelectionStrategy
 
 	/**
 	 * Initializes the strategy
+	 * @param interpreter 
+	 * @param debugger 
 	 */
 	public void initialize(CmlInterpreter interpreter, CmlDebugger debugger)
 	{

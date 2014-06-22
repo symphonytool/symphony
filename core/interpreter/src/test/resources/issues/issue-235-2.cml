@@ -1,0 +1,14 @@
+channels
+
+a,b:nat
+
+
+process P = begin
+
+state
+  var :nat := 0
+
+@ [] i in set {1,2,3} @ Skip//var := i; a.i -> b!var -> Skip
+
+end
+

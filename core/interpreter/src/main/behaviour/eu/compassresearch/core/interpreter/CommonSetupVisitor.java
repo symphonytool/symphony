@@ -22,23 +22,24 @@ import org.overture.interpreter.values.Value;
 import org.overture.interpreter.values.ValueList;
 
 import eu.compassresearch.ast.CmlAstFactory;
-import eu.compassresearch.ast.actions.AStartDeadlineAction;
 import eu.compassresearch.ast.actions.SReplicatedAction;
 import eu.compassresearch.ast.analysis.DepthFirstAnalysisCMLAdaptor;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.expressions.SRenameChannelExp;
 import eu.compassresearch.ast.process.SReplicatedProcess;
+import eu.compassresearch.core.interpreter.api.CmlBehaviorFactory;
+import eu.compassresearch.core.interpreter.api.CmlBehaviour;
+import eu.compassresearch.core.interpreter.api.CmlBehaviour.BehaviourName;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorFactory;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour.BehaviourName;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameSetValue;
-import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
+import eu.compassresearch.core.interpreter.api.values.ChannelValue;
 import eu.compassresearch.core.interpreter.api.values.CmlSetQuantifier;
 import eu.compassresearch.core.interpreter.api.values.LatticeTopValue;
 import eu.compassresearch.core.interpreter.api.values.RenamingValue;
+import eu.compassresearch.core.interpreter.runtime.DelayedWriteContext;
+import eu.compassresearch.core.interpreter.runtime.ReplicatedContext;
 import eu.compassresearch.core.interpreter.utility.LocationExtractor;
 import eu.compassresearch.core.interpreter.utility.Pair;
 import eu.compassresearch.core.interpreter.utility.SetMath;
@@ -62,7 +63,7 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 			return (ChannelNameSetValue) val;
 		} else if (val instanceof Set && ((Set) val).isEmpty())
 		{
-			return new ChannelNameSetValue(new HashSet<ChannelNameValue>());
+			return new ChannelNameSetValue(new HashSet<ChannelValue>());
 		}
 
 		throw new CmlInterpreterException(chansetExpression, InterpretationErrorMessages.FATAL_ERROR.customizeMessage("Failed to evaluate chanset expression"));
@@ -73,9 +74,10 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 			PVarsetExpression rightChansetExpression, Context question)
 			throws AnalysisException
 	{
+
 		// evaluate the children in the their own context
 		ChannelNameSetValue leftChanset = eval(leftChansetExpression, getChildContexts(question).first);
-		ChannelNameSetValue rightChanset = eval(rightChansetExpression, getChildContexts(question).second);
+		ChannelNameSetValue rightChanset = generateChannelValues(node, rightChansetExpression, getChildContexts(question).second);
 
 		Context chansetContext = CmlContextFactory.newContext(LocationExtractor.extractLocation(node), "Alphabetised parallelism precalcualted channelsets", question);
 
@@ -83,6 +85,50 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 		chansetContext.put(NamespaceUtility.getRightPrecalculatedChannetSet(), rightChanset);
 
 		return new Pair<INode, Context>(node, chansetContext);
+	}
+
+	/**
+	 * Utility method to evaluate or generate channel set values. If called from a context where
+	 * {@link NamespaceUtility#getReplicationNodeReminderName(INode)} is in context for the node parsed then the
+	 * {@link CmlSetQuantifier} is used to evaluate the chanset expression for every value. If not then the chanset is
+	 * evaluated in the context parsed.
+	 * 
+	 * @param node
+	 *            the node where the qualifier reminder name is obtained by
+	 * @param chansetExp
+	 *            the chanset exp to evaluate
+	 * @param ctxt
+	 *            the context where the qualifier reminder name may exist in and the context where the chanset exp
+	 *            should be evaluated
+	 * @return a value holding all the values for the chanset exp
+	 * @throws AnalysisException
+	 */
+	private ChannelNameSetValue generateChannelValues(INode node,
+			PVarsetExpression chansetExp, Context ctxt)
+			throws AnalysisException
+	{
+		final ILexNameToken name = NamespaceUtility.getReplicationNodeReminderName(node);
+		CmlSetQuantifier ql = (CmlSetQuantifier) ctxt.check(name);
+
+		ChannelNameSetValue rightChanset = null;
+
+		if (ql == null)
+		{
+			rightChanset = eval(chansetExp, ctxt);
+		} else
+		{
+			rightChanset = new ChannelNameSetValue();
+
+			for (NameValuePairList nvpl : ql)
+			{
+				Context nextChildContext = new Context(ctxt.assistantFactory, ctxt.location, "local channel context", ctxt);
+				nextChildContext.putList(nvpl);
+				rightChanset.addAll((ChannelNameSetValue) eval(chansetExp, nextChildContext));
+			}
+		}
+
+		return rightChanset;
+
 	}
 
 	protected Pair<INode, Context> caseAInterrupt(INode node, INode leftNode,
@@ -94,17 +140,17 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 
 		return new Pair<INode, Context>(node, question);
 	}
-	
-	protected Pair<INode, Context> caseChannelRenaming(
-			INode node, SRenameChannelExp renameExpression, INode subNode, Context question)
+
+	protected Pair<INode, Context> caseChannelRenaming(INode node,
+			SRenameChannelExp renameExpression, INode subNode, Context question)
 			throws AnalysisException
 	{
 		Context rnContext = CmlContextFactory.newContext(LocationExtractor.extractLocation(node), "Renaming context", question);
-		RenamingValue rv = (RenamingValue)renameExpression.apply(this.cmlExpressionVisitor,question);
+		RenamingValue rv = (RenamingValue) renameExpression.apply(this.cmlExpressionVisitor, question);
 		rnContext.putNew(new NameValuePair(NamespaceUtility.getRenamingValueName(), rv));
-		
+
 		setLeftChild(subNode, question);
-		
+
 		return new Pair<INode, Context>(node, rnContext);
 	}
 
@@ -140,12 +186,13 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 		return new Pair<INode, Context>(node, question);
 	}
 
-	
-	protected Pair<INode, Context> setupTimedOperator(INode node, INode leftNode, ILexNameToken startTimeValueName,
-			Context question) throws AnalysisException
+	protected Pair<INode, Context> setupTimedOperator(INode node,
+			INode leftNode, ILexNameToken startTimeValueName, Context question)
+			throws AnalysisException
 	{
 
-		Context context = CmlContextFactory.newContext(LocationExtractor.extractLocation(node), node.getClass().getName() + " context", question);
+		Context context = CmlContextFactory.newContext(LocationExtractor.extractLocation(node), node.getClass().getName()
+				+ " context", question);
 		try
 		{
 			context.putNew(new NameValuePair(startTimeValueName, new NaturalValue(owner.getCurrentTime())));
@@ -159,43 +206,6 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 		return new Pair<INode, Context>(node, context);
 
 	}
-	
-	
-//	protected Pair<INode, Context> caseATimeout(INode node, INode leftNode,
-//			Context question) throws AnalysisException
-//	{
-//
-//		Context context = CmlContextFactory.newContext(LocationExtractor.extractLocation(node), "Timeout context", question);
-//		try
-//		{
-//			context.putNew(new NameValuePair(NamespaceUtility.getStartTimeName(), new IntegerValue(owner.getCurrentTime())));
-//		} catch (Exception e)
-//		{
-//			throw new ValueException(0, e.getMessage(), question);
-//		}
-//		// We setup the child nodes
-//		setLeftChild(leftNode, question);
-//		return new Pair<INode, Context>(node, context);
-//
-//	}
-	
-//	@Override
-//	public Pair<INode, Context> caseAStartDeadlineAction(
-//			AStartDeadlineAction node, Context question)
-//			throws AnalysisException
-//	{
-//		Context context = CmlContextFactory.newContext(LocationExtractor.extractLocation(node), "Timeout context", question);
-//		try
-//		{
-//			context.putNew(new NameValuePair(NamespaceUtility.getStartsByTimeName(), new NaturalValue(owner.getCurrentTime())));
-//			
-//		} catch (Exception e)
-//		{
-//			throw new ValueException(0, e.getMessage(), question);
-//		}
-//		setLeftChild(node.getLeft(), question);
-//		return new Pair<INode, Context>(node, context);
-//	}
 
 	/*
 	 * Non public replication helper methods -- Start
@@ -223,24 +233,30 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 		abstract INode createNextReplication();
 
 		/**
-		 * This creates the last node in the replication
+		 * Creates the terminator for the given node. The default is Skip.
 		 * 
-		 * @return The last replication node
+		 * @return
 		 */
-		abstract INode createLastReplication();
+		INode createTerminator()
+		{
+			return CmlAstFactory.newASkipAction(LocationExtractor.extractLocation(node));
+		}
 
+		/**
+		 * Create a new replication child context. This is a context that delays all writes to state
+		 * @param npvl
+		 * @param node
+		 * @param outer
+		 * @return
+		 */
 		Context createReplicationChildContext(NameValuePairList npvl,
 				INode node, Context outer)
 		{
-			Context childContext = CmlContextFactory.newContext(LocationExtractor.extractLocation(node), "", outer);
+			Context childContext = new DelayedWriteContext(outer.assistantFactory, LocationExtractor.extractLocation(node), "delayed write context for "
+					+ outer.title, outer);
 			childContext.putAllNew(npvl);
-			return childContext;
-		}
 
-		Context createOperatorContext(INode node, CmlSetQuantifier remaining,
-				Context question)
-		{
-			return question;
+			return childContext;
 		}
 
 		/**
@@ -264,106 +280,69 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 			List<PSingleDeclaration> decls, AbstractReplicationFactory factory,
 			Context question) throws AnalysisException
 	{
-		// The name of the value holding the state of the remaining values of the replication
 		ILexNameToken replicationContextValueName = NamespaceUtility.getReplicationNodeName(node);
 		CmlSetQuantifier ql = (CmlSetQuantifier) question.check(replicationContextValueName);
-		// if null then this is the first action of the replication
-		// then we need to evaluate the
-		boolean firstRun = false;
+
 		if (ql == null)
 		{
-			firstRun = true;
-			// Make a set of tuples
-			// nextContext = CmlContextFactory.newContext(LocationExtractor.extractLocation(node),
-			// "replication contexts", question);
+			// evaluate decelerations
 			ql = createQuantifierList(decls, question);
-			// nextContext.putNew(new NameValuePair(replicationContextValueName, ql));
+		} else
+		{
+			question = question.outer;
 		}
 
-		INode nextNode;
 		Iterator<NameValuePairList> itQuantifiers = ql.iterator();
 
-		// if no replicated Value exists we return skip since this it what all the operators should return except
-		// for external choice which should be Stop, this is handled specifically in that case
-		if (!itQuantifiers.hasNext())
+		if (/* empty */!itQuantifiers.hasNext())
 		{
-			return new Pair<INode, Context>(CmlAstFactory.newASkipAction(LocationExtractor.extractLocation(node)), question);
-		}
-		// fetch the left value and remove it from the list
-		NameValuePairList nextValue = itQuantifiers.next();
-		itQuantifiers.remove();
-		// if no more rep values exists
-		// and this is the first run then we do no replication and just returns the action/process
-		if (!itQuantifiers.hasNext() && firstRun)
+			/*
+			 * No decelerations exists, thus just terminate it
+			 */
+			return new Pair<INode, Context>(factory.createTerminator(), question);
+		} else
 		{
-			nextNode = factory.getReplicatedNode();
-			return new Pair<INode, Context>(nextNode, factory.createReplicationChildContext(nextValue, nextNode, question));
-		}
-		/*
-		 * if no more rep values exists and this is NOT the first run then we created the context for the left side
-		 * already in the last step and is located above the current context
-		 */
-		else if (!itQuantifiers.hasNext() && !firstRun)
-		{
-			nextNode = factory.createLastReplication();
-			// the outer is the pre-calculated context from the previous run
-			Context leftChildContext = question.outer;
-			// we take the outer.outer because we want the parent context of this one to be the one given to the
-			// replication node
-			Context rightChildContext = factory.createReplicationChildContext(nextValue, nextNode, question.outer.outer);
-			setChildContexts(new Pair<Context, Context>(leftChildContext, rightChildContext));
-			return new Pair<INode, Context>(nextNode, factory.createOperatorContext(nextNode, ql, question.outer.outer));
-		}
+			final NameValuePairList nextChildValue = CmlSetQuantifier.pop(itQuantifiers);
 
-		NameValuePairList afterNextValue = itQuantifiers.next();
-		// itQuantifiers.remove();
-
-		// If no values are left then we have exactly 2 values and thus we must create the last replication
-		if (!itQuantifiers.hasNext() && firstRun)
-		{
-			nextNode = factory.createLastReplication();
-
-			Context leftChildContext = factory.createReplicationChildContext(nextValue, nextNode, question);
-			Context rightChildContext = factory.createReplicationChildContext(afterNextValue, nextNode, question);
-			itQuantifiers.remove();
-			// the replication context, if it exist is lowest. But if this is the first run
-			// then the replication context does not exist
-
-			setChildContexts(new Pair<Context, Context>(leftChildContext, rightChildContext));
-
-			return new Pair<INode, Context>(nextNode, factory.createOperatorContext(nextNode, ql, question));
-		}
-		// If we have more than two replication values then we make an interleaving between the
-		// first value and the rest of the replicated values
-		else
-		{
-			nextNode = factory.createNextReplication();
-			Context leftChildContext;
-			Context rightChildContext;
-
-			// the replication context must always be the lowest
-			if (firstRun)
+			if (!itQuantifiers.hasNext())
 			{
-				// if this is the first run then me must create the right child context and
-				// attach it to the replication context
-				leftChildContext = factory.createReplicationChildContext(nextValue, nextNode, question);
-				rightChildContext = factory.createReplicationChildContext(afterNextValue, nextNode, question);
-				itQuantifiers.remove();
+				/*
+				 * Optimization applies here so avoid subtree with terminator on the right. This allows |~| to use this
+				 * method as well
+				 */
+				final INode nextNode = factory.getReplicatedNode();
+				final Context nextContext = factory.createReplicationChildContext(nextChildValue, nextNode, question);
+				storeReplificationQualifierRemainder(nextNode, ql, nextContext);
+
+				return new Pair<INode, Context>(nextNode, nextContext);
 			} else
 			{
-				// if this is not the first run the the replication context already exist
-				// so we can pull out the parent and attach the right child context to this and
-				// then attach the replication
-				leftChildContext = question.outer;
-				rightChildContext = factory.createReplicationChildContext(nextValue, nextNode, question.outer.outer);
+				/* recursive case */
+				final INode nextNode = factory.createNextReplication();
+
+				final Context replicatedContext = new ReplicatedContext(question.assistantFactory, question.location, "Replicated declaration ctxt", question);
+				replicatedContext.put(replicationContextValueName, ql);
+				storeReplificationQualifierRemainder(nextNode, ql, replicatedContext);
+
+				Context leftChildContext = factory.createReplicationChildContext(nextChildValue, nextNode, question);
+				storeReplificationQualifierRemainder(nextNode, ql, leftChildContext);
+
+				Context rightChildContext = replicatedContext;
+
+				setChildContexts(new Pair<Context, Context>(leftChildContext, rightChildContext));
+
+				return new Pair<INode, Context>(nextNode, replicatedContext);
 			}
-
-			rightChildContext = CmlContextFactory.newContext(LocationExtractor.extractLocation(node), "replication contexts", rightChildContext);
-			rightChildContext.putNew(new NameValuePair(replicationContextValueName, ql));
-
-			setChildContexts(new Pair<Context, Context>(leftChildContext, rightChildContext));
-			return new Pair<INode, Context>(nextNode, factory.createOperatorContext(nextNode, ql, question));
 		}
+
+	}
+
+	private static void storeReplificationQualifierRemainder(INode node,
+			CmlSetQuantifier ql, Context ctxt)
+	{
+		// store the reminder of replication qualifier for channel set expression evaluations of e.g.
+		// AAlphabetisedParallelismReplicatedProcess
+		ctxt.put(NamespaceUtility.getReplicationNodeReminderName(node), ql);
 	}
 
 	// FIXME this check is not sufficient
@@ -395,7 +374,7 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 		// Convert all the single decls into a NameValuePairList
 		for (PSingleDeclaration singleDecl : replicationDeclaration)
 		{
-			for (NameValuePair nvp : singleDecl.apply(this.cmlDefEvaluator, question))
+			for (NameValuePair nvp : singleDecl.apply(question.assistantFactory.getNamedValueLister(), question))
 			{
 				// We do not allow unbounded replication
 				// FIXME this check is not sufficient, this needs to be more general
@@ -447,7 +426,7 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 	private Iterable<Value> getIterator(Value val, Context question)
 			throws ValueException
 	{
-		if (val instanceof SetValue)
+		if (val.deref() instanceof SetValue)
 		{
 			return val.setValue(question);
 		} else

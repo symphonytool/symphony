@@ -2,12 +2,16 @@ package eu.compassresearch.core.interpreter.api.events;
 
 import java.util.List;
 
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
+import eu.compassresearch.core.interpreter.api.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 
 public class TraceEvent extends Event<CmlBehaviour>
 {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 167927609479409977L;
 	public final CmlTransition event;
 
 	public TraceEvent(CmlBehaviour source, CmlTransition event)

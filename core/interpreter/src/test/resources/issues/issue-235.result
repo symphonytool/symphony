@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testResult>
+  <exception/>
+  <interpreterState>FINISHED</interpreterState>
+  <trace>
+    <events>(ch_a.3(,ch_a.1)*,ch_stop)|((ch_a.1,)*ch_stop)</events>
+  </trace>
+</testResult>

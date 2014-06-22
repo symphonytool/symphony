@@ -4,23 +4,6 @@ import isabelle.Document.Node
 import java.io.File
 import java.io.FileWriter
 
-object IsabelleTheory {
-  
-
-  val isabelleHome = if (System.getenv("ISABELLE_HOME") == null) 
-	  					"/local/d0p6/simonf/Isabelle/Isabelle2013" 
-                     else System.getenv("ISABELLE_HOME")
-  
-  def createHOLSession(): Session = {
-    System.setProperty("isabelle.home", isabelleHome)
-    val content = Build.session_content(false, Nil, "HOL")
-    val session = new Session(new Thy_Load(content.loaded_theories, content.syntax))
-    session.start(List("HOL"))
-    session
-  }
-  
-}
-
 class IsabelleTheory ( val session: Session
                      , val thyName: String
                      , val thyDir: String) {
@@ -122,7 +105,7 @@ class IsabelleTheory ( val session: Session
   def thmEnd = thyHead.length() + thyBody.length(); 
   def thyEnd = thmEnd + 10;
   
-  
+  /*
   def init() {
     // Set the header for the theory node, clear the contents and add the header and end
     
@@ -141,7 +124,9 @@ class IsabelleTheory ( val session: Session
     val perspective = Text.Perspective(List(Text.Range(0, thyEnd)))
     session.update(List(thyNode -> Document.Node.Perspective(perspective)));
   }
+  */
   
+  /*
   def addThm(thm: IsabelleTheorem) {
     val oldThmEnd = thmEnd
     thm.updateLocation(oldThmEnd)
@@ -152,7 +137,9 @@ class IsabelleTheory ( val session: Session
     thm.writeProof()
     updatePerspective()
   }
+*/
 
+ /*
   def updateProof(thmName: String, proof: IsabelleProof) {
     val thmList = thms.dropWhile(_.name != thmName)
     thmList match {
@@ -170,6 +157,8 @@ class IsabelleTheory ( val session: Session
     }
   }
   
+  */
+  
   override def toString() = thyHead + thyBody + thyTail
   // Alternatively: session.snapshot(ithy.thyNode).node.commands.map(_.source).mkString("")
   
@@ -184,17 +173,34 @@ class IsabelleTheory ( val session: Session
   
   
   // Gets the theorem command by looking at the appropriate location in the current snapshot
+
   def thmCmd(thmName : String): Option[Command] = {
     val thm  = thms.find(_.name == thmName)
     val node = session.snapshot(thyNode).node
-    thm.flatMap(_.location.flatMap(node.command_at(_))).map(_._1)
-  }
-
+    
+    thm.flatMap(_.location) match {
+      case Some(l) => {
+    	val rng = node.command_range(l)
+        val cm = if (rng.hasNext) Some(rng.next) else None
+        cm.map(_._1)
+      }
+      case None => None
+    }
+  }  
+  
   def qedCmd(thmName : String): Option[Command] = {
     val thm  = thms.find(_.name == thmName)
     val node = session.snapshot(thyNode).node
-    thm.flatMap(_.qedLocation().flatMap(node.command_at(_))).map(_._1)
-  }
+    
+    thm.flatMap(_.qedLocation()) match {
+      case Some(l) => {
+    	val rng = node.command_range(l)
+        val cm = if (rng.hasNext) Some(rng.next) else None
+        cm.map(_._1)
+      }
+      case None => None
+    }
+  }  
   
 /*
   def proofCmds(thm : String): Option[List[Command]] = {
@@ -253,7 +259,13 @@ class IsabelleTheory ( val session: Session
       case None => None
     }
   }
-  
+
+  def thmIsRejected(thm : String): Boolean = {
+    val cmd = thmCmd(thm)
+    val status = thmStatus(thm)
+    status.exists(x => x.is_failed) 
+  }
+
   def thmIsProved(thm : String): Boolean = {
     val cmd = qedCmd(thm)
     val status = thmStatus(thm)

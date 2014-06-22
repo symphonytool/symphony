@@ -46,11 +46,12 @@ public interface IProcessBehaviourDelegationManager
 
 	/**
 	 * Notify the manager about an error that caused a client to abort.
+	 * 
 	 * @param connectionThread
-	 * @param registeredProcessName 
+	 * @param registeredProcessName
 	 * @param errorCode
 	 * @param message
 	 */
-	public void abortedBy(ConnectionThread connectionThread, String registeredProcessName, int errorCode,
-			String message);
+	public void abortedBy(ConnectionThread connectionThread,
+			String registeredProcessName, int errorCode, String message);
 }

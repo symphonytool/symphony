@@ -6,7 +6,7 @@
   <parent>
     <groupId>eu.compassresearch</groupId>
     <artifactId>root</artifactId>
-    <version>0.3.0</version>
+    <version>0.3.2</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 

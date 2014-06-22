@@ -25,12 +25,14 @@ import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAReadCommunic
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCASignalCommunicationParameter;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAValParametrisation;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAWriteCommunicationParameter;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPCommunicationParameter;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ExpressionEvaluator;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.TypeManipulator;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAChannelDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCALocalDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAIntLiteralExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAUndefinedExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAVariableExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCVoidValue;
 import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCAIdentifierPattern;
@@ -115,19 +117,30 @@ public class NewMCParameterAndPatternVisitor extends QuestionAnswerCMLAdaptor<Ne
 			if(parent instanceof ACommunicationAction){
 				String channelName = ((ACommunicationAction) parent).getIdentifier().getName();
 				MCAChannelDefinition chanDef = question.getChannelDefinition(channelName);
+				ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
 				MCPCMLType realType = chanDef.getType();
 				if(realType instanceof MCAChannelType){
 					realType = ((MCAChannelType) realType).getType();
-					ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
+					
 					//this is a solution to avoid dealing with product type
 					//becaus only one parameter of the communication can be a read parameter
 					if(realType instanceof MCAProductType){
 						//simply use the defaul value for integers
 						expression = new MCAIntLiteralExp("0");
 					}else{
-						expression = evaluator.getDefaultValue(realType);
+						//if(chanDef.isInfiniteType()){
+							//expression = //evaluator.getDefaultValueForInfiniteType(realType);
+							//		new MCAVariableExp(pattern.toFormula(MCNode.DEFAULT));
+						//}else{
+							expression = evaluator.getDefaultValue(realType);
+						//}
 					}
 				}
+				if(chanDef.isInfiniteType()){
+					MCPCMLType type = question.getFinalType(realType.toFormula(MCNode.DEFAULT));
+					expression = evaluator.getDefaultValue(type);
+				}
+				
 			} 
 			
 		}
@@ -145,7 +158,7 @@ public class NewMCParameterAndPatternVisitor extends QuestionAnswerCMLAdaptor<Ne
 		
 		MCPCMLExp expression = (MCPCMLExp) node.getExpression().apply(rootVisitor, question);
 		
-		MCASignalCommunicationParameter result = new MCASignalCommunicationParameter(expression);
+		MCPCommunicationParameter result = new MCASignalCommunicationParameter(expression);
 		
 		return result;
 	}

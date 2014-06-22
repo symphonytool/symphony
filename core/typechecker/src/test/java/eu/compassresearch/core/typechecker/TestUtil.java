@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Vector;
 
 import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.messages.InternalException;
 import org.overture.typechecker.TypeCheckException;
 
 import eu.compassresearch.core.parser.CmlParserError;
@@ -55,51 +56,18 @@ public class TestUtil
 				res.tcOk = checker.typeCheck();
 			} catch (TypeCheckException e)
 			{
-				issueHandler.addTypeError(e.node, e.location, e.getMessage());
+
+			}catch(org.overture.ast.messages.InternalException e)
+			{
+				//do not record too many errors
+			}catch(eu.compassresearch.ast.messages.InternalException e)
+			{
+				//do not record too many errors
 			}
 		}
 		res.sources = parserRes.definitions;
-		;
 
 		return res;
 	}
 
-	// static List<String> parse(AFileSource... files)
-	// {
-	// // boolean ok = true;
-	// List<String> errors = new Vector<String>();
-	// for (AFileSource fileSource : files)
-	// {
-	// CmlLexer lexer = null;
-	// CmlParser parser = null;
-	// try
-	// {
-	// ANTLRInputStream in = new ANTLRInputStream(new FileInputStream(fileSource.getFile()));
-	// lexer = new CmlLexer(in);
-	// lexer.sourceFileName = fileSource.getFile().getName();
-	// CommonTokenStream tokens = new CommonTokenStream(lexer);
-	// parser = new CmlParser(tokens);
-	// parser.sourceFileName = lexer.sourceFileName;
-	// fileSource.setParagraphs(parser.source());
-	//
-	// // ok &= true;
-	// } catch (Exception e)
-	// {
-	// // e.printStackTrace();
-	// // ok &= false;
-	// }
-	//
-	// for (CmlParserError string : lexer.getErrors())
-	// {
-	// errors.add(string.toString());
-	// }
-	// for (CmlParserError string : parser.getErrors())
-	// {
-	// errors.add(string.toString());
-	// }
-	// }
-	//
-	// return errors;
-	//
-	// }
 }

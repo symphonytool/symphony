@@ -12,18 +12,16 @@ import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ValueException;
-import org.overture.interpreter.values.NameValuePairList;
 import org.overture.interpreter.values.ObjectValue;
 import org.overture.interpreter.values.RecordValue;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorFactory;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour.BehaviourName;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlCalculationStep;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlTrace;
-import eu.compassresearch.core.interpreter.api.behaviour.Inspection;
+import eu.compassresearch.core.interpreter.api.CmlBehaviorFactory;
+import eu.compassresearch.core.interpreter.api.CmlBehaviour;
+import eu.compassresearch.core.interpreter.api.CmlBehaviour.BehaviourName;
+import eu.compassresearch.core.interpreter.api.CmlTrace;
+import eu.compassresearch.core.interpreter.api.TransitionEvent;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.transitions.TauTransition;
 import eu.compassresearch.core.interpreter.api.transitions.TimedTransition;
@@ -53,13 +51,9 @@ public abstract class AbstractInspectionVisitor extends
 	 */
 	private final VisitorAccess visitorAccess;
 	/**
-	 * Evaluator for definitions
-	 */
-	protected QuestionAnswerCMLAdaptor<Context, NameValuePairList> cmlDefEvaluator = new CmlDefinitionVisitor();
-	/**
 	 * Evaluator for expressions
 	 */
-	protected final CmlExpressionVisitor cmlExpressionVisitor = new CmlExpressionVisitor();
+	protected final QuestionAnswerCMLAdaptor<Context, Value> cmlExpressionVisitor = new CmlExpressionVisitor();
 
 	/**
 	 * Used for making random but deterministic decisions
@@ -71,6 +65,8 @@ public abstract class AbstractInspectionVisitor extends
 	 *            The behavior object that owns this visitor
 	 * @param visitorAccess
 	 *            Gives access to methods that access protected parts of a CmlBehaviour
+	 * @param cmlBehaviorFactory 
+	 * @param parentVisitor 
 	 */
 	public AbstractInspectionVisitor(CmlBehaviour ownerProcess,
 			VisitorAccess visitorAccess, CmlBehaviorFactory cmlBehaviorFactory,
@@ -114,9 +110,9 @@ public abstract class AbstractInspectionVisitor extends
 		return new Inspection(new CmlTrace(owner.getTraceModel()), transitions, step);
 	}
 
-	protected void setWaiting()
+	protected void newTransitionEvent(TransitionEvent event)
 	{
-		visitorAccess.setWaiting();
+		visitorAccess.newTransitionEvent(event);
 	}
 
 	protected void clearLeftChild()

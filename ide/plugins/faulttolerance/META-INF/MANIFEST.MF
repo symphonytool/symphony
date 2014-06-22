@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %Bundle-Name
 Bundle-SymbolicName: eu.compassresearch.ide.faulttolerance;singleton:=true
-Bundle-Version: 0.3.0
+Bundle-Version: 0.3.2
 Bundle-Activator: eu.compassresearch.ide.faulttolerance.Activator
 Bundle-Vendor: %Bundle-Vendor
 Require-Bundle: 
@@ -11,7 +11,6 @@ Require-Bundle:
  eu.compassresearch.ide.ui,
  eu.compassresearch.ide.modelchecker
 Import-Package: eu.compassresearch.ast.program,
- eu.compassresearch.core.common,
  eu.compassresearch.ide.core.resources,
  eu.compassresearch.ide.core.unsupported,
  eu.compassresearch.ide.modelchecker,

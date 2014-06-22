@@ -6,19 +6,27 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Vector;
 
 import org.antlr.runtime.ANTLRInputStream;
-import org.antlr.runtime.CharStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
 
+import eu.compassresearch.core.parser.PreParser.StreamType;
+
+/**
+ * Parser utility class for parsing CML files. All use of the CML parser should happen through this class
+ * @author kel
+ *
+ */
 public class ParserUtil
 {
 	public static class ParserResult
@@ -34,17 +42,16 @@ public class ParserUtil
 			this.definitions = definitions;
 			this.exp = exp;
 		}
-		
+
 		public ParserResult(List<CmlParserError> errors,
 				List<PDefinition> definitions)
 		{
-			this(errors,definitions,null);
+			this(errors, definitions, null);
 		}
-		
-		public ParserResult(List<CmlParserError> errors,
-				PExp exp)
+
+		public ParserResult(List<CmlParserError> errors, PExp exp)
 		{
-			this(errors,null,exp);
+			this(errors, null, exp);
 		}
 
 		public void printErrors(PrintStream printer)
@@ -53,23 +60,45 @@ public class ParserUtil
 			{
 				printer.println(err.toString());
 			}
-			
+
+		}
+		
+		@Override
+		public String toString()
+		{
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			PrintStream ps = new PrintStream(baos);
+			printErrors(ps);
+			return baos.toString();
 		}
 	}
-	
-	private enum Type{Definition, Expression, Statement};
-	
-	public static ParserResult parse(File file, CharStream input)
+
+	private enum Type
 	{
-		return parse(file, input, Type.Definition);
+		Definition, Expression, Statement
+	};
+
+	public static ParserResult parse(File file, InputStream input,
+			StreamType streamType)
+	{
+		return parse(file, input, Type.Definition, streamType);
 	}
 	
-	public static ParserResult parseExpression(File file, CharStream input)
+	
+	public static ParserResult parse(File file, String source, String charset) throws UnsupportedEncodingException, IOException
 	{
-		return parse(file, input, Type.Expression);
+		StreamType streamType = PreParser.detectStreamType(getCharStream(source, charset));
+		return parse(file, getCharStream(source, charset), Type.Definition, streamType);
 	}
 
-	private static ParserResult parse(File file, CharStream input,Type type)
+	public static ParserResult parseExpression(File file, InputStream input,
+			StreamType streamType)
+	{
+		return parse(file, input, Type.Expression, streamType);
+	}
+
+	private static ParserResult parse(File file, InputStream input, Type type,
+			StreamType streamType)
 	{
 		// boolean ok = true;
 		List<CmlParserError> errors = new Vector<CmlParserError>();
@@ -80,15 +109,16 @@ public class ParserUtil
 		CmlParser parser = null;
 		try
 		{
-			lexer = new CmlLexer(input);
+
+			lexer = new CmlLexer(new ANTLRInputStream(PreParser.getInputStream(input, streamType)));
 			lexer.sourceFileName = file.getPath();
 			CommonTokenStream tokens = new CommonTokenStream(lexer);
 			parser = new CmlParser(tokens);
 			parser.sourceFileName = lexer.sourceFileName;
-			
-			switch(type)
+
+			switch (type)
 			{
-			
+
 				case Expression:
 					exp = parser.expression().exp;
 					break;
@@ -98,9 +128,8 @@ public class ParserUtil
 				default:
 					definitions.addAll(parser.source());
 					break;
-				
+
 			}
-			
 
 			// ok &= true;
 		} catch (Exception e)
@@ -117,42 +146,49 @@ public class ParserUtil
 				}
 				errors.add(new CmlParserError(msg, null, file.getName(), lexer.getLine(), 0, 0, 0));
 			}
-		}finally{
+		} finally
+		{
 			input = null;
 		}
 
 		errors.addAll(lexer.getErrors());
 		errors.addAll(parser.getErrors());
 
-		return new ParserResult(errors, definitions,exp);
+		return new ParserResult(errors, definitions, exp);
 
-	}
-
-	public static CharStream getCharStream(String content, String charset)
-			throws UnsupportedEncodingException, IOException
-	{
-		return new ANTLRInputStream(new ByteArrayInputStream(content.getBytes(charset)));
-	}
-
-	public static CharStream getCharStream(File file) throws FileNotFoundException, IOException 
-	{
-		return new ANTLRInputStream(new FileInputStream(file));
 	}
 	
-	
-	
-	public static ParserResult parse(List<File> files) throws FileNotFoundException, IOException
+	public static String getLanguageVersion()
 	{
-		return parse(files.toArray(new File[]{}));
+		return CmlParser.CML_LANG_VERSION;
 	}
 
-	public static ParserResult parse(File... files) throws FileNotFoundException, IOException
+	 public static InputStream getCharStream(String content, String charset)
+	 throws UnsupportedEncodingException, IOException
+	 {
+	 return new ByteArrayInputStream(content.getBytes(charset));
+	 }
+
+	private static InputStream getCharStream(File file)
+			throws FileNotFoundException, IOException
+	{
+		return new FileInputStream(file);
+	}
+
+	public static ParserResult parse(List<File> files)
+			throws FileNotFoundException, IOException
+	{
+		return parse(files.toArray(new File[] {}));
+	}
+
+	public static ParserResult parse(File... files)
+			throws FileNotFoundException, IOException
 	{
 		List<CmlParserError> errors = new Vector<CmlParserError>();
 		List<PDefinition> definitions = new Vector<PDefinition>();
 		for (File file : files)
 		{
-			ParserResult res = parse(file, getCharStream(file));
+			ParserResult res = parse(file, getCharStream(file), PreParser.detectStreamType(getCharStream(file)));
 
 			errors.addAll(res.errors);
 			definitions.addAll(res.definitions);

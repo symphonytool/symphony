@@ -77,3 +77,4 @@ reset-output.sh
 # vim swap files #
 ##################
 *.swp
+ide/plugins/theoremprover/.scala_dependencies

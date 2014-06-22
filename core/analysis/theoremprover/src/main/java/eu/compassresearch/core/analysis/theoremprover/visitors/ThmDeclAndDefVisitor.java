@@ -1,9 +1,11 @@
 package eu.compassresearch.core.analysis.theoremprover.visitors;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.definitions.AClassInvariantDefinition;
 import org.overture.ast.definitions.AExplicitFunctionDefinition;
 import org.overture.ast.definitions.AExplicitOperationDefinition;
 import org.overture.ast.definitions.AImplicitFunctionDefinition;
@@ -19,14 +21,18 @@ import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.patterns.APatternListTypePair;
 import org.overture.ast.patterns.APatternTypePair;
 import org.overture.ast.patterns.PPattern;
+import org.overture.ast.statements.AExternalClause;
 import org.overture.ast.types.AFunctionType;
 import org.overture.ast.types.ANamedInvariantType;
 import org.overture.ast.types.AOperationType;
+import org.overture.ast.types.AProductType;
 import org.overture.ast.types.ARecordInvariantType;
 import org.overture.ast.types.AVoidType;
 import org.overture.ast.types.PType;
 import org.overture.ast.types.SInvariantType;
 
+import eu.compassresearch.ast.actions.AValParametrisation;
+import eu.compassresearch.ast.actions.PParametrisation;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionDefinition;
@@ -50,10 +56,12 @@ import eu.compassresearch.core.analysis.theoremprover.thms.ThmProcAction;
 import eu.compassresearch.core.analysis.theoremprover.thms.ThmProcStand;
 import eu.compassresearch.core.analysis.theoremprover.thms.ThmRecType;
 import eu.compassresearch.core.analysis.theoremprover.thms.ThmState;
+import eu.compassresearch.core.analysis.theoremprover.thms.ThmStateInv;
 import eu.compassresearch.core.analysis.theoremprover.thms.ThmType;
 import eu.compassresearch.core.analysis.theoremprover.thms.ThmValue;
 import eu.compassresearch.core.analysis.theoremprover.utils.ThmExprUtil;
 import eu.compassresearch.core.analysis.theoremprover.utils.ThmProcessUtil;
+import eu.compassresearch.core.analysis.theoremprover.utils.ThmTypeUtil;
 import eu.compassresearch.core.analysis.theoremprover.visitors.deps.ThmDepVisitor;
 import eu.compassresearch.core.analysis.theoremprover.visitors.string.ThmStringVisitor;
 import eu.compassresearch.core.analysis.theoremprover.visitors.string.ThmVarsContext;
@@ -133,7 +141,6 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 		else if (type instanceof ARecordInvariantType)
 		{
 			ARecordInvariantType rtype = (ARecordInvariantType) type;
-			
 			//Send to visitor for Deplist
 			nodeDeps.addAll(rtype.apply(depVisitor, new NodeNameList()));
 
@@ -145,6 +152,7 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 				//Get the invariant - should only be one.
 				ThmNode i = invNode.firstElement();
 				{
+					((ThmExpFunc) i.getArtifact()).setRecordInv(true);
 					invDefn = i.toString();
 				}
 			}
@@ -256,7 +264,8 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 	{
 		ThmNodeList tnl = new ThmNodeList();
 		NodeNameList nodeDeps = new NodeNameList();
-
+		LinkedList<String> paramTypes = new LinkedList<String>(); 
+		
 		ILexNameToken name = node.getName();
 		
 		//Deal with the parameters
@@ -271,6 +280,7 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 		for(PType pTp : ((AFunctionType) node.getType()).getParameters())
 		{
 			nodeDeps.addAll(pTp.apply(depVisitor, new NodeNameList()));
+			paramTypes.add(pTp.apply(stringVisitor, new ThmVarsContext()));
 		}
 		
 		//Deal with the function body
@@ -297,7 +307,7 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 		String resType = node.getType().getResult().apply(stringVisitor, vc);
 		nodeDeps.addAll(node.getType().getResult().apply(depVisitor, b));
 		
-		ThmNode tn = new ThmNode(name, nodeDeps, new ThmExpFunc(name.getName(), exp, post, pre, params, resType));
+		ThmNode tn = new ThmNode(name, nodeDeps, new ThmExpFunc(name.getName(), exp, post, pre, params, paramTypes, resType));
 		tnl.add(tn);
 		
 		return tnl;
@@ -312,7 +322,8 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 	{
 		ThmNodeList tnl = new ThmNodeList();
 		NodeNameList nodeDeps = new NodeNameList();
-
+		LinkedList<String> paramTypes = new LinkedList<String>();
+		
 		ILexNameToken name = node.getName();
 		LinkedList<APatternListTypePair> params = node.getParamPatterns();
 		APatternTypePair res = node.getResult();
@@ -332,6 +343,7 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 		for(PType pTp : ((AFunctionType) node.getType()).getParameters() )
 		{
 			nodeDeps.addAll(pTp.apply(depVisitor, b));//(ThmTypeUtil.getIsabelleTypeDeps(pTp));
+			paramTypes.add(pTp.apply(stringVisitor, new ThmVarsContext()));
 		}
 		
 		
@@ -354,7 +366,7 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 		String resType = res.getType().apply(stringVisitor, vc);//ThmTypeUtil.getIsabelleType(res.getType());
 		nodeDeps.addAll(res.getType().apply(depVisitor, b));//(ThmTypeUtil.getIsabelleTypeDeps(res.getType()));
 
-		ThmNode tn = new ThmNode(name, nodeDeps, new ThmImpFunc(name.getName(), post, pre, params, res, resType));
+		ThmNode tn = new ThmNode(name, nodeDeps, new ThmImpFunc(name.getName(), post, pre, params, res, paramTypes, resType));
 		tnl.add(tn);
 		
 		return tnl;
@@ -370,15 +382,15 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 	{
 		ThmNodeList tnl = new ThmNodeList();
 		ILexNameToken name = null;
-		String type = "";
+		String type = "()";
 		NodeNameList nodeDeps =  new NodeNameList();
 		
 		name = node.getName();
 		PType chanType = node.getType();
 		if (chanType != null)
 		{
-			type = chanType.apply(stringVisitor, new ThmVarsContext()); //ThmTypeUtil.getIsabelleType(((AChannelType) chan.getType()).getType());
 			nodeDeps = chanType.apply(depVisitor, new NodeNameList());//ThmChanUtil.getIsabelleChanDeps(node);
+			type = chanType.apply(stringVisitor, new ThmVarsContext()); //ThmTypeUtil.getIsabelleType(((AChannelType) chan.getType()).getType());
 		}
 		ThmNode tn = new ThmNode(name, nodeDeps, new ThmChannel(name.toString(), type));
 		tnl.add(tn);
@@ -430,7 +442,7 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 	public ThmNodeList caseAProcessDefinition(AProcessDefinition node, ThmVarsContext vars) throws AnalysisException
 	{
 		ThmNodeList tnl = new ThmNodeList();
-		ThmNode tn = null;		
+		ThmNode tn = null;
 		
 		PProcess process = node.getProcess();
 		ILexNameToken processName = node.getName();
@@ -441,12 +453,34 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 
 			AProcessDefinition parentProcess = act.getAncestor(AProcessDefinition.class);
 			
-			//get the Isabelle string for the process node's process.
-			String procString = act.apply(stringVisitor, new ThmVarsContext());//= ThmProcessUtil.getIsabelleProcessString(node.getProcess());
-			//obtain the process dependencies
-			NodeNameList nodeDeps = act.apply(depVisitor, new NodeNameList());//ThmProcessUtil.getIsabelleProcessDeps(node.getProcess());
+			List<String> param = new LinkedList<String>();
 			
-			tn = new ThmNode(parentProcess.getName(), nodeDeps, new ThmProcAction(parentProcess.getName().toString(), procString));
+			ThmVarsContext bvars = new ThmVarsContext();
+			NodeNameList nnl = new NodeNameList();
+			
+			// Add potential parameters to the process and mark them as bound
+			for (PParametrisation p : parentProcess.getLocalState()) {
+				StringBuffer sb = new StringBuffer();
+				
+				// FIXME: Abstract this out
+				
+				sb.append("  fixes ");
+				sb.append(p.getDeclaration().getName().toString() + "\n");
+				sb.append("  assumes \"`\\<lparr>^");
+				sb.append(p.getDeclaration().getName().toString() + "^ hasType ");
+				sb.append(p.getDeclaration().getType().apply(stringVisitor, new ThmVarsContext()));
+				sb.append("\\<rparr>`\"");
+				param.add(sb.toString());
+				nnl.add(p.getDeclaration().getName());
+				bvars.addBVar(p.getDeclaration().getName());
+			}
+			
+			//get the Isabelle string for the process node's process.
+			String procString = act.apply(stringVisitor, bvars);//= ThmProcessUtil.getIsabelleProcessString(node.getProcess());
+			//obtain the process dependencies
+			NodeNameList nodeDeps = act.apply(depVisitor, nnl);//ThmProcessUtil.getIsabelleProcessDeps(node.getProcess());
+			
+			tn = new ThmNode(parentProcess.getName(), nodeDeps, new ThmProcAction(parentProcess.getName().toString(), param, procString));
 		}
 		else
 		{
@@ -510,15 +544,13 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 		LinkedList<APatternListTypePair> params = node.getParameterPatterns();			
 		//Deal with the parameters
 		//Find bound values to exclude from dependency list and add node dependencies
-		
-		LinkedList<String> paramTypes = new LinkedList<String>();
+	
 		for(APatternListTypePair p : params)
 		{
 			for(PPattern pat : p.getPatterns())
 			{
 				vars.addBVar(((AIdentifierPattern) pat).getName());
 			}
-			paramTypes.add(p.getType().apply(stringVisitor, vars));
 			nodeDeps.addAll(p.getType().apply(depVisitor, vars.getBVars()));
 		}	
 		//Add return type(s) to dependency list and list of bound values
@@ -531,7 +563,19 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 			nodeDeps.addAll(res.getType().apply(depVisitor, vars.getBVars()));
 		}	
 		
+		// Get the frame of this implicit operation
+		LinkedList<String> frame = new LinkedList<String>();
 		
+		if (node.getExternals() != null)
+		{
+			for (AExternalClause ext : node.getExternals()) {
+				if (ext.getMode().toString().equals("wr")) {
+					for (ILexNameToken i : ext.getIdentifiers()) {
+						frame.add(i.toString());
+					}
+				}
+			}
+		}
 		
 		if (node.getPrecondition() != null)
 		{
@@ -549,7 +593,7 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 			nodeDeps.addAll(node.getPostcondition().apply(depVisitor, vars.getBVars()));
 
 		}
-		tn = new ThmNode(node.getName(), nodeDeps, new ThmImplicitOperation(node.getName().getName(), params, pre, post, res, paramTypes, resType));
+		tn = new ThmNode(node.getName(), nodeDeps, new ThmImplicitOperation(node.getName().getName(), params, frame, pre, post, res, resType));
 		
 		tnl.add(tn);
 		return tnl;
@@ -636,6 +680,7 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 		//get the Isabelle string for the action node's action.
 		String actString = act.getAction().apply(stringVisitor, vars); //ThmProcessUtil.getIsabelleActionString(act.getAction(), svars, bvars);
 		//check for self dependencies - if present, require a MU
+		/*
 		for(ILexNameToken n : nodeDeps)
 		{
 			if(n.getName().equals(actName.getName()))
@@ -644,6 +689,7 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 				break;
 			}
 		}
+		*/
 		//create the theorem node.
 		tn = new ThmNode(actName, nodeDeps, new ThmAction(actName.getName(), actString));
 
@@ -652,10 +698,26 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 	}
 	
 	
-	
-	
-	
-	
+	@Override
+	public ThmNodeList caseAClassInvariantDefinition(
+			AClassInvariantDefinition inv, ThmVarsContext vars)
+			throws AnalysisException {
+		ThmNodeList tnl = new ThmNodeList();
+		
+		ILexNameToken sName = inv.getName();
+		
+		String invName = sName.toString().replace("$", ""); 		
+		// inv.getClassDefinition().getDefinitions().getFirst().getName().getName();
+		//obtain the invariant expression, and dependencies
+
+		String exprString = inv.getExpression().apply(stringVisitor, vars);
+		NodeNameList nodeDeps = inv.getExpression().apply(depVisitor, new NodeNameList());
+
+		ThmNode stn = new ThmNode(sName, nodeDeps, new ThmStateInv(invName, exprString));
+		tnl.add(stn);
+		
+		return tnl;
+	}
 	
 	@Override
 	public ThmNodeList defaultPSingleDeclaration(PSingleDeclaration node, ThmVarsContext vars)

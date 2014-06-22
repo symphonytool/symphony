@@ -1,5 +1,6 @@
 package eu.compassresearch.core.analysis.pog.obligations;
 
+import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AExplicitOperationDefinition;
 import org.overture.ast.expressions.AVariableExp;
 import org.overture.ast.expressions.PExp;
@@ -7,11 +8,11 @@ import org.overture.ast.factory.AstFactory;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.types.AOperationType;
 import org.overture.ast.types.PType;
-import org.overture.pog.obligation.SubTypeObligation;
+import org.overture.pog.obligation.TypeCompatibilityObligation;
 import org.overture.pog.pub.IPOContextStack;
 import org.overture.pog.pub.IPogAssistantFactory;
 
-public class CmlSubTypeObligation extends SubTypeObligation
+public class CmlSubTypeObligation extends TypeCompatibilityObligation
 {
 	/**
 	 * 
@@ -32,10 +33,11 @@ public class CmlSubTypeObligation extends SubTypeObligation
 	 *            Context Information
 	 * @param af 
 	 * @return
+	 * @throws AnalysisException 
 	 */
 	public static CmlSubTypeObligation newInstance(
 			AExplicitOperationDefinition def, PType actualResult,
-			IPOContextStack ctxt, IPogAssistantFactory af)
+			IPOContextStack ctxt, IPogAssistantFactory af) throws AnalysisException
 	{
 		AVariableExp result = AstFactory.newAVariableExp(new LexNameToken(def.getName().getModule(), "RESULT", def.getLocation()));
 
@@ -50,7 +52,7 @@ public class CmlSubTypeObligation extends SubTypeObligation
 
 
 	private CmlSubTypeObligation(AExplicitOperationDefinition def,
-			PExp resultexp, PType actualResult, IPOContextStack ctxt, IPogAssistantFactory af)
+			PExp resultexp, PType actualResult, IPOContextStack ctxt, IPogAssistantFactory af) throws AnalysisException
 	{
 		super(def, def.getLocation(), resultexp, ((AOperationType) def.getType()).getResult().clone(), actualResult.clone(), ctxt,af);
 	}

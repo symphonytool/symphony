@@ -1,0 +1,35 @@
+class Test  extends Super = 
+begin
+
+values
+
+  private min_temp : real = -25.0
+  private max_temp : real = 8.0
+  private initial_temp : real = -4
+  
+  private relay_cool : nat = 1
+  private relay_hold : nat = 2
+
+state
+  private hold_curve : seq of real := [0,-0.5,-1,-0.5,0,0.5,1.0,0.5]
+  private leak_rate : real := 0.01
+  private cool_rate : real := 0.01
+  private temp : real := initial_temp
+
+
+operations
+  protected compute : nat * map nat to bool ==> ()
+  compute(t,r) == Skip
+  pre relay_cool in set dom r and relay_hold in set dom r and (not r(relay_cool)) or (not r(relay_hold))
+
+
+end
+
+class Super = 
+begin
+
+
+state
+  protected time : nat := 0
+
+end

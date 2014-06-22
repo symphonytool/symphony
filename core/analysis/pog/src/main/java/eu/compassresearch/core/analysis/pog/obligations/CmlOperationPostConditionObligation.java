@@ -25,6 +25,7 @@ package eu.compassresearch.core.analysis.pog.obligations;
 
 import java.util.List;
 
+import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AExplicitOperationDefinition;
 import org.overture.ast.definitions.AImplicitOperationDefinition;
 import org.overture.ast.expressions.AAndBooleanBinaryExp;
@@ -32,6 +33,7 @@ import org.overture.ast.expressions.AOrBooleanBinaryExp;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.statements.AErrorCase;
 import org.overture.pog.pub.IPOContextStack;
+import org.overture.pog.pub.IPogAssistantFactory;
 
 public class CmlOperationPostConditionObligation extends CmlProofObligation{
 	
@@ -39,16 +41,16 @@ public class CmlOperationPostConditionObligation extends CmlProofObligation{
 	private static final long serialVersionUID = 1L;
 
 	public CmlOperationPostConditionObligation(AExplicitOperationDefinition op,
-				IPOContextStack ctxt)
+				IPOContextStack ctxt, IPogAssistantFactory af) throws AnalysisException
 	{
-		super(op, CmlPOType.OP_POST_CONDITION, ctxt, op.getLocation());
+		super(op, CmlPOType.OP_POST_CONDITION, ctxt, op.getLocation(), af);
 		valuetree.setPredicate(ctxt.getPredWithContext(buildExp(op.getPrecondition(), op.getPostcondition(), null)));
 	}
 
 	public CmlOperationPostConditionObligation(AImplicitOperationDefinition op,
-				IPOContextStack ctxt)
+				IPOContextStack ctxt, IPogAssistantFactory af) throws AnalysisException
 	{
-		super(op, CmlPOType.OP_POST_CONDITION, ctxt, op.getLocation());
+		super(op, CmlPOType.OP_POST_CONDITION, ctxt, op.getLocation(), af);
 		valuetree.setPredicate(ctxt.getPredWithContext(buildExp(op.getPrecondition(), op.getPostcondition(), op.getErrors())));
 	}
 
@@ -56,7 +58,7 @@ public class CmlOperationPostConditionObligation extends CmlProofObligation{
 	{
 		if (errs == null || errs.isEmpty())
 		{
-			return postexp;
+			return postexp.clone();
 		} else
 		{// handled prepost or errors
 			AOrBooleanBinaryExp orExp = new AOrBooleanBinaryExp();
@@ -74,12 +76,12 @@ public class CmlOperationPostConditionObligation extends CmlProofObligation{
 		{
 			// (preexp and postexp)
 			AAndBooleanBinaryExp andExp = new AAndBooleanBinaryExp();
-			andExp.setLeft(preexp);
-			andExp.setRight(postexp);
+			andExp.setLeft(preexp.clone());
+			andExp.setRight(postexp.clone());
 			return andExp;
 		} else
 		{
-			return postexp;
+			return postexp.clone();
 		}
 	}
 
@@ -87,8 +89,8 @@ public class CmlOperationPostConditionObligation extends CmlProofObligation{
 	{
 		// (errlet and errright)
 		AAndBooleanBinaryExp andExp = new AAndBooleanBinaryExp();
-		andExp.setLeft(err.getLeft());
-		andExp.setRight(err.getRight());
+		andExp.setLeft(err.getLeft().clone());
+		andExp.setRight(err.getRight().clone());
 		return andExp;
 	}
 	

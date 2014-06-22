@@ -1,4 +1,48 @@
 -----------------------------------------------------------
+RTTPLUGIN_0.3.2
+
+Changes:
+
+Bump version for Symphony release
+
+-----------------------------------------------------------
+RTTPLUGIN_0.3.1
+
+Changes:
+
+- fixed bug that resetting file cache fails if no file cache exists
+- added support for HTTP(S) front end redirecting to RTT-MBT server.
+- fixed: improve support for spaces in path names
+- added new advanced.conf parameter LI (upper limit for duration between input signal changes).
+- fixed: abstract interpreter and model coverage maximisation are now taken from advanced.conf by rtt-mbt-tcgen
+- fixed: added parsing of max_steps.txt and assignment of respective parameters to generate-test-command
+- fixed: replay of test procedures when generation context has been cleared in server cache.
+- fixed: doc-test is not working on windows
+- fixed: create project is not working on windows.
+- fixed: open covered_testcases on windows
+- fixed: new RTT-MBT component: templates not found
+- fixed file upload problem for test procedures on windows.
+- display LivelockReport.log file after model file import.
+- removed additional File.separator token from path to templates.
+- fixed: added workaround for different forms of absolute path names on windows ("c:\" and "/c:/").
+- fixed: adjusted code (for windows path names) that generates parent directories of files to be created.
+- added new actions to (generate and) execute test procedures in one go.
+- fixed download of templates for import and new project.
+- fixed bug in enabling/disabling rtt-mbt actions for multiple selected objects.
+
+Revision: in progress
+Released: in progress
+-----------------------------------------------------------
+RTTPLUGIN_0.3.0
+
+Synchronisation with Symphony release
+
+-----------------------------------------------------------
+RTTPLUGIN_0.2.9
+
+no merge from local development to symphony development in this version
+
+-----------------------------------------------------------
 RTTMBTAPI_0.2.7-SNAPSHOT
 
 merge from local rtt-plugin development into symphony

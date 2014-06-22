@@ -35,7 +35,7 @@ begin
 	-- RWL: Below is my interpretation of if IdleERU -> E else NoIdleERU -> L 
 	-- I've added IdleERU and NoIdleERU as channels
         D = IdleERU -> E
-	    ||
+	   |||
             NoIdleERU -> L
         -- RWL: Inserted ';' between opAllocateIdleERU and endAllocateIdleERU
         E = startAllocateIdleERU -> opAllocateIdleERU() ;
@@ -50,7 +50,7 @@ begin
         J = startServiceRescue -> sendServiceRescue -> endServiceRescue -> K
         K = Stop
         L =  LowerCriticality -> M
-             || 
+             |||
 	     HigherCriticality -> O
         M = startWait -> opWait(); endWait -> N
         N = C
@@ -69,8 +69,8 @@ begin
               
                   ControlStartRescue[[inStartRescue<-sendStartRescue]] )
   
-               || ControlServiceRescue [[ inServiceRescue <- sendServiceRescue ]] 
-               || ControlStartRescue[[outStartRescue<-acceptStartRescue]]
+               ||| ControlServiceRescue [[ inServiceRescue <- sendServiceRescue ]] 
+               ||| ControlStartRescue[[outStartRescue<-acceptStartRescue]]
                
 end
    

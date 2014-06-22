@@ -24,7 +24,10 @@ package eu.compassresearch.core.analysis.modelchecker.ast;
 		
 	//the named translation (where parameters are used to change the parameter names only)
 	public static final String PARAM_RENAMED = "PARAM_NAMED";
-
+	
+	//the state is default and process is named
+	public static final String STATE_DEFAULT_PROCESS_NAMED = "STATE_DEFAULT_PROCESS_NAMED";
+	
 	//the option to generate values by extension
 	public static final String EXTENSION = "EXTENSION";
 		

@@ -6,10 +6,12 @@
  ******************************************************************************/
 package eu.compassresearch.core.analysis.pog.obligations;
 
+import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.node.INode;
 import org.overture.pog.obligation.ProofObligation;
 import org.overture.pog.pub.IPOContextStack;
+import org.overture.pog.pub.IPogAssistantFactory;
 import org.overture.pog.pub.IProofObligation;
 
 abstract public class CmlProofObligation extends ProofObligation implements
@@ -23,9 +25,9 @@ abstract public class CmlProofObligation extends ProofObligation implements
 	public final CmlPOType cmltype;
 
 	public CmlProofObligation(INode node, CmlPOType kind, IPOContextStack ctxt,
-			ILexLocation location)
+			ILexLocation location, IPogAssistantFactory af) throws AnalysisException
 	{
-		super(node, kind.toOverturePOType(), ctxt, location);
+		super(node, kind.toOverturePOType(), ctxt, location,af);
 		cmltype = kind;
 
 	}
@@ -40,6 +42,6 @@ abstract public class CmlProofObligation extends ProofObligation implements
 	public String toString()
 	{
 		return name + ": " + cmltype + " obligation " + getLocation() + "\n"
-				+ getValue();
+				+ getFullPredString();
 	}
 }

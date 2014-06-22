@@ -1,0 +1,8 @@
+process Test = begin 
+
+operations
+op () r :int
+post r = 0
+
+@Skip
+end

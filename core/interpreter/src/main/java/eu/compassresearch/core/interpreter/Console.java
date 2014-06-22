@@ -18,7 +18,7 @@ import org.overture.parser.syntax.ParserException;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.api.transitions.LabelledTransition;
 import eu.compassresearch.core.interpreter.api.values.AbstractValueInterpreter;
-import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
+import eu.compassresearch.core.interpreter.api.values.ChannelValue;
 import eu.compassresearch.core.interpreter.utility.ValueParser;
 import eu.compassresearch.core.typechecker.api.CMLErrorsException;
 
@@ -75,7 +75,7 @@ public class Console
 
 	public static void readChannelNameValues(LabelledTransition chosenEvent)
 	{
-		ChannelNameValue channnelName = chosenEvent.getChannelName();
+		ChannelValue channnelName = chosenEvent.getChannelName();
 
 		for (int i = 0; i < channnelName.getValues().size(); i++)
 		{

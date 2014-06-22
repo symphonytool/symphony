@@ -1,7 +1,9 @@
 package eu.compassresearch.core.analysis.theoremprover.utils;
 
 import java.util.LinkedList;
+import java.util.List;
 
+import org.overture.ast.definitions.AClassInvariantDefinition;
 import org.overture.ast.definitions.AExplicitFunctionDefinition;
 import org.overture.ast.definitions.AExplicitOperationDefinition;
 import org.overture.ast.definitions.AImplicitFunctionDefinition;
@@ -10,6 +12,7 @@ import org.overture.ast.definitions.AInstanceVariableDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.definitions.SOperationDefinition;
 import org.overture.ast.lex.LexNameToken;
+import org.overture.ast.statements.AClassInvariantStm;
 
 import eu.compassresearch.ast.definitions.AActionClassDefinition;
 import eu.compassresearch.ast.definitions.AActionDefinition;
@@ -21,8 +24,8 @@ public class ThmProcessUtil {
 	
 	public static String isaProc = "definition";
 	public static String isaAct = "definition";
-	public static String procDelimLeft = "\\<parallel>";
-	public static String procDelimRight = "\\<parallel>";
+	public static String procDelimLeft = "`";
+	public static String procDelimRight = "`";
 	public static String isaActProc = "locale";
 	public static String isaProcBegin = "begin";
 	public static String isaProcEnd = "end";
@@ -50,19 +53,26 @@ public class ThmProcessUtil {
 	public static String guardRightBrack = "\\<rparr>]";
 	public static String guardSep = " & ";
 	public static String seqComp = " ; ";
-	public static String extChoice = " \\<box> ";
+	public static String extChoice = " [] ";
 	public static String intChoice = " |-| ";
-	public static String interrupt = " /\\ ";
+	public static String interrupt = " /-\\\\ ";
 	public static String timeIntLeft = "/(";
-	public static String timeIntRight = ")\\";
+	public static String timeIntRight = ")\\\\";
 	public static String timeout = "[>";
-	public static String timeoutLeft = "[(";
-	public static String timeoutRight = ")>";
+	public static String timeoutLeft = " [(";
+	public static String timeoutRight = ")> ";
 	public static String hiding = " \\\\ ";
 	public static String startsby = " startby ";
 	public static String endsby = " endby ";
 	public static String interleave = " ||| ";
 	public static String syncParallel = " || ";
+	public static String mainAction = "MainAction";
+	
+	public static String replExtChoice = "[] ";
+	public static String replIntChoice = "|~| ";
+	public static String replPar = "|| ";
+	public static String replInter = "||| ";
+	public static String replSeq = "; ";
 	
 	public static String ifLeft = "\\<triangleleft>";
 	public static String ifRight = "\\<triangleright>";
@@ -152,7 +162,20 @@ public class ThmProcessUtil {
 	}
 	
 	
-
+	public static List<AClassInvariantDefinition> getProcessInvariants(AActionProcess act){
+		AExplicitOperationDefinition o = act.getActionDefinition().getInvariant();
+		
+		List<AClassInvariantDefinition> defs = new LinkedList<AClassInvariantDefinition>();
+		
+		if (o != null && o.getBody() instanceof AClassInvariantStm) {
+			
+			for (PDefinition p : ((AClassInvariantStm)o.getBody()).getInvDefs()) {
+				if (p instanceof AClassInvariantDefinition) 
+					defs.add((AClassInvariantDefinition) p);
+			}
+		} 
+		return defs;
+	}
 	
 	/***
 	 * Method to retrieve all function names from a collection of explicit functions

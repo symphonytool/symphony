@@ -1,0 +1,10 @@
+process Test = begin 
+state
+n : nat
+
+operations
+op () r : nat
+post n = r
+
+@Skip
+end

@@ -1,8 +1,12 @@
 package eu.compassresearch.core.analysis.theoremprover.thms;
 
+import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
+
 import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.patterns.PPattern;
+
 import eu.compassresearch.core.analysis.theoremprover.utils.ThmProcessUtil;
 
 public class ThmExplicitOperation extends ThmDecl{
@@ -13,6 +17,7 @@ public class ThmExplicitOperation extends ThmDecl{
 	private String body;
 	private LinkedList<PPattern> params;
 	private String resType;
+	LinkedList<String> paramT;
 	private String paramTypes;
 	
 	private static String inputName = "inp";
@@ -23,6 +28,9 @@ public class ThmExplicitOperation extends ThmDecl{
 		this.name = name;
 		this.params = params;
 		this.paramTypes = genParamTypeList(paramT);
+		this.resType = resType;
+		this.paramT = paramT;
+/*
 		if(resType == null)
 		{
 			this.resType = "()";
@@ -31,9 +39,11 @@ public class ThmExplicitOperation extends ThmDecl{
 		{
 			this.resType = resType;
 		}
-		this.pre = genPre(pre);
-		this.post = genPost(post);
-		this.body = genBody(body);
+	*/
+		this.pre = pre;
+		this.post = post;
+		this.body = body;
+		// this.body = genBody(body);
 	}
 	
 	private String genParamTypeList(LinkedList<String> paramT) {
@@ -47,7 +57,7 @@ public class ThmExplicitOperation extends ThmDecl{
 		{
 			for(String p: paramT)		
 			{
-				sb.append("(" + p + ")*");
+				sb.append("(" + p + ")**");
 			}
 			sb.append("()");
 		}
@@ -118,7 +128,7 @@ public class ThmExplicitOperation extends ThmDecl{
 		}
 		
 		//Replace the keyword "RESULT" with the Lambda post value
-		ex = ex.replace("^RESULT^", "@" + outputName);
+		ex = ex.replace("&RESULT", "@" + outputName);
 		
 		return ex;
 	}
@@ -126,21 +136,32 @@ public class ThmExplicitOperation extends ThmDecl{
 		
 	@Override
 	public String toString() {
+		
 		StringBuilder res = new StringBuilder();
 		
-		res.append(pre + "\n\n");
-
-		res.append(post + "\n\n");
+		res.append("cmleop " + name + "\n");
 		
-		res.append(body + "\n\n");
+		if (params.size() > 0) {
+			
+			res.append("  inp ");
 		
-		res.append(ThmProcessUtil.isaOp + " \"" + name + " = CMLOpO " + 
-				ThmProcessUtil.opParamLeft + paramTypes + ThmProcessUtil.opParamRight + " " + 
-				ThmProcessUtil.opParamLeft + resType + ThmProcessUtil.opParamRight + " " + 
-				"pre_" + name + " " + 
-				"post_" + name + " " + 
-				"body_" + name + "\"\n" + 
-				tactic(name, operation));
+			Iterator<String> titr = paramT.iterator();
+			for (Iterator<PPattern> itr = params.listIterator(); itr.hasNext(); ) {				
+				PPattern pat = itr.next();
+				String ty = titr.next();
+				res.append(((AIdentifierPattern) pat).getName().toString());
+				res.append(" :: \"" + ty + "\"");
+				if (itr.hasNext()) res.append (" and ");
+			}
+			res.append("\n");
+		}
+		
+		if (resType != null) {
+			res.append("  out \"" + resType + "\"\n");
+		}
+		if (pre != null) res.append("  pre \"" + pre + "\"\n");
+		if (post != null) res.append("  post \"" + post + "\"\n");
+		res.append("  is \"" + body + "\"\n");
 		
 		return res.toString();
 	}

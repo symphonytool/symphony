@@ -28,6 +28,7 @@ public class ThmExprUtil {
 	public static String setUnion = " union ";
 	public static String starStar = " ** ";
 	public static String subset = " subset ";
+	public static String hasType = " hasType ";
 	
 	public static String absolute = "abs ";
 	public static String cardinality = "card ";

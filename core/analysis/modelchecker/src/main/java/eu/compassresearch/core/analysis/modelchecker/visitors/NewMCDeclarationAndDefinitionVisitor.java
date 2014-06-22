@@ -98,7 +98,8 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 		//it first puts the action definition into a stack so we can detect dependencies between 
 		//it and some channel that communicates values
 		question.actionOrProcessDefStack.push(node);
-				
+		question.processStack.push(node);
+		
 		LinkedList<MCPParametrisation> localState = new LinkedList<MCPParametrisation>();
 		
 		for (PParametrisation aTypeSingleDeclaration : node.getLocalState()) {
@@ -112,28 +113,13 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 
 		//it removes the visited action definition
 		question.actionOrProcessDefStack.pop();
+		question.processStack.pop();
 				
 		return result;
 		
 	}
 
-	/*
-	@Override
-	public MCNode caseAActionsDefinition(AActionsDefinition node,
-			NewCMLModelcheckerContext question) throws AnalysisException {
-		// it applies to each internal definition
-		LinkedList<AActionDefinition> actions = node.getActions();
-		LinkedList<MCAActionDefinition> mcActions = new LinkedList<MCAActionDefinition>();
-		for (AActionDefinition currentActionDefinition : actions) {
-			MCAActionDefinition mcActionDef = (MCAActionDefinition) currentActionDefinition.apply(this, question);
-			question.localActions.add(mcActionDef);
-			mcActions.add(mcActionDef);
-		}
-		
-		MCAActionsDefinition result = new MCAActionsDefinition(mcActions);
-		return result;
-	}
-	*/
+	
 	
 	@Override
 	public MCNode caseAActionDefinition(AActionDefinition node,
@@ -142,6 +128,7 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 		//it first puts the action definition into a stack so we can detect dependencies between 
 		//it and some channel that communicates values
 		question.actionOrProcessDefStack.push(node);
+		question.actionStack.push(node);
 		
 		LinkedList<PParametrisation> parameters = node.getDeclarations();
 		LinkedList<MCPParametrisation> mcParameters = new LinkedList<MCPParametrisation>();
@@ -149,13 +136,15 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 			mcParameters.add((MCPParametrisation) pParametrisation.apply(rootVisitor, question));
 		}
 		MCPAction action = (MCPAction) node.getAction().apply(rootVisitor, question);
-		String name = Utilities.extractFunctionName(node.getName().toString());
+		//String name = Utilities.extractFunctionName(node.getName().toString());
+		String name = question.generateName(Utilities.extractFunctionName(node.getName().toString()));
 		MCAActionDefinition result = new MCAActionDefinition(name, mcParameters, action);
 		
 		question.localActions.add(result);
 		
 		//it removes the visited action definition
 		question.actionOrProcessDefStack.pop();
+		question.actionStack.pop();
 		
 		return result;
 	}

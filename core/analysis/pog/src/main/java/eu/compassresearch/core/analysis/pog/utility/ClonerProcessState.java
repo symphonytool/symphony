@@ -5,18 +5,21 @@ import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AAssignmentDefinition;
+import org.overture.ast.definitions.AInstanceVariableDefinition;
 import org.overture.ast.definitions.AStateDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.node.INode;
 
 import eu.compassresearch.ast.analysis.AnswerCMLAdaptor;
+import eu.compassresearch.ast.definitions.AActionClassDefinition;
 import eu.compassresearch.ast.process.AActionProcess;
 
-public class ClonerProcessState extends AnswerCMLAdaptor<List<AAssignmentDefinition>>
+public class ClonerProcessState extends
+		AnswerCMLAdaptor<List<AInstanceVariableDefinition>>
 {
 
 	@Override
-	public List<AAssignmentDefinition> createNewReturnValue(INode node)
+	public List<AInstanceVariableDefinition> createNewReturnValue(INode node)
 			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
@@ -24,7 +27,7 @@ public class ClonerProcessState extends AnswerCMLAdaptor<List<AAssignmentDefinit
 	}
 
 	@Override
-	public List<AAssignmentDefinition> createNewReturnValue(Object node)
+	public List<AInstanceVariableDefinition> createNewReturnValue(Object node)
 			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
@@ -32,35 +35,28 @@ public class ClonerProcessState extends AnswerCMLAdaptor<List<AAssignmentDefinit
 	}
 
 	@Override
-	public List<AAssignmentDefinition> caseAActionProcess(AActionProcess node)
-			throws AnalysisException
+	public List<AInstanceVariableDefinition> caseAActionProcess(
+			AActionProcess node) throws AnalysisException
 	{
-		List<AAssignmentDefinition> r = new LinkedList<AAssignmentDefinition>();
-		// Unpack it and look for the state def
-		for (PDefinition def : node.getActionDefinition().getDefinitions())
+		return node.getActionDefinition().apply(this);
+	}
+
+	@Override
+	public List<AInstanceVariableDefinition> caseAActionClassDefinition(
+			AActionClassDefinition node) throws AnalysisException
+	{
+		List<AInstanceVariableDefinition> r = new LinkedList<AInstanceVariableDefinition>();
+
+		for (PDefinition def : node.getDefinitions())
 		{
-			if (def instanceof AStateDefinition)
+			if (def instanceof AInstanceVariableDefinition)
 			{
-				r.addAll(def.apply(this));
+				r.add((AInstanceVariableDefinition) def.clone());
 			}
 		}
 
 		return r;
-	}
 
-	@Override
-	public List<AAssignmentDefinition> caseAStateDefinition(AStateDefinition node)
-			throws AnalysisException
-	{
-		List<AAssignmentDefinition> r = new LinkedList<AAssignmentDefinition>();
-		
-		for (PDefinition def : node.getStateDefs()){
-			if (def instanceof AAssignmentDefinition){
-				r.add((AAssignmentDefinition)def.clone());
-			}
-		}
-		
-		return r;
 	}
 
 }

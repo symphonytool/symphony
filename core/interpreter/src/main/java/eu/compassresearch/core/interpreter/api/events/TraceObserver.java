@@ -10,8 +10,7 @@ public interface TraceObserver
 
 	/**
 	 * This event fires every times the trace is updated
-	 * 
-	 * @param stateEvent
+	 * @param traceEvent 
 	 */
 	public void onTraceChange(TraceEvent traceEvent);
 }

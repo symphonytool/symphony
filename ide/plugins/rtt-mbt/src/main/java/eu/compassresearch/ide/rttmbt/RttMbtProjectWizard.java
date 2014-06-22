@@ -3,9 +3,12 @@ package eu.compassresearch.ide.rttmbt;
 import java.io.File;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.ui.dialogs.WizardNewProjectCreationPage;
 import org.eclipse.ui.wizards.newresource.BasicNewProjectResourceWizard;
 
@@ -44,20 +47,35 @@ public class RttMbtProjectWizard extends BasicNewProjectResourceWizard {
 		// create folder
 		WizardNewProjectCreationPage newFolderPage = (WizardNewProjectCreationPage) getPages()[0];
 		IProject newProject = newFolderPage.getProjectHandle();
+		String projectName = newFolderPage.getProjectName();
+		IProjectDescription description = workspace.newProjectDescription(projectName);
+		File projectdir = new File(RttMbtClient.getAbsolutePathFromFileURI(newFolderPage.getLocationURI()));
+		if (!projectdir.getAbsolutePath().startsWith(workspaceDirectory.getAbsolutePath())) {
+			description.setLocation(Path.fromOSString(projectdir.getAbsolutePath()));
+			description.setName(projectName);
+		} else {
+			description = null;
+		}
+		IStatus status = workspace.validateProjectLocation(newProject, Path.fromOSString(projectdir.getAbsolutePath()));
+		if (!status.isOK()) {
+			System.err.println("invalid project location " + projectdir.getAbsolutePath() + ": " + status.toString());
+		}
 		try {
-			newProject.create(null);
+			client.addLogMessage("creating Eclipse project resource '" + Path.fromOSString(projectdir.getAbsolutePath()) + "'...");
+			newProject.create(description,null);
 			newProject.open(null);
 		} catch (CoreException e) {
-			client.addErrorMessage("[FAIL]: creating project resource failed!");
+			client.addErrorMessage("[FAIL]: creating project resource '" + Path.fromOSString(projectdir.getAbsolutePath()) + "' failed!");
+			client.addErrorMessage(e.toString());
 			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 			return false;
 		}
 
-		// get folder name
-		String projectName = newProject.getName();
+		// initialize client
 		client.setRttProjectName(projectName);
+		client.setRttProjectPath(RttMbtClient.getAbsolutePathFromFileURI(newFolderPage.getLocationURI()));
 		client.setWorkspaceProjectName(projectName);
-		client.setRttProjectPath(client.getWorkspacePath() + File.separator + projectName);
+		client.setWorkspaceProjectPrefix(null);
 		client.addLogMessage("creating RTT-MBT project " + projectName + "... please wait for the task to be finished.");
 
 		// start RTT-MBT-TMS session
@@ -73,12 +91,20 @@ public class RttMbtProjectWizard extends BasicNewProjectResourceWizard {
 		client.setProgress(IRttMbtProgressBar.Tasks.Global, 15);
 
 		// download templates
-		if (client.downloadDirectory("templates")) {
+		String backupWorkspaceProjectPrefix = client.getWorkspaceProjectPrefix();
+		String backupProjectPath = client.getRttProjectPath();
+		client.setWorkspaceProjectPrefix(null); // remove project prefix for templates download
+		client.setRttProjectPath(client.getWorkspacePath() + File.separator + projectName); // set fake project path for templates download
+		if (client.downloadDirectory(client.getWorkspacePath() + File.separator + "templates")) {
 			client.addLogMessage("[PASS]: downloading templates");
 			client.setProgress(IRttMbtProgressBar.Tasks.Global, 75);
+			client.setWorkspaceProjectPrefix(backupWorkspaceProjectPrefix); // restore project prefix again
+			client.setRttProjectPath(backupProjectPath); // restore file system project path
 		} else {
 			client.addErrorMessage("[FAIL]: downloading templates");
 			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
+			client.setWorkspaceProjectPrefix(backupWorkspaceProjectPrefix); // restore project prefix again
+			client.setRttProjectPath(backupProjectPath); // restore file system project path
 			return false;
 		}
 

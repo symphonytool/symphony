@@ -1,0 +1,78 @@
+types
+	Unwanted = E
+	LimitedUnwanted = F
+	
+channels
+       a,
+       b
+       unwanted: Unwanted
+	   chooseLimitedUnwanted: LimitedUnwanted
+	   
+values
+	-- Fault 1: 1
+	-- Error 1: 100
+	-- Failure 1: 10000
+	E = { 1, 100, 10000 }
+	F = { 1 }
+
+chansets
+       Es = {| unwanted.1, unwanted.100, unwanted.10000 |}
+       Hs = {| |}
+       
+       -- Fs = {| unwanted.<F1> |}
+       -- Alpha_NFTSimple = {| a,b |}
+     	
+     	
+-- Not fault tolerant
+
+process NFTSimple =
+begin
+        actions
+              NOMINAL_NFTSimple = a -> ((b -> NOMINAL_NFTSimple) [] FAULT_NFTSimple)
+              FAULT_NFTSimple = unwanted?x -> 
+              	if (x = 1) 
+              		then (NOMINAL_NFTSimple [] (unwanted?y -> 
+              										if (y = 100) 
+              											then Skip 
+              											else Skip)) 
+              		else Skip
+       @ NOMINAL_NFTSimple
+end
+
+
+process ChaosE = 
+begin
+	actions
+		--Rec = [] id in set E @ unwanted.id -> Decision
+		Rec = unwanted?id -> Decision
+		Decision = Stop |~| Rec
+	@ Decision
+end
+
+--process STOP = begin @ Stop end
+--process SKIP = begin @ Skip end
+
+
+--process FT_NFTSimple_H = NFTSimple
+
+--process FT_NFTSimple_E = NFTSimple \\ Es
+
+--process FT_NFTSimple_Lazy = NoFaults_NFTSimple [| Alpha_NFTSimple |] Lazy_NFTSimple
+
+--process FT_NFTSimple_LazyLimit = NoFaults_NFTSimple [| Alpha_NFTSimple |] LazyLimit_NFTSimple
+
+--process NoFaults_NFTSimple = (NFTSimple [| Es |] STOP) \\ Hs
+
+--process Lazy_NFTSimple = (NFTSimple [| Es |] ChaosE) \\ (Es union Hs) 
+
+
+process Limit_NFTSimple = 
+begin
+	actions
+		 --Limit = [] id in set F @ unwanted.id -> Limit
+		 Limit = chooseLimitedUnwanted?id1 -> unwanted!id1 -> Limit
+	@ Limit
+end
+
+process LazyLimit_NFTSimple = 
+	((NFTSimple [| Es |] Limit_NFTSimple) [| Es |] ChaosE) \\ (Es union Hs) 

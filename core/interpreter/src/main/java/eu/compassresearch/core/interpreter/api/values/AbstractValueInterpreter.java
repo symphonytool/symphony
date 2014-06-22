@@ -56,9 +56,9 @@ public class AbstractValueInterpreter
 		boolean ret = true;
 		if (value != null)
 		{
-			if (value instanceof ChannelNameValue)
+			if (value instanceof ChannelValue)
 			{
-				for (Value innerValue : ((ChannelNameValue) value).getValues())
+				for (Value innerValue : ((ChannelValue) value).getValues())
 				{
 					ret &= isValueMostPrecise(innerValue);
 				}

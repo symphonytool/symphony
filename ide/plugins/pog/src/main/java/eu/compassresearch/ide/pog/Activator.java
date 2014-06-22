@@ -56,6 +56,6 @@ public class Activator extends AbstractUIPlugin
 	 * @return the image descriptor
 	 */
 	public static ImageDescriptor getImageDescriptor(String path) {
-		return imageDescriptorFromPlugin(POConstants.PLUGIN_ID, path);
+		return imageDescriptorFromPlugin(PogPluginConstants.PLUGIN_ID, path);
 	}
 }

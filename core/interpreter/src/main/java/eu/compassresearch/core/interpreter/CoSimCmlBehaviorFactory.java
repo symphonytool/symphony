@@ -6,16 +6,16 @@ import org.overture.interpreter.runtime.Context;
 
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.process.AReferenceProcess;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorFactory;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour.BehaviourName;
+import eu.compassresearch.core.interpreter.api.CmlBehaviorFactory;
+import eu.compassresearch.core.interpreter.api.CmlBehaviour;
+import eu.compassresearch.core.interpreter.api.CmlBehaviour.BehaviourName;
 import eu.compassresearch.core.interpreter.cosim.DelegatedCmlBehaviour;
 import eu.compassresearch.core.interpreter.cosim.IProcessBehaviourDelegationManager;
 import eu.compassresearch.core.interpreter.cosim.IProcessDelegate;
 
 /**
  * Custom {@link CmlBehaviorFactory} which replaces the instantiation of behaviors from the default
- * {@link ConcreteCmlBehaviour} with a {@link DelegatedCmlBehaviour} when it is externally provided by a client. <br/>
+ * ConcreteCmlBehaviour with a {@link DelegatedCmlBehaviour} when it is externally provided by a client. <br/>
  * This class is intended to be used for co-simulation when running as a server
  * 
  * @author kel

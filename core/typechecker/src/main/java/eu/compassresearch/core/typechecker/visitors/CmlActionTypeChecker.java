@@ -16,6 +16,7 @@ import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.factory.AstFactory;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
+import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.patterns.PPattern;
@@ -35,12 +36,10 @@ import org.overture.typechecker.TypeCheckInfo;
 import org.overture.typechecker.TypeChecker;
 import org.overture.typechecker.TypeCheckerErrors;
 import org.overture.typechecker.TypeComparator;
-import org.overture.typechecker.assistant.pattern.PPatternAssistantTC;
 
 import eu.compassresearch.ast.CmlAstFactory;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismReplicatedAction;
-import eu.compassresearch.ast.actions.ACallAction;
 import eu.compassresearch.ast.actions.AChannelRenamingAction;
 import eu.compassresearch.ast.actions.AChaosAction;
 import eu.compassresearch.ast.actions.ACommonInterleavingReplicatedAction;
@@ -91,7 +90,7 @@ import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
 import eu.compassresearch.core.typechecker.api.TypeWarningMessages;
-import eu.compassresearch.core.typechecker.assistant.ACallActionAssistant;
+import eu.compassresearch.core.typechecker.assistant.AReferenceAssistant;
 import eu.compassresearch.core.typechecker.assistant.PParametrisationAssistant;
 import eu.compassresearch.core.typechecker.assistant.TypeCheckerUtil;
 
@@ -123,6 +122,14 @@ public class CmlActionTypeChecker extends
 
 	/**
 	 * Case to handle statements embedded in actions
+	 * 
+	 * @param node
+	 *            the node
+	 * @param question
+	 *            the question
+	 * @return the type
+	 * @throws AnalysisException
+	 *             if anything goes wrong
 	 */
 	public PType caseAStmAction(AStmAction node, TypeCheckInfo question)
 			throws AnalysisException
@@ -133,23 +140,27 @@ public class CmlActionTypeChecker extends
 	}
 
 	@Override
-	public PType caseACallAction(ACallAction node, TypeCheckInfo question)
+	public PType caseAReferenceAction(AReferenceAction node,
+			org.overture.typechecker.TypeCheckInfo question)
 			throws AnalysisException
 	{
 		List<PType> atypes = question.assistantFactory.createACallObjectStatementAssistant().getArgTypes(node.getArgs(), THIS, question);
 
-		if (question.env.isVDMPP())
+		// Only change the name from 'A' to 'A(int,int)' if 'A' has arguments
+		if (!node.getArgs().isEmpty())
 		{
-			node.getName().setTypeQualifier(atypes);
+			if (question.env.isVDMPP())
+			{
+				node.getName().setTypeQualifier(atypes);
+			}
 		}
 
-		PDefinition opdef = question.env.findName(node.getName(), question.scope);// findDefinition(node.getName(),
-																					// question.env);
+		PDefinition opdef = question.env.findName(node.getName(), question.scope);
 
 		if (opdef == null)
 		{
-			TypeCheckerErrors.report(3437, "Action " + node.getName()
-					+ " is not in scope", node.getLocation(), node);
+			TypeCheckerErrors.report(3437, "Action '" + node.getName()
+					+ "' is not in scope", node.getLocation(), node);
 			question.env.listAlternatives(node.getName());
 			node.setType(AstFactory.newAUnknownType(node.getLocation()));
 			return node.getType();
@@ -157,33 +168,52 @@ public class CmlActionTypeChecker extends
 
 		if (opdef instanceof AActionDefinition)
 		{
-			AActionDefinition actionDef = (AActionDefinition) opdef;
-
-			List<PType> paramTypes = new Vector<PType>();
-			for (PParametrisation localDef : actionDef.getDeclarations())
-			{
-				PType t = localDef.getDeclaration().getType();
-				question.assistantFactory.createPTypeAssistant().typeResolve(t, null, THIS, question);
-				paramTypes.add(t);
-			}
-
-			// Reset the name's qualifier with the actual operation type so
-			// that runtime search has a simple TypeComparator call.
-
-			if (question.env.isVDMPP())
-			{
-				node.getName().setTypeQualifier(paramTypes);
-			}
-			node.setType(AstFactory.newAVoidReturnType(node.getLocation()));
-			ACallActionAssistant.checkArgTypes(node, node.getType(), paramTypes, atypes);
-
+			AActionDefinition adef = (AActionDefinition) opdef;
+			node.setType(checkReferenceAction(node, node.getLocation(), node.getArgs(), adef.getDeclarations(), atypes, question));
+			node.setActionDefinition(adef);
 			return node.getType();
 		} else
 		{
-			TypeCheckerErrors.report(3438, "Name is not an action", node.getLocation(), node);
+			// TypeCheckerErrors.report(3438, "Name is not an action", node.getLocation(), node);
+			issueHandler.addTypeError(node, TypeErrorMessages.EXPECTED_AN_ACTION, " a "
+					+ question.assistantFactory.createPDefinitionAssistant().kind(opdef)
+					+ " deinition:" + node.getName());
 			node.setType(AstFactory.newAUnknownType(node.getLocation()));
 			return node.getType();
 		}
+	}
+
+	protected PType checkReferenceAction(INode node, ILexLocation loc,
+			List<PExp> args, List<PParametrisation> declarations,
+			List<PType> atypes, TypeCheckInfo question)
+			throws AnalysisException
+	{
+
+		// AActionDefinition actionDef = (AActionDefinition) opdef;
+
+		List<PType> paramTypes = new Vector<PType>();
+		for (PParametrisation localDef : declarations)
+		{
+			PType t = localDef.getDeclaration().getType();
+			question.assistantFactory.createPTypeAssistant().typeResolve(t, null, THIS, question);
+			paramTypes.add(t);
+		}
+
+		// Reset the name's qualifier with the actual operation type so
+		// that runtime search has a simple TypeComparator call.
+
+		// Only change the name from 'A' to 'A(int,int)' if 'A' has arguments
+		// if (!args.isEmpty())
+		// {
+		// if (question.env.isVDMPP())
+		// {
+		// name.setTypeQualifier(paramTypes);
+		// }
+		// }
+		PType type = AstFactory.newAVoidReturnType(loc);
+		AReferenceAssistant.checkArgTypes(node, loc, type, paramTypes, atypes);
+		// node.setActionDefinition(actionDef);
+		return type;
 
 	}
 
@@ -305,7 +335,6 @@ public class CmlActionTypeChecker extends
 			}
 		}
 
-		// FIXME how should we handle write only checks
 		PType repActionType = node.getReplicatedAction().apply(THIS, question.newScope(defs, NameScope.NAMESANDANYSTATE));
 
 		return TypeCheckerUtil.setType(question.assistantFactory, node, repActionType);
@@ -458,14 +487,13 @@ public class CmlActionTypeChecker extends
 			org.overture.typechecker.TypeCheckInfo question)
 			throws AnalysisException
 	{
+		// all channels must exist so just check that the channels exists
+		// then check the action
 
-		// PAction action = node.getAction();
-		//
-		// SRenameChannelExp renameExp = node.getRenameExpression();
+		node.getRenameExpression().apply(THIS, question);
+		node.getAction().apply(THIS, question);
 
-		// FIXME throw new InternalException(0, "caseAChannelRenamingAction not implemented");
 		return setTypeVoid(node);
-		// return new AActionType(node.getLocation(), true);
 	}
 
 	@Override
@@ -741,48 +769,6 @@ public class CmlActionTypeChecker extends
 		return setType(question.assistantFactory, node, leftType, rightType);
 	}
 
-	@Override
-	public PType caseAReferenceAction(AReferenceAction node,
-			org.overture.typechecker.TypeCheckInfo question)
-			throws AnalysisException
-	{
-
-		PDefinition def = question.env.findName(node.getName(), question.scope); // findDefinition(node.getName().getIdentifier(),
-																					// question.env);
-
-		if (def == null)
-		{
-			issueHandler.addTypeError(node, TypeErrorMessages.UNDEFINED_SYMBOL, node.getName()
-					+ "");
-			node.setType(AstFactory.newAUnknownType(node.getLocation()));
-			return node.getType();
-		}
-
-		PType type = null;
-
-		if (!(def instanceof AActionDefinition))
-		{
-			issueHandler.addTypeError(node, TypeErrorMessages.EXPECTED_AN_ACTION, " a "
-					+ question.assistantFactory.createPDefinitionAssistant().kind(def)
-					+ " deinition:" + node.getName());
-
-		} else
-		{
-
-			AActionDefinition actionDef = (AActionDefinition) def;
-			node.setActionDefinition(actionDef);
-		}
-
-		if (type == null)
-
-		{
-			type = AstFactory.newAVoidType(node.getLocation());
-		}
-
-		node.setType(type);
-		return node.getType();
-	}
-
 	@SuppressWarnings("deprecation")
 	@Override
 	public PType caseACommunicationAction(ACommunicationAction node,
@@ -857,7 +843,7 @@ public class CmlActionTypeChecker extends
 
 				actualType = question.assistantFactory.createPPatternAssistant().getPossibleType(p);
 
-				names.addAll(PPatternAssistantTC.getVariableNames(p));
+				names.addAll(question.assistantFactory.createPPatternAssistant().getVariableNames(p));
 
 			} else if (commParam instanceof AWriteCommunicationParameter
 					|| commParam instanceof ASignalCommunicationParameter)
@@ -1013,30 +999,11 @@ public class CmlActionTypeChecker extends
 	{
 
 		AParametrisedAction action = node.getAction();
-		LinkedList<PExp> args = node.getArgs();
+		action.apply(THIS, question);
+		List<PType> atypes = question.assistantFactory.createACallObjectStatementAssistant().getArgTypes(node.getArgs(), THIS, question);
 
-		List<PDefinition> defs = new Vector<PDefinition>();
-
-		LinkedList<PParametrisation> parameterNames = node.getAction().getParametrisations();
-		int i = 0;
-		for (PExp exp : args)
-		{
-			// FIXME what is this exp for, it is not used in the check
-			/* PType expType = */exp.apply(THIS, question);
-
-			if (i > parameterNames.size())
-			{
-				continue;
-			}
-			PParametrisation pa = parameterNames.get(i++);
-			pa.apply(THIS, question);
-			ALocalDefinition localDef = pa.getDeclaration();
-			defs.add(localDef);
-		}
-
-		PType actionType = action.apply(THIS, question.newScope(defs));
-
-		return setType(question.assistantFactory, node, actionType);
+		node.setType(checkReferenceAction(node, node.getLocation(), node.getArgs(), action.getParametrisations(), atypes, question));
+		return node.getType();
 	}
 
 	@Override
@@ -1111,8 +1078,27 @@ public class CmlActionTypeChecker extends
 			AAlphabetisedParallelismReplicatedAction node,
 			TypeCheckInfo question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
-		return setTypeVoid(node);
+		PVarsetExpression namesetExp = node.getNamesetExpression();
+		PAction repAction = node.getReplicatedAction();
+		LinkedList<PSingleDeclaration> decls = node.getReplicationDeclaration();
+
+		namesetExp.apply(nameSetChecker, question);
+
+		List<PDefinition> defs = new Vector<PDefinition>();
+
+		for (PSingleDeclaration decl : decls)
+		{
+			PType declType = decl.apply(THIS, question);
+
+			for (PDefinition def : declType.getDefinitions())
+			{
+				defs.add(def);
+			}
+		}
+
+		PType repActionType = repAction.apply(THIS, question.newScope(defs));
+
+		return setType(question.assistantFactory, node, repActionType);
 	}
 
 	public PType createNewReturnValue(INode node, TypeCheckInfo question)

@@ -3,7 +3,7 @@ package eu.compassresearch.core.interpreter.api.transitions;
 import org.overture.ast.node.INode;
 
 import eu.compassresearch.core.interpreter.CmlRuntime;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
+import eu.compassresearch.core.interpreter.api.CmlBehaviour;
 
 public class TauTransition extends AbstractCmlTransition
 {
@@ -19,8 +19,8 @@ public class TauTransition extends AbstractCmlTransition
 	private final INode destinationNode;
 	private final String kind = "tau";
 
-	public TauTransition(CmlBehaviour eventSource,
-			INode destinationNode, String transitionMessage)
+	public TauTransition(CmlBehaviour eventSource, INode destinationNode,
+			String transitionMessage)
 	{
 		super(eventSource);
 		if (destinationNode == null)
@@ -28,7 +28,7 @@ public class TauTransition extends AbstractCmlTransition
 			throw new NullPointerException("A tau transition must have a destination node");
 		}
 		this.destinationNode = destinationNode;
-		
+
 		setTransitionMessage(transitionMessage);
 	}
 
@@ -56,16 +56,27 @@ public class TauTransition extends AbstractCmlTransition
 		{
 			return kind
 					+ "("
-					+ transitionSrcNode.getClass().getSimpleName()
+					+ formatNode(transitionSrcNode)//.getClass().getSimpleName()
 					+ (transitionMessage != null ? "--" + transitionMessage
 							+ "->" : "->")
 
-					+ destinationNode.getClass().getSimpleName() + ") : "
+					+ formatNode(destinationNode)/*.getClass().getSimpleName()*/ + ") : "
 					+ getEventSources();
 		} else
 		{
 			return kind;
 		}
+	}
+	
+	String formatNode(INode node)
+	{
+		String s ="'"+ (node+"").replace('\n', ' ').replace('\t', ' ')+"'";
+		final int MAX=30;
+		if(s.length()>MAX)
+		{
+			return s.substring(0,MAX-4)+"...'";
+		}
+		return s;
 	}
 
 	@Override
@@ -74,7 +85,6 @@ public class TauTransition extends AbstractCmlTransition
 		return kind.hashCode() + destinationNode.hashCode()
 				+ this.eventSources.hashCode();
 	}
-	
 
 	@Override
 	public boolean equals(Object obj)

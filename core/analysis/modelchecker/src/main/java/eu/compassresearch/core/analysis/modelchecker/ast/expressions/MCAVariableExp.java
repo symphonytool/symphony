@@ -33,6 +33,8 @@ public class MCAVariableExp implements MCNumericExp {
 			if(valueDef != null){
 				result.append(valueDef.getExpression().toFormula(option));
 			} else {
+				//if this variable is local and has been put in the localMapping stack (from the top)
+				//context.searchLocalVariable
 				result.append(this.getName());
 			}
 		//	break;
@@ -54,6 +56,16 @@ public class MCAVariableExp implements MCNumericExp {
 		return this.name;
 	}
 
+	
+
+	@Override
+	public boolean equals(Object obj) {
+		boolean result = false;
+		if(obj instanceof MCAVariableExp){
+			result = this.name.equals(((MCAVariableExp) obj).getName());
+		}
+		return result;
+	}
 
 	public String getName() {
 		return name;

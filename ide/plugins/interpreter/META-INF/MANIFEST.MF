@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Symphony IDE Interpreter Plugin
 Bundle-SymbolicName: eu.compassresearch.ide.interpreter;singleton:=true
-Bundle-Version: 0.3.0
+Bundle-Version: 0.3.2
 Bundle-Activator: eu.compassresearch.ide.interpreter.CmlDebugPlugin
 Bundle-Vendor: The COMPASS Project
 Bundle-Localization: plugin
@@ -21,7 +21,8 @@ Require-Bundle: org.eclipse.debug.ui,
  org.overture.ide.builders.vdmj,
  org.overture.ide.debug,
  eu.compassresearch.ide.core,
- eu.compassresearch.ide.ui
+ eu.compassresearch.ide.ui,
+ org.eclipse.core.filesystem
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Eclipse-BuddyPolicy: registered
@@ -35,3 +36,4 @@ Bundle-ClassPath: .,
  jars/slf4j-api.jar,
  jars/log4j.jar,
  jars/slf4j-log4j12.jar
+Export-Package: eu.compassresearch.ide.interpreter

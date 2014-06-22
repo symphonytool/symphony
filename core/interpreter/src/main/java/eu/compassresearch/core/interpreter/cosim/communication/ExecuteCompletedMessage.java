@@ -18,12 +18,10 @@ public class ExecuteCompletedMessage implements JsonMessage
 	{
 	}
 
-
 	@Override
 	public String toString()
 	{
 		return "Executed";
 	}
-
 
 }

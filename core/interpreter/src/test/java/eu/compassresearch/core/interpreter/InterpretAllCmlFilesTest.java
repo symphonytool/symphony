@@ -8,6 +8,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -28,10 +29,11 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.overture.ast.analysis.AnalysisException;
 
+import eu.compassresearch.core.interpreter.api.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
+import eu.compassresearch.core.interpreter.api.CmlTrace;
 import eu.compassresearch.core.interpreter.api.RandomSelectionStrategy;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.parser.ParserUtil;
 import eu.compassresearch.core.parser.ParserUtil.ParserResult;
 import eu.compassresearch.core.typechecker.VanillaFactory;
@@ -120,7 +122,7 @@ public class InterpretAllCmlFilesTest
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			PrintStream ps = new PrintStream(baos);
 			res.printErrors(ps);
-			Assume.assumeTrue("Parser errors", false);
+			Assume.assumeTrue("Parser Errors: \n\n" + baos, false);
 			assertTrue("Parser Errors: \n\n" + baos, res.errors.isEmpty());
 			return;
 		}
@@ -157,7 +159,25 @@ public class InterpretAllCmlFilesTest
 		{
 			exception = ex;
 		}
-		ExpectedTestResult testResult = ExpectedTestResult.parseTestResultFile(resultPath);
+		
+		if(!new File(resultPath).exists())
+		{
+			final CmlTrace traceModel = interpreter.getTopLevelProcess().getTraceModel();
+			final String traceToString = TraceUtility.traceToString(traceModel.getEventTrace());
+			final String observable = TraceUtility.traceToString(traceModel.getObservableTrace());
+
+			String ex = "";
+			if(exception!=null)
+			{
+			StringWriter sw = new StringWriter();
+			PrintWriter pw = new PrintWriter(sw);
+			exception.printStackTrace(pw);
+			ex = sw.toString();
+			}
+			Assert.fail("Result file doesn't exist: "+resultPath+"\n\nActual result:\nEvents: "+traceToString+"\n\nTime trace: "+observable+ "\n\nException: "+ex);
+			return;
+		}
+			ExpectedTestResult testResult = ExpectedTestResult.parseTestResultFile(resultPath);
 		checkResult(testResult, interpreter, exception);
 	}
 
@@ -177,9 +197,16 @@ public class InterpretAllCmlFilesTest
 		// testResult.throwsException() => exception != null
 		assertTrue("The test was expected to throw an exception but did not!", !testResult.throwsException()
 				|| exception != null);
+		
+		if(exception!=null)
+		{
+			exception.printStackTrace();
+		}
 		// !testResult.throwsException() => exception == null
 		assertTrue("The test threw an unexpected exception : " + exception, testResult.throwsException()
 				|| exception == null);
+		
+		
 
 		// events
 		String eventTrace = "";
@@ -189,8 +216,7 @@ public class InterpretAllCmlFilesTest
 		}
 		Pattern trace = testResult.getExpectedEventTracePattern();
 		Matcher matcher = trace.matcher(eventTrace);
-		assertTrue(testResult.getExpectedEventTracePattern() + " != "
-				+ eventTrace, matcher.matches());
+		assertTrue("The actual trace: '" + eventTrace+"' does not match expected: '"+testResult.getExpectedEventTracePattern()+"'" , matcher.matches());
 
 		// TimedTrace
 		if (testResult.hasTimedTrace())
@@ -210,8 +236,13 @@ public class InterpretAllCmlFilesTest
 	@Parameters(name = "{index} : {1}")
 	public static Collection<Object[]> getCmlfilePaths()
 	{
-
 		final String initialPath = "src/test/resources/standard";
+		return collectTests(initialPath);
+	}
+
+	protected static Collection<Object[]> collectTests(String initialPath)
+	{
+		
 		List<Object[]> paths = findAllCmlFiles(initialPath);
 
 		// List<Object[]> paths = findAllCmlFiles("src/test/resources/action/parallel-composition");

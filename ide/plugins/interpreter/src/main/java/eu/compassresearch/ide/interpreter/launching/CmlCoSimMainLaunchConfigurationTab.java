@@ -38,6 +38,7 @@ import eu.compassresearch.ide.core.ICmlCoreConstants;
 import eu.compassresearch.ide.core.resources.ICmlProject;
 import eu.compassresearch.ide.interpreter.CmlUtil;
 import eu.compassresearch.ide.interpreter.ICmlDebugConstants;
+import eu.compassresearch.ide.interpreter.handlers.CreateExternalSystemHandler;
 
 public class CmlCoSimMainLaunchConfigurationTab extends
 		AbstractLaunchConfigurationTab
@@ -71,6 +72,7 @@ public class CmlCoSimMainLaunchConfigurationTab extends
 	private Text hostText;
 	private org.eclipse.swt.widgets.List externalProcessesList;
 	private Button selectExternalProcessesButton;
+	private Button configureExternalSystemButton;
 
 	@Override
 	public void createControl(Composite parent)
@@ -123,6 +125,7 @@ public class CmlCoSimMainLaunchConfigurationTab extends
 			{
 				externalProcessesList.setEnabled(!externalSysRadio.getSelection());
 				selectExternalProcessesButton.setEnabled(!externalSysRadio.getSelection());
+				configureExternalSystemButton.setEnabled(externalSysRadio.getSelection());
 			}
 
 			@Override
@@ -142,6 +145,7 @@ public class CmlCoSimMainLaunchConfigurationTab extends
 		gd.horizontalSpan = 2;
 		gd.horizontalAlignment = SWT.FILL;
 		hostText.setLayoutData(gd);
+		hostText.addModifyListener(fListener);
 
 		label = new Label(group, SWT.MIN);
 		label.setText("External Processes:");
@@ -182,6 +186,19 @@ public class CmlCoSimMainLaunchConfigurationTab extends
 
 		});
 
+		configureExternalSystemButton = createPushButton(parent, "Configure External System", null);
+		gd = new GridData(GridData.END);
+		configureExternalSystemButton.setLayoutData(gd);
+
+		configureExternalSystemButton.addSelectionListener(new SelectionAdapter()
+		{
+			@Override
+			public void widgetSelected(SelectionEvent e)
+			{
+				createExternalSystemConfig();
+			}
+		});
+
 	}
 
 	protected String encodeArrayAsCoommaSeperatedString(String... item)
@@ -197,6 +214,28 @@ public class CmlCoSimMainLaunchConfigurationTab extends
 
 		}
 		return sb.toString();
+	}
+
+	private void createExternalSystemConfig()
+	{
+		IProject proj = getProject();
+		if (proj != null)
+		{
+
+			String host = hostText.getText();
+
+			if (host.contains(":"))
+			{
+				String[] tmp = host.split(":");
+				host = tmp[0];
+				String port = tmp[1];
+				String config = "#define SYMPHONY_HOST \""
+						+ host
+						+ "\"\n#define SYMPHONY_PORT "+port+"\n#define EXTERNAL_PROCESS \""
+						+ fTopProcessText.getText() + "\"";
+				CreateExternalSystemHandler.createExternalSystemStructure(proj, config);
+			}
+		}
 	}
 
 	private String[] encodeProcessNameList(
@@ -491,7 +530,6 @@ public class CmlCoSimMainLaunchConfigurationTab extends
 		});
 	}
 
-
 	private void createAnimateSimulateSelection(Composite parent)
 	{
 		Group group = new Group(parent, parent.getStyle());
@@ -516,7 +554,7 @@ public class CmlCoSimMainLaunchConfigurationTab extends
 	@Override
 	public void setDefaults(ILaunchConfigurationWorkingCopy configuration)
 	{
-		configuration.setAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_IS_ANIMATION, true);
+		configuration.setAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_IS_ANIMATION, false);
 	}
 
 	@Override
@@ -544,6 +582,7 @@ public class CmlCoSimMainLaunchConfigurationTab extends
 			{
 				coordinatorRadio.setSelection(true);
 				externalSysRadio.setSelection(false);
+				configureExternalSystemButton.setEnabled(externalSysRadio.getSelection());
 				String externalProcesses = configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_COSIM_EXTERNAL_PROCESSES, "");
 				if (!externalProcesses.isEmpty())
 				{
@@ -555,6 +594,7 @@ public class CmlCoSimMainLaunchConfigurationTab extends
 			{
 				coordinatorRadio.setSelection(false);
 				externalSysRadio.setSelection(true);
+				configureExternalSystemButton.setEnabled(externalSysRadio.getSelection());
 				externalProcessesList.setData(null);
 				externalProcessesList.setEnabled(false);
 				selectExternalProcessesButton.setEnabled(false);
@@ -583,7 +623,7 @@ public class CmlCoSimMainLaunchConfigurationTab extends
 		{
 			configuration.setAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_COSIM_IS_COORDINATOR, true);
 			configuration.setAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_COSIM_EXTERNAL_PROCESSES, encodeArrayAsCoommaSeperatedString(externalProcessesList.getItems()));
-		}else
+		} else
 		{
 			configuration.setAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_COSIM_IS_COORDINATOR, false);
 			configuration.setAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_COSIM_EXTERNAL_PROCESSES, "");

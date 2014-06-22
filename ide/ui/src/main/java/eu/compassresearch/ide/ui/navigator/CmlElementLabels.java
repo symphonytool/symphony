@@ -1,7 +1,6 @@
 package eu.compassresearch.ide.ui.navigator;
 
 import org.eclipse.jface.viewers.StyledString;
-import org.eclipse.jface.viewers.StyledString.Styler;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AAssignmentDefinition;
 import org.overture.ast.definitions.AExplicitOperationDefinition;
@@ -14,7 +13,6 @@ import org.overture.ast.types.AVoidType;
 import org.overture.ast.types.PType;
 import org.overture.ide.ui.internal.viewsupport.VdmElementLabels;
 
-import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.AnswerCMLAdaptor;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AChannelDefinition;
@@ -53,11 +51,6 @@ public class CmlElementLabels extends VdmElementLabels
 	private static class TextLabelCreator extends
 			AnswerCMLAdaptor<StyledString>
 	{
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-
 		@Override
 		public StyledString caseAExplicitOperationDefinition(
 				AExplicitOperationDefinition node) throws AnalysisException
@@ -179,7 +172,11 @@ public class CmlElementLabels extends VdmElementLabels
 			result.append(node.getName().getName());
 			if (node.getType() != null)
 			{
-				result.append(" : " + getSimpleTypeString(node.getType()), StyledString.DECORATIONS_STYLER);
+				final String type = getSimpleTypeString(node.getType());
+				if (!type.isEmpty())
+				{
+					result.append(" : " + type, StyledString.DECORATIONS_STYLER);
+				}
 			}
 
 			return result;
@@ -194,7 +191,8 @@ public class CmlElementLabels extends VdmElementLabels
 			result.append(node.getName().getName());
 			if (node.getProcess() instanceof AActionProcess)
 			{
-				result.append(" : "+truncateString(35, ((AActionProcess) node.getProcess()).getAction().toString()), StyledString.DECORATIONS_STYLER);
+				result.append(" : "
+						+ truncateString(35, ((AActionProcess) node.getProcess()).getAction().toString()), StyledString.DECORATIONS_STYLER);
 			}
 			return result;
 		}
@@ -202,9 +200,9 @@ public class CmlElementLabels extends VdmElementLabels
 		private String truncateString(int length, String string)
 		{
 			string = string.replace('\n', ' ');
-			if(string.length()>length-3)
+			if (string.length() > length - 3)
 			{
-				return string.substring(0,length-3)+"...";
+				return string.substring(0, length - 3) + "...";
 			}
 			return string;
 		}
@@ -245,14 +243,15 @@ public class CmlElementLabels extends VdmElementLabels
 			result.append(" : " + getSimpleTypeString(node.getType()), StyledString.DECORATIONS_STYLER);
 			return result;
 		}
-		
+
 		@Override
 		public StyledString caseANamesetDefinition(ANamesetDefinition node)
 				throws AnalysisException
 		{
 			StyledString result = new StyledString();
 			result.append(node.getIdentifier().getName());
-			result.append(" : " + node.getNamesetExpression());//getSimpleTypeString(node.getType()), StyledString.DECORATIONS_STYLER);
+			result.append(" : " + node.getNamesetExpression());// getSimpleTypeString(node.getType()),
+																// StyledString.DECORATIONS_STYLER);
 			return result;
 		}
 

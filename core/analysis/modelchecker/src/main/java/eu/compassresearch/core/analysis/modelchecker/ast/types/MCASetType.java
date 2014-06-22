@@ -16,7 +16,13 @@ public class MCASetType implements MCPCMLType {
 		return "emptySet";
 	}
 
-	
+	@Override
+	public String getTypeAsName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+		
 	
 	@Override
 	public MCPCMLType copy() {
@@ -32,5 +38,6 @@ public class MCASetType implements MCPCMLType {
 		this.setOf = setOf;
 	}
 
+	
 	
 }

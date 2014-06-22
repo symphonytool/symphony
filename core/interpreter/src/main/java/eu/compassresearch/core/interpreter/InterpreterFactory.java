@@ -4,9 +4,9 @@ import java.util.List;
 
 import org.overture.ast.definitions.PDefinition;
 
+import eu.compassresearch.core.interpreter.api.CmlBehaviorFactory;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorFactory;
 
 public interface InterpreterFactory
 {
@@ -19,6 +19,7 @@ public interface InterpreterFactory
 	 * 
 	 * @param definitions
 	 *            - List of parsed and type-checked CML source to interpret
+	 * @return 
 	 * @throws CmlInterpreterException
 	 */
 	public abstract CmlInterpreter newInterpreter(List<PDefinition> definitions)
@@ -31,6 +32,7 @@ public interface InterpreterFactory
 	 *            - List of parsed and type-checked CML source to interpret
 	 * @param config
 	 *            the configuration that the interpreter should use
+	 * @return 
 	 * @throws CmlInterpreterException
 	 */
 	public abstract CmlInterpreter newInterpreter(

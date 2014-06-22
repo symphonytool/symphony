@@ -63,6 +63,7 @@ public class CmlThreadManager implements ITerminate
 
 	/**
 	 * Notification we have connected to the VM and it has started. Resume the VM.
+	 * @param status 
 	 */
 	public void started(CmlInterpreterStateDTO status)
 	{

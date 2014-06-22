@@ -352,7 +352,7 @@ public class GraphBuilder {
 					realFinalState = current;
 					deadlockFound = true;
 					break;
-				}else if(current.equals(basicTermination)) { //if the state is termination
+				}else if(current.getProcess().equals(basicTermination.getProcess())) { //if the state is termination
 					//do nothing
 				} else {
 					//a new deadlock situation (not default) was found
@@ -940,7 +940,7 @@ public class GraphBuilder {
 		//String filePath = "D:\\COMPASS\\compassresearch-code\\core\\analysis\\modelchecker\\src\\test\\resources\\timed-interrupt2.facts";
 		//String filePath = "D:\\COMPASS\\compassresearch-code\\core\\analysis\\modelchecker\\src\\test\\resources\\simpler-register.facts";
 		//String filePath = "D:\\COMPASS\\compassresearch-code\\core\\analysis\\modelchecker\\src\\test\\resources\\BeoAVDeviceDiscovery-final-version-model-checker.facts";
-		String filePath = "D:\\COMPASS\\compassresearch-code\\core\\analysis\\modelchecker\\src\\test\\resources\\insiel.facts";
+		String filePath = "D:\\COMPASS\\symphony\\core\\analysis\\modelchecker\\src\\test\\resources\\P.facts";
 		
 		//String filePath = "/examples/NDet2.facts.txt";
 		//String filePath = "/examples/Livelock2.facts.txt";

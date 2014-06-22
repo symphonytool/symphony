@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
@@ -58,12 +59,15 @@ public abstract class AbstractResultBasedCmlTypeCheckerTestCase extends
 	// return collectResourcesTestData("general");
 	// }
 
-	public static Collection<Object[]> combine(Collection<Object[]> a,
-			Collection<Object[]> b)
+	@SuppressWarnings("unchecked")
+	public static Collection<Object[]> combine(
+			@SuppressWarnings("rawtypes") Collection... all)
 	{
 		Collection<Object[]> tests = new LinkedList<Object[]>();
-		tests.addAll(a);
-		tests.addAll(b);
+		for (Collection<Object[]> test : all)
+		{
+			tests.addAll(test);
+		}
 		return tests;
 	}
 
@@ -120,14 +124,50 @@ public abstract class AbstractResultBasedCmlTypeCheckerTestCase extends
 			@Override
 			public boolean accept(File pathname)
 			{
-				return pathname.getName().endsWith(endswith);
+				return pathname.isDirectory()
+						|| pathname.getName().endsWith(endswith);
 			}
+
 		};
 
-		File[] theFiles = examplesDir.listFiles(cmlFiles);
+		List<File> theFiles = new Vector<File>();
+		final File[] listFiles = examplesDir.listFiles(cmlFiles);
+
+		if (listFiles != null && listFiles.length > 0)
+		{
+			theFiles.addAll(Arrays.asList(listFiles));
+		}
+
+		boolean keepUnfolding = false;
+		do
+		{
+			keepUnfolding = false;
+			List<File> directories = new Vector<File>();
+			for (File file : theFiles)
+			{
+				if (file.isDirectory())
+				{
+					directories.add(file);
+				}
+			}
+
+			if (!directories.isEmpty())
+			{
+
+				keepUnfolding = true;
+
+				theFiles.removeAll(directories);
+
+				for (File dir : directories)
+				{
+					theFiles.addAll(Arrays.asList(dir.listFiles(cmlFiles)));
+				}
+			}
+		} while (keepUnfolding);
+
 		if (theFiles != null)
 		{
-			Arrays.sort(theFiles);
+			Collections.sort(theFiles);
 
 			for (File f : theFiles)
 			{
@@ -248,8 +288,7 @@ public abstract class AbstractResultBasedCmlTypeCheckerTestCase extends
 	}
 
 	@Override
-	public void encondeResult(Boolean result, Document doc,
-			Element resultElement)
+	public void encodeResult(Boolean result, Document doc, Element resultElement)
 	{
 	}
 
