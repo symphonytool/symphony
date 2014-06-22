@@ -23,7 +23,6 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.PartInitException;
-import org.overture.ast.node.INode;
 import org.overture.ide.core.resources.IVdmProject;
 import org.overture.ide.plugins.poviewer.IPoviewerConstants;
 import org.overture.ide.plugins.poviewer.view.PoOverviewTableView;
@@ -40,13 +39,11 @@ import eu.compassresearch.ide.pog.PogPluginConstants;
 
 public class PoListView extends PoOverviewTableView
 {
-	List<INode> astUnderAnalysis;
 
 	public void clearPos()
 	{
 		this.project = null;
-		astUnderAnalysis = null;
-
+		
 		display.asyncExec(new Runnable()
 		{
 
@@ -81,7 +78,7 @@ public class PoListView extends PoOverviewTableView
 		// test setup columns...
 		TableLayout layout = new TableLayout();
 		layout.addColumnData(new ColumnWeightData(10, false));
-		layout.addColumnData(new ColumnWeightData(10, false));
+		layout.addColumnData(new ColumnWeightData(15, false));
 		layout.addColumnData(new ColumnWeightData(60, false));
 		layout.addColumnData(new ColumnWeightData(30, false));
 		viewer.getTable().setLayout(layout);
@@ -178,6 +175,8 @@ public class PoListView extends PoOverviewTableView
 		});
 
 	}
+	
+
 
 	protected void makeActions()
 	{
@@ -321,14 +320,5 @@ public class PoListView extends PoOverviewTableView
 
 	}
 
-	public void setAstUnderAnalysis(List<INode> ast)
-	{
-		this.astUnderAnalysis = ast;
-	}
-
-	public List<INode> getAstUnderAnalysis()
-	{
-		return astUnderAnalysis;
-	}
 
 }
