@@ -48,6 +48,7 @@ public class FaultToleranceModelCheckingJob extends
 				return FaultToleranceModelCheckingJob.this.property
 						.getFormulaScriptFile().exists();
 			}
+
 			@Override
 			public void postCheckPreRequisite(boolean checkResult) {
 			}
@@ -129,8 +130,17 @@ public class FaultToleranceModelCheckingJob extends
 						}
 					} catch (RuntimeException e) {
 						property.setException(e);
+						resetDueToRuntimeException();
 					} finally {
 						formulaLock.release();
+					}
+				}
+
+				private void resetDueToRuntimeException() {
+					try {
+						FormulaIntegrator.getInstance().resetInstance();
+					} catch (Throwable e) {
+						// reset attempt failed.
 					}
 				}
 			};
