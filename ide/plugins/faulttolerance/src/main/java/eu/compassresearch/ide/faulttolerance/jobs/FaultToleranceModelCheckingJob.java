@@ -164,10 +164,10 @@ public class FaultToleranceModelCheckingJob extends
 						}
 					}
 				} catch (InterruptedException e) {
-					// TODO log exception
+					Activator.getDefault().log(e);
 					done = true;
 				} catch (Throwable e) {
-					// TODO log exception from FormulaIntegrator
+					Activator.getDefault().log(e);
 				} finally {
 					formulaLock.release();
 				}
@@ -182,6 +182,7 @@ public class FaultToleranceModelCheckingJob extends
 			return status;
 		} catch (RuntimeException e) {
 			property.setException(e);
+			Activator.getDefault().log(e);
 			return Status.OK_STATUS;
 		} finally {
 			monitor.done();
