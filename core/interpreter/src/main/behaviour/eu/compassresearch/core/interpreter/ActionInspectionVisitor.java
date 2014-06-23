@@ -18,6 +18,7 @@ import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.typechecker.Pass;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ContextException;
+import org.overture.interpreter.values.BooleanValue;
 import org.overture.interpreter.values.NameValuePair;
 import org.overture.interpreter.values.NameValuePairList;
 import org.overture.interpreter.values.NameValuePairMap;
@@ -64,6 +65,7 @@ import eu.compassresearch.core.interpreter.api.CmlBehaviorFactory;
 import eu.compassresearch.core.interpreter.api.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
+import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.api.TransitionEvent;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionFactory;
@@ -329,9 +331,21 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 							}
 
 							nextContext.putList(question.assistantFactory.createPPatternAssistant().getNamedValues(pattern, value, nextContext));
+
+							if (param.getExpression() != null)
+							{
+
+								Value v = param.getExpression().apply(cmlExpressionVisitor, nextContext);
+								if (!(v instanceof BooleanValue && v.boolValue(nextContext)))
+								{
+									throw new InterpreterRuntimeException("Read parameter constraint not satisfied "
+											+ param.getExpression().getLocation());
+								}
+							}
 						}
 					}
 				}
+
 				newTransitionEvent(TransitionEvent.CHANNEL_EVENT);
 				return new Pair<INode, Context>(node.getAction(), nextContext);
 			}
@@ -373,8 +387,8 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 	 * This is a silent transition and therefore the alphabet contains only tau event</li>
 	 * <li>External Choice Silent: If any of the actions can take a silent transition they will do it before getting
 	 * here again. We therefore don't take this situation into account</li>
-	 * <li>External Choice Skip: If one of the children is Skip we make a silent transition of the whole choice into skip.
-	 * We therefore just return the tau event</li>
+	 * <li>External Choice Skip: If one of the children is Skip we make a silent transition of the whole choice into
+	 * skip. We therefore just return the tau event</li>
 	 * <li>External Choice End: The alphabet contains an observable event for every child that can engaged in one.</li>
 	 * </ul>
 	 */

@@ -23,7 +23,6 @@ public class Activator extends AbstractUIPlugin implements IStartup {
 	private static Activator plugin;
 
 	public Activator() {
-
 	}
 
 	@Override
@@ -58,9 +57,31 @@ public class Activator extends AbstractUIPlugin implements IStartup {
 	public void earlyStartup() {
 	}
 
-	public void log(Exception exception) {
+	public void log(Throwable exception) {
 		getLog().log(
-				new Status(IStatus.ERROR, ID, Activator.class.getSimpleName(),
+				new Status(IStatus.ERROR, ID, getNotNullMessage(exception),
 						exception));
+	}
+
+	/**
+	 * @param exception
+	 * @return
+	 */
+	private String getNotNullMessage(Throwable exception) {
+		String m = exception.getLocalizedMessage();
+		if (m == null || "".equals(m.trim())) {
+			m = exception.getMessage();
+		}
+		if ((m == null || "".equals(m.trim())) && exception.getCause() != null) {
+			m = getNotNullMessage(exception.getCause());
+		}
+		return m;
+	}
+
+	/**
+	 * @param message
+	 */
+	public void log(Message message, Object... args) {
+		getLog().log(new Status(IStatus.INFO, ID, message.format(args)));
 	}
 }

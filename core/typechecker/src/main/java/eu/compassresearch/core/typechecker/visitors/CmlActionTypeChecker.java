@@ -904,7 +904,7 @@ public class CmlActionTypeChecker extends
 
 					if (!(constraintType instanceof ABooleanBasicType))
 					{
-						issueHandler.addTypeError(constraintExp, TypeErrorMessages.CONSTRAINT_MUST_BE_A_BOOLEAN_EXPRESSION, constraintExp.toString());
+						issueHandler.addTypeError(constraintExp, TypeErrorMessages.CONSTRAINT_MUST_BE_A_BOOLEAN_EXPRESSION, constraintType.toString());
 					}
 				}
 			}
