@@ -115,11 +115,20 @@ public class FaultToleranceModelCheckingJob extends
 				@Override
 				public void run() {
 					try {
+						Activator.getDefault().log(
+								Message.RUNNING_MODEL_CHECKER_SUBTHREAD,
+								property.format());
 						formulaLock.acquire();
 						String fullPath = property.getFormulaScriptFile()
 								.getRawLocation().toOSString();
+						Activator.getDefault().log(
+								Message.CALLING_THE_MODEL_CHECKER,
+								property.format());
 						FormulaResult formulaResult = FormulaIntegrator
 								.getInstance().analyseFile(fullPath);
+						Activator.getDefault().log(
+								Message.MODEL_CHECKER_RETURNED,
+								property.format());
 						synchronized (property) {
 							property.setChecked(true);
 							property.setSatisfied(!formulaResult

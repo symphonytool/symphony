@@ -78,4 +78,10 @@ public class Activator extends AbstractUIPlugin implements IStartup {
 		return m;
 	}
 
+	/**
+	 * @param message
+	 */
+	public void log(Message message, Object... args) {
+		getLog().log(new Status(IStatus.INFO, ID, message.format(args)));
+	}
 }
