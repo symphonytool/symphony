@@ -37,7 +37,6 @@ import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.WorkbenchException;
 import org.eclipse.ui.editors.text.TextFileDocumentProvider;
-import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.overture.ast.analysis.AnalysisException;
@@ -54,7 +53,6 @@ import eu.compassresearch.ide.core.resources.ICmlProject;
 import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
 import eu.compassresearch.ide.core.unsupported.UnsupportedElementInfo;
 import eu.compassresearch.ide.pog.PogPluginRunner;
-import eu.compassresearch.ide.pog.PogPluginUtils;
 import eu.compassresearch.ide.theoremprover.utils.TheoryLoader;
 import eu.compassresearch.ide.ui.utility.CmlProjectUtil;
 

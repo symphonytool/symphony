@@ -1,19 +1,13 @@
 package eu.compassresearch.ide.theoremprover.commands;
 
-import isabelle.Platform;
-import isabelle.Session;
-import isabelle.eclipse.core.IsabelleCore;
-
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 
 import eu.compassresearch.ide.pog.PogPluginUtils;
 import eu.compassresearch.ide.theoremprover.TPConstants;
-import eu.compassresearch.ide.theoremprover.TPPluginDoStuff;
 import eu.compassresearch.ide.theoremprover.TPPluginUtils;
 
 public class KillSessionHandler extends AbstractHandler{

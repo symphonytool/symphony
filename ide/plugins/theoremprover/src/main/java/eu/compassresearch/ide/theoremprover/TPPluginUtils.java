@@ -24,7 +24,6 @@ import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.services.ISourceProviderService;
 
-import eu.compassresearch.ide.pog.commands.CommandState;
 import eu.compassresearch.ide.ui.CmlUIPlugin;
 
 public class TPPluginUtils {
