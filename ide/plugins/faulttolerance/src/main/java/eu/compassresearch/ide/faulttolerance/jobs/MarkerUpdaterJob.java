@@ -115,8 +115,8 @@ public class MarkerUpdaterJob extends FaultToleranceVerificationJobBase
 		if (property.getException() != null) {
 			markerDataSet.add(new MarkerData(false, IMarker.SEVERITY_ERROR,
 					Message.EXCEPTION_OCCURRED.format(request.getSystemName(),
-							property.getType().formattedName(), property
-									.getException().getLocalizedMessage())));
+							property.getType().formattedName(),
+							getMessage(property.getException()))));
 		} else if (property.isCanceledByUser()) {
 			markerDataSet.add(new MarkerData(false, IMarker.SEVERITY_INFO,
 					Message.CANCELED_BY_USER.format(request.getSystemName(),
@@ -124,6 +124,21 @@ public class MarkerUpdaterJob extends FaultToleranceVerificationJobBase
 
 		}
 
+	}
+
+	/**
+	 * @param exception
+	 * @return
+	 */
+	private String getMessage(Throwable exception) {
+		String lm = exception.getLocalizedMessage();
+		if (lm == null) {
+			lm = exception.getMessage();
+		}
+		if (lm == null && exception.getCause() != null) {
+			lm = getMessage(exception.getCause());
+		}
+		return lm;
 	}
 
 	private void handleCases(Set<MarkerData> markerDataSet,
@@ -271,14 +286,15 @@ public class MarkerUpdaterJob extends FaultToleranceVerificationJobBase
 			IMarker marker = request.getSourceUnit().getFile()
 					.createMarker(MARKERS_ID);
 			marker.setAttribute(IMarker.LOCATION, Message.MARKER_LOCATION
-					.format(request.getSystemName(), request.getLineNumber(), request.getCharStart()));
+					.format(request.getSystemName(), request.getLineNumber(),
+							request.getCharStart()));
 			marker.setAttribute(IMarker.PRIORITY, IMarker.PRIORITY_NORMAL);
 			marker.setAttribute(IMarker.SEVERITY, data.severity);
 			marker.setAttribute(IMarker.MESSAGE, data.message);
 			marker.setAttribute(IMarker.LINE_NUMBER, request.getLineNumber());
 			marker.setAttribute(IMarker.CHAR_START, request.getCharStart());
 			marker.setAttribute(IMarker.CHAR_END, request.getCharEnd());
-			//marker.setAttribute(IMarker.USER_EDITABLE, false);
+			// marker.setAttribute(IMarker.USER_EDITABLE, false);
 			marker.setAttribute(ATTRIBUTE_SYSTEM_NAME, request.getSystemName());
 			marker.setAttribute(ATTRIBUTE_SUCCESS, data.success);
 

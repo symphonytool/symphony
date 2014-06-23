@@ -203,6 +203,7 @@ public class MCHandler extends AbstractHandler {
 
 		
 		ICmlSourceUnit selectedCmlSourceUnit = getSelectedSourceUnit(model,selectedFile);
+		AProcessDefinition selectedProcess = null;
 		
 		if(selectedCmlSourceUnit == null){
 			throw new AnalysisException("No selected file to convert!");
@@ -213,7 +214,7 @@ public class MCHandler extends AbstractHandler {
 		if(hasMultipleProcessDefinitions(definitions)){
 			IVdmProject vdmProject = (IVdmProject) proj.getAdapter(IVdmProject.class);
 			GlobalProcessSelectorDialog processSelector = new GlobalProcessSelectorDialog(window.getShell(), vdmProject,selectedCmlSourceUnit);
-			AProcessDefinition selectedProcess = processSelector.showDialog();
+			selectedProcess = processSelector.showDialog();
 			if(selectedProcess != null){
 				mainProcessName = selectedProcess.getName().getSimpleName();
 			}
@@ -221,13 +222,15 @@ public class MCHandler extends AbstractHandler {
 		}else{
 			for (PDefinition pDefinition : definitions) {
 				if(pDefinition instanceof AProcessDefinition){
+					selectedProcess = (AProcessDefinition)pDefinition;
 					mainProcessName = pDefinition.getName().getSimpleName();
 					break;
 				}
 			}
 		}
 		IFile outputFile = null;
-		if(mainProcessName != null){
+		if(selectedProcess != null){
+			mainProcessName = selectedProcess.getName().getSimpleName();
 			String name = mainProcessName;
 			String formulaFileName = name +".4ml";
 			outputFile = mcFolder.getFile(formulaFileName);
@@ -236,15 +239,12 @@ public class MCHandler extends AbstractHandler {
 			String specificationContent = "";
 			
 			try{
-				if(mainProcessName != null){
-					specificationContent = this.adaptor.generateFormulaScript(definitions,propertyToCheck,mainProcessName);
-					if(!outputFile.exists()){
-						outputFile.create(new ByteArrayInputStream(specificationContent.toString().getBytes()), true, new NullProgressMonitor());
-					}else{
-						outputFile.setContents(new ByteArrayInputStream(specificationContent.toString().getBytes()), true, true, new NullProgressMonitor());
-					}
+				specificationContent = this.adaptor.generateFormulaScript(definitions,propertyToCheck,mainProcessName);
+				if(!outputFile.exists()){
+					outputFile.create(new ByteArrayInputStream(specificationContent.toString().getBytes()), true, new NullProgressMonitor());
+				}else{
+					outputFile.setContents(new ByteArrayInputStream(specificationContent.toString().getBytes()), true, true, new NullProgressMonitor());
 				}
-				
 			}catch(NullPointerException e){
 				throw new AnalysisException("Internal error when accessing some null object during FORMULA script generation.", e);
 			}catch(ClassCastException e){
