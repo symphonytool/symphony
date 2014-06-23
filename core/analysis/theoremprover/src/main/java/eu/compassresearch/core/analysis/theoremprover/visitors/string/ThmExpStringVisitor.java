@@ -339,7 +339,8 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 					}
 				}
 				sb.append(" : ");
-				sb.append("@" + tmb.getType().toString() + " @ ("); //USE VISITOR FOR TYPE
+
+				sb.append(tmb.getType().apply(thmStringVisitor, vars) + " @ ("); //USE VISITOR FOR TYPE
 			}
 			else if (b instanceof ASetMultipleBind)
 			{
