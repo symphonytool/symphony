@@ -20,6 +20,7 @@ import org.eclipse.ui.progress.IProgressConstants;
 
 import eu.compassresearch.core.analysis.modelchecker.api.FormulaIntegrator;
 import eu.compassresearch.core.analysis.modelchecker.api.FormulaResult;
+import eu.compassresearch.ide.faulttolerance.Activator;
 import eu.compassresearch.ide.faulttolerance.FaultToleranceProperty;
 import eu.compassresearch.ide.faulttolerance.IFaultToleranceVerificationRequest;
 import eu.compassresearch.ide.faulttolerance.IFaultToleranceVerificationResponse;
@@ -130,6 +131,7 @@ public class FaultToleranceModelCheckingJob extends
 						}
 					} catch (RuntimeException e) {
 						property.setException(e);
+						Activator.getDefault().log(e);
 						resetDueToRuntimeException();
 					} finally {
 						formulaLock.release();
@@ -140,7 +142,7 @@ public class FaultToleranceModelCheckingJob extends
 					try {
 						FormulaIntegrator.getInstance().resetInstance();
 					} catch (Throwable e) {
-						// reset attempt failed.
+						Activator.getDefault().log(e);
 					}
 				}
 			};
