@@ -290,29 +290,25 @@ public class FilesPreparationJob extends FaultToleranceVerificationJobBase {
 			List<String> processesToAdd = new LinkedList<>();
 
 			updateElementsToAdd(Message.DIVERGENCE_FREEDOM_PROCESS_NAME,
-					Message.DIVERGENCE_FREEDOM_PROCESS_TEMPLATE,
-					processesNotFound, processesToAdd);
+					CodeTemplate.DivergenceFreedom, processesNotFound,
+					processesToAdd);
 			updateElementsToAdd(Message.SEMIFAIRNESS_PROCESS_NAME,
-					Message.SEMIFAIRNESS_PROCESS_TEMPLATE, processesNotFound,
+					CodeTemplate.Semifairness, processesNotFound,
 					processesToAdd);
 			updateElementsToAdd(Message.LAZY_DEADLOCK_CHECK_PROCESS_NAME,
-					Message.LAZY_DEADLOCK_CHECK_PROCESS_TEMPLATE,
-					processesNotFound, processesToAdd);
+					CodeTemplate.LazyDeadlockCheck, processesNotFound,
+					processesToAdd);
 			updateElementsToAdd(Message.LAZY_LIMIT_DEADLOCK_CHECK_PROCESS_NAME,
-					Message.LAZY_LIMIT_DEADLOCK_CHECK_PROCESS_TEMPLATE,
-					processesNotFound, processesToAdd);
+					CodeTemplate.LazyLimitDeadlockCheck, processesNotFound,
+					processesToAdd);
 			updateElementsToAdd(Message.NO_FAULTS_PROCESS_NAME,
-					Message.NO_FAULTS_PROCESS_TEMPLATE, processesNotFound,
-					processesToAdd);
-			updateElementsToAdd(Message.LAZY_PROCESS_NAME,
-					Message.LAZY_PROCESS_TEMPLATE, processesNotFound,
-					processesToAdd);
-			updateElementsToAdd(Message.LIMIT_PROCESS_NAME,
-					Message.LIMIT_PROCESS_TEMPLATE, processesNotFound,
-					processesToAdd);
+					CodeTemplate.NoFaults, processesNotFound, processesToAdd);
+			updateElementsToAdd(Message.LAZY_PROCESS_NAME, CodeTemplate.Lazy,
+					processesNotFound, processesToAdd);
+			updateElementsToAdd(Message.LIMIT_PROCESS_NAME, CodeTemplate.Limit,
+					processesNotFound, processesToAdd);
 			updateElementsToAdd(Message.LAZY_LIMIT_PROCESS_NAME,
-					Message.LAZY_LIMIT_PROCESS_TEMPLATE, processesNotFound,
-					processesToAdd);
+					CodeTemplate.LazyLimit, processesNotFound, processesToAdd);
 
 			for (String template : processesToAdd) {
 				ps.println(template);
@@ -365,9 +361,10 @@ public class FilesPreparationJob extends FaultToleranceVerificationJobBase {
 	private boolean createBaseFileProcesses(List<String> processesNotFound,
 			PrintStream ps) {
 		List<String> processesToAdd = new LinkedList<>();
-		updateElementsToAdd(Message.PROCESS_CHAOS_E_NAME,
-				Message.PROCESS_CHAOS_E_TEMPLATE, processesNotFound,
-				processesToAdd);
+		updateElementsToAdd(Message.PROCESS_CHAOS_E_NAME, CodeTemplate.ChaosE,
+				processesNotFound, processesToAdd);
+		updateElementsToAdd(Message.PROCESS_STOP_NAME, CodeTemplate.STOP,
+				processesNotFound, processesToAdd);
 
 		for (String processTemplate : processesToAdd) {
 			ps.println(processTemplate);
@@ -389,16 +386,7 @@ public class FilesPreparationJob extends FaultToleranceVerificationJobBase {
 			}
 		}
 
-		removeChannelsOfDefinedChanset(Message.CHANSET_E_NAME,
-				Message.CHANNELS_E_RELATED, chansetsNotFound, channelsNotFound);
-		removeChannelsOfDefinedChanset(Message.CHANSET_F_NAME,
-				Message.CHANNELS_F_RELATED, chansetsNotFound, channelsNotFound);
-
-		updateElementsToAdd(Message.CHANSET_E_NAME, Message.CHANSET_E_TEMPLATE,
-				chansetsNotFound, chansetsToAdd);
-		updateElementsToAdd(Message.CHANSET_F_NAME, Message.CHANSET_F_TEMPLATE,
-				chansetsNotFound, chansetsToAdd);
-		updateElementsToAdd(Message.CHANSET_H_NAME, Message.CHANSET_H_TEMPLATE,
+		updateElementsToAdd(Message.CHANSET_H_NAME, CodeTemplate.Hidden,
 				chansetsNotFound, chansetsToAdd);
 
 		if (!chansetsToAdd.isEmpty()) {
@@ -411,20 +399,9 @@ public class FilesPreparationJob extends FaultToleranceVerificationJobBase {
 		return !chansetsToAdd.isEmpty();
 	}
 
-	private void removeChannelsOfDefinedChanset(Message chansetName,
-			Message relatedChannels, List<String> chansetsNotFound,
-			List<String> channelsNotFound) {
-		if (!chansetsNotFound.contains(formatSystemName(chansetName))) {
-			StringTokenizer relatedToChanset = new StringTokenizer(
-					formatSystemName(relatedChannels), ",");
-			while (relatedToChanset.hasMoreTokens()) {
-				channelsNotFound.remove(relatedToChanset.nextToken());
-			}
-		}
-	}
-
-	private void updateElementsToAdd(Message nameMessage, Message template,
-			Collection<String> namesNotFound, List<String> templateList) {
+	private void updateElementsToAdd(Message nameMessage,
+			CodeTemplate template, Collection<String> namesNotFound,
+			List<String> templateList) {
 		String name = formatSystemName(nameMessage);
 		if (namesNotFound.contains(name)) {
 			templateList.add(formatSystemName(template));

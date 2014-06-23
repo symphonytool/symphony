@@ -3,7 +3,6 @@ package eu.compassresearch.ide.pog.view;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.overture.ide.core.resources.IVdmProject;
 import org.overture.ide.plugins.poviewer.view.PoTableView;
@@ -48,21 +47,26 @@ public class PoDetailView extends PoTableView
 			{
 				String choice = Activator.getDefault().getPreferenceStore().getString(PogPluginPrefConstants.POG_VIEW_CHOICE);
 				
+				StringBuilder sb = new StringBuilder();
+				sb.append("-- ");
+				sb.append(data.getName());
+				sb.append("\n");
+				viewer.setText(data.getFullPredString());
+				
 				if (choice == null)
 				{
 					MessageDialog.openError(display.getActiveShell(), "Error", "Error with PO detail level. Check preferences.");
 				}
 				if (choice.equals(PogPluginPrefConstants.CTXT_ETC))
 				{
-					viewer.setText(data.getFullPredString());
-					return;
+					sb.append((data.getFullPredString()));
 				}
 				if (choice.equals(PogPluginPrefConstants.PRED_ONLY))
 				{
-					viewer.setText(data.getDefPredString());
-					return;
+					sb.append(data.getDefPredString());
 				}
 				MessageDialog.openError(display.getActiveShell(), "Error", "Error with PO detail level. Check preferences.");
+				viewer.setText(sb.toString());
 				return;
 			}
 

@@ -22,32 +22,39 @@ public class TestFileProvider
 	private final static String BASE_CTXTS = "src/test/resources/basic/ctxts";
 	private final static String BUG_REG_ROOT = "src/test/resources/bug-regression";
 	private final static String INTEG_ROOT = "src/test/resources/integration";
+	private final static String ALL_EXAMPLES_ROOT = "src/test/resources/examples";
 	private final static String RESULT_EXTENSION = ".RESULT";
 
 	public static Collection<Object[]> bugRegs()
 	{
 		File dir = new File(BUG_REG_ROOT);
-		return files(dir);
+		return files(dir, true);
 	}
-	
+
 	public static Collection<Object[]> models()
 	{
 		File dir = new File(INTEG_ROOT);
-		return files(dir);
+		return files(dir, true);
 	}
 
 	public static Collection<Object[]> basics()
 	{
-		
+
 		File dir = new File(BASE_POS);
-		Collection<Object[]> r = files(dir);
-		dir= new File(BASE_CTXTS);
-		r.addAll(files(dir));
+		Collection<Object[]> r = files(dir, true);
+		dir = new File(BASE_CTXTS);
+		r.addAll(files(dir, true));
 		return r;
 
 	}
 
-	private static Collection<Object[]> files(File dir)
+	public static Collection<Object[]> allExamples()
+	{
+		File dir = new File(ALL_EXAMPLES_ROOT);
+		return files(dir, false);
+	}
+
+	private static Collection<Object[]> files(File dir, boolean result)
 	{
 		Collection<File> files = FileUtils.listFiles(dir, new RegexFileFilter("(.*)\\.cml"), DirectoryFileFilter.DIRECTORY);
 
@@ -55,12 +62,17 @@ public class TestFileProvider
 
 		for (File file : files)
 		{
-			paths.add(new Object[] { file.getName(), file.getPath(),
-					file.getPath() + RESULT_EXTENSION });
+			if (result)
+			{
+				paths.add(new Object[] { file.getName(), file.getPath(),
+						file.getPath() + RESULT_EXTENSION });
+			} else
+			{
+				paths.add(new Object[] { file.getName(), file.getPath() });
+			}
 		}
 
 		return paths;
 	}
-
 
 }

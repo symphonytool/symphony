@@ -10,12 +10,14 @@ import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.TypeValue;
 import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCAExpressionSingleDeclaration;
 import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCATypeSingleDeclaration;
 import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCPSingleDeclaration;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAValueDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAQuoteLiteralExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASeqEnumSeqExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASetDifferenceBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASetEnumSetExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAVariableExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANamedInvariantType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
 
@@ -40,16 +42,29 @@ public class MCAExternalChoiceReplicatedAction extends MCSReplicatedActionBase {
 			} else if(pExp instanceof MCASeqEnumSeqExp){
 				indexes.addAll(((MCASeqEnumSeqExp) pExp).getMembers());
 			} else if(pExp instanceof MCAVariableExp){
-				//values must be picked from a mapping in the context
-				NameValue nameValue = context.getNameValue(((MCAVariableExp) pExp).getName());
+				//values must be got from defined values 
+				MCAValueDefinition valueDef = context.getValueDefinition(((MCAVariableExp) pExp).getName());
+				NameValue nameValue = null;
+				LinkedList<TypeValue> values = new LinkedList<TypeValue>();  
 				TypeManipulator typeHandler = TypeManipulator.getInstance();
-				LinkedList<TypeValue> values = typeHandler.getValues(nameValue.getType());
+				ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
+				if(valueDef != null){
+					MCANamedInvariantType typeName = new MCANamedInvariantType(valueDef.getName(),valueDef.getName());
+					
+					values = typeHandler.getValues(typeName);
+					
+				}else{
+					//values must be picked from a mapping in the context
+					nameValue = context.getNameValue(((MCAVariableExp) pExp).getName());
+					values = typeHandler.getValues(nameValue.getType());
+				}
 				for (TypeValue typeValue : values) {
 					if(typeValue instanceof SingleTypeValue){
 						indexes.add(new MCAVariableExp(((SingleTypeValue) typeValue).getValue()));
 					}
 					//if it is a product type?
 				}
+
 			}else if(pExp instanceof MCASetDifferenceBinaryExp){
 				//indexes = ((MCASetDifferenceBinaryExp) pExp).getMembers();
 			}

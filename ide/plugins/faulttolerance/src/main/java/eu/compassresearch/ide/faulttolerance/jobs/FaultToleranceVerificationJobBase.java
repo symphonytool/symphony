@@ -140,6 +140,10 @@ public abstract class FaultToleranceVerificationJobBase extends WorkspaceJob {
 		return message.format(request.getSystemName());
 	}
 
+	protected final String formatSystemName(CodeTemplate template) {
+		return template.format(request.getSystemName());
+	}
+
 	@Override
 	public final boolean shouldRun() {
 		boolean should = super.shouldRun();

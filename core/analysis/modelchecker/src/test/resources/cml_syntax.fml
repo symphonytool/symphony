@@ -1,4 +1,5 @@
-    primitive lieIn         ::= (ev : Sigma, sourceSet: String).
+    //primitive lieIn         ::= (ev : Sigma, sourceSet: String).
+	lieIn         ::= (ev : Sigma, sourceSet: String).
     //primitive Channel       ::= (chN : String, chT: Type).
 	Channel       ::= (chN : String, chT: Type).
     

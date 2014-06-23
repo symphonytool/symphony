@@ -62,7 +62,7 @@ public class CmlParameterPatternObligation extends CmlProofObligation
 	public CmlParameterPatternObligation(IPogAssistantFactory af,
 		AExplicitOperationDefinition def, IPOContextStack ctxt) throws AnalysisException
 	{
-		super(def, CmlPOType.OPERATION_PATTERNS, ctxt, def.getLocation());
+		super(def, CmlPOType.OPERATION_PATTERNS, ctxt, def.getLocation(),af);
 		valuetree.setPredicate(ctxt.getPredWithContext(generate(af,def.getPredef(), getParamPatternList(def), ((AOperationType) def.getType()).getParameters(), ((AOperationType) def.getType()).getResult())));
 
 	}
@@ -70,7 +70,7 @@ public class CmlParameterPatternObligation extends CmlProofObligation
 	public CmlParameterPatternObligation(IPogAssistantFactory af,
 		AImplicitOperationDefinition def, IPOContextStack ctxt) throws AnalysisException
 	{
-		super(def, CmlPOType.OPERATION_PATTERNS, ctxt, def.getLocation());
+		super(def, CmlPOType.OPERATION_PATTERNS, ctxt, def.getLocation(),af);
 		valuetree.setPredicate(ctxt.getPredWithContext(generate(af,def.getPredef(), getListParamPatternList(def), ((AOperationType) def.getType()).getParameters(), ((AOperationType) def.getType()).getResult())));
 
 	}

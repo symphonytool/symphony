@@ -1,0 +1,91 @@
+values
+	MAX  : int = 10
+	MIN  : int = -10
+	INIT : int = 5
+
+types
+  Signal = <INCREASE> | <DECREASE> | <IDLE>
+
+channels
+  init
+  request, getActual, getrequest : int
+  increment, decrement
+  action : Signal
+
+process IncubatorController =
+begin
+  functions
+  inRange: int -> bool
+  inRange(v) ==
+    MIN <= v and v <= MAX
+      
+  PreSetInitTemp: int * bool -> bool
+  PreSetInitTemp(v,a) ==
+    inRange(v) and not a
+      
+  PreIncrement: int * int * bool * bool -> bool
+  PreIncrement(actualT,requestT,r,a) ==  
+    actualT < requestT and r and a
+    
+  PreDecrement: int * int * bool * bool -> bool
+  PreDecrement(actualT,requestT,r,a) ==  
+    actualT > requestT and r and a
+    
+  PreRequestChange: int * bool -> bool
+  PreRequestChange(v,a) ==
+    inRange(v) and not a
+    
+  state
+    requestTemp  : int := INIT
+    actualTemp   : int := INIT
+    requestS     : bool := false
+    actual       : bool := false
+  inv
+    (requestS => inRange(requestTemp)) and (actual => inRange(actualTemp))
+    
+  operations
+    SetInitTemp : int ==> ()
+    SetInitTemp(v) ==
+      -- frame wr actualTemp : int
+      actualTemp := v
+    pre PreSetInitTemp(v,actual) 
+      
+    RequestChange : int ==> Signal
+    RequestChange(v) ==
+      requestTemp := v;
+      return
+        if v > actualTemp then
+          <INCREASE>
+        elseif v < actualTemp then
+            <DECREASE>
+        else
+          <IDLE>
+      pre PreRequestChange(v,actual) 
+      
+    Increment : () ==> Signal
+    Increment() ==
+      actualTemp := actualTemp + 1;
+      return <INCREASE>
+    pre PreIncrement(actualTemp,requestTemp,requestS,actual)
+      
+    Decrement : () ==> Signal
+    Decrement() ==
+      actualTemp := actualTemp - 1;
+      return <DECREASE>
+    pre PreDecrement(actualTemp, requestTemp, requestS, actual)
+          
+  actions
+    Cycle =
+      ( request?v -> [PreRequestChange(v,actual)] &
+                     (dcl c : Signal @ c := RequestChange(v); action!c -> Skip)
+        []
+        [PreIncrement(actualTemp,requestTemp,requestS,actual)] & increment -> Increment()
+        []
+        [PreDecrement(actualTemp, requestTemp, requestS, actual)] & decrement -> Decrement()
+        []
+        [requestS] & getrequest!requestTemp -> Skip 
+        []
+        [actual] & getActual!actualTemp -> Skip ) ; Cycle 
+  @
+    init -> SetInitTemp(INIT); Cycle
+end

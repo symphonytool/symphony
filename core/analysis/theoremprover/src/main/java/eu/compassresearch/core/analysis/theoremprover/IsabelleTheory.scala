@@ -259,7 +259,13 @@ class IsabelleTheory ( val session: Session
       case None => None
     }
   }
-  
+
+  def thmIsRejected(thm : String): Boolean = {
+    val cmd = thmCmd(thm)
+    val status = thmStatus(thm)
+    status.exists(x => x.is_failed) 
+  }
+
   def thmIsProved(thm : String): Boolean = {
     val cmd = qedCmd(thm)
     val status = thmStatus(thm)

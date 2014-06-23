@@ -29,7 +29,10 @@ public class MCATimesNumericBinaryExp extends MCNumericBinaryExp {
 		if(leftValue != null && rightValue != null){
 			int timesResult = Integer.parseInt(leftValue)*Integer.parseInt(rightValue);
 			result.append(timesResult);
+		}else{
+			result.append(this.getLeft().toFormula(option) + "*" + this.getRight().toFormula(option));
 		}
+		
 		return result.toString();
 	}
 

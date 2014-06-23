@@ -117,34 +117,40 @@ public class MCHandler extends AbstractHandler {
 						}
 					}
 					if (cmlFile != null) {
-						if("cml".equalsIgnoreCase(cmlFile.getFileExtension())){
-							String propertyToCheck = this.getProperty(event.getParameter("eu.compassresearch.ide.modelchecker.property"));
-							IFolder mcFolder = cmlProj.getModelBuildPath().getOutput().getFolder(new Path("modelchecker"));
-							if(!mcFolder.exists()){
-								//if generated folder doesn't exist
-								if (!mcFolder.getParent().exists()){
-									((IFolder) mcFolder.getParent()).create(true, true, new NullProgressMonitor());
+						//it proceeds only if FORMULA is installed
+						CmlMCPlugin.getDefault().checkAuxiliarySoftware();
+						if(CmlMCPlugin.FORMULA_OK){
+							if("cml".equalsIgnoreCase(cmlFile.getFileExtension())){
+								String propertyToCheck = this.getProperty(event.getParameter("eu.compassresearch.ide.modelchecker.property"));
+								IFolder mcFolder = cmlProj.getModelBuildPath().getOutput().getFolder(new Path("modelchecker"));
+								if(!mcFolder.exists()){
+									//if generated folder doesn't exist
+									if (!mcFolder.getParent().exists()){
+										((IFolder) mcFolder.getParent()).create(true, true, new NullProgressMonitor());
+									}
+									//if the model checker folder does not exist
+									if (!mcFolder.exists()){
+										mcFolder.create(true, true, new NullProgressMonitor());
+										mcFolder.refreshLocal(IResource.DEPTH_ZERO, new NullProgressMonitor());
+									}
+									
 								}
-								//if the model checker folder does not exist
-								if (!mcFolder.exists()){
-									mcFolder.create(true, true, new NullProgressMonitor());
-									mcFolder.refreshLocal(IResource.DEPTH_ZERO, new NullProgressMonitor());
-								}
+								ICmlSourceUnit selectedUnit = getSelectedSourceUnit(model, (IFile)cmlFile);
 								
-							}
-							ICmlSourceUnit selectedUnit = getSelectedSourceUnit(model, (IFile)cmlFile);
+								IFile outputFile = translateCmlToFormula(model, (IFile)cmlFile, mcFolder, propertyToCheck);
 							
-							IFile outputFile = translateCmlToFormula(model, (IFile)cmlFile, mcFolder, propertyToCheck);
-						
-							if(outputFile != null){
-								MCProgressView p = new MCProgressView(outputFile, propertyToCheck, mcFolder, selectedUnit, cmlFile, event, mainProcessName, this);
-								p.execute();
+								if(outputFile != null){
+									MCProgressView p = new MCProgressView(outputFile, propertyToCheck, mcFolder, selectedUnit, cmlFile, event, mainProcessName, this);
+									p.execute();
+								}
+							}else{
+								MessageDialog.openInformation(
+										window.getShell(),
+										"Symphony",
+										"Only CML files can be analysed!");
 							}
 						}else{
-							MessageDialog.openInformation(
-									window.getShell(),
-									"Symphony",
-									"Only CML files can be analysed!");
+							MessageDialog.openInformation(window.getShell(), "Symphony", CmlMCPlugin.formulaNotInstalledMsg);
 						}
 					}
 				}
@@ -230,12 +236,15 @@ public class MCHandler extends AbstractHandler {
 			String specificationContent = "";
 			
 			try{
-				specificationContent = this.adaptor.generateFormulaScript(definitions,propertyToCheck,mainProcessName);
-				if(!outputFile.exists()){
-					outputFile.create(new ByteArrayInputStream(specificationContent.toString().getBytes()), true, new NullProgressMonitor());
-				}else{
-					outputFile.setContents(new ByteArrayInputStream(specificationContent.toString().getBytes()), true, true, new NullProgressMonitor());
+				if(mainProcessName != null){
+					specificationContent = this.adaptor.generateFormulaScript(definitions,propertyToCheck,mainProcessName);
+					if(!outputFile.exists()){
+						outputFile.create(new ByteArrayInputStream(specificationContent.toString().getBytes()), true, new NullProgressMonitor());
+					}else{
+						outputFile.setContents(new ByteArrayInputStream(specificationContent.toString().getBytes()), true, true, new NullProgressMonitor());
+					}
 				}
+				
 			}catch(NullPointerException e){
 				throw new AnalysisException("Internal error when accessing some null object during FORMULA script generation.", e);
 			}catch(ClassCastException e){

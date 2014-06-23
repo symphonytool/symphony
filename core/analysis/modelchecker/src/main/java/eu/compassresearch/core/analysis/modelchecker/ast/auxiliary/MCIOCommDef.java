@@ -111,8 +111,10 @@ public class MCIOCommDef implements MCNode {
 				ActionChannelDependency actionChannelDependency = (ActionChannelDependency) iterator.next();
 				//if(actionChannelDependency.getChannelDefinition().isInfiniteType()){
 				if(containsParameter(actionChannelDependency.getParameters())){
-					result.append(",");
-					result.append(actionChannelDependency.toFormula(option));
+					if(actionChannelDependency.getParameters().getFirst() instanceof MCAReadCommunicationParameter){
+						result.append(",");
+						result.append(actionChannelDependency.toFormula(option));
+					}
 				}
 				//}
 				//if(iterator.hasNext()){

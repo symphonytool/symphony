@@ -28,12 +28,13 @@ import isabelle.eclipse.core.text.EditDocumentModel
 import isabelle.eclipse.core.util.LoggingActor
 import isabelle.eclipse.core.util.SessionEvents
 
-sealed case class PoThm(val offset: Int, val body: String, val byPos: Int, val poNum: Int)
+sealed case class PoThm(val offset: Int, val body: String, val thmPos: Int, val byPos: Int, val poNum: Int)
 
 class ProofSess(val poEDM: EditDocumentModel, val proj: ICmlProject, val pol: IProofObligationList, val ast: java.util.List[INode], val thyProvider: IDocumentProvider, val sess: Session) extends SessionEvents {
 
   // A map from position offsets in the CML file to the corresponding proof obligation
   var poMap: Map[Command, PoThm] = Map.empty
+  var thmMap: Map[Command, PoThm] = Map.empty // A map from a PO theorem command to the po
   var poPending: List[PoThm] = List()
   var poSubmitted: Set[Int] = Set()
   var batchMode: Boolean = false
@@ -72,7 +73,7 @@ class ProofSess(val poEDM: EditDocumentModel, val proj: ICmlProject, val pol: IP
       val offset = doc.getLineOffset(doc.getNumberOfLines() - 1)
       val byPos = offset + (isaPO.length() - TPConstants.BY_CML_AUTO_TAC_OFFSET)
 
-      poPending ++= PoThm(offset, isaPO + "\n", byPos, ipo.getNumber()) :: List()
+      poPending ++= PoThm(offset, isaPO + "\n", offset, byPos, ipo.getNumber()) :: List()
       //  doc.get
       doc.replace(offset, 0, isaPO + "\n")
       thyProvider.saveDocument(new NullProgressMonitor(), null, poEDM.document, true)
@@ -108,11 +109,20 @@ class ProofSess(val poEDM: EditDocumentModel, val proj: ICmlProject, val pol: IP
           poPending match {
             case (pt :: pts) => {
               val node = sess.snapshot(poEDM.name).node
-              val rng = node.command_range(pt.byPos)
-              val cm = if (rng.hasNext) Some(rng.next) else None
-              val cmd = cm.map(_._1)
-              cmd match {
+              val rng_by = node.command_range(pt.byPos)
+              val cm_by = if (rng_by.hasNext) Some(rng_by.next) else None
+              val cmd_by = cm_by.map(_._1)
+              cmd_by match {
                 case Some(c) => { poMap += (c -> pt); poPending = pts }
+                case None => {}
+              }
+              
+              // Add the theorem command to the map
+              val rng_thm = node.command_range(pt.thmPos)
+              val cm_thm = if (rng_thm.hasNext) Some(rng_thm.next) else None
+              val cmd_thm = cm_thm.map(_._1)
+              cmd_thm match {
+                case Some(c) => { thmMap += (c -> pt) }
                 case None => {}
               }
 
@@ -154,6 +164,25 @@ class ProofSess(val poEDM: EditDocumentModel, val proj: ICmlProject, val pol: IP
                 this.enqueueNext()
               }
 
+            }
+            if (thmMap.contains(c)) {
+              val pt = thmMap(c)
+              val st = state.command_state(version, c)
+              val cst = Protocol.command_status(st.status)
+              if (cst.is_failed) {
+                // Theorem was rejected by the theorem prover
+                // FIXME: Need new internal error status
+                pol.get(pt.poNum - 1).setStatus(POStatus.INTERNAL_ERROR)
+                PogPluginRunner.redrawPos(proj, pol)
+
+                // Remove the failed proof goal
+                val regex = ".".r
+                val whites = regex.replaceAllIn(pt.body, " ")
+                poEDM.document.replace(pt.offset, pt.body.length(), whites)
+                thyProvider.saveDocument(new NullProgressMonitor(), null, poEDM.document, true)
+
+                poEDM.submitFullPerspective(new NullProgressMonitor())
+              }
             }
           }
         }
