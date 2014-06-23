@@ -68,7 +68,7 @@ public class GenPosDevHandler extends AbstractHandler {
 		doer.genPOsDev(proj);
 		// enable discharge all command
 		PogPluginUtils.enableAllPOsIcon(event);
-	
+		TPPluginUtils.enableKillIsabelle(event);
 		
 		
 		return null;

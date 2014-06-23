@@ -2,6 +2,7 @@ package eu.compassresearch.ide.theoremprover;
 
 import java.util.ArrayList;
 
+import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -19,7 +20,11 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.WorkbenchException;
+import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.ide.IDE;
+import org.eclipse.ui.services.ISourceProviderService;
+
+import eu.compassresearch.ide.pog.commands.CommandState;
 import eu.compassresearch.ide.ui.CmlUIPlugin;
 
 public class TPPluginUtils {
@@ -30,6 +35,20 @@ public class TPPluginUtils {
 	public TPPluginUtils(IWorkbenchSite site)
 	{
 		this.site = site;
+	}
+
+	public static void enableKillIsabelle(ExecutionEvent event)
+	{
+		ISourceProviderService sourceProviderService = (ISourceProviderService) HandlerUtil.getActiveWorkbenchWindow(event).getService(ISourceProviderService.class);
+		IsabelleOn commandStateService = (IsabelleOn) sourceProviderService.getSourceProvider(IsabelleOn.MY_STATE);
+		commandStateService.turnOn();
+	}
+	
+	public static void disableKillIsabelle(ExecutionEvent event)
+	{
+		ISourceProviderService sourceProviderService = (ISourceProviderService) HandlerUtil.getActiveWorkbenchWindow(event).getService(ISourceProviderService.class);
+		IsabelleOn commandStateService = (IsabelleOn) sourceProviderService.getSourceProvider(IsabelleOn.MY_STATE);
+		commandStateService.turnOff();
 	}
 
 	public static ArrayList<IResource> getAllCFilesInProject(IProject project) {
