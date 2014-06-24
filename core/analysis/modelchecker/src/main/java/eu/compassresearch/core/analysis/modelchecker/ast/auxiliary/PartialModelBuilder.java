@@ -13,7 +13,7 @@ public class PartialModelBuilder {
 		StringBuilder content = new StringBuilder();
 		String option = MCNode.DEFAULT;
 		
-		generateLieInFacts(content,option);
+		//generateLieInFacts(content,option);
 
 		//generateChannels(content,option);
 		
@@ -60,7 +60,7 @@ public class PartialModelBuilder {
 		
 		content.append("  GivenProc(");
 		content.append("\"");
-		content.append(mainProc.getName());
+		content.append(mainProc.getName() + "MAIN");
 		content.append("\"");
 		content.append(")");
 		content.append("\n");

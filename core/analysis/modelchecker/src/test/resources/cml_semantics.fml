@@ -174,8 +174,12 @@
     //parallel synchronised
     // P || Q --ev--> P' || Q'
     State(st,par(stP_,P_,X,stQ_,Q_)),
-    trans(iS, ev, State(st,par(stP_,P_,X,stQ_,Q_))) :- iS is State(st,par(stP,P,X,stQ,Q)), trans(State(stP,P),ev,State(stP_,P_)),
-													      trans(State(stQ,Q),ev,State(stQ_,Q_)), ev!=tau, lieIn(ev, X).
+	trans(iS, ev1, State(st,par(stP_,P_,X,stQ_,Q_))) :- iS is State(st,par(stP,P,X,stQ,Q)), trans(State(stP,P),ev1,State(stP_,P_)),
+													      trans(State(stQ,Q),ev2,State(stQ_,Q_)), ev1!=tau, ev2 != tau, lieIn(ev1, X), lieIn(ev2, X),
+                                                          ev1 = CommEv(chanName,_,value), ev2 = CommEv(chanName,_,value).
+    //trans(iS, ev, State(st,par(stP_,P_,X,stQ_,Q_))) :- iS is State(st,par(stP,P,X,stQ,Q)), trans(State(stP,P),ev,State(stP_,P_)),
+	//												      trans(State(stQ,Q),ev,State(stQ_,Q_)), ev!=tau, lieIn(ev, X).
+	
     //parallel end
     State(st,Skip),
     trans(iS, tau, State(st,Skip)) :- iS is State(st,par(stP,Skip,X,stQ,Skip)).

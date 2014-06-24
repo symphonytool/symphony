@@ -117,34 +117,40 @@ public class MCHandler extends AbstractHandler {
 						}
 					}
 					if (cmlFile != null) {
-						if("cml".equalsIgnoreCase(cmlFile.getFileExtension())){
-							String propertyToCheck = this.getProperty(event.getParameter("eu.compassresearch.ide.modelchecker.property"));
-							IFolder mcFolder = cmlProj.getModelBuildPath().getOutput().getFolder(new Path("modelchecker"));
-							if(!mcFolder.exists()){
-								//if generated folder doesn't exist
-								if (!mcFolder.getParent().exists()){
-									((IFolder) mcFolder.getParent()).create(true, true, new NullProgressMonitor());
+						//it proceeds only if FORMULA is installed
+						CmlMCPlugin.getDefault().checkAuxiliarySoftware();
+						if(CmlMCPlugin.FORMULA_OK){
+							if("cml".equalsIgnoreCase(cmlFile.getFileExtension())){
+								String propertyToCheck = this.getProperty(event.getParameter("eu.compassresearch.ide.modelchecker.property"));
+								IFolder mcFolder = cmlProj.getModelBuildPath().getOutput().getFolder(new Path("modelchecker"));
+								if(!mcFolder.exists()){
+									//if generated folder doesn't exist
+									if (!mcFolder.getParent().exists()){
+										((IFolder) mcFolder.getParent()).create(true, true, new NullProgressMonitor());
+									}
+									//if the model checker folder does not exist
+									if (!mcFolder.exists()){
+										mcFolder.create(true, true, new NullProgressMonitor());
+										mcFolder.refreshLocal(IResource.DEPTH_ZERO, new NullProgressMonitor());
+									}
+									
 								}
-								//if the model checker folder does not exist
-								if (!mcFolder.exists()){
-									mcFolder.create(true, true, new NullProgressMonitor());
-									mcFolder.refreshLocal(IResource.DEPTH_ZERO, new NullProgressMonitor());
-								}
+								ICmlSourceUnit selectedUnit = getSelectedSourceUnit(model, (IFile)cmlFile);
 								
-							}
-							ICmlSourceUnit selectedUnit = getSelectedSourceUnit(model, (IFile)cmlFile);
+								IFile outputFile = translateCmlToFormula(model, (IFile)cmlFile, mcFolder, propertyToCheck);
 							
-							IFile outputFile = translateCmlToFormula(model, (IFile)cmlFile, mcFolder, propertyToCheck);
-						
-							if(outputFile != null){
-								MCProgressView p = new MCProgressView(outputFile, propertyToCheck, mcFolder, selectedUnit, cmlFile, event, mainProcessName, this);
-								p.execute();
+								if(outputFile != null){
+									MCProgressView p = new MCProgressView(outputFile, propertyToCheck, mcFolder, selectedUnit, cmlFile, event, mainProcessName, this);
+									p.execute();
+								}
+							}else{
+								MessageDialog.openInformation(
+										window.getShell(),
+										"Symphony",
+										"Only CML files can be analysed!");
 							}
 						}else{
-							MessageDialog.openInformation(
-									window.getShell(),
-									"Symphony",
-									"Only CML files can be analysed!");
+							MessageDialog.openInformation(window.getShell(), "Symphony", CmlMCPlugin.formulaNotInstalledMsg);
 						}
 					}
 				}
@@ -197,6 +203,7 @@ public class MCHandler extends AbstractHandler {
 
 		
 		ICmlSourceUnit selectedCmlSourceUnit = getSelectedSourceUnit(model,selectedFile);
+		AProcessDefinition selectedProcess = null;
 		
 		if(selectedCmlSourceUnit == null){
 			throw new AnalysisException("No selected file to convert!");
@@ -207,7 +214,7 @@ public class MCHandler extends AbstractHandler {
 		if(hasMultipleProcessDefinitions(definitions)){
 			IVdmProject vdmProject = (IVdmProject) proj.getAdapter(IVdmProject.class);
 			GlobalProcessSelectorDialog processSelector = new GlobalProcessSelectorDialog(window.getShell(), vdmProject,selectedCmlSourceUnit);
-			AProcessDefinition selectedProcess = processSelector.showDialog();
+			selectedProcess = processSelector.showDialog();
 			if(selectedProcess != null){
 				mainProcessName = selectedProcess.getName().getSimpleName();
 			}
@@ -215,13 +222,15 @@ public class MCHandler extends AbstractHandler {
 		}else{
 			for (PDefinition pDefinition : definitions) {
 				if(pDefinition instanceof AProcessDefinition){
+					selectedProcess = (AProcessDefinition)pDefinition;
 					mainProcessName = pDefinition.getName().getSimpleName();
 					break;
 				}
 			}
 		}
 		IFile outputFile = null;
-		if(mainProcessName != null){
+		if(selectedProcess != null){
+			mainProcessName = selectedProcess.getName().getSimpleName();
 			String name = mainProcessName;
 			String formulaFileName = name +".4ml";
 			outputFile = mcFolder.getFile(formulaFileName);

@@ -11,6 +11,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
 
 import eu.compassresearch.core.analysis.modelchecker.api.FormulaIntegrator;
+import eu.compassresearch.ide.faulttolerance.Activator;
 import eu.compassresearch.ide.faulttolerance.IFaultToleranceVerificationRequest;
 import eu.compassresearch.ide.faulttolerance.IFaultToleranceVerificationResponse;
 import eu.compassresearch.ide.faulttolerance.Message;
@@ -71,7 +72,7 @@ public class FaultToleranceVerificationCleanupJob extends
 		try {
 			FormulaIntegrator.getInstance().finalize();
 		} catch (Throwable e) {
-			// TODO log exception
+			Activator.getDefault().log(e);
 		}
 	}
 

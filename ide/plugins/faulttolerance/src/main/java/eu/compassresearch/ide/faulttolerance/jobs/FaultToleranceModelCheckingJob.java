@@ -20,6 +20,7 @@ import org.eclipse.ui.progress.IProgressConstants;
 
 import eu.compassresearch.core.analysis.modelchecker.api.FormulaIntegrator;
 import eu.compassresearch.core.analysis.modelchecker.api.FormulaResult;
+import eu.compassresearch.ide.faulttolerance.Activator;
 import eu.compassresearch.ide.faulttolerance.FaultToleranceProperty;
 import eu.compassresearch.ide.faulttolerance.IFaultToleranceVerificationRequest;
 import eu.compassresearch.ide.faulttolerance.IFaultToleranceVerificationResponse;
@@ -48,6 +49,7 @@ public class FaultToleranceModelCheckingJob extends
 				return FaultToleranceModelCheckingJob.this.property
 						.getFormulaScriptFile().exists();
 			}
+
 			@Override
 			public void postCheckPreRequisite(boolean checkResult) {
 			}
@@ -113,11 +115,20 @@ public class FaultToleranceModelCheckingJob extends
 				@Override
 				public void run() {
 					try {
+						Activator.getDefault().log(
+								Message.RUNNING_MODEL_CHECKER_SUBTHREAD,
+								property.format());
 						formulaLock.acquire();
 						String fullPath = property.getFormulaScriptFile()
 								.getRawLocation().toOSString();
+						Activator.getDefault().log(
+								Message.CALLING_THE_MODEL_CHECKER,
+								property.format());
 						FormulaResult formulaResult = FormulaIntegrator
 								.getInstance().analyseFile(fullPath);
+						Activator.getDefault().log(
+								Message.MODEL_CHECKER_RETURNED,
+								property.format());
 						synchronized (property) {
 							property.setChecked(true);
 							property.setSatisfied(!formulaResult
@@ -129,8 +140,18 @@ public class FaultToleranceModelCheckingJob extends
 						}
 					} catch (RuntimeException e) {
 						property.setException(e);
+						Activator.getDefault().log(e);
+						resetDueToRuntimeException();
 					} finally {
 						formulaLock.release();
+					}
+				}
+
+				private void resetDueToRuntimeException() {
+					try {
+						FormulaIntegrator.getInstance().resetInstance();
+					} catch (Throwable e) {
+						Activator.getDefault().log(e);
 					}
 				}
 			};
@@ -152,10 +173,10 @@ public class FaultToleranceModelCheckingJob extends
 						}
 					}
 				} catch (InterruptedException e) {
-					// TODO log exception
+					Activator.getDefault().log(e);
 					done = true;
 				} catch (Throwable e) {
-					// TODO log exception from FormulaIntegrator
+					Activator.getDefault().log(e);
 				} finally {
 					formulaLock.release();
 				}
@@ -170,6 +191,7 @@ public class FaultToleranceModelCheckingJob extends
 			return status;
 		} catch (RuntimeException e) {
 			property.setException(e);
+			Activator.getDefault().log(e);
 			return Status.OK_STATUS;
 		} finally {
 			monitor.done();

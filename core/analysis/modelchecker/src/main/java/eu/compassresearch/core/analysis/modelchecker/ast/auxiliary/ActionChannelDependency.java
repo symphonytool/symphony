@@ -5,6 +5,8 @@ import java.util.LinkedList;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAReadCommunicationParameter;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCASignalCommunicationParameter;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAWriteCommunicationParameter;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPCommunicationParameter;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAChannelDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAVariableExp;
@@ -62,7 +64,8 @@ public class ActionChannelDependency {
 				MCPCommunicationParameter thisParam = this.parameters.get(i);
 				MCPCommunicationParameter otherParam = ((ActionChannelDependency) obj).getParameters().get(i);
 				if (thisParam instanceof MCAReadCommunicationParameter && otherParam instanceof MCAReadCommunicationParameter){
-					result = result && ((MCAReadCommunicationParameter)thisParam).getExpression().equals(((MCAReadCommunicationParameter)otherParam).getExpression());
+					//result = result && ((MCAReadCommunicationParameter)thisParam).getExpression().equals(((MCAReadCommunicationParameter)otherParam).getExpression());
+					result = result && thisParam.toString().equals(otherParam.toString());//thisParam.equals(otherParam);
 				}
 			}
 			
@@ -74,15 +77,58 @@ public class ActionChannelDependency {
 	public boolean usesNonConstantVariable(){
 		boolean result = false;
 		for (MCPCommunicationParameter param : this.getParameters()) {
-			if (param.getExpression() instanceof MCAVariableExp){
+			if(param.getExpression() != null){
+				if (param.getExpression() instanceof MCAVariableExp){
+					result = true;
+				}
+			}else{
 				result = true;
 			}
 		}
 		return result;
 	}
 	
+	public boolean usesStateVariable(){
+		boolean result = false;
+		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
+		MCPCommunicationParameter param = this.getParameters().getFirst();
+		String varName = param.toString();
+		//System.out.println("VARNAME: " + varName + " CONTAINS: " + context.maximalBinding.containsVariable(varName));
+		if(context.maximalBinding.containsVariable(varName)){
+			result = true;
+			
+		}
+		return result;
+	}
+	
+	public boolean hasConcreteCommunication(){
+		boolean result = false;
+		MCPCommunicationParameter param = this.getParameters().getFirst();
+		if (!(param instanceof MCAReadCommunicationParameter)){
+			if(!usesStateVariable()){
+				result = true;
+			}
+		}
+		
+		return result;
+	}
+	
 	public boolean hasInfiniteTypedChannel(){
 		return this.channelDefinition.isInfiniteType();
+	}
+	
+	public boolean communicatesStateVariable(){
+		boolean result = false;
+		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
+		String variableName = "";
+		for (MCPCommunicationParameter param : this.getParameters()) {
+			if(param instanceof MCASignalCommunicationParameter || param instanceof MCAWriteCommunicationParameter){
+				variableName = param.getExpression().toFormula(MCNode.DEFAULT);
+			}		
+		}
+		result = context.maximalBinding.containsVariable(variableName);
+		
+		return result;
 	}
 	
 	public String getActionName() {

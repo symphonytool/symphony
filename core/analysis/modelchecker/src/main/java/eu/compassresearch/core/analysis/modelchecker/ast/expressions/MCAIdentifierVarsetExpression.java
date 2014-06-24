@@ -28,10 +28,8 @@ public class MCAIdentifierVarsetExpression implements MCPVarsetExpression {
 
 	@Override
 	public LinkedList<MCANameChannelExp> getChannelNames() {
-		NewCMLModelcheckerContext context = NewCMLModelcheckerContext
-				.getInstance();
-		MCAChansetDefinition chansetDef = context
-				.getChansetDefinition(this.identifier);
+		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
+		MCAChansetDefinition chansetDef = context.getChansetDefinition(this.identifier);
 		return chansetDef.getChansetExpression().getChannelNames();
 	}
 

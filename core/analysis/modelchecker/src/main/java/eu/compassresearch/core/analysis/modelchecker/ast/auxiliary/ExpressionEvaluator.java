@@ -18,6 +18,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAChannelD
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCALocalDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCATypeDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAValueDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAAndBooleanBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAApplyExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCABooleanConstExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAEqualsBinaryExp;
@@ -810,6 +811,9 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 			resp = this.canEvaluate((MCANotUnaryExp)expression);
 		} else if(expression instanceof MCAApplyExp){
 			resp = this.canEvaluate((MCAApplyExp)expression);
+		} else if(expression instanceof MCAAndBooleanBinaryExp){
+			resp = this.canEvaluate(((MCAAndBooleanBinaryExp) expression).getLeft()) 
+					&& this.canEvaluate(((MCAAndBooleanBinaryExp) expression).getRight());
 		}
 		return resp;
 	}

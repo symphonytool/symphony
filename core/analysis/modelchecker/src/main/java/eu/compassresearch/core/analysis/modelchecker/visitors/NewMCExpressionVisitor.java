@@ -4,6 +4,7 @@ import java.util.LinkedList;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.QuestionAnswerAdaptor;
+import org.overture.ast.expressions.AAndBooleanBinaryExp;
 import org.overture.ast.expressions.AApplyExp;
 import org.overture.ast.expressions.ABooleanConstExp;
 import org.overture.ast.expressions.AEqualsBinaryExp;
@@ -18,6 +19,7 @@ import org.overture.ast.expressions.AModNumericBinaryExp;
 import org.overture.ast.expressions.ANotEqualBinaryExp;
 import org.overture.ast.expressions.ANotInSetBinaryExp;
 import org.overture.ast.expressions.ANotUnaryExp;
+import org.overture.ast.expressions.AOrBooleanBinaryExp;
 import org.overture.ast.expressions.APlusNumericBinaryExp;
 import org.overture.ast.expressions.AQuoteLiteralExp;
 import org.overture.ast.expressions.ASeqCompSeqExp;
@@ -50,6 +52,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ExpressionEvaluator;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.GuardDefGenerator;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.NewMCGuardDef;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAAndBooleanBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAApplyExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCABooleanConstExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAEnumVarsetExpression;
@@ -69,6 +72,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANameChan
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANotEqualsBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANotInSetBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANotUnaryExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAOrBooleanBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAPlusNumericBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAQuoteLiteralExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASeqCompSeqExp;
@@ -331,9 +335,11 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 		MCABooleanConstExp result = new MCABooleanConstExp(node.getValue().getValue());
 		return result;
 	}
-	/*
 	
-
+	
+	
+		/*
+	
 	@Override
 	public StringBuilder caseAVariableExp(AVariableExp node,
 			CMLModelcheckerContext question) throws AnalysisException {
@@ -343,25 +349,6 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 		return question.getScriptContent();
 	}
 
-	
-
-	
-
-	@Override
-	public StringBuilder caseAAndBooleanBinaryExp(AAndBooleanBinaryExp node,
-			CMLModelcheckerContext question) throws AnalysisException {
-		PExp left = node.getLeft();
-		PExp right = node.getRight();
-		if(ExpressionEvaluator.evaluate(node)){
-			question.getScriptContent().append("," + left.toString() + " , "+ right.toString()+" = true");
-		}else{
-			question.getScriptContent().append("GUARDNDEF#,"+left.toString()+" , "+right.toString()+" = false");
-		}
-
-		return question.getScriptContent();
-	}
-
-	
 	@Override
 	public StringBuilder caseAOrBooleanBinaryExp(AOrBooleanBinaryExp node,
 			CMLModelcheckerContext question) throws AnalysisException {
@@ -378,6 +365,32 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 
 
 	*/
+
+	@Override
+	public MCNode caseAAndBooleanBinaryExp(AAndBooleanBinaryExp node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		
+		MCPCMLExp left = (MCPCMLExp) node.getLeft().apply(rootVisitor, question);
+		MCPCMLExp right = (MCPCMLExp) node.getRight().apply(rootVisitor, question);
+		MCAAndBooleanBinaryExp result = new MCAAndBooleanBinaryExp(left, right);
+			
+		return result;
+	}
+
+	
+	
+
+	@Override
+	public MCNode caseAOrBooleanBinaryExp(AOrBooleanBinaryExp node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		
+		MCPCMLExp left = (MCPCMLExp) node.getLeft().apply(rootVisitor, question);
+		MCPCMLExp right = (MCPCMLExp) node.getRight().apply(rootVisitor, question);
+		MCAOrBooleanBinaryExp result = new MCAOrBooleanBinaryExp(left, right);
+			
+		return result;
+	}
+
 
 	@Override
 	public MCNode caseANotUnaryExp(ANotUnaryExp node,

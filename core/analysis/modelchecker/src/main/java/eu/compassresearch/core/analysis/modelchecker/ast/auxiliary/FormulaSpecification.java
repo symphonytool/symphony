@@ -53,6 +53,7 @@ public class FormulaSpecification {
 			for (MCATypeDefinition typeDef : context.typeDefinitions) {
 				String typeName = typeDef.getName();
 				if(typeDef.hasValues()){
+					
 					userTypeDefs.append(typeDef.toFormula(MCNode.DEFAULT));
 					userTypeDefs.append("\n");
 					userTypeNames.append(" + " + typeName);
