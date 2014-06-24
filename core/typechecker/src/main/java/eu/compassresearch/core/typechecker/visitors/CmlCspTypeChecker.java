@@ -341,24 +341,8 @@ public class CmlCspTypeChecker extends
 	public PType caseAActionDefinition(AActionDefinition node,
 			TypeCheckInfo question) throws AnalysisException
 	{
-
-		if (!node.getDeclarations().isEmpty())
-		{
-			for (PParametrisation par : node.getDeclarations())
-			{
-				try
-				{
-					question.assistantFactory.createPTypeAssistant().typeResolve(par.getDeclaration().getType(), null, vdmChecker, question);
-				} catch (TypeCheckException te)
-				{
-					TypeChecker.report(3427, te.getMessage(), te.location);
-				}
-			}
-		}
-
 		Environment env = PParametrisationAssistant.updateEnvironment(question.env, node.getDeclarations());
 		return node.getAction().apply(actionChecker, question.newInfo(env));
-
 	}
 
 	// the strange single type

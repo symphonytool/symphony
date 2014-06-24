@@ -91,7 +91,7 @@ public class ExternalProcessTest
 		coordinator.waitFor();
 	}
 
-	protected boolean isFinished()
+	protected static boolean isFinished(IConsoleWatcher... watched)
 	{
 		boolean result = true;
 		for (IConsoleWatcher watch : watched)

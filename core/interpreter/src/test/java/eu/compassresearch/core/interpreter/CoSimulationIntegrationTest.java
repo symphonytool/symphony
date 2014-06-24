@@ -12,13 +12,25 @@ import eu.compassresearch.core.interpreter.cosim.communication.Utils;
 public class CoSimulationIntegrationTest extends ExternalProcessTest
 {
 
-	public Process setUpCoordinator(String file, String mainProcess,
+	private static class ProcessInfo
+	{
+		public final Process process;
+		public final IConsoleWatcher finishWatch;
+
+		public ProcessInfo(Process process, IConsoleWatcher finishWatch)
+		{
+			this.process = process;
+			this.finishWatch = finishWatch;
+		}
+	}
+
+	public ProcessInfo setUpCoordinator(String file, String mainProcess,
 			String delegatedProcesses) throws Exception
 	{
 		return setUpCoordinator(file, mainProcess, delegatedProcesses, new ConsoleWatcher[] {});
 	}
 
-	public Process setUpCoordinator(String file, String mainProcess,
+	public ProcessInfo setUpCoordinator(String file, String mainProcess,
 			String delegatedProcesses, ConsoleWatcher... additionalWatches)
 			throws Exception
 	{
@@ -54,11 +66,11 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 			Utils.milliPause(RETRY_WAIT);
 			time += RETRY_WAIT;
 		}
-		return process;
+		return new ProcessInfo(process, watch);
 
 	}
 
-	public Process setUpClient(String file, String mainProcess)
+	public ProcessInfo setUpClient(String file, String mainProcess)
 			throws Exception
 	{
 
@@ -69,10 +81,10 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 		ConsoleWatcher watch = new ConsoleWatcher(name, ConsoleWatcher.FINISHED_MATCH_TEXT);
 		this.watched.add(watch);
 		startAutoRead(process, name, quiet, watch);
-		return process;
+		return new ProcessInfo(process, watch);
 	}
 
-	public Process setUpExternalClient(Class<?> main, String processName,
+	public ProcessInfo setUpExternalClient(Class<?> main, String processName,
 			String... args) throws Exception
 	{
 
@@ -81,7 +93,7 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 		ConsoleWatcher watch = new ConsoleWatcher(name, ConsoleWatcher.FINISHED_MATCH_TEXT);
 		this.watched.add(watch);
 		startAutoRead(process, name, quiet, watch);
-		return process;
+		return new ProcessInfo(process, watch);
 	}
 
 	protected static class ConsoleWatcher implements IConsoleWatcher
@@ -135,12 +147,12 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 	public void testMain() throws Exception
 	{
 		String source = "src/test/resources/cosim/main.cml";
-		Process coordinator = setUpCoordinator(source, "P", "B");
-		setUpClient(source, "B");
+		ProcessInfo coordinator = setUpCoordinator(source, "P", "B");
+		ProcessInfo client = setUpClient(source, "B");
 
-		waitForCompletion(coordinator, DEFAULT_TIMEOUT);
+		waitForCompletion(coordinator.process, DEFAULT_TIMEOUT);
 
-		Assert.assertTrue("Simulators did not finish successfully", isFinished());
+		Assert.assertTrue("Simulators did not finish successfully", isFinished(coordinator.finishWatch, client.finishWatch));
 
 	}
 
@@ -148,12 +160,12 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 	public void testSkip() throws Exception
 	{
 		String source = "src/test/resources/cosim/skip.cml";
-		Process coordinator = setUpCoordinator(source, "P", "A");
-		setUpClient(source, "A");
+		ProcessInfo coordinator = setUpCoordinator(source, "P", "A");
+		ProcessInfo client = setUpClient(source, "A");
 
-		waitForCompletion(coordinator, DEFAULT_TIMEOUT);
+		waitForCompletion(coordinator.process, DEFAULT_TIMEOUT);
 
-		Assert.assertFalse("Simulators did not finish successfully", isFinished());
+		Assert.assertFalse("Simulators did not finish successfully", isFinished(coordinator.finishWatch, client.finishWatch));
 
 	}
 
@@ -161,13 +173,13 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 	public void testSkipDual() throws Exception
 	{
 		String source = "src/test/resources/cosim/skip.cml";
-		Process coordinator = setUpCoordinator(source, "P", "A,B");
-		setUpClient(source, "A");
-		setUpClient(source, "B");
+		ProcessInfo coordinator = setUpCoordinator(source, "P", "A,B");
+		ProcessInfo client = setUpClient(source, "A");
+		ProcessInfo client2 = setUpClient(source, "B");
 
-		waitForCompletion(coordinator, DEFAULT_TIMEOUT);
+		waitForCompletion(coordinator.process, DEFAULT_TIMEOUT);
 
-		Assert.assertFalse("Simulators did not finish successfully", isFinished());
+		Assert.assertFalse("Simulators did not finish successfully", isFinished(coordinator.finishWatch, client.finishWatch, client2.finishWatch));
 
 	}
 
@@ -175,13 +187,13 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 	public void testMainTwoClients() throws Exception
 	{
 		String source = "src/test/resources/cosim/main.cml";
-		Process coordinator = setUpCoordinator(source, "P", "B,A");
-		setUpClient(source, "B");
-		setUpClient(source, "A");
+		ProcessInfo coordinator = setUpCoordinator(source, "P", "B,A");
+		ProcessInfo client = setUpClient(source, "B");
+		ProcessInfo client2 = setUpClient(source, "A");
 
-		waitForCompletion(coordinator, DEFAULT_TIMEOUT);
+		waitForCompletion(coordinator.process, DEFAULT_TIMEOUT);
 
-		Assert.assertTrue("Simulators did not finish successfully", isFinished());
+		Assert.assertTrue("Simulators did not finish successfully", isFinished(coordinator.finishWatch, client.finishWatch, client2.finishWatch));
 
 	}
 
@@ -189,14 +201,13 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 	public void testMainDeadlocked() throws Exception
 	{
 		String source = "src/test/resources/cosim/main-deadlocked.cml";
-		final ConsoleWatcher deadlockedWatch = new ConsoleWatcher("Main", "DEADLOCKED");
-		Process coordinator = setUpCoordinator(source, "P", "B", deadlockedWatch);
+		final ConsoleWatcher deadlockedWatch = new ConsoleWatcher("Main", "Simulator status event : DEADLOCKED");
+		ProcessInfo coordinator = setUpCoordinator(source, "P", "B", deadlockedWatch);
 		setUpClient(source, "B");
 
-		waitForCompletion(coordinator, DEFAULT_TIMEOUT);
+		waitForCompletion(coordinator.process, DEFAULT_TIMEOUT);
 
-		Assert.assertFalse("Simulators did not finish successfully", isFinished()
-				&& deadlockedWatch.isMatched());
+		Assert.assertTrue("Simulators did not finish successfully", deadlockedWatch.isMatched());
 
 	}
 
@@ -204,12 +215,12 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 	public void testRW() throws Exception
 	{
 		String source = "src/test/resources/cosim/RW.cml";
-		Process coordinator = setUpCoordinator(source, "Main", "Reader");
-		setUpClient(source, "Reader");
+		ProcessInfo coordinator = setUpCoordinator(source, "Main", "Reader");
+		ProcessInfo client = setUpClient(source, "Reader");
 
-		waitForCompletion(coordinator, DEFAULT_TIMEOUT);
+		waitForCompletion(coordinator.process, DEFAULT_TIMEOUT);
 
-		Assert.assertFalse("Simulators did not finish successfully", isFinished());
+		Assert.assertFalse("Simulators did not finish successfully", isFinished(coordinator.finishWatch, client.finishWatch));
 
 	}
 
@@ -217,12 +228,12 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 	public void testSyncOnString() throws Exception
 	{
 		String source = "src/test/resources/cosim/SyncOnString.cml";
-		Process coordinator = setUpCoordinator(source, "Main", "Writer");
-		setUpClient(source, "Writer");
+		ProcessInfo coordinator = setUpCoordinator(source, "Main", "Writer");
+		ProcessInfo client = setUpClient(source, "Writer");
 
-		waitForCompletion(coordinator, DEFAULT_TIMEOUT);
+		waitForCompletion(coordinator.process, DEFAULT_TIMEOUT);
 
-		Assert.assertTrue("Simulators did not deadlock successfully", isFinished());
+		Assert.assertTrue("Simulators did not finish successfully", isFinished(coordinator.finishWatch, client.finishWatch));
 
 	}
 
@@ -230,12 +241,12 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 	public void testSyncOnRecord() throws Exception
 	{
 		String source = "src/test/resources/cosim/SyncOnRecord.cml";
-		Process coordinator = setUpCoordinator(source, "Main", "Writer");
-		setUpClient(source, "Writer");
+		ProcessInfo coordinator = setUpCoordinator(source, "Main", "Writer");
+		ProcessInfo client = setUpClient(source, "Writer");
 
-		waitForCompletion(coordinator, DEFAULT_TIMEOUT);
+		waitForCompletion(coordinator.process, DEFAULT_TIMEOUT);
 
-		Assert.assertTrue("Simulators did not deadlock successfully", isFinished());
+		Assert.assertTrue("Simulators did not deadlock successfully", isFinished(coordinator.finishWatch, client.finishWatch));
 
 	}
 
@@ -246,40 +257,38 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 
 		ConsoleWatcher watch = new ConsoleWatcher("coordinator", "The external co-simulation process A aborted with error: 999 execution error");
 
-		Process coordinator = setUpCoordinator(source, "P", "A", watch);
+		ProcessInfo coordinator = setUpCoordinator(source, "P", "A", watch);
 		setUpExternalClient(SubSystem.class, "A", new String[] { port.toString() });
 
-		waitForCompletion(coordinator, DEFAULT_TIMEOUT);
+		waitForCompletion(coordinator.process, DEFAULT_TIMEOUT);
 
 		Assert.assertTrue("Simulators did not abort successfully", watch.isMatched());
 
 	}
-	
-	
+
 	@Test
 	public void testTypesQuotes() throws Exception
 	{
 		String source = "src/test/resources/cosim/TypeTestingSoS.cml";
-		Process coordinator = setUpCoordinator(source, "NodeSoS", "NodeReaderCS");
-		setUpClient(source, "NodeReaderCS");
+		ProcessInfo coordinator = setUpCoordinator(source, "NodeSoS", "NodeReaderCS");
+		ProcessInfo client = setUpClient(source, "NodeReaderCS");
 
-		waitForCompletion(coordinator, DEFAULT_TIMEOUT);
+		waitForCompletion(coordinator.process, DEFAULT_TIMEOUT);
 
-		Assert.assertTrue("Simulators did not finish successfully", isFinished());
+		Assert.assertTrue("Simulators did not finish successfully", isFinished(coordinator.finishWatch, client.finishWatch));
 
 	}
-	
-	
+
 	@Test
 	public void testTypesBool() throws Exception
 	{
 		String source = "src/test/resources/cosim/TypeTestingSoS.cml";
-		Process coordinator = setUpCoordinator(source, "BoolSoS", "BoolReaderCS");
-		setUpClient(source, "BoolReaderCS");
+		ProcessInfo coordinator = setUpCoordinator(source, "BoolSoS", "BoolReaderCS");
+		ProcessInfo client = setUpClient(source, "BoolReaderCS");
 
-		waitForCompletion(coordinator, DEFAULT_TIMEOUT);
+		waitForCompletion(coordinator.process, DEFAULT_TIMEOUT);
 
-		Assert.assertTrue("Simulators did not finish successfully", isFinished());
+		Assert.assertTrue("Simulators did not finish successfully", isFinished(coordinator.finishWatch, client.finishWatch));
 
 	}
 
