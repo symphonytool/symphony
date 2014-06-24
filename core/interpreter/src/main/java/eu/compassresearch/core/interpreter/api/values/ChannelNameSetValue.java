@@ -59,8 +59,12 @@ public class ChannelNameSetValue extends Value implements Set<ChannelValue>
 	@Override
 	public Object clone()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		ChannelNameSetValue set = new ChannelNameSetValue();
+		for (ChannelValue channelValue : this)
+		{
+			set.add((ChannelValue) channelValue.clone());
+		}
+		return set;
 	}
 
 	@Override
