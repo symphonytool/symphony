@@ -1,0 +1,14 @@
+channels
+b c
+
+process muXTest =
+begin
+actions
+   
+     loop = mu x @
+     (
+      	b->x
+     )
+
+@(loop/_\ c->loop) [|{b,c}|] b->c->Skip
+end

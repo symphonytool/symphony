@@ -531,7 +531,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 			public Pair<INode, Context> execute(CmlTransition selectedTransition)
 					throws AnalysisException
 			{
-				// /THIS IS NOT CORRECT sEMANTICALLY,
+				//TODO: AKM: This does not correspond to the semantics
 				Context muContext = CmlContextFactory.newContext(node.getLocation(), "mu context", question);
 
 				NameValuePairList nvpl = new NameValuePairList();
@@ -546,7 +546,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 
 					PAction action = node.getActions().get(i);
 
-					AActionDefinition actionDef = CmlAstFactory.newAActionDefinition(node.getLocation(), NameScope.LOCAL, true, null, Pass.DEFS, null, action);
+					AActionDefinition actionDef = CmlAstFactory.newAActionDefinition(node.getLocation(), NameScope.LOCAL, true, null, Pass.DEFS, null, action.clone());
 
 					nvpl.add(new NameValuePair(name, new ActionValue(actionDef)));
 					if (i == 0)
