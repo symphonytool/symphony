@@ -342,7 +342,9 @@ public class NewMCVisitor extends
 		//String cml_file = "src/test/resources/BeoAVDeviceDiscovery-subtletly.cml";
 		//String cml_file = "src/test/resources/action-inf-comm.cml";
 		//String cml_file = "src/test/resources/basic.cml";
-		String cml_file = "src/test/resources/Dead.cml";
+		//String cml_file = "src/test/resources/Dead.cml";
+		//String cml_file = "src/test/resources/InsielPaolo.cml";
+		String cml_file = "src/test/resources/TestOutput.cml";
 		
 		//String cml_file = "src/test/resources/MC_Tests_2.cml";
 		//String cml_file = "src/test/resources/simpleStop.cml";
@@ -377,7 +379,8 @@ public class NewMCVisitor extends
 		//String mainProcessName = "TargetProduct_DD_SD_InterfaceProtocolView";
 		//String mainProcessName = "P";
 		//String mainProcessName = "ChaosE";
-		String mainProcessName = "Lazy";
+		//String mainProcessName = "CUSSoS";
+		String mainProcessName = "Test";
 		
 		//String mainProcessName = "TestTraces1";
 		

@@ -127,8 +127,15 @@ public class MCACommunicationAction implements MCPAction {
 		} else{
 			//int i = 0;
 			//result.append(buildReplicatedExternalChoice(context, values, option, allParamsCopy,false));
+			
 			result.append(buildPrefix(option, context, false));
 			
+		}
+		if(this.communicationParameters.size() > 0){
+			if(this.communicationParameters.getFirst() instanceof MCAReadCommunicationParameter){
+				String localVarName = this.communicationParameters.getFirst().toString();
+				context.localInputVariables.add(localVarName);
+			}
 		}
 		return result.toString();
 	}
