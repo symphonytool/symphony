@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.Thread.UncaughtExceptionHandler;
 import java.net.ServerSocket;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -74,7 +75,9 @@ public class ExternalProcessTest
 	protected void waitForCompletion(final Process coordinator,
 			final int timeout) throws InterruptedException
 	{
-		Thread timer = new Thread(new Runnable()
+		
+		final Thread t = Thread.currentThread();
+		Thread timer = new Thread(t.getThreadGroup(),new Runnable()
 		{
 
 			@Override
@@ -82,12 +85,30 @@ public class ExternalProcessTest
 			{
 				Utils.milliPause(timeout);
 				coordinator.destroy();
+				try{
 				Assert.fail("Simulation timeout reached. Value = " + timeout);
+				}catch(AssertionError e )
+				{
+					System.err.println("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH");
+					 t.getUncaughtExceptionHandler().uncaughtException(t, e);
+				}
 			}
 		});
 
 		timer.setDaemon(true);
+//		timer.setUncaughtExceptionHandler(new UncaughtExceptionHandler()
+//		{
+//
+//			@Override
+//			public void uncaughtException(Thread t, Throwable e)
+//			{
+//				t.getThreadGroup().
+//
+//			}
+//		});
+
 		timer.start();
+
 		coordinator.waitFor();
 	}
 
