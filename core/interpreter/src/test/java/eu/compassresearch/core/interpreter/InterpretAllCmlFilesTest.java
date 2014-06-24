@@ -136,14 +136,11 @@ public class InterpretAllCmlFilesTest
 		if (!isTypechecked)
 		{
 			System.err.println(tcIssue.getTypeErrors());
-		}
 
-		if (!isTypechecked)
-		{
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			PrintWriter pw = new PrintWriter(baos);
 			tcIssue.printErrors(pw);
-			Assume.assumeTrue("Type check errors", false);
+			Assume.assumeTrue("Type Check failed\n\n" + baos.toString(), false);
 			assertTrue("Type Check failed\n\n" + baos, isTypechecked);
 			return;
 		}
