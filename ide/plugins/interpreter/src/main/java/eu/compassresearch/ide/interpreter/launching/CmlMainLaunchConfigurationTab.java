@@ -36,6 +36,7 @@ import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ide.core.ICmlCoreConstants;
 import eu.compassresearch.ide.core.resources.ICmlProject;
 import eu.compassresearch.ide.interpreter.ICmlDebugConstants;
+import eu.compassresearch.ide.ui.utility.CmlProjectUtil;
 
 public class CmlMainLaunchConfigurationTab extends
 		AbstractLaunchConfigurationTab
@@ -63,7 +64,7 @@ public class CmlMainLaunchConfigurationTab extends
 	private Text fTopProcessText;
 	private Button rbAnimate;
 	private Button rbSimulate;
-	private Button  rbRemoteControl;
+	private Button rbRemoteControl;
 	private Text fRemoteControlClassText;
 	private WidgetListener fListener = new WidgetListener();
 	private Button fRemoteControlnButton;
@@ -160,7 +161,6 @@ public class CmlMainLaunchConfigurationTab extends
 
 	}
 
-
 	private void createProcessSelection(Composite parent)
 	{
 		Group group = new Group(parent, parent.getStyle());
@@ -197,11 +197,14 @@ public class CmlMainLaunchConfigurationTab extends
 				final IProject project = getProject();
 				ICmlProject cmlProject = (ICmlProject) project.getAdapter(ICmlProject.class);
 
-				AProcessDefinition selectedProcess = GlobalProcessSelectorDialog.chooseProcess( cmlProject,getShell());
-
-				if (selectedProcess != null)
+				if (CmlProjectUtil.typeCheck(getShell(), cmlProject))
 				{
-					fTopProcessText.setText(selectedProcess.getName().getName());
+					AProcessDefinition selectedProcess = GlobalProcessSelectorDialog.chooseProcess(cmlProject, getShell());
+
+					if (selectedProcess != null)
+					{
+						fTopProcessText.setText(selectedProcess.getName().getName());
+					}
 				}
 			}
 		});
@@ -325,7 +328,7 @@ public class CmlMainLaunchConfigurationTab extends
 			}
 		});
 	}
-	
+
 	protected void chooseRemoteControlClass() throws CoreException
 	{
 		final IProject project = getProject();
@@ -357,36 +360,34 @@ public class CmlMainLaunchConfigurationTab extends
 		// rbAnimate.setSelection(true);
 		rbSimulate = createRadioButton(group, "Simulate");
 		rbSimulate.addSelectionListener(fListener);
-		
+
 		rbRemoteControl = createRadioButton(group, "Remote Control");
 		rbRemoteControl.addSelectionListener(fListener);
 		rbRemoteControl.addSelectionListener(new SelectionListener()
 		{
-			
+
 			@Override
 			public void widgetSelected(SelectionEvent e)
 			{
 				fRemoteControlClassText.setEnabled(rbRemoteControl.getSelection());
 				fRemoteControlnButton.setEnabled(rbRemoteControl.getSelection());
 			}
-			
+
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e)
 			{
-				// TODO Auto-generated method stub
-				
+			
+
 			}
 		});
 
-		
 		fRemoteControlClassText = new Text(group, SWT.SINGLE | SWT.BORDER);
-		
 
 		gd = new GridData(GridData.FILL_HORIZONTAL);
 		fRemoteControlClassText.setLayoutData(gd);
 		fRemoteControlClassText.addModifyListener(fListener);
 		fRemoteControlClassText.setEnabled(true);
-		
+
 		fRemoteControlnButton = createPushButton(group, "Browse...", null);
 		fRemoteControlnButton.addSelectionListener(new SelectionAdapter()
 		{
@@ -427,7 +428,7 @@ public class CmlMainLaunchConfigurationTab extends
 			// "");
 			fRemoteControlClassText.setEnabled(false);
 			fRemoteControlnButton.setEnabled(false);
-			
+
 			if (configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_IS_ANIMATION, true))
 			{
 				rbAnimate.setSelection(true);
@@ -441,8 +442,8 @@ public class CmlMainLaunchConfigurationTab extends
 			}
 
 			fRemoteControlClassText.setText(configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_REMOTE_INTERPRETER_CLASS, ""));
-			
-			if(!fRemoteControlClassText.getText().isEmpty())
+
+			if (!fRemoteControlClassText.getText().isEmpty())
 			{
 				rbRemoteControl.setSelection(true);
 				fRemoteControlClassText.setEnabled(true);
