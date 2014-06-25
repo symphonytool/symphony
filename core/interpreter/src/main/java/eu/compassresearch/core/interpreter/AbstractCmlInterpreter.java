@@ -17,6 +17,7 @@ import org.overture.interpreter.debug.BreakpointManager;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.Stoppoint;
 import org.overture.interpreter.scheduler.BasicSchedulableThread;
+import org.overture.parser.config.Properties;
 import org.overture.parser.lex.LexException;
 import org.overture.parser.syntax.ParserException;
 import org.slf4j.Logger;
@@ -137,7 +138,11 @@ public abstract class AbstractCmlInterpreter implements CmlInterpreter
 		Settings.release = Release.VDM_10;
 		// enable debugging in VDM source code
 		Settings.usingDBGP = true;
-		/**
+		//Configure overture to generate values in type binds. e.g. i : int
+		Properties.numeric_type_bind_generation = true;
+		Properties.minint = -128;
+		Properties.maxint = 128;
+		/*
 		 * configure the thread management in the overture interpreter
 		 */
 		BasicSchedulableThread.setInitialThread(new CmlInitThread(Thread.currentThread()));
