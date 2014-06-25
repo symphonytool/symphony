@@ -2,7 +2,6 @@ package eu.compassresearch.ast.lex;
 
 import java.util.List;
 
-import org.overture.ast.assistant.type.PTypeAssistant;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.lex.LexIdentifierToken;
@@ -93,11 +92,12 @@ public class CmlLexNameToken extends LexNameToken// implements ILexNameToken,
 				+ name.hashCode()
 				+ (old ? 1 : 0)
 				+ (typeQualifier == null ? 0
-						: PTypeAssistant.hashCode(typeQualifier));
+						: typeQualifier.toString().hashCode());
 		// }
 
 		return hashcode;
 	}
+
 	//
 	// public CmlLexNameToken getPerName(ILexLocation loc)
 	// {
@@ -421,7 +421,7 @@ public class CmlLexNameToken extends LexNameToken// implements ILexNameToken,
 	// && old == other.getOld();
 	// }
 	//
-	
+
 	public CmlLexNameToken getExplicit(boolean ex)
 	{
 		return new CmlLexNameToken(module, name, location, old, ex);
@@ -431,12 +431,12 @@ public class CmlLexNameToken extends LexNameToken// implements ILexNameToken,
 	{
 		return new CmlLexNameToken(module, new LexIdentifierToken(name, true, location));
 	}
-	
+
 	public CmlLexNameToken getNewName()
 	{
 		return new CmlLexNameToken(module, new LexIdentifierToken(name, false, location));
 	}
-	
+
 	public CmlLexNameToken getPreName(ILexLocation l)
 	{
 		return new CmlLexNameToken(module, "pre_" + name, l);
@@ -459,7 +459,7 @@ public class CmlLexNameToken extends LexNameToken// implements ILexNameToken,
 
 	public CmlLexNameToken getModifiedName(String classname)
 	{
-		CmlLexNameToken mod = new CmlLexNameToken(classname, name, location,old,explicit);
+		CmlLexNameToken mod = new CmlLexNameToken(classname, name, location, old, explicit);
 		mod.setTypeQualifier(typeQualifier);
 		return mod;
 	}
@@ -500,7 +500,7 @@ public class CmlLexNameToken extends LexNameToken// implements ILexNameToken,
 	{
 		return new CmlLexNameToken("CLASS", name, location);
 	}
-	
+
 	public CmlLexNameToken copy()
 	{
 		CmlLexNameToken c = new CmlLexNameToken(module, name, location, old, explicit);

@@ -577,7 +577,7 @@ processDefinition returns[AProcessDefinition def]
         {
             $def = new AProcessDefinition(); // FIXME
             $def.setProcess( $process.proc );
-			$def.setAccess(PAccessSpecifierAssistant.getPublic());
+			$def.setAccess(af.createPAccessSpecifierAssistant().getPublic());
             ILexLocation identifierLocation = extractLexLocation($IDENTIFIER);
             CmlLexNameToken processName = new CmlLexNameToken("", new LexIdentifierToken($IDENTIFIER.getText(), false, identifierLocation));
             $def.setName(processName);
@@ -1045,7 +1045,7 @@ actionDef returns[AActionDefinition def]
                 adef.getName().setTypeQualifier(typeQualifiers);
             }
             adef.setAction($action.action);
-			adef.setAccess(PAccessSpecifierAssistant.getPublic());
+			adef.setAccess(af.createPAccessSpecifierAssistant().getPublic());
             $def = adef;
         }
     ;
@@ -1757,7 +1757,7 @@ channelDef returns[List<AChannelDefinition> def]
                 chanDecl.setNameScope(NameScope.GLOBAL);
                 chanDecl.setUsed(false);
                 chanDecl.setLocation(id.getLocation());
-				chanDecl.setAccess(PAccessSpecifierAssistant.getPublic());
+				chanDecl.setAccess(af.createPAccessSpecifierAssistant().getPublic());
 
                 List<PType> types = new Vector<PType>();
                 ILexLocation typeLocation = loc;
