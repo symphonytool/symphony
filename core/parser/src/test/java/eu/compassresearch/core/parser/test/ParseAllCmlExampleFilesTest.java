@@ -44,7 +44,8 @@ public class ParseAllCmlExampleFilesTest
 			public boolean accept(File dir, String name)
 			{
 				return name.toLowerCase().endsWith(".cml")
-						&& !name.toLowerCase().contains("fail");
+                                    && !name.toLowerCase().contains("fail")
+                                    && !name.toLowerCase().contains("-neg");
 			}
 		};
 

@@ -16,6 +16,7 @@ import eu.compassresearch.ast.process.AAlphabetisedParallelismReplicatedProcess;
 import eu.compassresearch.ast.process.AExternalChoiceReplicatedProcess;
 import eu.compassresearch.ast.process.AGeneralisedParallelismProcess;
 import eu.compassresearch.ast.process.AHidingProcess;
+import eu.compassresearch.ast.process.AInterleavingProcess;
 import eu.compassresearch.ast.process.AReferenceProcess;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAExternalChoiceReplicatedAction;
@@ -31,6 +32,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.process.MCAAlphabetised
 import eu.compassresearch.core.analysis.modelchecker.ast.process.MCAExternalChoiceReplicatedProcess;
 import eu.compassresearch.core.analysis.modelchecker.ast.process.MCAGeneralisedParallelismProcess;
 import eu.compassresearch.core.analysis.modelchecker.ast.process.MCAHidingProcess;
+import eu.compassresearch.core.analysis.modelchecker.ast.process.MCAInterleavingProcess;
 import eu.compassresearch.core.analysis.modelchecker.ast.process.MCAReferenceProcess;
 import eu.compassresearch.core.analysis.modelchecker.ast.process.MCPProcess;
 
@@ -95,6 +97,21 @@ public class NewMCProcessVisitor extends
 	
 	
 	
+	
+	@Override
+	public MCNode caseAInterleavingProcess(AInterleavingProcess node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		
+		MCPProcess left = (MCPProcess) node.getLeft().apply(rootVisitor, question);
+		MCPProcess right = (MCPProcess) node.getRight().apply(rootVisitor, question);
+		MCAInterleavingProcess result = new MCAInterleavingProcess(left, right);
+		
+		return result;
+		
+	}
+
+
+
 	@Override
 	public MCNode caseAGeneralisedParallelismProcess(
 			AGeneralisedParallelismProcess node,

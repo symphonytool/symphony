@@ -1,0 +1,74 @@
+channels 
+
+init
+
+CUStoCSChannel
+CStoCUSChannel
+CStoRSChannel
+CStoMSChannel
+RStoCSChannel
+MStoCSChannel
+
+noconnection, lostconnection, wrongdata
+reconnect, resend
+
+chansets
+E = {| noconnection, lostconnection, wrongdata |}
+F = {| lostconnection, wrongdata |}
+H = {| reconnect, resend |}
+
+Alpha = {|reconnect, resend, CUStoCSChannel, CStoCUSChannel, 
+CStoRSChannel, CStoMSChannel,RStoCSChannel, MStoCSChannel |}
+Alpha_CUS = Alpha
+Alpha_ERU = Alpha
+Alpha_CS = Alpha
+
+
+process CS =
+begin
+	actions
+	
+	STARTUP = RECEIVE_FROM_RS [] RECEIVE_FROM_MS [] RECEIVE_FROM_CUS
+	RECEIVE_FROM_RS = RStoCSChannel -> CStoCUSChannel -> STARTUP
+	RECEIVE_FROM_MS = MStoCSChannel -> CStoCUSChannel -> STARTUP
+	RECEIVE_FROM_CUS = CUStoCSChannel -> (RS_SEND [] RS_LOST_CONNECTION [] RS_WRONG_DATA [] RS_NO_CONNECTION)
+	
+	RS_SEND = CStoRSChannel -> STARTUP
+	RS_LOST_CONNECTION = lostconnection -> reconnect -> resend -> RECEIVE_FROM_CUS
+	RS_WRONG_DATA = wrongdata -> resend -> RECEIVE_FROM_CUS
+	RS_NO_CONNECTION = noconnection -> (MS_SEND [] MS_LOST_CONNECTION [] MS_WRONG_DATA [] MS_NO_CONNECTION)
+	
+	MS_SEND = CStoMSChannel -> STARTUP
+	MS_LOST_CONNECTION = lostconnection -> reconnect -> resend -> RECEIVE_FROM_CUS
+	MS_WRONG_DATA = wrongdata -> resend -> RECEIVE_FROM_CUS
+	MS_NO_CONNECTION = noconnection -> Skip
+	
+	@init -> STARTUP
+end
+
+
+-- This process conforms to the CUS contract
+process ERU =
+begin
+   actions
+    	STARTUP = SEND [] WAIT [] RECONNECT
+    	SEND = (RStoCSChannel -> STARTUP) [] (MStoCSChannel -> STARTUP)
+    	WAIT = (CStoRSChannel-> STARTUP) [] (CStoMSChannel -> STARTUP)
+    	RECONNECT = reconnect -> STARTUP
+  
+@init -> STARTUP
+end
+
+process CUS = 
+begin
+	actions
+		STARTUP = SEND [] WAIT [] RESEND
+    	SEND = CUStoCSChannel -> STARTUP
+    	WAIT = CStoCUSChannel ->STARTUP
+    	RESEND  = resend -> SEND
+  
+@init -> STARTUP
+end
+	
+	
+process CUSSoS = CS [|Alpha|] (ERU ||| CUS)

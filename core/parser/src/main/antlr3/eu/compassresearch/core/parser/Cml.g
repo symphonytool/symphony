@@ -577,7 +577,7 @@ processDefinition returns[AProcessDefinition def]
         {
             $def = new AProcessDefinition(); // FIXME
             $def.setProcess( $process.proc );
-			$def.setAccess(PAccessSpecifierAssistant.getPublic());
+			$def.setAccess(af.createPAccessSpecifierAssistant().getPublic());
             ILexLocation identifierLocation = extractLexLocation($IDENTIFIER);
             CmlLexNameToken processName = new CmlLexNameToken("", new LexIdentifierToken($IDENTIFIER.getText(), false, identifierLocation));
             $def.setName(processName);
@@ -1045,7 +1045,7 @@ actionDef returns[AActionDefinition def]
                 adef.getName().setTypeQualifier(typeQualifiers);
             }
             adef.setAction($action.action);
-			adef.setAccess(PAccessSpecifierAssistant.getPublic());
+			adef.setAccess(af.createPAccessSpecifierAssistant().getPublic());
             $def = adef;
         }
     ;
@@ -1757,7 +1757,7 @@ channelDef returns[List<AChannelDefinition> def]
                 chanDecl.setNameScope(NameScope.GLOBAL);
                 chanDecl.setUsed(false);
                 chanDecl.setLocation(id.getLocation());
-				chanDecl.setAccess(PAccessSpecifierAssistant.getPublic());
+				chanDecl.setAccess(af.createPAccessSpecifierAssistant().getPublic());
 
                 List<PType> types = new Vector<PType>();
                 ILexLocation typeLocation = loc;
@@ -2220,20 +2220,14 @@ explicitFunctionDefinitionTail returns[AExplicitFunctionDefinition tail]
     : ':' type IDENTIFIER parameterGroupList '==' functionBody ('pre' pre=expression )? ('post' post=expression)? ('measure' name)?
         {
             ILexLocation location = extractLexLocation($IDENTIFIER);
-
-            /*
-            ILexNameToken name,
-            NameScope scope,
-            List<ILexNameToken> typeParams,
-            AFunctionType type,
-            List<List<PPattern>> parameters,
-            PExp body,
-            PExp precondition,
-            PExp postcondition,
-            boolean typeInvariant,
-            ILexNameToken measure
-            */
             ILexNameToken name = new CmlLexNameToken("", $IDENTIFIER.getText(), location);
+
+            // Filter invalid signature types
+            if ( !($type.type instanceof AFunctionType) ) {
+                StuckException exc = new StuckException("Function signature must be of function type (e.g. type -> type).");
+                exc.token = $type.start;
+                throw exc;
+            }
 
             $tail = AstFactory.newAExplicitFunctionDefinition(
                 name,
@@ -2245,29 +2239,10 @@ explicitFunctionDefinitionTail returns[AExplicitFunctionDefinition tail]
                 $pre.exp,
                 $post.exp,
                 false,//typeInvariant
-                $name.name
-            );
-
-
-            //$tail = new AExplicitFunctionDefinition();
-
-            //$tail.setName(new CmlLexNameToken("", $IDENTIFIER.getText(), location));
-            //$tail.setParamPatternList($parameterGroupList.pgroups);
-            //$tail.setBody($functionBody.exp);
-            //$tail.setIsUndefined(false);
-            //$tail.setRecursive(false);
-            //$tail.setPrecondition($pre.exp);
-            //$tail.setPostcondition($post.exp);
-            //$tail.setType($type.type);
-            //$tail.setIsCurried(false);
-            //$tail.setMeasure($name.name);
-            //$tail.setAccess(getPrivateAccessSpecifier(false, false, extractLexLocation($IDENTIFIER)));
-
+                $name.name);
+            
             // Force all functions to be static for VDM-10
             $tail.getAccess().setStatic(new TStatic());
-
-            //$tail.setPass(Pass.DEFS); // what's this for? RWL: The Overture type checker runs in three PASSes (TYPES, VALUES, DEFS)
-            // in order to make defined types and values available for function definitions PASS for functinos must be DEFS. :)
         }
     ;
 

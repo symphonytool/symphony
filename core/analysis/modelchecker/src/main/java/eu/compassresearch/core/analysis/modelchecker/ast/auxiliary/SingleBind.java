@@ -61,6 +61,14 @@ public class SingleBind {
 		case MCNode.PARAM_RENAMED:
 			
 			break;
+		case MCNode.STATE_DEPENDENCY_WITHOUT_INF_VARS:
+			if(context.localInputVariables.contains(variableName)){
+				result = "SingleBind(\"" + variableName + "\"," + "_" + ")";
+			}else{
+				result = "SingleBind(\"" + variableName + "\"," + variableName + ")";
+			}
+			break;
+			
 		default:
 			result = "SingleBind(\"" + variableName + "\"," + variableValue.toFormula(option) + ")";
 			break;

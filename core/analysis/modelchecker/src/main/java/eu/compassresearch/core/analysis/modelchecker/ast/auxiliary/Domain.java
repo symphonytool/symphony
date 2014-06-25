@@ -52,6 +52,10 @@ public class Domain {
 		return this.toFormula(MCNode.DEFAULT);
 	}
 
+	public void append(String moreContent){
+		this.content = this.content + "\n\n" + moreContent + "\n";
+	}
+	
 	public String getName() {
 		return name;
 	}

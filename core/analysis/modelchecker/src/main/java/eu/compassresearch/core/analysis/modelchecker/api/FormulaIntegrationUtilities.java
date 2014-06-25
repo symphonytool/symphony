@@ -11,13 +11,10 @@ import eu.compassresearch.core.analysis.modelchecker.visitors.Utilities;
 
 public class FormulaIntegrationUtilities {
 
-	//public static final String WORKING_DIRECTORY = "src/test/resources";
-	//public static final String WORKING_DIRECTORY = FileSystemView.getFileSystemView().getHomeDirectory().getAbsolutePath();
-	public static final String BASIC_FORMULA_SCRIPT = "/basic_formula_script.fml";
-	
-	public static final String AUXILIARY_DEFINITIONS_SCRIPT = "/aux_definitions.fml";
+	public static final String AUXILIARY_DEFINITIONS_SCRIPT = "/cml_aux_definitions.fml";
 	public static final String SYNTAX_DOMAIN_SCRIPT = "/cml_syntax.fml";
 	public static final String SEMANTICS_DOMAIN_SCRIPT = "/cml_semantics.fml";
+	public static final String SEMANTICS_TIMED_DOMAIN_SCRIPT = "/cml_semantics_timed.fml";
 	public static final String PROPERTIES_DOMAIN_SCRIPT = "/cml_properties.fml";
 	
 	public static void buildSpecification(String specificContent){
@@ -49,8 +46,4 @@ public class FormulaIntegrationUtilities {
 		 bw.close();
 	 }
 	
-	public static void main(String[] args) throws Exception{
-		String content = FormulaIntegrationUtilities.readScriptFromFile(BASIC_FORMULA_SCRIPT).toString();
-		System.out.println(content);
-	}
 }

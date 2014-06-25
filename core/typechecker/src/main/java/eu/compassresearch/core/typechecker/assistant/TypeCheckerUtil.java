@@ -168,7 +168,7 @@ public class TypeCheckerUtil
 	public static PType generateUnionType(ITypeCheckerAssistantFactory af,
 			ILexLocation location, PType... types)
 	{
-		PTypeSet rtypes = new PTypeSet();
+		PTypeSet rtypes = new PTypeSet(af);
 		PType last = null;
 
 		for (PType stmt : types)

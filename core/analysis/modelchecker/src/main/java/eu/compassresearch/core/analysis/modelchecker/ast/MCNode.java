@@ -30,6 +30,9 @@ package eu.compassresearch.core.analysis.modelchecker.ast;
 	
 	//the option to generate values by extension
 	public static final String EXTENSION = "EXTENSION";
+	
+	
+	public static final String STATE_DEPENDENCY_WITHOUT_INF_VARS = "STATE_DEPENDENCY_WITHOUT_INF_VARS";
 		
 	public String toFormula(String option);
 	

@@ -80,6 +80,7 @@ public class NewCMLModelcheckerContext {
 	public Stack<NameValue> localIndexedVariablesMapping;
 	public ArrayListSet<String> localIndexedVariablesDiscarded;
 	public ArrayListSet<String> variablesInfiniteDomain;
+	public ArrayListSet<String> localInputVariables;
 	public ArrayList<MCASBinaryExp> setExpressioFacts;
 	public ArrayListSet<IntroduceCommand> introduceFacts;
 	public Stack<MCPCMLDefinition> mcProcOrActionsStack;
@@ -163,7 +164,9 @@ public class NewCMLModelcheckerContext {
 	public void resetStateDependencies(){
 		this.actionProcStateDependencies = new ArrayListSet<StateDependency>();
 	}
-	
+	public void resetLocalVarNames(){
+		this.localInputVariables = new ArrayListSet<String>();
+	}
 	public void resetUnamedChannelDependencies(){
 		this.unamedChannelDependencies = new ArrayListSet<ActionChannelDependency>();
 	}
@@ -374,6 +377,7 @@ public class NewCMLModelcheckerContext {
 		introduceFacts = new ArrayListSet<IntroduceCommand>();
 		mcProcOrActionsStack = new Stack<MCPCMLDefinition>();
 		variablesInfiniteDomain = new ArrayListSet<String>();
+		localInputVariables = new ArrayListSet<String>();
 		maxClock = 0;
 		numberOfInstances = 1;
 		ASSIGN_COUNTER = 0;
