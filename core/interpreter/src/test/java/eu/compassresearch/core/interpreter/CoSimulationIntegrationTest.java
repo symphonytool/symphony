@@ -12,6 +12,8 @@ import eu.compassresearch.core.interpreter.cosim.communication.Utils;
 public class CoSimulationIntegrationTest extends ExternalProcessTest
 {
 
+	private static final String SIMULATOR_STATUS_EVENT_DEADLOCKED = "Simulator status event : DEADLOCKED";
+
 	private static class ProcessInfo
 	{
 		public final Process process;
@@ -115,7 +117,7 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 		@Override
 		public String toString()
 		{
-			return "Console watcher for: " + name;
+			return "Console watcher for: " + name+" is matched: "+matched;
 		}
 
 		/*
@@ -201,7 +203,7 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 	public void testMainDeadlocked() throws Exception
 	{
 		String source = "src/test/resources/cosim/main-deadlocked.cml";
-		final ConsoleWatcher deadlockedWatch = new ConsoleWatcher("Main", "Simulator status event : DEADLOCKED");
+		final ConsoleWatcher deadlockedWatch = new ConsoleWatcher("Main", SIMULATOR_STATUS_EVENT_DEADLOCKED);
 		ProcessInfo coordinator = setUpCoordinator(source, "P", "B", deadlockedWatch);
 		setUpClient(source, "B");
 
@@ -228,12 +230,16 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 	public void testSyncOnString() throws Exception
 	{
 		String source = "src/test/resources/cosim/SyncOnString.cml";
-		ProcessInfo coordinator = setUpCoordinator(source, "Main", "Writer");
-		ProcessInfo client = setUpClient(source, "Writer");
+		final ConsoleWatcher deadlockedWatch = new ConsoleWatcher("Main", SIMULATOR_STATUS_EVENT_DEADLOCKED);
+		ProcessInfo coordinator = setUpCoordinator(source, "Main", "Reader",deadlockedWatch);
+		ProcessInfo client = setUpClient(source, "Reader");
 
 		waitForCompletion(coordinator.process, DEFAULT_TIMEOUT);
+		waitForCompletion(client.process, DEFAULT_TIMEOUT);
 
-		Assert.assertTrue("Simulators did not finish successfully", isFinished(coordinator.finishWatch, client.finishWatch));
+//		System.err.println(coordinator.finishWatch);
+//		System.err.println(deadlockedWatch);
+		Assert.assertTrue("Simulators did not finish successfully", deadlockedWatch.matched);
 
 	}
 
@@ -246,7 +252,7 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 
 		waitForCompletion(coordinator.process, DEFAULT_TIMEOUT);
 
-		Assert.assertTrue("Simulators did not deadlock successfully", isFinished(coordinator.finishWatch, client.finishWatch));
+		Assert.assertTrue("Simulators did not finish successfully", isFinished(coordinator.finishWatch, client.finishWatch));
 
 	}
 

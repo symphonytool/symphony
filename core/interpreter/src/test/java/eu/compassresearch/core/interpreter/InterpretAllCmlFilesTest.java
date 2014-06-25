@@ -136,14 +136,11 @@ public class InterpretAllCmlFilesTest
 		if (!isTypechecked)
 		{
 			System.err.println(tcIssue.getTypeErrors());
-		}
 
-		if (!isTypechecked)
-		{
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			PrintWriter pw = new PrintWriter(baos);
 			tcIssue.printErrors(pw);
-			Assume.assumeTrue("Type check errors", false);
+			Assume.assumeTrue("Type Check failed\n\n" + baos.toString(), false);
 			assertTrue("Type Check failed\n\n" + baos, isTypechecked);
 			return;
 		}
@@ -159,25 +156,33 @@ public class InterpretAllCmlFilesTest
 		{
 			exception = ex;
 		}
-		
-		if(!new File(resultPath).exists())
+
+		if (!new File(resultPath).exists())
 		{
-			final CmlTrace traceModel = interpreter.getTopLevelProcess().getTraceModel();
-			final String traceToString = TraceUtility.traceToString(traceModel.getEventTrace());
-			final String observable = TraceUtility.traceToString(traceModel.getObservableTrace());
 
 			String ex = "";
-			if(exception!=null)
+			if (exception != null)
 			{
-			StringWriter sw = new StringWriter();
-			PrintWriter pw = new PrintWriter(sw);
-			exception.printStackTrace(pw);
-			ex = sw.toString();
+				StringWriter sw = new StringWriter();
+				PrintWriter pw = new PrintWriter(sw);
+				exception.printStackTrace(pw);
+				ex = sw.toString();
 			}
-			Assert.fail("Result file doesn't exist: "+resultPath+"\n\nActual result:\nEvents: "+traceToString+"\n\nTime trace: "+observable+ "\n\nException: "+ex);
+
+			final CmlBehaviour topLevelProcess = interpreter.getTopLevelProcess();
+			final CmlTrace traceModel = (topLevelProcess != null ? topLevelProcess.getTraceModel()
+					: null);
+			final String traceToString = (topLevelProcess != null ? TraceUtility.traceToString(traceModel.getEventTrace())
+					: null);
+			final String observable = (topLevelProcess != null ? TraceUtility.traceToString(traceModel.getObservableTrace())
+					: null);
+
+			Assert.fail("Result file doesn't exist: " + resultPath
+					+ "\n\nActual result:\nEvents: " + traceToString
+					+ "\n\nTime trace: " + observable + "\n\nException: " + ex);
 			return;
 		}
-			ExpectedTestResult testResult = ExpectedTestResult.parseTestResultFile(resultPath);
+		ExpectedTestResult testResult = ExpectedTestResult.parseTestResultFile(resultPath);
 		checkResult(testResult, interpreter, exception);
 	}
 
@@ -197,16 +202,14 @@ public class InterpretAllCmlFilesTest
 		// testResult.throwsException() => exception != null
 		assertTrue("The test was expected to throw an exception but did not!", !testResult.throwsException()
 				|| exception != null);
-		
-		if(exception!=null)
+
+		if (exception != null)
 		{
 			exception.printStackTrace();
 		}
 		// !testResult.throwsException() => exception == null
 		assertTrue("The test threw an unexpected exception : " + exception, testResult.throwsException()
 				|| exception == null);
-		
-		
 
 		// events
 		String eventTrace = "";
@@ -216,7 +219,9 @@ public class InterpretAllCmlFilesTest
 		}
 		Pattern trace = testResult.getExpectedEventTracePattern();
 		Matcher matcher = trace.matcher(eventTrace);
-		assertTrue("The actual trace: '" + eventTrace+"' does not match expected: '"+testResult.getExpectedEventTracePattern()+"'" , matcher.matches());
+		assertTrue("The actual trace: '" + eventTrace
+				+ "' does not match expected: '"
+				+ testResult.getExpectedEventTracePattern() + "'", matcher.matches());
 
 		// TimedTrace
 		if (testResult.hasTimedTrace())
@@ -242,7 +247,7 @@ public class InterpretAllCmlFilesTest
 
 	protected static Collection<Object[]> collectTests(String initialPath)
 	{
-		
+
 		List<Object[]> paths = findAllCmlFiles(initialPath);
 
 		// List<Object[]> paths = findAllCmlFiles("src/test/resources/action/parallel-composition");
