@@ -41,12 +41,14 @@ import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
 import eu.compassresearch.ast.expressions.AIdentifierVarsetExpression;
 import eu.compassresearch.ast.expressions.AInterVOpVarsetExpression;
 import eu.compassresearch.ast.expressions.ANameChannelExp;
+import eu.compassresearch.ast.expressions.ASubVOpVarsetExpression;
 import eu.compassresearch.ast.expressions.AUnionVOpVarsetExpression;
 import eu.compassresearch.ast.expressions.PCMLExp;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.patterns.ARenamePair;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
+import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameSetValue;
 import eu.compassresearch.core.interpreter.api.values.ChannelValue;
 import eu.compassresearch.core.interpreter.api.values.CmlChannel;
@@ -65,8 +67,7 @@ public class CmlExpressionVisitor extends
 			new ClassInterpreter(new ClassList());
 		} catch (Exception e)
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new InterpreterRuntimeException("Faild to initialize class interpreter", e);
 		}
 	}
 
@@ -94,10 +95,6 @@ public class CmlExpressionVisitor extends
 
 	public CmlExpressionVisitor()
 	{
-		// To be able to work together with the VDM interpreter we need to set this
-		// to the current thread.
-		// InitThread initThread = new InitThread(Thread.currentThread());
-		// BasicSchedulableThread.setInitialThread(initThread);
 	}
 
 	@Override
@@ -283,14 +280,30 @@ public class CmlExpressionVisitor extends
 		}
 
 	}
-
-	@Override
-	public Value caseACompVarsetExpression(ACompVarsetExpression node,
-			Context question) throws AnalysisException
+	
+	static Value wrapAsChanOrNameSet(SetValue val)
 	{
-		// TODO Auto-generated method stub
-		return super.caseACompVarsetExpression(node, question);
+		boolean isChannel = true;
+		for (Value value : val.values)
+		{
+			// FIXME: Not able to detect if this is an intersection between channels or names
+			// if(value instanceof sometype/*ILexNameToken*/)
+			// {
+			// isChannel = false;
+			// }
+		}
+
+		Value set = null;
+		if (isChannel)
+		{
+			set = new ChannelNameSetValue(val.values);
+		} else
+		{
+			set = new NamesetValue(new HashSet<ILexNameToken>());
+		}
+		return set;
 	}
+
 
 	@Override
 	public Value caseAInterVOpVarsetExpression(AInterVOpVarsetExpression node,
@@ -302,30 +315,48 @@ public class CmlExpressionVisitor extends
 			result.addAll(node.getLeft().apply(VdmRuntime.getExpressionEvaluator(), ctxt).setValue(ctxt));
 			result.retainAll(node.getRight().apply(VdmRuntime.getExpressionEvaluator(), ctxt).setValue(ctxt));
 
-			boolean isChannel = true;
-			for (Value value : result)
-			{
-				// FIXME: Not able to detect if this is an intersection between channels or names
-				// if(value instanceof sometype/*ILexNameToken*/)
-				// {
-				// isChannel = false;
-				// }
-			}
-
-			Value set = null;
-			if (isChannel)
-			{
-				set = new ChannelNameSetValue(result);
-			} else
-			{
-				set = new NamesetValue(new HashSet<ILexNameToken>());
-			}
-			return set;
+			return wrapAsChanOrNameSet(new SetValue(result));
 		} catch (ValueException e)
 		{
 			e.printStackTrace();
 			return VdmRuntimeError.abort(node.getLocation(), e);
 		}
+	}
+	
+	
+	@Override
+	public Value caseASubVOpVarsetExpression(ASubVOpVarsetExpression node,
+			Context ctxt) throws AnalysisException
+	{
+		ValueSet result = new ValueSet();
+		ValueSet togo = null;
+
+		try
+		{
+			togo = node.getRight().apply(VdmRuntime.getExpressionEvaluator(),ctxt).setValue(ctxt);
+			result.addAll(node.getLeft().apply(VdmRuntime.getExpressionEvaluator(),ctxt).setValue(ctxt));
+		}
+		catch (ValueException e)
+		{
+			return VdmRuntimeError.abort(node.getLocation(),e);
+		}
+
+		for (Value r: togo)
+		{
+			result.remove(r);
+		}
+
+		return wrapAsChanOrNameSet( new SetValue(result));
+	}
+	
+	
+	
+	@Override
+	public Value caseACompVarsetExpression(ACompVarsetExpression node,
+			Context question) throws AnalysisException
+	{
+		// TODO Auto-generated method stub
+		return super.caseACompVarsetExpression(node, question);
 	}
 
 	@Override
