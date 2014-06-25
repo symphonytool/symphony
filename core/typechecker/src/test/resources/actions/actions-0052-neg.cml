@@ -1,0 +1,3 @@
+process P2 = begin 
+@ return  //error, return not allowed outside operations
+end
