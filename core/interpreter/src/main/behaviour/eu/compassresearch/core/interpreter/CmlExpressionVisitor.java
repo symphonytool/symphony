@@ -49,7 +49,6 @@ import eu.compassresearch.ast.patterns.ARenamePair;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
-import eu.compassresearch.core.interpreter.api.values.ChannelNameSetValue;
 import eu.compassresearch.core.interpreter.api.values.ChannelValue;
 import eu.compassresearch.core.interpreter.api.values.CmlChannel;
 import eu.compassresearch.core.interpreter.api.values.LatticeTopValue;
@@ -181,7 +180,7 @@ public class CmlExpressionVisitor extends
 				&& isChannelSetExp(node.getChannelNames().get(0), question))
 		{
 
-			Set<ChannelValue> coms = new HashSet<ChannelValue>();
+			ValueSet coms = new ValueSet();
 
 			for (ANameChannelExp chanNameExp : node.getChannelNames())
 			{
@@ -189,7 +188,7 @@ public class CmlExpressionVisitor extends
 				coms.add(channelName);
 			}
 
-			return new ChannelNameSetValue(coms);
+			return new SetValue(coms);
 		}
 		// then it must be a nameset expression
 		else
@@ -233,14 +232,14 @@ public class CmlExpressionVisitor extends
 		if (node.getChannelNames().size() > 0
 				&& isChannelSetExp(node.getChannelNames().get(0), question))
 		{
-			Set<ChannelValue> coms = new HashSet<ChannelValue>();
+			ValueSet coms = new ValueSet();
 			for (ANameChannelExp chanNameExp : node.getChannelNames())
 			{
 				ChannelValue channelName = createChannelNameValue(chanNameExp, question);
 				coms.add(channelName);
 			}
 
-			return new ChannelNameSetValue(coms);
+			return new SetValue(coms);
 
 		} else
 		{
@@ -257,17 +256,29 @@ public class CmlExpressionVisitor extends
 
 	@Override
 	public Value caseAUnionVOpVarsetExpression(AUnionVOpVarsetExpression node,
-			Context question) throws AnalysisException
+			Context ctxt) throws AnalysisException
 	{
-		Value leftValue = node.getLeft().apply(this, question);
-		Value rightValue = node.getRight().apply(this, question);
+	
+		Value leftValue = node.getLeft().apply(this, ctxt);
+		Value rightValue = node.getRight().apply(this, ctxt);
 
-		if (leftValue instanceof ChannelNameSetValue
-				&& rightValue instanceof ChannelNameSetValue)
+		if (leftValue instanceof SetValue
+				&& rightValue instanceof SetValue)
 		{
-			ChannelNameSetValue leftCNV = (ChannelNameSetValue) leftValue;
-			leftCNV.addAll((ChannelNameSetValue) rightValue);
-			return leftCNV;
+			{
+				//FIXME: this is the new body when Namesetvalue is removed
+				try
+				{
+		    		ValueSet result = new ValueSet();
+		    		result.addAll(node.getLeft().apply(VdmRuntime.getExpressionEvaluator(),ctxt).setValue(ctxt));
+		    		result.addAll(node.getRight().apply(VdmRuntime.getExpressionEvaluator(),ctxt).setValue(ctxt));
+		    		return new SetValue(result);
+				}
+				catch (ValueException e)
+				{
+					return VdmRuntimeError.abort(node.getLocation(),e);
+				}
+			}
 		} else if (leftValue instanceof NamesetValue
 				&& rightValue instanceof NamesetValue)
 		{
@@ -296,7 +307,7 @@ public class CmlExpressionVisitor extends
 		Value set = null;
 		if (isChannel)
 		{
-			set = new ChannelNameSetValue(val.values);
+			set = val;
 		} else
 		{
 			set = new NamesetValue(new HashSet<ILexNameToken>());
@@ -368,7 +379,7 @@ public class CmlExpressionVisitor extends
 
 		if (isChannelSetExp(node.getChannelNameExp(), ctxt))
 		{
-			set = new ChannelNameSetValue(new HashSet<ChannelValue>());
+			set = new SetValue();
 		} else
 		{
 			set = new NamesetValue(new HashSet<ILexNameToken>());
@@ -417,9 +428,9 @@ public class CmlExpressionVisitor extends
 				if (matches
 						&& (node.getPredicate() == null || node.getPredicate().apply(VdmRuntime.getExpressionEvaluator(), evalContext).boolValue(ctxt)))
 				{
-					if (set instanceof ChannelNameSetValue)
+					if (set instanceof SetValue)
 					{
-						((ChannelNameSetValue) set).add(createChannelNameValue(node.getChannelNameExp(), evalContext));
+						((SetValue) set).values.add(createChannelNameValue(node.getChannelNameExp(), evalContext));
 					} else if (set instanceof NamesetValue)
 					{
 						((NamesetValue) set).add(NamespaceUtility.createSimpleName(node.getChannelNameExp().getIdentifier()));

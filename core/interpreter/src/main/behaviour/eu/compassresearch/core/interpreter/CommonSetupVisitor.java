@@ -1,6 +1,5 @@
 package eu.compassresearch.core.interpreter;
 
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -33,8 +32,6 @@ import eu.compassresearch.core.interpreter.api.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.CmlBehaviour.BehaviourName;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
-import eu.compassresearch.core.interpreter.api.values.ChannelNameSetValue;
-import eu.compassresearch.core.interpreter.api.values.ChannelValue;
 import eu.compassresearch.core.interpreter.api.values.CmlSetQuantifier;
 import eu.compassresearch.core.interpreter.api.values.LatticeTopValue;
 import eu.compassresearch.core.interpreter.api.values.RenamingValue;
@@ -54,16 +51,16 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 	}
 
 	@SuppressWarnings("rawtypes")
-	protected ChannelNameSetValue eval(PVarsetExpression chansetExpression,
+	protected SetValue eval(PVarsetExpression chansetExpression,
 			Context question) throws AnalysisException
 	{
 		Value val = chansetExpression.apply(cmlExpressionVisitor, question);
-		if (val instanceof ChannelNameSetValue)
+		if (val instanceof SetValue)
 		{
-			return (ChannelNameSetValue) val;
+			return (SetValue) val;
 		} else if (val instanceof Set && ((Set) val).isEmpty())
 		{
-			return new ChannelNameSetValue(new HashSet<ChannelValue>());
+			return new SetValue();
 		}
 
 		throw new CmlInterpreterException(chansetExpression, InterpretationErrorMessages.FATAL_ERROR.customizeMessage("Failed to evaluate chanset expression"));
@@ -76,8 +73,8 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 	{
 
 		// evaluate the children in the their own context
-		ChannelNameSetValue leftChanset = eval(leftChansetExpression, getChildContexts(question).first);
-		ChannelNameSetValue rightChanset = generateChannelValues(node, rightChansetExpression, getChildContexts(question).second);
+		SetValue leftChanset = eval(leftChansetExpression, getChildContexts(question).first);
+		SetValue rightChanset = generateChannelValues(node, rightChansetExpression, getChildContexts(question).second);
 
 		Context chansetContext = CmlContextFactory.newContext(LocationExtractor.extractLocation(node), "Alphabetised parallelism precalcualted channelsets", question);
 
@@ -103,27 +100,28 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 	 * @return a value holding all the values for the chanset exp
 	 * @throws AnalysisException
 	 */
-	private ChannelNameSetValue generateChannelValues(INode node,
+	private SetValue generateChannelValues(INode node,
 			PVarsetExpression chansetExp, Context ctxt)
 			throws AnalysisException
 	{
 		final ILexNameToken name = NamespaceUtility.getReplicationNodeReminderName(node);
 		CmlSetQuantifier ql = (CmlSetQuantifier) ctxt.check(name);
 
-		ChannelNameSetValue rightChanset = null;
+		SetValue rightChanset = null;
 
 		if (ql == null)
 		{
 			rightChanset = eval(chansetExp, ctxt);
 		} else
 		{
-			rightChanset = new ChannelNameSetValue();
+			rightChanset = new SetValue();
 
 			for (NameValuePairList nvpl : ql)
 			{
 				Context nextChildContext = new Context(ctxt.assistantFactory, ctxt.location, "local channel context", ctxt);
 				nextChildContext.putList(nvpl);
-				rightChanset.addAll((ChannelNameSetValue) eval(chansetExp, nextChildContext));
+				final SetValue eval = (SetValue) eval(chansetExp, nextChildContext);
+				rightChanset.values.addAll(eval.values);
 			}
 		}
 

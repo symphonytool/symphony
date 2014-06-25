@@ -1,7 +1,6 @@
 package eu.compassresearch.core.interpreter;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
@@ -16,6 +15,7 @@ import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ValueException;
+import org.overture.interpreter.values.SetValue;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.CmlAstFactory;
@@ -40,7 +40,6 @@ import eu.compassresearch.core.interpreter.api.transitions.ops.MapOperation;
 import eu.compassresearch.core.interpreter.api.transitions.ops.RemoveChannelNames;
 import eu.compassresearch.core.interpreter.api.transitions.ops.RetainChannelNames;
 import eu.compassresearch.core.interpreter.api.transitions.ops.RetainChannelNamesAndTau;
-import eu.compassresearch.core.interpreter.api.values.ChannelNameSetValue;
 import eu.compassresearch.core.interpreter.api.values.ChannelValue;
 import eu.compassresearch.core.interpreter.api.values.CmlChannel;
 import eu.compassresearch.core.interpreter.api.values.NamesetValue;
@@ -74,7 +73,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 	protected CmlTransitionSet syncOnTimeAndJoinChildren()
 			throws AnalysisException
 	{
-		return owner.getLeftChild().inspect().synchronizeOn(owner.getRightChild().inspect(), new ChannelNameSetValue(), true);
+		return owner.getLeftChild().inspect().synchronizeOn(owner.getRightChild().inspect(), new SetValue(), true);
 	}
 
 	protected Inspection caseChannelRenaming(final INode node,
@@ -167,12 +166,13 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		{
 			// The left and right channel sets has already been evaluated in the setup visitor and put in the context,
 			// so we just fetch them.
-			ChannelNameSetValue leftChanset = (ChannelNameSetValue) question.lookup(NamespaceUtility.getLeftPrecalculatedChannetSet());
-			ChannelNameSetValue rightChanset = (ChannelNameSetValue) question.lookup(NamespaceUtility.getRightPrecalculatedChannetSet());
+			SetValue leftChanset = (SetValue) question.lookup(NamespaceUtility.getLeftPrecalculatedChannetSet());
+			SetValue rightChanset = (SetValue) question.lookup(NamespaceUtility.getRightPrecalculatedChannetSet());
 
 			// next we find the intersection of of them, since these are the ones that left and right must sync on
-			ChannelNameSetValue intersectionChanset = new ChannelNameSetValue(leftChanset);
-			intersectionChanset.retainAll(rightChanset);
+			SetValue intersectionChanset = new SetValue();
+			intersectionChanset.values.addAll(leftChanset.values);
+			intersectionChanset.values.retainAll(rightChanset.values);
 
 			final CmlTransitionSet leftChildAlpha = owner.getLeftChild().inspect();
 			final CmlTransitionSet rightChildAlpha = owner.getRightChild().inspect();
@@ -476,7 +476,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 	{
 
 		// convert the channel set of the current node to a alphabet
-		ChannelNameSetValue cs = eval(chansetExp, question);
+		SetValue cs = eval(chansetExp, question);
 
 		// Get all the child alphabets and add the events that are not in the channel set
 		final CmlBehaviour leftChild = owner.getLeftChild();
@@ -559,16 +559,16 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 	}
 
 	@SuppressWarnings("rawtypes")
-	protected ChannelNameSetValue eval(PVarsetExpression chansetExpression,
+	protected SetValue eval(PVarsetExpression chansetExpression,
 			Context question) throws AnalysisException
 	{
 		Value val = chansetExpression.apply(cmlExpressionVisitor, question);
-		if (val instanceof ChannelNameSetValue)
+		if (val instanceof SetValue)
 		{
-			return (ChannelNameSetValue) val;
+			return (SetValue) val;
 		} else if (val instanceof Set && ((Set) val).isEmpty())
 		{
-			return new ChannelNameSetValue(new HashSet<ChannelValue>());
+			return new SetValue();
 		}
 
 		throw new CmlInterpreterException(chansetExpression, InterpretationErrorMessages.FATAL_ERROR.customizeMessage("Failed to evaluate chanset expression"));

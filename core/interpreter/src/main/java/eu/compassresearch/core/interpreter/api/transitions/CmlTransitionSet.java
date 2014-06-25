@@ -5,12 +5,13 @@ import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import org.overture.interpreter.values.SetValue;
+
 import eu.compassresearch.core.interpreter.api.transitions.ops.Filter;
 import eu.compassresearch.core.interpreter.api.transitions.ops.MapOperation;
 import eu.compassresearch.core.interpreter.api.transitions.ops.RemoveChannelNames;
 import eu.compassresearch.core.interpreter.api.transitions.ops.RemoveTock;
 import eu.compassresearch.core.interpreter.api.transitions.ops.RetainChannelNamesAndTime;
-import eu.compassresearch.core.interpreter.api.values.ChannelNameSetValue;
 
 /**
  * This represents a set of CmlTransition objects
@@ -204,13 +205,13 @@ public class CmlTransitionSet implements Iterable<CmlTransition>
 	}
 
 	public CmlTransitionSet synchronizeOn(CmlTransitionSet other,
-			ChannelNameSetValue cs)
+			SetValue cs)
 	{
 		return synchronizeOn(other, cs, false);
 	}
 
 	public CmlTransitionSet synchronizeOn(final CmlTransitionSet other,
-			ChannelNameSetValue cs, final boolean allowNonSynchedTime)
+			SetValue cs, final boolean allowNonSynchedTime)
 	{
 		// create a filter that only accepts the cs channels or time
 		final Filter f = new RetainChannelNamesAndTime(cs);
