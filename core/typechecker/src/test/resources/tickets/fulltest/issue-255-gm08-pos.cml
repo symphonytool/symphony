@@ -423,8 +423,9 @@ actions
   dcl as : seq of Action @ as := [];
     for all m in set ss.meterings do
       for all ar in set ss.rules do
-        as := as ^ eval_rule(ss.time,m,ar);
-  return as
+        as := as ^ eval_rule(ss.time,m,ar)
+  -- ;
+  -- return as -- return has no meaning in actions
   ); SERVER(ss,nw)
 
   SERVER_TIME = ss : ServerState, nw : Network @ Wait(1); ss := mk_ServerState(ss.sactions,ss.meterings,ss.rules,ss.time+1); SERVER(ss,nw)
