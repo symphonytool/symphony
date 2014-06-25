@@ -2,9 +2,6 @@
 	trans ::= (source: State, ev: SigmaTauTock, target: State).
 	primitive Clock ::= (Natural).
 
-	//Stop timed
-    trans(iS,tock,iS) :- iS is State(st,Stop). 
-	
 	//Div
 	trans(iS,tau,iS) :- iS is State(st,Div). 
 	
@@ -12,9 +9,6 @@
     State(st_,P),
     trans(ini, CommEv(chName,chExp,chType), State(st_,P))
             :- ini is State(st,Prefix(IOComm(id,chName,chExp,chType),P)), IOCommDef(id,chType,st,st_).
-    
-	//Input and output timed
-    trans(ini, tock, ini) :- ini is State(st,Prefix(_,_)).   
     
     // P |~| Q
     State(st,P),
@@ -50,10 +44,6 @@
     State(st3,Q_),
     trans(iS,ev,State(st3,Q_)) :- iS is State(st,extraChoice(st1,P,st2,Q)), trans(State(st2,Q),ev,State(st3,Q_)), ev != tau, ev != tock.
 
-	// external choice timed
-    trans(iS,tock,State(st,extraChoice(stP,P_,stQ,Q_))) :- iS is State(st,extraChoice(stP,P,stQ,Q)), 
-															trans(State(stP,P),tock,State(stP,P_)),trans(State(stQ,Q),tock,State(stQ,Q_)).
-	
 	// P /_\ Q (interrupt basic and non-skip-left)
     State(st,P),State(st,Q) :- State(st,intrpt(P,Q)).
     trans(iS,ev,State(st_,intrpt(P_,Q))) :- iS is State(st,intrpt(P,Q)), trans(State(st,P),ev,State(st_,P_)), P != Skip.
@@ -64,9 +54,6 @@
     //(interrupt action right)
     trans(iS,ev,State(st_,Q_)) :- iS is State(st,intrpt(P,Q)), trans(State(st,Q),ev,State(st_,Q_)), ev != tau.
 
-	//Interrupt timed
-	trans(iS,tock,iSF) :- iS is State(st,intrpt(P,Q)), iSF is State(st,intrpt(P_,Q_)), trans(State(st,P),tock,State(st,P_)), trans(State(st,Q),tock,State(st,Q_)).
-	
 	//Timed interrupt
     State(st,P),State(st,Q)  :- State(st,tIntrpt(P,t,Q)).
     //timed interrupt progress left
@@ -75,11 +62,6 @@
     trans(iS,tau,State(st,Skip)) :- iS is State(st,tIntrpt(Skip,t,Q)).
     //timed interrupt time up
     trans(iS,tau,State(st,Q)) :- iS is State(st,tIntrpt(P,0,Q)).
-    //timed interrupt timed
-    trans(iS,tock,State(st_,tIntrpt(P_,t_,Q))) :- iS is State(st,tIntrpt(P,t,Q)), trans(State(st,P),tock,State(st_,P_)), 
-                                                  Clock(t), Clock(t_), t_ = t - 1, t > 0.
-    trans(iS,tock,State(st_,tIntrpt(P_,0,Q))) :- iS is State(st,tIntrpt(P,1,Q)), trans(State(st,P),tock,State(st_,P_)).
-
 	
 	// P [> Q (timeout rules)
     State(st,P),State(st,Q),
@@ -95,10 +77,6 @@
     trans(iS,tau,State(st_,tTimeout(P_,t,Q))) :- iS is State(st,tTimeout(P,t,Q)), trans(State(st,P),tau,State(st_,P_)).
     //timeout time up
     trans(iS,tau,State(st,Q)) :- iS is State(st,tTimeout(P,0,Q)).
-    //timeout timed
-    trans(iS,tock,State(st,tTimeout(P_,t_,Q))) :- iS is State(st,tTimeout(P,t,Q)), trans(State(st,P),tock,State(st,P_)),
-                                  Clock(t), Clock(t_), t_ = t - 1, t != 0.
-    trans(iS,tock,State(st,tTimeout(P_,0,Q))) :- iS is State(st,tTimeout(P,1,Q)), trans(State(st,P),tock,State(st,P_)).
 
     //there is not specific rule qhen the left side of a timed timeout is Skip
     trans(iS,tau,State(st,Skip)) :- iS is State(st,tTimeout(Skip,t,Q)).
@@ -110,8 +88,6 @@
     State(st,q),
     trans(iS, tau, State(st,q)) :- iS is State(st,condChoice(id, p, q)), guardNDef(id, st).
 
-	trans(iS,tock,State(st,condChoice(id,p,q))) :- iS is State(st,condChoice(id,p,q)).
-	
 	// P \ X 
     State(st,P) :- State(st,hide(P,X)). 
 	
@@ -129,9 +105,6 @@
     State(st,Skip),
     trans(State(st,hide(Skip,X)), tau, State(st,Skip)) :- State(st,hide(Skip,X)).
 
-	//hiding timed
-    trans(iS, tock, iS) :- iS is State(st,hide(P,X)).
-	
 	// P ; Q 
     State(st,P) :- State(st,seqC(P, Q)), P != Skip.
     State(st,Q),
@@ -141,12 +114,6 @@
     State(st_,seqC(P_,Q)),
     trans(iS,ev,State(st_,seqC(P_,Q))) :- iS is State(st,seqC(P,Q)),trans(State(st,P),ev,State(st_,P_)), ev != tock.
 
-	State(st_,seqC(P_,Q)),
-	trans(iS,tock,State(st_,seqC(P_,Q))) :- iS is State(st,seqC(P,Q)),trans(State(st,P),tock,State(st_,P_)), P != P_.
-
-	//Sequence timed
-    //trans(iS,tock,iS) :- iS is State(st,seqC(P,Q)), P != Skip. 
-	trans(iS,tock,iS) :- iS is State(st,seqC(P,Q)), trans(State(st,P),ev,State(st_,P_)), ev != tock, ev != tau, P != Skip. 
 	
 	// P [|X|] Q - parallel begin
 	State(st,P),
@@ -184,11 +151,6 @@
     State(st,Skip),
     trans(iS, tau, State(st,Skip)) :- iS is State(st,par(stP,Skip,X,stQ,Skip)).
     
-	//parallem timed
-    trans(iS,tock,State(st,par(stP,P_,X,stQ,Q_))) :- iS is State(st,par(stP,P,X,stQ,Q)), 
-                                                               trans(State(stP,P),tock,State(stP,P_)),
-                                                               trans(State(stQ,Q),tock,State(stQ,Q_)).
-															   
     // Call reusing state
     trans(n,tau,State(st,PBody)) :- n is State(st,proc(P,pPar)), ProcDef(P,pPar,PBody).
 

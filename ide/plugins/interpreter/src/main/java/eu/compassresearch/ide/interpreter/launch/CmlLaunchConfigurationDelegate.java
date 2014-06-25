@@ -140,7 +140,8 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 
 		configurationMap.put(CmlInterpreterArguments.AUTO_FILTER_TOCK_EVENTS.key, CmlDebugPlugin.getDefault().getPreferenceStore().getString(ICmlDebugConstants.PREFERENCES_AUTO_FILTER_TOCK_EVENTS));
 
-		if (configuration.hasAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_REMOTE_INTERPRETER_CLASS))
+		if (configuration.hasAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_USE_REMOTE_CONTROL)
+				&& configuration.hasAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_REMOTE_INTERPRETER_CLASS))
 		{
 			String remoteClass = configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_REMOTE_INTERPRETER_CLASS, "");
 			if (!remoteClass.trim().isEmpty())
@@ -225,7 +226,7 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 
 		commandArray.add(ICmlDebugConstants.DEBUG_ENGINE_CLASS);
 		commandArray.addAll(1, getVmArguments(configuration));
-//		commandArray.addAll(1, Arrays.asList(new String[] { "-XshowSettings:all" }));
+		// commandArray.addAll(1, Arrays.asList(new String[] { "-XshowSettings:all" }));
 		commandArray.add(config);
 
 		// Execute in a new JVM process
@@ -261,11 +262,13 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 
 		return iprocess;
 	}
-	
+
 	/**
 	 * Create the custom overture.properties file loaded by the debugger
+	 * 
 	 * @param project
-	 * @param configuration a configuration or null
+	 * @param configuration
+	 *            a configuration or null
 	 * @return
 	 * @throws CoreException
 	 */
@@ -274,7 +277,7 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 	{
 		List<String> properties = new Vector<String>();
 
-			properties.add(VdmLaunchConfigurationDelegate.getProbHomeProperty());
+		properties.add(VdmLaunchConfigurationDelegate.getProbHomeProperty());
 
 		return VdmLaunchConfigurationDelegate.writePropertyFile(project, "overture.properties", properties);
 	}

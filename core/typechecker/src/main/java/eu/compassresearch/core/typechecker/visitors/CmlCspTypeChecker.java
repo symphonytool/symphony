@@ -15,6 +15,7 @@ import org.overture.ast.factory.AstFactory;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.node.INode;
+import org.overture.ast.statements.AReturnStm;
 import org.overture.ast.statements.PStm;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.types.ASeq1SeqType;
@@ -103,6 +104,20 @@ public class CmlCspTypeChecker extends
 				PType type = node.getAction().apply(CmlCspTypeChecker.this, question);
 				node.setType(type);
 				return node.getType();
+			}
+
+			/**
+			 * Pre check before overture to check that a return statement only exists inside an operation
+			 */
+			@Override
+			public PType caseAReturnStm(AReturnStm node, TypeCheckInfo question)
+					throws AnalysisException
+			{
+				if (node.getAncestor(SOperationDefinition.class) == null)
+				{
+					issueHandler.addTypeError(node, TypeErrorMessages.RETURN_STM_ONLY_ALLOWED_IN_OPERATIONS);
+				}
+				return super.caseAReturnStm(node, question);
 			}
 
 		};
@@ -341,24 +356,8 @@ public class CmlCspTypeChecker extends
 	public PType caseAActionDefinition(AActionDefinition node,
 			TypeCheckInfo question) throws AnalysisException
 	{
-
-		if (!node.getDeclarations().isEmpty())
-		{
-			for (PParametrisation par : node.getDeclarations())
-			{
-				try
-				{
-					question.assistantFactory.createPTypeAssistant().typeResolve(par.getDeclaration().getType(), null, vdmChecker, question);
-				} catch (TypeCheckException te)
-				{
-					TypeChecker.report(3427, te.getMessage(), te.location);
-				}
-			}
-		}
-
 		Environment env = PParametrisationAssistant.updateEnvironment(question.env, node.getDeclarations());
 		return node.getAction().apply(actionChecker, question.newInfo(env));
-
 	}
 
 	// the strange single type

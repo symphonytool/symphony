@@ -1,0 +1,24 @@
+types
+  MYNAT = nat
+   -- inv i == i in set {0,1,2}
+   
+channels
+ a:nat
+ 
+/*
+process Test =
+begin
+  state
+   v:nat := 1 
+  
+  actions
+    Show = a!v -> Stop
+    Read = a?x -> v:=x ; Skip
+@  Read;Show
+end
+*/
+
+process Test =
+begin
+@  a?x -> a!x -> Stop
+end

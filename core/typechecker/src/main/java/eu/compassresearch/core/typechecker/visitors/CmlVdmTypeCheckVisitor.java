@@ -306,7 +306,7 @@ public class CmlVdmTypeCheckVisitor extends
 			TypeCheckInfo question, ILexLocation location)
 			throws AnalysisException
 	{
-		PTypeSet rtypes = new PTypeSet();
+		PTypeSet rtypes = new PTypeSet(question.assistantFactory);
 		for (AAltNonDeterministicStm alt : alternatives)
 		{
 			rtypes.add(alt.apply(THIS, question));

@@ -1,0 +1,20 @@
+channels
+  a, break
+
+process muXTest = begin
+actions
+  loop1 = mu X @ ( a -> X )
+  loop2 = mu X @ ( a -> X )
+  loop3 = a -> loop3
+
+  fail = loop1 /_\ break -> loop1
+  ok0  = loop1 /_\ break -> loop2
+  ok1  = loop1 /_\ break -> loop3
+  ok2  = loop3 /_\ break -> loop1
+  ok3  = loop3 /_\ break -> loop3
+@ fail [|{a,break}|] a->a->break->a->a->Skip
+end
+
+/* use trace: <a, break>
+   general trace looks like <<a+, break, a*>>
+*/

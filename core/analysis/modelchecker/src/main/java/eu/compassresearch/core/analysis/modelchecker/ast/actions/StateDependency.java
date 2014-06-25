@@ -17,7 +17,4 @@ public class StateDependency {
 	public void setActionOrProcessName(String actionOrProcessName) {
 		this.actionOrProcessName = actionOrProcessName;
 	}
-
-	
-	
 }

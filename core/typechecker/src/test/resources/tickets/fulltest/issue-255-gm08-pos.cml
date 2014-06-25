@@ -1,0 +1,533 @@
+class Battery extends Device = 
+begin
+
+values
+  private charge_rate = 2.0
+  private min_charge = 0.0
+  private max_charge = 100.0 -- max charge = 100 per cent
+  private relay_load = 1
+
+state
+
+  private charge : real := 0.0
+  private leak_rate : real := 0.01
+  
+operations
+  protected compute : nat * map nat to bool ==> ()
+  compute(t,r) == 
+  if r(relay_load) then (
+    let c = (t-time)*charge_rate in (
+      if (charge + c <= max_charge) then
+        charge := charge + c
+      else
+        charge := max_charge
+    )
+  ) else (
+    let l = (t-time)*leak_rate in (
+      if (charge - l >= min_charge) then
+        charge := charge - l
+      else
+        charge := min_charge
+    )
+  )
+  pre relay_load in set dom(r)
+
+  public set_leak_rate : nat ==> ()
+  set_leak_rate(x) == leak_rate := x
+  pre x > 0.0
+
+end
+
+class Device = 
+begin
+
+state
+
+  -- this field is read-only to all clients
+  public ready : bool := false
+  protected time : nat := 0
+  protected value : real := 0.0
+
+operations
+  public advance : nat * map nat to bool ==> ()
+  advance(t,r) == (if t <> time then (compute(t,r); time := t))
+  pre t >= time
+
+  public read : nat ==> real
+  read(t) == return value
+  pre t = time
+  
+  protected compute : nat * map nat to bool ==> ()
+  compute(t,r) == is subclass responsibility
+end
+
+
+class Freezer extends Device = 
+begin
+
+values
+
+  private min_temp : real = -25.0
+  private max_temp : real = 8.0
+  private initial_temp : real = -4
+  
+  private relay_cool : nat = 1
+  private relay_hold : nat = 2
+
+state
+  private hold_curve : seq of real := [0,-0.5,-1,-0.5,0,0.5,1.0,0.5]
+  private leak_rate : real := 0.01
+  private cool_rate : real := 0.01
+  private temp : real := initial_temp
+  inv min_temp < temp and temp < max_temp
+
+operations
+  protected compute : nat * map nat to bool ==> ()
+  compute(t,r) == 
+  if (r(relay_cool)) then (
+     temp := temp - ((t-time)*cool_rate)
+  ) elseif (r(relay_hold)) then (
+    temp := temp + (hd hold_curve);
+    hold_curve := (tl hold_curve) ^ [hd hold_curve]
+  ) else (
+    temp := temp + ((t-time)*leak_rate)
+  )
+  pre relay_cool in set dom r and relay_hold in set dom r and (not r(relay_cool)) or (not r(relay_hold))
+
+  public set_leak_rate : nat ==> ()
+  set_leak_rate(x) == leak_rate := x
+  pre x > 0.0
+
+end
+
+
+types
+  UID :: server : nat // there is only one server. So this must be a one-element set
+         gateways : set of nat
+         agents : set of nat
+         meters : set of nat
+         
+  inv u == {u.server} inter (u.gateways union u.agents union u.meters) = {} and
+           u.gateways inter (u.agents union u.meters) = {} and
+           u.agents inter u.meters = {}
+
+values
+  uid : UID = mk_UID(0,{1,2},{3,4},{5,6})
+  valid_uids = {uid.server} union uid.gateways union uid.agents union uid.meters
+  
+types
+  Server :: gateways : set of nat
+  inv s == s.gateways subset uid.gateways
+  
+  Gateway :: server : nat
+             agents : set of nat
+  inv g == g.agents subset uid.agents
+
+  Agent :: gateway : nat
+           meters : set of nat
+  inv a == a.meters subset uid.meters
+  
+  Meter :: agent : nat
+  
+  Action :: meter : nat
+                 relay : nat
+                 action : bool
+  
+  public Metering :: meter : nat
+                     time : nat
+                     value : real
+  
+  public Contents = Action | Metering
+  
+  Message :: path : seq of nat -- the network path from the sender to the receiver; complete!
+             pos : nat -- current position in the path
+             cont : Contents -- the actual contents of the message
+
+types
+
+-- depending on a "cond" an "activity" must be executed
+public AgentRule ::
+  cond : set of Condition
+  time: nat
+  activity : Activity
+  
+public Condition ::
+  meter : nat
+  op : <LT> | <LE> | <EQ> | <GE> | <GT> | <NE>
+  value : real
+  inv mk_Condition(m,-,-) == m in set uid.meters
+    
+-- the actual effect specified by a rule
+public Activity ::
+  initact : seq of Action
+  dura : nat
+  finalact : seq of Action
+
+channels
+  send : Message 
+  receive : Message
+  
+  init : set of AgentRule
+  compute -- makes the server compute new actions from the supplied rules
+  
+  -- DEVICE BEHAVIOUR ========================================================
+  
+channels
+  FLR : real -- set freezer leak rate
+  BLR : real -- set battery leak rate
+
+  -- =========================================================================
+
+  -- DATA FOR TEST SCENARIOS -------------------------------------------------
+
+values
+  ruleSetA = {
+    mk_AgentRule(
+      {},
+      2,
+      mk_Activity(
+        [mk_Action(5,1,false),mk_Action(5,2,true)],
+        1,
+        [])
+    )
+  }
+
+  ruleSetB = {
+    mk_AgentRule(
+      {},
+      4,
+      mk_Activity(
+        [mk_Action(5,1,false),mk_Action(5,2,true)],
+        1,
+        [])
+    ),
+    mk_AgentRule(
+      {},
+      20,
+      mk_Activity(
+        [mk_Action(6,1,true)],
+        40,
+        [mk_Action(6,1,false)])
+    )
+  }
+
+types
+
+  Network :: meters : map nat to Meter
+             agents : map nat to Agent
+             gateways : map nat to Gateway
+             server : Server
+
+  NetworkState :: messages : set of Message
+                  time : nat
+  
+  ServerState :: sactions : seq of Action
+                 meterings : set of Metering
+                 rules : set of AgentRule
+                 time : nat
+
+  GatewayState :: meterings : map nat to seq of Message
+                  gactions : map nat to seq of Message
+  inv gs == dom(gs.meterings) = uid.gateways and dom(gs.gactions) = uid.gateways
+  
+  AgentState ::  meterings : map nat to seq of Message
+                 aactions : map nat to seq of Message
+  inv as == dom(as.meterings) = uid.agents and dom(as.aactions) = uid.agents
+  
+  MeterState :: relays : map nat to (map nat to bool)
+                device : map nat to Device
+                time : nat
+
+process SmartGrid =
+begin
+
+functions
+
+  -- NETWORK -----------------------------------------------------------------
+
+  initNetwork : () -> Network
+  initNetwork() == mk_Network(
+    { 5 |-> mk_Meter(3), 6 |-> mk_Meter(4) },
+    { 3 |-> mk_Agent(1,{5}), 4 |-> mk_Agent(2,{6}) },
+    { 1 |-> mk_Gateway(0,{3}), 2 |-> mk_Gateway(0,{4}) },
+    mk_Server({1,2})
+  )
+
+  network_path_to_server(n : nat, nw : Network) p : seq of nat
+  pre n in set valid_uids \ {uid.server}
+  post len p = 4 and p(1) = n and 
+       p(4) = uid.server and 
+       p(3) in set uid.gateways and p(4) = nw.gateways(p(3)).server and
+       p(2) in set uid.agents and p(3) = nw.agents(p(2)).gateway and
+       p(1) in set uid.meters and p(2) = nw.meters(p(1)).agent
+
+  -- transmit message to the network
+  -- advances position by one, the next node to be visited
+  network_in : NetworkState * Message -> NetworkState
+  network_in(ns,m) == mk_NetworkState(ns.messages union {next(m)},ns.time)
+
+  -- receive message from the network
+  -- the second parameter should be taken from the set of messages using chooseM below
+  public network_out : NetworkState * Message -> NetworkState
+  network_out(ns,m) == mk_NetworkState(ns.messages \ {m},ns.time)
+  pre m in set ns.messages
+
+  -- SERVER ------------------------------------------------------------------
+
+  private eval_rule : nat * Metering * AgentRule -> seq of Action
+  eval_rule(now,m,ar) == (
+  if eval_cond_set(ar.cond,m) then (
+    if now = ar.time then (
+      ar.activity.initact
+    ) elseif now = ar.time + ar.activity.dura then (
+      ar.activity.finalact
+    ) else
+      []
+  ) else
+    []
+  )
+
+  private eval_cond_set : set of Condition * Metering -> bool
+  eval_cond_set(cs,m) == forall c in set cs @ eval_cond(c,m)
+
+  private eval_cond : Condition * Metering -> bool
+  eval_cond(c,m) ==
+    if m.meter = c.meter then
+      cases c.op:
+      <LT> -> m.value < c.value,
+      <LE> -> m.value <= c.value,
+      <EQ> -> m.value = c.value,
+      <GE> -> m.value >= c.value,
+      <GT> -> m.value > c.value,
+      <NE> -> m.value <> c.value
+      end
+    else
+      false
+  pre c.meter in set uid.meters
+
+  -- server sends action
+  server_send_action : ServerState -> ServerState
+  server_send_action(ss) == mk_ServerState(tl ss.sactions,ss.meterings,ss.rules,ss.time)
+  pre ss.sactions <> []
+  
+  -- server receives metering
+  server_receive_metering : ServerState * Metering -> ServerState
+  server_receive_metering(ss,m) == mk_ServerState(ss.sactions,{ n | n in set ss.meterings @ n.meter <> m.meter } union {m},ss.rules,ss.time)
+  
+  -- GATEWAY -----------------------------------------------------------------
+
+  gateway_receive_message : GatewayState * nat * Message -> GatewayState
+  gateway_receive_message(gs,gid,m) ==
+    if isMetering(m.cont) then 
+      mk_GatewayState(gs.meterings ++ {gid |-> gs.meterings(gid)^[m]},gs.gactions)
+    else 
+      mk_GatewayState(gs.meterings,gs.gactions ++ {gid |-> gs.gactions(gid)^[m]})
+  pre (isMetering(m.cont) and gid in set dom(gs.meterings)) or (isAction(m.cont) and gid in set dom(gs.gactions))
+
+  gateway_send_metering : GatewayState * nat -> GatewayState
+  gateway_send_metering(gs,gid) == mk_GatewayState(gs.meterings ++ {gid |-> tl gs.meterings(gid)},gs.gactions)
+  pre gid in set dom(gs.meterings) and gs.meterings(gid) <> []
+
+  gateway_send_action : GatewayState * nat -> GatewayState
+  gateway_send_action(gs,gid) == mk_GatewayState(gs.meterings,gs.gactions ++ {gid |-> tl gs.gactions(gid)})
+  pre gid in set dom(gs.gactions) and gs.gactions(gid) <> []
+  
+  -- AGENT -------------------------------------------------------------------
+  -- copy of GATEWAY with "gateway" textually replaced by "agent"
+
+  agent_receive_message : AgentState * nat * Message -> AgentState
+  agent_receive_message(gs,gid,m) ==
+    if isMetering(m.cont) then 
+      mk_AgentState(gs.meterings ++ {gid |-> gs.meterings(gid)^[m]},gs.aactions)
+    else 
+      mk_AgentState(gs.meterings,gs.aactions ++ {gid |-> gs.aactions(gid)^[m]})
+  pre (isMetering(m.cont) and gid in set dom(gs.meterings)) or (isAction(m.cont) and gid in set dom(gs.aactions))
+
+  agent_send_metering : AgentState * nat -> AgentState
+  agent_send_metering(gs,gid) == mk_AgentState(gs.meterings ++ {gid |-> tl gs.meterings(gid)},gs.aactions)
+  pre gid in set dom(gs.meterings) and gs.meterings(gid) <> []
+
+  agent_send_action : AgentState * nat -> AgentState
+  agent_send_action(gs,gid) == mk_AgentState(gs.meterings,gs.aactions ++ {gid |-> tl gs.aactions(gid)})
+  pre gid in set dom(gs.aactions) and gs.aactions(gid) <> []
+  
+  -- METER -------------------------------------------------------------------
+  
+  meter_receive_message : MeterState * nat * Action -> MeterState
+  meter_receive_message(ms,mid,a) == mk_MeterState(ms.relays ++ {mid |-> ms.relays(mid) ++ {a.relay |-> a.action}},ms.device,ms.time)
+
+  -- UTILITY -----------------------------------------------------------------
+
+  -- current node of message
+  mc(m : Message) n : nat
+  post n = m.path(m.pos)
+
+  -- origin node of message
+  mo(m : Message) n : nat
+  post n = m.path(0)
+  
+  -- advance message in network
+  next(m : Message) n : Message
+  post n = mk_Message(m.path,m.pos+1,m.cont)
+
+  -- extract metering from content
+  toMetering(c : Contents) v : Metering
+  pre is_(c,Metering)
+  post v = c
+  
+  -- extract action from content
+  toAction(c : Contents) v : Action
+  pre is_(c,Action)
+  post v = c
+  
+  -- identify metering
+  isMetering(c : Contents) b : bool
+  post b = is_(c,Metering)
+  
+  -- identify action
+  isAction(c : Contents) b : bool
+  post b =  is_(c,Action)
+  
+  -- choose a number from a finite set of natural numbers
+  chooseN(N : set of nat) n : nat
+  pre N <> {}
+  post n in set N
+  
+  -- choose a message from a finite set of messages
+  chooseM(M : set of Message) m : Message
+  pre M <> {}
+  post m in set M
+
+actions
+
+  -- NETWORK -----------------------------------------------------------------
+
+  NETWORK_SEND = ns : NetworkState @ send?m -> network_in(ns,m); NETWORK(ns)
+  
+  NETWORK_RECEIVE = ns : NetworkState @ [ns.messages <> {}] & (dcl m : Message @ m := chooseM(ns.messages); ns := network_out(ns,m); receive!m -> NETWORK(ns))
+
+  NETWORK = ns : NetworkState @ (NETWORK_SEND(ns) [] NETWORK_RECEIVE(ns))
+  
+  -- SERVER ------------------------------------------------------------------
+
+  SERVER_SEND = ss : ServerState, nw : Network @
+  [ss.sactions <> []] &
+  (dcl a : Action @ a := hd ss.sactions; ss := server_send_action(ss);
+    (dcl p : seq of nat @ p := network_path_to_server(a.meter,nw);
+  	  (dcl m : Message @ m := mk_Message(reverse p,0,a);
+  		send!m -> SERVER(ss,nw))))
+
+  SERVER_RECEIVE = ss : ServerState, nw : Network @ receive?m: (mc(m) = uid.server) -> ss := server_receive_metering(ss,m.cont); SERVER(ss,nw)
+  
+  SERVER_COMPUTE = ss : ServerState, nw : Network @ compute -> (
+  dcl as : seq of Action @ as := [];
+    for all m in set ss.meterings do
+      for all ar in set ss.rules do
+        as := as ^ eval_rule(ss.time,m,ar)
+  -- ;
+  -- return as -- return has no meaning in actions
+  ); SERVER(ss,nw)
+
+  SERVER_TIME = ss : ServerState, nw : Network @ Wait(1); ss := mk_ServerState(ss.sactions,ss.meterings,ss.rules,ss.time+1); SERVER(ss,nw)
+
+  SERVER = ss : ServerState, nw : Network @ (SERVER_COMPUTE(ss,nw) [] SERVER_SEND(ss,nw) [] SERVER_RECEIVE(ss,nw) [] SERVER_TIME(ss,nw))
+    
+  -- GATEWAY -----------------------------------------------------------------
+
+  GATEWAY_SEND_METERING = gs : GatewayState @
+  [exists gid in set uid.gateways @ gs.meterings(gid) <> []] & 
+  (dcl gid : nat @ gid := chooseN({ n | n in set uid.gateways @ gs.meterings(n) <> []});
+    (dcl m : Message @ m := hd gs.meterings(gid); gs := gateway_send_metering(gs,gid);
+      send!m -> GATEWAY(gs)))
+    
+  GATEWAY_SEND_ACTION = gs : GatewayState @
+  [exists gid in set uid.gateways @ gs.gactions(gid) <> []] & 
+  (dcl gid : nat @ gid := chooseN({ n | n in set uid.gateways @ gs.gactions(n) <> []});
+    (dcl m : Message @ m := hd gs.gactions(gid); gs := gateway_send_action(gs,gid);
+      send!m -> GATEWAY(gs)))
+    
+  GATEWAY_RECEIVE = gs : GatewayState @ receive?m: (mc(m) in set uid.gateways) -> gs := gateway_receive_message(gs,mc(m),m); GATEWAY(gs)
+  
+  GATEWAY = gs : GatewayState @ (GATEWAY_SEND_METERING(gs) [] GATEWAY_SEND_ACTION(gs) [] GATEWAY_RECEIVE(gs))
+
+  -- AGENT -------------------------------------------------------------------
+
+  AGENT_SEND_METERING = as : AgentState @
+  [exists gid in set uid.agents @ as.meterings(gid) <> []] & 
+  (dcl gid : nat @ gid := chooseN({ n | n in set uid.agents @ as.meterings(n) <> []});
+    (dcl m : Message @ m := hd as.meterings(gid); as := agent_send_metering(as,gid);
+      send!m -> AGENT(as)))
+    
+  AGENT_SEND_ACTION = as : AgentState @
+  [exists gid in set uid.agents @ as.aactions(gid) <> []] & 
+  (dcl gid : nat @ gid := chooseN({ n | n in set uid.agents @ as.aactions(n) <> []});
+    (dcl m : Message @ m := hd as.aactions(gid); as := agent_send_action(as,gid);
+      send!m -> AGENT(as)))
+    
+  AGENT_RECEIVE = as : AgentState @ receive?m: (mc(m) in set uid.agents) -> as := agent_receive_message(as,mc(m),m); AGENT(as)
+  
+  AGENT = as : AgentState @ (AGENT_SEND_METERING(as) [] AGENT_SEND_ACTION(as) [] AGENT_RECEIVE(as))
+
+  -- METER -------------------------------------------------------------------
+
+  METER_SEND_METERING = ms : MeterState, nw : Network @
+  [exists mid in set uid.meters @ ms.device(mid).ready] & 
+  (dcl mid : nat @ mid := chooseN({ n | n in set uid.meters @ ms.device(n).ready});
+    (dcl p : seq of nat @ p := network_path_to_server(mid,nw);
+      (dcl d : Device @ d := ms.device(mid); d.advance(ms.time,ms.relays(mid)); 
+        (dcl v : real @ v := ms.device(mid).read(ms.time);
+          (dcl m : Message @ m := mk_Message(p,0,mk_Metering(mid,ms.time,v));
+            send!m -> METER(ms,nw))))))
+    
+  METER_RECEIVE_ACTION = ms : MeterState, nw : Network @
+    receive?m: (mc(m) in set uid.meters) -> (
+      ms := meter_receive_message(ms,mc(m),toAction(m.cont)); 
+        (dcl d : Device @ d := ms.device(mc(m)); d.advance(ms.time,ms.relays(mc(m))); METER(ms,nw)))
+  
+  METER = ms : MeterState, nw : Network @ (METER_SEND_METERING(ms,nw) [] METER_RECEIVE_ACTION(ms,nw) [] DEVICE(ms,nw))
+
+  METER_TIME = ms : MeterState, nw : Network @ Wait(1); ms := mk_MeterState(ms.relays,ms.device,ms.time+1); METER(ms,nw)
+
+  -- DEVICE BEHAVIOUR ========================================================
+  -- for scenario-based control of device behaviour
+  
+  DEVICE = ms : MeterState, nw : Network @ (FREEZER_SET_LEAK_RATE(ms,nw) [] BATTERY_SET_LEAK_RATE(ms,nw))
+  
+  FREEZER_SET_LEAK_RATE = ms : MeterState, nw : Network @ FLR?x -> (dcl d : Freezer @ d := ms.device(5); d.set_leak_rate(x); METER(ms,nw))
+
+  BATTERY_SET_LEAK_RATE = ms : MeterState, nw : Network @ BLR?x -> (dcl d : Battery @ d := ms.device(6); d.set_leak_rate(x); METER(ms,nw))
+  -- TEST SCENARIOS ----------------------------------------------------------
+  
+  SCENARIOA = init!ruleSetA -> Wait(3); FLR!3 -> Stop
+  SCENARIOB = init!ruleSetB -> Wait(4); BLR!1 -> Wait(1); FLR!2 -> Wait(3); BLR!4 -> Stop
+
+  -- SYSTEM ------------------------------------------------------------------
+
+@ (dcl nw : Network @ nw := initNetwork();
+    (
+      (dcl rules : set of AgentRule @ init?s -> rules := s;
+        (
+          (dcl ns : NetworkState @ ns := mk_NetworkState({},0); NETWORK(ns)) 
+          [| {|send,receive|} |] 
+          (
+            (dcl ss : ServerState @ ss := mk_ServerState([],{},rules,0); SERVER(ss,nw))
+            |||
+            (dcl gs : GatewayState @ gs := mk_GatewayState({ n |-> [] | n in set uid.gateways },{ n |-> [] | n in set uid.gateways }); GATEWAY(gs))
+            |||
+            (dcl as : AgentState @ as := mk_AgentState({ n |-> [] | n in set uid.agents },{ n |-> [] | n in set uid.agents }); AGENT(as))
+            |||
+            (dcl ms : MeterState @
+              (dcl freezer : Device, battery : Device @ freezer := new Freezer(); battery := new Battery(); 
+                ms := mk_MeterState(
+                  {5 |-> {1|->false,2|->false}, 6 |-> {1|->false}},
+                  {5 |-> freezer, 6 |-> battery},
+                  0); METER(ms,nw))
+          )
+        )
+      )
+      [| {| init, FLR, BLR |} |]
+      SCENARIOA
+    )
+  )
+)
+end

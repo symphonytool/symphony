@@ -78,34 +78,35 @@ public class PoListView extends PoOverviewTableView
 		// test setup columns...
 		TableLayout layout = new TableLayout();
 		layout.addColumnData(new ColumnWeightData(10, false));
-		layout.addColumnData(new ColumnWeightData(15, false));
+		layout.addColumnData(new ColumnWeightData(10, false));
 		layout.addColumnData(new ColumnWeightData(60, false));
-		layout.addColumnData(new ColumnWeightData(30, false));
+		layout.addColumnData(new ColumnWeightData(20, false));
 		viewer.getTable().setLayout(layout);
 		viewer.getTable().setLinesVisible(true);
 		viewer.getTable().setHeaderVisible(true);
 		viewer.getTable().setSortDirection(SWT.NONE);
 		viewer.setSorter(null);
 
-		TableColumn column01 = new TableColumn(viewer.getTable(), SWT.LEFT);
-		column01.setText("No.");
-		column01.setToolTipText("No.");
-		column01.setResizable(false);
+		TableColumn columnNumber = new TableColumn(viewer.getTable(), SWT.LEFT);
+		columnNumber.setText("No.");
+		columnNumber.setToolTipText("No.");
+		columnNumber.setResizable(false);
 
-		TableColumn column02 = new TableColumn(viewer.getTable(), SWT.LAST_LINE_SELECTION);
-		column02.setText("Status");
-		column02.setToolTipText("PO status");
-		column02.setResizable(false);
+		TableColumn columnStatus = new TableColumn(viewer.getTable(), SWT.CENTER);
+		columnStatus.setText("Res.");
+		columnStatus.setToolTipText("PO status");
+		columnStatus.setResizable(false);
+		//columnStatus.set
 
-		TableColumn column03 = new TableColumn(viewer.getTable(), SWT.LEFT);
-		column03.setText("Type");
-		column03.setToolTipText("PO Type");
-		column03.setResizable(false);
+		TableColumn columnKind = new TableColumn(viewer.getTable(), SWT.LEFT);
+		columnKind.setText("Type");
+		columnKind.setToolTipText("PO Type");
+		columnKind.setResizable(false);
 
-		TableColumn column04 = new TableColumn(viewer.getTable(), SWT.LEFT);
-		column04.setText("Source");
-		column04.setToolTipText("PO Source");
-		column04.setResizable(false);
+		TableColumn columnSource = new TableColumn(viewer.getTable(), SWT.LEFT);
+		columnSource.setText("Source");
+		columnSource.setToolTipText("PO Source");
+		columnSource.setResizable(false);
 
 		viewer.setContentProvider(new CmlPoViewContentProvider());
 		viewer.setLabelProvider(new CmlPoViewLabelProvider());

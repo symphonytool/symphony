@@ -108,6 +108,7 @@ public class CollectingIssueHandler implements ITypeIssueHandler
 		{
 			out.println(e.toString());
 		}
+		out.flush();
 	}
 
 	public void printWarnings(PrintWriter out)
@@ -116,6 +117,7 @@ public class CollectingIssueHandler implements ITypeIssueHandler
 		{
 			out.println(w.toString());
 		}
+		out.flush();
 	}
 
 	@Override

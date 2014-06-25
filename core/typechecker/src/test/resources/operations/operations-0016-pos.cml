@@ -7,7 +7,7 @@ begin
 
 
 operations
-
+public
  op1: () ==> () op1() == is subclass responsibility
 
 end

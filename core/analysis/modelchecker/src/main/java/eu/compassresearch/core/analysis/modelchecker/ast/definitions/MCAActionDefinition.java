@@ -111,7 +111,7 @@ public class MCAActionDefinition implements MCPCMLDefinition {
 		//if the action has dependencies we get them from the context
 		
 		LinkedList<ActionChannelDependency> dependencies = context.getActionChannelDependendies(this.name);
-		LinkedList<ActionChannelDependency> allDependencies = new LinkedList<ActionChannelDependency>(); 
+		ArrayListSet<ActionChannelDependency> allDependencies = new ArrayListSet<ActionChannelDependency>(); 
 		
 		boolean hasNormalDependencies = dependencies.size() > 0;
 		boolean hasNormalDependenciesReal = false;
@@ -177,7 +177,9 @@ public class MCAActionDefinition implements MCPCMLDefinition {
 				ActionChannelDependency actionChannelDependency = (ActionChannelDependency) iterator.next();
 				String actionChannelDepStr = actionChannelDependency.toFormula(option);
 				//if(result.indexOf(actionChannelDepStr) == -1){
-				result.append(actionChannelDepStr);
+				//if(result.indexOf(actionChannelDepStr.trim()) == -1){
+					result.append(actionChannelDepStr);
+				//}
 				//}
 				if(iterator.hasNext()){
 					result.append(",");
@@ -198,13 +200,14 @@ public class MCAActionDefinition implements MCPCMLDefinition {
 				//}
 			}
 			result.append("State(");
-			result.append(context.maximalBinding.toFormula(MCNode.NAMED));
+			result.append(context.maximalBinding.toFormula(MCNode.STATE_DEPENDENCY_WITHOUT_INF_VARS));
 			result.append(",");
 			//result.append(actionString);
 			result.append("proc(\"" + this.name + "\"," + parameterString + ")");
 			result.append(")");
 		}
 		context.resetStateDependencies();
+		context.resetLocalVarNames();
 		if(!hasNormalDependenciesReal && !hasInfiniteUnamedDependencies && !hasStateDependencies){
 			String separator = " :- ";
 			int index = result.indexOf(separator);
