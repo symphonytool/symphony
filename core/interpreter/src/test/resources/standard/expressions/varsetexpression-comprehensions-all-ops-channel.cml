@@ -1,0 +1,40 @@
+channels
+  a
+  b : nat
+
+values
+  range : set of nat = {1,2,3,4,5}
+
+chansets
+  Just_a = {| a |}              -- { a }
+  All_cs = {| a, b |}           -- { a, b.1, b.2, b.3, b.4, b.5, b.6, ... }
+  Even_b = {| b.i | i in set range @ i mod 2 = 0 |} -- { b.2, b.4 }
+  Odd_b  = {| b.i | i in set range @ i mod 2 = 1 |} -- { b.1, b.3, b.5 }
+
+process A = begin @ a -> Skip end
+process B = val i: nat @ begin @ b.i -> Skip end
+
+process B_two = B(1);B(2)
+process B_odd = B(1);B(3)
+
+process CSId =
+  A [| Just_a |] A              -- { a }
+
+process Union =
+  B_two [| Even_b union Odd_b |] B_two -- { b.1, ..., b.5 }
+
+process Inter =
+  B_odd [| All_cs inter Odd_b |] B_two -- { b.1, b.3, b.5 }
+
+process Sub =
+  B_odd [| All_cs \ Even_b |] B_odd -- { a, b.1, b.3, b.5, b.6, ... }
+
+process Test =
+  A ;  
+  Union ; 
+   Inter ;
+    Sub
+
+/* expected trace:
+   <a, b.1, b.2, b.1, b.3, b.1, b.3>
+*/

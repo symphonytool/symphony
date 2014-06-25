@@ -1,9 +1,7 @@
 package eu.compassresearch.core.interpreter;
 
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.expressions.PExp;
@@ -52,7 +50,7 @@ import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.api.values.ChannelValue;
 import eu.compassresearch.core.interpreter.api.values.CmlChannel;
 import eu.compassresearch.core.interpreter.api.values.LatticeTopValue;
-import eu.compassresearch.core.interpreter.api.values.NamesetValue;
+import eu.compassresearch.core.interpreter.api.values.NameValue;
 import eu.compassresearch.core.interpreter.api.values.RenamingValue;
 
 public class CmlExpressionVisitor extends
@@ -176,35 +174,27 @@ public class CmlExpressionVisitor extends
 		 * Before we do anything we need to find out if this is a channelexp or nameexp. In most cases it does not make
 		 * sense to make an empty channelset, so if its empty we assume that this is a nameset
 		 */
+		ValueSet coms = new ValueSet();
 		if (node.getChannelNames().size() > 0
 				&& isChannelSetExp(node.getChannelNames().get(0), question))
 		{
-
-			ValueSet coms = new ValueSet();
-
 			for (ANameChannelExp chanNameExp : node.getChannelNames())
 			{
 				ChannelValue channelName = createChannelNameValue(chanNameExp, question);
 				coms.add(channelName);
 			}
-
-			return new SetValue(coms);
 		}
 		// then it must be a nameset expression
 		else
 		{
-			Set<ILexNameToken> coms = new HashSet<ILexNameToken>();
-
 			for (ANameChannelExp chanNameExp : node.getChannelNames())
 			{
 				// FIXME At the moment we only support simple names without any expressions after it!
 				ILexNameToken name = NamespaceUtility.createSimpleName(chanNameExp.getIdentifier());
-				coms.add(name);
+				coms.add(new NameValue(name));
 			}
-
-			return new NamesetValue(coms);
-
 		}
+		return new SetValue(coms);
 	}
 
 	@Override
@@ -229,90 +219,42 @@ public class CmlExpressionVisitor extends
 		 * Before we do anything we need to find out if this is a channelexp or nameexp. In most cases it does not make
 		 * sense to make an empty channelset, so if its empty we assume that this is a nameset
 		 */
+		ValueSet coms = new ValueSet();
 		if (node.getChannelNames().size() > 0
 				&& isChannelSetExp(node.getChannelNames().get(0), question))
 		{
-			ValueSet coms = new ValueSet();
 			for (ANameChannelExp chanNameExp : node.getChannelNames())
 			{
 				ChannelValue channelName = createChannelNameValue(chanNameExp, question);
 				coms.add(channelName);
 			}
 
-			return new SetValue(coms);
-
 		} else
 		{
 			// FIXME At the moment we only support simple names without any expressions after it!
-			Set<ILexNameToken> names = new HashSet<ILexNameToken>();
 			for (ANameChannelExp chanNameExp : node.getChannelNames())
 			{
-				names.add(NamespaceUtility.createSimpleName(chanNameExp.getIdentifier()));
+				coms.add(new NameValue(NamespaceUtility.createSimpleName(chanNameExp.getIdentifier())));
 			}
 
-			return new NamesetValue(names);
 		}
+		return new SetValue(coms);
 	}
 
 	@Override
 	public Value caseAUnionVOpVarsetExpression(AUnionVOpVarsetExpression node,
 			Context ctxt) throws AnalysisException
 	{
-	
-		Value leftValue = node.getLeft().apply(this, ctxt);
-		Value rightValue = node.getRight().apply(this, ctxt);
-
-		if (leftValue instanceof SetValue
-				&& rightValue instanceof SetValue)
+		try
 		{
-			{
-				//FIXME: this is the new body when Namesetvalue is removed
-				try
-				{
-		    		ValueSet result = new ValueSet();
-		    		result.addAll(node.getLeft().apply(VdmRuntime.getExpressionEvaluator(),ctxt).setValue(ctxt));
-		    		result.addAll(node.getRight().apply(VdmRuntime.getExpressionEvaluator(),ctxt).setValue(ctxt));
-		    		return new SetValue(result);
-				}
-				catch (ValueException e)
-				{
-					return VdmRuntimeError.abort(node.getLocation(),e);
-				}
-			}
-		} else if (leftValue instanceof NamesetValue
-				&& rightValue instanceof NamesetValue)
+			ValueSet result = new ValueSet();
+			result.addAll(node.getLeft().apply(VdmRuntime.getExpressionEvaluator(), ctxt).setValue(ctxt));
+			result.addAll(node.getRight().apply(VdmRuntime.getExpressionEvaluator(), ctxt).setValue(ctxt));
+			return new SetValue(result);
+		} catch (ValueException e)
 		{
-			NamesetValue leftNameset = (NamesetValue) leftValue;
-			leftNameset.addAll((NamesetValue) rightValue);
-			return leftNameset;
-		} else
-		{
-			throw new CmlInterpreterException(node, InterpretationErrorMessages.FATAL_ERROR.customizeMessage(""));
+			return VdmRuntimeError.abort(node.getLocation(), e);
 		}
-
-	}
-	
-	static Value wrapAsChanOrNameSet(SetValue val)
-	{
-		boolean isChannel = true;
-		for (Value value : val.values)
-		{
-			// FIXME: Not able to detect if this is an intersection between channels or names
-			// if(value instanceof sometype/*ILexNameToken*/)
-			// {
-			// isChannel = false;
-			// }
-		}
-
-		Value set = null;
-		if (isChannel)
-		{
-			set = val;
-		} else
-		{
-			set = new NamesetValue(new HashSet<ILexNameToken>());
-		}
-		return set;
 	}
 
 
@@ -326,15 +268,14 @@ public class CmlExpressionVisitor extends
 			result.addAll(node.getLeft().apply(VdmRuntime.getExpressionEvaluator(), ctxt).setValue(ctxt));
 			result.retainAll(node.getRight().apply(VdmRuntime.getExpressionEvaluator(), ctxt).setValue(ctxt));
 
-			return wrapAsChanOrNameSet(new SetValue(result));
+			return new SetValue(result);
 		} catch (ValueException e)
 		{
 			e.printStackTrace();
 			return VdmRuntimeError.abort(node.getLocation(), e);
 		}
 	}
-	
-	
+
 	@Override
 	public Value caseASubVOpVarsetExpression(ASubVOpVarsetExpression node,
 			Context ctxt) throws AnalysisException
@@ -344,24 +285,21 @@ public class CmlExpressionVisitor extends
 
 		try
 		{
-			togo = node.getRight().apply(VdmRuntime.getExpressionEvaluator(),ctxt).setValue(ctxt);
-			result.addAll(node.getLeft().apply(VdmRuntime.getExpressionEvaluator(),ctxt).setValue(ctxt));
-		}
-		catch (ValueException e)
+			togo = node.getRight().apply(VdmRuntime.getExpressionEvaluator(), ctxt).setValue(ctxt);
+			result.addAll(node.getLeft().apply(VdmRuntime.getExpressionEvaluator(), ctxt).setValue(ctxt));
+		} catch (ValueException e)
 		{
-			return VdmRuntimeError.abort(node.getLocation(),e);
+			return VdmRuntimeError.abort(node.getLocation(), e);
 		}
 
-		for (Value r: togo)
+		for (Value r : togo)
 		{
 			result.remove(r);
 		}
 
-		return wrapAsChanOrNameSet( new SetValue(result));
+		return new SetValue(result);
 	}
-	
-	
-	
+
 	@Override
 	public Value caseACompVarsetExpression(ACompVarsetExpression node,
 			Context question) throws AnalysisException
@@ -375,15 +313,9 @@ public class CmlExpressionVisitor extends
 			Context ctxt) throws AnalysisException
 	{
 
-		Value set = null;
+		SetValue set = new SetValue();
 
-		if (isChannelSetExp(node.getChannelNameExp(), ctxt))
-		{
-			set = new SetValue();
-		} else
-		{
-			set = new NamesetValue(new HashSet<ILexNameToken>());
-		}
+		boolean isChannel = isChannelSetExp(node.getChannelNameExp(), ctxt);
 
 		try
 		{
@@ -428,12 +360,12 @@ public class CmlExpressionVisitor extends
 				if (matches
 						&& (node.getPredicate() == null || node.getPredicate().apply(VdmRuntime.getExpressionEvaluator(), evalContext).boolValue(ctxt)))
 				{
-					if (set instanceof SetValue)
+					if (isChannel)
 					{
-						((SetValue) set).values.add(createChannelNameValue(node.getChannelNameExp(), evalContext));
-					} else if (set instanceof NamesetValue)
+						set.values.add(createChannelNameValue(node.getChannelNameExp(), evalContext));
+					} else
 					{
-						((NamesetValue) set).add(NamespaceUtility.createSimpleName(node.getChannelNameExp().getIdentifier()));
+						set.values.add(new NameValue(NamespaceUtility.createSimpleName(node.getChannelNameExp().getIdentifier())));
 					}
 				}
 			}

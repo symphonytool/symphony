@@ -3,7 +3,6 @@ package eu.compassresearch.core.interpreter;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.intf.lex.ILexNameToken;
@@ -50,20 +49,10 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 		super(owner, visitorAccess, cmlBehaviorFactory);
 	}
 
-	@SuppressWarnings("rawtypes")
 	protected SetValue eval(PVarsetExpression chansetExpression,
 			Context question) throws AnalysisException
 	{
-		Value val = chansetExpression.apply(cmlExpressionVisitor, question);
-		if (val instanceof SetValue)
-		{
-			return (SetValue) val;
-		} else if (val instanceof Set && ((Set) val).isEmpty())
-		{
-			return new SetValue();
-		}
-
-		throw new CmlInterpreterException(chansetExpression, InterpretationErrorMessages.FATAL_ERROR.customizeMessage("Failed to evaluate chanset expression"));
+		return (SetValue) chansetExpression.apply(cmlExpressionVisitor, question);
 	}
 
 	public Pair<INode, Context> caseAlphabetisedParallelism(INode node,

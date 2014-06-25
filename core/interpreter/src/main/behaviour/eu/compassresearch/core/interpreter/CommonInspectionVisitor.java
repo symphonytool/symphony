@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -28,6 +27,7 @@ import eu.compassresearch.core.interpreter.api.CmlBehaviorFactory;
 import eu.compassresearch.core.interpreter.api.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
+import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.transitions.HiddenTransition;
@@ -42,7 +42,7 @@ import eu.compassresearch.core.interpreter.api.transitions.ops.RetainChannelName
 import eu.compassresearch.core.interpreter.api.transitions.ops.RetainChannelNamesAndTau;
 import eu.compassresearch.core.interpreter.api.values.ChannelValue;
 import eu.compassresearch.core.interpreter.api.values.CmlChannel;
-import eu.compassresearch.core.interpreter.api.values.NamesetValue;
+import eu.compassresearch.core.interpreter.api.values.NameValue;
 import eu.compassresearch.core.interpreter.api.values.RenamingValue;
 import eu.compassresearch.core.interpreter.runtime.DelayedWriteContext;
 import eu.compassresearch.core.interpreter.utility.LocationExtractor;
@@ -242,26 +242,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		}
 	}
 
-//	private static Context removeFirstDelayedContext( Context ctxt)
-//	{
-//		if(ctxt instanceof DelayedWriteContext)
-//		{
-//			return ctxt.outer;
-//		}else
-//		{
-//			do{
-//				if(ctxt.outer instanceof DelayedWriteContext)
-//				{
-//					DelayedWriteContext.setOuter(ctxt,ctxt.outer.outer);
-//					break;
-//				}
-//				
-//				ctxt = ctxt.outer;
-//			}while(ctxt!=null && ctxt.outer!=null);
-//			return ctxt;
-//		}
-//	}
-	
+
 	/**
 	 * Handles the external choice end rule
 	 * 
@@ -275,7 +256,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		Context newCurrentContext = theChoosenOne.getNextState().second;
 		Context delayedCtxt = newCurrentContext;
 
-		//TODO some how it is not the outer one in issue 235
+		// TODO some how it is not the outer one in issue 235
 		while (delayedCtxt != null)
 		{
 			if (delayedCtxt instanceof DelayedWriteContext)
@@ -285,8 +266,8 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 			}
 			delayedCtxt = delayedCtxt.outer;
 		}
-		
-//		newCurrentContext = removeFirstDelayedContext( newCurrentContext);
+
+		// newCurrentContext = removeFirstDelayedContext( newCurrentContext);
 
 		if (theChoosenOne.getLeftChild() != null)
 		{
@@ -530,22 +511,43 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 			{
 
 				Context leftChildContext = owner.getLeftChild().getNextState().second;
-				NamesetValue leftNameset = (NamesetValue) leftChildContext.check(NamespaceUtility.getNamesetName());
+				SetValue leftNameset = (SetValue) leftChildContext.check(NamespaceUtility.getNamesetName());
 				if (leftNameset != null)
 				{
-					for (ILexNameToken name : leftNameset)
+					for (Value val : leftNameset.values)
 					{
-						question.lookup(name).set(name.getLocation(), leftChildContext.lookup(name), question);
+						if (val instanceof NameValue)
+						{
+							ILexNameToken name = ((NameValue) val).name;
+
+							question.lookup(name).set(name.getLocation(), leftChildContext.lookup(name), question);
+						} else
+						{
+							throw new InterpreterRuntimeException("Only "
+									+ NameValue.class.getSimpleName()
+									+ " must be present in a name value set. Actual: "
+									+ val);
+						}
 					}
 				}
 
 				Context rightChildContext = owner.getRightChild().getNextState().second;
-				NamesetValue rightNameset = (NamesetValue) rightChildContext.check(NamespaceUtility.getNamesetName());
+				SetValue rightNameset = (SetValue) rightChildContext.check(NamespaceUtility.getNamesetName());
 				if (rightNameset != null)
 				{
-					for (ILexNameToken name : rightNameset)
+					for (Value val : rightNameset.values)
 					{
-						question.lookup(name).set(name.getLocation(), rightChildContext.lookup(name), question);
+						if (val instanceof NameValue)
+						{
+							ILexNameToken name = ((NameValue) val).name;
+							question.lookup(name).set(name.getLocation(), rightChildContext.lookup(name), question);
+						} else
+						{
+							throw new InterpreterRuntimeException("Only "
+									+ NameValue.class.getSimpleName()
+									+ " must be present in a name value set. Actual: "
+									+ val);
+						}
 					}
 				}
 
@@ -558,20 +560,10 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		};
 	}
 
-	@SuppressWarnings("rawtypes")
 	protected SetValue eval(PVarsetExpression chansetExpression,
 			Context question) throws AnalysisException
 	{
-		Value val = chansetExpression.apply(cmlExpressionVisitor, question);
-		if (val instanceof SetValue)
-		{
-			return (SetValue) val;
-		} else if (val instanceof Set && ((Set) val).isEmpty())
-		{
-			return new SetValue();
-		}
-
-		throw new CmlInterpreterException(chansetExpression, InterpretationErrorMessages.FATAL_ERROR.customizeMessage("Failed to evaluate chanset expression"));
+		return (SetValue) chansetExpression.apply(cmlExpressionVisitor, question);
 	}
 
 	/**
