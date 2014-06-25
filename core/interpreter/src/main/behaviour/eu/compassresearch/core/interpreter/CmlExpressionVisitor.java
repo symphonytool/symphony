@@ -26,16 +26,20 @@ import org.overture.interpreter.values.NameValuePair;
 import org.overture.interpreter.values.NameValuePairList;
 import org.overture.interpreter.values.Quantifier;
 import org.overture.interpreter.values.QuantifierList;
+import org.overture.interpreter.values.SetValue;
 import org.overture.interpreter.values.Value;
 import org.overture.interpreter.values.ValueList;
+import org.overture.interpreter.values.ValueSet;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.expressions.ABracketedExp;
+import eu.compassresearch.ast.expressions.ACompVarsetExpression;
 import eu.compassresearch.ast.expressions.AEnumVarsetExpression;
 import eu.compassresearch.ast.expressions.AEnumerationRenameChannelExp;
 import eu.compassresearch.ast.expressions.AFatCompVarsetExpression;
 import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
 import eu.compassresearch.ast.expressions.AIdentifierVarsetExpression;
+import eu.compassresearch.ast.expressions.AInterVOpVarsetExpression;
 import eu.compassresearch.ast.expressions.ANameChannelExp;
 import eu.compassresearch.ast.expressions.AUnionVOpVarsetExpression;
 import eu.compassresearch.ast.expressions.PCMLExp;
@@ -281,6 +285,50 @@ public class CmlExpressionVisitor extends
 	}
 
 	@Override
+	public Value caseACompVarsetExpression(ACompVarsetExpression node,
+			Context question) throws AnalysisException
+	{
+		// TODO Auto-generated method stub
+		return super.caseACompVarsetExpression(node, question);
+	}
+
+	@Override
+	public Value caseAInterVOpVarsetExpression(AInterVOpVarsetExpression node,
+			Context ctxt) throws AnalysisException
+	{
+		try
+		{
+			ValueSet result = new ValueSet();
+			result.addAll(node.getLeft().apply(VdmRuntime.getExpressionEvaluator(), ctxt).setValue(ctxt));
+			result.retainAll(node.getRight().apply(VdmRuntime.getExpressionEvaluator(), ctxt).setValue(ctxt));
+
+			boolean isChannel = true;
+			for (Value value : result)
+			{
+				// FIXME: Not able to detect if this is an intersection between channels or names
+				// if(value instanceof sometype/*ILexNameToken*/)
+				// {
+				// isChannel = false;
+				// }
+			}
+
+			Value set = null;
+			if (isChannel)
+			{
+				set = new ChannelNameSetValue(result);
+			} else
+			{
+				set = new NamesetValue(new HashSet<ILexNameToken>());
+			}
+			return set;
+		} catch (ValueException e)
+		{
+			e.printStackTrace();
+			return VdmRuntimeError.abort(node.getLocation(), e);
+		}
+	}
+
+	@Override
 	public Value caseAFatCompVarsetExpression(AFatCompVarsetExpression node,
 			Context ctxt) throws AnalysisException
 	{
@@ -393,14 +441,12 @@ public class CmlExpressionVisitor extends
 	@Override
 	public Value createNewReturnValue(INode node, Context question)
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Value createNewReturnValue(Object node, Context question)
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 

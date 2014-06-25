@@ -1,53 +1,57 @@
 package eu.compassresearch.core.interpreter.api.values;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.overture.interpreter.values.SetValue;
 import org.overture.interpreter.values.Value;
+import org.overture.interpreter.values.ValueSet;
 
-public class ChannelNameSetValue extends Value implements Set<ChannelValue>
+public class ChannelNameSetValue extends SetValue implements Set<ChannelValue>
 {
 
 	/**
-	 * 
+	 * serial
 	 */
 	private static final long serialVersionUID = 1L;
-	Set<ChannelValue> channelNames;
+
 
 	public ChannelNameSetValue()
 	{
-		this.channelNames = new HashSet<ChannelValue>();
+		super();
 	}
 
 	public ChannelNameSetValue(Set<ChannelValue> channelNames)
 	{
-		this.channelNames = new HashSet<ChannelValue>(channelNames);
+		super(convertToValueSet(channelNames));
+	}
+	
+	public ChannelNameSetValue(ValueSet values)
+	{
+		super(values);
+	}
+
+	private static ValueSet convertToValueSet(Set<ChannelValue> channelNames)
+	{
+		ValueSet set = new ValueSet();
+		for (ChannelValue c : channelNames)
+		{
+			set.add(c);
+		}
+		return set;
 	}
 
 	public ChannelNameSetValue(ChannelValue channelName)
 	{
-		this.channelNames = new HashSet<ChannelValue>();
-		this.channelNames.add(channelName);
+		super();
+		add(channelName);
 	}
 
 	@Override
 	public String toString()
 	{
-		return channelNames.toString();
-	}
-
-	@Override
-	public boolean equals(Object other)
-	{
-		return channelNames.equals(other);
-	}
-
-	@Override
-	public int hashCode()
-	{
-		return channelNames.hashCode();
+		return values.toString();
 	}
 
 	@Override
@@ -70,79 +74,100 @@ public class ChannelNameSetValue extends Value implements Set<ChannelValue>
 	@Override
 	public int size()
 	{
-		return channelNames.size();
+		return values.size();
 	}
 
 	@Override
 	public boolean isEmpty()
 	{
-		return channelNames.isEmpty();
+		return values.isEmpty();
 	}
 
 	@Override
 	public boolean contains(Object o)
 	{
-		return channelNames.contains(o);
+		return values.contains(o);
 	}
 
 	@Override
 	public Iterator<ChannelValue> iterator()
 	{
-		return channelNames.iterator();
+		final Iterator<Value> itr = values.iterator();
+		return new Iterator<ChannelValue>()
+		{
+
+			@Override
+			public boolean hasNext()
+			{
+				return itr.hasNext();
+			}
+
+			@Override
+			public ChannelValue next()
+			{
+				return (ChannelValue) itr.next();
+			}
+
+			@Override
+			public void remove()
+			{
+				itr.remove();
+			}
+		};
 	}
 
 	@Override
 	public Object[] toArray()
 	{
-		return channelNames.toArray();
+		return values.toArray();
 	}
 
 	@Override
 	public <T> T[] toArray(T[] a)
 	{
-		return channelNames.toArray(a);
+		return values.toArray(a);
 	}
 
 	@Override
 	public boolean add(ChannelValue e)
 	{
-		return channelNames.add(e);
+		return values.add(e);
 	}
 
 	@Override
 	public boolean remove(Object o)
 	{
-		return channelNames.remove(o);
+		return values.remove(o);
 	}
 
 	@Override
 	public boolean containsAll(Collection<?> c)
 	{
-		return channelNames.containsAll(c);
+		return values.containsAll(c);
 	}
 
 	@Override
 	public boolean addAll(Collection<? extends ChannelValue> c)
 	{
-		return channelNames.addAll(c);
+		return values.addAll(c);
 	}
 
 	@Override
 	public boolean retainAll(Collection<?> c)
 	{
-		return channelNames.retainAll(c);
+		return values.retainAll(c);
 	}
 
 	@Override
 	public boolean removeAll(Collection<?> c)
 	{
-		return channelNames.removeAll(c);
+		return values.removeAll(c);
 	}
 
 	@Override
 	public void clear()
 	{
-		channelNames.clear();
+		values.clear();
 	}
 
 }
