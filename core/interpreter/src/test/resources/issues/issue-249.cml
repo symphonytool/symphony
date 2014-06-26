@@ -1,0 +1,13 @@
+channels
+a,b:int
+chansets
+
+  C1 = {a,b.1,b.2}
+  C2 = {b.1}
+
+process A =begin @ Skip end
+process B = begin @ Skip end
+
+process Sub =
+  A [| C1 \ C2 |] B -- { a,b.2 }
+

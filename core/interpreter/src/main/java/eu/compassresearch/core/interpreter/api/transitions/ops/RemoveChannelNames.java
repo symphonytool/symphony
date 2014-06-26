@@ -1,23 +1,27 @@
 package eu.compassresearch.core.interpreter.api.transitions.ops;
 
+import org.overture.interpreter.values.SetValue;
+import org.overture.interpreter.values.Value;
+
+import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.LabelledTransition;
-import eu.compassresearch.core.interpreter.api.values.ChannelNameSetValue;
 import eu.compassresearch.core.interpreter.api.values.ChannelValue;
 
 public class RemoveChannelNames implements Filter
 {
 
-	private final ChannelNameSetValue channelNameSetValue;
+	private final SetValue channelNameSetValue;
 
-	public RemoveChannelNames(ChannelNameSetValue channelNameSetValue)
+	public RemoveChannelNames(SetValue channelNameSetValue)
 	{
 		this.channelNameSetValue = channelNameSetValue;
 	}
 
 	public RemoveChannelNames(ChannelValue channelNameValue)
 	{
-		this.channelNameSetValue = new ChannelNameSetValue(channelNameValue);
+		this.channelNameSetValue = new SetValue();
+		this.channelNameSetValue.values.add(channelNameValue);
 	}
 
 	private boolean isTransitionCompatible(LabelledTransition transition,
@@ -35,12 +39,22 @@ public class RemoveChannelNames implements Filter
 			LabelledTransition lt = (LabelledTransition) transition;
 			boolean retaintIt = true;
 
-			for (ChannelValue channelNameValue : channelNameSetValue)
+			for (Value val : channelNameSetValue.values)
 			{
-				if (isTransitionCompatible(lt, channelNameValue))
+				if (val instanceof ChannelValue)
 				{
-					retaintIt = false;
-					break;
+					ChannelValue channelNameValue = (ChannelValue) val;
+					if (isTransitionCompatible(lt, channelNameValue))
+					{
+						retaintIt = false;
+						break;
+					}
+				} else
+				{
+					throw new InterpreterRuntimeException("Only "
+							+ ChannelValue.class.getSimpleName()
+							+ " must be present in a channel value set. Actual: "
+							+ val);
 				}
 			}
 

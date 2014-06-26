@@ -22,6 +22,7 @@ import org.overture.interpreter.values.BooleanValue;
 import org.overture.interpreter.values.NameValuePair;
 import org.overture.interpreter.values.NameValuePairList;
 import org.overture.interpreter.values.NameValuePairMap;
+import org.overture.interpreter.values.SetValue;
 import org.overture.interpreter.values.UpdatableValue;
 import org.overture.interpreter.values.Value;
 
@@ -78,7 +79,6 @@ import eu.compassresearch.core.interpreter.api.values.ChannelValue;
 import eu.compassresearch.core.interpreter.api.values.CmlChannel;
 import eu.compassresearch.core.interpreter.api.values.ExpressionConstraint;
 import eu.compassresearch.core.interpreter.api.values.LatticeTopValue;
-import eu.compassresearch.core.interpreter.api.values.NamesetValue;
 import eu.compassresearch.core.interpreter.api.values.NoConstraint;
 import eu.compassresearch.core.interpreter.api.values.UnresolvedExpressionValue;
 import eu.compassresearch.core.interpreter.api.values.ValueConstraint;
@@ -435,16 +435,16 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 						CmlTransition selectedTransition)
 						throws AnalysisException
 				{
-					NamesetValue leftNamesetValue = null;
-					NamesetValue rightNamesetValue = null;
+					SetValue leftNamesetValue = null;
+					SetValue rightNamesetValue = null;
 
 					if (node.getLeftNamesetExpression() != null)
 					{
-						leftNamesetValue = (NamesetValue) node.getLeftNamesetExpression().apply(cmlExpressionVisitor, question);
+						leftNamesetValue = (SetValue) node.getLeftNamesetExpression().apply(cmlExpressionVisitor, question);
 					}
 					if (node.getRightNamesetExpression() != null)
 					{
-						rightNamesetValue = (NamesetValue) node.getRightNamesetExpression().apply(cmlExpressionVisitor, question);
+						rightNamesetValue = (SetValue) node.getRightNamesetExpression().apply(cmlExpressionVisitor, question);
 					}
 
 					caseParallelBegin(node, leftNamesetValue, rightNamesetValue, question);
@@ -563,7 +563,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 	}
 
 	private void caseParallelBegin(SParallelAction node,
-			NamesetValue leftNameset, NamesetValue rightNameset,
+			SetValue leftNameset, SetValue rightNameset,
 			Context question) throws AnalysisException
 	{
 		PAction left = node.getLeftAction();
@@ -654,16 +654,16 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 			@Override
 			public void caseParallelBegin() throws AnalysisException
 			{
-				NamesetValue leftNamesetValue = null;
-				NamesetValue rightNamesetValue = null;
+				SetValue leftNamesetValue = null;
+				SetValue rightNamesetValue = null;
 
 				if (node.getLeftNamesetExpression() != null)
 				{
-					leftNamesetValue = (NamesetValue) node.getLeftNamesetExpression().apply(cmlExpressionVisitor, question);
+					leftNamesetValue = (SetValue) node.getLeftNamesetExpression().apply(cmlExpressionVisitor, question);
 				}
 				if (node.getRightNamesetExpression() != null)
 				{
-					rightNamesetValue = (NamesetValue) node.getRightNamesetExpression().apply(cmlExpressionVisitor, question);
+					rightNamesetValue = (SetValue) node.getRightNamesetExpression().apply(cmlExpressionVisitor, question);
 				}
 
 				ActionInspectionVisitor.this.caseParallelBegin(node, leftNamesetValue, rightNamesetValue, question);

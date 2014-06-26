@@ -33,6 +33,7 @@ import eu.compassresearch.core.interpreter.api.transitions.ObservableTransition;
 import eu.compassresearch.core.interpreter.api.transitions.TauTransition;
 import eu.compassresearch.core.interpreter.api.transitions.TimedTransition;
 import eu.compassresearch.core.interpreter.api.values.ProcessObjectValue;
+import eu.compassresearch.core.interpreter.assistant.CmlInterpreterAssistantFactory;
 import eu.compassresearch.core.interpreter.debug.Breakpoint;
 import eu.compassresearch.core.interpreter.debug.DebugContext;
 import eu.compassresearch.core.interpreter.utility.LocationExtractor;
@@ -64,7 +65,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	 * 
 	 * @param definitions
 	 *            - Source containing CML Paragraphs for type checking.
-	 * @param config 
+	 * @param config
 	 */
 	public VanillaCmlInterpreter(List<PDefinition> definitions, Config config)
 	{
@@ -117,7 +118,9 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 
 		public CmlClassInterpreter(ClassList classes) throws Exception
 		{
-			super(classes);
+			// Important we need to set the static interpreter reference to the assistant factory used in e.g. functions
+			// values
+			super(new CmlInterpreterAssistantFactory(), classes);
 		}
 
 		/**

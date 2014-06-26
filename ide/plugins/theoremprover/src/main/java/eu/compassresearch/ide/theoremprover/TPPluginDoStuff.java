@@ -40,6 +40,7 @@ import org.eclipse.ui.editors.text.TextFileDocumentProvider;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.expressions.PExp;
 import org.overture.ast.node.INode;
 import org.overture.pog.obligation.ProofObligationList;
 import org.overture.pog.pub.IProofObligation;
@@ -481,8 +482,9 @@ public class TPPluginDoStuff {
 			for (IProofObligation po : pol) {
 				TPUnsupportedCollector tpu = new TPUnsupportedCollector();
 				// check if the po is supported
+				PExp pred = po.getValueTree().getPredicate();
 				List<UnsupportedElementInfo> unsupports = tpu
-						.getUnsupporteds(po.getValueTree().getPredicate());
+						.getUnsupporteds(pred);
 				if (unsupports.isEmpty()) {
 					goodPol.add(po);
 				} else {
