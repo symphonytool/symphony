@@ -1,13 +1,14 @@
 package eu.compassresearch.core.interpreter.api.transitions.ops;
 
+import org.overture.interpreter.values.SetValue;
+
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.TauTransition;
-import eu.compassresearch.core.interpreter.api.values.ChannelNameSetValue;
 
 public class RetainChannelNamesAndTau extends RetainChannelNames
 {
 
-	public RetainChannelNamesAndTau(ChannelNameSetValue channelNameSetValue)
+	public RetainChannelNamesAndTau(SetValue channelNameSetValue)
 	{
 		super(channelNameSetValue);
 	}

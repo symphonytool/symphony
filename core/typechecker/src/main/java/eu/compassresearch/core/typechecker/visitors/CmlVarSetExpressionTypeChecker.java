@@ -55,7 +55,7 @@ public class CmlVarSetExpressionTypeChecker extends
 		CHANNELSET, NAMESET
 	};
 
-	private final ITypeIssueHandler issueHandler;// = VanillaFactory.newCollectingIssueHandle();
+	private final ITypeIssueHandler issueHandler;
 	private final VarSetCheckType type;
 
 	public CmlVarSetExpressionTypeChecker(
