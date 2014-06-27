@@ -13,11 +13,14 @@ import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.process.AActionProcess;
 import eu.compassresearch.ast.process.AAlphabetisedParallelismReplicatedProcess;
+import eu.compassresearch.ast.process.AExternalChoiceProcess;
 import eu.compassresearch.ast.process.AExternalChoiceReplicatedProcess;
 import eu.compassresearch.ast.process.AGeneralisedParallelismProcess;
 import eu.compassresearch.ast.process.AHidingProcess;
 import eu.compassresearch.ast.process.AInterleavingProcess;
+import eu.compassresearch.ast.process.AInternalChoiceProcess;
 import eu.compassresearch.ast.process.AReferenceProcess;
+import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAExternalChoiceReplicatedAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAGeneralisedParallelismParallelAction;
@@ -29,11 +32,14 @@ import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPVarsetExpression;
 import eu.compassresearch.core.analysis.modelchecker.ast.process.MCAActionProcess;
 import eu.compassresearch.core.analysis.modelchecker.ast.process.MCAAlphabetisedParallelismReplicatedProcess;
+import eu.compassresearch.core.analysis.modelchecker.ast.process.MCAExternalChoiceProcess;
 import eu.compassresearch.core.analysis.modelchecker.ast.process.MCAExternalChoiceReplicatedProcess;
 import eu.compassresearch.core.analysis.modelchecker.ast.process.MCAGeneralisedParallelismProcess;
 import eu.compassresearch.core.analysis.modelchecker.ast.process.MCAHidingProcess;
 import eu.compassresearch.core.analysis.modelchecker.ast.process.MCAInterleavingProcess;
+import eu.compassresearch.core.analysis.modelchecker.ast.process.MCAInternalChoiceProcess;
 import eu.compassresearch.core.analysis.modelchecker.ast.process.MCAReferenceProcess;
+import eu.compassresearch.core.analysis.modelchecker.ast.process.MCASequentialCompositionProcess;
 import eu.compassresearch.core.analysis.modelchecker.ast.process.MCPProcess;
 
 public class NewMCProcessVisitor extends
@@ -195,9 +201,54 @@ public class NewMCProcessVisitor extends
 	@Override
 	public MCNode caseAHidingProcess(AHidingProcess node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
+		
 		MCPProcess proc = (MCPProcess) node.getLeft().apply(rootVisitor, question);
 		MCPVarsetExpression chansetExp = (MCPVarsetExpression) node.getChansetExpression().apply(rootVisitor, question);
+		
+		question.setStack.add(chansetExp);
+		
 		return new MCAHidingProcess(chansetExp, proc);
+	}
+
+	
+
+	@Override
+	public MCNode caseASequentialCompositionProcess(
+			ASequentialCompositionProcess node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		
+		MCPProcess left = (MCPProcess) node.getLeft().apply(rootVisitor, question);
+		MCPProcess right = (MCPProcess) node.getRight().apply(rootVisitor, question);
+		MCASequentialCompositionProcess result = new MCASequentialCompositionProcess(left, right);
+		
+		return result;
+	}
+
+
+	
+
+	@Override
+	public MCNode caseAExternalChoiceProcess(AExternalChoiceProcess node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		
+		MCPProcess left = (MCPProcess) node.getLeft().apply(rootVisitor, question);
+		MCPProcess right = (MCPProcess) node.getRight().apply(rootVisitor, question);
+		MCAExternalChoiceProcess result = new MCAExternalChoiceProcess(left, right);
+		
+		return result;
+	}
+
+
+	
+
+	@Override
+	public MCNode caseAInternalChoiceProcess(AInternalChoiceProcess node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		MCPProcess left = (MCPProcess) node.getLeft().apply(rootVisitor, question);
+		MCPProcess right = (MCPProcess) node.getRight().apply(rootVisitor, question);
+		MCAInternalChoiceProcess result = new MCAInternalChoiceProcess(left, right);
+		
+		return result;
 	}
 
 
