@@ -8,6 +8,7 @@ import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.interpreter.assistant.IInterpreterAssistantFactory;
 import org.overture.interpreter.runtime.Context;
+import org.overture.interpreter.runtime.ObjectContext;
 import org.overture.interpreter.runtime.ValueException;
 import org.overture.interpreter.values.DelayedUpdatableWrapper;
 import org.overture.interpreter.values.ObjectValue;
@@ -28,7 +29,7 @@ public class DelayedWriteContext extends Context
 	 */
 	private static final long serialVersionUID = 2677833973970244511L;
 
-	private Map<ILexNameToken, DelayedUpdatableWrapper> obtainedValues = new LexNameTokenMap<DelayedUpdatableWrapper>();
+	protected Map<ILexNameToken, DelayedUpdatableWrapper> obtainedValues = new LexNameTokenMap<DelayedUpdatableWrapper>();
 	
 	boolean disable = false;
 
@@ -36,6 +37,13 @@ public class DelayedWriteContext extends Context
 			ILexLocation location, String title, Context outer)
 	{
 		super(af, location, title, outer);
+	}
+	
+	public DelayedWriteContext(IInterpreterAssistantFactory af,
+			ILexLocation location, String title, Context outer,Map<ILexNameToken, DelayedUpdatableWrapper> obtainedValues)
+	{
+		super(af, location, title, outer);
+		this.obtainedValues.putAll(obtainedValues);
 	}
 	
 	protected void disable()
@@ -73,7 +81,7 @@ public class DelayedWriteContext extends Context
 				&& !(val instanceof DelayedUpdatableWrapper))
 		{
 			// this is state
-			DelayedUpdatableWrapper wrappedVal = new DelayedUpdatableWrapper(this, (UpdatableValue) val);
+			DelayedUpdatableWrapper wrappedVal = new DelayedUpdatableWrapper( (UpdatableValue) val);
 
 			if (name instanceof ILexNameToken)
 			{
@@ -149,5 +157,37 @@ public class DelayedWriteContext extends Context
 				}
 			}
 		}
+	}
+	
+	@Override
+	public Context deepCopy()
+	{
+		Context below = null;
+
+		if (outer != null)
+		{
+			below = outer.deepCopy();
+		}
+
+		Map<ILexNameToken, DelayedUpdatableWrapper> resultObtainedValues = new LexNameTokenMap<DelayedUpdatableWrapper>();
+		for (Entry<ILexNameToken, DelayedUpdatableWrapper> entry : this.obtainedValues.entrySet())
+		{
+			resultObtainedValues.put(entry.getKey(), (DelayedUpdatableWrapper)entry.getValue().deepCopy());
+		}
+		
+		Context result =
+			new DelayedWriteContext(assistantFactory,location, title, below,resultObtainedValues);
+
+		result.threadState = threadState;
+		
+		for (ILexNameToken var: keySet())
+		{
+			Value v = get(var);
+			result.put(var, v.deepCopy());
+		}
+		
+		
+
+		return result;
 	}
 }
