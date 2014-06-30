@@ -137,6 +137,7 @@ public class NewMCParameterAndPatternVisitor extends QuestionAnswerCMLAdaptor<Ne
 					}
 				}
 				if(chanDef.isInfiniteType()){
+					
 					MCPCMLType type = question.getFinalType(realType.toFormula(MCNode.DEFAULT));
 					expression = evaluator.getDefaultValue(type);
 				}
