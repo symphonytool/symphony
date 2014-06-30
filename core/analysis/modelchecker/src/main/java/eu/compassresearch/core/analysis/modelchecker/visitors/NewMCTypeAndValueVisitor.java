@@ -15,6 +15,7 @@ import org.overture.ast.types.ANatNumericBasicType;
 import org.overture.ast.types.AOperationType;
 import org.overture.ast.types.AProductType;
 import org.overture.ast.types.AQuoteType;
+import org.overture.ast.types.ARealNumericBasicType;
 import org.overture.ast.types.ASetType;
 import org.overture.ast.types.AUnionType;
 import org.overture.ast.types.PType;
@@ -37,6 +38,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANatNumericBasi
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAOperationType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAProductType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAQuoteType;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCARealNumericBasicType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCASetType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAUnionType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
@@ -74,6 +76,14 @@ public class NewMCTypeAndValueVisitor extends
 	}
 
 	
+	
+	@Override
+	public MCNode caseARealNumericBasicType(ARealNumericBasicType node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		
+		return new MCARealNumericBasicType(node.toString());
+	}
+
 	@Override
 	public MCNode caseANamedInvariantType(ANamedInvariantType node,
 			NewCMLModelcheckerContext question) throws AnalysisException {

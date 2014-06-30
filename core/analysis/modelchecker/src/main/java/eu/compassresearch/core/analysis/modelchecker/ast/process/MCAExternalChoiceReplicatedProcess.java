@@ -138,7 +138,7 @@ public class MCAExternalChoiceReplicatedProcess extends MCSReplicatedProcessBase
 			if(replicatedProcess instanceof MCAReferenceProcess){
 				LinkedList<MCPCMLExp> realArgs = new LinkedList<MCPCMLExp>();
 				realArgs.add(firstArg);
-				((MCAReferenceAction) replicatedProcess).setArgs(realArgs);
+				((MCAReferenceProcess) replicatedProcess).setArgs(realArgs);
 			} 
 			result.append(replicatedProcess.toFormula(option));
 			result.append(",");

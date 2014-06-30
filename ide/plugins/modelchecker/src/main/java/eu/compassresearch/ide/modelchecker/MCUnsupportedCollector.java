@@ -2436,8 +2436,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseARealLiteralExp(ARealLiteralExp node)
 			throws AnalysisException {
-		// PPPPPPP supported but not implemented
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseARealLiteralExp(node);
 	}
@@ -2445,8 +2444,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseARealNumericBasicType(ARealNumericBasicType node)
 			throws AnalysisException {
-		// PPPPPPP supported but not implemented
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseARealNumericBasicType(node);
 	}
@@ -3047,7 +3045,6 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseATokenBasicType(ATokenBasicType node)
 			throws AnalysisException {
-		// PPPPPPPPP not tupported and not implmented
 		//unsupported = false;
 		// Do not remove the super call below.
 		super.caseATokenBasicType(node);
@@ -3217,7 +3214,6 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseAUnresolvedPathExp(AUnresolvedPathExp node)
 			throws AnalysisException {
-		// PPPPPPPPPP not supported
 		//unsupported = false;
 		// Do not remove the super call below.
 		super.caseAUnresolvedPathExp(node);

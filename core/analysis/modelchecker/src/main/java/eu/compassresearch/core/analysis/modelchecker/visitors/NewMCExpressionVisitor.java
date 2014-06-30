@@ -23,6 +23,7 @@ import org.overture.ast.expressions.ANotUnaryExp;
 import org.overture.ast.expressions.AOrBooleanBinaryExp;
 import org.overture.ast.expressions.APlusNumericBinaryExp;
 import org.overture.ast.expressions.AQuoteLiteralExp;
+import org.overture.ast.expressions.ARealLiteralExp;
 import org.overture.ast.expressions.ASeqCompSeqExp;
 import org.overture.ast.expressions.ASeqEnumSeqExp;
 import org.overture.ast.expressions.ASetDifferenceBinaryExp;
@@ -77,6 +78,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANotUnary
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAOrBooleanBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAPlusNumericBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAQuoteLiteralExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCARealLiteralExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASeqCompSeqExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASeqEnumSeqExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASetDifferenceBinaryExp;
@@ -427,6 +429,15 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 
 		return new MCAIntLiteralExp(node.getValue().toString()); 
 	}
+
+	
+	@Override
+	public MCNode caseARealLiteralExp(ARealLiteralExp node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+
+		return new MCARealLiteralExp(node.getValue().toString());
+	}
+
 
 	@Override
 	public MCNode caseATimesNumericBinaryExp(

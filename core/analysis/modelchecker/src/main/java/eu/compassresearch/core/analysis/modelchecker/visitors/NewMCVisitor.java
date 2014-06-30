@@ -345,7 +345,10 @@ public class NewMCVisitor extends
 		//String cml_file = "src/test/resources/Dead.cml";
 		//String cml_file = "src/test/resources/InsielPaolo.cml";
 		//String cml_file = "src/test/resources/TestOutput.cml";
-		String cml_file = "src/test/resources/DeadFree.cml";
+		//String cml_file = "src/test/resources/DeadFree.cml";
+		//String cml_file = "src/test/resources/use-reals.cml";
+		String cml_file = "src/test/resources/echoice-process.cml";
+		
 		
 		//String cml_file = "src/test/resources/MC_Tests_2.cml";
 		//String cml_file = "src/test/resources/simpleStop.cml";
@@ -382,7 +385,8 @@ public class NewMCVisitor extends
 		//String mainProcessName = "ChaosE";
 		//String mainProcessName = "CUSSoS";
 //		String mainProcessName = "Test";
-		String mainProcessName = "PHide";
+		//String mainProcessName = "PHide";
+		String mainProcessName = "TestEChoice";
 		
 		//String mainProcessName = "TestTraces1";
 		
