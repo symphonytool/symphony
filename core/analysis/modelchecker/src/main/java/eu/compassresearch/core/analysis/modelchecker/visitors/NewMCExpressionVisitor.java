@@ -7,6 +7,7 @@ import org.overture.ast.analysis.QuestionAnswerAdaptor;
 import org.overture.ast.expressions.AAndBooleanBinaryExp;
 import org.overture.ast.expressions.AApplyExp;
 import org.overture.ast.expressions.ABooleanConstExp;
+import org.overture.ast.expressions.ADivideNumericBinaryExp;
 import org.overture.ast.expressions.AEqualsBinaryExp;
 import org.overture.ast.expressions.AGreaterEqualNumericBinaryExp;
 import org.overture.ast.expressions.AGreaterNumericBinaryExp;
@@ -55,6 +56,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.NewMCGuardDef
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAAndBooleanBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAApplyExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCABooleanConstExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCADivideNumericBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAEnumVarsetExpression;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAEqualsBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAFatCompVarsetExpression;
@@ -438,13 +440,24 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 		return result;
 	}
 
+	
+	@Override
+	public MCNode caseADivideNumericBinaryExp(ADivideNumericBinaryExp node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		MCPCMLExp left = (MCPCMLExp) node.getLeft().apply(rootVisitor, question);
+		MCPCMLExp right = (MCPCMLExp) node.getRight().apply(rootVisitor, question);
+		MCADivideNumericBinaryExp result = new MCADivideNumericBinaryExp(left, right);
+			
+		return result;
+	}
+
+
 	@Override
 	public MCNode caseABracketedExp(ABracketedExp node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
 		
 		return node.getExpression().apply(rootVisitor,question);
 	}
-
 	
 	@Override
 	public MCNode caseAIfExp(AIfExp node, NewCMLModelcheckerContext question)
