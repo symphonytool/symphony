@@ -89,7 +89,7 @@ import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
 import eu.compassresearch.core.typechecker.api.TypeWarningMessages;
-import eu.compassresearch.core.typechecker.assistant.AReferenceAssistant;
+import eu.compassresearch.core.typechecker.assistant.AReferenceHelper;
 import eu.compassresearch.core.typechecker.assistant.PParametrisationAssistant;
 import eu.compassresearch.core.typechecker.assistant.TypeCheckerUtil;
 
@@ -210,7 +210,7 @@ public class CmlActionTypeChecker extends
 		// }
 		// }
 		PType type = AstFactory.newAVoidReturnType(loc);
-		AReferenceAssistant.checkArgTypes(node, loc, type, paramTypes, atypes);
+		AReferenceHelper.checkArgTypes(node, loc, type, paramTypes, atypes);
 		// node.setActionDefinition(actionDef);
 		return type;
 
