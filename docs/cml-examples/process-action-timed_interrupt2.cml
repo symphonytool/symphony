@@ -1,5 +1,5 @@
 process RegisterProc = 
  begin
    @
-     Skip /_ {5,4} \ {4} _\ Chaos
+     Skip /_ {5,4} \ {4} _\ Diverge
  end
