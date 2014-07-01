@@ -12,7 +12,6 @@ import org.overture.interpreter.values.NameValuePairList;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismReplicatedAction;
 import eu.compassresearch.ast.actions.AChannelRenamingAction;
-import eu.compassresearch.ast.actions.AChaosAction;
 import eu.compassresearch.ast.actions.ACommonInterleavingReplicatedAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.ADivAction;
@@ -609,14 +608,6 @@ public class AbstractNameValueLister extends NamedValueLister implements
 	@Override
 	public NameValuePairList caseAStopAction(AStopAction node, Context question)
 			throws AnalysisException
-	{
-
-		return null;
-	}
-
-	@Override
-	public NameValuePairList caseAChaosAction(AChaosAction node,
-			Context question) throws AnalysisException
 	{
 
 		return null;

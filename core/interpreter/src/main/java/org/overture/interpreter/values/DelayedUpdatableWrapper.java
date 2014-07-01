@@ -28,18 +28,27 @@ public class DelayedUpdatableWrapper extends UpdatableValue
 	ILexLocation newLoc = null;
 	Context newContext = null;
 
-	protected DelayedUpdatableWrapper(DelayedWriteContext delayedWriteContext,
-			Value value, ValueListenerList listeners, PType type)
+	protected DelayedUpdatableWrapper(Value value, ValueListenerList listeners, PType type)
 	{
 		super(value, listeners, type);
 		this.original = value;
 	}
 
-	public DelayedUpdatableWrapper(DelayedWriteContext delayedWriteContext,
-			UpdatableValue val)
+	public DelayedUpdatableWrapper(UpdatableValue val)
 	{
-		this(delayedWriteContext, val, val.listeners, val.restrictedTo);
+		this(val, val.listeners, val.restrictedTo);
 	}
+	
+	protected DelayedUpdatableWrapper(Value value, ValueListenerList listeners, PType type,Value original, ILexLocation newLoc,Context newContext)
+	{
+		super(value, listeners, type);
+		this.original = original;
+		this.newLoc = newLoc;
+		this.newContext = newContext;
+	}
+	
+	
+	
 
 	@Override
 	public void set(ILexLocation location, Value newval, Context ctxt)
@@ -89,6 +98,12 @@ public class DelayedUpdatableWrapper extends UpdatableValue
 	public void set() throws ValueException, AnalysisException
 	{
 		original.set(newLoc, value, newContext);
+	}
+	
+	@Override
+	public synchronized Object clone()
+	{
+		return new DelayedUpdatableWrapper((Value)value.clone(), listeners, restrictedTo,original,newLoc,newContext);
 	}
 
 }

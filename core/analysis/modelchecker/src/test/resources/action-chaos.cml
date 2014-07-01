@@ -4,7 +4,7 @@ a, b
 process A = 
 begin
 	actions
-	 TEST = (a -> Skip) [] (b -> Chaos)
+	 TEST = (a -> Skip) [] (b -> Diverge) -- Chaos removed from language, jwc/1July2014
 	
 	@ TEST
 end

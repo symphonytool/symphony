@@ -41,7 +41,6 @@ import eu.compassresearch.ast.CmlAstFactory;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismReplicatedAction;
 import eu.compassresearch.ast.actions.AChannelRenamingAction;
-import eu.compassresearch.ast.actions.AChaosAction;
 import eu.compassresearch.ast.actions.ACommonInterleavingReplicatedAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.ADivAction;
@@ -558,14 +557,6 @@ public class CmlActionTypeChecker extends
 		}
 
 		return TypeCheckerUtil.setType(question.assistantFactory, node, types);
-	}
-
-	@Override
-	public PType caseAChaosAction(AChaosAction node,
-			org.overture.typechecker.TypeCheckInfo question)
-			throws AnalysisException
-	{
-		return TypeCheckerUtil.setTypeVoid(node);
 	}
 
 	@Override
