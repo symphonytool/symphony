@@ -12,7 +12,6 @@ import org.overture.ast.patterns.PPattern;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismReplicatedAction;
 import eu.compassresearch.ast.actions.AChannelRenamingAction;
-import eu.compassresearch.ast.actions.AChaosAction;
 import eu.compassresearch.ast.actions.ACommonInterleavingReplicatedAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.ADivAction;
@@ -65,13 +64,6 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 	}
 	
 	public NodeNameList caseAStopAction(AStopAction a, NodeNameList bvars)
-			throws AnalysisException {
-		NodeNameList nodeDeps = new NodeNameList();
-		
-		return nodeDeps;
-	}
-	
-	public NodeNameList caseAChaosAction(AChaosAction a, NodeNameList bvars)
 			throws AnalysisException {
 		NodeNameList nodeDeps = new NodeNameList();
 		

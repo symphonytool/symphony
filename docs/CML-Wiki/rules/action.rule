@@ -2,7 +2,6 @@
 ;[[action]] <nowiki>:=</nowiki> 
 :'''Skip'''
 :| '''Stop'''
-:| '''Chaos'''
 :| '''Div'''
 :| '''Wait''' <nowiki>,</nowiki> [[expression]]
 :| [[communication]] <nowiki>,</nowiki> '''->''' <nowiki>,</nowiki> [[action]]

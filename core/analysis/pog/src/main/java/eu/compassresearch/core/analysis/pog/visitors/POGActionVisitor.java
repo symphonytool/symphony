@@ -15,7 +15,6 @@ import org.overture.pog.utility.POException;
 
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AChannelRenamingAction;
-import eu.compassresearch.ast.actions.AChaosAction;
 import eu.compassresearch.ast.actions.ACommonInterleavingReplicatedAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.ADivAction;
@@ -505,23 +504,6 @@ public class POGActionVisitor extends
 			LinkedList<PAction> acts = node.getActions();
 
 			// TODO: Any AMuAction POs?
-
-			return pol;
-		} catch (Exception e)
-		{
-			throw new POException(node, e.getMessage());
-		}
-	}
-
-	@Override
-	public CmlProofObligationList caseAChaosAction(AChaosAction node,
-			IPOContextStack question) throws AnalysisException
-	{
-		try
-		{
-			CmlProofObligationList pol = new CmlProofObligationList();
-
-			// TODO: Any AChaosAction POs?
 
 			return pol;
 		} catch (Exception e)
