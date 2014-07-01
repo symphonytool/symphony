@@ -13,6 +13,7 @@ begin
 	@ (dcl x : int @ x := 0;Skip)
 end
 
+/*
 process B = val id : MYID @
 begin 
 	@ (dcl y : int := 0 @ x := id;Skip)
@@ -31,3 +32,4 @@ begin
     P1 = val p1x:MYID @ comm.p1x -> Skip
  @ P1(2)
 end
+*/
