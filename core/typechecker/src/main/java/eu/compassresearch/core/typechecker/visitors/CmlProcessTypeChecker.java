@@ -21,7 +21,6 @@ import org.overture.ast.types.ANatNumericBasicType;
 import org.overture.ast.types.PType;
 import org.overture.typechecker.Environment;
 import org.overture.typechecker.TypeCheckInfo;
-import org.overture.typechecker.TypeComparator;
 
 import eu.compassresearch.ast.actions.PParametrisation;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
@@ -423,7 +422,7 @@ public class CmlProcessTypeChecker extends
 
 		PType timeExpType = timeExp.apply(THIS, question);
 
-		if (!TypeComparator.compatible(new ANatNumericBasicType(), timeExpType))
+		if (!question.assistantFactory.getTypeComparator().compatible(new ANatNumericBasicType(), timeExpType))
 		{
 			issueHandler.addTypeError(timeExp, TypeErrorMessages.TIME_UNIT_EXPRESSION_MUST_BE_NAT, node
 					+ "", timeExpType + "");
@@ -526,7 +525,7 @@ public class CmlProcessTypeChecker extends
 		right.apply(THIS, question);
 
 		PType expType = node.getTimeExpression().apply(THIS, question);
-		if (!TypeComparator.isSubType(expType, new ANatNumericBasicType(), question.assistantFactory))
+		if (!question.assistantFactory.getTypeComparator().isSubType(expType, new ANatNumericBasicType()))
 		{
 			issueHandler.addTypeError(node.getTimeExpression(), TypeErrorMessages.TIME_UNIT_EXPRESSION_MUST_BE_NAT, node.getTimeExpression()
 					+ "");
