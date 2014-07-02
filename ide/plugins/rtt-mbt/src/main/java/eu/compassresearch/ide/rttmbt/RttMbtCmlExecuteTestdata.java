@@ -78,12 +78,6 @@ public class RttMbtCmlExecuteTestdata extends RttMbtAbstractTestProcedureAction 
 			lcwc.setAttribute("eu.compassresearch.ide.interpreter.is_animation", false);
 			lcwc.setAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_PROCESS_NAME, processname);
 			lcwc.setAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_PROJECT, projectname);
-			try {
-				lcwc.doSave();
-			} catch (CoreException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
 		}
 		
 		// Find project in workspace
