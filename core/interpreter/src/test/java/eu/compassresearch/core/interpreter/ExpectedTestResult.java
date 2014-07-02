@@ -108,7 +108,7 @@ public class ExpectedTestResult
 			if (n.hasChildNodes())
 			{
 				String value = n.getFirstChild().getNodeValue();
-				pattern = Pattern.compile(value);
+				pattern = Pattern.compile(value.replaceAll("\\s", ""));
 			} else
 			{
 				pattern = Pattern.compile("");

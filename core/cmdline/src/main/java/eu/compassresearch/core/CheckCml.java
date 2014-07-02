@@ -351,6 +351,7 @@ public class CheckCml
 					r.sourceFiles.add(f);
 				} else
 				{
+					System.err.println("Unable to read file: "+f);
 					return null;
 				}
 			}

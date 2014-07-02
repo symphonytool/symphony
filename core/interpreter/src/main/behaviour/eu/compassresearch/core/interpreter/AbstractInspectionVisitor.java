@@ -49,7 +49,7 @@ public abstract class AbstractInspectionVisitor extends
 	/**
 	 * Interface that gives access to methods that access protected parts of a CmlBehaviour
 	 */
-	private final VisitorAccess visitorAccess;
+	protected final VisitorAccess visitorAccess;
 	/**
 	 * Evaluator for expressions
 	 */

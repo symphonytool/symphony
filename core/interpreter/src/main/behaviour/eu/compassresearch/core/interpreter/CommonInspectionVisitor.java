@@ -242,7 +242,6 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		}
 	}
 
-
 	/**
 	 * Handles the external choice end rule
 	 * 
@@ -282,6 +281,13 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		}
 
 		setRightChild(theChoosenOne.getRightChild());
+
+		/*
+		 * The setup visitor CommonSetupVisitor#caseReplicated sets the field
+		 * ConcreteCmlBehaviour.this.preConstructedChildContexts but if a recursion happens after the external choice
+		 * then this pre-calculated field must be cleared before since setup relies on it being null at entry
+		 */
+		CommonInspectionVisitor.this.visitorAccess.setChildContexts(null);
 
 		return new Pair<INode, Context>(theChoosenOne.getNextState().first, newCurrentContext);
 	}
