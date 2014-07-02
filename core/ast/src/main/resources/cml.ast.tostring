@@ -51,7 +51,7 @@ import eu.compassresearch.ast.util.ToStringUtil;
 %parametrisation->res = "res " [declaration]
 %parametrisation->vres = "vres " [declaration]
 %action->communication = [identifier] " -> " [action]
-%action->guarded = [expression] " & " [action]
+%action->guarded = "[ "[expression] " ] & " [action]
 %declaration->#Single->type = [identifier] " : " [type]
 %declaration->#Single->expression = [identifier] " := " [expression]
 
