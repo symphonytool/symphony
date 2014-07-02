@@ -79,6 +79,10 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
 	private Integer VerbosityLevel;
 	private RttMbtAdvConfParser advancedConf = new RttMbtAdvConfParser();
 	private RttMbtMaxStepsParser maxSteps = new RttMbtMaxStepsParser();
+	private StringFieldEditor CmlProjectNameField;
+	private String CmlProjectNameProperty;
+	private StringFieldEditor CmlProcessNameField;
+	private String CmlProcessNameProperty;
 
 	public RttMbtProjectPropertiesPage() {
 		super(GRID);
@@ -197,22 +201,59 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
 		}
 	}
 
+	private boolean containsRttProject(String location) {
+
+		if (location == null) {
+			return false;
+		}
+
+		if (RttMbtClient.isRttProject(location)) {
+			return true;
+		}
+
+		int pos = location.lastIndexOf("/");
+		if (pos == -1) {
+			pos = location.lastIndexOf(File.separator);
+		}
+		while (pos > 0) {
+			location = location.substring(0, pos);
+			System.out.println("testing path '" + location + "'");
+			if (RttMbtClient.isRttProject(location)) {
+				return true;
+			}
+
+			// get next file separator char
+			pos = location.lastIndexOf("/");
+			if (pos == -1) {
+				pos = location.lastIndexOf(File.separator);
+			}
+		}
+
+		return false;
+	}
+
 	public void createFieldEditors() {
 		String tooltip;
 
 		// check if this project in RT-Tester project
-		IFolder folder = null;
+		String location = null;
 		if (element instanceof IFolder) {
-			folder = (IFolder)element;
-    		path = RttMbtClient.getAbsolutePathFromFileURI(folder.getLocationURI());
+			IFolder folder = (IFolder)element;
 			project = folder.getProject();
+    		path = RttMbtClient.getAbsolutePathFromFileURI(folder.getLocationURI());
+			location = path;
 		} else if (element instanceof IProject) {
 			project = (IProject)element;
+			path = null;
+			location = null;
 		} else if (element instanceof IFile) {
 			IFile file = (IFile)element;
 			project = file.getProject();
+			path = null;
+			location = RttMbtClient.getAbsolutePathFromFileURI(file.getLocationURI());
 		} else {
 			project = null;
+			path = null;
 			return;
 		}
 
@@ -221,7 +262,7 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
 			return;
 		}
 		String projectFilesystemPath = RttMbtClient.getAbsolutePathFromFileURI(project.getLocationURI());
-		if (!RttMbtClient.isRttProject(projectFilesystemPath)) {
+		if ((!RttMbtClient.isRttProject(projectFilesystemPath)) && (!containsRttProject(location))) {
 			project = null;
 			return;
 		}
@@ -318,6 +359,36 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
     	ignorePatternUploadField.getLabelControl(getFieldEditorParent()).setToolTipText(tooltip);
     	ignorePatternUploadField.getTextControl(getFieldEditorParent()).setToolTipText(tooltip);
     	addField(ignorePatternUploadField);
+
+		// add CML project name field
+		tooltip = "This field contains the name of an associated CML project. A selected CML process in the CML project can be used as the SUT for test data generated in this RTT-MBT project.";
+    	CmlProjectNameField = new StringFieldEditor("RttMbtCmlProjectName",
+                                                    "Associated CML Project:",
+                                                    getFieldEditorParent());
+    	CmlProjectNameField.setEmptyStringAllowed(true);
+    	CmlProjectNameField.setStringValue("none");
+    	CmlProjectNameField.setPreferenceStore(null);
+    	CmlProjectNameProperty = getPropertyValue("RttMbtCmlProjectName");
+		if (CmlProjectNameProperty == null) { CmlProjectNameProperty = ""; }
+    	CmlProjectNameField.setStringValue(CmlProjectNameProperty);
+    	CmlProjectNameField.getLabelControl(getFieldEditorParent()).setToolTipText(tooltip);
+    	CmlProjectNameField.getTextControl(getFieldEditorParent()).setToolTipText(tooltip);
+    	addField(CmlProjectNameField);
+
+		// add CML process name field
+		tooltip = "This field contains the name of an associated CML process. This is a selected CML process in the associated CML project that can be used as the SUT for test data generated in this RTT-MBT project.";
+    	CmlProcessNameField = new StringFieldEditor("RttMbtCmlProcessName",
+                                                    "Associated CML Process:",
+                                                    getFieldEditorParent());
+    	CmlProcessNameField.setEmptyStringAllowed(true);
+    	CmlProcessNameField.setStringValue("none");
+    	CmlProcessNameField.setPreferenceStore(null);
+    	CmlProcessNameProperty = getPropertyValue("RttMbtCmlProcessName");
+		if (CmlProcessNameProperty == null) { CmlProcessNameProperty = ""; }
+    	CmlProcessNameField.setStringValue(CmlProcessNameProperty);
+    	CmlProcessNameField.getLabelControl(getFieldEditorParent()).setToolTipText(tooltip);
+    	CmlProcessNameField.getTextControl(getFieldEditorParent()).setToolTipText(tooltip);
+    	addField(CmlProcessNameField);
 
     	if ((path != null) && (RttMbtClient.isRttMbtTestProcedure(path))) {
     		readTgenConfig();
@@ -500,6 +571,8 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
 		if (rttTgenCtxNameField != null) { rttTgenCtxNameField.setStringValue("TestGeneration"); }
 		if (makeToolField != null) { makeToolField.setStringValue("make"); }
 		if (ignorePatternUploadField != null) { ignorePatternUploadField.setStringValue(".svn:.git:*.o"); }
+		if (CmlProjectNameField != null) { CmlProjectNameField.setStringValue(""); }
+		if (CmlProcessNameField != null) { CmlProcessNameField.setStringValue(""); }
 		if (MaxSolverStepsField != null) { MaxSolverStepsField.setStringValue(Integer.toString(100)); }
 		if (MaxSimStepsField != null) { MaxSimStepsField.setStringValue(Integer.toString(0)); }
 		if (AbstractInterpreterField != null) { AbstractInterpreterField.setStringValue(Integer.toString(1)); }
@@ -530,34 +603,38 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
 			// file ignore pattern for upload/download
 			setPropertyValue("RttMbtFileIgnorePattern", ignorePatternUploadField.getStringValue());
 
-			// max solver steps
-			setPropertyValue("RttMbtMaxSolverSteps", MaxSolverStepsField.getStringValue());
-
-			// max simulation steps
-			setPropertyValue("RttMbtMaxSimSteps", MaxSimStepsField.getStringValue());
-
-			// abstract interpreter
-			setPropertyValue("RttMbtAbstractInterpreter", AbstractInterpreterField.getStringValue());
-
-			// robustness testing
-			setPropertyValue("RttMbtRobustnessTesting", RobustnessTestingField.getStringValue());
-
-			// robustness percentage
-			setPropertyValue("RttMbtRobustnessPercentage", RobustnessPercentageField.getStringValue());
-
-			// max. simultanious inputs
-			setPropertyValue("RttMbtMaxSimultaneousInputChanges", MaxSimultaneousInputChangesField.getStringValue());
-
-			// min. duration between input changes
-			setPropertyValue("RttMbtMinDurationBetweenInputChanges", MinDurationBetweenInputChangesField.getStringValue());
-
-			// max. duration between input changes
-			setPropertyValue("RttMbtMaxDurationBetweenInputChanges", MaxDurationBetweenInputChangesField.getStringValue());
-
-			// model checking
-			setPropertyValue("RttMbtModelChecking", ModelCheckingField.getStringValue());
+			// associated CML project/process
+			setPropertyValue("RttMbtCmlProjectName", CmlProjectNameField.getStringValue());
+			setPropertyValue("RttMbtCmlProcessName", CmlProcessNameField.getStringValue());
 
 			if ((path != null) && (RttMbtClient.isRttMbtTestProcedure(path))) {
+				// max solver steps
+				setPropertyValue("RttMbtMaxSolverSteps", MaxSolverStepsField.getStringValue());
+
+				// max simulation steps
+				setPropertyValue("RttMbtMaxSimSteps", MaxSimStepsField.getStringValue());
+
+				// abstract interpreter
+				setPropertyValue("RttMbtAbstractInterpreter", AbstractInterpreterField.getStringValue());
+
+				// robustness testing
+				setPropertyValue("RttMbtRobustnessTesting", RobustnessTestingField.getStringValue());
+
+				// robustness percentage
+				setPropertyValue("RttMbtRobustnessPercentage", RobustnessPercentageField.getStringValue());
+
+				// max. simultanious inputs
+				setPropertyValue("RttMbtMaxSimultaneousInputChanges", MaxSimultaneousInputChangesField.getStringValue());
+
+				// min. duration between input changes
+				setPropertyValue("RttMbtMinDurationBetweenInputChanges", MinDurationBetweenInputChangesField.getStringValue());
+
+				// max. duration between input changes
+				setPropertyValue("RttMbtMaxDurationBetweenInputChanges", MaxDurationBetweenInputChangesField.getStringValue());
+
+				// model checking
+				setPropertyValue("RttMbtModelChecking", ModelCheckingField.getStringValue());
+
 	    		// copy from Integer field string values to property variables
 	    		MaxSolverStepsProperty = Integer.parseInt(MaxSolverStepsField.getStringValue());
 	    		MaxSimStepsProperty = Integer.parseInt(MaxSimStepsField.getStringValue());
@@ -596,6 +673,10 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
 
 			// file ignore pattern for upload/download
 			setPropertyValue("RttMbtFileIgnorePattern", ignorePatternUploadProperty);
+
+			// associated CML project and process
+			setPropertyValue("RttMbtCmlProjectName", CmlProjectNameProperty);
+			setPropertyValue("RttMbtCmlProcessName", CmlProcessNameProperty);
 
 			return super.performCancel();
 		} else {
