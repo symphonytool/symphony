@@ -1,14 +1,15 @@
 package eu.compassresearch.core.interpreter.runtime;
 
 import java.lang.reflect.Field;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.interpreter.assistant.IInterpreterAssistantFactory;
 import org.overture.interpreter.runtime.Context;
-import org.overture.interpreter.runtime.ObjectContext;
 import org.overture.interpreter.runtime.ValueException;
 import org.overture.interpreter.values.DelayedUpdatableWrapper;
 import org.overture.interpreter.values.ObjectValue;
@@ -131,6 +132,20 @@ public class DelayedWriteContext extends Context
 		for (DelayedUpdatableWrapper val : obtainedValues.values())
 		{
 			val.set();
+		}
+		
+		Set<ILexNameToken> toBeRemoved = new HashSet<ILexNameToken>();
+		for (Entry<ILexNameToken, Value> entry: super.entrySet())
+		{
+			if(entry.getValue() instanceof DelayedUpdatableWrapper)
+			{
+				toBeRemoved.add(entry.getKey());
+			}
+		}
+		
+		for (ILexNameToken key : toBeRemoved)
+		{
+			remove(key);
 		}
 		disable();
 	}

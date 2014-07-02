@@ -216,6 +216,7 @@ public class InterpretAllCmlFilesTest
 		if (null != topProcess)
 		{
 			eventTrace = TraceUtility.traceToString(topProcess.getTraceModel().getEventTrace());
+			eventTrace = eventTrace.replaceAll("\\s", "");
 		}
 		Pattern trace = testResult.getExpectedEventTracePattern();
 		Matcher matcher = trace.matcher(eventTrace);
@@ -228,6 +229,7 @@ public class InterpretAllCmlFilesTest
 		{
 			// Convert the trace into a list of strings to compare it with the expected
 			String timedTrace = TraceUtility.traceToString(topProcess.getTraceModel().getObservableTrace());
+			timedTrace = timedTrace.replaceAll("\\s", "");
 
 			matcher = testResult.getExpectedTimedTracePattern().matcher(timedTrace);
 			assertTrue(testResult.getExpectedTimedTracePattern() + " != "
