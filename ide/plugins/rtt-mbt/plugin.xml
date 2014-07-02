@@ -203,6 +203,10 @@
             name="Generate Simulation">
       </command>
       <command
+            id="eu.compassresearch.ide.rttmbt.RttMbtCmlExecuteTestdata"
+            name="Execute Testdata on CML Model">
+      </command>
+      <command
             id="eu.compassresearch.ide.rttmbt.RttMbtCompileRunDocReplay"
             name="Execute Test">
       </command>
@@ -284,6 +288,18 @@
       <handler
             class="eu.compassresearch.ide.rttmbt.RttMbtGenerateSimulation"
             commandId="eu.compassresearch.ide.rttmbt.RttMbtGenerateSimulation">
+         <activeWhen>
+            <with
+                  variable="eu.compassresearch.ide.rttmbt.IsGenerationContextTP">
+               <equals
+                     value="truumpel">
+               </equals>
+            </with>
+         </activeWhen>
+      </handler>
+      <handler
+            class="eu.compassresearch.ide.rttmbt.RttMbtCmlExecuteTestdata"
+            commandId="eu.compassresearch.ide.rttmbt.RttMbtCmlExecuteTestdata">
          <activeWhen>
             <with
                   variable="eu.compassresearch.ide.rttmbt.IsGenerationContextTP">
@@ -482,6 +498,13 @@
                   label="Generate Simulation"
                   style="push"
                   tooltip="Generate Simulation for this Generation Context">
+            </command>
+            <command
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtCmlExecuteTestdata"
+                  icon="icons/reload.png"
+                  label="Execute Testdata on CML Model"
+                  style="push"
+                  tooltip="Execute generated test data on a CML model/process">
             </command>
             <separator
                   name="eu.compassresearch.ide.rttmbt.separator-003"
@@ -693,6 +716,21 @@
                   label="Generate Simulation"
                   style="push"
                   tooltip="Generate Simulation for this Generation Context">
+               <visibleWhen>
+                  <with
+                        variable="eu.compassresearch.ide.rttmbt.IsRttPerspectiveActive">
+                     <equals
+                           value="truumpel">
+                     </equals>
+                  </with>
+               </visibleWhen>
+            </command>
+            <command
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtCmlExecuteTestdata"
+                  icon="icons/reload.png"
+                  label="Execute Testdata on CML Model"
+                  style="push"
+                  tooltip="Execute generated test data on a CML model/process">
                <visibleWhen>
                   <with
                         variable="eu.compassresearch.ide.rttmbt.IsRttPerspectiveActive">
@@ -1009,6 +1047,13 @@
                   label="Generate Simulation"
                   style="push"
                   tooltip="Generate Simulation for this Generation Context">
+            </command>
+            <command
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtCmlExecuteTestdata"
+                  icon="icons/reload.png"
+                  label="Execute Testdata on CML Model"
+                  style="push"
+                  tooltip="Execute generated test data on a CML model/process">
             </command>
             <visibleWhen
                   checkEnabled="false">
