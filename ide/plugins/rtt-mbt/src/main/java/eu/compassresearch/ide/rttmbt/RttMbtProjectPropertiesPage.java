@@ -217,7 +217,6 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
 		}
 		while (pos > 0) {
 			location = location.substring(0, pos);
-			System.out.println("testing path '" + location + "'");
 			if (RttMbtClient.isRttProject(location)) {
 				return true;
 			}
@@ -360,35 +359,37 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
     	ignorePatternUploadField.getTextControl(getFieldEditorParent()).setToolTipText(tooltip);
     	addField(ignorePatternUploadField);
 
-		// add CML project name field
-		tooltip = "This field contains the name of an associated CML project. A selected CML process in the CML project can be used as the SUT for test data generated in this RTT-MBT project.";
-    	CmlProjectNameField = new StringFieldEditor("RttMbtCmlProjectName",
-                                                    "Associated CML Project:",
-                                                    getFieldEditorParent());
-    	CmlProjectNameField.setEmptyStringAllowed(true);
-    	CmlProjectNameField.setStringValue("none");
-    	CmlProjectNameField.setPreferenceStore(null);
-    	CmlProjectNameProperty = getPropertyValue("RttMbtCmlProjectName");
-		if (CmlProjectNameProperty == null) { CmlProjectNameProperty = ""; }
-    	CmlProjectNameField.setStringValue(CmlProjectNameProperty);
-    	CmlProjectNameField.getLabelControl(getFieldEditorParent()).setToolTipText(tooltip);
-    	CmlProjectNameField.getTextControl(getFieldEditorParent()).setToolTipText(tooltip);
-    	addField(CmlProjectNameField);
+    	if (Activator.getPreferenceValue("ClientMode").compareTo("RTT_MBT_VSI_MODE_COMPASS") == 0) {
+    		// add CML project name field
+    		tooltip = "This field contains the name of an associated CML project. A selected CML process in the CML project can be used as the SUT for test data generated in this RTT-MBT project.";
+    		CmlProjectNameField = new StringFieldEditor("RttMbtCmlProjectName",
+    				"Associated CML Project:",
+    				getFieldEditorParent());
+    		CmlProjectNameField.setEmptyStringAllowed(true);
+    		CmlProjectNameField.setStringValue("none");
+    		CmlProjectNameField.setPreferenceStore(null);
+    		CmlProjectNameProperty = getPropertyValue("RttMbtCmlProjectName");
+    		if (CmlProjectNameProperty == null) { CmlProjectNameProperty = ""; }
+    		CmlProjectNameField.setStringValue(CmlProjectNameProperty);
+    		CmlProjectNameField.getLabelControl(getFieldEditorParent()).setToolTipText(tooltip);
+    		CmlProjectNameField.getTextControl(getFieldEditorParent()).setToolTipText(tooltip);
+    		addField(CmlProjectNameField);
 
-		// add CML process name field
-		tooltip = "This field contains the name of an associated CML process. This is a selected CML process in the associated CML project that can be used as the SUT for test data generated in this RTT-MBT project.";
-    	CmlProcessNameField = new StringFieldEditor("RttMbtCmlProcessName",
-                                                    "Associated CML Process:",
-                                                    getFieldEditorParent());
-    	CmlProcessNameField.setEmptyStringAllowed(true);
-    	CmlProcessNameField.setStringValue("none");
-    	CmlProcessNameField.setPreferenceStore(null);
-    	CmlProcessNameProperty = getPropertyValue("RttMbtCmlProcessName");
-		if (CmlProcessNameProperty == null) { CmlProcessNameProperty = ""; }
-    	CmlProcessNameField.setStringValue(CmlProcessNameProperty);
-    	CmlProcessNameField.getLabelControl(getFieldEditorParent()).setToolTipText(tooltip);
-    	CmlProcessNameField.getTextControl(getFieldEditorParent()).setToolTipText(tooltip);
-    	addField(CmlProcessNameField);
+    		// add CML process name field
+    		tooltip = "This field contains the name of an associated CML process. This is a selected CML process in the associated CML project that can be used as the SUT for test data generated in this RTT-MBT project.";
+    		CmlProcessNameField = new StringFieldEditor("RttMbtCmlProcessName",
+    				"Associated CML Process:",
+    				getFieldEditorParent());
+    		CmlProcessNameField.setEmptyStringAllowed(true);
+    		CmlProcessNameField.setStringValue("none");
+    		CmlProcessNameField.setPreferenceStore(null);
+    		CmlProcessNameProperty = getPropertyValue("RttMbtCmlProcessName");
+    		if (CmlProcessNameProperty == null) { CmlProcessNameProperty = ""; }
+    		CmlProcessNameField.setStringValue(CmlProcessNameProperty);
+    		CmlProcessNameField.getLabelControl(getFieldEditorParent()).setToolTipText(tooltip);
+    		CmlProcessNameField.getTextControl(getFieldEditorParent()).setToolTipText(tooltip);
+    		addField(CmlProcessNameField);
+    	}
 
     	if ((path != null) && (RttMbtClient.isRttMbtTestProcedure(path))) {
     		readTgenConfig();
@@ -604,8 +605,8 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
 			setPropertyValue("RttMbtFileIgnorePattern", ignorePatternUploadField.getStringValue());
 
 			// associated CML project/process
-			setPropertyValue("RttMbtCmlProjectName", CmlProjectNameField.getStringValue());
-			setPropertyValue("RttMbtCmlProcessName", CmlProcessNameField.getStringValue());
+			if (CmlProjectNameField != null) { setPropertyValue("RttMbtCmlProjectName", CmlProjectNameField.getStringValue()); }
+			if (CmlProcessNameField != null) { setPropertyValue("RttMbtCmlProcessName", CmlProcessNameField.getStringValue()); }
 
 			if ((path != null) && (RttMbtClient.isRttMbtTestProcedure(path))) {
 				// max solver steps
@@ -675,8 +676,8 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
 			setPropertyValue("RttMbtFileIgnorePattern", ignorePatternUploadProperty);
 
 			// associated CML project and process
-			setPropertyValue("RttMbtCmlProjectName", CmlProjectNameProperty);
-			setPropertyValue("RttMbtCmlProcessName", CmlProcessNameProperty);
+			if (CmlProjectNameProperty != null) { setPropertyValue("RttMbtCmlProjectName", CmlProjectNameProperty); }
+			if (CmlProcessNameProperty != null) { setPropertyValue("RttMbtCmlProcessName", CmlProcessNameProperty); }
 
 			return super.performCancel();
 		} else {
