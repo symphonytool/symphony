@@ -295,8 +295,7 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	@Override
 	public String toString()
 	{
-
-		return name.toString();
+		return name.toString()+"\n\tNext: "+(next!=null?next.first:"null");
 	}
 
 	/**

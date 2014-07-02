@@ -34,7 +34,6 @@ import eu.compassresearch.ast.util.ToStringUtil;
 %communicationParameter->read  = "?" [pattern]+ $($[expression]$!=null?"("+$[expression]$+")":"")$ 
 %action->skip = "Skip"
 %action->stop = "Stop"
-%action->chaos = "Chaos"
 %action->div = "Div Action"
 %action->wait = "Wait"
 %action->sequentialComposition = [left] " ; " [right]

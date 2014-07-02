@@ -1,0 +1,7 @@
+process A = 
+begin 
+  actions
+  P1 = (dcl x:int @ (x := 1; Skip)
+  P2 = (dcl y:int @ (y := 3; Stop)
+  @ P1;P2
+end

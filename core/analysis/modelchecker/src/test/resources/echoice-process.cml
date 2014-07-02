@@ -11,6 +11,5 @@ begin
  @ a -> Stop
 end
 
-//Problems
 process TestEChoice = []i in set {1,2} @ Terminate
 

@@ -264,9 +264,8 @@ public class NewMCVisitor extends
 		LinkedList<NameContent> codes = new LinkedList<NameContent>();
 		for (PSource source : sources) {
 			if(source instanceof AFileSource){
-				//System.out.println("Analysing file: " + ((AFileSource) source).getName());
-				
-				String currentScriptContent = this.generateFormulaScript(source.getParagraphs(), propertyToCheck, null);
+				String mainProcessName = chooseAProcessName((AFileSource) source);
+				String currentScriptContent = this.generateFormulaScript(source.getParagraphs(), propertyToCheck, mainProcessName);
 				NameContent element = new NameContent(((AFileSource) source).getName(), currentScriptContent);
 				codes.add(element);
 			}
@@ -275,6 +274,16 @@ public class NewMCVisitor extends
 		return codes;
 	}
 	
+	private String chooseAProcessName(AFileSource source){
+		String result = "";
+		for (PDefinition paragraph : source.getParagraphs()) {
+			if(paragraph instanceof AProcessDefinition){
+				result = paragraph.getName().getSimpleName();
+				break;
+			}
+		}
+		return result;
+	}
 	public String generateFormulaScript(List<PDefinition> definitions, String propertyToCheck, String mainProcessName) throws IOException, AnalysisException{
 		
 		NewCMLModelcheckerContext.resetInstance();
