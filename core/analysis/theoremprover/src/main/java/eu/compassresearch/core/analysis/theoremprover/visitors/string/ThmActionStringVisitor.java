@@ -14,7 +14,6 @@ import org.overture.ast.patterns.PPattern;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismReplicatedAction;
 import eu.compassresearch.ast.actions.AChannelRenamingAction;
-import eu.compassresearch.ast.actions.AChaosAction;
 import eu.compassresearch.ast.actions.ACommonInterleavingReplicatedAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.ADivAction;
@@ -71,10 +70,6 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		
 	public String caseAStopAction(AStopAction a, ThmVarsContext vars) throws AnalysisException{
 		return ThmProcessUtil.stop;
-	}
-		
-	public String caseAChaosAction(AChaosAction a, ThmVarsContext vars) throws AnalysisException{
-		return ThmProcessUtil.chaos;
 	}
 		
 	public String caseADivAction(ADivAction a, ThmVarsContext vars) throws AnalysisException{

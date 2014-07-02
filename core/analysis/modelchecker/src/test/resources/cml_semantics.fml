@@ -152,8 +152,15 @@
     trans(iS, tau, State(st,Skip)) :- iS is State(st,par(stP,Skip,X,stQ,Skip)).
     
     // Call reusing state
-    trans(n,tau,State(st,PBody)) :- n is State(st,proc(P,pPar)), ProcDef(P,pPar,PBody).
+    //trans(n,tau,State(st,PBody)) :- n is State(st,proc(P,pPar)), ProcDef(P,pPar,PBody).
+    trans(n,ev,State(st_,P_)) :- n is State(st,proc(P,pPar)), RecoverBody(n,pBody), trans(State(st,pBody),ev,State(st_,P_)).
 
+    State(st,pBody) :- n is State(st,proc(P,PPar)), ProcDef(P,PPar,pBody).
+
+    RecoverBody ::= (s:State,p:CMLProcess).
+    RecoverBody(n, pBody) :- n is State(st,proc(P,PPar)), ProcDef(P,PPar,pBody).
+    RecoverBody(n, pBody_) :- n is State(st,proc(P,PPar)), ProcDef(P,PPar,pBody), pBody = proc(N,NPar), RecoverBody(State(st,pBody),pBody_).
+	
     // operations
     trans(n,tau,State(st_,Skip)) :- n is State(st,operation(schN,opPar)), preOpOk(schN,opPar,st), operationDef(schN,opPar,st,st_).
     trans(n,tau,State(st,Chaos)) :- n is State(st,operation(schN,opPar)), preOpNOk(schN,opPar,st).

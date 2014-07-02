@@ -1,0 +1,14 @@
+channels
+    a : int
+
+process P = 
+begin
+
+actions
+A = a!1 -> Skip
+B = a!2 -> Skip
+C = a?x -> Skip
+
+@ (B [] A) [|{a}|] C
+
+end

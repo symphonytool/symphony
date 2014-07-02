@@ -1,4 +1,12 @@
 channels 
 a, b, init
 
-process Test = begin @ init -> a -> Skip  [ {a,init} || {b,init} ] init -> b -> Skip end
+process Test = 
+begin 
+	
+@ 
+	init -> a -> Skip  
+	[ {a,init} || {b,init} ] 
+	init -> b -> Skip 
+	
+end

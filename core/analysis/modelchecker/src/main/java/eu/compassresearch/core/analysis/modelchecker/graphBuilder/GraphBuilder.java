@@ -109,10 +109,16 @@ public class GraphBuilder {
 	public String generateDot(StringBuilder input, String property) throws IOException{
 		STATE_NUMBER = 1; //resets the state number
 		StringBuilder result = new StringBuilder();
+		long start = System.currentTimeMillis();
 		LinkedList<Object> objects = this.loadLTSObjects(input);
+		long end = System.currentTimeMillis();
+		//System.out.println("Load time: " + (end-start));
 		GraphResult graph = new GraphResult();
 		if(property.equals(Utilities.DEADLOCK)){
+			start = System.currentTimeMillis();
 			graph = this.shortestPathToDeadlock(objects);
+			end = System.currentTimeMillis();
+			//System.out.println("Graph generation time: " + (end-start));
 		}else if(property.equals(Utilities.LIVELOCK)){
 			graph = this.shortestPathToLivelock(objects);
 		}else if(property.equals(Utilities.NONDETERMINISM)){
@@ -940,7 +946,7 @@ public class GraphBuilder {
 		//String filePath = "D:\\COMPASS\\compassresearch-code\\core\\analysis\\modelchecker\\src\\test\\resources\\timed-interrupt2.facts";
 		//String filePath = "D:\\COMPASS\\compassresearch-code\\core\\analysis\\modelchecker\\src\\test\\resources\\simpler-register.facts";
 		//String filePath = "D:\\COMPASS\\compassresearch-code\\core\\analysis\\modelchecker\\src\\test\\resources\\BeoAVDeviceDiscovery-final-version-model-checker.facts";
-		String filePath = "D:\\COMPASS\\symphony\\core\\analysis\\modelchecker\\src\\test\\resources\\P.facts";
+		String filePath = "D:\\COMPASS\\symphony\\core\\analysis\\modelchecker\\src\\test\\resources\\CUSSoS.facts";
 		
 		//String filePath = "/examples/NDet2.facts.txt";
 		//String filePath = "/examples/Livelock2.facts.txt";

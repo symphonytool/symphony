@@ -1,4 +1,0 @@
-GivenProc("A")
-ProcDef("A",void,Prefix(IOComm(0,"a","",void),Stop))
-reachable(State(nBind,Prefix(IOComm(0,"a","",void),Stop)))
-State(nBind,Prefix(IOComm(0,"a","",void),Stop))

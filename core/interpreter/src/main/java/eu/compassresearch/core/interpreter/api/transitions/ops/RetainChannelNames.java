@@ -1,22 +1,26 @@
 package eu.compassresearch.core.interpreter.api.transitions.ops;
 
+import org.overture.interpreter.values.SetValue;
+import org.overture.interpreter.values.Value;
+
+import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.LabelledTransition;
-import eu.compassresearch.core.interpreter.api.values.ChannelNameSetValue;
 import eu.compassresearch.core.interpreter.api.values.ChannelValue;
 
 public class RetainChannelNames implements Filter
 {
-	private final ChannelNameSetValue channelNameSetValue;
+	private final SetValue channelNameSetValue;
 
-	public RetainChannelNames(ChannelNameSetValue channelNameSetValue)
+	public RetainChannelNames(SetValue channelNameSetValue)
 	{
 		this.channelNameSetValue = channelNameSetValue;
 	}
 
 	public RetainChannelNames(ChannelValue channelNameValue)
 	{
-		this.channelNameSetValue = new ChannelNameSetValue(channelNameValue);
+		this.channelNameSetValue = new SetValue();
+		this.channelNameSetValue.values.add(channelNameValue);
 
 	}
 
@@ -27,12 +31,22 @@ public class RetainChannelNames implements Filter
 		{
 			LabelledTransition obsChannelEvent = (LabelledTransition) transition;
 
-			for (ChannelValue channelNameValue : channelNameSetValue)
+			for (Value val : channelNameSetValue.values)
 			{
-				if (obsChannelEvent.getChannelName().isComparable(channelNameValue)
-						&& channelNameValue.isGTEQPrecise(obsChannelEvent.getChannelName()))
+				if (val instanceof ChannelValue)
 				{
-					return true;
+					ChannelValue channelNameValue = (ChannelValue) val;
+					if (obsChannelEvent.getChannelName().isComparable(channelNameValue)
+							&& channelNameValue.isGTEQPrecise(obsChannelEvent.getChannelName()))
+					{
+						return true;
+					}
+				} else
+				{
+					throw new InterpreterRuntimeException("Only "
+							+ ChannelValue.class.getSimpleName()
+							+ " must be present in a channel value set. Actual: "
+							+ val);
 				}
 			}
 

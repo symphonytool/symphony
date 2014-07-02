@@ -1537,7 +1537,6 @@ actionbase returns[PAction action]
 @after { $action.setLocation(extractLexLocation($start,$stop)); }
     : 'Skip'            { $action = new ASkipAction(); }
     | 'Stop'            { $action = new AStopAction(); }
-    | 'Chaos'           { $action = new AChaosAction(); }
     | 'Diverge'             { $action = new ADivAction(); }
     | 'Wait' expression { $action = new AWaitAction(null, $expression.exp); }
     | ('return' expression)=>'return' expression

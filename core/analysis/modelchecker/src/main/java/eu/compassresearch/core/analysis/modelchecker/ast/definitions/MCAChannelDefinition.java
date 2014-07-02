@@ -18,6 +18,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAIntNumericBasi
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANamedInvariantType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANatNumericBasicType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAProductType;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCARealNumericBasicType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAUnionType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCTypeWrapper;
@@ -103,6 +104,7 @@ public class MCAChannelDefinition implements MCPCMLDefinition {
 									if(typeWrapper == null){
 										typeWrapper = MCTypeWrapper.getWrapperForType(realType.toFormula(MCNode.DEFAULT));
 									}
+									
 									result.append(typeWrapper);
 										result.append("(");
 										
@@ -173,9 +175,9 @@ public class MCAChannelDefinition implements MCPCMLDefinition {
 			MCATypeDefinition typeDef = context.getTypeDefinition(((MCANamedInvariantType) realType).getName());
 			if(typeDef != null){
 				realType = typeDef.getType();
-			}
+			} 
 		} 
-		result = this.isTyped() && (realType instanceof MCAIntNumericBasicType || realType instanceof MCANatNumericBasicType);
+		result = this.isTyped() && (realType instanceof MCAIntNumericBasicType || realType instanceof MCANatNumericBasicType || realType instanceof MCARealNumericBasicType);
 		
 		
 		return result;

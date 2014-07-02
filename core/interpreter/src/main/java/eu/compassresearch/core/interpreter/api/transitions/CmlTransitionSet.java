@@ -5,12 +5,15 @@ import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import org.overture.interpreter.values.SetValue;
+import org.overture.interpreter.values.Value;
+
 import eu.compassresearch.core.interpreter.api.transitions.ops.Filter;
 import eu.compassresearch.core.interpreter.api.transitions.ops.MapOperation;
 import eu.compassresearch.core.interpreter.api.transitions.ops.RemoveChannelNames;
 import eu.compassresearch.core.interpreter.api.transitions.ops.RemoveTock;
 import eu.compassresearch.core.interpreter.api.transitions.ops.RetainChannelNamesAndTime;
-import eu.compassresearch.core.interpreter.api.values.ChannelNameSetValue;
+import eu.compassresearch.core.interpreter.api.values.LatticeTopValue;
 
 /**
  * This represents a set of CmlTransition objects
@@ -89,8 +92,8 @@ public class CmlTransitionSet implements Iterable<CmlTransition>
 
 	/**
 	 * Return the first element of type T
-	 * @param <T> 
 	 * 
+	 * @param <T>
 	 * @param type
 	 * @return
 	 */
@@ -166,8 +169,8 @@ public class CmlTransitionSet implements Iterable<CmlTransition>
 
 	/**
 	 * Calculate the union of this alphabet and the given event
-	 * @param other 
 	 * 
+	 * @param other
 	 * @return The union of this alphabet and the given CmlEvent
 	 */
 	public CmlTransitionSet union(CmlTransitionSet other)
@@ -203,14 +206,13 @@ public class CmlTransitionSet implements Iterable<CmlTransition>
 		return new CmlTransitionSet(resultSet);
 	}
 
-	public CmlTransitionSet synchronizeOn(CmlTransitionSet other,
-			ChannelNameSetValue cs)
+	public CmlTransitionSet synchronizeOn(CmlTransitionSet other, SetValue cs)
 	{
 		return synchronizeOn(other, cs, false);
 	}
 
 	public CmlTransitionSet synchronizeOn(final CmlTransitionSet other,
-			ChannelNameSetValue cs, final boolean allowNonSynchedTime)
+			SetValue cs, final boolean allowNonSynchedTime)
 	{
 		// create a filter that only accepts the cs channels or time
 		final Filter f = new RetainChannelNamesAndTime(cs);
@@ -234,8 +236,27 @@ public class CmlTransitionSet implements Iterable<CmlTransition>
 						if (otherT instanceof ObservableTransition
 								&& thisOT.isSynchronizableWith((ObservableTransition) otherT))
 						{
-							// remove the synched element so we dont need to check it again
-							remainingOther = remainingOther.subtract(otherT);
+							// remove the synched element so we dont need to check it again, but only if it doesnt
+							// contain a .?
+
+							boolean containsLatticeValue = false;
+							if (otherT instanceof ObservableLabelledTransition)
+							{
+								ObservableLabelledTransition event = (ObservableLabelledTransition) otherT;
+								for (Value val : event.channelName.getValues())
+								{
+									if (val instanceof LatticeTopValue)
+									{
+										containsLatticeValue = true;
+										break;
+									}
+								}
+							}
+
+							if (!containsLatticeValue)
+							{
+								remainingOther = remainingOther.subtract(otherT);
+							}
 							return thisOT.synchronizeWith((ObservableTransition) otherT);
 						}
 					}
@@ -342,8 +363,8 @@ public class CmlTransitionSet implements Iterable<CmlTransition>
 	/**
 	 * This determines whether the alphabet contains the given transition or a transition that is part of a
 	 * synchronization.
-	 * @param transition 
 	 * 
+	 * @param transition
 	 * @return true if the given is contained else false
 	 */
 	public boolean containsEqualOrSyncPart(CmlTransition transition)

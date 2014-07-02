@@ -43,6 +43,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAChannelType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAIntNumericBasicType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANamedInvariantType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANatNumericBasicType;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCARealNumericBasicType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 
 public class NewCMLModelcheckerContext {
@@ -137,6 +138,8 @@ public class NewCMLModelcheckerContext {
 			result = new MCANatNumericBasicType("0");
 		}else if(typeName.equals("int")){
 			result = new MCAIntNumericBasicType("0");
+		}else if(typeName.equals("real")){
+			result = new MCARealNumericBasicType("0.0");
 		}else{
 		//pegar a definicao e ver o tipo dela. Se nao for Named entao vai buscando o final até não vir ninguem
 		MCATypeDefinition typeDef = this.getTypeDefinition(typeName);
