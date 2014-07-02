@@ -4,7 +4,7 @@ a, b
 process A = 
 begin
 	actions
-	 TEST = (a -> Skip) [] (b -> Div)
+	 TEST = (a -> Skip) [] (b -> Diverge)
 	
 	@ TEST
 end

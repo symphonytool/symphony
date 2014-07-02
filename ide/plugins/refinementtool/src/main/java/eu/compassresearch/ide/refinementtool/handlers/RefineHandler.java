@@ -27,7 +27,6 @@ import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
 import eu.compassresearch.ide.refinementtool.INodeNearCaret;
 import eu.compassresearch.ide.refinementtool.IRefineLaw;
 import eu.compassresearch.ide.refinementtool.RefConstants;
-import eu.compassresearch.ide.refinementtool.laws.ChaosStopRefineLaw;
 import eu.compassresearch.ide.refinementtool.laws.ChoiceStopLeft;
 import eu.compassresearch.ide.refinementtool.laws.ChoiceStopRight;
 import eu.compassresearch.ide.refinementtool.laws.DummyRefineLaw;
@@ -98,7 +97,6 @@ public class RefineHandler extends AbstractHandler {
 			laws = new LinkedList<IRefineLaw>();
 			
 			laws.add(new DummyRefineLaw());			
-			laws.add(new ChaosStopRefineLaw());
 			laws.add(new NullRefineLaw());
 			laws.add(new ChoiceStopLeft());
 			laws.add(new ChoiceStopRight());

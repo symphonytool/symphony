@@ -49,7 +49,7 @@ public class CmlKeywords implements IVdmKeywords
 			"variables", "while", "with", "wr", /* "yet", */"RESULT",
 			// CML Specific
 			"actions", "begin", "chansets", "channels", "end", "frame",
-			"process", "state", "Stop", "Chaos", "val", "Wait"
+			"process", "state", "Stop", "val", "Wait"
 
 	};
 

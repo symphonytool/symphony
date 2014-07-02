@@ -7,7 +7,6 @@ import org.overture.ast.analysis.QuestionAnswerAdaptor;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.node.INode;
 
-import eu.compassresearch.ast.actions.AChaosAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.ADivAction;
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
@@ -38,7 +37,6 @@ import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
-import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAChaosAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCACommunicationAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCADivAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAExternalChoiceAction;
@@ -97,14 +95,6 @@ public class NewMCActionVisitor extends
 			NewCMLModelcheckerContext question) throws AnalysisException {
 
 		return new MCAStopAction();
-	}
-
-	
-	@Override
-	public MCNode caseAChaosAction(AChaosAction node,
-			NewCMLModelcheckerContext question) throws AnalysisException {
-
-		return new MCAChaosAction();
 	}
 
 	

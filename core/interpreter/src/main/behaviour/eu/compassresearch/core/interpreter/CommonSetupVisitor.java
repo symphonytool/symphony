@@ -231,6 +231,7 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 
 		/**
 		 * Create a new replication child context. This is a context that delays all writes to state
+		 * 
 		 * @param npvl
 		 * @param node
 		 * @param outer
@@ -241,7 +242,13 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 		{
 			Context childContext = new DelayedWriteContext(outer.assistantFactory, LocationExtractor.extractLocation(node), "delayed write context for "
 					+ outer.title, outer);
-			childContext.putAllNew(npvl);
+
+			for (NameValuePair nvp : npvl)
+			{
+				// turn the values into constants, important for the delayed context removal later
+				NameValuePair pair = new NameValuePair(nvp.name, nvp.value.getConstant());
+				childContext.putNew(pair);
+			}
 
 			return childContext;
 		}

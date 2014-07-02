@@ -170,6 +170,7 @@ public class MCLieInFact implements MCNode {
 		if(obj instanceof MCLieInFact){
 			result = this.commEvent.equals(((MCLieInFact) obj).getCommEvent()) 
 					&& this.setExp.equals(((MCLieInFact) obj).getSetExp());
+					//maybe we must use the comparison using toString()
 		}
 		return result;
 	}

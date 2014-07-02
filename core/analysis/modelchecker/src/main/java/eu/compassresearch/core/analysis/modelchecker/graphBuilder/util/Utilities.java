@@ -29,7 +29,6 @@ import eu.compassresearch.core.analysis.modelchecker.graphBuilder.param.NoPar;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.param.Param;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.param.SPar;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Assing;
-import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Chaos;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.ConditionalChoice;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Divergence;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.ExtChoice;
@@ -86,7 +85,6 @@ public class Utilities {
 		//BASICPROCESS
 		constructors.put(Constructor.Skip.id, Constructor.Skip);
 		constructors.put(Constructor.Stop.id, Constructor.Stop);
-		constructors.put(Constructor.Chaos.id, Constructor.Chaos);
 		constructors.put(Constructor.Div.id, Constructor.Div);
 		//PROCESS
 		constructors.put(Constructor.Prefix.id, Constructor.Prefix);
@@ -163,7 +161,7 @@ public class Utilities {
 	}
 	
 	public enum Constructor {
-		Stop("Stop"), Skip("Skip"), Chaos("Chaos"), Div("Div"), Tau("tau"), Tock("tock"), NoPar(
+		Stop("Stop"), Skip("Skip"), Div("Div"), Tau("tau"), Tock("tock"), NoPar(
 				"nopar"), NullBind("nBind"), Par("par"), IPar("iPar"), Parll(
 				"parll"), IParll("iParll"), Prefix("Prefix"), BasicEvent(
 				"BasicEv"), IOComm("IOComm"), Hide("hide"), BBind("BBinding"), State(
@@ -254,7 +252,6 @@ public class Utilities {
 		if(constructor != Constructor.TypeValue){
 			if (constructor.equals(Constructor.Stop)
 				|| constructor.equals(Constructor.Skip)
-				|| constructor.equals(Constructor.Chaos)
 				|| constructor.equals(Constructor.Div)
 				|| constructor.equals(Constructor.Tau)
 				|| constructor.equals(Constructor.Tock)
@@ -374,9 +371,6 @@ public class Utilities {
 			break;
 		case Skip:
 			result = new Skip();
-			break;
-		case Chaos:
-			result = new Chaos();
 			break;
 		case Div:
 			result = new Divergence();

@@ -17,6 +17,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANamedInvariant
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANatNumericBasicType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAProductType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAQuoteType;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCARealNumericBasicType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCASetType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAUnionType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
@@ -49,6 +50,8 @@ public class TypeManipulator {
 			result = this.getValues((MCANatNumericBasicType)type);
 		} else if(type instanceof MCAIntNumericBasicType){
 			result = this.getValues((MCAIntNumericBasicType)type);
+		} else if(type instanceof MCARealNumericBasicType){
+			result = this.getValues((MCARealNumericBasicType)type);
 		} else if(type instanceof MCAUnionType){
 			result = this.getValues((MCAUnionType)type);
 		} else if(type instanceof MCATypeSingleDeclaration){
@@ -71,6 +74,7 @@ public class TypeManipulator {
 		LinkedList<TypeValue> result = new LinkedList<TypeValue>();
 		LinkedList<String> valueSet = new LinkedList<String>();
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
+		
 		//if it is a value definition, its values must be taken from the value definition
 		MCAValueDefinition valueDef = context.getValueDefinition(type.getName());
 		
@@ -84,6 +88,7 @@ public class TypeManipulator {
 			if(typeDef != null){
 				 
 				if(typeDef.getInvExpression() != null){
+					
 					valueSet = evaluator.getValueSet(typeDef.getInvExpression());
 				}else{
 					LinkedList<TypeValue> typeValues = getValues(typeDef.getType());
@@ -167,6 +172,18 @@ public class TypeManipulator {
 		return result;
 	}
 	
+	public LinkedList<TypeValue> getValues(MCARealNumericBasicType type){
+		LinkedList<TypeValue> result = new LinkedList<TypeValue>();
+
+		//result.add(new SingleTypeValue("0"));
+		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
+		for (int i = 0; i < context.getNumberOfInstances(); i++) {
+			result.add(new SingleTypeValue("x"+i));
+		}
+
+		return result;
+	}
+
 	public LinkedList<TypeValue> getValues(MCAUnionType type){
 		LinkedList<TypeValue> result = new LinkedList<TypeValue>();
 		for (MCPCMLType currType : type.getTypes()) {

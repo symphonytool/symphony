@@ -3,7 +3,6 @@ package eu.compassresearch.core.interpreter.assistant;
 import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
-import org.overture.ast.definitions.AAssignmentDefinition;
 import org.overture.ast.definitions.AClassClassDefinition;
 import org.overture.ast.definitions.AClassInvariantDefinition;
 import org.overture.ast.definitions.AExplicitFunctionDefinition;
@@ -18,7 +17,6 @@ import org.overture.interpreter.assistant.IInterpreterAssistantFactory;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.NameValuePair;
 import org.overture.interpreter.values.NameValuePairList;
-import org.overture.interpreter.values.UndefinedValue;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
@@ -97,14 +95,6 @@ public class CmlNamedValueLister extends AbstractNameValueLister
 		return definitionListHelper(node.getStateDefs(), node.getLocation(), question);
 	}
 
-	// @Override
-	// public NameValuePairList caseAInstanceVariableDefinition(
-	// AInstanceVariableDefinition node, Context question)
-	// throws AnalysisException
-	// {// FIXME dublicated
-	// return question.assistantFactory.createPDefinitionAssistant().getNamedValues(node, question);
-	// }
-
 	@Override
 	public NameValuePairList caseAClassInvariantDefinition(
 			AClassInvariantDefinition node, Context question)
@@ -152,9 +142,6 @@ public class CmlNamedValueLister extends AbstractNameValueLister
 			AExplicitFunctionDefinition node, Context question)
 			throws AnalysisException
 	{
-
-//		NameValuePairList vpl = new NameValuePairList();
-
 		// FIXME not sure what this if is about, but the rest is dublicated
 		if (node.parent() instanceof ATypeDefinition)
 		{
@@ -163,124 +150,9 @@ public class CmlNamedValueLister extends AbstractNameValueLister
 		{
 			node.setIsTypeInvariant(false);
 		}
-		
-		return super.caseAExplicitFunctionDefinition(node,question);
 
-//		// make the pre and post functions
-//		FunctionValue postFuncValue = null;
-//		FunctionValue preFuncValue = null;
-//
-//		if (node.getPredef() != null)
-//		{
-//			preFuncValue = new FunctionValue(node.getPredef(), null, null, null);
-//		}
-//		if (node.getPostdef() != null)
-//		{
-//			postFuncValue = new FunctionValue(node.getPostdef(), null, null, null);
-//		}
-//
-//		FunctionValue funcValue = new FunctionValue(node, preFuncValue, postFuncValue, null);
-//
-//		vpl.add(new NameValuePair(node.getName(), funcValue));
-//
-//		return vpl;
+		return super.caseAExplicitFunctionDefinition(node, question);
 	}
-
-	// @Override
-	// public NameValuePairList caseAImplicitFunctionDefinition(
-	// AImplicitFunctionDefinition node, Context question)
-	// throws AnalysisException
-	// {
-	// // FIXME dublicated
-	// return new NamedValueLister(question.assistantFactory).caseAImplicitFunctionDefinition(node, question);
-	//
-	// // // make the pre and post functions
-	// // FunctionValue postFuncValue = null;
-	// // FunctionValue preFuncValue = null;
-	// //
-	// // if (node.getPredef() != null)
-	// // {
-	// // preFuncValue = new FunctionValue(node.getPredef(), null, null, null);
-	// // }
-	// // if (node.getPostdef() != null)
-	// // {
-	// // postFuncValue = new FunctionValue(node.getPostdef(), null, null, null);
-	// // }
-	// //
-	// // FunctionValue funcValue = new FunctionValue(node, preFuncValue, postFuncValue, null);
-	// // NameValuePairList vpl = new NameValuePairList();
-	// // vpl.add(new NameValuePair(node.getName(), funcValue));
-	// //
-	// // return vpl;
-	// // // throw new AnalysisException("The function " + node.toString() +
-	// // // " is implicit. This is not supported by the simulator at the moment");
-	// }
-
-	/*
-	 * Operations
-	 */
-
-	// @Override
-	// public NameValuePairList caseAExplicitOperationDefinition(
-	// AExplicitOperationDefinition node, Context question)
-	// throws AnalysisException
-	// {
-	// // FIXME dublicated
-	// // NameValuePairList vpl = new NameValuePairList();
-	// // vpl.add(new NameValuePair(node.getName().clone(), CmlValueFactory.createOperationValue(node, question)));
-	//
-	// return question.assistantFactory.createPDefinitionAssistant().getNamedValues(node, question);
-	// }
-
-	// @Override
-	// public NameValuePairList caseAImplicitOperationDefinition(
-	// AImplicitOperationDefinition node, Context question)
-	// throws AnalysisException
-	// {
-	// // FIXME dublicated
-	// // NameValuePairList vpl = new NameValuePairList();
-	// // vpl.add(new NameValuePair(node.getName(), CmlValueFactory.createOperationValue(node, question)));
-	// //
-	// // return vpl;
-	// return question.assistantFactory.createPDefinitionAssistant().getNamedValues(node, question);
-	// }
-
-	@Override
-	public NameValuePairList caseAAssignmentDefinition(
-			AAssignmentDefinition node, Context question)
-			throws AnalysisException
-	{
-		// FIXME very similar - dublicated
-		NameValuePairList vpl = new NameValuePairList();
-
-		Value expValue = null;
-		if (node.getExpression() != null)
-		{
-			expValue = node.getExpression().apply(cmlExpressionVisitor, question);
-		} else
-		{
-			expValue = new UndefinedValue();
-		}
-
-		vpl.add(new NameValuePair(node.getName(), expValue));
-
-		return vpl;
-	}
-
-	// @Override
-	// public NameValuePairList caseAChannelsDefinition(AChannelsDefinition node,
-	// Context question) throws AnalysisException
-	// {
-	// NameValuePairList vpl = new NameValuePairList();
-	//
-	// for (AChannelDefinition cnd : node.getChannelDeclarations())
-	// {
-	// ILexNameToken name = NamespaceUtility.createChannelName(cnd.getName());
-	// vpl.add(new NameValuePair(name, new CMLChannelValue(cnd.getType(), name)));
-	// }
-	//
-	// return vpl;
-	// }
 
 	@Override
 	public NameValuePairList caseAChannelDefinition(AChannelDefinition node,
