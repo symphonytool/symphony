@@ -109,7 +109,7 @@
     State(st,P) :- State(st,seqC(P, Q)), P != Skip.
     State(st,Q),
     trans(iS,tau,State(st,Q)) :- iS is State(st,seqC(Skip,Q)).
-    trans(iS,tau,State(st,Chaos)) :- iS is State(st,seqC(Chaos,Q)).
+    //trans(iS,tau,State(st,Chaos)) :- iS is State(st,seqC(Chaos,Q)).
 
     State(st_,seqC(P_,Q)),
     trans(iS,ev,State(st_,seqC(P_,Q))) :- iS is State(st,seqC(P,Q)),trans(State(st,P),ev,State(st_,P_)), ev != tock.
@@ -163,7 +163,7 @@
 	
     // operations
     trans(n,tau,State(st_,Skip)) :- n is State(st,operation(schN,opPar)), preOpOk(schN,opPar,st), operationDef(schN,opPar,st,st_).
-    trans(n,tau,State(st,Chaos)) :- n is State(st,operation(schN,opPar)), preOpNOk(schN,opPar,st).
+    //trans(n,tau,State(st,Chaos)) :- n is State(st,operation(schN,opPar)), preOpNOk(schN,opPar,st).
 
     // Assignment
     trans(n,tau,State(st_, Skip)) :- n is State(st,assign(id)),assignDef(id,st,st_). 
