@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Vector;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IProject;
@@ -24,7 +26,9 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.WorkbenchException;
+import org.overture.ast.definitions.PDefinition;
 
+import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.core.analysis.modelchecker.api.FormulaIntegrationException;
 import eu.compassresearch.ide.modelchecker.view.MCListView;
 import eu.compassresearch.ide.modelchecker.view.MCUIResult;
@@ -33,6 +37,21 @@ public class MCPluginUtility {
 		
 	public static boolean isWindowsPlatform() {
 		return System.getProperty("os.name").toLowerCase().contains("win");
+	}
+	
+	public static List<AProcessDefinition> getGlobalProcessesFromSource(List<PDefinition> definitions){
+		List<AProcessDefinition> processes = new Vector<AProcessDefinition>();
+		if (definitions.isEmpty()){
+			return processes;
+		}
+
+		for (PDefinition def : definitions){
+			if (def instanceof AProcessDefinition){
+				processes.add((AProcessDefinition) def);
+			}
+		}
+
+		return processes;
 	}
 	
 	public static void showModelcheckerPerspective(IWorkbenchWindow window){
@@ -127,15 +146,12 @@ public class MCPluginUtility {
 
 	public static IProject getCurrentlySelectedProject() {
 
-		IWorkbenchWindow window = PlatformUI.getWorkbench()
-				.getActiveWorkbenchWindow();
+		IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 
-		if (window != null) {
-			IStructuredSelection selection = (IStructuredSelection) window
-					.getSelectionService().getSelection(
-							"eu.compassresearch.ide.ui.CmlNavigator");
+		if (window != null){
+			IStructuredSelection selection = (IStructuredSelection) window.getSelectionService().getSelection("eu.compassresearch.ide.ui.CmlNavigator");
 			IResource res = extractSelection(selection);
-			if (res != null ) {
+			if (res != null){
 				IProject project = res.getProject();
 				return project;
 			}
