@@ -24,7 +24,6 @@ import org.overture.typechecker.Environment;
 import org.overture.typechecker.FlatCheckedEnvironment;
 import org.overture.typechecker.TypeCheckInfo;
 import org.overture.typechecker.TypeCheckerErrors;
-import org.overture.typechecker.TypeComparator;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.definitions.AChannelDefinition;
@@ -191,7 +190,7 @@ public class CmlVarSetExpressionTypeChecker extends
 						PType expType = pExp.apply(THIS, question);
 						PType pt = prodTypes.get(i++);
 
-						if (!TypeComparator.isSubType(expType, pt, question.assistantFactory))
+						if (!question.assistantFactory.getTypeComparator().isSubType(expType, pt))
 						{
 							issueHandler.addTypeError(id, TypeErrorMessages.INCOMPATIBLE_TYPE, pt
 									+ "", expType + "");

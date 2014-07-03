@@ -6,13 +6,17 @@ import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.node.INode;
 import org.overture.ast.types.PType;
 import org.overture.typechecker.TypeCheckerErrors;
-import org.overture.typechecker.TypeComparator;
+import org.overture.typechecker.assistant.ITypeCheckerAssistantFactory;
 
 import eu.compassresearch.ast.actions.AReferenceAction;
 import eu.compassresearch.ast.process.PProcess;
+import eu.compassresearch.core.typechecker.CmlTypeCheckerAssistantFactory;
 
-public class AReferenceAssistant
+public class AReferenceHelper
 {
+	
+	static ITypeCheckerAssistantFactory af = new CmlTypeCheckerAssistantFactory();
+	
 	public static void checkArgTypes(AReferenceAction node, PType type,
 			List<PType> ptypes, List<PType> atypes)
 	{
@@ -40,7 +44,7 @@ public class AReferenceAssistant
 			{
 				PType ptype = ptypes.get(i++);
 
-				if (!TypeComparator.compatible(ptype, atype))
+				if (!af.getTypeComparator().compatible(ptype, atype))
 				{
 					TypeCheckerErrors.report(3217, "Unexpected type for argument "
 							+ i, location, type);

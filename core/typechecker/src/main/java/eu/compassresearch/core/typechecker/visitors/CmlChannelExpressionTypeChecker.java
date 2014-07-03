@@ -20,7 +20,6 @@ import org.overture.typechecker.Environment;
 import org.overture.typechecker.FlatCheckedEnvironment;
 import org.overture.typechecker.TypeCheckInfo;
 import org.overture.typechecker.TypeCheckerErrors;
-import org.overture.typechecker.TypeComparator;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.definitions.AChannelDefinition;
@@ -81,7 +80,7 @@ public class CmlChannelExpressionTypeChecker extends
 
 			PType expressionType = expression.apply(THIS, question);
 
-			if (!TypeComparator.compatible(singleChanConcType, expressionType))
+			if (!question.assistantFactory.getTypeComparator().compatible(singleChanConcType, expressionType))
 			{
 				issueHandler.addTypeError(expression, TypeErrorMessages.INCOMPATIBLE_TYPE, ""
 						+ singleChanConcType, "" + expressionType);
@@ -218,7 +217,7 @@ public class CmlChannelExpressionTypeChecker extends
 				final PType fromType = pairTypes.get(0);
 				final PType toType = pairTypes.get(1);
 
-				if (!TypeComparator.compatible(toType, fromType))
+				if (!question.assistantFactory.getTypeComparator().compatible(toType, fromType))
 				{
 					issueHandler.addTypeError(from, TypeErrorMessages.INCOMPATIBLE_TYPE, toType
 							+ "", fromType + "");
