@@ -32,13 +32,11 @@ public class MCProgressView extends ExtensionFactory {
 	}
 
 	public MCProgressView(IFile out, String property, IFolder mcFolder,
-			ICmlSourceUnit selectedUnit, IResource cmlFile,
 			ExecutionEvent event, String analysedProcess, MCHandler uiManager) {
 		try {
 			window = HandlerUtil.getActiveWorkbenchWindowChecked(event);
 			MCPluginUtility.showModelcheckerPerspective(window);
-			this.thread = new MCThread(out, property, mcFolder, selectedUnit,
-					cmlFile, window, analysedProcess);
+			this.thread = new MCThread(out, property, mcFolder, window, analysedProcess);
 		} catch (ExecutionException e) {
 			e.printStackTrace();
 		}
