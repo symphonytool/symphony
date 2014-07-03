@@ -146,7 +146,6 @@ public abstract class AbstractCmlInterpreter implements CmlInterpreter
 		 * configure the thread management in the overture interpreter
 		 */
 		BasicSchedulableThread.setInitialThread(new CmlInitThread(Thread.currentThread()));
-		CmlInterpreterAssistantFactory.init(CmlContextFactory.factory);
 	}
 
 	// Breakpoints
