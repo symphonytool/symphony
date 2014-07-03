@@ -1,0 +1,78 @@
+types
+    Unwanted = <TA1> | <TA2> | <PA> | <TB1> | <TB2> | <PB>
+
+channels
+    dontcare1, dontcare2
+    recover1, recover2
+    nominal1, nominal2
+    
+    unwanted: Unwanted
+    
+chansets
+    H = {| recover1, recover2 |}
+    Alpha = {| dontcare1, dontcare2, recover1, recover2, nominal1, nominal2 |}
+    Alpha_Tricky = Alpha
+    
+process Limit =
+begin
+    actions
+        Start = A [] B
+        A = TransientA1 [] TransientA2 [] PermanentA
+        B = TransientB1 [] TransientB2
+        TransientA1 = unwanted.<TA1> -> Start
+        TransientA2 = unwanted.<TA2> -> Start
+        PermanentA = unwanted.<PA> -> Start
+        TransientB1 = unwanted.<TB1> -> Start
+        TransientB2 = unwanted.<TB2> -> Start
+    @ Start
+end
+
+process Limit_Tricky = Limit
+
+process Tricky = 
+begin
+    actions
+        Start = DC1 [] DC2 [] Handle1
+        DC1 = dontcare1 -> Start
+        DC2 = dontcare2 -> Start
+        
+        Handle1 = nominal1 -> Try1
+        Try1 = NominalA [] PermanentA [] TransientA2 [] TransientA1 
+        NominalA = nominal2 -> Start
+        TransientA1 = unwanted.<TA1> -> recover2 -> NominalA
+        TransientA2 = unwanted.<TA2> -> recover1 -> recover2 -> NominalA
+        PermanentA = unwanted.<PA> -> ActivateB
+        --ActivateB = NominalB [] TransientB1 [] TransientB2 [] PermanentB
+        ActivateB = NominalB [] PermanentB --[] TransientB1 [] TransientB2
+        NominalB = nominal2 -> Start
+        --TransientB1 = unwanted.<TB1> -> recover1 -> NominalB
+        --TransientB2 = unwanted.<TB2> -> recover1 -> recover2 -> NominalB
+        PermanentB = unwanted.<PB> -> Skip
+    @ Start
+end
+
+process FT_Tricky_H = Tricky
+
+process FT_Tricky_E = Tricky \\ {|unwanted|}
+
+process FT_Tricky_LazyLimit = 
+    NoFaults_Tricky [| Alpha_Tricky |] LazyLimit_Tricky
+
+process NoFaults_Tricky = 
+    (Tricky [| {|unwanted|} |] STOP) \\ H
+
+process Lazy_Tricky = 
+    (Tricky [| {|unwanted|} |] ChaosE) \\ ({|unwanted|} union H) 
+
+process LazyLimit_Tricky = 
+    ((Tricky [| {|unwanted|} |] Limit_Tricky) [| {|unwanted|} |] ChaosE) \\ ({|unwanted|} union H)
+
+process ChaosE =
+begin
+    actions
+        Decision = Stop |~| Rec
+        Rec = unwanted?id -> Decision
+    @ Decision
+end
+
+process STOP = begin @ Stop end
