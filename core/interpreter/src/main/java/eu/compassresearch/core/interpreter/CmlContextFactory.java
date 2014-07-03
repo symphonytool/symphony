@@ -5,7 +5,6 @@ import org.overture.interpreter.assistant.IInterpreterAssistantFactory;
 import org.overture.interpreter.debug.DBGPReader;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ObjectContext;
-import org.overture.interpreter.runtime.StateContext;
 import org.overture.interpreter.values.CPUValue;
 import org.overture.interpreter.values.ObjectValue;
 
@@ -73,11 +72,4 @@ public class CmlContextFactory
 		return objectContext;
 	}
 
-	public static StateContext newStateContext(ILexLocation location,
-			String title)
-	{
-		StateContext stateContext = new StateContext(factory, location, title);
-		stateContext.setThreadState(newDBGPReader(), CPUValue.vCPU);
-		return stateContext;
-	}
 }
