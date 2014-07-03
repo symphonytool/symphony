@@ -18,6 +18,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import eu.compassresearch.core.s2c.dom.Factory;
+import eu.compassresearch.core.s2c.dom.StateMachine;
 import eu.compassresearch.core.s2c.util.NamedNodeMapIterator;
 import eu.compassresearch.core.s2c.util.NodeIterator;
 import eu.compassresearch.core.s2c.util.UniversalNamespaceResolver;
@@ -78,13 +80,26 @@ public class S2cTranslator
 		final Node stateMachine = stateMachines.item(0);
 		String statemachineName = stateMachine.getAttributes().getNamedItem("name").getNodeValue();
 		System.out.println("State machine name = " + statemachineName);
+		StateMachine sm = Factory.buildStateMachine(stateMachine);
 
 		System.out.println("The final state");
 		Node finalState = lookup(stateMachine, xpath, "//subvertex[@xmi:type='uml:FinalState']").item(0);
+
+		sm.states.add(Factory.buildState(finalState, lookupSingle(finalState, xpath, "entry"), lookupSingle(finalState, xpath, "exit")));
+
 		System.out.println("Any State");
-		lookup(stateMachine, xpath, "//subvertex[@xmi:type='uml:State']");
+		NodeList anyStates = lookup(stateMachine, xpath, "//subvertex[@xmi:type='uml:State']");
+		for (Node n : new NodeIterator(anyStates))
+		{
+			sm.states.add(Factory.buildState(n, lookupSingle(n, xpath, "entry"), lookupSingle(n, xpath, "exit")));
+		}
+
 		System.out.println("Any Pseudostates");
-		lookup(stateMachine, xpath, "//subvertex[@xmi:type='uml:Pseudostate']");
+		NodeList anyPseudoStates = lookup(stateMachine, xpath, "//subvertex[@xmi:type='uml:Pseudostate']");
+		for (Node n : new NodeIterator(anyPseudoStates))
+		{
+			sm.states.add(Factory.buildState(n, lookupSingle(n, xpath, "entry"), lookupSingle(n, xpath, "exit")));
+		}
 
 		System.out.println("--- The transactions ---");
 		NodeList transactions = lookup(stateMachine, xpath, "//transition[@xmi:type='uml:Transition']");
@@ -95,34 +110,51 @@ public class S2cTranslator
 
 			String sourceId = atts.getNamedItem("source").getNodeValue();
 			String targetId = atts.getNamedItem("target").getNodeValue();
-			String guardId = null;
-			if (atts.getNamedItem("guard") != null)
-			{
-				guardId = atts.getNamedItem("guard").getNodeValue();
-			}
 
-			System.out.println("Looking up translation details for: "+t.getAttributes().getNamedItem("xmi:id"));
+			System.out.println("Looking up translation details for: "
+					+ t.getAttributes().getNamedItem("xmi:id"));
 			Node source = lookupId(doc, xpath, sourceId);
 			Node target = lookupId(doc, xpath, targetId);
-			if (guardId != null)
+			Node guard = null;
+			if (atts.getNamedItem("guard") != null)
 			{
-				Node guard = lookupId(doc, xpath, guardId);
+				String guardId = atts.getNamedItem("guard").getNodeValue();
+				guard = lookupId(doc, xpath, guardId);
 			}
-			
+
+			Node effect = lookupSingle(t, xpath, "effect[@xmi:type='uml:OpaqueBehavior']");
+			Node trigger = lookupSingle(t, xpath, "trigger[@xmi:type='uml:Trigger']");
+
+			sm.transitions.add(Factory.buidlTransition(sm, t, effect, sourceId, targetId, guard));
+
 			System.out.println("\n");
 		}
+
+		System.out.println("----------------------------------------------------------------------------");
+		System.out.println(sm);
+
+		new SysMlToCmlTranslator(sm).translate(output);
 	}
 
 	private Node lookupId(Document doc, XPath xpath, String sourceId)
 			throws XPathExpressionException
 	{
-		
-		final NodeList list  =lookup(doc, xpath, "//*[@xmi:id='"+sourceId+"']");
 
-//		System.out.println("Starting from: " + formateNodeWithAtt(doc));
-//		 (NodeList) expr.evaluate(doc, XPathConstants.NODESET);
-		
+		final NodeList list = lookup(doc, xpath, "//*[@xmi:id='" + sourceId
+				+ "']");
+
 		if (list.getLength() != 0)
+		{
+			return list.item(0);
+		}
+		return null;
+	}
+
+	public Node lookupSingle(Object doc, XPath xpath, String expression)
+			throws XPathExpressionException
+	{
+		NodeList list = lookup(doc, xpath, expression);
+		if (list != null)
 		{
 			return list.item(0);
 		}
