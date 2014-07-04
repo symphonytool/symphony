@@ -59,13 +59,6 @@ public class CmlExpressionVisitor extends
 	static
 	{
 		VdmRuntime.initialize(new CmlExpressionVisitor());
-		try
-		{
-			new ClassInterpreter(new ClassList());
-		} catch (Exception e)
-		{
-			throw new InterpreterRuntimeException("Faild to initialize class interpreter", e);
-		}
 	}
 
 	class VdmExpressionEvaluator extends DelegateExpressionEvaluator
