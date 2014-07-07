@@ -18,7 +18,9 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import eu.compassresearch.core.s2c.dom.ClassDefinition;
 import eu.compassresearch.core.s2c.dom.Factory;
+import eu.compassresearch.core.s2c.dom.Operation;
 import eu.compassresearch.core.s2c.dom.StateMachine;
 import eu.compassresearch.core.s2c.util.NamedNodeMapIterator;
 import eu.compassresearch.core.s2c.util.NodeIterator;
@@ -27,11 +29,19 @@ import eu.compassresearch.core.s2c.util.UniversalNamespaceResolver;
 public class S2cTranslator
 {
 	private static final String ANY_STATE_MACHINE_IN_ANY_PACKAGES_CLASS = "//packagedElement[@xmi:type='uml:Class']/ownedBehavior[@xmi:type='uml:StateMachine']";
+	private static final String ANY_STATE_MACHINE_IN_ANY_NESTED_CLASSIFIER = "//nestedClassifier[@xmi:type='uml:Class']/ownedBehavior[@xmi:type='uml:StateMachine']";
 
 	public static void main(String[] args) throws XPathExpressionException,
 			ParserConfigurationException, SAXException, IOException
 	{
-		new S2cTranslator().translate(new File("src/test/resources/s2c-lite-initial-model.xmi".replace('/', File.separatorChar)), null);
+		String path = "src/test/resources/s2c-lite-initial-model2.xmi";
+
+		if (args.length > 0)
+		{
+			path = args[0];
+		}
+
+		new S2cTranslator().translate(new File(path.replace('/', File.separatorChar)), new File("target".replace('/', File.separatorChar)));
 	}
 
 	/**
@@ -61,20 +71,47 @@ public class S2cTranslator
 		System.out.println("Find the state machine");
 		NodeList stateMachines = lookup(doc, xpath, ANY_STATE_MACHINE_IN_ANY_PACKAGES_CLASS);
 
+		if (stateMachines.getLength() == 0)
+		{
+			stateMachines = lookup(doc, xpath, ANY_STATE_MACHINE_IN_ANY_NESTED_CLASSIFIER);
+		}
+
 		System.out.println("Find the class thats that parent of the state machine");
 		Node theClass = lookup(stateMachines.item(0), xpath, "..").item(0);
+		ClassDefinition theClassDef = Factory.buildClass(theClass);
 
 		System.out.println("Class properties");
 		NodeList properties = lookup(theClass, xpath, "ownedAttribute[@xmi:type='uml:Property']");
 
 		for (Node prop : new NodeIterator(properties))
 		{
-			lookup(prop, xpath, "upperValue");
-			lookup(prop, xpath, "loweerValue");
+			Node upper = lookupSingle(prop, xpath, "upperValue");
+			Node lower = lookupSingle(prop, xpath, "loweerValue");
+			Node type = lookupSingle(prop, xpath, "type");
+			theClassDef.properties.add(Factory.buildProperty(prop, type, lower, upper));
 		}
 
 		System.out.println("Class operations");
 		NodeList operations = lookup(theClass, xpath, "ownedOperation[@xmi:type='uml:Operation']");
+
+		for (Node op : new NodeIterator(operations))
+		{
+			final Node methodIdNode = lookupSingle(op, xpath, "@method");
+			Node method = null;
+			if(methodIdNode!=null)
+			{
+				method = lookupId(doc, xpath, methodIdNode.getNodeValue());
+			}
+			Operation operation = Factory.buildOperation(op,method);
+			NodeList params = lookup(op, xpath, "ownedParameter[@xmi:type='uml:Parameter']");
+
+			for (Node parm : new NodeIterator(params))
+			{
+				operation.parameters.add(Factory.buildParameter(parm, lookupSingle(parm, xpath, "type")));
+			}
+
+			theClassDef.operations.add(operation);
+		}
 
 		System.out.println("##\nState machine\n##");
 		final Node stateMachine = stateMachines.item(0);
@@ -85,7 +122,10 @@ public class S2cTranslator
 		System.out.println("The final state");
 		Node finalState = lookup(stateMachine, xpath, "//subvertex[@xmi:type='uml:FinalState']").item(0);
 
-		sm.states.add(Factory.buildState(finalState, lookupSingle(finalState, xpath, "entry"), lookupSingle(finalState, xpath, "exit")));
+		if (finalState != null)
+		{
+			sm.states.add(Factory.buildState(finalState, lookupSingle(finalState, xpath, "entry"), lookupSingle(finalState, xpath, "exit")));
+		}
 
 		System.out.println("Any State");
 		NodeList anyStates = lookup(stateMachine, xpath, "//subvertex[@xmi:type='uml:State']");
@@ -133,7 +173,7 @@ public class S2cTranslator
 		System.out.println("----------------------------------------------------------------------------");
 		System.out.println(sm);
 
-		new SysMlToCmlTranslator(sm).translate(output);
+		new SysMlToCmlTranslator(theClassDef, sm).translate(output);
 	}
 
 	private Node lookupId(Document doc, XPath xpath, String sourceId)

@@ -7,6 +7,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
+import eu.compassresearch.core.s2c.dom.ClassDefinition;
+import eu.compassresearch.core.s2c.dom.Operation;
+import eu.compassresearch.core.s2c.dom.Parameter;
+import eu.compassresearch.core.s2c.dom.Property;
 import eu.compassresearch.core.s2c.dom.State;
 import eu.compassresearch.core.s2c.dom.StateMachine;
 import eu.compassresearch.core.s2c.dom.Transition;
@@ -14,9 +18,11 @@ import eu.compassresearch.core.s2c.dom.Transition;
 public class SysMlToCmlTranslator
 {
 	private StateMachine sm;
+	private ClassDefinition cdef;
 
-	public SysMlToCmlTranslator(StateMachine sm)
+	public SysMlToCmlTranslator(ClassDefinition cDef, StateMachine sm)
 	{
+		this.cdef = cDef;
 		this.sm = sm;
 	}
 
@@ -29,18 +35,11 @@ public class SysMlToCmlTranslator
 	public void translate(File output) throws FileNotFoundException
 	{
 		StringBuilder sb = new StringBuilder();
-		sb.append("process " + sm.name + "= begin\n");
+		sb.append("process " + sm.name + " = begin\n");
 
-		// hardcoded section which should come from the class
-		sb.append("state\n");
-		sb.append("\n");
-		sb.append("b: bool\n");
-		sb.append("x: int\n");
-		sb.append("\n");
-		sb.append("operations\n");
-		sb.append("Operation1 : int*int==>bool\n");
-		sb.append("Operation1(x,e)==return x>e\n");
-		sb.append("\n");
+		printState(sb);
+
+		printOperations(sb);
 
 		sb.append("actions\n");
 
@@ -56,7 +55,7 @@ public class SysMlToCmlTranslator
 
 			if (state.entry != null)
 			{
-				sb.append(state.entry.name + " ; ");
+				sb.append(fixSyntaxErrors(state.entry.name + " ; "));
 			}
 
 			List<Transition> transitions = getTransitions(state);
@@ -68,12 +67,14 @@ public class SysMlToCmlTranslator
 				sb.append("\n(");
 				if (t.constraint != null)
 				{
-					sb.append("[ " + t.constraint.expression + " ] & ");
+					sb.append("[ "
+							+ fixSyntaxErrors(t.constraint.expression + "")
+							+ " ] & ");
 				}
 
 				if (t.effect != null)
 				{
-					sb.append(t.effect.body + " ; ");
+					sb.append(fixSyntaxErrors(t.effect.body + " ; "));
 				}
 
 				sb.append(getCmlName(t.target.name));
@@ -87,7 +88,7 @@ public class SysMlToCmlTranslator
 			sb.append("\n\n");
 		}
 
-		sb.append("\n\n@ Initial\n\nend");
+		sb.append("\n\n@ " + getCmlName("Initial") + "\n\nend");
 
 		System.out.println(sb.toString());
 
@@ -103,13 +104,98 @@ public class SysMlToCmlTranslator
 			}
 		} finally
 		{
-			out.close();
+			if (out != null)
+			{
+				out.close();
+			}
 		}
+	}
+
+	protected void printOperations(StringBuilder sb)
+	{
+		sb.append("operations\n");
+		for (Operation op : cdef.operations)
+		{
+			StringBuilder patterns = new StringBuilder();
+			sb.append("\t" + op.name + " : ");
+			patterns.append("\t" + op.name + "(");
+
+			for (Iterator<Parameter> iterator = op.getParameters().iterator(); iterator.hasNext();)
+			{
+				Parameter p = iterator.next();
+
+				sb.append(convertType(p.type));
+				patterns.append(p.name);
+				if (iterator.hasNext())
+				{
+					sb.append(" * ");
+					patterns.append(", ");
+				}
+			}
+
+			sb.append(" ==> ");
+			if (op.getReturn() == null)
+			{
+				sb.append("()");
+			} else
+			{
+				sb.append(convertType(op.getReturn().type));
+			}
+
+			sb.append("\n");
+			sb.append(patterns);
+			sb.append(") == ");
+			if (op.body == null)
+			{
+				sb.append("is not yet specified");
+			} else
+			{
+				sb.append("return " + op.body.body);
+			}
+			sb.append("\n");
+		}
+
+		sb.append("\n");
+	}
+
+	protected void printState(StringBuilder sb)
+	{
+		sb.append("state\n");
+		for (Property p : cdef.properties)
+		{
+			sb.append("\t" + p.name + " : " + convertType(p.type) + "\n");
+		}
+	}
+
+	private String convertType(String type)
+	{
+		if (type.equals("Boolean"))
+		{
+			return "bool";
+		} else if (type.equals("Integer"))
+		{
+			return "int";
+		} else if (type.equals("String"))
+		{
+			return "seq of char";
+		}
+		return null;
 	}
 
 	String getCmlName(String name)
 	{
-		return name.replace(' ', '_');
+		return "act_" + name.replace(' ', '_');
+	}
+
+	/**
+	 * Hacked string patching for the streaming model, should be either removed or made decent
+	 * @param spec
+	 * @return
+	 */
+	String fixSyntaxErrors(String spec)
+	{
+		//FIXME delete or reimplement this
+		return spec.replace("; ;", "; ").replace("!=", "<>").replace("==", "########").replace(" =", ":=").replace("########", "=").replace("&&", "and").replace("||", "or");
 	}
 
 	public List<Transition> getTransitions(State state)
