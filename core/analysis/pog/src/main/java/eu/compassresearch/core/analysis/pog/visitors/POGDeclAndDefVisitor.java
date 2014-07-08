@@ -21,7 +21,6 @@ import org.overture.pog.contexts.POImpliesContext;
 import org.overture.pog.contexts.PONameContext;
 import org.overture.pog.obligation.TypeCompatibilityObligation;
 import org.overture.pog.pub.IPOContextStack;
-import org.overture.typechecker.TypeComparator;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
@@ -299,7 +298,7 @@ public class POGDeclAndDefVisitor extends
 
 		obligations.addAll(expression.apply(parentPOG, question));
 
-		if (!TypeComparator.isSubType(question.checkType(expression, expType), type, assistantFactory))
+		if (!assistantFactory.getTypeComparator().isSubType(question.checkType(expression, expType), type))
 		{
 			TypeCompatibilityObligation sto = TypeCompatibilityObligation.newInstance(expression, type, expType, question, assistantFactory);
 			if (sto != null)

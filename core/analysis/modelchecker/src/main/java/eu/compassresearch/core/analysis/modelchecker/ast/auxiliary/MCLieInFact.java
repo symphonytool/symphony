@@ -89,7 +89,7 @@ public class MCLieInFact implements MCNode {
 				lieIn.append("Channel(\"");
 				lieIn.append(commEvent.getName());
 				lieIn.append("\",");
-				lieIn.append(commEvent.getValue());
+				lieIn.append(commEvent.getValue().toFormula(option));
 				lieIn.append(")");
 			}
 			

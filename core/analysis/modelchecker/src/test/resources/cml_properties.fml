@@ -33,4 +33,4 @@
 						accepts(S1,ev), ev!= tau, fail accepts(S2,ev),
 						reachable(S1),reachable(S2).
 	
-    Chaos := GivenProc(name),ProcDef(name,params,body), trans(_,_,State(_,Chaos)).
+    //Chaos := GivenProc(name),ProcDef(name,params,body), trans(_,_,State(_,Chaos)).

@@ -23,13 +23,6 @@ public class CmlInterpreterAssistantFactory extends InterpreterAssistantFactory
 	 */
 	private static final long serialVersionUID = 1L;
 
-	static
-	{
-		// FIXME: remove this when conversion to factory obtained assistants are completed.
-		// init(new AstAssistantFactory());
-		init(new CmlInterpreterAssistantFactory());
-	}
-
 
 	@Override
 	public IAnswer<String> getKindFinder()

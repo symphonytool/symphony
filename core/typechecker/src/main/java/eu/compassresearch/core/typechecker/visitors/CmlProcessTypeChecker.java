@@ -21,7 +21,6 @@ import org.overture.ast.types.ANatNumericBasicType;
 import org.overture.ast.types.PType;
 import org.overture.typechecker.Environment;
 import org.overture.typechecker.TypeCheckInfo;
-import org.overture.typechecker.TypeComparator;
 
 import eu.compassresearch.ast.actions.PParametrisation;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
@@ -55,7 +54,7 @@ import eu.compassresearch.ast.process.AUntimedTimeoutProcess;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
-import eu.compassresearch.core.typechecker.assistant.AReferenceAssistant;
+import eu.compassresearch.core.typechecker.assistant.AReferenceHelper;
 import eu.compassresearch.core.typechecker.assistant.PParametrisationAssistant;
 import eu.compassresearch.core.typechecker.assistant.TypeCheckerUtil;
 import eu.compassresearch.core.typechecker.environment.PrivateActionClassEnvironment;
@@ -321,7 +320,7 @@ public class CmlProcessTypeChecker extends
 			}
 		}
 
-		AReferenceAssistant.checkArgTypes(node, AstFactory.newAVoidReturnType(node.getLocation()), paramTypes, atypes);
+		AReferenceHelper.checkArgTypes(node, AstFactory.newAVoidReturnType(node.getLocation()), paramTypes, atypes);
 		node.getProcess().apply(THIS, question.newScope(definitions));
 		return getVoidType(node);
 	}
@@ -423,7 +422,7 @@ public class CmlProcessTypeChecker extends
 
 		PType timeExpType = timeExp.apply(THIS, question);
 
-		if (!TypeComparator.compatible(new ANatNumericBasicType(), timeExpType))
+		if (!question.assistantFactory.getTypeComparator().compatible(new ANatNumericBasicType(), timeExpType))
 		{
 			issueHandler.addTypeError(timeExp, TypeErrorMessages.TIME_UNIT_EXPRESSION_MUST_BE_NAT, node
 					+ "", timeExpType + "");
@@ -503,7 +502,7 @@ public class CmlProcessTypeChecker extends
 					paramTypes.add(t);
 				}
 
-				AReferenceAssistant.checkArgTypes(node, AstFactory.newAVoidReturnType(node.getLocation()), paramTypes, atypes);
+				AReferenceHelper.checkArgTypes(node, AstFactory.newAVoidReturnType(node.getLocation()), paramTypes, atypes);
 				node.setProcessDefinition(processDef);
 			} else
 			{
@@ -526,7 +525,7 @@ public class CmlProcessTypeChecker extends
 		right.apply(THIS, question);
 
 		PType expType = node.getTimeExpression().apply(THIS, question);
-		if (!TypeComparator.isSubType(expType, new ANatNumericBasicType(), question.assistantFactory))
+		if (!question.assistantFactory.getTypeComparator().isSubType(expType, new ANatNumericBasicType()))
 		{
 			issueHandler.addTypeError(node.getTimeExpression(), TypeErrorMessages.TIME_UNIT_EXPRESSION_MUST_BE_NAT, node.getTimeExpression()
 					+ "");

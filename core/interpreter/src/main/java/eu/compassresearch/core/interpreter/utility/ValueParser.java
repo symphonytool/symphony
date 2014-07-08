@@ -5,7 +5,6 @@ import org.overture.ast.types.PType;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.VdmRuntime;
 import org.overture.interpreter.values.Value;
-import org.overture.typechecker.TypeComparator;
 
 import eu.compassresearch.core.interpreter.AbstractCmlInterpreter;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
@@ -34,7 +33,7 @@ public class ValueParser
 		PExp exp = ip.parseExpression(expressionString, "IO");
 
 		PType expType = ip.typeCheck(exp);
-		if (!TypeComparator.compatible(expectedType, expType))
+		if (!ctxt.assistantFactory.getTypeComparator().compatible(expectedType, expType))
 		{
 			throw new InterpreterRuntimeException("Wrong expression type read from console. Expected: "
 					+ expectedType + " Actual: " + expType);
