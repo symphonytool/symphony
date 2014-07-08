@@ -1,7 +1,11 @@
 package eu.compassresearch.core.s2c.dom;
 
-import org.w3c.dom.Node;
+import java.util.List;
 
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import eu.compassresearch.core.s2c.S2cTranslator;
 import eu.compassresearch.core.s2c.util.NodeIterator;
 
 public class Factory
@@ -58,7 +62,8 @@ public class Factory
 	}
 
 	public static Transition buidlTransition(StateMachine sm, Node n,
-			Node effect, String sourceId, String targetId, Node guard)
+			Node effect, String sourceId, String targetId, Node guard,
+			Trigger trigger)
 	{
 		Transition transition = new Transition();
 
@@ -70,6 +75,7 @@ public class Factory
 		transition.constraint = guard != null ? buildConstraint(guard) : null;
 		transition.effect = effect != null ? buildOpaqueBehaviour(effect)
 				: null;
+		transition.trigger = trigger;
 
 		return transition;
 	}
@@ -138,13 +144,19 @@ public class Factory
 	private static String buildType(Node child)
 	{
 		// todo
-		if (child.getAttributes().getNamedItem("xmi:type").getTextContent().equals("uml:DataType")) {
-			return child.getAttributes().getNamedItem("name").getTextContent();		
+		if (child.getAttributes().getNamedItem("xmi:type").getTextContent().equals("uml:DataType"))
+		{
+			return child.getAttributes().getNamedItem("name").getTextContent();
 		}
-		if (child.getAttributes().getNamedItem("xmi:type").getTextContent().equals("uml:Class")) {
-			return child.getAttributes().getNamedItem("name").getTextContent();		
+		if (child.getAttributes().getNamedItem("xmi:type").getTextContent().equals("uml:Class"))
+		{
+			return child.getAttributes().getNamedItem("name").getTextContent();
 		}
-		
+		if (child.getAttributes().getNamedItem("xmi:type").getTextContent().equals("uml:Enumeration"))
+		{
+			return child.getAttributes().getNamedItem("name").getTextContent();
+		}
+System.out.println(S2cTranslator.formateNodeWithAtt(child));
 		String tmp = child.getAttributes().getNamedItem("href").getNodeValue();
 		if (tmp.contains("#"))
 		{
@@ -202,6 +214,32 @@ public class Factory
 
 		param.type = buildType(typeNode);
 		return param;
+	}
+
+	public static Trigger buildTrigger(Node triggerNode, Event event)
+	{
+		Trigger trigger = new Trigger();
+		setIdAndName(triggerNode, trigger);
+		trigger.event = event;
+		return trigger;
+	}
+
+	public static Event buildEvent(Node eventNode, Signal signal)
+	{
+		Event event = new Event();
+		setIdAndName(eventNode, event);
+			event.signal = signal;;
+		return event;
+	}
+
+	public static Signal buildSignal(Node signal,List<Property> properties)
+	{
+		Signal s = new Signal();
+		setIdAndName(signal, s);
+		
+		s.property.addAll(properties);
+
+		return s;
 	}
 
 }
