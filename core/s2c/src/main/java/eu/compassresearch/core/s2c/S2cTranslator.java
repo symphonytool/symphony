@@ -295,11 +295,23 @@ public class S2cTranslator
 				String eventId = eventNode.getNodeValue();
 				Node signalEvent = lookupId(doc, xpath, eventId);
 
-				Node signalNode = lookupId(doc, xpath, signalEvent.getAttributes().getNamedItem("signal").getNodeValue());
+				final Node signalIdNode = signalEvent.getAttributes().getNamedItem("signal");
+				Signal signal  = null;
+				
+				if(signalIdNode!=null)
+				{
+				Node signalNode = lookupId(doc, xpath, signalIdNode.getNodeValue());
+				
 
 				List<Property> properties = buildProperties(doc, xpath, signalNode);
 				
-				Signal signal = Factory.buildSignal(signalNode,properties);
+				signal = Factory.buildSignal(signalNode,properties);
+				}else
+				{
+					//opaque event
+					signal = new Signal();
+					signal.name = signalEvent.getAttributes().getNamedItem("name").getNodeValue();
+				}
 				
 				event = Factory.buildEvent(signalEvent, signal);
 			}
