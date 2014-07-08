@@ -242,4 +242,16 @@ System.out.println(S2cTranslator.formateNodeWithAtt(child));
 		return s;
 	}
 
+	public static EnumType buildEnumeration(Node type, NodeList lookup)
+	{
+		EnumType et = new EnumType();
+		setIdAndName(type, et);
+		
+		for (Node lit : new NodeIterator(lookup))
+		{
+			et.literals.add(lit.getAttributes().getNamedItem("name").getNodeValue());
+		}
+		return et;
+	}
+
 }

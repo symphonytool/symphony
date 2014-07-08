@@ -3,8 +3,10 @@ package eu.compassresearch.core.s2c;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -16,6 +18,7 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -23,6 +26,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import eu.compassresearch.core.s2c.dom.ClassDefinition;
+import eu.compassresearch.core.s2c.dom.EnumType;
 import eu.compassresearch.core.s2c.dom.Event;
 import eu.compassresearch.core.s2c.dom.Factory;
 import eu.compassresearch.core.s2c.dom.Operation;
@@ -43,6 +47,8 @@ public class S2cTranslator
 	private static final String ANY_STATE_MACHINE_IN_ANY_NESTED_CLASSIFIER = "//nestedClassifier[@xmi:type='uml:Class']/ownedBehavior[@xmi:type='uml:StateMachine']";
 
 	private Map<String, String> types = new HashMap<String, String>();
+	
+	private Set<String> usedCustomTypes = new HashSet<String>();
 
 	public static void main(String[] args) throws XPathExpressionException,
 			ParserConfigurationException, SAXException, IOException
@@ -115,8 +121,8 @@ public class S2cTranslator
 
 				System.out.println("Looking up translation details for: "
 						+ t.getAttributes().getNamedItem("xmi:id"));
-//				Node source = lookupId(doc, xpath, sourceId);
-//				Node target = lookupId(doc, xpath, targetId);
+				// Node source = lookupId(doc, xpath, sourceId);
+				// Node target = lookupId(doc, xpath, targetId);
 				Node guard = null;
 				if (atts.getNamedItem("guard") != null)
 				{
@@ -130,7 +136,7 @@ public class S2cTranslator
 				// state.transitions.add(Factory.buidlTransition(sm, t, effect, sourceId, targetId, guard));
 				Node triggerNode = lookupSingle(t, xpath, "trigger[@xmi:type='uml:Trigger']");
 				Trigger trigger = extractTrigger(doc, xpath, triggerNode);
-				
+
 				sm.transitions.add(Factory.buidlTransition(sm, t, effect, sourceId, targetId, guard, trigger));
 
 				System.out.println("\n");
@@ -180,31 +186,10 @@ public class S2cTranslator
 		ClassDefinition theClassDef = Factory.buildClass(theClass);
 
 		System.out.println("Class properties");
-		
-
 		theClassDef.properties.addAll(buildProperties(doc, xpath, theClass));
 
 		System.out.println("Class operations");
-		NodeList operations = lookup(theClass, xpath, "ownedOperation[@xmi:type='uml:Operation']");
-
-		for (Node op : new NodeIterator(operations))
-		{
-			final Node methodIdNode = lookupSingle(op, xpath, "@method");
-			Node method = null;
-			if (methodIdNode != null)
-			{
-				method = lookupId(doc, xpath, methodIdNode.getNodeValue());
-			}
-			Operation operation = Factory.buildOperation(op, method);
-			NodeList params = lookup(op, xpath, "ownedParameter[@xmi:type='uml:Parameter']");
-
-			for (Node parm : new NodeIterator(params))
-			{
-				operation.parameters.add(Factory.buildParameter(parm, lookupSingle(parm, xpath, "type")));
-			}
-
-			theClassDef.operations.add(operation);
-		}
+		theClassDef.operations.addAll(buildOperations(doc, xpath, theClass));
 
 		System.out.println("##\nState machine\n##");
 		final Node stateMachine = stateMachines.item(0);
@@ -274,11 +259,57 @@ public class S2cTranslator
 			State s = sm.lookupState(n.getAttributes().getNamedItem("xmi:id").getTextContent());
 			buildCompositeStateTransitions(s, n, doc, sm, xpath);
 		}
+		
+		//add types to the class
+		for (String typeId : this.usedCustomTypes)
+		{
+			Node type = lookupSingle(doc, xpath, "//*[@xmi:id='" + typeId
+				+ "' and @xmi:type='uml:Enumeration']");
+			if(type!=null)
+			{
+				EnumType etype = Factory.buildEnumeration(type,lookup(type, xpath, "ownedLiteral[@xmi:type='uml:EnumerationLiteral']"));
+				theClassDef.types.add(etype);
+			}
+		}
 
 		System.out.println("----------------------------------------------------------------------------");
 		System.out.println(sm);
+		if(!this.usedCustomTypes.isEmpty())
+		{
+			System.out.println("Used custom types:");
+			System.out.println(this.usedCustomTypes);
+		}
 
 		return new SysMlToCmlTranslator(theClassDef, sm).translate(output);
+	}
+
+	protected List<Operation> buildOperations(Document doc, XPath xpath,
+			Node theClass) throws XPathExpressionException
+	{
+		List<Operation> ops = new Vector<Operation>();
+		NodeList operations = lookup(theClass, xpath, "ownedOperation[@xmi:type='uml:Operation']");
+
+		for (Node op : new NodeIterator(operations))
+		{
+			final Node methodIdNode = lookupSingle(op, xpath, "@method");
+			Node method = null;
+			if (methodIdNode != null)
+			{
+				method = lookupId(doc, xpath, methodIdNode.getNodeValue());
+			}
+			Operation operation = Factory.buildOperation(op, method);
+			NodeList params = lookup(op, xpath, "ownedParameter[@xmi:type='uml:Parameter']");
+
+			for (Node parm : new NodeIterator(params))
+			{
+				Node typeNode = extractTypeNode(doc, xpath, parm);
+
+				operation.parameters.add(Factory.buildParameter(parm, typeNode));
+			}
+
+			ops.add(operation);
+		}
+		return ops;
 	}
 
 	protected Trigger extractTrigger(Document doc, XPath xpath, Node triggerNode)
@@ -296,23 +327,22 @@ public class S2cTranslator
 				Node signalEvent = lookupId(doc, xpath, eventId);
 
 				final Node signalIdNode = signalEvent.getAttributes().getNamedItem("signal");
-				Signal signal  = null;
-				
-				if(signalIdNode!=null)
-				{
-				Node signalNode = lookupId(doc, xpath, signalIdNode.getNodeValue());
-				
+				Signal signal = null;
 
-				List<Property> properties = buildProperties(doc, xpath, signalNode);
-				
-				signal = Factory.buildSignal(signalNode,properties);
-				}else
+				if (signalIdNode != null)
 				{
-					//opaque event
+					Node signalNode = lookupId(doc, xpath, signalIdNode.getNodeValue());
+
+					List<Property> properties = buildProperties(doc, xpath, signalNode);
+
+					signal = Factory.buildSignal(signalNode, properties);
+				} else
+				{
+					// opaque event
 					signal = new Signal();
 					signal.name = signalEvent.getAttributes().getNamedItem("name").getNodeValue();
 				}
-				
+
 				event = Factory.buildEvent(signalEvent, signal);
 			}
 			trigger = Factory.buildTrigger(triggerNode, event);
@@ -324,22 +354,46 @@ public class S2cTranslator
 			Node theClass) throws XPathExpressionException
 	{
 		List<Property> props = new Vector<Property>();
-		
+
 		NodeList properties = lookup(theClass, xpath, "ownedAttribute[@xmi:type='uml:Property']");
 
 		for (Node prop : new NodeIterator(properties))
 		{
 			Node upper = lookupSingle(prop, xpath, "upperValue");
 			Node lower = lookupSingle(prop, xpath, "loweerValue");
-			Node type = lookupSingle(prop, xpath, "type");
-			if (type == null)
-			{
-				String tid = prop.getAttributes().getNamedItem("type").getTextContent();
-				type = lookupId(doc, xpath, tid);
-			}
-			props.add(Factory.buildProperty(prop, type, lower, upper));
+			Node typeNode = extractTypeNode(doc, xpath, prop);
+
+			props.add(Factory.buildProperty(prop, typeNode, lower, upper));
 		}
 		return props;
+	}
+
+	/**
+	 * extracts the type node from a parameter or attribute. using the type attribute or child type element. The method
+	 * collects the ids of the custom types used
+	 * 
+	 * @param doc
+	 * @param xpath
+	 * @param prop
+	 * @return
+	 * @throws XPathExpressionException
+	 * @throws DOMException
+	 */
+	private Node extractTypeNode(Document doc, XPath xpath, Node prop)
+			throws XPathExpressionException, DOMException
+	{
+		final Node typeAtt = prop.getAttributes().getNamedItem("type");
+		Node typeNode = null;
+		if (typeAtt != null)
+		{
+			final String typeId = typeAtt.getNodeValue();
+			this.usedCustomTypes.add(typeId);
+			typeNode = lookupId(doc, xpath, typeId);
+		} else
+		{
+			typeNode = lookupSingle(prop, xpath, "type");
+		}
+		return typeNode;
 	}
 
 	private Node lookupId(Document doc, XPath xpath, String sourceId)
