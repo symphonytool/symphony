@@ -1,6 +1,9 @@
 package eu.compassresearch.core.s2c.dom;
 
-public class Signal extends UmlNode
+import java.util.List;
+import java.util.Vector;
+
+public class Signal extends NamedUmlNode
 {
-	public Property property;
+	public final List<Property> property= new Vector<Property>();
 }
