@@ -25,6 +25,7 @@ import eu.compassresearch.core.s2c.dom.Factory;
 import eu.compassresearch.core.s2c.dom.Operation;
 import eu.compassresearch.core.s2c.dom.State;
 import eu.compassresearch.core.s2c.dom.StateMachine;
+import eu.compassresearch.core.s2c.util.InvalidNameSpaceFix;
 import eu.compassresearch.core.s2c.util.NamedNodeMapIterator;
 import eu.compassresearch.core.s2c.util.NodeIterator;
 import eu.compassresearch.core.s2c.util.UniversalNamespaceResolver;
@@ -151,7 +152,7 @@ public class S2cTranslator {
 		factory.setNamespaceAware(true);
 		DocumentBuilder builder = factory.newDocumentBuilder();
 
-		Document doc = builder.parse(input);
+		Document doc = builder.parse(InvalidNameSpaceFix.createFixedFile(input));
 		XPathFactory xPathfactory = XPathFactory.newInstance();
 		XPath xpath = xPathfactory.newXPath();
 
