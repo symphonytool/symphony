@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Vector;
 
 import eu.compassresearch.core.s2c.dom.ClassDefinition;
+import eu.compassresearch.core.s2c.dom.EnumType;
 import eu.compassresearch.core.s2c.dom.Operation;
 import eu.compassresearch.core.s2c.dom.Parameter;
 import eu.compassresearch.core.s2c.dom.Property;
@@ -15,14 +16,17 @@ import eu.compassresearch.core.s2c.dom.Signal;
 import eu.compassresearch.core.s2c.dom.State;
 import eu.compassresearch.core.s2c.dom.StateMachine;
 import eu.compassresearch.core.s2c.dom.Transition;
+import eu.compassresearch.core.s2c.dom.Type;
 
 public class SysMlToCmlTranslator {
 	private StateMachine sm;
 	private ClassDefinition cdef;
+	private List<Signal> signals;
 
-	public SysMlToCmlTranslator(ClassDefinition cDef, StateMachine sm) {
+	public SysMlToCmlTranslator(List<Signal> signals, ClassDefinition cDef, StateMachine sm) {
 		this.cdef = cDef;
 		this.sm = sm;
+		this.signals = signals;
 	}
 
 	/**
@@ -222,7 +226,30 @@ public class SysMlToCmlTranslator {
 
 	public File translate(File output) throws FileNotFoundException {
 		StringBuilder sb = new StringBuilder();
-		sb.append("process " + sm.name + " = begin\n");
+		sb.append("channels\n");
+		for (Signal s : signals)
+		{
+			sb.append(s.name);
+			if (!s.property.isEmpty())
+			{
+				sb.append(" : ");
+				for (Iterator<Property> itr = s.property.iterator(); itr.hasNext();)
+				{
+					Property p = itr.next();
+					sb.append(p.type);
+					if (itr.hasNext())
+					{
+						sb.append(" * ");
+					}
+				}
+			}
+			sb.append("\n");
+		}
+		
+		
+		sb.append("\n\nprocess " + sm.name + " = begin\n");
+		
+		printTypes(sb);
 
 		printState(sb);
 
@@ -269,6 +296,34 @@ public class SysMlToCmlTranslator {
 				out.close();
 			}
 		}
+	}
+
+	private void printTypes(StringBuilder sb)
+	{
+		StringBuffer values = new StringBuffer();
+		values.append("\nvalues\n");
+		sb.append("types\n");
+		for (Type t : cdef.types)
+		{
+			if (t instanceof EnumType)
+			{
+				EnumType et = (EnumType) t;
+				sb.append(et.name+" = ");
+				for (Iterator<String> iterator = et.literals.iterator(); iterator.hasNext();)
+				{
+					String lit = iterator.next();
+					final String litQuote = String.format("<%s>", lit);
+					sb.append(litQuote);
+					values.append(lit+" = "+litQuote+"\n");
+					if(iterator.hasNext())
+					{
+						sb.append(" | ");
+					}
+				}
+				sb.append("\n");
+			}
+		}
+		sb.append(values+"\n\n");
 	}
 
 	protected void printOperations(StringBuilder sb) {
@@ -333,6 +388,7 @@ public class SysMlToCmlTranslator {
 				sb.append("\n");
 			}
 		}
+		sb.append("\n\n");
 	}
 
 	private String convertType(String type) {

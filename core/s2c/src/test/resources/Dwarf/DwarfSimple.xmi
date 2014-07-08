@@ -92,7 +92,7 @@
                       </ownedRule>
                       <trigger xmi:type = "uml:Trigger" xmi:id = "_66bcd593-542e-4b7c-b559-24c7ea168c11trigger" event = "_11da9dd4-e9f7-47b0-b237-2ed3ce4db86a">
                       </trigger>
-                      <effect xmi:type = "uml:OpaqueBehavior" xmi:id = "_66bcd593-542e-4b7c-b559-24c7ea168c11body" body = "&#13;switchOff.L1-&gt;&#13;switchOff.L2-Skip">
+                      <effect xmi:type = "uml:OpaqueBehavior" xmi:id = "_66bcd593-542e-4b7c-b559-24c7ea168c11body" body = "&#13;switchOff.L1-&gt;&#13;switchOff.L2-&gt;Skip">
                       </effect>
                     </transition>
                     <transition xmi:type = "uml:Transition" xmi:id = "_7b2fde15-5d6d-4ea3-a6ab-1a4905d927a7" guard = "_12f81543-2d6d-4bcd-b1ce-392b699cacbdguard" source = "_9875464c-1d6d-40fb-882c-826a74cf77e3" target = "_9875464c-1d6d-40fb-882c-826a74cf77e3">

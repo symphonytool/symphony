@@ -42,12 +42,13 @@ import eu.compassresearch.core.s2c.util.UniversalNamespaceResolver;
 
 public class S2cTranslator
 {
+	private static final Boolean DEBUG = false;
 	private static final String ANY_STATE_MACHINE_IN_ANY_PACKAGES_CLASS = "//packagedElement[@xmi:type='uml:Class']/ownedBehavior[@xmi:type='uml:StateMachine']";
 	private static final String ANY_DATATYPE = "//packagedElement[@xmi:type='uml:DataType']";
 	private static final String ANY_STATE_MACHINE_IN_ANY_NESTED_CLASSIFIER = "//nestedClassifier[@xmi:type='uml:Class']/ownedBehavior[@xmi:type='uml:StateMachine']";
 
 	private Map<String, String> types = new HashMap<String, String>();
-	
+
 	private Set<String> usedCustomTypes = new HashSet<String>();
 
 	public static void main(String[] args) throws XPathExpressionException,
@@ -234,8 +235,11 @@ public class S2cTranslator
 			String sourceId = atts.getNamedItem("source").getNodeValue();
 			String targetId = atts.getNamedItem("target").getNodeValue();
 
-			System.out.println("Looking up translation details for: "
-					+ t.getAttributes().getNamedItem("xmi:id"));
+			if (DEBUG)
+			{
+				System.out.println("Looking up translation details for: "
+						+ t.getAttributes().getNamedItem("xmi:id"));
+			}
 			// Node source = lookupId(doc, xpath, sourceId);
 			// Node target = lookupId(doc, xpath, targetId);
 			Node guard = null;
@@ -251,7 +255,10 @@ public class S2cTranslator
 
 			sm.transitions.add(Factory.buidlTransition(sm, t, effect, sourceId, targetId, guard, trigger));
 
-			System.out.println("\n");
+			if (DEBUG)
+			{
+				System.out.println("\n");
+			}
 		}
 
 		for (Node n : new NodeIterator(anyStates))
@@ -259,28 +266,35 @@ public class S2cTranslator
 			State s = sm.lookupState(n.getAttributes().getNamedItem("xmi:id").getTextContent());
 			buildCompositeStateTransitions(s, n, doc, sm, xpath);
 		}
-		
-		//add types to the class
+
+		// collect all signals to be used as channels
+
+		NodeList allSignals = lookup(doc, xpath, "//*[@xmi:type='uml:Signal']");
+
+		List<Signal> signals = new Vector<Signal>();
+		for (Node signalNode : new NodeIterator(allSignals))
+		{
+			List<Property> properties = buildProperties(doc, xpath, signalNode);
+
+			signals.add(Factory.buildSignal(signalNode, properties));
+		}
+
+		// add types to the class
 		for (String typeId : this.usedCustomTypes)
 		{
 			Node type = lookupSingle(doc, xpath, "//*[@xmi:id='" + typeId
-				+ "' and @xmi:type='uml:Enumeration']");
-			if(type!=null)
+					+ "' and @xmi:type='uml:Enumeration']");
+			if (type != null)
 			{
-				EnumType etype = Factory.buildEnumeration(type,lookup(type, xpath, "ownedLiteral[@xmi:type='uml:EnumerationLiteral']"));
+				EnumType etype = Factory.buildEnumeration(type, lookup(type, xpath, "ownedLiteral[@xmi:type='uml:EnumerationLiteral']"));
 				theClassDef.types.add(etype);
 			}
 		}
 
 		System.out.println("----------------------------------------------------------------------------");
 		System.out.println(sm);
-		if(!this.usedCustomTypes.isEmpty())
-		{
-			System.out.println("Used custom types:");
-			System.out.println(this.usedCustomTypes);
-		}
 
-		return new SysMlToCmlTranslator(theClassDef, sm).translate(output);
+		return new SysMlToCmlTranslator(signals, theClassDef, sm).translate(output);
 	}
 
 	protected List<Operation> buildOperations(Document doc, XPath xpath,
@@ -425,20 +439,32 @@ public class S2cTranslator
 	{
 		XPathExpression expr = xpath.compile(expression);
 
-		System.out.println("Starting from: " + formateNodeWithAtt(doc));
+		if (DEBUG)
+		{
+			System.out.println("Starting from: " + formateNodeWithAtt(doc));
+		}
 		final NodeList list = (NodeList) expr.evaluate(doc, XPathConstants.NODESET);
 
-		System.out.print("\tFound: ");
+		if (DEBUG)
+		{
+			System.out.print("\tFound: ");
+		}
 		boolean first = true;
 		for (Node n : new NodeIterator(list))
 		{
-			System.out.println((!first ? "\t       " : "")
-					+ formateNodeWithAtt(n));
+			if (DEBUG)
+			{
+				System.out.println((!first ? "\t       " : "")
+						+ formateNodeWithAtt(n));
+			}
 			first = false;
 		}
 		if (first)
 		{
-			System.out.println("none");
+			if (DEBUG)
+			{
+				System.out.println("none");
+			}
 		}
 		return list;
 
