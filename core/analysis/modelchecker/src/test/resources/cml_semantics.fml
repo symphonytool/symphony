@@ -18,10 +18,14 @@
     
     
     // P [] Q
-    State(st,P),
+    //State(st,P),
+    //State(st,Q),
+    //State(st, extraChoice(st,P,st,Q)),
+    //trans(iS, tau, State(st, extraChoice(st,P,st,Q))) :- iS is State(st,eChoice(P,Q)).
+	State(st,P),
     State(st,Q),
-    State(st, extraChoice(st,P,st,Q)),
-    trans(iS, tau, State(st, extraChoice(st,P,st,Q))) :- iS is State(st,eChoice(P,Q)).
+    State(st, extraChoice(st,P,st,Q)) :- iS is State(st,eChoice(P,Q)).
+    trans(iS, ev, iF) :- iS is State(st,eChoice(P,Q)), trans(State(st,extraChoice(st,P,st,Q)),ev,iF).
     
     //if one of the operands terminates (external choice:skip)
 	State(st1,Skip),
@@ -118,9 +122,10 @@
 	// P [|X|] Q - parallel begin
 	State(st,P),
 	State(st,Q),
-	State(st,par(st,P,X,st,Q)),  
-    trans(iS,tau,State(st,par(st,P,X,st,Q))) :- iS is State(st,genPar(P,X,Q)).
-
+	State(st,par(st,P,X,st,Q)) :- s0 is State(st,genPar(P,X,Q)).  
+    //trans(iS,tau,State(st,par(st,P,X,st,Q))) :- iS is State(st,genPar(P,X,Q)).
+	trans(iS,ev,iF) :- iS is State(st,genPar(P,X,Q)), trans(State(st,par(st,P,X,st,Q)),ev,iF).
+					   
 	State(stP,P), State(stQ,Q) :- State(st,par(stP,P,X,stQ,Q)).
 		
     //ON DEMAND STATE GENERATION
