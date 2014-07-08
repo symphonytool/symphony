@@ -42,4 +42,13 @@ public class State extends NamedUmlNode
 			return null;
 		}
 	}
+	
+	public List<Transition> allTransitions() {
+		List<Transition> alltransitions = new Vector<Transition>();
+		alltransitions.addAll(transitions);
+		for (State s: substates) {
+			alltransitions.addAll(s.allTransitions());
+		}
+		return alltransitions;
+	}
 }

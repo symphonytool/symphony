@@ -30,9 +30,75 @@ public class SysMlToCmlTranslator
 	 * a naive translation from the uml dom
 	 * 
 	 * @param output
-	 * @return 
 	 * @throws FileNotFoundException
 	 */
+	public String translate(Transition t) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("\n\t(");
+		if (t.constraint != null)
+		{
+			sb.append("[ "
+					+ fixSyntaxErrors(t.constraint.expression + "")
+					+ " ] & ");
+		}
+
+		if (t.trigger != null) {
+			sb.append(t.trigger.toString());
+			sb.append(" -> ");
+		}
+		
+		if (t.effect != null)
+		{
+			sb.append(fixSyntaxErrors(t.effect.body + " ; "));
+		}
+		if (t.source.exit != null) {
+			sb.append(fixSyntaxErrors(t.source.exit + "") + ";");
+		}
+		sb.append(getCmlName(t.target.name));
+		sb.append(")");
+		
+		return sb.toString();
+	}
+	
+	public String translate(State s) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(getCmlName(s.name) + " = ");
+		if (s.name.equals("Final"))
+		{
+			sb.append("Stop\n\n");
+			return sb.toString();
+		}
+		if (s.entry != null)
+		{
+			sb.append(fixSyntaxErrors(s.entry.name + " ; "));
+		}
+
+		List<Transition> transitions = getTransitions(s);
+		
+		if (transitions.size() > 0) {
+			sb.append("(");
+		}
+
+		for (Iterator<Transition> iterator = transitions.iterator(); iterator.hasNext();)
+		{
+			Transition t = iterator.next();
+			sb.append(translate(t));
+			
+			if (iterator.hasNext())
+			{
+				sb.append("\n\t[]");
+			}
+		}
+		sb.append("\n)");
+		sb.append("\n");
+		
+		for (State ss: s.substates) {
+			sb.append(translate(ss));
+		}
+		
+		return sb.toString();
+	}
+	
 	public File translate(File output) throws FileNotFoundException
 	{
 		StringBuilder sb = new StringBuilder();
@@ -46,20 +112,8 @@ public class SysMlToCmlTranslator
 
 		for (State state : sm.states)
 		{
-			sb.append(getCmlName(state.name) + " = ");
-
-			if (state.name.equals("Final"))
-			{
-				sb.append("Stop\n\n");
-				continue;
-			}
-
-			if (state.entry != null)
-			{
-				sb.append(fixSyntaxErrors(state.entry.name + " ; "));
-			}
-
-			List<Transition> transitions = getTransitions(state);
+			sb.append(translate(state));
+			/*List<Transition> transitions = getTransitions(state);
 
 			for (Iterator<Transition> iterator = transitions.iterator(); iterator.hasNext();)
 			{
@@ -84,7 +138,7 @@ public class SysMlToCmlTranslator
 				{
 					sb.append("\n[]");
 				}
-			}
+			}*/
 
 			sb.append("\n\n");
 		}
@@ -200,10 +254,14 @@ public class SysMlToCmlTranslator
 		return spec.replace("; ;", "; ").replace("!=", "<>").replace("==", "########").replace(" =", ":=").replace("########", "=").replace("&&", "and").replace("||", "or");
 	}
 
+	
+	
 	public List<Transition> getTransitions(State state)
 	{
 		List<Transition> transitions = new Vector<Transition>();
-		for (Transition t : sm.transitions)
+		List<Transition> alltransitions = sm.allTransitions();
+		
+		for (Transition t : alltransitions)
 		{
 			if (t.source.id == state.id)
 			{

@@ -38,4 +38,14 @@ public class StateMachine extends NamedUmlNode
 		}
 		return sb.toString();
 	}
+	
+	public List<Transition> allTransitions() {
+		List<Transition> alltransitions = new Vector<Transition>();
+		alltransitions.addAll(this.transitions);
+		for (State ss: states) {
+			alltransitions.addAll(ss.allTransitions());
+		}
+		return alltransitions;
+	}
+
 }
