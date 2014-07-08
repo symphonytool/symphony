@@ -1,16 +1,45 @@
 package eu.compassresearch.core.s2c.dom;
 
+import java.util.List;
+import java.util.Vector;
+
 public class State extends NamedUmlNode
 {
 	public NamedUmlNode entry;
 	public NamedUmlNode exit;
 	public String kind;
-
+	public List<State> substates = new Vector<State>();
+	public List<Transition> transitions = new Vector<Transition>();
+	
 	@Override
 	public String toString()
 	{
-		return name + (kind != null ? " kind=" + kind : "")
-				+ (entry != null ? " Entry=(" + entry+")" : "")
-				+ (exit != null ? " Exit=(" + exit+")" : "");
+		StringBuilder sb = new StringBuilder();
+		sb.append(name + (kind != null ? " kind=" + kind : "")+"{\n");
+		sb.append(entry != null ? " Entry=(" + entry+")" : "");sb.append("\n");
+		sb.append(exit != null ? " Exit=(" + exit+")" : "");sb.append("\n");
+		for (State s: substates) {
+			sb.append(s.toString()+"\n");
+		}
+		for (Transition t: transitions) {
+			sb.append(t.toString()+"\n");
+		}
+		sb.append("}\n");
+		
+		return sb.toString();
+	}
+	
+	public State lookupState(String id)
+	{
+		if (this.id.equals(id)) {
+			return this;
+		} else {
+			for (State s : substates)
+			{
+				State aux = s.lookupState(id);
+				if (aux != null) return aux;
+			}
+			return null;
+		}
 	}
 }

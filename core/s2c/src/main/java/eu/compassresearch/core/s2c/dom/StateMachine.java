@@ -10,13 +10,11 @@ public class StateMachine extends NamedUmlNode
 	public List<Transition> transitions = new Vector<Transition>();
 
 	public State lookupState(String id)
-	{
+	{	
 		for (State s : states)
 		{
-			if (s.id.equals(id))
-			{
-				return s;
-			}
+			State aux = s.lookupState(id);
+			if (aux != null) return aux;
 		}
 		return null;
 	}

@@ -138,6 +138,13 @@ public class Factory
 	private static String buildType(Node child)
 	{
 		// todo
+		if (child.getAttributes().getNamedItem("xmi:type").getTextContent().equals("uml:DataType")) {
+			return child.getAttributes().getNamedItem("name").getTextContent();		
+		}
+		if (child.getAttributes().getNamedItem("xmi:type").getTextContent().equals("uml:Class")) {
+			return child.getAttributes().getNamedItem("name").getTextContent();		
+		}
+		
 		String tmp = child.getAttributes().getNamedItem("href").getNodeValue();
 		if (tmp.contains("#"))
 		{
