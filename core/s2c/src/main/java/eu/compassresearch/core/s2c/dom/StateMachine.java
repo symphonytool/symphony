@@ -47,5 +47,13 @@ public class StateMachine extends NamedUmlNode
 		}
 		return alltransitions;
 	}
-
+	
+	public List<State> allStates() {
+		List<State> allstates= new Vector<State>();
+		allstates.addAll(states);
+		for (State s: states) {
+			allstates.addAll(s.allStates());
+		}
+		return allstates;
+	}
 }

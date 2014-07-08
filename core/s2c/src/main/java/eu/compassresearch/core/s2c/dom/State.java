@@ -51,4 +51,13 @@ public class State extends NamedUmlNode
 		}
 		return alltransitions;
 	}
+	
+	public List<State> allStates() {
+		List<State> allstates= new Vector<State>();
+		allstates.addAll(substates);
+		for (State s: substates) {
+			allstates.addAll(s.allStates());
+		}
+		return allstates;
+	}
 }
