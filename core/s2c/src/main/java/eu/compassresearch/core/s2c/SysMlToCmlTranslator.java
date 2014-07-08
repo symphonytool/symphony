@@ -30,9 +30,10 @@ public class SysMlToCmlTranslator
 	 * a naive translation from the uml dom
 	 * 
 	 * @param output
+	 * @return 
 	 * @throws FileNotFoundException
 	 */
-	public void translate(File output) throws FileNotFoundException
+	public File translate(File output) throws FileNotFoundException
 	{
 		StringBuilder sb = new StringBuilder();
 		sb.append("process " + sm.name + " = begin\n");
@@ -102,6 +103,7 @@ public class SysMlToCmlTranslator
 				out = new PrintWriter(file);
 				out.print(sb.toString());
 			}
+			return file;
 		} finally
 		{
 			if (out != null)

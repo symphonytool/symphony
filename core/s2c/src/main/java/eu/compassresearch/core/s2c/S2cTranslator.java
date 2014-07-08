@@ -140,12 +140,13 @@ public class S2cTranslator {
 	 * 
 	 * @param input
 	 * @param output
+	 * @return 
 	 * @throws ParserConfigurationException
 	 * @throws SAXException
 	 * @throws IOException
 	 * @throws XPathExpressionException
 	 */
-	public void translate(File input, File output)
+	public File translate(File input, File output)
 			throws ParserConfigurationException, SAXException, IOException,
 			XPathExpressionException {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -292,7 +293,7 @@ public class S2cTranslator {
 				.println("----------------------------------------------------------------------------");
 		System.out.println(sm);
 
-		new SysMlToCmlTranslator(theClassDef, sm).translate(output);
+		return new SysMlToCmlTranslator(theClassDef, sm).translate(output);
 	}
 
 	private Node lookupId(Document doc, XPath xpath, String sourceId)
