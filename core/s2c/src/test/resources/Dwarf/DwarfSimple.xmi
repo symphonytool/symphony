@@ -1,0 +1,504 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xmi:XMI xmi:version = "2.1" xmlns:xmi = "http://schema.omg.org/spec/XMI/2.1" xmlns:uml = "http://www.omg.org/spec/UML/20090901" xmlns:sysml = "http://www.omg.org/spec/SysML/20100301/SysML-profile" xmlns:StandardProfileL2 = "http://www.omg.org/spec/UML/20090901/StandardProfileL2" >
+  <documentation xmi:type = "xmi:Documentation">
+    <exporter>Artisan Studio</exporter>
+    <exporterVersion>7.4.4</exporterVersion>
+  </documentation>
+  <uml:Model name = "DwarfSimple" xmi:id = "_2571a76b-37c3-49ac-ae22-902493324a67">
+      <packagedElement xmi:type = "uml:Package" xmi:id = "_dd43f39d-3192-4478-9373-e265a7e92526" name = "Model">
+        <packagedElement xmi:type = "uml:Class" xmi:id = "_50e21ae4-10c6-4695-a849-2db3729438c5" name = "SYSTEM">
+          <ownedAttribute xmi:type = "uml:Property" xmi:id="_68009836-c168-407d-8e9c-26ae135fe718" type = "_70aaaf5a-3cad-41b0-9080-b0800b13fe42" visibility = "private" aggregation = "composite" association = "_dfdb11c6-8ec4-4726-96d8-97726c1c8aa6">
+          </ownedAttribute>
+          <ownedAttribute xmi:type = "uml:Property" xmi:id="_81bb73b5-ef72-4a37-8aa8-7f0d57e51229" type = "_1051e06b-d423-4b6e-8f0c-12a79d37b623" visibility = "private" aggregation = "composite" association = "_754a9e60-124b-4750-b577-8083c0768880">
+          </ownedAttribute>
+          <nestedClassifier xmi:type = "uml:Class" xmi:id = "_70aaaf5a-3cad-41b0-9080-b0800b13fe42" name = "SystemUnderTest" isAbstract = "false" visibility = "public">
+            <nestedClassifier xmi:type = "uml:Class" xmi:id = "_8a202cee-7750-457d-908a-7e64284c222b" name = "DwarfSignal" isAbstract = "false" visibility = "public">
+              <ownedBehavior xmi:type = "uml:StateMachine" xmi:id = "_d2bd2348-c769-4bc2-92d7-b55b351c334f" name = "DwarfSignal">
+                <region xmi:type = "uml:Region" xmi:id = "_d2bd2348-c769-4bc2-92d7-b55b351c334fregion">
+                  <subvertex xmi:type = "uml:State" xmi:id = "_06ae6401-2bc6-4782-a370-5c492f17055d" name = "DARK">
+                  </subvertex>
+                  <subvertex xmi:type = "uml:State" xmi:id = "_32981d89-98e7-4aaa-8de6-6f9dc7b64ea4" name = "DRIVE">
+                  </subvertex>
+                  <subvertex xmi:type = "uml:State" xmi:id = "_e4e3d5fd-e52c-46ef-893a-32d827d7d20d" name = "INIT">
+                  </subvertex>
+                  <subvertex xmi:type = "uml:Pseudostate" xmi:id = "_ec1324a7-adcb-45ea-be2e-dc6e2ef8f0ec" name = "Initial">
+                  </subvertex>
+                  <subvertex xmi:type = "uml:State" xmi:id = "_9875464c-1d6d-40fb-882c-826a74cf77e3" name = "STOP">
+                  </subvertex>
+                  <subvertex xmi:type = "uml:State" xmi:id = "_d02ed2af-8039-4794-afe2-abda83cfb6d7" name = "WARNING">
+                  </subvertex>
+                    <transition xmi:type = "uml:Transition" xmi:id = "_9303fc9a-1ac1-45a5-9039-233bb8089342" guard = "_b412e3b1-fd50-437b-9e44-5626a0db42b7guard" source = "_06ae6401-2bc6-4782-a370-5c492f17055d" target = "_06ae6401-2bc6-4782-a370-5c492f17055d">
+                      <ownedRule xmi:type = "uml:Constraint" xmi:id = "_b412e3b1-fd50-437b-9e44-5626a0db42b7guard" constrainedElement = "_9303fc9a-1ac1-45a5-9039-233bb8089342">
+                        <specification xmi:type = "uml:OpaqueExpression" xmi:id = "_b412e3b1-fd50-437b-9e44-5626a0db42b7specification" body = "s != stop">
+                        </specification>
+                      </ownedRule>
+                      <trigger xmi:type = "uml:Trigger" xmi:id = "_8c379554-3de7-466a-a7b6-35889f48bc43trigger" event = "_11da9dd4-e9f7-47b0-b237-2ed3ce4db86a">
+                      </trigger>
+                    </transition>
+                    <transition xmi:type = "uml:Transition" xmi:id = "_57b72e0d-cbf5-482c-8c83-163293bf8f30" guard = "_3669a697-a92f-4366-a8c2-259e1606a81fguard" source = "_06ae6401-2bc6-4782-a370-5c492f17055d" target = "_9875464c-1d6d-40fb-882c-826a74cf77e3">
+                      <ownedRule xmi:type = "uml:Constraint" xmi:id = "_3669a697-a92f-4366-a8c2-259e1606a81fguard" constrainedElement = "_57b72e0d-cbf5-482c-8c83-163293bf8f30">
+                        <specification xmi:type = "uml:OpaqueExpression" xmi:id = "_3669a697-a92f-4366-a8c2-259e1606a81fspecification" body = "s == stop">
+                        </specification>
+                      </ownedRule>
+                      <trigger xmi:type = "uml:Trigger" xmi:id = "_26445b2c-ccb8-4e55-aa1d-38b6058e0a51trigger" event = "_11da9dd4-e9f7-47b0-b237-2ed3ce4db86a">
+                      </trigger>
+                      <effect xmi:type = "uml:OpaqueBehavior" xmi:id = "_26445b2c-ccb8-4e55-aa1d-38b6058e0a51body" body = "&#13;switchOn.L1-&gt;&#13;switchOn.L2-&gt;Skip">
+                      </effect>
+                    </transition>
+                    <transition xmi:type = "uml:Transition" xmi:id = "_88ccbd6b-2cca-4fee-962e-23b907d7f635" guard = "_b5c6f7c9-e077-4a82-bc42-500b65c87564guard" source = "_32981d89-98e7-4aaa-8de6-6f9dc7b64ea4" target = "_32981d89-98e7-4aaa-8de6-6f9dc7b64ea4">
+                      <ownedRule xmi:type = "uml:Constraint" xmi:id = "_b5c6f7c9-e077-4a82-bc42-500b65c87564guard" constrainedElement = "_88ccbd6b-2cca-4fee-962e-23b907d7f635">
+                        <specification xmi:type = "uml:OpaqueExpression" xmi:id = "_b5c6f7c9-e077-4a82-bc42-500b65c87564specification" body = "s == dark">
+                        </specification>
+                      </ownedRule>
+                      <trigger xmi:type = "uml:Trigger" xmi:id = "_4b65abae-2972-401d-9256-174010b9cf0dtrigger" event = "_11da9dd4-e9f7-47b0-b237-2ed3ce4db86a">
+                      </trigger>
+                    </transition>
+                    <transition xmi:type = "uml:Transition" xmi:id = "_3e9125bb-c013-4c42-b5e5-ba869a52178c" guard = "_af58b621-ff20-4b6a-94df-bc63625a8df4guard" source = "_32981d89-98e7-4aaa-8de6-6f9dc7b64ea4" target = "_9875464c-1d6d-40fb-882c-826a74cf77e3">
+                      <ownedRule xmi:type = "uml:Constraint" xmi:id = "_af58b621-ff20-4b6a-94df-bc63625a8df4guard" constrainedElement = "_3e9125bb-c013-4c42-b5e5-ba869a52178c">
+                        <specification xmi:type = "uml:OpaqueExpression" xmi:id = "_af58b621-ff20-4b6a-94df-bc63625a8df4specification" body = "s == stop">
+                        </specification>
+                      </ownedRule>
+                      <trigger xmi:type = "uml:Trigger" xmi:id = "_793ce5d3-b2e8-41a2-ab41-74c5bcaf8b40trigger" event = "_11da9dd4-e9f7-47b0-b237-2ed3ce4db86a">
+                      </trigger>
+                      <effect xmi:type = "uml:OpaqueBehavior" xmi:id = "_793ce5d3-b2e8-41a2-ab41-74c5bcaf8b40body" body = "&#13;switchOff.L3-&gt;&#13;switchOn.L1-&gt;Skip">
+                      </effect>
+                    </transition>
+                    <transition xmi:type = "uml:Transition" xmi:id = "_c659ccb8-8784-42ea-bdea-edb6024b5cb5" guard = "_018bd9dd-d163-4132-b862-5b69f8c94054guard" source = "_32981d89-98e7-4aaa-8de6-6f9dc7b64ea4" target = "_d02ed2af-8039-4794-afe2-abda83cfb6d7">
+                      <ownedRule xmi:type = "uml:Constraint" xmi:id = "_018bd9dd-d163-4132-b862-5b69f8c94054guard" constrainedElement = "_c659ccb8-8784-42ea-bdea-edb6024b5cb5">
+                        <specification xmi:type = "uml:OpaqueExpression" xmi:id = "_018bd9dd-d163-4132-b862-5b69f8c94054specification" body = "s == warning">
+                        </specification>
+                      </ownedRule>
+                      <trigger xmi:type = "uml:Trigger" xmi:id = "_a8cdaf6c-6c11-46ed-8021-a2210b94ca0btrigger" event = "_11da9dd4-e9f7-47b0-b237-2ed3ce4db86a">
+                      </trigger>
+                      <effect xmi:type = "uml:OpaqueBehavior" xmi:id = "_a8cdaf6c-6c11-46ed-8021-a2210b94ca0bbody" body = "&#13;switchOff.L2-&gt;&#13;switchOn.L1-&gt;Skip">
+                      </effect>
+                    </transition>
+                    <transition xmi:type = "uml:Transition" xmi:id = "_d0eff7fb-1ddd-4516-b0a3-cb6543745e4f" guard = "_4e2b8fe6-aec3-4e62-bc37-7d2652778b8fguard" source = "_e4e3d5fd-e52c-46ef-893a-32d827d7d20d" target = "_06ae6401-2bc6-4782-a370-5c492f17055d">
+                      <ownedRule xmi:type = "uml:Constraint" xmi:id = "_4e2b8fe6-aec3-4e62-bc37-7d2652778b8fguard" constrainedElement = "_d0eff7fb-1ddd-4516-b0a3-cb6543745e4f">
+                        <specification xmi:type = "uml:OpaqueExpression" xmi:id = "_4e2b8fe6-aec3-4e62-bc37-7d2652778b8fspecification" body = "s == dark">
+                        </specification>
+                      </ownedRule>
+                      <trigger xmi:type = "uml:Trigger" xmi:id = "_d8fe1e84-0739-4cf5-bb1e-284186f265d0trigger" event = "_11da9dd4-e9f7-47b0-b237-2ed3ce4db86a">
+                      </trigger>
+                      <effect xmi:type = "uml:OpaqueBehavior" xmi:id = "_d8fe1e84-0739-4cf5-bb1e-284186f265d0body" body = "&#13;switchOff.L1-&gt;&#13;switchOff.L2-&gt;&#13;switchOff.L3-&gt;Skip">
+                      </effect>
+                    </transition>
+                    <transition xmi:type = "uml:Transition" xmi:id = "_4ac11d32-9a2a-42c3-b761-c97c33fb0a27" source = "_ec1324a7-adcb-45ea-be2e-dc6e2ef8f0ec" target = "_e4e3d5fd-e52c-46ef-893a-32d827d7d20d">
+                    </transition>
+                    <transition xmi:type = "uml:Transition" xmi:id = "_5dcfe377-63da-4ea0-8518-14480c2304fd" guard = "_1212d53b-3a6a-45ef-a55f-4c2779c0bf38guard" source = "_9875464c-1d6d-40fb-882c-826a74cf77e3" target = "_06ae6401-2bc6-4782-a370-5c492f17055d">
+                      <ownedRule xmi:type = "uml:Constraint" xmi:id = "_1212d53b-3a6a-45ef-a55f-4c2779c0bf38guard" constrainedElement = "_5dcfe377-63da-4ea0-8518-14480c2304fd">
+                        <specification xmi:type = "uml:OpaqueExpression" xmi:id = "_1212d53b-3a6a-45ef-a55f-4c2779c0bf38specification" body = "s == dark">
+                        </specification>
+                      </ownedRule>
+                      <trigger xmi:type = "uml:Trigger" xmi:id = "_66bcd593-542e-4b7c-b559-24c7ea168c11trigger" event = "_11da9dd4-e9f7-47b0-b237-2ed3ce4db86a">
+                      </trigger>
+                      <effect xmi:type = "uml:OpaqueBehavior" xmi:id = "_66bcd593-542e-4b7c-b559-24c7ea168c11body" body = "&#13;switchOff.L1-&gt;&#13;switchOff.L2-&gt;Skip">
+                      </effect>
+                    </transition>
+                    <transition xmi:type = "uml:Transition" xmi:id = "_7b2fde15-5d6d-4ea3-a6ab-1a4905d927a7" guard = "_12f81543-2d6d-4bcd-b1ce-392b699cacbdguard" source = "_9875464c-1d6d-40fb-882c-826a74cf77e3" target = "_9875464c-1d6d-40fb-882c-826a74cf77e3">
+                      <ownedRule xmi:type = "uml:Constraint" xmi:id = "_12f81543-2d6d-4bcd-b1ce-392b699cacbdguard" constrainedElement = "_7b2fde15-5d6d-4ea3-a6ab-1a4905d927a7">
+                        <specification xmi:type = "uml:OpaqueExpression" xmi:id = "_12f81543-2d6d-4bcd-b1ce-392b699cacbdspecification" body = "s == drive">
+                        </specification>
+                      </ownedRule>
+                      <trigger xmi:type = "uml:Trigger" xmi:id = "_c8b3830f-3cf1-400c-9d45-0ca0b43915b7trigger" event = "_11da9dd4-e9f7-47b0-b237-2ed3ce4db86a">
+                      </trigger>
+                    </transition>
+                    <transition xmi:type = "uml:Transition" xmi:id = "_351c129a-30ba-4ae3-8515-fa4cdd610eb6" guard = "_160a13ea-2814-4015-b572-3e62df78e2e7guard" source = "_9875464c-1d6d-40fb-882c-826a74cf77e3" target = "_d02ed2af-8039-4794-afe2-abda83cfb6d7">
+                      <ownedRule xmi:type = "uml:Constraint" xmi:id = "_160a13ea-2814-4015-b572-3e62df78e2e7guard" constrainedElement = "_351c129a-30ba-4ae3-8515-fa4cdd610eb6">
+                        <specification xmi:type = "uml:OpaqueExpression" xmi:id = "_160a13ea-2814-4015-b572-3e62df78e2e7specification" body = "s == warning">
+                        </specification>
+                      </ownedRule>
+                      <trigger xmi:type = "uml:Trigger" xmi:id = "_2b871592-9c6e-472d-956b-f7ec138d5539trigger" event = "_11da9dd4-e9f7-47b0-b237-2ed3ce4db86a">
+                      </trigger>
+                      <effect xmi:type = "uml:OpaqueBehavior" xmi:id = "_2b871592-9c6e-472d-956b-f7ec138d5539body" body = "&#13;switchOff.L2-&gt;&#13;switchOn.L3-&gt;Skip">
+                      </effect>
+                    </transition>
+                    <transition xmi:type = "uml:Transition" xmi:id = "_5c1290ca-8331-498a-ba68-7b27155c0039" guard = "_a3df01ac-fd94-4e01-883f-f9c66d435925guard" source = "_d02ed2af-8039-4794-afe2-abda83cfb6d7" target = "_32981d89-98e7-4aaa-8de6-6f9dc7b64ea4">
+                      <ownedRule xmi:type = "uml:Constraint" xmi:id = "_a3df01ac-fd94-4e01-883f-f9c66d435925guard" constrainedElement = "_5c1290ca-8331-498a-ba68-7b27155c0039">
+                        <specification xmi:type = "uml:OpaqueExpression" xmi:id = "_a3df01ac-fd94-4e01-883f-f9c66d435925specification" body = "s == drive">
+                        </specification>
+                      </ownedRule>
+                      <trigger xmi:type = "uml:Trigger" xmi:id = "_3a837926-8b97-49f5-952b-070979b0f370trigger" event = "_11da9dd4-e9f7-47b0-b237-2ed3ce4db86a">
+                      </trigger>
+                      <effect xmi:type = "uml:OpaqueBehavior" xmi:id = "_3a837926-8b97-49f5-952b-070979b0f370body" body = "&#13;switchOff.L1-&gt;&#13;switchOn.L2-&gt;Skip">
+                      </effect>
+                    </transition>
+                    <transition xmi:type = "uml:Transition" xmi:id = "_316be9e9-8491-4c43-858f-7c28cd8a23dc" guard = "_4e0c10d4-acf2-4ad1-abd9-7a7c41001ca2guard" source = "_d02ed2af-8039-4794-afe2-abda83cfb6d7" target = "_9875464c-1d6d-40fb-882c-826a74cf77e3">
+                      <ownedRule xmi:type = "uml:Constraint" xmi:id = "_4e0c10d4-acf2-4ad1-abd9-7a7c41001ca2guard" constrainedElement = "_316be9e9-8491-4c43-858f-7c28cd8a23dc">
+                        <specification xmi:type = "uml:OpaqueExpression" xmi:id = "_4e0c10d4-acf2-4ad1-abd9-7a7c41001ca2specification" body = "s == stop">
+                        </specification>
+                      </ownedRule>
+                      <trigger xmi:type = "uml:Trigger" xmi:id = "_291b1efb-61e1-4d23-9905-b761c9305104trigger" event = "_11da9dd4-e9f7-47b0-b237-2ed3ce4db86a">
+                      </trigger>
+                      <effect xmi:type = "uml:OpaqueBehavior" xmi:id = "_291b1efb-61e1-4d23-9905-b761c9305104body" body = "&#13;switchOff.L3-&gt;&#13;switchOn.L2-&gt;Skip">
+                      </effect>
+                    </transition>
+                    <transition xmi:type = "uml:Transition" xmi:id = "_fc48255b-9d71-4dda-b238-84de1113cf0b" guard = "_03afde7b-d350-4860-bffc-2aebd96ec96dguard" source = "_d02ed2af-8039-4794-afe2-abda83cfb6d7" target = "_d02ed2af-8039-4794-afe2-abda83cfb6d7">
+                      <ownedRule xmi:type = "uml:Constraint" xmi:id = "_03afde7b-d350-4860-bffc-2aebd96ec96dguard" constrainedElement = "_fc48255b-9d71-4dda-b238-84de1113cf0b">
+                        <specification xmi:type = "uml:OpaqueExpression" xmi:id = "_03afde7b-d350-4860-bffc-2aebd96ec96dspecification" body = "s == dark">
+                        </specification>
+                      </ownedRule>
+                      <trigger xmi:type = "uml:Trigger" xmi:id = "_e53729a8-7cf6-4792-9a36-c55facaa6e10trigger" event = "_11da9dd4-e9f7-47b0-b237-2ed3ce4db86a">
+                      </trigger>
+                    </transition>
+                </region>
+              </ownedBehavior>
+            </nestedClassifier>
+            <ownedAttribute xmi:type = "uml:Property" xmi:id="_bf3db4c3-1fa7-404b-8e40-c4a6b905caef" name = "DwarfSignl" type = "_8a202cee-7750-457d-908a-7e64284c222b" visibility = "private" aggregation = "composite" association = "_3949e4ef-7288-4b90-82f0-230b8b5a3165">
+            </ownedAttribute>
+          </nestedClassifier>
+          <nestedClassifier xmi:type = "uml:Class" xmi:id = "_1051e06b-d423-4b6e-8f0c-12a79d37b623" name = "TestEnvironment" isAbstract = "false" visibility = "public">
+          </nestedClassifier>
+          <ownedConnector xmi:type = "uml:Connector" xmi:id = "_3949e4ef-7288-4b90-82f0-230b8b5a3165" name = "Associates">
+            <end xmi:type = "uml:ConnectorEnd" xmi:id = "_901acb31-53b0-4052-957b-c77474648a06">
+            </end>
+            <end xmi:type = "uml:ConnectorEnd" xmi:id = "_bf3db4c3-1fa7-404b-8e40-c4a6b905caef">
+            </end>
+          </ownedConnector>
+        </packagedElement>
+        <packagedElement xmi:type = "uml:Package" xmi:id = "_0700ad7f-bb6c-46b3-bb4a-ed2242ea6d4d" name = "Datatypes">
+          <packagedElement xmi:type = "uml:Enumeration" xmi:id = "_6fbc8139-c45f-4d02-9305-7954a8029a6a" name = "Lamps_t">
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_de8ab735-0716-4777-ba62-603b138be453" name = "L1" classifier = "_6fbc8139-c45f-4d02-9305-7954a8029a6a">
+            </ownedLiteral>
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_49929805-5233-4c38-b397-8de69873a36f" name = "L2" classifier = "_6fbc8139-c45f-4d02-9305-7954a8029a6a">
+            </ownedLiteral>
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_01adc93c-8a96-4c22-b7d7-403b99f7cfd4" name = "L3" classifier = "_6fbc8139-c45f-4d02-9305-7954a8029a6a">
+            </ownedLiteral>
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_659430e5-2ac2-4809-b952-8b8bbafc1c5e" name = "noLamp" classifier = "_6fbc8139-c45f-4d02-9305-7954a8029a6a">
+            </ownedLiteral>
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Enumeration" xmi:id = "_908b73cc-8991-4ed3-abe0-86243ddbd47c" name = "States_t">
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_b7f270d6-ffda-4baa-89a9-a9fb43d54f6a" name = "dark" classifier = "_908b73cc-8991-4ed3-abe0-86243ddbd47c">
+            </ownedLiteral>
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_d7455be0-e678-4d9f-ba95-b6d429f7dc79" name = "stop" classifier = "_908b73cc-8991-4ed3-abe0-86243ddbd47c">
+            </ownedLiteral>
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_2b17f94d-c52b-46fd-83a9-e31791531469" name = "warning" classifier = "_908b73cc-8991-4ed3-abe0-86243ddbd47c">
+            </ownedLiteral>
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_e3c47505-b5dd-4175-a562-70504b9f4a70" name = "drive" classifier = "_908b73cc-8991-4ed3-abe0-86243ddbd47c">
+            </ownedLiteral>
+          </packagedElement>
+        </packagedElement>
+        <packagedElement xmi:type = "uml:Package" xmi:id = "_fb8afbc6-fedc-456b-9c99-1c33d86b82fc" name = "Events">
+          <packagedElement xmi:type = "uml:SignalEvent" xmi:id = "_11da9dd4-e9f7-47b0-b237-2ed3ce4db86a" name = "setState" signal = "_7f69fc9c-2a06-4e75-9eec-38ff1ccb33a8">
+          </packagedElement>
+          <packagedElement xmi:type = "uml:SignalEvent" xmi:id = "_34f86316-f10f-4ec2-b2be-65e2377948fa" name = "switchOff" signal = "_334169a3-7cb0-47fa-88b6-bff5fbf12421">
+          </packagedElement>
+          <packagedElement xmi:type = "uml:SignalEvent" xmi:id = "_73df9a07-7ab0-4883-baaa-e6cdd049bda8" name = "switchOn" signal = "_cbba8a1f-b1a6-44e1-8fec-9d93d0fe003e">
+          </packagedElement>
+        </packagedElement>
+        <packagedElement xmi:type = "uml:Package" xmi:id = "_17abbb5c-618a-463a-bc52-0a3292796197" name = "Requirements">
+          <packagedElement xmi:type = "uml:Class" xmi:id = "_35a34f70-36b0-4bf4-a48f-2867d76412ec" name = "REQ-001 : The initial state is Dark" isAbstract = "true">
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Class" xmi:id = "_bd9ccaec-85e9-4869-a768-d0604a544b0e" name = "REQ-002 : In state Dark, all lamps are off" isAbstract = "true">
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Class" xmi:id = "_bfd0dcd5-2a97-4d42-9557-1cf4860a865a" name = "REQ-003 : In state Stop, L1 and L2 are on, L3 is off" isAbstract = "true">
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Class" xmi:id = "_ce375557-8932-4fc6-a1a9-8f0afd6f4a23" name = "REQ-004 : In state Warning, L1 and L3 are on, L2 is off" isAbstract = "true">
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Class" xmi:id = "_0195c5d2-4370-4998-a48f-88735db3602f" name = "REQ-005 : In state Drive, L2 and L3 are on, L1 is off" isAbstract = "true">
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Class" xmi:id = "_05b7e7f3-1291-4fd4-9932-ead1c414dc0d" name = "REQ-006 : The Signal cannot change from Stop to Drive" isAbstract = "true">
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Class" xmi:id = "_6579656a-b989-4bd2-b334-fc620eb8d78d" name = "REQ-007 : The Signal can change to Dark only from Stop" isAbstract = "true">
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Class" xmi:id = "_ba343f9b-b9ca-4c9f-8d6e-f74ae01e600d" name = "REQ-008 : From Dark, the signal can only change to Stop" isAbstract = "true">
+          </packagedElement>
+        </packagedElement>
+        <packagedElement xmi:type = "uml:Package" xmi:id = "_29bdc9e8-8641-4aa4-9476-6ad84082f2ab" name = "Signals">
+          <packagedElement xmi:type = "uml:Signal" xmi:id = "_7f69fc9c-2a06-4e75-9eec-38ff1ccb33a8" name = "setState">
+            <ownedAttribute xmi:type = "uml:Property" xmi:id = "_e9fe463f-fc56-464b-8648-110c41e73d75" name = "s" type = "_908b73cc-8991-4ed3-abe0-86243ddbd47c" visibility = "private" aggregation = "composite">
+            </ownedAttribute>
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Signal" xmi:id = "_334169a3-7cb0-47fa-88b6-bff5fbf12421" name = "switchOff">
+            <ownedAttribute xmi:type = "uml:Property" xmi:id = "_2c598e06-a671-4ab6-8ce9-b5d66ef0dbf9" name = "lamp" type = "_6fbc8139-c45f-4d02-9305-7954a8029a6a" visibility = "private" aggregation = "composite">
+            </ownedAttribute>
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Signal" xmi:id = "_cbba8a1f-b1a6-44e1-8fec-9d93d0fe003e" name = "switchOn">
+            <ownedAttribute xmi:type = "uml:Property" xmi:id = "_707191dd-62dd-4a27-aea8-6b98b61cd07f" name = "lamp" type = "_6fbc8139-c45f-4d02-9305-7954a8029a6a" visibility = "private" aggregation = "composite">
+            </ownedAttribute>
+          </packagedElement>
+        </packagedElement>
+        <packagedElement xmi:type = "uml:Association" xmi:id = "_3949e4ef-7288-4b90-82f0-230b8b5a3165" memberEnd = "_901acb31-53b0-4052-957b-c77474648a06 _bf3db4c3-1fa7-404b-8e40-c4a6b905caef">
+          <ownedEnd xmi:type = "uml:Property" xmi:id = "_901acb31-53b0-4052-957b-c77474648a06" type = "_70aaaf5a-3cad-41b0-9080-b0800b13fe42" visibility = "private" association = "_3949e4ef-7288-4b90-82f0-230b8b5a3165">
+          </ownedEnd>
+        </packagedElement>
+        <packagedElement xmi:type = "uml:Association" xmi:id = "_dfdb11c6-8ec4-4726-96d8-97726c1c8aa6" memberEnd = "_31bb3721-3d19-4cc5-88be-fca5146838fd _68009836-c168-407d-8e9c-26ae135fe718">
+          <ownedEnd xmi:type = "uml:Property" xmi:id = "_31bb3721-3d19-4cc5-88be-fca5146838fd" type = "_50e21ae4-10c6-4695-a849-2db3729438c5" visibility = "private" association = "_dfdb11c6-8ec4-4726-96d8-97726c1c8aa6">
+          </ownedEnd>
+        </packagedElement>
+        <packagedElement xmi:type = "uml:Association" xmi:id = "_754a9e60-124b-4750-b577-8083c0768880" memberEnd = "_5d1e8626-89d1-411b-a5b2-8c67cf97e64d _81bb73b5-ef72-4a37-8aa8-7f0d57e51229">
+          <ownedEnd xmi:type = "uml:Property" xmi:id = "_5d1e8626-89d1-411b-a5b2-8c67cf97e64d" type = "_50e21ae4-10c6-4695-a849-2db3729438c5" visibility = "private" association = "_754a9e60-124b-4750-b577-8083c0768880">
+          </ownedEnd>
+        </packagedElement>
+        <packagedElement xmi:type = "uml:Abstraction" xmi:id = "_f2bfbdc3-f0ef-4c9c-98ea-e615bcc39d43" client = "_7b2fde15-5d6d-4ea3-a6ab-1a4905d927a7" supplier = "_05b7e7f3-1291-4fd4-9932-ead1c414dc0d">
+        </packagedElement>
+        <packagedElement xmi:type = "uml:Abstraction" xmi:id = "_49da483a-0202-47e1-8415-d28ea94b2b4c" client = "_d02ed2af-8039-4794-afe2-abda83cfb6d7" supplier = "_ce375557-8932-4fc6-a1a9-8f0afd6f4a23">
+        </packagedElement>
+        <packagedElement xmi:type = "uml:Abstraction" xmi:id = "_c3ff7f06-da18-48a3-8717-2eda1d8c6901" client = "_88ccbd6b-2cca-4fee-962e-23b907d7f635" supplier = "_6579656a-b989-4bd2-b334-fc620eb8d78d">
+        </packagedElement>
+        <packagedElement xmi:type = "uml:Abstraction" xmi:id = "_03e3517b-c80b-4342-97d4-b67e91cae492" client = "_06ae6401-2bc6-4782-a370-5c492f17055d" supplier = "_bd9ccaec-85e9-4869-a768-d0604a544b0e">
+        </packagedElement>
+        <packagedElement xmi:type = "uml:Abstraction" xmi:id = "_cdd2fc33-2bc7-42ef-a0ea-35c43532bd6f" client = "_32981d89-98e7-4aaa-8de6-6f9dc7b64ea4" supplier = "_0195c5d2-4370-4998-a48f-88735db3602f">
+        </packagedElement>
+        <packagedElement xmi:type = "uml:Abstraction" xmi:id = "_b5d78470-f485-4ad7-9fbd-a3ff7d5b96ae" client = "_9303fc9a-1ac1-45a5-9039-233bb8089342" supplier = "_ba343f9b-b9ca-4c9f-8d6e-f74ae01e600d">
+        </packagedElement>
+        <packagedElement xmi:type = "uml:Abstraction" xmi:id = "_fd1f208a-fd6c-49fc-af6c-0c5bf017881a" client = "_9875464c-1d6d-40fb-882c-826a74cf77e3" supplier = "_bfd0dcd5-2a97-4d42-9557-1cf4860a865a">
+        </packagedElement>
+        <packagedElement xmi:type = "uml:Abstraction" xmi:id = "_85c59196-f403-4f49-bc2f-6ac9ac538938" client = "_d0eff7fb-1ddd-4516-b0a3-cb6543745e4f" supplier = "_35a34f70-36b0-4bf4-a48f-2867d76412ec">
+        </packagedElement>
+        <packagedElement xmi:type = "uml:Abstraction" xmi:id = "_287428ed-1117-4798-9b1c-95322121a87a" client = "_fc48255b-9d71-4dda-b238-84de1113cf0b" supplier = "_6579656a-b989-4bd2-b334-fc620eb8d78d">
+        </packagedElement>
+      </packagedElement>
+      <packagedElement xmi:type = "uml:Profile" xmi:id = "_68e1e99f-0e83-41cb-901c-850e879ccd1d" name = "RTT-MBT Profile" visibility = "public">
+        <ownedComment xmi:type = "uml:Comment" xmi:id = "_68e1e99f-0e83-41cb-901c-850e879ccd1dcomment" body = "This profile contains RttTgen specific stereotype and type definitions">
+        </ownedComment>
+        <packagedElement xmi:type = "uml:Package" xmi:id = "_c8e4c0ef-f65e-4305-bb6a-42828b8bce5f" name = "Datatypes">
+          <packagedElement xmi:type = "uml:DataType" xmi:id = "_cf7e6713-8ea6-444d-bcec-7c9ba1c45de4" name = "bool">
+          </packagedElement>
+          <packagedElement xmi:type = "uml:DataType" xmi:id = "_fa33518e-e0f0-4e9d-8689-20d78b5f747d" name = "char">
+          </packagedElement>
+          <packagedElement xmi:type = "uml:DataType" xmi:id = "_e0426fb3-4a34-4ed9-b359-87fa80f81d59" name = "float">
+          </packagedElement>
+          <packagedElement xmi:type = "uml:DataType" xmi:id = "_b9cf1b95-db49-4197-8f35-ccb9393f2b2a" name = "int">
+          </packagedElement>
+          <packagedElement xmi:type = "uml:DataType" xmi:id = "_d8b84188-be15-482d-ac93-25b55ae7be39" name = "timer">
+          </packagedElement>
+          <packagedElement xmi:type = "uml:DataType" xmi:id = "_23ce9c88-8c1c-439d-b4b0-a06df42773c2" name = "unsigned char">
+          </packagedElement>
+          <packagedElement xmi:type = "uml:DataType" xmi:id = "_0aa2ecd7-ffef-4d2c-a97d-135234071b8d" name = "unsigned int">
+          </packagedElement>
+        </packagedElement>
+        <packagedElement xmi:type = "uml:Package" xmi:id = "_278d0351-322f-4111-9afb-a7d9d2469a38" name = "Stereotypes">
+          <packagedElement xmi:type = "uml:Stereotype" xmi:id = "_e17692dd-87d9-407a-862b-ded911f427f4" name = "CML">
+            <ownedAttribute xmi:id = "_e17692dd-87d9-407a-862b-ded911f427f4PackageMetaType" name = "base_Package" association = "_e17692dd-87d9-407a-862b-ded911f427f4PackageExtension">
+              <type xmi:type = "uml:Class" href = "http://www.omg.org/spec/UML/20090901/UML.xmi#Package">
+              </type>
+            </ownedAttribute>
+            <ownedAttribute xmi:id = "_e17692dd-87d9-407a-862b-ded911f427f4ClassMetaType" name = "base_Class" association = "_e17692dd-87d9-407a-862b-ded911f427f4ClassExtension">
+              <type xmi:type = "uml:Class" href = "http://www.omg.org/spec/UML/20090901/UML.xmi#Class">
+              </type>
+            </ownedAttribute>
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Stereotype" xmi:id = "_9da31d1c-d6e5-427c-9121-9c9496967d07" name = "CONSTRAINTS">
+            <ownedAttribute xmi:id = "_9da31d1c-d6e5-427c-9121-9c9496967d07PackageMetaType" name = "base_Package" association = "_9da31d1c-d6e5-427c-9121-9c9496967d07PackageExtension">
+              <type xmi:type = "uml:Class" href = "http://www.omg.org/spec/UML/20090901/UML.xmi#Package">
+              </type>
+            </ownedAttribute>
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Stereotype" xmi:id = "_25e6870f-0caf-4cc6-93c7-6b729a49d147" name = "DATATYPES">
+            <ownedAttribute xmi:id = "_25e6870f-0caf-4cc6-93c7-6b729a49d147PackageMetaType" name = "base_Package" association = "_25e6870f-0caf-4cc6-93c7-6b729a49d147PackageExtension">
+              <type xmi:type = "uml:Class" href = "http://www.omg.org/spec/UML/20090901/UML.xmi#Package">
+              </type>
+            </ownedAttribute>
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Stereotype" xmi:id = "_dcce17d3-8eb0-4867-993e-23c0a3a4ffe4" name = "interface">
+            <ownedAttribute xmi:id = "_dcce17d3-8eb0-4867-993e-23c0a3a4ffe4PropertyMetaType" name = "base_Property" association = "_dcce17d3-8eb0-4867-993e-23c0a3a4ffe4PropertyExtension">
+              <type xmi:type = "uml:Class" href = "http://www.omg.org/spec/UML/20090901/UML.xmi#Property">
+              </type>
+            </ownedAttribute>
+            <ownedAttribute xmi:id = "_dcce17d3-8eb0-4867-993e-23c0a3a4ffe4InterfaceMetaType" name = "base_Interface" association = "_dcce17d3-8eb0-4867-993e-23c0a3a4ffe4InterfaceExtension">
+              <type xmi:type = "uml:Class" href = "http://www.omg.org/spec/UML/20090901/UML.xmi#Interface">
+              </type>
+            </ownedAttribute>
+            <ownedAttribute xmi:id = "_dcce17d3-8eb0-4867-993e-23c0a3a4ffe4ClassMetaType" name = "base_Class" association = "_dcce17d3-8eb0-4867-993e-23c0a3a4ffe4ClassExtension">
+              <type xmi:type = "uml:Class" href = "http://www.omg.org/spec/UML/20090901/UML.xmi#Class">
+              </type>
+            </ownedAttribute>
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Stereotype" xmi:id = "_de69a172-6544-4e72-b56b-aeae1ec70047" name = "INTERFACES">
+            <ownedAttribute xmi:id = "_de69a172-6544-4e72-b56b-aeae1ec70047PackageMetaType" name = "base_Package" association = "_de69a172-6544-4e72-b56b-aeae1ec70047PackageExtension">
+              <type xmi:type = "uml:Class" href = "http://www.omg.org/spec/UML/20090901/UML.xmi#Package">
+              </type>
+            </ownedAttribute>
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Stereotype" xmi:id = "_7a9784b6-9507-4c4d-b793-9d5b1cb33e09" name = "REQUIREMENTS">
+            <ownedAttribute xmi:id = "_7a9784b6-9507-4c4d-b793-9d5b1cb33e09PackageMetaType" name = "base_Package" association = "_7a9784b6-9507-4c4d-b793-9d5b1cb33e09PackageExtension">
+              <type xmi:type = "uml:Class" href = "http://www.omg.org/spec/UML/20090901/UML.xmi#Package">
+              </type>
+            </ownedAttribute>
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Stereotype" xmi:id = "_d7a9f6aa-2a17-4e7b-9e5f-67884ddd0bd4" name = "RttTgen Enumeration">
+            <ownedAttribute xmi:id = "_d7a9f6aa-2a17-4e7b-9e5f-67884ddd0bd4Enumeration LiteralMetaType" name = "base_Enumeration Literal" association = "_d7a9f6aa-2a17-4e7b-9e5f-67884ddd0bd4Enumeration LiteralExtension">
+              <type xmi:type = "uml:Class" href = "http://www.omg.org/spec/UML/20090901/UML.xmi#Enumeration Literal">
+              </type>
+            </ownedAttribute>
+            <ownedAttribute xmi:id = "_a91f8c4e-79e2-4766-b0c6-c1fbdb370171" name = "RttTgen EnumValue" visibility = "public">
+              <type xmi:type = "uml:PrimitiveType" href = "http://www.omg.org/spec/UML/20090901/UML.xmi#String">
+              </type>
+            </ownedAttribute>
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Stereotype" xmi:id = "_4b52149d-271b-4181-bcba-62218e86ab65" name = "SUT">
+            <ownedAttribute xmi:id = "_4b52149d-271b-4181-bcba-62218e86ab65ClassMetaType" name = "base_Class" association = "_4b52149d-271b-4181-bcba-62218e86ab65ClassExtension">
+              <type xmi:type = "uml:Class" href = "http://www.omg.org/spec/UML/20090901/UML.xmi#Class">
+              </type>
+            </ownedAttribute>
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Stereotype" xmi:id = "_985f3b47-75dd-457a-a60f-c8d09a6cb1e3" name = "SUT2TE">
+            <ownedAttribute xmi:id = "_985f3b47-75dd-457a-a60f-c8d09a6cb1e3PropertyMetaType" name = "base_Property" association = "_985f3b47-75dd-457a-a60f-c8d09a6cb1e3PropertyExtension">
+              <type xmi:type = "uml:Class" href = "http://www.omg.org/spec/UML/20090901/UML.xmi#Property">
+              </type>
+            </ownedAttribute>
+            <ownedAttribute xmi:id = "_985f3b47-75dd-457a-a60f-c8d09a6cb1e3InterfaceMetaType" name = "base_Interface" association = "_985f3b47-75dd-457a-a60f-c8d09a6cb1e3InterfaceExtension">
+              <type xmi:type = "uml:Class" href = "http://www.omg.org/spec/UML/20090901/UML.xmi#Interface">
+              </type>
+            </ownedAttribute>
+            <ownedAttribute xmi:id = "_985f3b47-75dd-457a-a60f-c8d09a6cb1e3ClassMetaType" name = "base_Class" association = "_985f3b47-75dd-457a-a60f-c8d09a6cb1e3ClassExtension">
+              <type xmi:type = "uml:Class" href = "http://www.omg.org/spec/UML/20090901/UML.xmi#Class">
+              </type>
+            </ownedAttribute>
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Stereotype" xmi:id = "_f3370fb5-2036-486c-ae85-55c083702767" name = "SYSTEM">
+            <ownedAttribute xmi:id = "_f3370fb5-2036-486c-ae85-55c083702767ClassMetaType" name = "base_Class" association = "_f3370fb5-2036-486c-ae85-55c083702767ClassExtension">
+              <type xmi:type = "uml:Class" href = "http://www.omg.org/spec/UML/20090901/UML.xmi#Class">
+              </type>
+            </ownedAttribute>
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Stereotype" xmi:id = "_6f83f6fd-e1f1-4860-a11b-b62046a32fc5" name = "TE">
+            <ownedAttribute xmi:id = "_6f83f6fd-e1f1-4860-a11b-b62046a32fc5ClassMetaType" name = "base_Class" association = "_6f83f6fd-e1f1-4860-a11b-b62046a32fc5ClassExtension">
+              <type xmi:type = "uml:Class" href = "http://www.omg.org/spec/UML/20090901/UML.xmi#Class">
+              </type>
+            </ownedAttribute>
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Stereotype" xmi:id = "_9224d506-59d3-4062-b5db-dd9e2f83d16b" name = "TE2SUT">
+            <ownedAttribute xmi:id = "_9224d506-59d3-4062-b5db-dd9e2f83d16bPropertyMetaType" name = "base_Property" association = "_9224d506-59d3-4062-b5db-dd9e2f83d16bPropertyExtension">
+              <type xmi:type = "uml:Class" href = "http://www.omg.org/spec/UML/20090901/UML.xmi#Property">
+              </type>
+            </ownedAttribute>
+            <ownedAttribute xmi:id = "_9224d506-59d3-4062-b5db-dd9e2f83d16bInterfaceMetaType" name = "base_Interface" association = "_9224d506-59d3-4062-b5db-dd9e2f83d16bInterfaceExtension">
+              <type xmi:type = "uml:Class" href = "http://www.omg.org/spec/UML/20090901/UML.xmi#Interface">
+              </type>
+            </ownedAttribute>
+            <ownedAttribute xmi:id = "_9224d506-59d3-4062-b5db-dd9e2f83d16bClassMetaType" name = "base_Class" association = "_9224d506-59d3-4062-b5db-dd9e2f83d16bClassExtension">
+              <type xmi:type = "uml:Class" href = "http://www.omg.org/spec/UML/20090901/UML.xmi#Class">
+              </type>
+            </ownedAttribute>
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Extension" xmi:id = "_e17692dd-87d9-407a-862b-ded911f427f4PackageExtension" memberEnd = "_e17692dd-87d9-407a-862b-ded911f427f4 _e17692dd-87d9-407a-862b-ded911f427f4PackageExtensionEnd">
+            <ownedEnd xmi:type = "uml:ExtensionEnd" xmi:id = "_e17692dd-87d9-407a-862b-ded911f427f4PackageExtensionEnd" name = "extension_CML" type = "_e17692dd-87d9-407a-862b-ded911f427f4" aggregation = "composite" association = "_e17692dd-87d9-407a-862b-ded911f427f4PackageExtension">
+            </ownedEnd>
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Extension" xmi:id = "_e17692dd-87d9-407a-862b-ded911f427f4ClassExtension" memberEnd = "_e17692dd-87d9-407a-862b-ded911f427f4 _e17692dd-87d9-407a-862b-ded911f427f4ClassExtensionEnd">
+            <ownedEnd xmi:type = "uml:ExtensionEnd" xmi:id = "_e17692dd-87d9-407a-862b-ded911f427f4ClassExtensionEnd" name = "extension_CML" type = "_e17692dd-87d9-407a-862b-ded911f427f4" aggregation = "composite" association = "_e17692dd-87d9-407a-862b-ded911f427f4ClassExtension">
+            </ownedEnd>
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Extension" xmi:id = "_9da31d1c-d6e5-427c-9121-9c9496967d07PackageExtension" memberEnd = "_9da31d1c-d6e5-427c-9121-9c9496967d07 _9da31d1c-d6e5-427c-9121-9c9496967d07PackageExtensionEnd">
+            <ownedEnd xmi:type = "uml:ExtensionEnd" xmi:id = "_9da31d1c-d6e5-427c-9121-9c9496967d07PackageExtensionEnd" name = "extension_CONSTRAINTS" type = "_9da31d1c-d6e5-427c-9121-9c9496967d07" aggregation = "composite" association = "_9da31d1c-d6e5-427c-9121-9c9496967d07PackageExtension">
+            </ownedEnd>
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Extension" xmi:id = "_25e6870f-0caf-4cc6-93c7-6b729a49d147PackageExtension" memberEnd = "_25e6870f-0caf-4cc6-93c7-6b729a49d147 _25e6870f-0caf-4cc6-93c7-6b729a49d147PackageExtensionEnd">
+            <ownedEnd xmi:type = "uml:ExtensionEnd" xmi:id = "_25e6870f-0caf-4cc6-93c7-6b729a49d147PackageExtensionEnd" name = "extension_DATATYPES" type = "_25e6870f-0caf-4cc6-93c7-6b729a49d147" aggregation = "composite" association = "_25e6870f-0caf-4cc6-93c7-6b729a49d147PackageExtension">
+            </ownedEnd>
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Extension" xmi:id = "_dcce17d3-8eb0-4867-993e-23c0a3a4ffe4PropertyExtension" memberEnd = "_dcce17d3-8eb0-4867-993e-23c0a3a4ffe4 _dcce17d3-8eb0-4867-993e-23c0a3a4ffe4PropertyExtensionEnd">
+            <ownedEnd xmi:type = "uml:ExtensionEnd" xmi:id = "_dcce17d3-8eb0-4867-993e-23c0a3a4ffe4PropertyExtensionEnd" name = "extension_interface" type = "_dcce17d3-8eb0-4867-993e-23c0a3a4ffe4" aggregation = "composite" association = "_dcce17d3-8eb0-4867-993e-23c0a3a4ffe4PropertyExtension">
+            </ownedEnd>
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Extension" xmi:id = "_dcce17d3-8eb0-4867-993e-23c0a3a4ffe4InterfaceExtension" memberEnd = "_dcce17d3-8eb0-4867-993e-23c0a3a4ffe4 _dcce17d3-8eb0-4867-993e-23c0a3a4ffe4InterfaceExtensionEnd">
+            <ownedEnd xmi:type = "uml:ExtensionEnd" xmi:id = "_dcce17d3-8eb0-4867-993e-23c0a3a4ffe4InterfaceExtensionEnd" name = "extension_interface" type = "_dcce17d3-8eb0-4867-993e-23c0a3a4ffe4" aggregation = "composite" association = "_dcce17d3-8eb0-4867-993e-23c0a3a4ffe4InterfaceExtension">
+            </ownedEnd>
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Extension" xmi:id = "_dcce17d3-8eb0-4867-993e-23c0a3a4ffe4ClassExtension" memberEnd = "_dcce17d3-8eb0-4867-993e-23c0a3a4ffe4 _dcce17d3-8eb0-4867-993e-23c0a3a4ffe4ClassExtensionEnd">
+            <ownedEnd xmi:type = "uml:ExtensionEnd" xmi:id = "_dcce17d3-8eb0-4867-993e-23c0a3a4ffe4ClassExtensionEnd" name = "extension_interface" type = "_dcce17d3-8eb0-4867-993e-23c0a3a4ffe4" aggregation = "composite" association = "_dcce17d3-8eb0-4867-993e-23c0a3a4ffe4ClassExtension">
+            </ownedEnd>
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Extension" xmi:id = "_de69a172-6544-4e72-b56b-aeae1ec70047PackageExtension" memberEnd = "_de69a172-6544-4e72-b56b-aeae1ec70047 _de69a172-6544-4e72-b56b-aeae1ec70047PackageExtensionEnd">
+            <ownedEnd xmi:type = "uml:ExtensionEnd" xmi:id = "_de69a172-6544-4e72-b56b-aeae1ec70047PackageExtensionEnd" name = "extension_INTERFACES" type = "_de69a172-6544-4e72-b56b-aeae1ec70047" aggregation = "composite" association = "_de69a172-6544-4e72-b56b-aeae1ec70047PackageExtension">
+            </ownedEnd>
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Extension" xmi:id = "_7a9784b6-9507-4c4d-b793-9d5b1cb33e09PackageExtension" memberEnd = "_7a9784b6-9507-4c4d-b793-9d5b1cb33e09 _7a9784b6-9507-4c4d-b793-9d5b1cb33e09PackageExtensionEnd">
+            <ownedEnd xmi:type = "uml:ExtensionEnd" xmi:id = "_7a9784b6-9507-4c4d-b793-9d5b1cb33e09PackageExtensionEnd" name = "extension_REQUIREMENTS" type = "_7a9784b6-9507-4c4d-b793-9d5b1cb33e09" aggregation = "composite" association = "_7a9784b6-9507-4c4d-b793-9d5b1cb33e09PackageExtension">
+            </ownedEnd>
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Extension" xmi:id = "_d7a9f6aa-2a17-4e7b-9e5f-67884ddd0bd4Enumeration LiteralExtension" memberEnd = "_d7a9f6aa-2a17-4e7b-9e5f-67884ddd0bd4 _d7a9f6aa-2a17-4e7b-9e5f-67884ddd0bd4Enumeration LiteralExtensionEnd">
+            <ownedEnd xmi:type = "uml:ExtensionEnd" xmi:id = "_d7a9f6aa-2a17-4e7b-9e5f-67884ddd0bd4Enumeration LiteralExtensionEnd" name = "extension_RttTgen Enumeration" type = "_d7a9f6aa-2a17-4e7b-9e5f-67884ddd0bd4" aggregation = "composite" association = "_d7a9f6aa-2a17-4e7b-9e5f-67884ddd0bd4Enumeration LiteralExtension">
+            </ownedEnd>
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Extension" xmi:id = "_4b52149d-271b-4181-bcba-62218e86ab65ClassExtension" memberEnd = "_4b52149d-271b-4181-bcba-62218e86ab65 _4b52149d-271b-4181-bcba-62218e86ab65ClassExtensionEnd">
+            <ownedEnd xmi:type = "uml:ExtensionEnd" xmi:id = "_4b52149d-271b-4181-bcba-62218e86ab65ClassExtensionEnd" name = "extension_SUT" type = "_4b52149d-271b-4181-bcba-62218e86ab65" aggregation = "composite" association = "_4b52149d-271b-4181-bcba-62218e86ab65ClassExtension">
+            </ownedEnd>
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Extension" xmi:id = "_985f3b47-75dd-457a-a60f-c8d09a6cb1e3PropertyExtension" memberEnd = "_985f3b47-75dd-457a-a60f-c8d09a6cb1e3 _985f3b47-75dd-457a-a60f-c8d09a6cb1e3PropertyExtensionEnd">
+            <ownedEnd xmi:type = "uml:ExtensionEnd" xmi:id = "_985f3b47-75dd-457a-a60f-c8d09a6cb1e3PropertyExtensionEnd" name = "extension_SUT2TE" type = "_985f3b47-75dd-457a-a60f-c8d09a6cb1e3" aggregation = "composite" association = "_985f3b47-75dd-457a-a60f-c8d09a6cb1e3PropertyExtension">
+            </ownedEnd>
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Extension" xmi:id = "_985f3b47-75dd-457a-a60f-c8d09a6cb1e3InterfaceExtension" memberEnd = "_985f3b47-75dd-457a-a60f-c8d09a6cb1e3 _985f3b47-75dd-457a-a60f-c8d09a6cb1e3InterfaceExtensionEnd">
+            <ownedEnd xmi:type = "uml:ExtensionEnd" xmi:id = "_985f3b47-75dd-457a-a60f-c8d09a6cb1e3InterfaceExtensionEnd" name = "extension_SUT2TE" type = "_985f3b47-75dd-457a-a60f-c8d09a6cb1e3" aggregation = "composite" association = "_985f3b47-75dd-457a-a60f-c8d09a6cb1e3InterfaceExtension">
+            </ownedEnd>
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Extension" xmi:id = "_985f3b47-75dd-457a-a60f-c8d09a6cb1e3ClassExtension" memberEnd = "_985f3b47-75dd-457a-a60f-c8d09a6cb1e3 _985f3b47-75dd-457a-a60f-c8d09a6cb1e3ClassExtensionEnd">
+            <ownedEnd xmi:type = "uml:ExtensionEnd" xmi:id = "_985f3b47-75dd-457a-a60f-c8d09a6cb1e3ClassExtensionEnd" name = "extension_SUT2TE" type = "_985f3b47-75dd-457a-a60f-c8d09a6cb1e3" aggregation = "composite" association = "_985f3b47-75dd-457a-a60f-c8d09a6cb1e3ClassExtension">
+            </ownedEnd>
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Extension" xmi:id = "_f3370fb5-2036-486c-ae85-55c083702767ClassExtension" memberEnd = "_f3370fb5-2036-486c-ae85-55c083702767 _f3370fb5-2036-486c-ae85-55c083702767ClassExtensionEnd">
+            <ownedEnd xmi:type = "uml:ExtensionEnd" xmi:id = "_f3370fb5-2036-486c-ae85-55c083702767ClassExtensionEnd" name = "extension_SYSTEM" type = "_f3370fb5-2036-486c-ae85-55c083702767" aggregation = "composite" association = "_f3370fb5-2036-486c-ae85-55c083702767ClassExtension">
+            </ownedEnd>
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Extension" xmi:id = "_6f83f6fd-e1f1-4860-a11b-b62046a32fc5ClassExtension" memberEnd = "_6f83f6fd-e1f1-4860-a11b-b62046a32fc5 _6f83f6fd-e1f1-4860-a11b-b62046a32fc5ClassExtensionEnd">
+            <ownedEnd xmi:type = "uml:ExtensionEnd" xmi:id = "_6f83f6fd-e1f1-4860-a11b-b62046a32fc5ClassExtensionEnd" name = "extension_TE" type = "_6f83f6fd-e1f1-4860-a11b-b62046a32fc5" aggregation = "composite" association = "_6f83f6fd-e1f1-4860-a11b-b62046a32fc5ClassExtension">
+            </ownedEnd>
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Extension" xmi:id = "_9224d506-59d3-4062-b5db-dd9e2f83d16bPropertyExtension" memberEnd = "_9224d506-59d3-4062-b5db-dd9e2f83d16b _9224d506-59d3-4062-b5db-dd9e2f83d16bPropertyExtensionEnd">
+            <ownedEnd xmi:type = "uml:ExtensionEnd" xmi:id = "_9224d506-59d3-4062-b5db-dd9e2f83d16bPropertyExtensionEnd" name = "extension_TE2SUT" type = "_9224d506-59d3-4062-b5db-dd9e2f83d16b" aggregation = "composite" association = "_9224d506-59d3-4062-b5db-dd9e2f83d16bPropertyExtension">
+            </ownedEnd>
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Extension" xmi:id = "_9224d506-59d3-4062-b5db-dd9e2f83d16bInterfaceExtension" memberEnd = "_9224d506-59d3-4062-b5db-dd9e2f83d16b _9224d506-59d3-4062-b5db-dd9e2f83d16bInterfaceExtensionEnd">
+            <ownedEnd xmi:type = "uml:ExtensionEnd" xmi:id = "_9224d506-59d3-4062-b5db-dd9e2f83d16bInterfaceExtensionEnd" name = "extension_TE2SUT" type = "_9224d506-59d3-4062-b5db-dd9e2f83d16b" aggregation = "composite" association = "_9224d506-59d3-4062-b5db-dd9e2f83d16bInterfaceExtension">
+            </ownedEnd>
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Extension" xmi:id = "_9224d506-59d3-4062-b5db-dd9e2f83d16bClassExtension" memberEnd = "_9224d506-59d3-4062-b5db-dd9e2f83d16b _9224d506-59d3-4062-b5db-dd9e2f83d16bClassExtensionEnd">
+            <ownedEnd xmi:type = "uml:ExtensionEnd" xmi:id = "_9224d506-59d3-4062-b5db-dd9e2f83d16bClassExtensionEnd" name = "extension_TE2SUT" type = "_9224d506-59d3-4062-b5db-dd9e2f83d16b" aggregation = "composite" association = "_9224d506-59d3-4062-b5db-dd9e2f83d16bClassExtension">
+            </ownedEnd>
+          </packagedElement>
+        </packagedElement>
+      </packagedElement>
+      <profileApplication xmi:type="uml:ProfileApplication" xmi:id="_profileApplication0">
+  <appliedProfile  xmi:type="uml:Profile" href="http://www.omg.org/spec/SysML/20100301/SysML-profile.uml#_0"/>
+</profileApplication>
+<profileApplication xmi:type="uml:ProfileApplication" xmi:id="_profileApplication1">
+  <appliedProfile  xmi:type="uml:Profile" href="http://www.omg.org/spec/UML/20090901/StandardProfileL2.xmi#_0"/>
+</profileApplication>
+  </uml:Model>
+    <sysml:Block base_Class = "_50e21ae4-10c6-4695-a849-2db3729438c5" xmi:id = "_830e357d-4657-41af-bfbf-f45d6e34953b_50e21ae4-10c6-4695-a849-2db3729438c5" />
+    <RTT-MBT_Profile:Stereotypes:SYSTEM base_Class = "_50e21ae4-10c6-4695-a849-2db3729438c5" xmi:id = "_f3370fb5-2036-486c-ae85-55c083702767_50e21ae4-10c6-4695-a849-2db3729438c5" />
+    <sysml:Block base_Class = "_70aaaf5a-3cad-41b0-9080-b0800b13fe42" xmi:id = "_830e357d-4657-41af-bfbf-f45d6e34953b_70aaaf5a-3cad-41b0-9080-b0800b13fe42" />
+    <RTT-MBT_Profile:Stereotypes:SUT base_Class = "_70aaaf5a-3cad-41b0-9080-b0800b13fe42" xmi:id = "_4b52149d-271b-4181-bcba-62218e86ab65_70aaaf5a-3cad-41b0-9080-b0800b13fe42" />
+    <sysml:Block base_Class = "_8a202cee-7750-457d-908a-7e64284c222b" xmi:id = "_830e357d-4657-41af-bfbf-f45d6e34953b_8a202cee-7750-457d-908a-7e64284c222b" />
+    <sysml:RequirementRelated base_NamedElement = "_06ae6401-2bc6-4782-a370-5c492f17055d" xmi:id = "_b4ff75df-d03e-4b60-a0ea-a46b76237da0_06ae6401-2bc6-4782-a370-5c492f17055d" />
+    <sysml:RequirementRelated base_NamedElement = "_32981d89-98e7-4aaa-8de6-6f9dc7b64ea4" xmi:id = "_b4ff75df-d03e-4b60-a0ea-a46b76237da0_32981d89-98e7-4aaa-8de6-6f9dc7b64ea4" />
+    <sysml:RequirementRelated base_NamedElement = "_9875464c-1d6d-40fb-882c-826a74cf77e3" xmi:id = "_b4ff75df-d03e-4b60-a0ea-a46b76237da0_9875464c-1d6d-40fb-882c-826a74cf77e3" />
+    <sysml:RequirementRelated base_NamedElement = "_d02ed2af-8039-4794-afe2-abda83cfb6d7" xmi:id = "_b4ff75df-d03e-4b60-a0ea-a46b76237da0_d02ed2af-8039-4794-afe2-abda83cfb6d7" />
+    <sysml:RequirementRelated base_NamedElement = "_9303fc9a-1ac1-45a5-9039-233bb8089342" xmi:id = "_b4ff75df-d03e-4b60-a0ea-a46b76237da0_9303fc9a-1ac1-45a5-9039-233bb8089342" />
+    <sysml:RequirementRelated base_NamedElement = "_88ccbd6b-2cca-4fee-962e-23b907d7f635" xmi:id = "_b4ff75df-d03e-4b60-a0ea-a46b76237da0_88ccbd6b-2cca-4fee-962e-23b907d7f635" />
+    <sysml:RequirementRelated base_NamedElement = "_d0eff7fb-1ddd-4516-b0a3-cb6543745e4f" xmi:id = "_b4ff75df-d03e-4b60-a0ea-a46b76237da0_d0eff7fb-1ddd-4516-b0a3-cb6543745e4f" />
+    <sysml:RequirementRelated base_NamedElement = "_7b2fde15-5d6d-4ea3-a6ab-1a4905d927a7" xmi:id = "_b4ff75df-d03e-4b60-a0ea-a46b76237da0_7b2fde15-5d6d-4ea3-a6ab-1a4905d927a7" />
+    <sysml:RequirementRelated base_NamedElement = "_fc48255b-9d71-4dda-b238-84de1113cf0b" xmi:id = "_b4ff75df-d03e-4b60-a0ea-a46b76237da0_fc48255b-9d71-4dda-b238-84de1113cf0b" />
+    <sysml:Block base_Class = "_1051e06b-d423-4b6e-8f0c-12a79d37b623" xmi:id = "_830e357d-4657-41af-bfbf-f45d6e34953b_1051e06b-d423-4b6e-8f0c-12a79d37b623" />
+    <RTT-MBT_Profile:Stereotypes:TE base_Class = "_1051e06b-d423-4b6e-8f0c-12a79d37b623" xmi:id = "_6f83f6fd-e1f1-4860-a11b-b62046a32fc5_1051e06b-d423-4b6e-8f0c-12a79d37b623" />
+    <RTT-MBT_Profile:Stereotypes:DATATYPES base_Category = "_0700ad7f-bb6c-46b3-bb4a-ed2242ea6d4d" xmi:id = "_25e6870f-0caf-4cc6-93c7-6b729a49d147_0700ad7f-bb6c-46b3-bb4a-ed2242ea6d4d" />
+    <RTT-MBT_Profile:Stereotypes:RttTgen_Enumeration base_EnumerationLiteral = "_de8ab735-0716-4777-ba62-603b138be453" xmi:id = "_d7a9f6aa-2a17-4e7b-9e5f-67884ddd0bd4_de8ab735-0716-4777-ba62-603b138be453" RttTgen_EnumValue = "1" />
+    <RTT-MBT_Profile:Stereotypes:RttTgen_Enumeration base_EnumerationLiteral = "_49929805-5233-4c38-b397-8de69873a36f" xmi:id = "_d7a9f6aa-2a17-4e7b-9e5f-67884ddd0bd4_49929805-5233-4c38-b397-8de69873a36f" RttTgen_EnumValue = "2" />
+    <RTT-MBT_Profile:Stereotypes:RttTgen_Enumeration base_EnumerationLiteral = "_01adc93c-8a96-4c22-b7d7-403b99f7cfd4" xmi:id = "_d7a9f6aa-2a17-4e7b-9e5f-67884ddd0bd4_01adc93c-8a96-4c22-b7d7-403b99f7cfd4" RttTgen_EnumValue = "3" />
+    <RTT-MBT_Profile:Stereotypes:RttTgen_Enumeration base_EnumerationLiteral = "_659430e5-2ac2-4809-b952-8b8bbafc1c5e" xmi:id = "_d7a9f6aa-2a17-4e7b-9e5f-67884ddd0bd4_659430e5-2ac2-4809-b952-8b8bbafc1c5e" RttTgen_EnumValue = "0" />
+    <RTT-MBT_Profile:Stereotypes:RttTgen_Enumeration base_EnumerationLiteral = "_b7f270d6-ffda-4baa-89a9-a9fb43d54f6a" xmi:id = "_d7a9f6aa-2a17-4e7b-9e5f-67884ddd0bd4_b7f270d6-ffda-4baa-89a9-a9fb43d54f6a" RttTgen_EnumValue = "1" />
+    <RTT-MBT_Profile:Stereotypes:RttTgen_Enumeration base_EnumerationLiteral = "_d7455be0-e678-4d9f-ba95-b6d429f7dc79" xmi:id = "_d7a9f6aa-2a17-4e7b-9e5f-67884ddd0bd4_d7455be0-e678-4d9f-ba95-b6d429f7dc79" RttTgen_EnumValue = "2" />
+    <RTT-MBT_Profile:Stereotypes:RttTgen_Enumeration base_EnumerationLiteral = "_2b17f94d-c52b-46fd-83a9-e31791531469" xmi:id = "_d7a9f6aa-2a17-4e7b-9e5f-67884ddd0bd4_2b17f94d-c52b-46fd-83a9-e31791531469" RttTgen_EnumValue = "3" />
+    <RTT-MBT_Profile:Stereotypes:RttTgen_Enumeration base_EnumerationLiteral = "_e3c47505-b5dd-4175-a562-70504b9f4a70" xmi:id = "_d7a9f6aa-2a17-4e7b-9e5f-67884ddd0bd4_e3c47505-b5dd-4175-a562-70504b9f4a70" RttTgen_EnumValue = "4" />
+    <RTT-MBT_Profile:Stereotypes:REQUIREMENTS base_Category = "_17abbb5c-618a-463a-bc52-0a3292796197" xmi:id = "_7a9784b6-9507-4c4d-b793-9d5b1cb33e09_17abbb5c-618a-463a-bc52-0a3292796197" />
+    <sysml:Requirement base_Class = "_35a34f70-36b0-4bf4-a48f-2867d76412ec" xmi:id = "_c8397039-60bb-473b-af94-d8f886d4a425_35a34f70-36b0-4bf4-a48f-2867d76412ec" Text = "The System must be initialized with state Dark." Id = "REQ-001" />
+    <sysml:Requirement base_Class = "_bd9ccaec-85e9-4869-a768-d0604a544b0e" xmi:id = "_c8397039-60bb-473b-af94-d8f886d4a425_bd9ccaec-85e9-4869-a768-d0604a544b0e" Text = "If the signal state is Dark, all lamps are off." Id = "REQ-002" />
+    <sysml:Requirement base_Class = "_bfd0dcd5-2a97-4d42-9557-1cf4860a865a" xmi:id = "_c8397039-60bb-473b-af94-d8f886d4a425_bfd0dcd5-2a97-4d42-9557-1cf4860a865a" Text = "If the state of the signal is Stop, lamps L1 and L2 are on andL3 is off." Id = "REQ-003" />
+    <sysml:Requirement base_Class = "_ce375557-8932-4fc6-a1a9-8f0afd6f4a23" xmi:id = "_c8397039-60bb-473b-af94-d8f886d4a425_ce375557-8932-4fc6-a1a9-8f0afd6f4a23" Text = "If the state of the signal is Warning, lamps L1 and L3 are on andL2 is off." Id = "REQ-004" />
+    <sysml:Requirement base_Class = "_0195c5d2-4370-4998-a48f-88735db3602f" xmi:id = "_c8397039-60bb-473b-af94-d8f886d4a425_0195c5d2-4370-4998-a48f-88735db3602f" Text = "If the state of the signal is Drive, lamps L2 and L3 are on andL1 is off." Id = "REQ-005" />
+    <sysml:Requirement base_Class = "_05b7e7f3-1291-4fd4-9932-ead1c414dc0d" xmi:id = "_c8397039-60bb-473b-af94-d8f886d4a425_05b7e7f3-1291-4fd4-9932-ead1c414dc0d" Text = "When in state Stop, the signal cannot change directly to Drive." Id = "REQ-006" />
+    <sysml:Requirement base_Class = "_6579656a-b989-4bd2-b334-fc620eb8d78d" xmi:id = "_c8397039-60bb-473b-af94-d8f886d4a425_6579656a-b989-4bd2-b334-fc620eb8d78d" Text = "After changing from the initial state Dark to Stop, the signal can only change back to Dark, when in state Stop." Id = "REQ-007" />
+    <sysml:Requirement base_Class = "_ba343f9b-b9ca-4c9f-8d6e-f74ae01e600d" xmi:id = "_c8397039-60bb-473b-af94-d8f886d4a425_ba343f9b-b9ca-4c9f-8d6e-f74ae01e600d" Text = "From the initial state Dark, the signal can only change to Stop." Id = "REQ-008" />
+    <sysml:Satisfy base_Abstraction = "_f2bfbdc3-f0ef-4c9c-98ea-e615bcc39d43" xmi:id = "_795a1a8f-2fce-4316-bb1d-25e352f5e05b_f2bfbdc3-f0ef-4c9c-98ea-e615bcc39d43" />
+    <sysml:Satisfy base_Abstraction = "_49da483a-0202-47e1-8415-d28ea94b2b4c" xmi:id = "_795a1a8f-2fce-4316-bb1d-25e352f5e05b_49da483a-0202-47e1-8415-d28ea94b2b4c" />
+    <sysml:Satisfy base_Abstraction = "_c3ff7f06-da18-48a3-8717-2eda1d8c6901" xmi:id = "_795a1a8f-2fce-4316-bb1d-25e352f5e05b_c3ff7f06-da18-48a3-8717-2eda1d8c6901" />
+    <sysml:Satisfy base_Abstraction = "_03e3517b-c80b-4342-97d4-b67e91cae492" xmi:id = "_795a1a8f-2fce-4316-bb1d-25e352f5e05b_03e3517b-c80b-4342-97d4-b67e91cae492" />
+    <sysml:Satisfy base_Abstraction = "_cdd2fc33-2bc7-42ef-a0ea-35c43532bd6f" xmi:id = "_795a1a8f-2fce-4316-bb1d-25e352f5e05b_cdd2fc33-2bc7-42ef-a0ea-35c43532bd6f" />
+    <sysml:Satisfy base_Abstraction = "_b5d78470-f485-4ad7-9fbd-a3ff7d5b96ae" xmi:id = "_795a1a8f-2fce-4316-bb1d-25e352f5e05b_b5d78470-f485-4ad7-9fbd-a3ff7d5b96ae" />
+    <sysml:Satisfy base_Abstraction = "_fd1f208a-fd6c-49fc-af6c-0c5bf017881a" xmi:id = "_795a1a8f-2fce-4316-bb1d-25e352f5e05b_fd1f208a-fd6c-49fc-af6c-0c5bf017881a" />
+    <sysml:Satisfy base_Abstraction = "_85c59196-f403-4f49-bc2f-6ac9ac538938" xmi:id = "_795a1a8f-2fce-4316-bb1d-25e352f5e05b_85c59196-f403-4f49-bc2f-6ac9ac538938" />
+    <sysml:Satisfy base_Abstraction = "_287428ed-1117-4798-9b1c-95322121a87a" xmi:id = "_795a1a8f-2fce-4316-bb1d-25e352f5e05b_287428ed-1117-4798-9b1c-95322121a87a" />
+</xmi:XMI>
