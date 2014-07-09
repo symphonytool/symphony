@@ -89,7 +89,7 @@ public class MCLieInFact implements MCNode {
 				lieIn.append("Channel(\"");
 				lieIn.append(commEvent.getName());
 				lieIn.append("\",");
-				lieIn.append(commEvent.getValue());
+				lieIn.append(commEvent.getValue().toFormula(option));
 				lieIn.append(")");
 			}
 			
@@ -170,6 +170,7 @@ public class MCLieInFact implements MCNode {
 		if(obj instanceof MCLieInFact){
 			result = this.commEvent.equals(((MCLieInFact) obj).getCommEvent()) 
 					&& this.setExp.equals(((MCLieInFact) obj).getSetExp());
+					//maybe we must use the comparison using toString()
 		}
 		return result;
 	}

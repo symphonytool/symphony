@@ -35,13 +35,11 @@ import org.overture.typechecker.TypeCheckException;
 import org.overture.typechecker.TypeCheckInfo;
 import org.overture.typechecker.TypeChecker;
 import org.overture.typechecker.TypeCheckerErrors;
-import org.overture.typechecker.TypeComparator;
 
 import eu.compassresearch.ast.CmlAstFactory;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismReplicatedAction;
 import eu.compassresearch.ast.actions.AChannelRenamingAction;
-import eu.compassresearch.ast.actions.AChaosAction;
 import eu.compassresearch.ast.actions.ACommonInterleavingReplicatedAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.ADivAction;
@@ -90,7 +88,7 @@ import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
 import eu.compassresearch.core.typechecker.api.TypeWarningMessages;
-import eu.compassresearch.core.typechecker.assistant.AReferenceAssistant;
+import eu.compassresearch.core.typechecker.assistant.AReferenceHelper;
 import eu.compassresearch.core.typechecker.assistant.PParametrisationAssistant;
 import eu.compassresearch.core.typechecker.assistant.TypeCheckerUtil;
 
@@ -211,7 +209,7 @@ public class CmlActionTypeChecker extends
 		// }
 		// }
 		PType type = AstFactory.newAVoidReturnType(loc);
-		AReferenceAssistant.checkArgTypes(node, loc, type, paramTypes, atypes);
+		AReferenceHelper.checkArgTypes(node, loc, type, paramTypes, atypes);
 		// node.setActionDefinition(actionDef);
 		return type;
 
@@ -243,7 +241,7 @@ public class CmlActionTypeChecker extends
 
 		PType timedExpType = timedExp.apply(THIS, question);
 
-		if (!TypeComparator.isSubType(timedExpType, new AIntNumericBasicType(), question.assistantFactory))
+		if (!question.assistantFactory.getTypeComparator().isSubType(timedExpType, new AIntNumericBasicType()))
 		{
 			issueHandler.addTypeError(timedExp, TypeErrorMessages.TIME_UNIT_EXPRESSION_MUST_BE_NAT, timedExp
 					+ "", timedExpType + "");
@@ -505,7 +503,7 @@ public class CmlActionTypeChecker extends
 		PExp timedExp = node.getExpression();
 		PType timedExpType = timedExp.apply(THIS, question);
 
-		if (!TypeComparator.isSubType(timedExpType, new AIntNumericBasicType(), question.assistantFactory))
+		if (!question.assistantFactory.getTypeComparator().isSubType(timedExpType, new AIntNumericBasicType()))
 		{
 			issueHandler.addTypeError(timedExpType, TypeErrorMessages.TIME_UNIT_EXPRESSION_MUST_BE_NAT, timedExp
 					+ "", timedExp + " (" + timedExpType + ")");
@@ -561,14 +559,6 @@ public class CmlActionTypeChecker extends
 	}
 
 	@Override
-	public PType caseAChaosAction(AChaosAction node,
-			org.overture.typechecker.TypeCheckInfo question)
-			throws AnalysisException
-	{
-		return TypeCheckerUtil.setTypeVoid(node);
-	}
-
-	@Override
 	public PType caseATimedInterruptAction(ATimedInterruptAction node,
 			org.overture.typechecker.TypeCheckInfo question)
 			throws AnalysisException
@@ -584,7 +574,7 @@ public class CmlActionTypeChecker extends
 
 		PType timeExpType = timeExp.apply(THIS, question);
 
-		if (!TypeComparator.isSubType(timeExpType, new ANatNumericBasicType(), question.assistantFactory))
+		if (!question.assistantFactory.getTypeComparator().isSubType(timeExpType, new ANatNumericBasicType()))
 		{
 			issueHandler.addTypeError(timeExp, TypeErrorMessages.TIME_UNIT_EXPRESSION_MUST_BE_NAT, timeExp
 					+ "", timeExpType + "");
@@ -675,7 +665,7 @@ public class CmlActionTypeChecker extends
 
 		PType expType = exp.apply(THIS, question);
 
-		if (!TypeComparator.isSubType(expType, AstFactory.newABooleanBasicType(node.getLocation()), question.assistantFactory))
+		if (!question.assistantFactory.getTypeComparator().isSubType(expType, AstFactory.newABooleanBasicType(node.getLocation())))
 		{
 			issueHandler.addTypeError(exp, TypeErrorMessages.INCOMPATIBLE_TYPE, "bool", ""
 					+ expType);
@@ -860,7 +850,7 @@ public class CmlActionTypeChecker extends
 			}
 
 			// Type check parameter
-			if (!TypeComparator.compatible(expectedType, actualType))
+			if (!question.assistantFactory.getTypeComparator().compatible(expectedType, actualType))
 			{
 				issueHandler.addTypeError(commParam, TypeErrorMessages.COMMUNICATION_PARAMETER_TYPE_NOT_COMPATIBLE, ""
 						+ actualType, "" + i, "" + expectedType);
@@ -1019,7 +1009,7 @@ public class CmlActionTypeChecker extends
 
 		PType expType = timeExp.apply(THIS, question);
 
-		if (!TypeComparator.isSubType(expType, new ANatNumericBasicType(), question.assistantFactory))
+		if (!question.assistantFactory.getTypeComparator().isSubType(expType, new ANatNumericBasicType()))
 		{
 			issueHandler.addTypeError(timeExp, TypeErrorMessages.TIME_UNIT_EXPRESSION_MUST_BE_NAT, timeExp
 					+ "", expType + "");
@@ -1040,7 +1030,7 @@ public class CmlActionTypeChecker extends
 
 		PType timeExpType = timeExp.apply(THIS, question);
 
-		if (!TypeComparator.isSubType(timeExpType, new ANatNumericBasicType(), question.assistantFactory))
+		if (!question.assistantFactory.getTypeComparator().isSubType(timeExpType, new ANatNumericBasicType()))
 		{
 			issueHandler.addTypeError(timeExp, TypeErrorMessages.TIME_UNIT_EXPRESSION_MUST_BE_NAT, timeExp
 					+ "", timeExpType + "");

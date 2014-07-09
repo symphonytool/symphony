@@ -178,8 +178,6 @@ public class VanillaCmlTypeChecker extends AbstractTypeChecker
 	public void setup()
 	{
 		TypeChecker.addStatusListner(this.issueHandler);
-		// Force setup of the legacy static access assistants in Overture
-		CmlTypeCheckerAssistantFactory.init(new CmlTypeCheckerAssistantFactory());
 	}
 
 	private VdmTypeCheckResult overtureClassTc(DefinitionList globals)

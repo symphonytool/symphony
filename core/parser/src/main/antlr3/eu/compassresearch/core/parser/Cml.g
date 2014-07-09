@@ -1537,7 +1537,6 @@ actionbase returns[PAction action]
 @after { $action.setLocation(extractLexLocation($start,$stop)); }
     : 'Skip'            { $action = new ASkipAction(); }
     | 'Stop'            { $action = new AStopAction(); }
-    | 'Chaos'           { $action = new AChaosAction(); }
     | 'Diverge'             { $action = new ADivAction(); }
     | 'Wait' expression { $action = new AWaitAction(null, $expression.exp); }
     | ('return' expression)=>'return' expression
@@ -2101,40 +2100,17 @@ assignmentDefinitionList returns[List<AAssignmentDefinition> defs]
 
 assignmentDefinition returns[AAssignmentDefinition def]
 @after { $def.setLocation(extractLexLocation($start, $stop)); }
-    : IDENTIFIER ':' type ( ( det=':=' | nondet='in' ) expression )?
+    : IDENTIFIER ':' type ( ':=' expression )?
         {
             CmlLexNameToken name = new CmlLexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER));
+            PExp exp = $expression.exp;
 
-            PExp exp = null;
-
-            if ($det != null || $nondet != null)
-            {
-                exp = $expression.exp;
-            }else
+            if (exp == null)
             {
                 exp = AstFactory.newAUndefinedExp(name.getLocation());
             }
 
             $def = AstFactory.newAAssignmentDefinition(name, $type.type, exp);
-            /*$def = new AAssignmentDefinition();//null, name, NameScope.GLOBAL, false, null, null, type, null, null, null);
-            $def.setName(new CmlLexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER)));
-            $def.setNameScope(NameScope.STATE);
-            $def.setType($type.type);
-            $def.setPass(Pass.VALUES);
-            // FIXME --- It can't be right that both the ':=' and 'in'
-            // forms produce exactly the same result (that is what
-            // cml.y did, but we need to clarify this). -jwc/20Dec2012
-            if ($det != null)
-                $def.setExpression($expression.exp);
-            else if ($nondet != null)
-                $def.setExpression($expression.exp);
-
-           if($def.getExpression()==null)
-           {
-            $def.setExpression(AstFactory.newAUndefinedExp($def.getName().getLocation()));
-           }
-           */
-
         }
     ;
 

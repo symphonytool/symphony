@@ -1,8 +1,8 @@
     // Deadlock property
-    //Deadlock := GivenProc(name),ProcDef(name,params,body),reachable(State(st,L)),fail trans(State(st,L),_,_),L != Skip, L != body.
-    //Deadlock := GivenProc(name),ProcDef(name,params,body),fail trans(State(s,body),_,_), body != Skip.
-	Deadlock := reachable(State(st,L)),fail trans(State(st,L),_,_), L != Skip. 
-    Deadlock := reachable(State(st,L)),fail trans(State(st,L),ev,_), ev != tock, L != Skip, trans(State(st,L),tock,State(st,L)). 
+	//Deadlock := reachable(State(st,L)),fail trans(State(st,L),_,_), L != Skip. 
+    //Deadlock := reachable(State(st,L)),fail trans(State(st,L),ev,_), ev != tock, L != Skip, trans(State(st,L),tock,State(st,L)). 
+    Deadlock := reachable(State(st,L)),fail RecoverBody(State(st,L),_), fail trans(State(st,L),_,_), L != Skip.
+    Deadlock := reachable(State(st,L)),fail RecoverBody(State(st,L),_), fail trans(State(st,L),ev,_), ev != tock, L != Skip, trans(State(st,L),tock,State(st,L)).
 
 
     //Livelock property
@@ -19,9 +19,13 @@
     
 	reachable    ::= (fS:State).
 	//The initial binding is captured at initialisation
+    //reachable(State(b,PBody)) :- State(b,PBody), GivenProc(P),ProcDef(P,pPar,PBody).
+	//reachable(Q)  :- GivenProc(P),ProcDef(P,pPar,PBody), trans(State(_,PBody),_,Q).
+	//reachable(Q)  :- reachable(R), trans(R,_,Q).
     reachable(State(b,PBody)) :- State(b,PBody), GivenProc(P),ProcDef(P,pPar,PBody).
-	reachable(Q)  :- GivenProc(P),ProcDef(P,pPar,PBody), trans(State(_,PBody),_,Q).
-	reachable(Q)  :- reachable(R), trans(R,_,Q).
+    reachable(State(b,realBody)) :- reachable(State(b,P)), RecoverBody(State(b,P),realBody).
+	reachable(Q)  :- reachable(R), trans(R,_,Q).    
+
 	
 	//s^<a> \in traces(P) <=> reachable(PBody,L), accepts(L,a,_)
 	//(s,{a}) \in failures(P) <=> reachable(PBody,L), fail accepts(L,a,_)
@@ -29,4 +33,4 @@
 						accepts(S1,ev), ev!= tau, fail accepts(S2,ev),
 						reachable(S1),reachable(S2).
 	
-    Chaos := GivenProc(name),ProcDef(name,params,body), trans(_,_,State(_,Chaos)).
+    //Chaos := GivenProc(name),ProcDef(name,params,body), trans(_,_,State(_,Chaos)).

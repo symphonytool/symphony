@@ -33,3 +33,4 @@ Bundle-ClassPath: .,
  jars/commons-logging.jar,
  jars/httpclient.jar,
  jars/httpcore.jar
+Import-Package: eu.compassresearch.ide.interpreter

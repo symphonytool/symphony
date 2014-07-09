@@ -10,7 +10,7 @@
     Tau                     ::= {tau}.
 	Tock                    ::= {tock}.  
     SigmaTauTock            ::= Sigma + Tau + Tock.
-    BasicProcess            ::= {Stop, Skip, Chaos, Div}.
+    BasicProcess            ::= {Stop, Skip, Div}.
     primitive Prefix        ::= (ev : Sigma, proc : CMLProcess).            //Prefix
     primitive iChoice       ::= (lProc : CMLProcess, rProc : CMLProcess).   //Internal choice
     primitive eChoice       ::= (lProc : CMLProcess, rProc : CMLProcess).   //External choice
