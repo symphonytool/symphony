@@ -231,20 +231,21 @@ public class SysMlToCmlTranslator {
 		if (signals.size() > 0) {
 			sb.append("channels\n");
 			for (Signal s : signals) {
-				sb.append(s.name);
+				sb.append("\t"+s.name);
 				if (!s.property.isEmpty()) {
 					sb.append(" : ");
 					for (Iterator<Property> itr = s.property.iterator(); itr
 							.hasNext();) {
 						Property p = itr.next();
-						sb.append(p.type);
+						sb.append(convertType(p.type));
 						if (itr.hasNext()) {
 							sb.append(" * ");
 						}
 					}
 				}
-				sb.append("\n\n");
+				sb.append("\n");
 			}
+			sb.append("\n");
 		}
 		printTypes(sb);
 
@@ -310,9 +311,9 @@ public class SysMlToCmlTranslator {
 							+ "\n");
 				}
 			}
-			if (c.operations.size() > 0) {
-				printOperations(sb, c.operations);
-			}
+//			if (c.operations.size() > 0) {
+//				printOperations(sb, c.operations);
+//			}
 			sb.append("end\n\n");
 		}
 	}
