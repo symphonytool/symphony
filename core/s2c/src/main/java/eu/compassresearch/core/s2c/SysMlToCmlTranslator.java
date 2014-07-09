@@ -22,11 +22,14 @@ public class SysMlToCmlTranslator {
 	private StateMachine sm;
 	private ClassDefinition cdef;
 	private List<Signal> signals;
+	private List<ClassDefinition> classes;
 
-	public SysMlToCmlTranslator(List<Signal> signals, ClassDefinition cDef, StateMachine sm) {
+	public SysMlToCmlTranslator(List<Signal> signals, ClassDefinition cDef,
+			StateMachine sm, List<ClassDefinition> classes) {
 		this.cdef = cDef;
 		this.sm = sm;
 		this.signals = signals;
+		this.classes = classes;
 	}
 
 	/**
@@ -42,12 +45,12 @@ public class SysMlToCmlTranslator {
 		if (t.trigger != null) {
 			Signal s = t.trigger.event.signal;
 			if (s.property.size() > 0) {
-				sb.append(t.trigger.event.name);
-				
-				
+				sb.append(t.trigger.event.signal.name);
+
 				if (s.property.size() > 1) {
 					sb.append("?mk_(");
-					for (Iterator<Property> i = s.property.iterator(); i.hasNext();) {
+					for (Iterator<Property> i = s.property.iterator(); i
+							.hasNext();) {
 						Property p = i.next();
 						sb.append(p.name);
 						if (i.hasNext())
@@ -55,21 +58,15 @@ public class SysMlToCmlTranslator {
 					}
 					sb.append(")");
 				} else {
-					sb.append("?"+s.property.get(0).name);
+					sb.append("?" + s.property.get(0).name);
 				}
 				if (t.constraint != null) {
 					sb.append(":("
 							+ fixSyntaxErrors(t.constraint.expression + "")
 							+ ")");
-					sb.append(" -> ");
-
-					transitionAction(t, sb);
-				} else {
-					sb.append(t.trigger.event.name);
-					sb.append(" -> ");
-
-					transitionAction(t, sb);
 				}
+				sb.append(" -> ");
+				transitionAction(t, sb);
 			} else {
 				if (t.constraint != null) {
 					sb.append("["
@@ -77,14 +74,14 @@ public class SysMlToCmlTranslator {
 							+ "]&");
 
 					sb.append("(");
-					sb.append(t.trigger.event.name);
+					sb.append(t.trigger.event.signal.name);
 					sb.append(" -> ");
 
 					transitionAction(t, sb);
 
 					sb.append(")");
 				} else {
-					sb.append(t.trigger.event.name);
+					sb.append(t.trigger.event.signal.name);
 					sb.append(" -> ");
 
 					transitionAction(t, sb);
@@ -116,31 +113,31 @@ public class SysMlToCmlTranslator {
 			sb.append(fixSyntaxErrors(t.effect.body + " ; "));
 		}
 		if (t.source.exit != null) {
-			sb.append("exit_"+getCmlName(t.source.name) + ";");
+			sb.append("exit_" + getCmlName(t.source.name) + ";");
 		}
 		sb.append(getCmlName(t.target.name));
 	}
 
 	public String stateAssignment(State s, State p) {
 		if (p != null) {
-			return "active_"+getCmlName(p.name)+" := <"+getCmlName(s.name)+">;";
+			return "active_" + getCmlName(p.name) + " := <"
+					+ getCmlName(s.name) + ">;";
 		} else
 			return "";
 	}
-	
+
 	public String translate(State s, State p) {
 		StringBuilder sb = new StringBuilder();
 
 		if (s.substates.isEmpty()) {
-			sb.append("exit_"+getCmlName(s.name)+" = ");
+			sb.append("exit_" + getCmlName(s.name) + " = ");
 			if (s.exit != null) {
 				sb.append(fixSyntaxErrors(s.exit + "\n\n"));
 			} else {
 				sb.append("Skip\n\n");
 			}
-			
-			
-			sb.append(getCmlName(s.name) + " = "+stateAssignment(s,p));
+
+			sb.append(getCmlName(s.name) + " = " + stateAssignment(s, p));
 			if (s.name.equals("Final")) {
 				sb.append("Stop\n\n");
 				return sb.toString();
@@ -168,35 +165,36 @@ public class SysMlToCmlTranslator {
 			sb.append("\n");
 
 			for (State ss : s.substates) {
-				sb.append(translate(ss,s));
+				sb.append(translate(ss, s));
 			}
 
 		} else {
-			sb.append("exit_"+getCmlName(s.name)+" = ");
+			sb.append("exit_" + getCmlName(s.name) + " = ");
 			if (s.exit != null) {
 				sb.append(fixSyntaxErrors(s.exit + ";"));
 			}
 			sb.append("(\n");
-			sb.append("\tcases active_"+getCmlName(s.name)+":\n");
+			sb.append("\tcases active_" + getCmlName(s.name) + ":\n");
 			for (Iterator<State> it = s.substates.iterator(); it.hasNext();) {
 				State aux = it.next();
-				sb.append("\t<"+getCmlName(aux.name)+"> -> exit_"+getCmlName(aux.name)+",\n");
+				sb.append("\t<" + getCmlName(aux.name) + "> -> exit_"
+						+ getCmlName(aux.name) + ",\n");
 			}
 			sb.append("\tothers -> Skip\n");
 			sb.append("end\n");
 			sb.append(")\n\n");
-			
-			sb.append(getCmlName(s.name) + " = (" +stateAssignment(s,p));
+
+			sb.append(getCmlName(s.name) + " = (" + stateAssignment(s, p));
 			if (s.entry != null) {
 				sb.append(fixSyntaxErrors(s.entry.name + " ; "));
 			}
-			
-			for (State ss: s.substates) {
+
+			for (State ss : s.substates) {
 				if (ss.name.startsWith("Initial")) {
 					sb.append(getCmlName(ss.name));
 				}
 			}
-			
+
 			sb.append(")");
 
 			List<Transition> transitions = getTransitions(s);
@@ -218,7 +216,7 @@ public class SysMlToCmlTranslator {
 			sb.append("\n\n");
 
 			for (State ss : s.substates) {
-				sb.append(translate(ss,s));
+				sb.append(translate(ss, s));
 			}
 		}
 		return sb.toString();
@@ -226,30 +224,29 @@ public class SysMlToCmlTranslator {
 
 	public File translate(File output) throws FileNotFoundException {
 		StringBuilder sb = new StringBuilder();
-		sb.append("channels\n");
-		for (Signal s : signals)
-		{
-			sb.append(s.name);
-			if (!s.property.isEmpty())
-			{
-				sb.append(" : ");
-				for (Iterator<Property> itr = s.property.iterator(); itr.hasNext();)
-				{
-					Property p = itr.next();
-					sb.append(p.type);
-					if (itr.hasNext())
-					{
-						sb.append(" * ");
+		if (signals.size() > 0) {
+			sb.append("channels\n");
+			for (Signal s : signals) {
+				sb.append(s.name);
+				if (!s.property.isEmpty()) {
+					sb.append(" : ");
+					for (Iterator<Property> itr = s.property.iterator(); itr
+							.hasNext();) {
+						Property p = itr.next();
+						sb.append(p.type);
+						if (itr.hasNext()) {
+							sb.append(" * ");
+						}
 					}
 				}
+				sb.append("\n\n");
 			}
-			sb.append("\n");
 		}
-		
-		
-		sb.append("\n\nprocess " + sm.name + " = begin\n");
-		
 		printTypes(sb);
+
+		printClasses(sb);
+
+		sb.append("\n\nprocess " + sm.name + " = begin\n");
 
 		printState(sb);
 
@@ -258,7 +255,7 @@ public class SysMlToCmlTranslator {
 		sb.append("actions\n");
 
 		for (State state : sm.states) {
-			sb.append(translate(state,null));
+			sb.append(translate(state, null));
 			/*
 			 * List<Transition> transitions = getTransitions(state);
 			 * 
@@ -298,35 +295,95 @@ public class SysMlToCmlTranslator {
 		}
 	}
 
-	private void printTypes(StringBuilder sb)
-	{
+	private void printClasses(StringBuilder sb) {
+		for (ClassDefinition c : classes) {
+			sb.append("class ");
+			sb.append(makeNameCMLCompatible(c.name)+" = begin\n");
+			if (c.properties.size() > 0) {
+				sb.append("state\n");
+				for (Property p : c.properties) {
+					sb.append("\t" + p.name + " : " + convertType(p.type)
+							+ "\n");
+				}
+			}
+			if (c.operations.size() > 0) {
+				printOperations(sb, c.operations);
+			}
+			sb.append("end\n\n");
+		}
+	}
+
+	private void printTypes(StringBuilder sb) {
+		if (cdef.types.size() == 0)
+			return;
 		StringBuffer values = new StringBuffer();
 		values.append("\nvalues\n");
 		sb.append("types\n");
-		for (Type t : cdef.types)
-		{
-			if (t instanceof EnumType)
-			{
+		for (Type t : cdef.types) {
+			if (t instanceof EnumType) {
 				EnumType et = (EnumType) t;
-				sb.append(et.name+" = ");
-				for (Iterator<String> iterator = et.literals.iterator(); iterator.hasNext();)
-				{
+				sb.append(et.name + " = ");
+				for (Iterator<String> iterator = et.literals.iterator(); iterator
+						.hasNext();) {
 					String lit = iterator.next();
 					final String litQuote = String.format("<%s>", lit);
 					sb.append(litQuote);
-					values.append(lit+" = "+litQuote+"\n");
-					if(iterator.hasNext())
-					{
+					values.append(lit + " = " + litQuote + "\n");
+					if (iterator.hasNext()) {
 						sb.append(" | ");
 					}
 				}
 				sb.append("\n");
 			}
 		}
-		sb.append(values+"\n\n");
+		sb.append(values + "\n\n");
+	}
+
+	protected void printOperations(StringBuilder sb, List<Operation> ops) {
+		if (ops.size() == 0)
+			return;
+		sb.append("operations\n");
+		for (Operation op : ops) {
+			StringBuilder patterns = new StringBuilder();
+			sb.append("\t" + op.name + " : ");
+			patterns.append("\t" + op.name + "(");
+
+			for (Iterator<Parameter> iterator = op.getParameters().iterator(); iterator
+					.hasNext();) {
+				Parameter p = iterator.next();
+
+				sb.append(convertType(p.type));
+				patterns.append(p.name);
+				if (iterator.hasNext()) {
+					sb.append(" * ");
+					patterns.append(", ");
+				}
+			}
+
+			sb.append(" ==> ");
+			if (op.getReturn() == null) {
+				sb.append("()");
+			} else {
+				sb.append(convertType(op.getReturn().type));
+			}
+
+			sb.append("\n");
+			sb.append(patterns);
+			sb.append(") == ");
+			if (op.body == null) {
+				sb.append("is not yet specified");
+			} else {
+				sb.append("return " + op.body.body);
+			}
+			sb.append("\n");
+		}
+
+		sb.append("\n");
 	}
 
 	protected void printOperations(StringBuilder sb) {
+		if (cdef.operations.size() == 0)
+			return;
 		sb.append("operations\n");
 		for (Operation op : cdef.operations) {
 			StringBuilder patterns = new StringBuilder();
@@ -367,21 +424,30 @@ public class SysMlToCmlTranslator {
 	}
 
 	protected void printState(StringBuilder sb) {
+		int i = 0;
+		for (State s : sm.allStates()) {
+			if (s.substates.size() > 0)
+				i++;
+		}
+		if (cdef.properties.size() + i == 0)
+			return;
+
 		sb.append("state\n");
 		for (Property p : cdef.properties) {
 			sb.append("\t" + p.name + " : " + convertType(p.type) + "\n");
 		}
-		for (State s: sm.allStates()) {
+		for (State s : sm.allStates()) {
 			if (!s.substates.isEmpty()) {
 				sb.append("\tactive_" + getCmlName(s.name) + ": ");
 				for (Iterator<State> it = s.substates.iterator(); it.hasNext();) {
 					State aux = it.next();
-					sb.append("<"+getCmlName(aux.name)+">");
-					if (it.hasNext()) sb.append(" | ");
+					sb.append("<" + getCmlName(aux.name) + ">");
+					if (it.hasNext())
+						sb.append(" | ");
 				}
-				for (State aux: s.substates) {
+				for (State aux : s.substates) {
 					if (aux.name.startsWith("Initial")) {
-						sb.append(" := <"+getCmlName(aux.name)+">");
+						sb.append(" := <" + getCmlName(aux.name) + ">");
 						break;
 					}
 				}
@@ -399,11 +465,15 @@ public class SysMlToCmlTranslator {
 		} else if (type.equals("String")) {
 			return "seq of char";
 		}
-		return null;
+		return makeNameCMLCompatible(type);
 	}
 
 	String getCmlName(String name) {
-		return "act_" + name.replace(' ', '_').replace('/', '_');
+		return "act_" + makeNameCMLCompatible(name);
+	}
+	
+	String makeNameCMLCompatible(String name) {
+		return name.replace(' ', '_').replace('/', '_').replace('-','_');
 	}
 
 	/**

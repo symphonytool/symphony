@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -51,6 +52,8 @@ public class S2cTranslator
 
 	private Set<String> usedCustomTypes = new HashSet<String>();
 
+	private List<Signal> newsignals = new LinkedList<Signal>();
+	
 	public static void main(String[] args) throws XPathExpressionException,
 			ParserConfigurationException, SAXException, IOException
 	{
@@ -185,6 +188,14 @@ public class S2cTranslator
 		System.out.println("Find the class thats that parent of the state machine");
 		Node theClass = lookup(stateMachines.item(0), xpath, "..").item(0);
 		ClassDefinition theClassDef = Factory.buildClass(theClass);
+		
+		System.out.println("Find all other classes and ignore any state machines");
+		NodeList allClassNodes = lookup(doc,xpath,"//packagedElement[@xmi:type='uml:Class']");
+		List<ClassDefinition> allClasses = new LinkedList<ClassDefinition>();
+		for (Node n: new NodeIterator(allClassNodes)) {
+			ClassDefinition aux = Factory.buildClass(n);
+			allClasses.add(aux);
+		}
 
 		System.out.println("Class properties");
 		theClassDef.properties.addAll(buildProperties(doc, xpath, theClass));
@@ -278,6 +289,7 @@ public class S2cTranslator
 
 			signals.add(Factory.buildSignal(signalNode, properties));
 		}
+		signals.addAll(newsignals);
 
 		// add types to the class
 		for (String typeId : this.usedCustomTypes)
@@ -294,7 +306,7 @@ public class S2cTranslator
 		System.out.println("----------------------------------------------------------------------------");
 		System.out.println(sm);
 
-		return new SysMlToCmlTranslator(signals, theClassDef, sm).translate(output);
+		return new SysMlToCmlTranslator(signals, theClassDef, sm, allClasses).translate(output);
 	}
 
 	protected List<Operation> buildOperations(Document doc, XPath xpath,
@@ -355,6 +367,7 @@ public class S2cTranslator
 					// opaque event
 					signal = new Signal();
 					signal.name = signalEvent.getAttributes().getNamedItem("name").getNodeValue();
+					newsignals.add(signal);
 				}
 
 				event = Factory.buildEvent(signalEvent, signal);

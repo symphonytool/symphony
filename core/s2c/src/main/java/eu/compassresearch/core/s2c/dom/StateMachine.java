@@ -9,17 +9,17 @@ public class StateMachine extends NamedUmlNode
 
 	public List<Transition> transitions = new Vector<Transition>();
 	
-	public List<Event> allEvents() {
-		List<Event> events = new Vector<Event>();
-		for (Transition t: allTransitions()) {
-			Trigger tr = t.trigger;
-			if (tr != null) {
-				Event e = tr.event;
-				events.add(e);
-			}
-		}
-		return events;
-	}
+//	public List<Signal> allSignals() {
+//		List<Signal> signals = new Vector<Signal>();
+//		for (Transition t: allTransitions()) {
+//			Trigger tr = t.trigger;
+//			if (tr != null) {
+//				Signal s = tr.event.signal;
+//				signals.add(s);
+//			}
+//		}
+//		return signals;
+//	}
 	
 	public State lookupState(String id)
 	{	
