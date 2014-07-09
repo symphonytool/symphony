@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Vector;
 
 import eu.compassresearch.core.s2c.dom.ClassDefinition;
+import eu.compassresearch.core.s2c.dom.DataType;
 import eu.compassresearch.core.s2c.dom.EnumType;
 import eu.compassresearch.core.s2c.dom.Operation;
 import eu.compassresearch.core.s2c.dom.Parameter;
@@ -23,13 +24,16 @@ public class SysMlToCmlTranslator {
 	private ClassDefinition cdef;
 	private List<Signal> signals;
 	private List<ClassDefinition> classes;
+	private List<DataType> datatypes;
 
 	public SysMlToCmlTranslator(List<Signal> signals, ClassDefinition cDef,
-			StateMachine sm, List<ClassDefinition> classes) {
+			StateMachine sm, List<ClassDefinition> classes,
+			List<DataType> datatypes) {
 		this.cdef = cDef;
 		this.sm = sm;
 		this.signals = signals;
 		this.classes = classes;
+		this.datatypes = datatypes;
 	}
 
 	/**
@@ -298,11 +302,11 @@ public class SysMlToCmlTranslator {
 	private void printClasses(StringBuilder sb) {
 		for (ClassDefinition c : classes) {
 			sb.append("class ");
-			sb.append(makeNameCMLCompatible(c.name)+" = begin\n");
+			sb.append(makeNameCMLCompatible(c.name) + " = begin\n");
 			if (c.properties.size() > 0) {
 				sb.append("state\n");
 				for (Property p : c.properties) {
-					sb.append("\t" + p.name + " : " + convertType(p.type)
+					sb.append("\t" + makeNameCMLCompatible(p.name) + " : " + convertType(p.type)
 							+ "\n");
 				}
 			}
@@ -314,29 +318,57 @@ public class SysMlToCmlTranslator {
 	}
 
 	private void printTypes(StringBuilder sb) {
-		if (cdef.types.size() == 0)
-			return;
-		StringBuffer values = new StringBuffer();
-		values.append("\nvalues\n");
-		sb.append("types\n");
-		for (Type t : cdef.types) {
-			if (t instanceof EnumType) {
-				EnumType et = (EnumType) t;
-				sb.append(et.name + " = ");
-				for (Iterator<String> iterator = et.literals.iterator(); iterator
-						.hasNext();) {
-					String lit = iterator.next();
-					final String litQuote = String.format("<%s>", lit);
-					sb.append(litQuote);
-					values.append(lit + " = " + litQuote + "\n");
-					if (iterator.hasNext()) {
-						sb.append(" | ");
+		if (cdef.types.size() > 0) {
+			StringBuffer values = new StringBuffer();
+			values.append("\nvalues\n");
+			sb.append("types\n");
+			for (Type t : cdef.types) {
+				if (t instanceof EnumType) {
+					EnumType et = (EnumType) t;
+					sb.append(et.name + " = ");
+					for (Iterator<String> iterator = et.literals.iterator(); iterator
+							.hasNext();) {
+						String lit = iterator.next();
+						final String litQuote = String.format("<%s>", lit);
+						sb.append(litQuote);
+						values.append(lit + " = " + litQuote + "\n");
+						if (iterator.hasNext()) {
+							sb.append(" | ");
+						}
 					}
+					sb.append("\n");
+				}
+			}
+			sb.append(values + "\n\n");
+		}
+
+		List<DataType> ok_dt = new Vector<DataType>();
+		for (DataType d: datatypes) {
+			if (!d.name.equals("bool") &&
+				!d.name.equals("int") &&
+				!d.name.equals("real") &&
+				!d.name.equals("double") &&
+				!d.name.equals("char") &&
+				!d.name.equals("nat") &&
+				!d.name.equals("token") &&
+				!d.name.startsWith("set of") &&
+				!d.name.startsWith("seq of")
+			) {
+				ok_dt.add(d);
+			}
+		}
+		
+		if (ok_dt.size() > 0) {
+			sb.append("types\n");
+			for (DataType t : ok_dt) {
+				sb.append("\t" + makeNameCMLCompatible(t.name) + " :: \n");
+				for (Property p : t.properties) {
+					sb.append("\t\t" + makeNameCMLCompatible(p.name) + ": "
+							+ convertType(p.type) + "\n");
 				}
 				sb.append("\n");
 			}
 		}
-		sb.append(values + "\n\n");
 	}
 
 	protected void printOperations(StringBuilder sb, List<Operation> ops) {
@@ -359,7 +391,8 @@ public class SysMlToCmlTranslator {
 					patterns.append(", ");
 				}
 			}
-
+			if (op.getParameters().size() == 0)
+				sb.append("()");
 			sb.append(" ==> ");
 			if (op.getReturn() == null) {
 				sb.append("()");
@@ -471,9 +504,14 @@ public class SysMlToCmlTranslator {
 	String getCmlName(String name) {
 		return "act_" + makeNameCMLCompatible(name);
 	}
-	
+
 	String makeNameCMLCompatible(String name) {
-		return name.replace(' ', '_').replace('/', '_').replace('-','_');
+		//return name.replace(' ', '_').replace('/', '_').replace('-', '_');
+		String aux = name.replaceAll("[^a-zA-Z0-9_]", "_");
+		if (aux.startsWith("_")) {
+			aux = "$"+aux.substring(1);
+		}
+		return aux;
 	}
 
 	/**

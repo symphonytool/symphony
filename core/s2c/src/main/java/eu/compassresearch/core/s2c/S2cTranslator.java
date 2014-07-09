@@ -27,6 +27,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import eu.compassresearch.core.s2c.dom.ClassDefinition;
+import eu.compassresearch.core.s2c.dom.DataType;
 import eu.compassresearch.core.s2c.dom.EnumType;
 import eu.compassresearch.core.s2c.dom.Event;
 import eu.compassresearch.core.s2c.dom.Factory;
@@ -53,6 +54,10 @@ public class S2cTranslator
 	private Set<String> usedCustomTypes = new HashSet<String>();
 
 	private List<Signal> newsignals = new LinkedList<Signal>();
+	
+	private Set<String> blockNames = new HashSet<String>();
+	
+	
 	
 	public static void main(String[] args) throws XPathExpressionException,
 			ParserConfigurationException, SAXException, IOException
@@ -189,20 +194,45 @@ public class S2cTranslator
 		Node theClass = lookup(stateMachines.item(0), xpath, "..").item(0);
 		ClassDefinition theClassDef = Factory.buildClass(theClass);
 		
-		System.out.println("Find all other classes and ignore any state machines");
-		NodeList allClassNodes = lookup(doc,xpath,"//packagedElement[@xmi:type='uml:Class']");
-		List<ClassDefinition> allClasses = new LinkedList<ClassDefinition>();
-		for (Node n: new NodeIterator(allClassNodes)) {
-			ClassDefinition aux = Factory.buildClass(n);
-			allClasses.add(aux);
-		}
-
 		System.out.println("Class properties");
 		theClassDef.properties.addAll(buildProperties(doc, xpath, theClass));
 
 		System.out.println("Class operations");
 		theClassDef.operations.addAll(buildOperations(doc, xpath, theClass));
-
+		
+		System.out.println("Find all other classes and ignore any state machines");
+		//NodeList allClassNodes = lookup(doc,xpath,"//packagedElement[@xmi:type='uml:Class']");
+		NodeList allBlocks = lookup(doc,xpath,"//sysml:Block");
+		for (Node n: new NodeIterator(allBlocks)) {
+			Node base_class = lookupId(doc, xpath, n.getAttributes().getNamedItem("base_Class").getTextContent());
+			blockNames.add(base_class.getAttributes().getNamedItem("name").getTextContent());
+		}
+		
+		List<ClassDefinition> allClasses = new LinkedList<ClassDefinition>();
+		for (Node n: new NodeIterator(allBlocks)) {
+			Node base_class = lookupId(doc, xpath, n.getAttributes().getNamedItem("base_Class").getTextContent());
+			ClassDefinition aux = Factory.buildClass(base_class);
+			aux.properties.addAll(buildProperties(doc,xpath,base_class));
+			aux.operations.addAll(buildOperations(doc,xpath,base_class));
+			allClasses.add(aux);
+		}
+		
+		System.out.println("Find all data and value types");
+		NodeList allValueTypes = lookup(doc,xpath,"//packagedElement[@xmi:type='uml:ValueType']");
+		NodeList allDataTypes = lookup(doc,xpath,"//packagedElement[@xmi:type='uml:DataType']");
+		List<DataType> alldatatypes = new Vector<DataType>();
+		for (Node n: new NodeIterator(allValueTypes)) {
+			DataType dt = Factory.buildDataType(n);
+			dt.properties.addAll(buildProperties(doc,xpath,n));
+			alldatatypes.add(dt);
+		}
+		for (Node n: new NodeIterator(allDataTypes)) {
+			DataType dt = Factory.buildDataType(n);
+			dt.properties.addAll(buildProperties(doc,xpath,n));
+			alldatatypes.add(dt);
+		}
+		
+		
 		System.out.println("##\nState machine\n##");
 		final Node stateMachine = stateMachines.item(0);
 		String statemachineName = stateMachine.getAttributes().getNamedItem("name").getNodeValue();
@@ -285,8 +315,9 @@ public class S2cTranslator
 		List<Signal> signals = new Vector<Signal>();
 		for (Node signalNode : new NodeIterator(allSignals))
 		{
+			//String name = signalNode.getAttributes().getNamedItem("name").getTextContent();
+			//System.out.println("Looking at signal "+name);
 			List<Property> properties = buildProperties(doc, xpath, signalNode);
-
 			signals.add(Factory.buildSignal(signalNode, properties));
 		}
 		signals.addAll(newsignals);
@@ -306,7 +337,7 @@ public class S2cTranslator
 		System.out.println("----------------------------------------------------------------------------");
 		System.out.println(sm);
 
-		return new SysMlToCmlTranslator(signals, theClassDef, sm, allClasses).translate(output);
+		return new SysMlToCmlTranslator(signals, theClassDef, sm, allClasses,alldatatypes).translate(output);
 	}
 
 	protected List<Operation> buildOperations(Document doc, XPath xpath,
@@ -329,8 +360,8 @@ public class S2cTranslator
 			for (Node parm : new NodeIterator(params))
 			{
 				Node typeNode = extractTypeNode(doc, xpath, parm);
-
-				operation.parameters.add(Factory.buildParameter(parm, typeNode));
+				if (typeNode != null)
+					operation.parameters.add(Factory.buildParameter(parm, typeNode));
 			}
 
 			ops.add(operation);
@@ -386,13 +417,33 @@ public class S2cTranslator
 
 		for (Node prop : new NodeIterator(properties))
 		{
+			Node name = prop.getAttributes().getNamedItem("name");
 			Node upper = lookupSingle(prop, xpath, "upperValue");
-			Node lower = lookupSingle(prop, xpath, "loweerValue");
+			Node lower = lookupSingle(prop, xpath, "lowerValue");
 			Node typeNode = extractTypeNode(doc, xpath, prop);
-
-			props.add(Factory.buildProperty(prop, typeNode, lower, upper));
+			if (typeNode != null && name != null) {
+				String type = typeNode.getAttributes().getNamedItem("xmi:type").getTextContent();
+				//System.out.println("looking at property "+name.getTextContent()+" with type "+type);
+				//String name = typeNode.getAttributes().getNamedItem("name").getTextContent();
+				if (type.equals("uml:DataType") || 
+					type.equals("uml:ValueType") || 
+					(type.equals("uml:Class") && typeIsBlock(typeNode)) || 
+					type.equals("uml:PrimitiveType") ||
+					type.equals("uml:Enumeration")) {
+					props.add(Factory.buildProperty(prop, typeNode, lower, upper));
+				}
+			}
 		}
 		return props;
+	}
+	
+	private boolean typeIsBlock(Node type) {
+		Node nname = type.getAttributes().getNamedItem("name");
+		if (nname == null) return false;
+		String name = nname.getTextContent();
+		if (blockNames.contains(name))
+			return true;
+		else return false;
 	}
 
 	/**

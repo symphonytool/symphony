@@ -2637,18 +2637,18 @@
     <sysml:ConstraintProperty base_Property = "_ba415f87-18a6-4855-90af-f98273646007" xmi:id = "_228ef58e-0ca1-4d0c-915a-d6fe65789712_ba415f87-18a6-4855-90af-f98273646007" />
     <sysml:ConstraintProperty base_Property = "_6608a4ce-ee8c-4935-b381-e5eeb24756cb" xmi:id = "_228ef58e-0ca1-4d0c-915a-d6fe65789712_6608a4ce-ee8c-4935-b381-e5eeb24756cb" />
     <sysml:Verify base_Abstraction = "_c546b56a-07df-4c39-a9e8-e3e3660057ee" xmi:id = "_a81809b0-710b-42d2-b738-08f7b12922fa_c546b56a-07df-4c39-a9e8-e3e3660057ee" />
-    <ModelingDomain:Domain_Stereotypes:activity xmi:id = "_0e0c21ff-b2ca-4eb6-a13c-cbe5d9435680_c853bba7-c542-47df-8837-73f8e0c46247" />
+    
     <sysml:Allocated xmi:id = "_a28d6370-308a-4ce8-9fc3-a144449b8280_c853bba7-c542-47df-8837-73f8e0c46247" />
-    <ModelingDomain:Domain_Stereotypes:activity base_Activity = "_5e7c486c-473f-42aa-9855-ab81d328958d" xmi:id = "_0e0c21ff-b2ca-4eb6-a13c-cbe5d9435680_5e7c486c-473f-42aa-9855-ab81d328958d" />
-    <ModelingDomain:Domain_Stereotypes:activity base_Activity = "_6a9de492-99ed-41d7-bea1-4baf5ff7be53" xmi:id = "_0e0c21ff-b2ca-4eb6-a13c-cbe5d9435680_6a9de492-99ed-41d7-bea1-4baf5ff7be53" />
-    <ModelingDomain:Domain_Stereotypes:activity base_Activity = "_8a984b5a-8d76-48b5-96a7-087a62e27761" xmi:id = "_0e0c21ff-b2ca-4eb6-a13c-cbe5d9435680_8a984b5a-8d76-48b5-96a7-087a62e27761" />
-    <ModelingDomain:Domain_Stereotypes:activity xmi:id = "_0e0c21ff-b2ca-4eb6-a13c-cbe5d9435680_fa7e2e71-6644-493c-8888-c07987c30c61" />
+    
+    
+    
+    
     <sysml:Allocated xmi:id = "_a28d6370-308a-4ce8-9fc3-a144449b8280_fa7e2e71-6644-493c-8888-c07987c30c61" />
-    <ModelingDomain:Domain_Stereotypes:activity xmi:id = "_0e0c21ff-b2ca-4eb6-a13c-cbe5d9435680_c62806ec-5859-4132-9848-c292afc9d02b" />
+    
     <sysml:Allocated xmi:id = "_a28d6370-308a-4ce8-9fc3-a144449b8280_c62806ec-5859-4132-9848-c292afc9d02b" />
-    <ModelingDomain:Domain_Stereotypes:activity xmi:id = "_0e0c21ff-b2ca-4eb6-a13c-cbe5d9435680_d85b4f86-ab83-43a7-bde4-245d40f35e33" />
+    
     <sysml:Allocated xmi:id = "_a28d6370-308a-4ce8-9fc3-a144449b8280_d85b4f86-ab83-43a7-bde4-245d40f35e33" />
-    <ModelingDomain:Domain_Stereotypes:activity base_Activity = "_2471870b-6b6a-4e58-a822-99bad46a3524" xmi:id = "_0e0c21ff-b2ca-4eb6-a13c-cbe5d9435680_2471870b-6b6a-4e58-a822-99bad46a3524" />
+    
     <sysml:Allocated base_NamedElement = "_fa7109d6-daa8-4362-bba5-b8222023b546" xmi:id = "_a28d6370-308a-4ce8-9fc3-a144449b8280_fa7109d6-daa8-4362-bba5-b8222023b546" />
     <sysml:Allocated base_NamedElement = "_29d9a383-5010-4fca-939a-4fa3c32b3b9a" xmi:id = "_a28d6370-308a-4ce8-9fc3-a144449b8280_29d9a383-5010-4fca-939a-4fa3c32b3b9a" />
     <sysml:RequirementRelated base_NamedElement = "_29d9a383-5010-4fca-939a-4fa3c32b3b9a" xmi:id = "_b4ff75df-d03e-4b60-a0ea-a46b76237da0_29d9a383-5010-4fca-939a-4fa3c32b3b9a" />
@@ -2693,7 +2693,7 @@
     <sysml:Rationale base_Comment = "_6469fd15-6350-4e38-b78b-77930a1e64d2" xmi:id = "_c700c227-d4fa-475a-860f-410353c09c36_6469fd15-6350-4e38-b78b-77930a1e64d2" />
     <sysml:Block base_Class = "_cd5d41cb-44c7-4a3f-a8b9-4b1d44574509" xmi:id = "_830e357d-4657-41af-bfbf-f45d6e34953b_cd5d41cb-44c7-4a3f-a8b9-4b1d44574509" />
     <sysml:Block base_Class = "_6d4b7935-6233-450a-9caa-a3f52202ba92" xmi:id = "_830e357d-4657-41af-bfbf-f45d6e34953b_6d4b7935-6233-450a-9caa-a3f52202ba92" />
-    <ModelingDomain:Domain_Stereotypes:domain base_Class = "_6d4b7935-6233-450a-9caa-a3f52202ba92" xmi:id = "_5334b651-1d6e-4334-a875-dd26bdcb6a88_6d4b7935-6233-450a-9caa-a3f52202ba92" />
+    
     <sysml:NestedConnectorEnd base_ConnectorEnd = "_d199ee59-2fbf-4b21-ae0b-dc7d05fc2935" xmi:id = "_58ccbcf0-d8ab-463c-bbb2-49b993801293_d199ee59-2fbf-4b21-ae0b-dc7d05fc2935" propertyPath = "_b5a27db0-e881-4552-a11c-65f27ebe9e42" />
     <sysml:NestedConnectorEnd base_ConnectorEnd = "_f9842ef0-1a5a-46fe-8487-c0802ee9c679" xmi:id = "_58ccbcf0-d8ab-463c-bbb2-49b993801293_f9842ef0-1a5a-46fe-8487-c0802ee9c679" propertyPath = "_ac6ad993-1b6e-44be-9a92-dd04920c0aa5" />
     <sysml:NestedConnectorEnd base_ConnectorEnd = "_15d1e3b5-6272-424f-a948-24fec2d0d885" xmi:id = "_58ccbcf0-d8ab-463c-bbb2-49b993801293_15d1e3b5-6272-424f-a948-24fec2d0d885" propertyPath = "_998a8b3e-da51-4cb6-bbc4-0418c0715703" />
@@ -2899,14 +2899,14 @@
     <sysml:Allocate base_Abstraction = "_ba15fb95-cb42-4864-8604-a91e725164a0" xmi:id = "_b719c717-9492-4202-9c00-ce0ebbc60b28_ba15fb95-cb42-4864-8604-a91e725164a0" />
     <sysml:Allocated base_NamedElement = "_69c4a5a4-ed26-4024-a183-73f4bb5d11a8" xmi:id = "_a28d6370-308a-4ce8-9fc3-a144449b8280_69c4a5a4-ed26-4024-a183-73f4bb5d11a8" />
     <sysml:Allocated base_NamedElement = "_1fbc62ee-0a56-4c24-9475-ebca88aebfb2" xmi:id = "_a28d6370-308a-4ce8-9fc3-a144449b8280_1fbc62ee-0a56-4c24-9475-ebca88aebfb2" />
-    <ModelingDomain:Domain_Stereotypes:external base_Role = "_c929581b-6da8-4016-b957-9537a25dc4be" xmi:id = "_05ff7083-82b9-45c5-862c-389b88960305_c929581b-6da8-4016-b957-9537a25dc4be" />
-    <ModelingDomain:Domain_Stereotypes:external base_Role = "_33ce3332-ece3-48d1-ad17-b21e05712164" xmi:id = "_05ff7083-82b9-45c5-862c-389b88960305_33ce3332-ece3-48d1-ad17-b21e05712164" />
+    
+    
     <sysml:Allocated base_NamedElement = "_4f7e6de6-dbeb-40d8-8edd-86894d1a408a" xmi:id = "_a28d6370-308a-4ce8-9fc3-a144449b8280_4f7e6de6-dbeb-40d8-8edd-86894d1a408a" />
-    <ModelingDomain:Domain_Stereotypes:external base_Role = "_08ad7ef6-d56f-4d8f-a205-01fcb0f4d6a3" xmi:id = "_05ff7083-82b9-45c5-862c-389b88960305_08ad7ef6-d56f-4d8f-a205-01fcb0f4d6a3" />
+    
     <sysml:Allocated base_NamedElement = "_575f3ca3-7a19-412c-998b-b841aad0455c" xmi:id = "_a28d6370-308a-4ce8-9fc3-a144449b8280_575f3ca3-7a19-412c-998b-b841aad0455c" />
     <sysml:Allocated base_NamedElement = "_386981e1-69e1-448a-9c25-c725ae2e619b" xmi:id = "_a28d6370-308a-4ce8-9fc3-a144449b8280_386981e1-69e1-448a-9c25-c725ae2e619b" />
-    <ModelingDomain:Domain_Stereotypes:system base_Role = "_ac6ad993-1b6e-44be-9a92-dd04920c0aa5" xmi:id = "_aea1da45-2349-4a43-bd2a-1834f5ea5c6c_ac6ad993-1b6e-44be-9a92-dd04920c0aa5" />
-    <ModelingDomain:Domain_Stereotypes:external base_Role = "_998a8b3e-da51-4cb6-bbc4-0418c0715703" xmi:id = "_05ff7083-82b9-45c5-862c-389b88960305_998a8b3e-da51-4cb6-bbc4-0418c0715703" />
+    
+    
     <sysml:Allocated base_NamedElement = "_4b07957c-fddb-4ce7-9a68-151c5df67804" xmi:id = "_a28d6370-308a-4ce8-9fc3-a144449b8280_4b07957c-fddb-4ce7-9a68-151c5df67804" />
     <sysml:ItemFlow base_InformationFlow = "_6c67ab06-b99d-4411-95fc-551c28218bf5" xmi:id = "_77501e26-1562-4bb2-aae6-d82e10750515_6c67ab06-b99d-4411-95fc-551c28218bf5" />
     <sysml:Allocated xmi:id = "_a28d6370-308a-4ce8-9fc3-a144449b8280_3e424028-4a8f-4a6b-807b-1fa922460e77" />

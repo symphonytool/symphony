@@ -122,6 +122,14 @@ public class Factory
 
 		return cDef;
 	}
+	
+	public static DataType buildDataType(Node datatype)
+	{
+		DataType dt = new DataType();
+		setIdAndName(datatype, dt);
+
+		return dt;
+	}
 
 	private static Integer buildUpperLower(Node child)
 	{
@@ -145,6 +153,10 @@ public class Factory
 	{
 		// todo
 		if (child.getAttributes().getNamedItem("xmi:type").getTextContent().equals("uml:DataType"))
+		{
+			return child.getAttributes().getNamedItem("name").getTextContent();
+		}
+		if (child.getAttributes().getNamedItem("xmi:type").getTextContent().equals("uml:ValueType"))
 		{
 			return child.getAttributes().getNamedItem("name").getTextContent();
 		}

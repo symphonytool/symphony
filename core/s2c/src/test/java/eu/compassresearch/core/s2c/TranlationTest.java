@@ -28,6 +28,12 @@ public class TranlationTest
 	{
 		translate(new File("src/test/resources/HSUV/HSUV.xmi".replace('/', File.separatorChar)));
 	}
+	
+	@Test
+	public void TranslateBeoControlStreaming() throws XPathExpressionException, ParserConfigurationException, SAXException, IOException
+	{
+		translate(new File("src/test/resources/BeoControlStreamingSosDesignModel.xmi".replace('/', File.separatorChar)));
+	}
 
 	public File translate(File input) throws XPathExpressionException,
 			ParserConfigurationException, SAXException, IOException
