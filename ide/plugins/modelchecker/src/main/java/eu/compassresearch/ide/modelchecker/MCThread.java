@@ -1,27 +1,18 @@
 package eu.compassresearch.ide.modelchecker;
 
 import java.io.ByteArrayInputStream;
-import java.util.List;
 
-import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.internal.ExceptionHandler;
-import org.eclipse.ui.internal.progress.FinishedJobs;
-import org.overture.ast.definitions.PDefinition;
 
 import eu.compassresearch.core.analysis.modelchecker.api.FormulaIntegrationException;
 import eu.compassresearch.core.analysis.modelchecker.api.FormulaIntegrator;
 import eu.compassresearch.core.analysis.modelchecker.api.FormulaResult;
-import eu.compassresearch.core.analysis.modelchecker.visitors.NewMCVisitor;
 import eu.compassresearch.core.common.Registry;
 import eu.compassresearch.core.common.RegistryFactory;
-import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
 
 enum MCStatus { CREATED, RUNNING, ERROR, FINISHED}
 
