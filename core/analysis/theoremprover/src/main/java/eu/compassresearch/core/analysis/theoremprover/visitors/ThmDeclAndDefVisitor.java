@@ -11,6 +11,7 @@ import org.overture.ast.definitions.AExplicitOperationDefinition;
 import org.overture.ast.definitions.AImplicitFunctionDefinition;
 import org.overture.ast.definitions.AImplicitOperationDefinition;
 import org.overture.ast.definitions.AInstanceVariableDefinition;
+import org.overture.ast.definitions.ALocalDefinition;
 import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.AValueDefinition;
 import org.overture.ast.definitions.PDefinition;
@@ -675,10 +676,31 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 		ThmNode tn = null;
 		//get the action name
 		ILexNameToken actName = act.getName();
+
+		StringBuffer apsb = new StringBuffer();
+		
+		// Deal with potential action parameters
+		for (Iterator<PParametrisation> ai = act.getDeclarations().iterator(); ai.hasNext(); ) {
+			ALocalDefinition adec = ai.next().getDeclaration(); 
+			apsb.append(adec.getName().toString());
+			vars.addBVar(adec.getName());
+			apsb.append(" : ");
+			apsb.append(adec.getType().apply(stringVisitor, vars));
+			if (ai.hasNext()) {
+				apsb.append(", ");
+			}
+		}
+
+		
 		//obtain the action dependencies
 		NodeNameList nodeDeps = act.getAction().apply(depVisitor, vars.getBVars());//ThmProcessUtil.getIsabelleActionDeps(act.getAction(), bvars);
+		
+		
+		if (!act.getDeclarations().isEmpty())
+			apsb.append(" @ ");
+		
 		//get the Isabelle string for the action node's action.
-		String actString = act.getAction().apply(stringVisitor, vars); //ThmProcessUtil.getIsabelleActionString(act.getAction(), svars, bvars);
+		String actString = apsb.toString() + act.getAction().apply(stringVisitor, vars); //ThmProcessUtil.getIsabelleActionString(act.getAction(), svars, bvars);
 		//check for self dependencies - if present, require a MU
 		/*
 		for(ILexNameToken n : nodeDeps)

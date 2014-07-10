@@ -402,7 +402,8 @@ public class TPPluginDoStuff {
 			String thyFileName) throws IOException, AnalysisException {
 		String thmString = "";
 		try {
-			thmString = TPVisitor.generateThyStr(model.getAst(), thyFileName);
+			List<INode> ast = model.getAst();
+			thmString = TPVisitor.generateThyStr(ast, thyFileName);
 		} catch (UnhandledSyntaxException use) {
 			thmString = use.getString();
 			popErrorMessage(use.getErrorString());
