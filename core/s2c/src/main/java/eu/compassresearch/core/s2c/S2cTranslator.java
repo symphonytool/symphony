@@ -94,8 +94,12 @@ public class S2cTranslator
 			for (Node n : new NodeIterator(anyStates))
 			{
 				State s = Factory.buildState(n, lookupSingle(n, xpath, "entry"), lookupSingle(n, xpath, "exit"));
-				buildCompositeState(s, n, doc, sm, xpath);
-				state.substates.add(s);
+//				if (s.name.startsWith("Initial")) {
+//					state.initial = s;
+//				} else {
+					buildCompositeState(s, n, doc, sm, xpath);
+					state.substates.add(s);
+//				}
 			}
 
 			System.out.println("Any Pseudostates");
@@ -292,7 +296,8 @@ public class S2cTranslator
 		NodeList anyPseudoStates = lookup(region, xpath, "subvertex[@xmi:type='uml:Pseudostate']");
 		for (Node n : new NodeIterator(anyPseudoStates))
 		{
-			sm.states.add(Factory.buildState(n, lookupSingle(n, xpath, "entry"), lookupSingle(n, xpath, "exit")));
+			State s = Factory.buildState(n, lookupSingle(n, xpath, "entry"), lookupSingle(n, xpath, "exit"));
+			sm.states.add(s);
 		}
 
 		System.out.println("--- The transitions ---");

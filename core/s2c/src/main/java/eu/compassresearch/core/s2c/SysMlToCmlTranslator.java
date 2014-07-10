@@ -117,7 +117,7 @@ public class SysMlToCmlTranslator {
 			sb.append(fixSyntaxErrors(t.effect.body + " ; "));
 		}
 		if (t.source.exit != null) {
-			sb.append("exit_" + getCmlName(t.source.name) + ";");
+			sb.append(getCmlName("exit_" + t.source.name) + ";");
 		}
 		sb.append(getCmlName(t.target.name));
 	}
@@ -134,7 +134,7 @@ public class SysMlToCmlTranslator {
 		StringBuilder sb = new StringBuilder();
 
 		if (s.substates.isEmpty()) {
-			sb.append("exit_" + getCmlName(s.name) + " = ");
+			sb.append(getCmlName("exit_" + s.name) + " = ");
 			if (s.exit != null) {
 				sb.append(fixSyntaxErrors(s.exit + "\n\n"));
 			} else {
@@ -151,21 +151,22 @@ public class SysMlToCmlTranslator {
 			}
 
 			List<Transition> transitions = getTransitions(s);
+			
+			List<Transition> completion = new Vector<Transition>();
+			List<Transition> noncompletion = new Vector<Transition>();
 
-			if (transitions.size() > 0) {
-				sb.append("(");
-			}
-
-			for (Iterator<Transition> iterator = transitions.iterator(); iterator
-					.hasNext();) {
-				Transition t = iterator.next();
-				sb.append(translate(t));
-
-				if (iterator.hasNext()) {
-					sb.append("\n\t[]");
+			for (Transition t: transitions) {
+				if (t.trigger == null || t.trigger.event == null) {
+					completion.add(t);
+				} else {
+					noncompletion.add(t);
 				}
 			}
-			sb.append("\n)");
+			
+			// if do activities are to be treated, add them here being interrupted by the noncompletion transitions.
+			
+			translateTransitions(sb, completion,noncompletion);
+			
 			sb.append("\n");
 
 			for (State ss : s.substates) {
@@ -173,7 +174,7 @@ public class SysMlToCmlTranslator {
 			}
 
 		} else {
-			sb.append("exit_" + getCmlName(s.name) + " = ");
+			sb.append(getCmlName("exit_" + s.name) + " = ");
 			if (s.exit != null) {
 				sb.append(fixSyntaxErrors(s.exit + ";"));
 			}
@@ -181,8 +182,8 @@ public class SysMlToCmlTranslator {
 			sb.append("\tcases active_" + getCmlName(s.name) + ":\n");
 			for (Iterator<State> it = s.substates.iterator(); it.hasNext();) {
 				State aux = it.next();
-				sb.append("\t<" + getCmlName(aux.name) + "> -> exit_"
-						+ getCmlName(aux.name) + ",\n");
+				sb.append("\t<" + getCmlName(aux.name) + "> -> " + getCmlName("exit_"
+						+aux.name) + ",\n");
 			}
 			sb.append("\tothers -> Skip\n");
 			sb.append("end\n");
@@ -192,17 +193,19 @@ public class SysMlToCmlTranslator {
 			if (s.entry != null) {
 				sb.append(fixSyntaxErrors(s.entry.name + " ; "));
 			}
-
-			for (State ss : s.substates) {
-				if (ss.name.startsWith("Initial")) {
-					sb.append(getCmlName(ss.name));
-				}
+			
+			if (s.getInitial() != null) {
+				sb.append(getCmlName(s.getInitial().name));
+			} else {
+				System.out.println("The state "+s.name+" should have an initial state");
 			}
-
 			sb.append(")");
 
 			List<Transition> transitions = getTransitions(s);
 
+			
+			
+			
 			if (transitions.size() > 0) {
 				sb.append("/_\\(");
 			}
@@ -224,6 +227,70 @@ public class SysMlToCmlTranslator {
 			}
 		}
 		return sb.toString();
+	}
+
+	private void translateNonCompletionTransitions(StringBuilder sb,
+			List<Transition> noncompletion) {
+		if (noncompletion.size() > 0) {
+			sb.append("(");
+			for (Iterator<Transition> iterator = noncompletion.iterator(); iterator
+					.hasNext();) {
+				Transition t = iterator.next();
+				sb.append(translate(t));
+
+				if (iterator.hasNext()) {
+					sb.append("\n\t[]");
+				}
+			}
+			sb.append("\n)");
+		} else {
+			sb.append("Skip\n");
+		}
+
+		
+	}
+
+	private void translateTransitions(StringBuilder sb,
+			List<Transition> completion, List<Transition> noncompletion) {
+		if (completion.size() > 0) {
+			sb.append("(");
+
+			StringBuilder elseguard = new StringBuilder();
+			List<String> guards = new Vector<String>();
+			for (Transition t: completion) {
+				if (t.constraint != null && t.constraint.expression != null) {
+					guards.add(fixSyntaxErrors(t.constraint.expression.toString()));
+				}
+			}
+			for (Iterator<String> it = guards.iterator(); it.hasNext();) {
+				elseguard.append("not("+it.next()+")");
+				if (it.hasNext()) {
+					elseguard.append(" and ");
+				}
+			}
+			
+			for (Iterator<Transition> iterator = completion.iterator(); iterator
+					.hasNext();) {
+				Transition t = iterator.next();
+				sb.append(translate(t));
+				
+				if (iterator.hasNext()) {
+					sb.append("\n\t[]");
+				}
+			}
+			
+			if (guards.size() > 0) {
+				sb.append("\n\t[]");
+				sb.append("\n\t[" + elseguard.toString() + "] & ");
+				translateNonCompletionTransitions(sb, noncompletion);
+				sb.append(")");
+			} else {
+				sb.append("); ");
+				translateNonCompletionTransitions(sb, noncompletion);
+			}
+		} else {
+			translateNonCompletionTransitions(sb, noncompletion);
+		}
 	}
 
 	public File translate(File output) throws FileNotFoundException {
@@ -251,7 +318,7 @@ public class SysMlToCmlTranslator {
 
 		printClasses(sb);
 
-		sb.append("\n\nprocess " + sm.name + " = begin\n");
+		sb.append("\n\nprocess " + makeNameCMLCompatible(sm.name) + " = begin\n");
 
 		printState(sb);
 
