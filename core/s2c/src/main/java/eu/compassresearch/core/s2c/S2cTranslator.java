@@ -71,7 +71,7 @@ public class S2cTranslator
 			path = args[0];
 		}
 
-		new S2cTranslator().translate(new File(path.replace('/', File.separatorChar)), new File("target".replace('/', File.separatorChar)));
+		new S2cTranslator().translate(new File(path.replace('/', File.separatorChar)), new File("target".replace('/', File.separatorChar)),true);
 	}
 
 	public State buildCompositeState(State state, Node node, Document doc,
@@ -185,13 +185,14 @@ public class S2cTranslator
 	 * 
 	 * @param input
 	 * @param output
+	 * @param overwrite 
 	 * @return
 	 * @throws ParserConfigurationException
 	 * @throws SAXException
 	 * @throws IOException
 	 * @throws XPathExpressionException
 	 */
-	public File translate(File input, File output)
+	public File translate(File input, File output, boolean overwrite)
 			throws ParserConfigurationException, SAXException, IOException,
 			XPathExpressionException
 	{
@@ -375,7 +376,7 @@ public class S2cTranslator
 		System.out.println("----------------------------------------------------------------------------");
 		System.out.println(sm);
 
-		return new SysMlToCmlTranslator(signals, theClassDef, sm, allClasses,alldatatypes).translate(output);
+		return new SysMlToCmlTranslator(signals, theClassDef, sm, allClasses,alldatatypes).translate(output,overwrite);
 	}
 
 	protected List<Operation> buildOperations(Document doc, XPath xpath,
@@ -392,7 +393,13 @@ public class S2cTranslator
 			{
 				method = lookupId(doc, xpath, methodIdNode.getNodeValue());
 			}
-			Operation operation = Factory.buildOperation(op, method);
+			
+			
+			Node isStaticNode = op.getAttributes().getNamedItem("isStatic");
+			boolean isStatic = isStaticNode!=null && isStaticNode.getNodeValue().equals("true");
+				
+			
+			Operation operation = Factory.buildOperation(op, method,isStatic);
 			NodeList params = lookup(op, xpath, "ownedParameter[@xmi:type='uml:Parameter']");
 
 			for (Node parm : new NodeIterator(params))

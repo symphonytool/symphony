@@ -12,6 +12,8 @@ public class Operation extends NamedUmlNode
 
 	public OpaqueBehavior body;
 
+	public boolean isStatic;
+
 	public List<Parameter> getParameters()
 	{
 		List<Parameter> list = new Vector<Parameter>();

@@ -200,10 +200,11 @@ System.out.println(S2cTranslator.formateNodeWithAtt(child));
 		return prop;
 	}
 
-	public static Operation buildOperation(Node n, Node method)
+	public static Operation buildOperation(Node n, Node method, boolean isStatic)
 	{
 		Operation op = new Operation();
 		setIdAndName(n, op);
+		op.isStatic = isStatic;
 		op.visibility = n.getAttributes().getNamedItem("visibility").getNodeValue();
 
 		if (method != null)

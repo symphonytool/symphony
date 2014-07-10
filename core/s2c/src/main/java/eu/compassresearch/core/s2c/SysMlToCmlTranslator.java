@@ -293,7 +293,7 @@ public class SysMlToCmlTranslator {
 		}
 	}
 
-	public File translate(File output) throws FileNotFoundException {
+	public File translate(File output, boolean overwrite) throws FileNotFoundException {
 		StringBuilder sb = new StringBuilder();
 		if (signals.size() > 0) {
 			sb.append("channels\n");
@@ -355,6 +355,14 @@ public class SysMlToCmlTranslator {
 
 		try {
 			final File file = new File(output, sm.name + ".cml");
+			if(file.exists())
+			{
+				if(overwrite)
+				{
+				file.delete();
+				}
+			}
+			
 			if (!file.exists()) {
 				out = new PrintWriter(file);
 				out.print(sb.toString());
@@ -439,11 +447,15 @@ public class SysMlToCmlTranslator {
 		}
 	}
 
-	protected void printOperations(StringBuilder sb, List<Operation> ops) {
-		if (ops.size() == 0)
+	protected void printOperations(StringBuilder sbClass) {
+		if (cdef.operations.size() == 0)
 			return;
-		sb.append("operations\n");
-		for (Operation op : ops) {
+		StringBuffer sbOps = new StringBuffer();
+		StringBuffer sbFuns = new StringBuffer();
+		
+		for (Operation op : cdef.operations) {
+			StringBuffer sb = new StringBuffer();
+			
 			StringBuilder patterns = new StringBuilder();
 			sb.append("\t" + op.name + " : ");
 			patterns.append("\t" + op.name + "(");
@@ -461,7 +473,15 @@ public class SysMlToCmlTranslator {
 			}
 			if (op.getParameters().size() == 0)
 				sb.append("()");
-			sb.append(" ==> ");
+			
+			if(op.isStatic)
+			{
+				sb.append(" -> ");
+			}else
+			{
+				sb.append(" ==> ");
+			}
+			
 			if (op.getReturn() == null) {
 				sb.append("()");
 			} else {
@@ -474,55 +494,75 @@ public class SysMlToCmlTranslator {
 			if (op.body == null) {
 				sb.append("is not yet specified");
 			} else {
-				sb.append("return " + op.body.body);
+				sb.append((!op.isStatic?"return ":"") + op.body.body);
 			}
 			sb.append("\n");
+			
+			if(op.isStatic)
+			{
+				sbFuns.append(sb);
+			}else
+			{
+				sbOps.append(sb);
+			}
 		}
 
-		sb.append("\n");
-	}
-
-	protected void printOperations(StringBuilder sb) {
-		if (cdef.operations.size() == 0)
-			return;
-		sb.append("operations\n");
-		for (Operation op : cdef.operations) {
-			StringBuilder patterns = new StringBuilder();
-			sb.append("\t" + op.name + " : ");
-			patterns.append("\t" + op.name + "(");
-
-			for (Iterator<Parameter> iterator = op.getParameters().iterator(); iterator
-					.hasNext();) {
-				Parameter p = iterator.next();
-
-				sb.append(convertType(p.type));
-				patterns.append(p.name);
-				if (iterator.hasNext()) {
-					sb.append(" * ");
-					patterns.append(", ");
-				}
-			}
-
-			sb.append(" ==> ");
-			if (op.getReturn() == null) {
-				sb.append("()");
-			} else {
-				sb.append(convertType(op.getReturn().type));
-			}
-
-			sb.append("\n");
-			sb.append(patterns);
-			sb.append(") == ");
-			if (op.body == null) {
-				sb.append("is not yet specified");
-			} else {
-				sb.append("return " + op.body.body);
-			}
-			sb.append("\n");
+		if (sbOps.length() > 0)
+		{
+			sbOps.insert(0, "operations\n");
+			sbClass.append(sbOps);
 		}
 
-		sb.append("\n");
+		if (sbFuns.length() > 0)
+		{
+			sbFuns.insert(0, "functions\n");
+			sbClass.append(sbFuns);
+		}
+
+		sbClass.append("\n");
 	}
+
+//	protected void printOperations(StringBuilder sb) {
+//		if (cdef.operations.size() == 0)
+//			return;
+//		sb.append("operations\n");
+//		for (Operation op : cdef.operations) {
+//			StringBuilder patterns = new StringBuilder();
+//			sb.append("\t" + op.name + " : ");
+//			patterns.append("\t" + op.name + "(");
+//
+//			for (Iterator<Parameter> iterator = op.getParameters().iterator(); iterator
+//					.hasNext();) {
+//				Parameter p = iterator.next();
+//
+//				sb.append(convertType(p.type));
+//				patterns.append(p.name);
+//				if (iterator.hasNext()) {
+//					sb.append(" * ");
+//					patterns.append(", ");
+//				}
+//			}
+//
+//			sb.append(" ==> ");
+//			if (op.getReturn() == null) {
+//				sb.append("()");
+//			} else {
+//				sb.append(convertType(op.getReturn().type));
+//			}
+//
+//			sb.append("\n");
+//			sb.append(patterns);
+//			sb.append(") == ");
+//			if (op.body == null) {
+//				sb.append("is not yet specified");
+//			} else {
+//				sb.append("return " + op.body.body);
+//			}
+//			sb.append("\n");
+//		}
+//
+//		sb.append("\n");
+//	}
 
 	protected void printState(StringBuilder sb) {
 		int i = 0;

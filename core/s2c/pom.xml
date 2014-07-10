@@ -12,11 +12,17 @@
 	<name>Simple SysML State-Machine to CML translator</name>
 
 	<dependencies>
-		
-
-		
 
 
+
+
+
+	<dependency>
+		<groupId>eu.compassresearch.core</groupId>
+		<artifactId>typechecker</artifactId>
+		<version>0.3.3-SNAPSHOT</version>
+		<scope>test</scope>
+	</dependency>
 	</dependencies>
 
 
