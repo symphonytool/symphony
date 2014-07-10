@@ -57,8 +57,8 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 	private final boolean autoTerminate;
 
 	public CmlDebugTarget(ILaunch launch, IProcess process,
-			ICmlProject project, int communicationPort, boolean autoTerminate) throws CoreException,
-			IOException
+			ICmlProject project, int communicationPort, boolean autoTerminate)
+			throws CoreException, IOException
 	{
 		this.launch = launch;
 		this.process = process;
@@ -335,7 +335,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 
 		DebugEventHelper.fireTerminateEvent(this);
 	}
-	
+
 	/**
 	 * Called when this debug target terminates.
 	 */
@@ -349,19 +349,19 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 		// take the process down
 		final IProcess p = getProcess();
 		// Debugging process is not answering, so terminating it
-		
+
 		final int CHUNK = 500;
-		if (!(waitTerminated(threadManager, CHUNK, THREAD_TERMINATION_TIMEOUT) && (p != null && !waitTerminated(p, CHUNK, THREAD_TERMINATION_TIMEOUT)))&& autoTerminate)
+		if (!(waitTerminated(threadManager, CHUNK, THREAD_TERMINATION_TIMEOUT)
+				&& p != null && !waitTerminated(p, CHUNK, THREAD_TERMINATION_TIMEOUT))
+				&& autoTerminate)
 		{
-//		if (p != null && p.canTerminate() )
-//		{
-			 try
-			 {
-			 p.terminate();
-			 } catch (DebugException e)
-			 {
-			 CmlDebugPlugin.logError("Failed to take down the interpreter process", e);
-			 }
+			try
+			{
+				p.terminate();
+			} catch (DebugException e)
+			{
+				CmlDebugPlugin.logError("Failed to take down the interpreter process", e);
+			}
 		}
 	}
 
@@ -602,8 +602,6 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 	{
 		return breakpoint instanceof CmlLineBreakpoint;
 	}
-
-	
 
 	@Override
 	public IDebugTarget getDebugTarget()
