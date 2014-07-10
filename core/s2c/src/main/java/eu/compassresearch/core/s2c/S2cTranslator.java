@@ -218,29 +218,15 @@ public class S2cTranslator
 			stateMachines = lookup(doc,xpath,ANY_STATE_MACHINE);
 		}
 
-		System.out.println("Find the class thats that parent of the state machine");
-		System.out.println(stateMachines.getLength());
-		NodeList theClass = lookup(stateMachines.item(0), xpath, "..");
-		ClassDefinition theClassDef = null;
-		if (theClass.getLength() == 0) {
-			theClassDef = new ClassDefinition();
-			theClassDef.name = stateMachines.item(0).getAttributes().getNamedItem("name").getTextContent();
-		} else {
-			theClassDef = Factory.buildClass(theClass.item(0));
-			System.out.println("Class properties");
-			theClassDef.properties.addAll(buildProperties(doc, xpath, theClass.item(0)));
-
-			System.out.println("Class operations");
-			theClassDef.operations.addAll(buildOperations(doc, xpath, theClass.item(0)));
-		}
-		
-		System.out.println("Find all other classes and ignore any state machines");
-		//NodeList allClassNodes = lookup(doc,xpath,"//packagedElement[@xmi:type='uml:Class']");
 		NodeList allBlocks = lookup(doc,xpath,"//sysml:Block");
 		for (Node n: new NodeIterator(allBlocks)) {
 			Node base_class = lookupId(doc, xpath, n.getAttributes().getNamedItem("base_Class").getTextContent());
 			blockNames.add(base_class.getAttributes().getNamedItem("name").getTextContent());
 		}
+		
+		System.out.println("Find all other classes and ignore any state machines");
+		//NodeList allClassNodes = lookup(doc,xpath,"//packagedElement[@xmi:type='uml:Class']");
+
 		
 		List<ClassDefinition> allClasses = new LinkedList<ClassDefinition>();
 		for (Node n: new NodeIterator(allBlocks)) {
@@ -250,6 +236,25 @@ public class S2cTranslator
 			aux.operations.addAll(buildOperations(doc,xpath,base_class));
 			allClasses.add(aux);
 		}
+		
+		System.out.println("Find the class thats that parent of the state machine");
+		System.out.println(stateMachines.getLength());
+		NodeList theClass = lookup(stateMachines.item(0), xpath, "..");
+		ClassDefinition theClassDef = null;
+		if (theClass.getLength() > 0) {
+			String id = theClass.item(0).getAttributes().getNamedItem("xmi:id").getTextContent();
+			for (ClassDefinition c: allClasses) {
+				if (c.id.equals(id)) {
+					theClassDef = c;
+					break;
+				}
+			}
+			if (theClassDef == null) {
+				theClassDef = new ClassDefinition();
+				theClassDef.name = stateMachines.item(0).getAttributes().getNamedItem("name").getTextContent();
+			}
+		}
+		
 		
 		System.out.println("Find all data and value types");
 		NodeList allValueTypes = lookup(doc,xpath,"//packagedElement[@xmi:type='uml:ValueType']");
