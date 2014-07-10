@@ -21,6 +21,15 @@ public class StateMachine extends NamedUmlNode
 //		return signals;
 //	}
 	
+	public State getInitial() {
+		for (State s: states) {
+			if (s.name.startsWith("Initial")) {
+				return s;
+			}
+		}
+		return null;
+	}
+	
 	public State lookupState(String id)
 	{	
 		for (State s : states)

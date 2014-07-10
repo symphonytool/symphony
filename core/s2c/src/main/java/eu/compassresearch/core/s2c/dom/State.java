@@ -29,6 +29,15 @@ public class State extends NamedUmlNode
 		return sb.toString();
 	}
 	
+	public State getInitial() {
+		for (State s: substates) {
+			if (s.name.startsWith("Initial")) {
+				return s;
+			}
+		}
+		return null;
+	}
+	
 	public State lookupState(String id)
 	{
 		if (this.id.equals(id)) {
