@@ -335,6 +335,35 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 
 		DebugEventHelper.fireTerminateEvent(this);
 	}
+	
+	/**
+	 * Called when this debug target terminates.
+	 */
+	public void terminated()
+	{
+		// terminated = true;
+		// suspended = false;
+		DebugPlugin.getDefault().getBreakpointManager().removeBreakpointListener(this);
+		fireTerminateEvent();
+
+		// take the process down
+		final IProcess p = getProcess();
+		// Debugging process is not answering, so terminating it
+		
+		final int CHUNK = 500;
+		if (!(waitTerminated(threadManager, CHUNK, THREAD_TERMINATION_TIMEOUT) && (p != null && !waitTerminated(p, CHUNK, THREAD_TERMINATION_TIMEOUT)))&& autoTerminate)
+		{
+//		if (p != null && p.canTerminate() )
+//		{
+			 try
+			 {
+			 p.terminate();
+			 } catch (DebugException e)
+			 {
+			 CmlDebugPlugin.logError("Failed to take down the interpreter process", e);
+			 }
+		}
+	}
 
 	protected static boolean waitTerminated(ITerminate terminate, int chunk,
 			long timeout)
@@ -574,30 +603,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 		return breakpoint instanceof CmlLineBreakpoint;
 	}
 
-	/**
-	 * Called when this debug target terminates.
-	 */
-	public void terminated()
-	{
-		// terminated = true;
-		// suspended = false;
-		DebugPlugin.getDefault().getBreakpointManager().removeBreakpointListener(this);
-		fireTerminateEvent();
-
-		// take the process down
-		final IProcess p = getProcess();
-		// Debugging process is not answering, so terminating it
-		if (p != null && p.canTerminate() && autoTerminate)
-		{
-			 try
-			 {
-			 p.terminate();
-			 } catch (DebugException e)
-			 {
-			 CmlDebugPlugin.logError("Failed to take down the interpreter process", e);
-			 }
-		}
-	}
+	
 
 	@Override
 	public IDebugTarget getDebugTarget()
