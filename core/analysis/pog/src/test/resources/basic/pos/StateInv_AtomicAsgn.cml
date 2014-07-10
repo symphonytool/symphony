@@ -1,0 +1,13 @@
+process Test = begin
+state
+x :int 
+y :int
+inv
+x = y
+
+operations
+op : () ==> ()
+op()== atomic(x:=1; y:=1)
+
+@Skip
+end

@@ -164,8 +164,6 @@ public class DebugMain
 
 			// Since the process that started expects the debugger to connect
 			// we do this first so the connection doesn't time out
-			try
-			{
 				debugger.connect(host, port);
 
 				// create the typechecker and typecheck the source forest
@@ -217,16 +215,16 @@ public class DebugMain
 					Console.err.println("Typechecking: Error(s)");
 					Console.err.println(ih.getTypeErrors());
 				}
-			} finally
-			{
-				debugger.dicsonnect();
-			}
 
 		} catch (IOException | AnalysisException e)
 		{
 			e.printStackTrace(Console.err);
+			Console.err.flush();
 		} finally
 		{
+			try{
+			debugger.dicsonnect();
+			}catch(Exception e){}
 			shutdownCoSimulation();
 		}
 		Console.out.println("Terminated");

@@ -31,7 +31,6 @@ public class MCAExternalChoiceReplicatedAction extends MCSReplicatedActionBase {
 
 	@Override
 	public String toFormula(String option) {
-		 
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 		MCPSingleDeclaration sDecl = this.getReplicationDeclaration().getFirst();
 		LinkedList<MCPCMLExp> indexes = new LinkedList<MCPCMLExp>();

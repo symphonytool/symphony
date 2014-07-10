@@ -22,12 +22,7 @@ import eu.compassresearch.core.typechecker.assistant.CmlVariableNameCollector;
 
 public class CmlTypeCheckerAssistantFactory extends TypeCheckerAssistantFactory
 {
-	static
-	{
-		// FIXME: remove this when conversion to factory obtained assistants are completed.
-		// init(new AstAssistantFactory());
-		init(new CmlTypeCheckerAssistantFactory());
-	}
+
 
 	@Override
 	public SClassDefinitionAssistantTC createSClassDefinitionAssistant()

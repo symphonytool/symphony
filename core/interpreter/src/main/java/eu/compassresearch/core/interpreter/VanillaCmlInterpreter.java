@@ -14,6 +14,8 @@ import org.overture.ast.types.PType;
 import org.overture.ast.util.definitions.ClassList;
 import org.overture.interpreter.runtime.ClassInterpreter;
 import org.overture.interpreter.runtime.Context;
+import org.overture.interpreter.runtime.RootContext;
+import org.overture.interpreter.util.ClassListInterpreter;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.definitions.AProcessDefinition;
@@ -82,14 +84,8 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	public void initialize() throws AnalysisException
 	{
 		super.initialize();
-		GlobalEnvironmentBuilder envBuilder = new GlobalEnvironmentBuilder(sourceForest);
-		// Build the global context
-		globalContext = envBuilder.getGlobalContext();
-		// set the last defined process as the top process
-		topProcess = envBuilder.getLastDefinedProcess();
-		setNewState(CmlInterpreterState.INITIALIZED);
 
-		ClassList classes = new ClassList();
+		ClassListInterpreter classes = new ClassListInterpreter();
 		for (PDefinition def : sourceForest)
 		{
 			if (def instanceof SClassDefinition)
@@ -97,14 +93,29 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 				classes.add((SClassDefinition) def);
 			}
 		}
+
+		RootContext rootCxt = null;
 		try
 		{
-			new CmlClassInterpreter(classes);// this stores an internal static reference needed later
-												// Interpreter.getInstance()
+			CmlClassInterpreter classInterpreter = new CmlClassInterpreter(classes);/*
+																					 * this stores an internal static
+																					 * reference needed later
+																					 * Interpreter.getInstance()
+																					 */
+			rootCxt = classes.initialize(classInterpreter.getAssistantFactory(), CmlContextFactory.newDBGPReader());
+
 		} catch (Exception e)
 		{
 			throw new AnalysisException("Faild to initialize class interpreter", e);
 		}
+
+		GlobalEnvironmentBuilder envBuilder = new GlobalEnvironmentBuilder(sourceForest, rootCxt);
+		// Build the global context
+		globalContext = envBuilder.getGlobalContext();
+
+		// set the last defined process as the top process
+		topProcess = envBuilder.getLastDefinedProcess();
+		setNewState(CmlInterpreterState.INITIALIZED);
 	}
 
 	/**

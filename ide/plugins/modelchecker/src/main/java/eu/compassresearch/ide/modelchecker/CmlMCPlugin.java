@@ -6,7 +6,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.ui.IStartup;
@@ -48,7 +47,7 @@ public class CmlMCPlugin extends AbstractUIPlugin implements IStartup{
 
 	public CmlMCPlugin() {
 		super();
-		this.plugin = this;
+		CmlMCPlugin.plugin = this;
 	}
 
 	
@@ -83,7 +82,7 @@ public class CmlMCPlugin extends AbstractUIPlugin implements IStartup{
 			} catch (FormulaIntegrationException e) {
 				log(e);
 			} catch (Throwable e) {
-				logErrorMessage(e.getMessage());
+				log(e);
 			}
 	}
 	@Override
@@ -106,7 +105,7 @@ public class CmlMCPlugin extends AbstractUIPlugin implements IStartup{
 		return imageDescriptorFromPlugin(PLUGIN_ID, path);
     }
     
-    public static void log(Exception exception){
+    public static void log(Throwable exception){
 		getDefault().getLog().log(new Status(IStatus.ERROR, MCConstants.PLUGIN_ID, CmlMCPlugin.class.getSimpleName(), exception));
 	}
 
@@ -114,17 +113,10 @@ public class CmlMCPlugin extends AbstractUIPlugin implements IStartup{
 		getDefault().getLog().log(new Status(IStatus.ERROR, MCConstants.PLUGIN_ID, message, exception));
 	}
 
-	public static void logErrorMessage(String message){
-		getDefault().getLog().log(new Status(IStatus.ERROR, MCConstants.PLUGIN_ID, message));
-	}
 
 	public static void logWarningMessage(String message){
 		getDefault().getLog().log(new Status(IStatus.WARNING, MCConstants.PLUGIN_ID, message));
 	}
 
-	private void popErrorMessage(Throwable e) {
-		MessageDialog.openInformation(null, "Symphony",
-				formulaNotInstalledMsg);
-	}
     
   }

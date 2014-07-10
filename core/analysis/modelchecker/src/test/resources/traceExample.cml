@@ -1,4 +1,6 @@
 channels
+a
+b
 c
 
 process traceExample = 

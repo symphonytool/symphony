@@ -1,0 +1,12 @@
+types
+    MYREAL = real
+      inv i == i in set {0.5, 1.2}
+
+channels 
+b:MYREAL
+
+process P1 = 
+begin
+@ b?x -> Skip
+end    
+

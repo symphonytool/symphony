@@ -59,6 +59,10 @@ public class RttMbtPopupMenuAction extends AbstractHandler  {
 	protected Boolean isFolderSelected = false;
 	protected Boolean isFileSelected = false;
 
+	// flag if RTT-MBT server is needed for this task
+	protected Boolean isServerConnectionNeeded = true;
+
+	// name of the current task
 	protected String taskname;
 	
 	// constructor
@@ -357,25 +361,27 @@ public class RttMbtPopupMenuAction extends AbstractHandler  {
 		}
 
 		// test connection to rtt-mbt-tms server
-		if (client.testConenction()) {
-			if (client.getVerboseLogging()) {
-				client.addLogMessage("[PASS]: test RTT-MBT server connection");
+		if (isServerConnectionNeeded) {
+			if (client.testConenction()) {
+				if (client.getVerboseLogging()) {
+					client.addLogMessage("[PASS]: test RTT-MBT server connection");
+				}
+			} else {
+				client.addErrorMessage("[FAIL]: test RTT-MBT server connection");
+				return false;
 			}
-		} else {
-			client.addErrorMessage("[FAIL]: test RTT-MBT server connection");
-			return false;
+
+			// start RTT-MBT-TMS session
+			if (client.beginRttMbtSession()) {
+				if (client.getVerboseLogging()) {
+					client.addLogMessage("[PASS]: begin RTT-MBT session");
+				}
+			} else {
+				client.addErrorMessage("[FAIL]: begin RTT-MBT session");
+				return false;
+			}
 		}
 
-		// start RTT-MBT-TMS session
-		if (client.beginRttMbtSession()) {
-			if (client.getVerboseLogging()) {
-				client.addLogMessage("[PASS]: begin RTT-MBT session");
-			}
-		} else {
-			client.addErrorMessage("[FAIL]: begin RTT-MBT session");
-			return false;
-		}
-		
 		return success;
 	}
 	

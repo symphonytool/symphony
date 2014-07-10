@@ -218,7 +218,6 @@ action {-> package='eu.compassresearch.ast.actions'
        | (type):type}
     = {skip} //what is the semantic meaning of CML skip vs VDM skip?
     | {stop}
-    | {chaos}
     | {div}
     | {wait}
         [expression]:exp

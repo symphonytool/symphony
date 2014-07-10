@@ -1,0 +1,26 @@
+channels
+    a,j,k
+    
+chansets
+
+    H = {|j|}
+    Sync = {| a,j,k |}
+
+process P =
+    begin
+        actions
+            Init = a -> j -> Init
+        @ Init
+    end
+    
+process L = 
+    begin
+        actions
+            Init = a -> Init
+        @ Init
+    end
+    
+--process DLF = (P \\ ( H union {|k|} )) [| {|a,j,k|} |] L
+process DLF = (P \\ {|j,k|} ) [| {|a,j,k|} |] L
+
+process PHide = P \\ {|j,k|}

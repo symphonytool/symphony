@@ -1,3 +1,6 @@
+channels
+a
+
 process A = 
 begin 
 	@ if (2 > 3) then Skip else (a -> Stop) 
