@@ -48,6 +48,7 @@ public class S2cTranslator
 	private static final String ANY_STATE_MACHINE_IN_ANY_PACKAGES_CLASS = "//packagedElement[@xmi:type='uml:Class']/ownedBehavior[@xmi:type='uml:StateMachine']";
 	private static final String ANY_DATATYPE = "//packagedElement[@xmi:type='uml:DataType']";
 	private static final String ANY_STATE_MACHINE_IN_ANY_NESTED_CLASSIFIER = "//nestedClassifier[@xmi:type='uml:Class']/ownedBehavior[@xmi:type='uml:StateMachine']";
+	private static final String ANY_STATE_MACHINE = "//packagedElement[@xmi:type='uml:StateMachine']";
 
 	private Map<String, String> types = new HashMap<String, String>();
 
@@ -63,7 +64,7 @@ public class S2cTranslator
 			ParserConfigurationException, SAXException, IOException
 	{
 		// String path = "src/test/resources/s2c-lite-initial-model2.xmi";
-		String path = "src/test/resources/HSUV.xmi";
+		String path = "src/test/resources/Insiel/insiel.xmi";
 
 		if (args.length > 0)
 		{
@@ -118,9 +119,11 @@ public class S2cTranslator
 		Node region = lookup(node, xpath, "region[@xmi:type='uml:Region']").item(0);
 		if (region != null)
 		{
-			System.out.println("--- The transactions ---");
+			
 			NodeList transactions = lookup(region, xpath, "transition[@xmi:type='uml:Transition']");
-
+			
+			System.out.println("--- The transitions within state "+ state.name +" --- ("+ transactions.getLength() +")");
+			
 			for (Node t : new NodeIterator(transactions))
 			{
 				NamedNodeMap atts = t.getAttributes();
@@ -128,6 +131,8 @@ public class S2cTranslator
 				String sourceId = atts.getNamedItem("source").getNodeValue();
 				String targetId = atts.getNamedItem("target").getNodeValue();
 
+				System.out.println("transition from" + sm.lookupState(sourceId).name + " to " + sm.lookupState(targetId).name);
+				
 				System.out.println("Looking up translation details for: "
 						+ t.getAttributes().getNamedItem("xmi:id"));
 				// Node source = lookupId(doc, xpath, sourceId);
@@ -150,6 +155,20 @@ public class S2cTranslator
 
 				System.out.println("\n");
 			}
+			
+			NodeList states = lookup(region,xpath,"subvertex[@xmi:type='uml:State']");
+			System.out.print("Substates of "+state.name+": ");
+			for (Node n: new NodeIterator(states)) {
+				System.out.print(n.getAttributes().getNamedItem("name").getTextContent() + " ");
+			}
+			
+			for (Node n : new NodeIterator(states))
+			{
+				State s = sm.lookupState(n.getAttributes().getNamedItem("xmi:id").getTextContent());
+				System.out.println("Treating state: "+s.name);
+				buildCompositeStateTransitions(s, n, doc, sm, xpath);
+			}
+			
 			return state;
 		} else
 		{
@@ -189,16 +208,26 @@ public class S2cTranslator
 		{
 			stateMachines = lookup(doc, xpath, ANY_STATE_MACHINE_IN_ANY_NESTED_CLASSIFIER);
 		}
+		if (stateMachines.getLength() == 0)
+		{
+			stateMachines = lookup(doc,xpath,ANY_STATE_MACHINE);
+		}
 
 		System.out.println("Find the class thats that parent of the state machine");
-		Node theClass = lookup(stateMachines.item(0), xpath, "..").item(0);
-		ClassDefinition theClassDef = Factory.buildClass(theClass);
-		
-		System.out.println("Class properties");
-		theClassDef.properties.addAll(buildProperties(doc, xpath, theClass));
+		System.out.println(stateMachines.getLength());
+		NodeList theClass = lookup(stateMachines.item(0), xpath, "..");
+		ClassDefinition theClassDef = null;
+		if (theClass.getLength() == 0) {
+			theClassDef = new ClassDefinition();
+			theClassDef.name = stateMachines.item(0).getAttributes().getNamedItem("name").getTextContent();
+		} else {
+			theClassDef = Factory.buildClass(theClass.item(0));
+			System.out.println("Class properties");
+			theClassDef.properties.addAll(buildProperties(doc, xpath, theClass.item(0)));
 
-		System.out.println("Class operations");
-		theClassDef.operations.addAll(buildOperations(doc, xpath, theClass));
+			System.out.println("Class operations");
+			theClassDef.operations.addAll(buildOperations(doc, xpath, theClass.item(0)));
+		}
 		
 		System.out.println("Find all other classes and ignore any state machines");
 		//NodeList allClassNodes = lookup(doc,xpath,"//packagedElement[@xmi:type='uml:Class']");
@@ -266,15 +295,19 @@ public class S2cTranslator
 			sm.states.add(Factory.buildState(n, lookupSingle(n, xpath, "entry"), lookupSingle(n, xpath, "exit")));
 		}
 
-		System.out.println("--- The transactions ---");
+		System.out.println("--- The transitions ---");
 		NodeList transactions = lookup(region, xpath, "transition[@xmi:type='uml:Transition']");
 
+		System.out.println("Number of states: "+sm.allStates().size());
+		
 		for (Node t : new NodeIterator(transactions))
 		{
 			NamedNodeMap atts = t.getAttributes();
 
 			String sourceId = atts.getNamedItem("source").getNodeValue();
 			String targetId = atts.getNamedItem("target").getNodeValue();
+			
+			System.out.println("transition from" + sm.lookupState(sourceId).name + " to " + sm.lookupState(targetId).name);
 
 			if (DEBUG)
 			{

@@ -46,7 +46,7 @@ public class SysMlToCmlTranslator {
 		StringBuilder sb = new StringBuilder();
 		sb.append("\n\t(");
 
-		if (t.trigger != null) {
+		if (t.trigger != null && t.trigger.event != null) {
 			Signal s = t.trigger.event.signal;
 			if (s.property.size() > 0) {
 				sb.append(t.trigger.event.signal.name);
