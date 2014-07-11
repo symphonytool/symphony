@@ -6,6 +6,7 @@ import java.util.List;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.lex.LexLocation;
+import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.StateContext;
 import org.overture.interpreter.values.Value;
 
@@ -16,23 +17,23 @@ import eu.compassresearch.core.interpreter.api.values.ProcessObjectValue;
 public class GlobalEnvironmentBuilder extends AnalysisCMLAdaptor
 {
 	private AProcessDefinition lastDefinedProcess = null;
-	private StateContext globalState = null;
+	private Context globalState = null;
 	private List<AProcessDefinition> globalProcesses = null;
 
 	// private IQuestionAnswer<Context, NameValuePairList> cmlDefEval
 	// =CmlContextFactory.factory.getNamedValueLister();// new CmlDefinitionVisitor();
 
-	public GlobalEnvironmentBuilder(List<PDefinition> sourceForest)
+	public GlobalEnvironmentBuilder(List<PDefinition> sourceForest, Context root)
 			throws AnalysisException
 	{
-		buildGlobalEnvironment(sourceForest);
+		buildGlobalEnvironment(sourceForest, root);
 	}
 
-	private void buildGlobalEnvironment(List<PDefinition> sourceForest)
+	private void buildGlobalEnvironment(List<PDefinition> sourceForest, Context root)
 			throws AnalysisException
 	{
 		// Make a state
-		globalState = CmlContextFactory.newStateContext(new LexLocation(), "Global Context");
+		globalState = root;//CmlContextFactory.newStateContext(new LexLocation(), "Global Context",root);
 		globalProcesses = new LinkedList<AProcessDefinition>();
 
 		/*
@@ -77,7 +78,7 @@ public class GlobalEnvironmentBuilder extends AnalysisCMLAdaptor
 		return lastDefinedProcess;
 	}
 
-	public StateContext getGlobalContext()
+	public Context getGlobalContext()
 	{
 		return globalState;
 	}

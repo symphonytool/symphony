@@ -5,7 +5,6 @@ import java.util.LinkedList;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
-import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 
 
 public class BBinding implements Binding {

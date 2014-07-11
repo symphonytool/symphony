@@ -3,12 +3,7 @@ package eu.compassresearch.core.analysis.modelchecker.ast.process;
 import java.util.LinkedList;
 
 import eu.compassresearch.ast.process.AAlphabetisedParallelismReplicatedProcess;
-import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAReferenceAction;
-import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ExpressionEvaluator;
-import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.TypeManipulator;
-import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.TypeValue;
-import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCAExpressionSingleDeclaration;
 import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCATypeSingleDeclaration;
 import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCPSingleDeclaration;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCATypeDefinition;

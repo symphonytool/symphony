@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xmi:XMI xmi:version = "2.1" xmlns:xmi = "http://schema.omg.org/spec/XMI/2.1" xmlns:uml = "http://www.omg.org/spec/UML/20090901" xmlns:sysml = "http://www.omg.org/spec/SysML/20100301/SysML-profile" xmlns:StandardProfileL2 = "http://www.omg.org/spec/UML/20090901/StandardProfileL2" >
+  <documentation xmi:type = "xmi:Documentation">
+    <exporter>Artisan Studio</exporter>
+    <exporterVersion>7.4.4</exporterVersion>
+  </documentation>
+  <uml:Model name = "s2c-lite-initial-model" xmi:id = "_00c2a974-4573-4408-932c-9b1897333b9d">
+      <packagedElement xmi:type = "uml:Package" xmi:id = "_6af1f651-e498-4837-914f-31cd07852934" name = "P">
+        <packagedElement xmi:type = "uml:Class" xmi:id = "_a393e0f3-1fcf-4d47-b557-987852e46799" name = "B">
+          <ownedAttribute xmi:type = "uml:Property" xmi:id = "_8980b760-924e-4f9b-9415-b0cccbe0167a" name = "a" visibility = "public" aggregation = "composite">
+            <type xmi:type = "uml:PrimitiveType" href = "http://www.omg.org/spec/UML/20090901/UML.xmi#Integer"/>
+          </ownedAttribute>
+          <ownedAttribute xmi:type = "uml:Property" xmi:id = "_2c11bdd6-4b63-4c03-8411-f0e2052773da" name = "b" visibility = "private" aggregation = "composite">
+            <upperValue xmi:type = "uml:LiteralUnlimitedNatural" xmi:id = "_2c11bdd6-4b63-4c03-8411-f0e2052773daupper" value = "*"/>
+            <lowerValue xmi:type = "uml:LiteralInteger" xmi:id = "_2c11bdd6-4b63-4c03-8411-f0e2052773dalower"/>
+            <type xmi:type = "uml:PrimitiveType" href = "http://www.omg.org/spec/UML/20090901/UML.xmi#Boolean"/>
+          </ownedAttribute>
+          <ownedAttribute xmi:type = "uml:Property" xmi:id = "_a149df2d-cd79-434b-a8f5-8824fd6d9246" name = "c" visibility = "private" isReadOnly = "true" aggregation = "composite">
+            <type xmi:type = "uml:PrimitiveType" href = "http://www.omg.org/spec/UML/20090901/UML.xmi#String"/>
+          </ownedAttribute>
+          <ownedOperation xmi:type = "uml:Operation" xmi:id = "_18f0d54b-0172-47f5-b698-578b2f53a0e6op" name = "Operation1" visibility = "public" method = "_18f0d54b-0172-47f5-b698-578b2f53a0e6body" isStatic = "true">
+              <ownedParameter xmi:type = "uml:Parameter" xmi:id = "_18f0d54b-0172-47f5-b698-578b2f53a0e6return" direction = "return">
+                <type xmi:type = "uml:PrimitiveType" href = "http://www.omg.org/spec/UML/20090901/UML.xmi#Boolean">
+                </type>
+              </ownedParameter>
+            <ownedParameter xmi:type = "uml:Parameter" xmi:id = "_b5e91caa-c249-45eb-935b-e5dc70ddd365" name = "x">
+              <type xmi:type = "uml:PrimitiveType" href = "http://www.omg.org/spec/UML/20090901/UML.xmi#Integer">
+              </type>
+            </ownedParameter>
+            <ownedParameter xmi:type = "uml:Parameter" xmi:id = "_cfa80684-1c38-487b-ab2a-40c57e26bf94" name = "y">
+              <type xmi:type = "uml:PrimitiveType" href = "http://www.omg.org/spec/UML/20090901/UML.xmi#Integer">
+              </type>
+            </ownedParameter>
+          </ownedOperation>
+          <ownedBehavior xmi:type = "uml:OpaqueBehavior" xmi:id = "_18f0d54b-0172-47f5-b698-578b2f53a0e6body" name = "Operation1" specification = "_18f0d54b-0172-47f5-b698-578b2f53a0e6op" body = "x&gt;y">
+            <ownedParameter xmi:type = "uml:Parameter" xmi:id = "_b5e91caa-c249-45eb-935b-e5dc70ddd365body" name = "x">
+              <type xmi:type = "uml:PrimitiveType" href = "http://www.omg.org/spec/UML/20090901/UML.xmi#Integer">
+              </type>
+            </ownedParameter>
+            <ownedParameter xmi:type = "uml:Parameter" xmi:id = "_cfa80684-1c38-487b-ab2a-40c57e26bf94body" name = "y">
+              <type xmi:type = "uml:PrimitiveType" href = "http://www.omg.org/spec/UML/20090901/UML.xmi#Integer">
+              </type>
+            </ownedParameter>
+          </ownedBehavior>
+          <ownedBehavior xmi:type = "uml:StateMachine" xmi:id = "_fd930249-365b-4266-9d69-4a967d157ce0" name = "B_Stm">
+            <region xmi:type = "uml:Region" xmi:id = "_fd930249-365b-4266-9d69-4a967d157ce0region">
+              <subvertex xmi:type = "uml:State" xmi:id = "_e572bb0c-6ada-4fde-b358-3d9d0bc594a8" name = "Atomic State">
+                <entry xmi:id = "_3e663a11-c250-42d4-b421-faf0c85efef5Activ" xmi:type = "uml:Activity" name = "b := false">
+                </entry>
+                <exit xmi:id = "_dc4ab2d7-e264-48f4-9bb5-51f0233833b5Activ" xmi:type = "uml:Activity" name = "b := true">
+                </exit>
+              </subvertex>
+              <subvertex xmi:type = "uml:State" xmi:id = "_90fd9d4b-df79-4a67-9106-cb7064634f3e" name = "Atomic State1">
+              </subvertex>
+              <subvertex xmi:type = "uml:FinalState" xmi:id = "_501b1253-4bb9-4fd3-ad40-eaca0973e270" name = "Final">
+              </subvertex>
+              <subvertex xmi:type = "uml:Pseudostate" xmi:id = "_5959c07e-38fe-4607-9f71-5398c7d90fed" name = "Initial">
+              </subvertex>
+              <subvertex xmi:type = "uml:Pseudostate" xmi:id = "_07daadd1-3490-49ac-bcd9-010c656f9156" name = "Junction" kind = "junction">
+              </subvertex>
+                <transition xmi:type = "uml:Transition" xmi:id = "_83ee10e4-82e0-4d11-bb39-6d8e243550f8" source = "_e572bb0c-6ada-4fde-b358-3d9d0bc594a8" target = "_07daadd1-3490-49ac-bcd9-010c656f9156">
+                  <trigger xmi:type = "uml:Trigger" xmi:id = "_0f2c65ab-c536-4b9b-bfbe-99b06d7ad51etrigger" event = "_255b54a4-2c18-4696-ad36-2cfb2d1352f0">
+                  </trigger>
+                </transition>
+                <transition xmi:type = "uml:Transition" xmi:id = "_a7199896-3c88-4931-abd3-0628d3227559" guard = "_ffe21a51-d4e9-4629-be29-986c9b31c179guard" source = "_90fd9d4b-df79-4a67-9106-cb7064634f3e" target = "_e572bb0c-6ada-4fde-b358-3d9d0bc594a8">
+                  <ownedRule xmi:type = "uml:Constraint" xmi:id = "_ffe21a51-d4e9-4629-be29-986c9b31c179guard" constrainedElement = "_a7199896-3c88-4931-abd3-0628d3227559">
+                    <specification xmi:type = "uml:OpaqueExpression" xmi:id = "_ffe21a51-d4e9-4629-be29-986c9b31c179specification" body = "a &lt;= 10">
+                    </specification>
+                  </ownedRule>
+                  <effect xmi:type = "uml:OpaqueBehavior" xmi:id = "_a4ba5dda-4a46-496a-9956-b7ee86e70102body" body = "b:=Operation1(a,10)">
+                  </effect>
+                </transition>
+                <transition xmi:type = "uml:Transition" xmi:id = "_24df9421-1d45-4381-a600-a798b09613d4" source = "_5959c07e-38fe-4607-9f71-5398c7d90fed" target = "_e572bb0c-6ada-4fde-b358-3d9d0bc594a8">
+                </transition>
+                <transition xmi:type = "uml:Transition" xmi:id = "_1c46d986-cd31-41e9-93b7-44bc7456b962" guard = "_4a79e380-51c3-42ae-aa82-1dd058a2ec0dguard" source = "_07daadd1-3490-49ac-bcd9-010c656f9156" target = "_90fd9d4b-df79-4a67-9106-cb7064634f3e">
+                  <ownedRule xmi:type = "uml:Constraint" xmi:id = "_4a79e380-51c3-42ae-aa82-1dd058a2ec0dguard" constrainedElement = "_1c46d986-cd31-41e9-93b7-44bc7456b962">
+                    <specification xmi:type = "uml:OpaqueExpression" xmi:id = "_4a79e380-51c3-42ae-aa82-1dd058a2ec0dspecification" body = "a &gt; 10">
+                    </specification>
+                  </ownedRule>
+                </transition>
+                <transition xmi:type = "uml:Transition" xmi:id = "_c35eafc9-76e5-4c53-870c-24c22ace161e" guard = "_76c85da8-4ff1-4a75-9e19-c6aea84e1ba2guard" source = "_07daadd1-3490-49ac-bcd9-010c656f9156" target = "_501b1253-4bb9-4fd3-ad40-eaca0973e270">
+                  <ownedRule xmi:type = "uml:Constraint" xmi:id = "_76c85da8-4ff1-4a75-9e19-c6aea84e1ba2guard" constrainedElement = "_c35eafc9-76e5-4c53-870c-24c22ace161e">
+                    <specification xmi:type = "uml:OpaqueExpression" xmi:id = "_76c85da8-4ff1-4a75-9e19-c6aea84e1ba2specification" body = "a &lt;= 10">
+                    </specification>
+                  </ownedRule>
+                  <effect xmi:type = "uml:OpaqueBehavior" xmi:id = "_9896c8c7-397b-40a1-9889-bf06a27a7ad4body" body = "a := 0">
+                  </effect>
+                </transition>
+            </region>
+          </ownedBehavior>
+        </packagedElement>
+        <packagedElement xmi:type = "uml:Signal" xmi:id = "_94b59a7e-c2ac-4fbc-b211-8bbfdcbc93b8" name = "Signal1">
+          <ownedAttribute xmi:type = "uml:Property" xmi:id = "_d8c8921d-6bd5-4928-afa9-22823b9e5c50" name = "x" visibility = "private" aggregation = "composite">
+            <type xmi:type = "uml:PrimitiveType" href = "http://www.omg.org/spec/UML/20090901/UML.xmi#Integer"/>
+          </ownedAttribute>
+        </packagedElement>
+        <packagedElement xmi:type = "uml:SignalEvent" xmi:id = "_255b54a4-2c18-4696-ad36-2cfb2d1352f0" name = "Event1" signal = "_94b59a7e-c2ac-4fbc-b211-8bbfdcbc93b8">
+        </packagedElement>
+      </packagedElement>
+      <profileApplication xmi:type="uml:ProfileApplication" xmi:id="_profileApplication0">
+  <appliedProfile  xmi:type="uml:Profile" href="http://www.omg.org/spec/SysML/20100301/SysML-profile.uml#_0"/>
+</profileApplication>
+<profileApplication xmi:type="uml:ProfileApplication" xmi:id="_profileApplication1">
+  <appliedProfile  xmi:type="uml:Profile" href="http://www.omg.org/spec/UML/20090901/StandardProfileL2.xmi#_0"/>
+</profileApplication>
+  </uml:Model>
+    <sysml:Block base_Class = "_a393e0f3-1fcf-4d47-b557-987852e46799" xmi:id = "_830e357d-4657-41af-bfbf-f45d6e34953b_a393e0f3-1fcf-4d47-b557-987852e46799" />
+</xmi:XMI>

@@ -3,12 +3,8 @@ package eu.compassresearch.ide.modelchecker;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.IntegerFieldEditor;
-import org.eclipse.jface.util.IPropertyChangeListener;
-import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
-
-import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
 
 public class ModelcheckerSetupPreferencePage extends FieldEditorPreferencePage
 		implements IWorkbenchPreferencePage {

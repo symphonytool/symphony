@@ -1,9 +1,7 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.expressions;
 
-import java.util.Iterator;
 import java.util.LinkedList;
 
-import eu.compassresearch.ast.expressions.AFatCompVarsetExpression;
 import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCPMultipleBind;
 
 public class MCAFatCompVarsetExpression implements MCPVarsetExpression {

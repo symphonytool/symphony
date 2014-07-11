@@ -2,10 +2,6 @@ package eu.compassresearch.core.analysis.modelchecker.ast.pattern;
 
 import java.util.LinkedList;
 
-import org.overture.ast.patterns.ATypeMultipleBind;
-import org.overture.ast.patterns.PMultipleBind;
-import org.overture.ast.patterns.PMultipleBindBase;
-
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 
 public class MCATypeMultipleBind implements MCPMultipleBind {

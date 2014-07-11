@@ -1,7 +1,5 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.definitions;
 
-import org.overture.ast.definitions.AInstanceVariableDefinition;
-
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 
