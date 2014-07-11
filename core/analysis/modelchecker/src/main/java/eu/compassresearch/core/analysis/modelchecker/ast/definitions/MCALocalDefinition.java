@@ -1,9 +1,5 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.definitions;
 
-import org.overture.ast.definitions.ALocalDefinition;
-import org.overture.ast.definitions.PDefinitionBase;
-
-import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCPSingleDeclaration;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 
 public class MCALocalDefinition implements MCPCMLDefinition {

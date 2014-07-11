@@ -1,6 +1,5 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.actions;
 
-import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCPCMLDefinition;
 
 public class StateDependency {
 	private String actionOrProcessName;

@@ -1,7 +1,5 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.statements;
 
-import org.overture.ast.statements.AIdentifierStateDesignator;
-
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 
 public class MCAIdentifierStateDesignator implements MCPStateDesignator {

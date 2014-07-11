@@ -1,7 +1,5 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.actions;
 
-import eu.compassresearch.ast.actions.AValParametrisation;
-import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCATypeSingleDeclaration;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCALocalDefinition;
 
 public class MCAValParametrisation implements MCPParametrisation {
