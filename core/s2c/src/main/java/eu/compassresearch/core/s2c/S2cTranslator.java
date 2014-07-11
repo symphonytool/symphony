@@ -306,6 +306,9 @@ public class S2cTranslator
 			sm.states.add(s);
 		}
 
+		// builds the parent structure necessary to calculate the least common ancestor of a transition
+		sm.setParent();		
+		
 		System.out.println("--- The transitions ---");
 		NodeList transactions = lookup(region, xpath, "transition[@xmi:type='uml:Transition']");
 

@@ -229,7 +229,7 @@ public class SysMlToCmlTranslator {
 		return sb.toString();
 	}
 
-	private void translateNonCompletionTransitions(StringBuilder sb,
+	protected void translateNonCompletionTransitions(StringBuilder sb,
 			List<Transition> noncompletion) {
 		if (noncompletion.size() > 0) {
 			sb.append("(");
@@ -250,7 +250,7 @@ public class SysMlToCmlTranslator {
 		
 	}
 
-	private void translateTransitions(StringBuilder sb,
+	protected void translateTransitions(StringBuilder sb,
 			List<Transition> completion, List<Transition> noncompletion) {
 		if (completion.size() > 0) {
 			sb.append("(");

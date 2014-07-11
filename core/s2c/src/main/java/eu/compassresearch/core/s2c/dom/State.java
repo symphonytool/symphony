@@ -10,6 +10,14 @@ public class State extends NamedUmlNode
 	public String kind;
 	public List<State> substates = new Vector<State>();
 	public List<Transition> transitions = new Vector<Transition>();
+	public State parent = null;
+	
+	public void setParent() {
+		for (State s: substates) {
+			s.parent = this;
+			s.setParent();
+		}
+	}
 	
 	@Override
 	public String toString()
