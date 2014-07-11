@@ -382,7 +382,7 @@ public class SysMlToCmlTranslator {
 			if (c.properties.size() > 0) {
 				sb.append("state\n");
 				for (Property p : c.properties) {
-					sb.append("\t" + makeNameCMLCompatible(p.name) + " : " + convertType(p.type)
+					sb.append("\t "+p.getVisibility() +" "+ makeNameCMLCompatible(p.name) + " : " + convertType(p.type)
 							+ "\n");
 				}
 			}

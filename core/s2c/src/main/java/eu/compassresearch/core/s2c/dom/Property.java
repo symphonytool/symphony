@@ -13,4 +13,13 @@ public class Property extends NamedUmlNode
 		return visibility + " " + name + " : " + type + " [" + lower + "..."
 				+ upper + "]";
 	}
+
+	public String getVisibility()
+	{
+		if (visibility == null)
+		{
+			return "";
+		}
+		return visibility;
+	}
 }

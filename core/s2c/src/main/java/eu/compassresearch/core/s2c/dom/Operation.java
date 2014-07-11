@@ -39,6 +39,15 @@ public class Operation extends NamedUmlNode
 		}
 		return null;
 	}
+	
+	public String getVisibility()
+	{
+		if (visibility == null)
+		{
+			return "";
+		}
+		return visibility;
+	}
 
 	@Override
 	public String toString()
