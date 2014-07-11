@@ -4,8 +4,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.Vector;
 
 import eu.compassresearch.core.s2c.dom.ClassDefinition;
@@ -21,11 +23,11 @@ import eu.compassresearch.core.s2c.dom.Transition;
 import eu.compassresearch.core.s2c.dom.Type;
 
 public class SysMlToCmlTranslator {
-	private StateMachine sm;
-	private ClassDefinition cdef;
-	private List<Signal> signals;
-	private List<ClassDefinition> classes;
-	private List<DataType> datatypes;
+	protected StateMachine sm;
+	protected ClassDefinition cdef;
+	protected List<Signal> signals;
+	protected List<ClassDefinition> classes;
+	protected List<DataType> datatypes;
 
 	public SysMlToCmlTranslator(List<Signal> signals, ClassDefinition cDef,
 			StateMachine sm, List<ClassDefinition> classes,
@@ -41,7 +43,8 @@ public class SysMlToCmlTranslator {
 	 * a naive translation from the uml dom
 	 * @param t 
 	 * 
-	 * @return 
+	 * @param output
+	 * @throws FileNotFoundException
 	 */
 	public String translate(Transition t) {
 		StringBuilder sb = new StringBuilder();
@@ -113,7 +116,7 @@ public class SysMlToCmlTranslator {
 		return sb.toString();
 	}
 
-	private void transitionAction(Transition t, StringBuilder sb) {
+	protected void transitionAction(Transition t, StringBuilder sb) {
 		if (t.effect != null) {
 			sb.append(fixSyntaxErrors(t.effect.body + " ; "));
 		}
@@ -286,7 +289,7 @@ public class SysMlToCmlTranslator {
 				translateNonCompletionTransitions(sb, noncompletion);
 				sb.append(")");
 			} else {
-				sb.append("); ");
+				sb.append(") [] ");
 				translateNonCompletionTransitions(sb, noncompletion);
 			}
 		} else {
@@ -305,25 +308,8 @@ public class SysMlToCmlTranslator {
 		}
 		
 		StringBuilder sb = new StringBuilder();
-		if (signals.size() > 0) {
-			sb.append("channels\n");
-			for (Signal s : signals) {
-				sb.append("\t"+s.name);
-				if (!s.property.isEmpty()) {
-					sb.append(" : ");
-					for (Iterator<Property> itr = s.property.iterator(); itr
-							.hasNext();) {
-						Property p = itr.next();
-						sb.append(convertType(p.type));
-						if (itr.hasNext()) {
-							sb.append(" * ");
-						}
-					}
-				}
-				sb.append("\n");
-			}
-			sb.append("\n");
-		}
+		
+		printChannels(sb);
 		
 		files.add(writeTypes(specFolder,overwrite));
 
@@ -366,7 +352,36 @@ public class SysMlToCmlTranslator {
 		return files;
 	}
 
-	private Collection<File> writeClasses(File output, boolean overwrite) throws FileNotFoundException {
+	protected void printChannels(StringBuilder sb) {
+		Set<String> channels = new HashSet<String>();
+		if (signals.size() > 0) {
+			sb.append("channels\n");
+			for (Signal s : signals) {
+				StringBuilder channel = new StringBuilder();
+				channel.append("\t"+makeNameCMLCompatible(s.name));
+				if (!s.property.isEmpty()) {
+					channel.append(" : ");
+					for (Iterator<Property> itr = s.property.iterator(); itr
+							.hasNext();) {
+						Property p = itr.next();
+						channel.append(convertType(p.type));
+						if (itr.hasNext()) {
+							sb.append(" * ");
+						}
+					}
+				}
+				channel.append("\n");
+				channels.add(channel.toString());
+			}
+			for (String s: channels) {
+				sb.append(s);
+			}
+			sb.append("\n");
+		}
+	}
+	
+
+	protected Collection<File> writeClasses(File output, boolean overwrite) throws FileNotFoundException {
 		
 		Collection<File> files = new Vector<File>();
 		
@@ -391,7 +406,7 @@ public class SysMlToCmlTranslator {
 		return files;
 	}
 
-	private static File writeSpecFile(File file, String content, boolean overwrite) throws FileNotFoundException
+	protected static File writeSpecFile(File file, String content, boolean overwrite) throws FileNotFoundException
 	{
 		PrintWriter out = null;
 
@@ -416,7 +431,7 @@ public class SysMlToCmlTranslator {
 		}
 	}
 
-	private File writeTypes(File output,  boolean overwrite) throws FileNotFoundException {
+	protected File writeTypes(File output,  boolean overwrite) throws FileNotFoundException {
 		StringBuffer sb = new StringBuffer();
 		
 		if (cdef.types.size() > 0) {
@@ -613,11 +628,11 @@ public class SysMlToCmlTranslator {
 					if (it.hasNext())
 						sb.append(" | ");
 				}
-				for (State aux : s.substates) {
-					if (aux.name.startsWith("Initial")) {
-						sb.append(" := <" + getCmlName(aux.name) + ">");
-						break;
-					}
+				sb.append(" | <NO_STATE>");
+				if (s.getInitial() != null) {
+					sb.append(" := <" + getCmlName(s.getInitial().name) + ">");
+				} else {
+					sb.append(" := <NO_STATE>");
 				}
 				sb.append("\n");
 			}
@@ -625,7 +640,7 @@ public class SysMlToCmlTranslator {
 		sb.append("\n\n");
 	}
 
-	private String convertType(String type) {
+	protected String convertType(String type) {
 		if (type.equals("Boolean")) {
 			return "bool";
 		} else if (type.equals("Integer")) {
