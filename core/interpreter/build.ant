@@ -10,7 +10,7 @@
 	</target>
 	
 	<target name="copy" depends="mvn package">
-	<copy file="target/interpreter-0.3.1-SNAPSHOT.jar" tofile="../../ide/plugins/interpreter/jars/interpreter.jar"/>
+	<copy file="target/interpreter-0.3.3-SNAPSHOT.jar" tofile="../../ide/plugins/interpreter/jars/interpreter.jar"/>
 	</target>
 
 </project>

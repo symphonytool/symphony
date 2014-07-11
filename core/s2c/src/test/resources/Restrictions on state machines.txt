@@ -1,0 +1,5 @@
+Restrictions on the state machines that can be translated
+1. No parallel states
+2. Composite states cannot have do activities
+3. State cannot have exit actions (solved by makes the model larger)
+4. Each composite state must have exactly one initial state

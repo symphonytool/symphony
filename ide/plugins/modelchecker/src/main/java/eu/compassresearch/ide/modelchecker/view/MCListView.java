@@ -1,11 +1,11 @@
 package eu.compassresearch.ide.modelchecker.view;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -36,7 +36,6 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import eu.compassresearch.core.analysis.modelchecker.api.FormulaResult;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.GraphBuilder;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.util.GraphViz;
-import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
 import eu.compassresearch.ide.modelchecker.CmlMCPlugin;
 import eu.compassresearch.ide.modelchecker.MCConstants;
 
@@ -120,10 +119,7 @@ public class MCListView extends ViewPart {
 							e.printStackTrace();
 						} catch(Exception e){
 							//log stack trace
-							StackTraceElement[] trace = e.getStackTrace();
-							for (int i = 0; i < trace.length; i++) {
-								CmlMCPlugin.logErrorMessage(trace[i].toString());
-							}
+							CmlMCPlugin.log(e);
 							popErrorMessage(e.getMessage());
 						}
 					}else{

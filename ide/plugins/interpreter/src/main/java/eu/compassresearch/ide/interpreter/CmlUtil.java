@@ -144,8 +144,11 @@ public final class CmlUtil
 	{
 		try
 		{
+			if(!st.isDisposed())
+			{
 			st.setCaretOffset(loc.getStartOffset());
 			st.showSelection();
+			}
 		} catch (IllegalArgumentException e)
 		{
 			CmlDebugPlugin.logWarning("Unable to move caret to offset "
