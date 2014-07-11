@@ -122,9 +122,9 @@
 	// P [|X|] Q - parallel begin
 	State(st,P),
 	State(st,Q),
-	State(st,par(st,P,X,st,Q)) :- s0 is State(st,genPar(P,X,Q)).  
-    //trans(iS,tau,State(st,par(st,P,X,st,Q))) :- iS is State(st,genPar(P,X,Q)).
-	trans(iS,ev,iF) :- iS is State(st,genPar(P,X,Q)), trans(State(st,par(st,P,X,st,Q)),ev,iF).
+	//State(st,par(st,P,X,st,Q)) :- s0 is State(st,genPar(P,X,Q)).  
+    trans(iS,tau,State(st,par(st,P,X,st,Q))) :- iS is State(st,genPar(P,X,Q)).
+	//trans(iS,ev,iF) :- iS is State(st,genPar(P,X,Q)), trans(State(st,par(st,P,X,st,Q)),ev,iF).
 					   
 	State(stP,P), State(stQ,Q) :- State(st,par(stP,P,X,stQ,Q)).
 		

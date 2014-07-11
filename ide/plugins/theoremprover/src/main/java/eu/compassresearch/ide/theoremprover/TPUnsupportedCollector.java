@@ -889,7 +889,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 	@Override
 	public void caseADomainResByBinaryExp(ADomainResByBinaryExp node)
 			throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseADomainResByBinaryExp(node);
@@ -898,7 +898,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 	@Override
 	public void caseADomainResToBinaryExp(ADomainResToBinaryExp node)
 			throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseADomainResToBinaryExp(node);
@@ -2322,7 +2322,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 	@Override
 	public void caseARangeResByBinaryExp(ARangeResByBinaryExp node)
 			throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseARangeResByBinaryExp(node);
@@ -2331,7 +2331,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 	@Override
 	public void caseARangeResToBinaryExp(ARangeResToBinaryExp node)
 			throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseARangeResToBinaryExp(node);
@@ -3133,7 +3133,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 	@Override
 	public void caseAUntimedTimeoutAction(AUntimedTimeoutAction node)
 			throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseAUntimedTimeoutAction(node);

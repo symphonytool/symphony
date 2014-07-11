@@ -3,8 +3,6 @@ package eu.compassresearch.core.analysis.modelchecker.ast.expressions;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import org.overture.ast.expressions.ASetRangeSetExp;
-
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ExpressionEvaluator;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.PatternValue;
 

@@ -1,8 +1,5 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.types;
 
-import org.overture.ast.types.AIntNumericBasicType;
-import org.overture.ast.types.ARealNumericBasicType;
-
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 
 public class MCARealNumericBasicType extends MCPCMLNumericType {

@@ -36,7 +36,6 @@ import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.ast.statements.PCMLStateDesignator;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.FormulaSpecification;
-import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAProcessDefinition;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.ICmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
@@ -395,7 +394,7 @@ public class NewMCVisitor extends
 		//String mainProcessName = "CUSSoS";
 //		String mainProcessName = "Test";
 		//String mainProcessName = "PHide";
-		String mainProcessName = "TestEChoice";
+		String mainProcessName = "P";
 		
 		//String mainProcessName = "TestTraces1";
 		

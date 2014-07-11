@@ -1,6 +1,5 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.auxiliary;
 
-import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 
 public class NameValue {

@@ -3,8 +3,6 @@ package eu.compassresearch.core.analysis.modelchecker.ast.types;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import org.overture.ast.types.AUnionType;
-
 public class MCAUnionType implements MCPCMLType {
 
 	private LinkedList<MCPCMLType> types;

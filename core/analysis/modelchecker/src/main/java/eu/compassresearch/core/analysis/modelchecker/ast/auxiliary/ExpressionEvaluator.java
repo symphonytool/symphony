@@ -2,19 +2,13 @@ package eu.compassresearch.core.analysis.modelchecker.ast.auxiliary;
 
 import java.util.LinkedList;
 
-import org.overture.ast.patterns.AIdentifierPattern;
-
-import eu.compassresearch.ast.actions.AValParametrisation;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
-import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCACommunicationAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAReadCommunicationParameter;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCASignalCommunicationParameter;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAValParametrisation;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAWriteCommunicationParameter;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPCommunicationParameter;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPParametrisation;
-import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCATypeSingleDeclaration;
-import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAChannelDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCALocalDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCATypeDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAValueDefinition;

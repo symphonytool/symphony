@@ -98,6 +98,7 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		
 		for (PDefinition pdef : actdef.getDefinitions())
 		{
+			
 			ThmNodeList defNodes = new ThmNodeList();
 			
 			defNodes.addAll(pdef.apply(new TPVisitor(), new ThmVarsContext(svars, vars.getBVars())));//(ThmProcessUtil.getAExplicitFunctionDefinition(f));
@@ -188,6 +189,7 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		
 		StringBuffer actsb = new StringBuffer();
 		
+		// Create the action block		
 		if (!actions.isEmpty()) {
 			actsb.append("cmlacts\n");
 		}
@@ -198,7 +200,7 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 			actsb.append("\n");
 		}
 		
-		
+		// Accumulate all state invariants
 		for (ThmNode tn : actTnl) {
 			if (tn.getArtifact() instanceof ThmStateInv) {
 				if (hasInvs) mainInv.append(" and ");
