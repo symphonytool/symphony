@@ -3,6 +3,7 @@ package eu.compassresearch.core.s2c;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
@@ -38,9 +39,9 @@ public class SysMlToCmlTranslator {
 
 	/**
 	 * a naive translation from the uml dom
+	 * @param t 
 	 * 
-	 * @param output
-	 * @throws FileNotFoundException
+	 * @return 
 	 */
 	public String translate(Transition t) {
 		StringBuilder sb = new StringBuilder();
@@ -293,7 +294,16 @@ public class SysMlToCmlTranslator {
 		}
 	}
 
-	public File translate(File output, boolean overwrite) throws FileNotFoundException {
+	public Collection<File> translate(File output, boolean overwrite) throws FileNotFoundException {
+		
+		Collection<File> files = new Vector<File>();
+		
+		File specFolder = new File(output,sm.name);
+		if(!specFolder.exists())
+		{
+			specFolder.mkdirs();
+		}
+		
 		StringBuilder sb = new StringBuilder();
 		if (signals.size() > 0) {
 			sb.append("channels\n");
@@ -314,9 +324,10 @@ public class SysMlToCmlTranslator {
 			}
 			sb.append("\n");
 		}
-		printTypes(sb);
+		
+		files.add(writeTypes(specFolder,overwrite));
 
-		printClasses(sb);
+		files.addAll(writeClasses(specFolder,overwrite));
 
 		sb.append("\n\nprocess " + makeNameCMLCompatible(sm.name) + " = begin\n");
 
@@ -350,33 +361,17 @@ public class SysMlToCmlTranslator {
 		sb.append("\n\n@ " + getCmlName("Initial") + "\n\nend");
 
 		System.out.println(sb.toString());
-
-		PrintWriter out = null;
-
-		try {
-			final File file = new File(output, sm.name + ".cml");
-			if(file.exists())
-			{
-				if(overwrite)
-				{
-				file.delete();
-				}
-			}
-			
-			if (!file.exists()) {
-				out = new PrintWriter(file);
-				out.print(sb.toString());
-			}
-			return file;
-		} finally {
-			if (out != null) {
-				out.close();
-			}
-		}
+		
+		files.add(writeSpecFile(new File(specFolder,"StateMachine_"+ sm.name + ".cml"), sb.toString(), overwrite));
+		return files;
 	}
 
-	private void printClasses(StringBuilder sb) {
+	private Collection<File> writeClasses(File output, boolean overwrite) throws FileNotFoundException {
+		
+		Collection<File> files = new Vector<File>();
+		
 		for (ClassDefinition c : classes) {
+			StringBuffer sb = new StringBuffer();
 			sb.append("class ");
 			sb.append(makeNameCMLCompatible(c.name) + " = begin\n");
 			if (c.properties.size() > 0) {
@@ -390,10 +385,40 @@ public class SysMlToCmlTranslator {
 //				printOperations(sb, c.operations);
 //			}
 			sb.append("end\n\n");
+			System.out.println(sb);
+		files.add(	writeSpecFile(new File(output,c.name+".cml"),sb.toString(),overwrite));
+		}
+		return files;
+	}
+
+	private static File writeSpecFile(File file, String content, boolean overwrite) throws FileNotFoundException
+	{
+		PrintWriter out = null;
+
+		try {
+			if(file.exists())
+			{
+				if(overwrite)
+				{
+				file.delete();
+				}
+			}
+			
+			if (!file.exists()) {
+				out = new PrintWriter(file);
+				out.print(content);
+			}
+			return file;
+		} finally {
+			if (out != null) {
+				out.close();
+			}
 		}
 	}
 
-	private void printTypes(StringBuilder sb) {
+	private File writeTypes(File output,  boolean overwrite) throws FileNotFoundException {
+		StringBuffer sb = new StringBuffer();
+		
 		if (cdef.types.size() > 0) {
 			StringBuffer values = new StringBuffer();
 			values.append("\nvalues\n");
@@ -445,6 +470,8 @@ public class SysMlToCmlTranslator {
 				sb.append("\n");
 			}
 		}
+		
+		return writeSpecFile(new File(output,"global-types.cml"), sb.toString(), overwrite);
 	}
 
 	protected void printOperations(StringBuilder sbClass) {
