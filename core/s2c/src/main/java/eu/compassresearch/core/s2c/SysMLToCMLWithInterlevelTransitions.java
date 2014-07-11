@@ -1,6 +1,5 @@
 package eu.compassresearch.core.s2c;
 
-import java.awt.color.CMMException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
