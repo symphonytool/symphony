@@ -59,7 +59,7 @@ public class S2cCommand extends AbstractHandler
 						
 						try
 						{
-							translator.translate(iFile.getLocation().toFile(), output);
+							translator.translate(iFile.getLocation().toFile(), output,false);
 						} catch (Exception e)
 						{
 							e.printStackTrace();
