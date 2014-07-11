@@ -296,10 +296,13 @@ public class CmlEventOptionView extends AbstractCmlDebugView implements
 
 			TransitionDTO choice = (TransitionDTO) selection.getFirstElement();
 			CmlUtil.clearSelections(lastSelectedRanges);
-			CmlUtil.setSelectionFromLocations(choice.getLocations(), lastSelectedRanges);
-			// get a random one and set the
-			StyledText st = lastSelectedRanges.keySet().iterator().next();
-			CmlUtil.showLocation(st, choice.getLocations().get(0));
+			if (choice != null)
+			{
+				CmlUtil.setSelectionFromLocations(choice.getLocations(), lastSelectedRanges);
+				// get a random one and set the
+				StyledText st = lastSelectedRanges.keySet().iterator().next();
+				CmlUtil.showLocation(st, choice.getLocations().get(0));
+			}
 		}
 	}
 
