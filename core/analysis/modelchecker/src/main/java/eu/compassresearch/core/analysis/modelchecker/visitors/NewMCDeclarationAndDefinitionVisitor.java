@@ -21,7 +21,6 @@ import org.overture.ast.node.INode;
 import org.overture.ast.patterns.PPattern;
 import org.overture.ast.types.ANamedInvariantType;
 import org.overture.ast.types.AOperationType;
-import org.overture.ast.types.AUnionType;
 import org.overture.ast.types.PType;
 
 import eu.compassresearch.ast.actions.PParametrisation;
@@ -39,7 +38,6 @@ import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPParametrisation;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ExpressionEvaluator;
-import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCAssignDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCAExpressionSingleDeclaration;
 import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCATypeSingleDeclaration;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAActionClassDefinition;

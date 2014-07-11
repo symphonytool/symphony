@@ -80,7 +80,7 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		
 		for(Iterator<AAssignmentDefinition> itr = a.getAssignmentDefs().listIterator(); itr.hasNext();) {
 			AAssignmentDefinition aDef = itr.next();
-
+			
 			varsStr.add(aDef.getName().getName().toString() + " : " + aDef.getType().apply(thmStringVisitor, vars));
 			vars.addSVar(aDef.getName());
 			if(aDef.getExpression() != null)

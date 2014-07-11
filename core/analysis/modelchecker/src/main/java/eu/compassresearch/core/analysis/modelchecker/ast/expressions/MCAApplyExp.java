@@ -2,9 +2,6 @@ package eu.compassresearch.core.analysis.modelchecker.ast.expressions;
 
 import java.util.LinkedList;
 
-import org.overture.ast.expressions.AApplyExp;
-
-import eu.compassresearch.ast.expressions.PCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ExpressionEvaluator;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.PatternValue;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAExplicitFunctionDefinition;

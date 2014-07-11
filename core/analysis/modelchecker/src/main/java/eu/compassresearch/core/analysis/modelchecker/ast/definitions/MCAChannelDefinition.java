@@ -10,8 +10,6 @@ import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ExpressionEva
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.IntroduceCommand;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.TypeManipulator;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.TypeValue;
-import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCATypeSingleDeclaration;
-import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCABooleanBasicType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAChannelType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAIntNumericBasicType;
@@ -22,7 +20,6 @@ import eu.compassresearch.core.analysis.modelchecker.ast.types.MCARealNumericBas
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAUnionType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCTypeWrapper;
-import eu.compassresearch.core.analysis.modelchecker.ast.types.MCTypeWrapperBuilder;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCVoidType;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
 

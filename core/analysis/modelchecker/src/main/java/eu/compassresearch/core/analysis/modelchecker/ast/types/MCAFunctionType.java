@@ -2,8 +2,6 @@ package eu.compassresearch.core.analysis.modelchecker.ast.types;
 
 import java.util.LinkedList;
 
-import org.overture.ast.types.AFunctionType;
-
 public class MCAFunctionType implements MCPCMLType{
 
 	private LinkedList<MCPCMLType> parameters;

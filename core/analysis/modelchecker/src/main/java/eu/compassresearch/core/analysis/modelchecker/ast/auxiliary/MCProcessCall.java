@@ -2,11 +2,6 @@ package eu.compassresearch.core.analysis.modelchecker.ast.auxiliary;
 
 import java.util.LinkedList;
 
-import org.overture.ast.definitions.AExplicitOperationDefinition;
-import org.overture.ast.node.INode;
-
-import eu.compassresearch.ast.actions.AStmAction;
-import eu.compassresearch.ast.statements.AActionStm;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPParametrisation;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAProcessDefinition;
@@ -14,9 +9,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAVariable
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCPCMLPattern;
 import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCAAssignmentStm;
-import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCAIdentifierStateDesignator;
 import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCAUnresolvedStateDesignator;
-import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCPStateDesignator;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCVoidType;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;

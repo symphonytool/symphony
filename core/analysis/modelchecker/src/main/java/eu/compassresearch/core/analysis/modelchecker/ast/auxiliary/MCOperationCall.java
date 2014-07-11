@@ -4,7 +4,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
-import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPCommunicationParameter;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.StateDependency;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAActionDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAProcessDefinition;

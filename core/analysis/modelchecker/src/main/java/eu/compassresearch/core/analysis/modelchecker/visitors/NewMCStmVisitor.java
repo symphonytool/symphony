@@ -14,8 +14,6 @@ import org.overture.ast.statements.ACallStm;
 import org.overture.ast.statements.AIdentifierStateDesignator;
 import org.overture.ast.statements.AIfStm;
 import org.overture.ast.statements.ASkipStm;
-import org.overture.ast.statements.PStateDesignator;
-import org.overture.ast.statements.PStateDesignatorBase;
 import org.overture.ast.statements.PStm;
 
 import eu.compassresearch.ast.actions.AStmAction;

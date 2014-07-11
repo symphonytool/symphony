@@ -2,8 +2,6 @@ package eu.compassresearch.core.analysis.modelchecker.ast.statements;
 
 import java.util.LinkedList;
 
-import org.overture.ast.statements.ABlockSimpleBlockStm;
-
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAAssignmentDefinition;
 
 public class MCABlockSimpleBlockStm implements MCPCMLStm {

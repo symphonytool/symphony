@@ -1,9 +1,5 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.process;
 
-import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
-import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCSemanticExternalChoiceAction;
-import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPVarsetExpression;
-import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
 
 
 

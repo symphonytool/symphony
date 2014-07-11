@@ -8,13 +8,11 @@ import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAReadCommunic
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAValParametrisation;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPParametrisation;
-import eu.compassresearch.core.analysis.modelchecker.ast.actions.StateDependency;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ActionChannelDependency;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ExpressionEvaluator;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.NameValue;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.TypeManipulator;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.TypeValue;
-import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAProductType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 import eu.compassresearch.core.analysis.modelchecker.visitors.ArrayListSet;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
