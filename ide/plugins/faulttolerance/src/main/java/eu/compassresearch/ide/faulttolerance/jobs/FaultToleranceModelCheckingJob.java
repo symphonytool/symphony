@@ -33,7 +33,7 @@ import eu.compassresearch.ide.faulttolerance.Message;
  * 
  */
 public class FaultToleranceModelCheckingJob extends
-		FaultToleranceVerificationJobBase {
+		FaultToleranceVerificationPrerequisitesJobBase {
 
 	private final FaultToleranceProperty property;
 
