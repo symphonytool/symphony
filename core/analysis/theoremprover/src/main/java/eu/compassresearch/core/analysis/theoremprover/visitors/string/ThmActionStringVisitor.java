@@ -47,6 +47,7 @@ import eu.compassresearch.ast.actions.AWaitAction;
 import eu.compassresearch.ast.actions.AWriteCommunicationParameter;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.actions.PCommunicationParameter;
+import eu.compassresearch.ast.actions.PParametrisation;
 import eu.compassresearch.ast.actions.SReplicatedActionBase;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.AExpressionSingleDeclaration;
@@ -156,7 +157,7 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		LinkedList<PExp> args = a.getArgs();
 		if (args.size() != 0)
 		{
-			argStr.append("(");
+			argStr.append("<");
 			for (Iterator<PExp> itr = a.getArgs().listIterator(); itr.hasNext(); ) {
 				PExp e = itr.next();
 				
@@ -166,10 +167,10 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 					argStr.append(", ");
 				}
 			}
-			argStr.append(")");
+			argStr.append(">");
 		}
 		
-		return a.getName().toString() + argStr.toString();
+		return a.getName().getName().toString() + argStr.toString();
 	}
 	
 	public String caseAInterleavingParallelAction(AInterleavingParallelAction a, ThmVarsContext vars) throws AnalysisException{
@@ -304,8 +305,10 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 			   a.getRight().apply(thmStringVisitor, vars);
 	}
 	
-	public String caseAUntimedTimeoutAction(AUntimedTimeoutAction node, ThmVarsContext vars) throws AnalysisException{
-		return ThmProcessUtil.undefined;
+	public String caseAUntimedTimeoutAction(AUntimedTimeoutAction a, ThmVarsContext vars) throws AnalysisException{
+		return a.getLeft().apply(thmStringVisitor, vars) + 
+				   ThmProcessUtil.timeout +
+				   a.getRight().apply(thmStringVisitor, vars);
 	}
 
 	public String caseAWaitAction(AWaitAction a, ThmVarsContext vars) throws AnalysisException {

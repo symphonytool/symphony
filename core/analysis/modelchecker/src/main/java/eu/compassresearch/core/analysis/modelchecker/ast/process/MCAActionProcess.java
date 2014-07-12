@@ -1,8 +1,5 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.process;
 
-import java.util.LinkedList;
-
-import eu.compassresearch.ast.process.AActionProcess;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCPCMLDefinition;
 

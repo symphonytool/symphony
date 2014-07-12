@@ -96,19 +96,13 @@ public class MCPluginUtility {
 	private static void popErrorMessage(final Throwable e, String tittle) {
 		if(e instanceof FormulaIntegrationException){
 			MessageDialog.openInformation(null, tittle,"Could not analyse the specification.\n\n Internal error in FORMULA.");
-			CmlMCPlugin.logErrorMessage(e.getMessage());
+			CmlMCPlugin.log(e);
 		}else{
 			MessageDialog.openInformation(null, tittle,"Could not analyse the specification.\n\n" + e.getMessage());
-			CmlMCPlugin.logErrorMessage(e.getCause().getMessage());
+			CmlMCPlugin.log(e.getCause());
 		}
 	}
 	
-	public static void logStackTrace(Exception e) {
-		StackTraceElement[] trace = e.getStackTrace();
-		for (int i = 0; i < trace.length; i++) {
-			CmlMCPlugin.logErrorMessage(trace[i].toString());
-		}
-	}
 	public static ArrayList<IResource> getAllCFilesInProject(IProject project) {
 		ArrayList<IResource> allCFiles = new ArrayList<IResource>();
 		IWorkspaceRoot myWorkspaceRoot = ResourcesPlugin.getWorkspace()

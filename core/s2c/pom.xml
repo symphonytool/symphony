@@ -1,0 +1,91 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>eu.compassresearch.core</groupId>
+		<artifactId>core</artifactId>
+		<version>0.3.3-SNAPSHOT</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
+
+	<artifactId>s2c</artifactId>
+	<name>Simple SysML State-Machine to CML translator</name>
+
+	<dependencies>
+
+
+
+
+
+	<dependency>
+		<groupId>eu.compassresearch.core</groupId>
+		<artifactId>typechecker</artifactId>
+		<version>0.3.3-SNAPSHOT</version>
+		<scope>test</scope>
+	</dependency>
+	</dependencies>
+
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<executions>
+					<!-- execution>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>add-source</goal>
+						</goals>
+						<configuration>
+							<sources>
+								<source>src/main/visitors</source>
+							</sources>
+						</configuration>
+					</execution-->
+					<!-- execution>
+						<id>add-test-sources</id>
+						<phase>generate-test-sources</phase>
+						<goals>
+							<goal>add-test-source</goal>
+						</goals>
+						<configuration>
+							<sources>
+								<source>src/test/snippettests</source>
+							</sources>
+						</configuration>
+					</execution-->
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>test-jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<redirectTestOutputToFile>true</redirectTestOutputToFile>
+					<testFailureIgnore>false</testFailureIgnore>
+					<enableAssertions>false</enableAssertions>
+					 <includes>
+            <exclude>**/*TestCase.java</exclude>
+            <exclude>**/*Tests.java</exclude>
+          </includes>
+				</configuration>
+			</plugin>
+
+
+		</plugins>
+	</build>
+</project>
+

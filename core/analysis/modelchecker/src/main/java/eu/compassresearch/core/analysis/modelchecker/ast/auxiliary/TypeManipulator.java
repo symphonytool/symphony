@@ -3,13 +3,11 @@ package eu.compassresearch.core.analysis.modelchecker.ast.auxiliary;
 import java.util.LinkedList;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
-import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPParametrisation;
 import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCATypeSingleDeclaration;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAChansetDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCATypeDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAValueDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANameChannelExp;
-import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPVarsetExpression;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCABooleanBasicType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCABracketType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAIntNumericBasicType;

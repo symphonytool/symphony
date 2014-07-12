@@ -1,9 +1,6 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.statements;
 
-import org.overture.ast.statements.AIfStm;
-
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
-import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
 

@@ -1,6 +1,5 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.pattern;
 
-import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAReadCommunicationParameter;
 
 public class MCAIdentifierPattern implements MCPCMLPattern {
 

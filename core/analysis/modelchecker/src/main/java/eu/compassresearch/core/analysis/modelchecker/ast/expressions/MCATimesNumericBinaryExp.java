@@ -1,9 +1,6 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.expressions;
 
-import org.overture.ast.expressions.AVariableExp;
-
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ExpressionEvaluator;
-import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
 
 public class MCATimesNumericBinaryExp extends MCNumericBinaryExp {
 

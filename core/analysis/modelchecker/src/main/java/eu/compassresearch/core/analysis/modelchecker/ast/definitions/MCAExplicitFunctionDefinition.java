@@ -2,8 +2,6 @@ package eu.compassresearch.core.analysis.modelchecker.ast.definitions;
 
 import java.util.LinkedList;
 
-import org.overture.ast.definitions.AExplicitFunctionDefinition;
-
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCPCMLPattern;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;

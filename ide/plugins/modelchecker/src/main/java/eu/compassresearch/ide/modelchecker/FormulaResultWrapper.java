@@ -5,7 +5,6 @@ import org.eclipse.core.resources.IFile;
 
 import eu.compassresearch.core.analysis.modelchecker.api.FormulaResult;
 import eu.compassresearch.core.common.AnalysisArtifact;
-import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
 
 public class FormulaResultWrapper implements AnalysisArtifact {
 	private FormulaResult result;
