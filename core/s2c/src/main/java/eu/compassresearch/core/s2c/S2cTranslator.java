@@ -2,11 +2,10 @@ package eu.compassresearch.core.s2c;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
@@ -46,11 +45,9 @@ public class S2cTranslator
 {
 	private static final Boolean DEBUG = false;
 	private static final String ANY_STATE_MACHINE_IN_ANY_PACKAGES_CLASS = "//packagedElement[@xmi:type='uml:Class']/ownedBehavior[@xmi:type='uml:StateMachine']";
-	private static final String ANY_DATATYPE = "//packagedElement[@xmi:type='uml:DataType']";
 	private static final String ANY_STATE_MACHINE_IN_ANY_NESTED_CLASSIFIER = "//nestedClassifier[@xmi:type='uml:Class']/ownedBehavior[@xmi:type='uml:StateMachine']";
 	private static final String ANY_STATE_MACHINE = "//packagedElement[@xmi:type='uml:StateMachine']";
 
-	private Map<String, String> types = new HashMap<String, String>();
 
 	private Set<String> usedCustomTypes = new HashSet<String>();
 
@@ -192,7 +189,7 @@ public class S2cTranslator
 	 * @throws IOException
 	 * @throws XPathExpressionException
 	 */
-	public File translate(File input, File output, boolean overwrite)
+	public Collection<File> translate(File input, File output, boolean overwrite)
 			throws ParserConfigurationException, SAXException, IOException,
 			XPathExpressionException
 	{
@@ -384,7 +381,10 @@ public class S2cTranslator
 		System.out.println("----------------------------------------------------------------------------");
 		System.out.println(sm);
 
-		return new SysMlToCmlTranslator(signals, theClassDef, sm, allClasses,alldatatypes).translate(output,overwrite);
+		/* If the state machine has interlevel transitions */
+		return new SysMLToCMLWithInterlevelTransitions(signals, theClassDef, sm, allClasses,alldatatypes).translate(output,overwrite);
+		/* else */
+		//return new SysMlToCmlTranslator(signals, theClassDef, sm, allClasses,alldatatypes).translate(output,overwrite);
 	}
 
 	protected List<Operation> buildOperations(Document doc, XPath xpath,

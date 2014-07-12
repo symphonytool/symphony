@@ -25,6 +25,11 @@
       <artifactId>pog</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+    	<groupId>eu.compassresearch.core</groupId>
+    	<artifactId>s2c</artifactId>
+    	<version>0.3.3-SNAPSHOT</version>
+    </dependency>
   </dependencies>
 
   <build>

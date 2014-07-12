@@ -33,6 +33,7 @@ import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.ConsoleSelectionStrategy;
 import eu.compassresearch.core.parser.ParserUtil;
 import eu.compassresearch.core.parser.ParserUtil.ParserResult;
+import eu.compassresearch.core.s2c.S2cTranslator;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.ICmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
@@ -67,6 +68,10 @@ public class CheckCml
 	 */
 	private static enum Switch
 	{
+		S2C("s2c",
+				"State machine to CML, -s2c=<xmi> convert the <xmi> file to cml and write the output here.",
+				true),
+		
 		DOT("dot",
 			"Dot Graph, -dot=<out> write ast dot graph to file <out>.",
 			true),
@@ -200,6 +205,24 @@ public class CheckCml
 			// inputs
 			if ((input = checkInput(args)) == null)
 			{
+				return;
+			}
+			
+			if(input.isSwitchOn(Switch.S2C))
+			{
+				String xmiFile = Switch.S2C.getValue();
+				S2cTranslator translator = new S2cTranslator();
+				translator.translate(new File(xmiFile), new File("."),true);
+				System.out.println("Done converting "+xmiFile+" to CML.");
+				return;
+			}
+			
+			
+			//check input files
+			// No files provided
+			if (input.sourceFiles.size() == 0 && !input.isSwitchOn(Switch.INTER))
+			{
+				printUsage();
 				return;
 			}
 
@@ -357,12 +380,7 @@ public class CheckCml
 			}
 		}
 
-		// No files provided
-		if (r.sourceFiles.size() == 0 && !r.isSwitchOn(Switch.INTER))
-		{
-			printUsage();
-			return null;
-		}
+		
 
 		// Okay, at least one file ready
 		return r;

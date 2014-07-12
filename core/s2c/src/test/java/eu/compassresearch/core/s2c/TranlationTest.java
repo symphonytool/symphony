@@ -79,16 +79,24 @@ public class TranlationTest
 	
 	
 	
-	public File translate(File input) throws XPathExpressionException,
+	public Collection<File> translate(File input) throws XPathExpressionException,
 			ParserConfigurationException, SAXException, IOException
 	{
 		final File output = new File("target".replace('/', File.separatorChar));
 		return new S2cTranslator().translate(input, output,true);
 	}
 	
-	public void check(File file) throws IOException
+	public void check(Collection<File> collection) throws IOException
 	{
-		TestUtil.TypeCheckerResult res =  TestUtil.runTypeChecker(file.getAbsolutePath());
+		String[] files = new String[collection.size()];
+		int i= 0;
+		for (File file : collection)
+		{
+			files[i++] = file.getAbsolutePath();
+		}
+		
+		
+		TestUtil.TypeCheckerResult res =  TestUtil.runTypeChecker(files);
 		
 		if ( !res.parseErrors.isEmpty())
 		{
