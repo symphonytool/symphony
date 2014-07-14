@@ -2,7 +2,7 @@
 <feature
       id="eu.compassresearch.ide.features.plugins.modelchecker"
       label="CML Model Checker"
-      version="0.3.3.qualifier">
+      version="0.3.4">
 
    <description>
       %description
