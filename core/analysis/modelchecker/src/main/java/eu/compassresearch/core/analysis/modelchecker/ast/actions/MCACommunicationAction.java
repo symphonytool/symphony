@@ -1,6 +1,5 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.actions;
 
-import java.util.Iterator;
 import java.util.LinkedList;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
@@ -8,8 +7,6 @@ import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ActionChannel
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ExpressionEvaluator;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCCommEv;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCLieInFact;
-import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.NameValue;
-import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.SingleTypeValue;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.TypeManipulator;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.TypeValue;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAActionDefinition;
@@ -127,8 +124,15 @@ public class MCACommunicationAction implements MCPAction {
 		} else{
 			//int i = 0;
 			//result.append(buildReplicatedExternalChoice(context, values, option, allParamsCopy,false));
+			
 			result.append(buildPrefix(option, context, false));
 			
+		}
+		if(this.communicationParameters.size() > 0){
+			if(this.communicationParameters.getFirst() instanceof MCAReadCommunicationParameter){
+				String localVarName = this.communicationParameters.getFirst().toString();
+				context.localInputVariables.add(localVarName);
+			}
 		}
 		return result.toString();
 	}

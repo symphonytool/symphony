@@ -1,0 +1,42 @@
+	//FIRING RULES TO GENERATE TIMED TRANSITIONS
+	//Stop timed
+    trans(iS,tock,iS) :- iS is State(st,Stop). 
+
+	//Input and output timed
+    trans(ini, tock, ini) :- ini is State(st,Prefix(_,_)).   
+
+	// external choice timed
+    trans(iS,tock,State(st,extraChoice(stP,P_,stQ,Q_))) :- iS is State(st,extraChoice(stP,P,stQ,Q)), 
+															trans(State(stP,P),tock,State(stP,P_)),trans(State(stQ,Q),tock,State(stQ,Q_)).
+
+	//Interrupt timed
+	trans(iS,tock,iSF) :- iS is State(st,intrpt(P,Q)), iSF is State(st,intrpt(P_,Q_)), trans(State(st,P),tock,State(st,P_)), trans(State(st,Q),tock,State(st,Q_)).
+
+    //timed interrupt timed
+    trans(iS,tock,State(st_,tIntrpt(P_,t_,Q))) :- iS is State(st,tIntrpt(P,t,Q)), trans(State(st,P),tock,State(st_,P_)), 
+                                                  Clock(t), Clock(t_), t_ = t - 1, t > 0.
+    trans(iS,tock,State(st_,tIntrpt(P_,0,Q))) :- iS is State(st,tIntrpt(P,1,Q)), trans(State(st,P),tock,State(st_,P_)).
+
+    //timeout timed
+    trans(iS,tock,State(st,tTimeout(P_,t_,Q))) :- iS is State(st,tTimeout(P,t,Q)), trans(State(st,P),tock,State(st,P_)),
+                                  Clock(t), Clock(t_), t_ = t - 1, t != 0.
+    trans(iS,tock,State(st,tTimeout(P_,0,Q))) :- iS is State(st,tTimeout(P,1,Q)), trans(State(st,P),tock,State(st,P_)).
+
+	//conditional choice timed
+	trans(iS,tock,State(st,condChoice(id,p,q))) :- iS is State(st,condChoice(id,p,q)).
+
+	//hiding timed
+    trans(iS, tock, iS) :- iS is State(st,hide(P,X)).
+
+	State(st_,seqC(P_,Q)),
+	trans(iS,tock,State(st_,seqC(P_,Q))) :- iS is State(st,seqC(P,Q)),trans(State(st,P),tock,State(st_,P_)), P != P_.
+
+	//Sequence timed
+	trans(iS,tock,iS) :- iS is State(st,seqC(P,Q)), trans(State(st,P),ev,State(st_,P_)), ev != tock, ev != tau, P != Skip. 
+	
+	//parallel timed
+    trans(iS,tock,State(st,par(stP,P_,X,stQ,Q_))) :- iS is State(st,par(stP,P,X,stQ,Q)), 
+                                                               trans(State(stP,P),tock,State(stP,P_)),
+                                                               trans(State(stQ,Q),tock,State(stQ,Q_)).
+
+															   

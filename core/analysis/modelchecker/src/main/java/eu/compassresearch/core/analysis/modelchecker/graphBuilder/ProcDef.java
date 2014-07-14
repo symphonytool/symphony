@@ -1,6 +1,5 @@
 package eu.compassresearch.core.analysis.modelchecker.graphBuilder;
 
-import eu.compassresearch.core.analysis.modelchecker.graphBuilder.param.Param;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Process;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Type;
 

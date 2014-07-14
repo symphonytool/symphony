@@ -10,7 +10,6 @@ import org.overture.ast.node.INode;
 
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
-import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPCommunicationParameter;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.StateDependency;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ActionChannelDependency;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.Binding;
@@ -39,10 +38,10 @@ import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASBinaryE
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAVariableExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPVarsetExpression;
-import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAChannelType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAIntNumericBasicType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANamedInvariantType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANatNumericBasicType;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCARealNumericBasicType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 
 public class NewCMLModelcheckerContext {
@@ -80,6 +79,7 @@ public class NewCMLModelcheckerContext {
 	public Stack<NameValue> localIndexedVariablesMapping;
 	public ArrayListSet<String> localIndexedVariablesDiscarded;
 	public ArrayListSet<String> variablesInfiniteDomain;
+	public ArrayListSet<String> localInputVariables;
 	public ArrayList<MCASBinaryExp> setExpressioFacts;
 	public ArrayListSet<IntroduceCommand> introduceFacts;
 	public Stack<MCPCMLDefinition> mcProcOrActionsStack;
@@ -136,6 +136,8 @@ public class NewCMLModelcheckerContext {
 			result = new MCANatNumericBasicType("0");
 		}else if(typeName.equals("int")){
 			result = new MCAIntNumericBasicType("0");
+		}else if(typeName.equals("real")){
+			result = new MCARealNumericBasicType("0.0");
 		}else{
 		//pegar a definicao e ver o tipo dela. Se nao for Named entao vai buscando o final até não vir ninguem
 		MCATypeDefinition typeDef = this.getTypeDefinition(typeName);
@@ -163,7 +165,9 @@ public class NewCMLModelcheckerContext {
 	public void resetStateDependencies(){
 		this.actionProcStateDependencies = new ArrayListSet<StateDependency>();
 	}
-	
+	public void resetLocalVarNames(){
+		this.localInputVariables = new ArrayListSet<String>();
+	}
 	public void resetUnamedChannelDependencies(){
 		this.unamedChannelDependencies = new ArrayListSet<ActionChannelDependency>();
 	}
@@ -374,6 +378,7 @@ public class NewCMLModelcheckerContext {
 		introduceFacts = new ArrayListSet<IntroduceCommand>();
 		mcProcOrActionsStack = new Stack<MCPCMLDefinition>();
 		variablesInfiniteDomain = new ArrayListSet<String>();
+		localInputVariables = new ArrayListSet<String>();
 		maxClock = 0;
 		numberOfInstances = 1;
 		ASSIGN_COUNTER = 0;

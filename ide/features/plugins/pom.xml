@@ -5,7 +5,7 @@
   <parent>
     <groupId>eu.compassresearch.ide</groupId>
     <artifactId>features</artifactId>
-    <version>0.3.2</version>
+    <version>0.3.4</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   
@@ -24,5 +24,6 @@
     <module>faulttolerance</module>
     <module>refinementtool</module>
     <module>collaboration</module>
+	<module>s2c</module>
   </modules>
 </project>

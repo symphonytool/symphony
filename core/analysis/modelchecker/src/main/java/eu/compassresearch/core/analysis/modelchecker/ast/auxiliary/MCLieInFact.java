@@ -7,7 +7,6 @@ import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPCommunicatio
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAChannelDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAVariableExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPVarsetExpression;
-import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCVoidValue;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAChannelType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANamedInvariantType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAProductType;
@@ -89,7 +88,7 @@ public class MCLieInFact implements MCNode {
 				lieIn.append("Channel(\"");
 				lieIn.append(commEvent.getName());
 				lieIn.append("\",");
-				lieIn.append(commEvent.getValue());
+				lieIn.append(commEvent.getValue().toFormula(option));
 				lieIn.append(")");
 			}
 			
@@ -170,6 +169,7 @@ public class MCLieInFact implements MCNode {
 		if(obj instanceof MCLieInFact){
 			result = this.commEvent.equals(((MCLieInFact) obj).getCommEvent()) 
 					&& this.setExp.equals(((MCLieInFact) obj).getSetExp());
+					//maybe we must use the comparison using toString()
 		}
 		return result;
 	}

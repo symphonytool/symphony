@@ -1,6 +1,5 @@
 package eu.compassresearch.core.analysis.modelchecker.graphBuilder.process;
 
-import eu.compassresearch.core.analysis.modelchecker.graphBuilder.param.Param;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Type;
 
 public class Operation implements Process {

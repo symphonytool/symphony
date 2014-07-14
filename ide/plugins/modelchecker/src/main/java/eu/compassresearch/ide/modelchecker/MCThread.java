@@ -1,27 +1,18 @@
 package eu.compassresearch.ide.modelchecker;
 
 import java.io.ByteArrayInputStream;
-import java.util.List;
 
-import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.internal.ExceptionHandler;
-import org.eclipse.ui.internal.progress.FinishedJobs;
-import org.overture.ast.definitions.PDefinition;
 
 import eu.compassresearch.core.analysis.modelchecker.api.FormulaIntegrationException;
 import eu.compassresearch.core.analysis.modelchecker.api.FormulaIntegrator;
 import eu.compassresearch.core.analysis.modelchecker.api.FormulaResult;
-import eu.compassresearch.core.analysis.modelchecker.visitors.NewMCVisitor;
 import eu.compassresearch.core.common.Registry;
 import eu.compassresearch.core.common.RegistryFactory;
-import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
 
 enum MCStatus { CREATED, RUNNING, ERROR, FINISHED}
 
@@ -36,18 +27,16 @@ public class MCThread extends Thread{
 	private String analysedProcess;
 	private String propertyToCheck;
 	private IFolder mcFolder;
-	private ICmlSourceUnit selectedUnit;
-	private IResource cmlFile;
+	//private ICmlSourceUnit selectedUnit;
+	//private IResource cmlFile;
 	private IWorkbenchWindow window;
 	private Registry registry;
 	
-	public MCThread(IFile f, String property, IFolder mcFolder, ICmlSourceUnit selectedUnit, IResource cmlFile, IWorkbenchWindow win, String analysedProcess) {
+	public MCThread(IFile f, String property, IFolder mcFolder, IWorkbenchWindow win, String analysedProcess) {
 		this.status = MCStatus.CREATED;
 		this.file = f;
 		this.propertyToCheck = property;
 		this.mcFolder = mcFolder;
-		this.selectedUnit = selectedUnit;
-		this.cmlFile = cmlFile;
 		this.window = win;
 		this.analysedProcess = analysedProcess;
 		RegistryFactory factory = eu.compassresearch.core.common.RegistryFactory.getInstance(MCConstants.MC_REGISTRY_ID);
@@ -63,9 +52,9 @@ public class MCThread extends Thread{
 			String absolutePath = file.getLocation().toPortableString();
 			this.result = mc.analyseFile(absolutePath);
 			IFile factsFile = this.writeFormulaOutputTofile(file, mcFolder, result);
-			this.formulaResultWrapper = new FormulaResultWrapper(result, null, propertyToCheck, mcFolder, selectedUnit, analysedProcess, factsFile);
+			this.formulaResultWrapper = new FormulaResultWrapper(result, null, propertyToCheck, mcFolder, analysedProcess, factsFile);
 			MCPluginUtility.refreshMCListView(formulaResultWrapper, factsFile, this.window);
-			registry.store(selectedUnit.getParseNode(), formulaResultWrapper);
+			//registry.store(selectedUnit.getParseNode(), formulaResultWrapper);
 		} catch (FormulaIntegrationException e) {
 			exception = e;
 			this.status = MCStatus.ERROR;

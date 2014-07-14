@@ -1,0 +1,365 @@
+-- add chan to output state of MessageStore?
+-- add chan to output "I am leader"
+
+types
+
+  NODE = nat1
+  
+  ALLNODES = set of nat1
+  
+  CLAIM = <leader>|<follower>|<undecided>|<off>
+   
+  DATA = token
+  
+  CS :: c : CLAIM
+		s : STRENGTH
+
+-- The only messages transmitted are CS messages, so MSG can be specialised to them  
+  MSG :: src : NODE
+         dest : NODE
+         cs : [CS]
+   
+  STRENGTH = nat
+           
+values
+
+  allNodes : set of nat1 = {1,...,3}
+             
+  ulp : nat = 10
+
+  n_timeout : nat = 4     -- the timeout value employed by the Nodes
+             
+channels
+   inn : MSG
+   out : MSG     
+   n_req : NODE    
+   
+   test : set of MSG
+
+process MessageStore =
+begin 
+  state
+    store : set of MSG := {}
+  functions
+   selectMSG(sm : set of MSG) r:MSG
+    pre sm <> {}
+    post r in set sm
+    
+  operations
+   
+  add:(MSG) ==> ()
+  add(m) ==
+   store := store union {m}
+    
+-- fetchFor fetchs all messages in the store that are for the node n
+    
+  fetchFor:(NODE) ==> MSG
+  fetchFor(n) ==
+  (
+  dcl m : MSG @ 
+   (
+    dcl s : set of MSG @ s := {msg|msg in set store @ msg.dest = n}; 
+    (
+    if s <> {} 
+    then (m := selectMSG(s); store := store \ {m})  
+    else m := mk_MSG(n,n,nil)
+    ); return m
+   )
+  ) 
+    
+    
+-- don't think this will work: too difficult to select a single element from a set 
+    
+  fetchOne:(NODE) ==> MSG
+  fetchOne(n) ==
+  let msgs = {msg|msg in set store @msg.dest=n} in
+   (if msgs <> {} then 
+     let m = select(msgs) in 
+     ( store := store\{m};
+        return m
+     )   
+    else 
+     return mk_MSG(n,n,nil)
+   )
+    
+      
+
+  -- helper function; selects an "arbitrary" element from a non-empty set  
+  select(sn : set of MSG) r: MSG
+  pre sn <> {}
+  post r in set sn      
+      
+  actions
+    In = inn?m -> add(m); Skip  
+    Listen = [] i in set allNodes @ n_req.i -> (dcl m : MSG @ m := fetchOne(i);out!m->Skip)
+    Test = test!store -> Skip
+    Loop =  (In [] Listen [] Test);Loop
+    @
+     Loop
+end          
+
+channels 
+  on, off : nat1
+  init : nat1
+  
+-- test channels
+  leading : nat1
+  following : nat1
+
+process Node = i : nat1 @
+
+begin 
+
+state
+  
+    -- mem is volatile memory
+    mem: map NODE to [CS] := { cid |-> nil | cid in set allNodes \ {i} }        		-- the map of node ids to their CSs,  using mk_CS(<off>, 0) instead of nil
+     inv dom mem = allNodes  \ {i} and -- the domain of mem must not include id (the ID of the node)
+         dom mem <> {}                  -- must be more than one node in the network  (although this model 
+                                        -- should work if there is only one node)
+    
+    -- below are summary variables  
+    highest_strength : [STRENGTH] := nil                   -- the highest strength of leadership claim node is aware of         
+          
+    highest_strength_id : [NODE] := nil                 -- id of node making the leadership claim with the highest strength
+                                                       -- this is allowed to be any node id, including id itself
+
+    inv highest_strength_id <> nil => highest_strength_id in set (dom mem union {i}) 
+      
+    leaders : nat := 0                                 -- the leader count among my neighbours; nat, so can't be -1 in CML
+    inv leaders <= card dom mem
+      
+    myCS : CS := mk_CS(<off>, 0)                                     -- my claim/strength pair
+ 
+    myNeighbours : seq of NODE := [j| j in set dom mem @ j <>i]
+   
+    isleader : bool := false
+
+operations
+
+  Init: () ==> ()
+    Init() ==
+    (
+      flushState() -- flush volatile and summary memory
+    )
+      
+    flushState: () ==> ()
+    flushState() ==
+    (
+      flushMemory();
+      flushSummary()
+    )
+      
+    flushMemory: () ==> ()
+    flushMemory() ==
+     (
+      mem := { cid |-> nil | cid in set allNodes \ {i} } -- reset
+     )
+     
+    flushSummary: () ==> ()
+    flushSummary() ==
+    ( 
+      highest_strength := 0; 
+      highest_strength_id := nil; 
+      leaders := 0;                -- can't be -1 if nat :: could be nil
+      myCS := mk_CS(<off>, 0);
+      isleader := false
+    )
+       
+    -- used by controller to write a CS to a memory cell
+   
+    write: MSG ==> ()
+    write(m) ==
+    ( 
+     mem(m.src) := m.cs
+    )
+    pre m.src in set dom mem
+    post mem(m.src) = m.cs
+  
+    update:()==>()
+    update() == 
+    (
+      leaders := card{n|n in set dom mem @ mem(n)<>nil => mem(n).c = <leader>};
+      highest_strength := maxStrength();                
+      highest_strength_id := maxStrengthID();                     
+      isleader := amILeader()    
+    )  
+    post isleader or 
+         (leaders > 0 and /* highest_strength_id <> nil => */ mem(highest_strength_id).s = highest_strength)
+     
+    -- maxStrengh returns the maximum strength of leadership claim
+ 
+  maxStrength:() ==> [nat]
+    maxStrength() == 
+    (
+     let leaderNodes = {n|n in set dom mem @ mem(n) <> nil and mem(n).c = <leader>} in
+     (     
+      let strs = {mem(l).s|l in set leaderNodes} in 
+       if strs <> {} 
+       then return maxSet(strs) 
+       else return nil  
+     )
+    )    
+ 
+/*
+    maxStrength:() ==> [nat]
+    maxStrength() == 
+    (
+     dcl leaderNodes : set of nat1 @ leaderNodes := {n|n in set dom mem @ mem(n) <> nil and mem(n).c = <leader>};
+     (     
+      dcl strs : set of nat @ strs := {mem(l).s|l in set leaderNodes}; 
+      if strs <> {} then return maxSet(strs) --  maxSet(strs)
+      else return nil  
+     )
+    )    
+*/       
+   -- return the ID of the leader with the max strength
+   -- or nil if no leader claims
+ 
+ 	maxStrengthID : () ==> [NODE]
+    maxStrengthID() ==  
+    (
+      let leaderNodes = {n|n in set dom mem @ mem(n) <> nil and mem(n).c = <leader>} in 
+      (
+       dcl maxStrIds : set of NODE @ 
+        (
+         if leaderNodes = {} 
+         then return nil 
+         else maxStrIds := {n | n in set leaderNodes @ mem(n).s = highest_strength};
+              return select(maxStrIds) 
+        )
+       ) 
+    )   
+ 
+   
+ /*  
+	maxStrengthID : () ==> [NODE]
+    maxStrengthID() ==  
+    (
+      dcl leaderNodes : set of nat1 @ leaderNodes := {n|n in set dom mem @ mem(n) <> nil and mem(n).c = <leader>};
+      (
+       dcl maxStrIds : set of NODE @ 
+        (
+         if leaderNodes = {} 
+         then return nil 
+         else maxStrIds := {n | n in set leaderNodes @ mem(n).s = highest_strength};
+              return select(maxStrIds) 
+        )
+       ) 
+    )   
+*/
+   
+   
+   
+   
+    	
+	-- update my claim 
+    -- note that we can enforce state transitions through the changeClaim operation
+    -- since Claim corresponds directly to the states in the ST diagram
+
+    changeClaim: CLAIM ==> ()
+    changeClaim(newc) ==
+    ( 
+      dcl currStr : STRENGTH := myCS.s @ 
+      myCS := mk_CS(newc, currStr)
+	)
+	pre myCS.c = <off> => newc = <undecided> and
+	    myCS.c = <undecided> => newc = <leader> or newc = <follower> and
+        myCS.c = <leader> => newc = <undecided> and
+        myCS.c = <follower> => newc = <undecided>
+    
+    -- increase the strength of my claim up to the maximum (upper limit of petitions: ulp)
+	incStrength:()==>()
+	incStrength() ==
+	(
+	  if myCS.s < ulp                    
+	  then myCS := mk_CS(myCS.c, myCS.s+1)
+	)
+	pre myCS.s < ulp
+	post myCS.s = myCS~.s + 1
+                        
+    amILeader: () ==> bool
+    amILeader() ==  
+    (
+      return (leaders = 0)  or
+             (highest_strength = nil) or  
+             (highest_strength <> nil and highest_strength < myCS.s) or 
+             (highest_strength <> nil and highest_strength = myCS.s and highest_strength_id < i) 
+    )
+      
+    maxSet: set of nat ==> nat
+    maxSet(sn) ==
+     (dcl s: set of nat @ s:= sn;
+      (dcl c:nat @ c := select(s); 
+         s := s \ {c};
+         while (s <> {}) do
+          (dcl n:nat @ n := select(s);
+           if (n>c) then c:=n else c:=c;
+           s := s\{n}
+          ); 
+        return c
+        )
+      )
+      pre sn <> {}
+--      post c in set sn and forall s in set sn @ c >=s
+          
+  functions
+  
+      -- implicit helper function; selects an element of a non-empty set  
+      select(sn : set of nat) r: nat
+      pre sn <> {}
+      post r in set sn 
+       
+  actions 
+ 
+    Listener = ReceiveData;update(); Skip
+
+    -- Asks for data via n_rec, then receives it, then repeats
+    
+    ReceiveData = 
+     n_req!i -> 
+       out?msg ->
+       (
+        [msg.cs = nil] & Skip
+        [] 
+        [msg.cs <> nil] & write(msg);ReceiveData
+       ) 
+--        [_ n_timeout _> Skip
+    
+    SendCS =  (||| t in set dom mem @ [{}] inn!mk_MSG(i,t,myCS) -> Skip) -- insists on sending all messages before it progresses.
+    
+    Off = on!i -> (Undecided /_\ off!i -> flushState();Off)  
+
+    Undecided = changeClaim(<undecided>);Listener;
+               (
+    			[isleader] & Leader
+                [] 
+                [not isleader] & Follower
+               )             
+      
+    Leader = changeClaim(<leader>);SendCS; leading.i -> Listener;
+    
+             (
+              [not isleader] & Undecided  
+              []
+              [isleader] & incStrength();Leader
+             )                    
+                       
+    Follower = changeClaim(<follower>);flushMemory(); following.i -> SendCS; Listener; -- flushing primary memory; self-declare as a follower
+               (                                                
+                [leaders <> 1] & Undecided 
+                []
+                [leaders = 1] & Follower                      
+               )             
+
+  @ init.i -> Init();Off
+
+     
+end
+
+process AllNodes = ||| i in set allNodes @  (Node(i)) 
+
+process Election = AllNodes [|{|inn,out,n_req|}|] MessageStore
+
+process P = Election [|{|init,on,n_req,test,inn,out,test,off|}|]  begin @ init.1->init.2->init.3->on.1->on.2->on.3->n_req.1->out.mk_MSG(1, 1, nil)->Skip end
+ 

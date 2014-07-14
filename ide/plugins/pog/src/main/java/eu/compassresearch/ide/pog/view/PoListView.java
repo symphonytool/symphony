@@ -23,7 +23,6 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.PartInitException;
-import org.overture.ast.node.INode;
 import org.overture.ide.core.resources.IVdmProject;
 import org.overture.ide.plugins.poviewer.IPoviewerConstants;
 import org.overture.ide.plugins.poviewer.view.PoOverviewTableView;
@@ -40,13 +39,11 @@ import eu.compassresearch.ide.pog.PogPluginConstants;
 
 public class PoListView extends PoOverviewTableView
 {
-	List<INode> astUnderAnalysis;
 
 	public void clearPos()
 	{
 		this.project = null;
-		astUnderAnalysis = null;
-
+		
 		display.asyncExec(new Runnable()
 		{
 
@@ -83,32 +80,33 @@ public class PoListView extends PoOverviewTableView
 		layout.addColumnData(new ColumnWeightData(10, false));
 		layout.addColumnData(new ColumnWeightData(10, false));
 		layout.addColumnData(new ColumnWeightData(60, false));
-		layout.addColumnData(new ColumnWeightData(30, false));
+		layout.addColumnData(new ColumnWeightData(20, false));
 		viewer.getTable().setLayout(layout);
 		viewer.getTable().setLinesVisible(true);
 		viewer.getTable().setHeaderVisible(true);
 		viewer.getTable().setSortDirection(SWT.NONE);
 		viewer.setSorter(null);
 
-		TableColumn column01 = new TableColumn(viewer.getTable(), SWT.LEFT);
-		column01.setText("No.");
-		column01.setToolTipText("No.");
-		column01.setResizable(false);
+		TableColumn columnNumber = new TableColumn(viewer.getTable(), SWT.LEFT);
+		columnNumber.setText("No.");
+		columnNumber.setToolTipText("No.");
+		columnNumber.setResizable(false);
 
-		TableColumn column02 = new TableColumn(viewer.getTable(), SWT.LAST_LINE_SELECTION);
-		column02.setText("Status");
-		column02.setToolTipText("Show status");
-		column02.setResizable(false);
+		TableColumn columnStatus = new TableColumn(viewer.getTable(), SWT.CENTER);
+		columnStatus.setText("Res.");
+		columnStatus.setToolTipText("PO status");
+		columnStatus.setResizable(false);
+		//columnStatus.set
 
-		TableColumn column03 = new TableColumn(viewer.getTable(), SWT.LEFT);
-		column03.setText("PO Name");
-		column03.setToolTipText("PO Name");
-		column03.setResizable(false);
+		TableColumn columnKind = new TableColumn(viewer.getTable(), SWT.LEFT);
+		columnKind.setText("Type");
+		columnKind.setToolTipText("PO Type");
+		columnKind.setResizable(false);
 
-		TableColumn column04 = new TableColumn(viewer.getTable(), SWT.LEFT);
-		column04.setText("Type");
-		column04.setToolTipText("Show Type");
-		column04.setResizable(false);
+		TableColumn columnSource = new TableColumn(viewer.getTable(), SWT.LEFT);
+		columnSource.setText("Source");
+		columnSource.setToolTipText("PO Source");
+		columnSource.setResizable(false);
 
 		viewer.setContentProvider(new CmlPoViewContentProvider());
 		viewer.setLabelProvider(new CmlPoViewLabelProvider());
@@ -168,16 +166,18 @@ public class PoListView extends PoOverviewTableView
 				// numbering
 
 				viewer.setInput(pol);
-//
-//				for (TableColumn col : viewer.getTable().getColumns())
-//				{
-//				//	col.pack();
-//				}
+				//
+				// for (TableColumn col : viewer.getTable().getColumns())
+				// {
+				// // col.pack();
+				// }
 			}
 
 		});
 
 	}
+	
+
 
 	protected void makeActions()
 	{
@@ -255,16 +255,18 @@ public class PoListView extends PoOverviewTableView
 					count++;
 					columnText = new Integer(data.getNumber()).toString();// count.toString();
 					break;
-				case 2:
+				case 3:
+					String source = (data.getName().equals("") ? "GLOBAL"
+							: data.getName());
+
 					if (!data.getLocation().getFile().toString().equals(""))
 					{
 						columnText = data.getLocation().getFile().getName()
-								+ " - " + data.getName();
-//						columnText = columnText.substring(0, 20);
+								+ " - " + source;
 					} else
-						columnText = data.getName();//.substring(0, 20);
+						columnText = source;
 					break;
-				case 3:
+				case 2:
 					columnText = handlePoKind(data);
 					break;
 				case 1:
@@ -319,14 +321,5 @@ public class PoListView extends PoOverviewTableView
 
 	}
 
-	public void setAstUnderAnalysis(List<INode> ast)
-	{
-		this.astUnderAnalysis = ast;
-	}
-
-	public List<INode> getAstUnderAnalysis()
-	{
-		return astUnderAnalysis;
-	}
 
 }

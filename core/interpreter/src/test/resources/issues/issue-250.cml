@@ -1,0 +1,13 @@
+channels a,b,c
+
+process T = 
+begin 
+actions
+    A = a -> b -> Stop
+    B = b -> c -> Stop
+    C = b -> Stop
+    D = (C[|{|b|}|]B)
+    Alt1 = (A [|{|c|}|] Stop) [|{|b|}|] (D [|{|a|}|] Stop)
+    Alt2 = (A[{|a,b|}||{|b,c|}]D)
+@   Alt2
+end

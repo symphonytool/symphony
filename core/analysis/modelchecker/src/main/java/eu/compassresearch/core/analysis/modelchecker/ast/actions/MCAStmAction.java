@@ -1,6 +1,5 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.actions;
 
-import eu.compassresearch.ast.actions.AStmAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCPCMLStm;
 
 public class MCAStmAction implements MCPAction {

@@ -19,6 +19,7 @@ public abstract class MCTypeWrapper {
 		typeWrapperMap = new HashMap<Class, String>();
 		typeWrapperMap.put(MCAIntNumericBasicType.class, INTEGER_TYPE_WRAPPER_STR);
 		typeWrapperMap.put(MCANatNumericBasicType.class, NATURAL_TYPE_WRAPPER_STR);
+		typeWrapperMap.put(MCARealNumericBasicType.class, REAL_TYPE_WRAPPER_STR);
 		typeWrapperMap.put(MCABooleanBasicType.class, BOOLEAN_TYPE_WRAPPER_STR);
 		//OTHER TYPES ARE NOT IMPLEMENTED YET
 	}

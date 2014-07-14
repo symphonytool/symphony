@@ -1,12 +1,10 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.auxiliary;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map.Entry;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
-import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAActionDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAChannelDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAExplicitCmlOperationDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAProcessDefinition;
@@ -14,7 +12,6 @@ import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAValueDef
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCSCmlOperationDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
-import eu.compassresearch.core.analysis.modelchecker.visitors.ArrayListSet;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
 
 public class ProblemDomainBuilder {
@@ -86,19 +83,6 @@ public class ProblemDomainBuilder {
 		content.append("  State(");
 		content.append(context.maximalBinding.toFormula(option));
 		content.append(",pBody)  :- GivenProc(np), ProcDef(np,nopar,pBody)");
-		//if there is some dependency with some channel and the channel is infinite, then
-		//their values are in the bindings and bindings must depend on the values so be instantiated
-		/*
-		ArrayList<ActionChannelDependency> chanDeps = context.channelDependencies;
-		for (ActionChannelDependency actionChannelDependency : chanDeps) {
-			MCAChannelDefinition chanDef =  actionChannelDependency.getChannelDefinition();
-			if(chanDef.isInfiniteType()){
-				content.append(",");
-				content.append(actionChannelDependency.toFormula(option));
-			}
-			
-		}
-		*/
 		content.append(".\n");
 	}
 	

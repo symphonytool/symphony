@@ -29,9 +29,7 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -114,12 +112,13 @@ public class CmlEventOptionView extends AbstractCmlDebugView implements
 	@Override
 	public void createPartControl(final org.eclipse.swt.widgets.Composite parent)
 	{
-
-		FormLayout layout = new FormLayout();
+		GridLayout layout = new GridLayout();
+		layout.makeColumnsEqualWidth = false;
+		layout.numColumns = 1;
 		parent.setLayout(layout);
 
-		createConsoleInputGroup(parent);
 		createListViewer(parent);
+		createConsoleInputGroup(parent);
 
 		DebugPlugin.getDefault().addDebugEventListener(this);
 		super.createPartControl(parent);
@@ -129,25 +128,20 @@ public class CmlEventOptionView extends AbstractCmlDebugView implements
 	{
 		consoleGroup = new Group(parent, parent.getStyle());
 		consoleGroup.setText("Console");
+		
+		GridData gdp = new GridData(GridData.VERTICAL_ALIGN_END);
+		gdp.verticalSpan = 1;
+		gdp.horizontalAlignment = SWT.FILL;
+		gdp.verticalAlignment = GridData.END;
+		consoleGroup.setLayoutData(gdp);
+		
 		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
-
-		// group.setLayoutData(gd);
-
-		FormData formData = new FormData();
-		// formData.bottom = new FormAttachment(70,10);
-		formData.right = new FormAttachment(100);
-		formData.top = new FormAttachment(85);
-		formData.left = new FormAttachment(0);
-		formData.bottom = new FormAttachment(100);
-		consoleGroup.setLayoutData(formData);
 
 		GridLayout layout = new GridLayout();
 		layout.makeColumnsEqualWidth = false;
 		layout.numColumns = 3;
 		layout.horizontalSpacing = SWT.FILL;
 		consoleGroup.setLayout(layout);
-
-		// editParent = group;
 
 		Label label = new Label(consoleGroup, SWT.MIN);
 		label.setText("Input:");
@@ -220,7 +214,6 @@ public class CmlEventOptionView extends AbstractCmlDebugView implements
 		}
 		GridData gd = new GridData();
 		button.setLayoutData(gd);
-		// setButtonDimensionHint(button);
 		return button;
 	}
 
@@ -228,22 +221,14 @@ public class CmlEventOptionView extends AbstractCmlDebugView implements
 	{
 		Group eventSelectionGroup = new Group(parent, parent.getStyle());
 		eventSelectionGroup.setText("Event Selection");
-		GridLayout layout = new GridLayout();
-		layout.makeColumnsEqualWidth = false;
-		layout.numColumns = 1;
-		layout.horizontalSpacing = SWT.FILL;
-		eventSelectionGroup.setLayout(layout);
-
-		FormData formData = new FormData();
-		formData.bottom = new FormAttachment(consoleGroup);
-		formData.right = new FormAttachment(100);
-		formData.left = new FormAttachment(0);
-		formData.top = new FormAttachment(0);
-		eventSelectionGroup.setLayoutData(formData);
-
-		viewer = new ListViewer(eventSelectionGroup, SWT.FILL);
-		GridData gd = new GridData(GridData.FILL_BOTH);
-		viewer.getControl().setLayoutData(gd);
+		
+		GridData gdp = new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING| GridData.GRAB_VERTICAL|GridData.GRAB_HORIZONTAL|GridData.FILL_BOTH);
+		gdp.verticalSpan = 7;
+		eventSelectionGroup.setLayoutData(gdp);
+		
+		eventSelectionGroup.setLayout(new FillLayout());
+		
+		viewer = new ListViewer(eventSelectionGroup, SWT.V_SCROLL);
 
 		viewer.addDoubleClickListener(this);
 		viewer.addSelectionChangedListener(this);
@@ -311,10 +296,13 @@ public class CmlEventOptionView extends AbstractCmlDebugView implements
 
 			TransitionDTO choice = (TransitionDTO) selection.getFirstElement();
 			CmlUtil.clearSelections(lastSelectedRanges);
-			CmlUtil.setSelectionFromLocations(choice.getLocations(), lastSelectedRanges);
-			// get a random one and set the
-			StyledText st = lastSelectedRanges.keySet().iterator().next();
-			CmlUtil.showLocation(st, choice.getLocations().get(0));
+			if (choice != null)
+			{
+				CmlUtil.setSelectionFromLocations(choice.getLocations(), lastSelectedRanges);
+				// get a random one and set the
+				StyledText st = lastSelectedRanges.keySet().iterator().next();
+				CmlUtil.showLocation(st, choice.getLocations().get(0));
+			}
 		}
 	}
 

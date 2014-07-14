@@ -1,10 +1,8 @@
 package eu.compassresearch.core.interpreter;
 
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.intf.lex.ILexNameToken;
@@ -33,8 +31,6 @@ import eu.compassresearch.core.interpreter.api.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.CmlBehaviour.BehaviourName;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
-import eu.compassresearch.core.interpreter.api.values.ChannelNameSetValue;
-import eu.compassresearch.core.interpreter.api.values.ChannelValue;
 import eu.compassresearch.core.interpreter.api.values.CmlSetQuantifier;
 import eu.compassresearch.core.interpreter.api.values.LatticeTopValue;
 import eu.compassresearch.core.interpreter.api.values.RenamingValue;
@@ -53,20 +49,10 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 		super(owner, visitorAccess, cmlBehaviorFactory);
 	}
 
-	@SuppressWarnings("rawtypes")
-	protected ChannelNameSetValue eval(PVarsetExpression chansetExpression,
+	protected SetValue eval(PVarsetExpression chansetExpression,
 			Context question) throws AnalysisException
 	{
-		Value val = chansetExpression.apply(cmlExpressionVisitor, question);
-		if (val instanceof ChannelNameSetValue)
-		{
-			return (ChannelNameSetValue) val;
-		} else if (val instanceof Set && ((Set) val).isEmpty())
-		{
-			return new ChannelNameSetValue(new HashSet<ChannelValue>());
-		}
-
-		throw new CmlInterpreterException(chansetExpression, InterpretationErrorMessages.FATAL_ERROR.customizeMessage("Failed to evaluate chanset expression"));
+		return (SetValue) chansetExpression.apply(cmlExpressionVisitor, question);
 	}
 
 	public Pair<INode, Context> caseAlphabetisedParallelism(INode node,
@@ -76,8 +62,8 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 	{
 
 		// evaluate the children in the their own context
-		ChannelNameSetValue leftChanset = eval(leftChansetExpression, getChildContexts(question).first);
-		ChannelNameSetValue rightChanset = generateChannelValues(node, rightChansetExpression, getChildContexts(question).second);
+		SetValue leftChanset = eval(leftChansetExpression, getChildContexts(question).first);
+		SetValue rightChanset = generateChannelValues(node, rightChansetExpression, getChildContexts(question).second);
 
 		Context chansetContext = CmlContextFactory.newContext(LocationExtractor.extractLocation(node), "Alphabetised parallelism precalcualted channelsets", question);
 
@@ -103,27 +89,28 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 	 * @return a value holding all the values for the chanset exp
 	 * @throws AnalysisException
 	 */
-	private ChannelNameSetValue generateChannelValues(INode node,
+	private SetValue generateChannelValues(INode node,
 			PVarsetExpression chansetExp, Context ctxt)
 			throws AnalysisException
 	{
 		final ILexNameToken name = NamespaceUtility.getReplicationNodeReminderName(node);
 		CmlSetQuantifier ql = (CmlSetQuantifier) ctxt.check(name);
 
-		ChannelNameSetValue rightChanset = null;
+		SetValue rightChanset = null;
 
 		if (ql == null)
 		{
 			rightChanset = eval(chansetExp, ctxt);
 		} else
 		{
-			rightChanset = new ChannelNameSetValue();
+			rightChanset = new SetValue();
 
 			for (NameValuePairList nvpl : ql)
 			{
 				Context nextChildContext = new Context(ctxt.assistantFactory, ctxt.location, "local channel context", ctxt);
 				nextChildContext.putList(nvpl);
-				rightChanset.addAll((ChannelNameSetValue) eval(chansetExp, nextChildContext));
+				final SetValue eval = (SetValue) eval(chansetExp, nextChildContext);
+				rightChanset.values.addAll(eval.values);
 			}
 		}
 
@@ -244,6 +231,7 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 
 		/**
 		 * Create a new replication child context. This is a context that delays all writes to state
+		 * 
 		 * @param npvl
 		 * @param node
 		 * @param outer
@@ -254,7 +242,13 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 		{
 			Context childContext = new DelayedWriteContext(outer.assistantFactory, LocationExtractor.extractLocation(node), "delayed write context for "
 					+ outer.title, outer);
-			childContext.putAllNew(npvl);
+
+			for (NameValuePair nvp : npvl)
+			{
+				// turn the values into constants, important for the delayed context removal later
+				NameValuePair pair = new NameValuePair(nvp.name, nvp.value.getConstant());
+				childContext.putNew(pair);
+			}
 
 			return childContext;
 		}

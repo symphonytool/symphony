@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Symphony IDE CML UI
 Bundle-SymbolicName: eu.compassresearch.ide.ui;singleton:=true
-Bundle-Version: 0.3.2
+Bundle-Version: 0.3.4
 Bundle-Activator: eu.compassresearch.ide.ui.CmlUIPlugin
 Bundle-Vendor: The COMPASS Project
 Eclipse-BundleShape: dir

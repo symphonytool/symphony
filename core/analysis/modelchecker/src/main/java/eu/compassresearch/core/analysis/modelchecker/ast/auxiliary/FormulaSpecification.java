@@ -20,6 +20,7 @@ public class FormulaSpecification {
 	private PartialModel problemModel;
 	
 	private void basicLoad() throws IOException{
+		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 		
 		StringBuilder auxDefContent = FormulaIntegrationUtilities.readScriptFromFile(FormulaIntegrationUtilities.AUXILIARY_DEFINITIONS_SCRIPT);
 		this.auxiliaryDomain = new Domain("AuxiliaryDefinitions", null, auxDefContent.toString());
@@ -30,6 +31,11 @@ public class FormulaSpecification {
 		StringBuilder cmlSemanticsContent = FormulaIntegrationUtilities.readScriptFromFile(FormulaIntegrationUtilities.SEMANTICS_DOMAIN_SCRIPT);
 		this.semanticsDomain = new Domain("CMLSemantics", syntaxDomain, cmlSemanticsContent.toString());
 		
+		if(context.maxClock > 0){
+			StringBuilder cmlSemanticsTimedContent = FormulaIntegrationUtilities.readScriptFromFile(FormulaIntegrationUtilities.SEMANTICS_TIMED_DOMAIN_SCRIPT);
+			this.semanticsDomain.append(cmlSemanticsTimedContent.toString());
+		}
+		
 		StringBuilder cmlPropertiesContent = FormulaIntegrationUtilities.readScriptFromFile(FormulaIntegrationUtilities.PROPERTIES_DOMAIN_SCRIPT);
 		this.propertiesDomain = new Domain("CMLProperties", semanticsDomain, cmlPropertiesContent.toString());
 		
@@ -37,7 +43,6 @@ public class FormulaSpecification {
 		this.problemDomain = new Domain("DependentModel", propertiesDomain,"");
 		this.problemModel = new PartialModel(problemDomain);
 		
-		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 		context.propertiesDomain = this.propertiesDomain;
 		
 	}

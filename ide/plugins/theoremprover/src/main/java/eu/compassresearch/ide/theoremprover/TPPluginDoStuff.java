@@ -37,10 +37,10 @@ import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.WorkbenchException;
 import org.eclipse.ui.editors.text.TextFileDocumentProvider;
-import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.expressions.PExp;
 import org.overture.ast.node.INode;
 import org.overture.pog.obligation.ProofObligationList;
 import org.overture.pog.pub.IProofObligation;
@@ -54,7 +54,6 @@ import eu.compassresearch.ide.core.resources.ICmlProject;
 import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
 import eu.compassresearch.ide.core.unsupported.UnsupportedElementInfo;
 import eu.compassresearch.ide.pog.PogPluginRunner;
-import eu.compassresearch.ide.pog.PogPluginUtils;
 import eu.compassresearch.ide.theoremprover.utils.TheoryLoader;
 import eu.compassresearch.ide.ui.utility.CmlProjectUtil;
 
@@ -403,7 +402,8 @@ public class TPPluginDoStuff {
 			String thyFileName) throws IOException, AnalysisException {
 		String thmString = "";
 		try {
-			thmString = TPVisitor.generateThyStr(model.getAst(), thyFileName);
+			List<INode> ast = model.getAst();
+			thmString = TPVisitor.generateThyStr(ast, thyFileName);
 		} catch (UnhandledSyntaxException use) {
 			thmString = use.getString();
 			popErrorMessage(use.getErrorString());
@@ -483,8 +483,9 @@ public class TPPluginDoStuff {
 			for (IProofObligation po : pol) {
 				TPUnsupportedCollector tpu = new TPUnsupportedCollector();
 				// check if the po is supported
+				PExp pred = po.getValueTree().getPredicate();
 				List<UnsupportedElementInfo> unsupports = tpu
-						.getUnsupporteds(po.getValueTree().getPredicate());
+						.getUnsupporteds(pred);
 				if (unsupports.isEmpty()) {
 					goodPol.add(po);
 				} else {

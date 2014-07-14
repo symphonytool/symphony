@@ -1,7 +1,9 @@
 package eu.compassresearch.core.interpreter.runtime;
 
 import java.lang.reflect.Field;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.intf.lex.ILexLocation;
@@ -28,7 +30,7 @@ public class DelayedWriteContext extends Context
 	 */
 	private static final long serialVersionUID = 2677833973970244511L;
 
-	private Map<ILexNameToken, DelayedUpdatableWrapper> obtainedValues = new LexNameTokenMap<DelayedUpdatableWrapper>();
+	protected Map<ILexNameToken, DelayedUpdatableWrapper> obtainedValues = new LexNameTokenMap<DelayedUpdatableWrapper>();
 	
 	boolean disable = false;
 
@@ -36,6 +38,13 @@ public class DelayedWriteContext extends Context
 			ILexLocation location, String title, Context outer)
 	{
 		super(af, location, title, outer);
+	}
+	
+	public DelayedWriteContext(IInterpreterAssistantFactory af,
+			ILexLocation location, String title, Context outer,Map<ILexNameToken, DelayedUpdatableWrapper> obtainedValues)
+	{
+		super(af, location, title, outer);
+		this.obtainedValues.putAll(obtainedValues);
 	}
 	
 	protected void disable()
@@ -73,7 +82,7 @@ public class DelayedWriteContext extends Context
 				&& !(val instanceof DelayedUpdatableWrapper))
 		{
 			// this is state
-			DelayedUpdatableWrapper wrappedVal = new DelayedUpdatableWrapper(this, (UpdatableValue) val);
+			DelayedUpdatableWrapper wrappedVal = new DelayedUpdatableWrapper( (UpdatableValue) val);
 
 			if (name instanceof ILexNameToken)
 			{
@@ -124,6 +133,20 @@ public class DelayedWriteContext extends Context
 		{
 			val.set();
 		}
+		
+		Set<ILexNameToken> toBeRemoved = new HashSet<ILexNameToken>();
+		for (Entry<ILexNameToken, Value> entry: super.entrySet())
+		{
+			if(entry.getValue() instanceof DelayedUpdatableWrapper)
+			{
+				toBeRemoved.add(entry.getKey());
+			}
+		}
+		
+		for (ILexNameToken key : toBeRemoved)
+		{
+			remove(key);
+		}
 		disable();
 	}
 
@@ -149,5 +172,37 @@ public class DelayedWriteContext extends Context
 				}
 			}
 		}
+	}
+	
+	@Override
+	public Context deepCopy()
+	{
+		Context below = null;
+
+		if (outer != null)
+		{
+			below = outer.deepCopy();
+		}
+
+		Map<ILexNameToken, DelayedUpdatableWrapper> resultObtainedValues = new LexNameTokenMap<DelayedUpdatableWrapper>();
+		for (Entry<ILexNameToken, DelayedUpdatableWrapper> entry : this.obtainedValues.entrySet())
+		{
+			resultObtainedValues.put(entry.getKey(), (DelayedUpdatableWrapper)entry.getValue().deepCopy());
+		}
+		
+		Context result =
+			new DelayedWriteContext(assistantFactory,location, title, below,resultObtainedValues);
+
+		result.threadState = threadState;
+		
+		for (ILexNameToken var: keySet())
+		{
+			Value v = get(var);
+			result.put(var, v.deepCopy());
+		}
+		
+		
+
+		return result;
 	}
 }

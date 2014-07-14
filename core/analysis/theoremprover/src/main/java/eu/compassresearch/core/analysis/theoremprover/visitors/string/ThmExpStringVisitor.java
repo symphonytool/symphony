@@ -180,13 +180,13 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		return "(" + ex.getLeft().apply(thmStringVisitor, vars) + ThmExprUtil.properSubset  +  ex.getRight().apply(thmStringVisitor, vars)+ ")";
 	}
 
-//	public String caseARangeResByBinaryExp(ARangeResByBinaryExp ex, ThmVarsContext vars) throws AnalysisException{
-//		return "(" + ex.getLeft().apply(thmStringVisitor, vars) + ThmExprUtil.rangeResBy +  ex.getRight().apply(thmStringVisitor, vars)+ ")";
-//	}
+	public String caseARangeResByBinaryExp(ARangeResByBinaryExp ex, ThmVarsContext vars) throws AnalysisException{
+		return "(" + ex.getLeft().apply(thmStringVisitor, vars) + ThmExprUtil.rangeResBy +  ex.getRight().apply(thmStringVisitor, vars)+ ")";
+	}
 
-//	public String caseARangeResToBinaryExp(ARangeResToBinaryExp ex, ThmVarsContext vars) throws AnalysisException{
-//		return "(" + ex.getLeft().apply(thmStringVisitor, vars) + ThmExprUtil.rangeResTo +  ex.getRight().apply(thmStringVisitor, vars)+ ")";
-//	}
+	public String caseARangeResToBinaryExp(ARangeResToBinaryExp ex, ThmVarsContext vars) throws AnalysisException{
+		return "(" + ex.getLeft().apply(thmStringVisitor, vars) + ThmExprUtil.rangeResTo +  ex.getRight().apply(thmStringVisitor, vars)+ ")";
+	}
 
 	public String caseASeqConcatBinaryExp(ASeqConcatBinaryExp ex, ThmVarsContext vars) throws AnalysisException{
 		return "(" + ex.getLeft().apply(thmStringVisitor, vars) + ThmExprUtil.seqConcat +  ex.getRight().apply(thmStringVisitor, vars)+ ")";
@@ -339,7 +339,8 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 					}
 				}
 				sb.append(" : ");
-				sb.append("@" + tmb.getType().toString() + " @ ("); //USE VISITOR FOR TYPE
+
+				sb.append(tmb.getType().apply(thmStringVisitor, vars) + " @ ("); //USE VISITOR FOR TYPE
 			}
 			else if (b instanceof ASetMultipleBind)
 			{

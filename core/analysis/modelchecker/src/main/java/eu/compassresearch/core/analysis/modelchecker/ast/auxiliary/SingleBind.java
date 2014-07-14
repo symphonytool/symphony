@@ -2,7 +2,6 @@ package eu.compassresearch.core.analysis.modelchecker.ast.auxiliary;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
-import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
 
 public class SingleBind {
@@ -61,6 +60,14 @@ public class SingleBind {
 		case MCNode.PARAM_RENAMED:
 			
 			break;
+		case MCNode.STATE_DEPENDENCY_WITHOUT_INF_VARS:
+			if(context.localInputVariables.contains(variableName)){
+				result = "SingleBind(\"" + variableName + "\"," + "_" + ")";
+			}else{
+				result = "SingleBind(\"" + variableName + "\"," + variableName + ")";
+			}
+			break;
+			
 		default:
 			result = "SingleBind(\"" + variableName + "\"," + variableValue.toFormula(option) + ")";
 			break;

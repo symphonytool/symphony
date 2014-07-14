@@ -36,7 +36,6 @@ import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.ast.statements.PCMLStateDesignator;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.FormulaSpecification;
-import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAProcessDefinition;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.ICmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
@@ -264,9 +263,8 @@ public class NewMCVisitor extends
 		LinkedList<NameContent> codes = new LinkedList<NameContent>();
 		for (PSource source : sources) {
 			if(source instanceof AFileSource){
-				//System.out.println("Analysing file: " + ((AFileSource) source).getName());
-				
-				String currentScriptContent = this.generateFormulaScript(source.getParagraphs(), propertyToCheck, null);
+				String mainProcessName = chooseAProcessName((AFileSource) source);
+				String currentScriptContent = this.generateFormulaScript(source.getParagraphs(), propertyToCheck, mainProcessName);
 				NameContent element = new NameContent(((AFileSource) source).getName(), currentScriptContent);
 				codes.add(element);
 			}
@@ -275,6 +273,16 @@ public class NewMCVisitor extends
 		return codes;
 	}
 	
+	private String chooseAProcessName(AFileSource source){
+		String result = "";
+		for (PDefinition paragraph : source.getParagraphs()) {
+			if(paragraph instanceof AProcessDefinition){
+				result = paragraph.getName().getSimpleName();
+				break;
+			}
+		}
+		return result;
+	}
 	public String generateFormulaScript(List<PDefinition> definitions, String propertyToCheck, String mainProcessName) throws IOException, AnalysisException{
 		
 		NewCMLModelcheckerContext.resetInstance();
@@ -342,7 +350,13 @@ public class NewMCVisitor extends
 		//String cml_file = "src/test/resources/BeoAVDeviceDiscovery-subtletly.cml";
 		//String cml_file = "src/test/resources/action-inf-comm.cml";
 		//String cml_file = "src/test/resources/basic.cml";
-		String cml_file = "src/test/resources/Dead.cml";
+		//String cml_file = "src/test/resources/Dead.cml";
+		//String cml_file = "src/test/resources/InsielPaolo.cml";
+		//String cml_file = "src/test/resources/TestOutput.cml";
+		//String cml_file = "src/test/resources/DeadFree.cml";
+		//String cml_file = "src/test/resources/use-reals.cml";
+		String cml_file = "src/test/resources/echoice-process.cml";
+		
 		
 		//String cml_file = "src/test/resources/MC_Tests_2.cml";
 		//String cml_file = "src/test/resources/simpleStop.cml";
@@ -377,7 +391,10 @@ public class NewMCVisitor extends
 		//String mainProcessName = "TargetProduct_DD_SD_InterfaceProtocolView";
 		//String mainProcessName = "P";
 		//String mainProcessName = "ChaosE";
-		String mainProcessName = "Lazy";
+		//String mainProcessName = "CUSSoS";
+//		String mainProcessName = "Test";
+		//String mainProcessName = "PHide";
+		String mainProcessName = "P";
 		
 		//String mainProcessName = "TestTraces1";
 		

@@ -18,9 +18,11 @@ import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.typechecker.Pass;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ContextException;
+import org.overture.interpreter.values.BooleanValue;
 import org.overture.interpreter.values.NameValuePair;
 import org.overture.interpreter.values.NameValuePairList;
 import org.overture.interpreter.values.NameValuePairMap;
+import org.overture.interpreter.values.SetValue;
 import org.overture.interpreter.values.UpdatableValue;
 import org.overture.interpreter.values.Value;
 
@@ -64,6 +66,7 @@ import eu.compassresearch.core.interpreter.api.CmlBehaviorFactory;
 import eu.compassresearch.core.interpreter.api.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
+import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.api.TransitionEvent;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionFactory;
@@ -76,7 +79,6 @@ import eu.compassresearch.core.interpreter.api.values.ChannelValue;
 import eu.compassresearch.core.interpreter.api.values.CmlChannel;
 import eu.compassresearch.core.interpreter.api.values.ExpressionConstraint;
 import eu.compassresearch.core.interpreter.api.values.LatticeTopValue;
-import eu.compassresearch.core.interpreter.api.values.NamesetValue;
 import eu.compassresearch.core.interpreter.api.values.NoConstraint;
 import eu.compassresearch.core.interpreter.api.values.UnresolvedExpressionValue;
 import eu.compassresearch.core.interpreter.api.values.ValueConstraint;
@@ -329,9 +331,21 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 							}
 
 							nextContext.putList(question.assistantFactory.createPPatternAssistant().getNamedValues(pattern, value, nextContext));
+
+							if (param.getExpression() != null)
+							{
+
+								Value v = param.getExpression().apply(cmlExpressionVisitor, nextContext);
+								if (!(v instanceof BooleanValue && v.boolValue(nextContext)))
+								{
+									throw new InterpreterRuntimeException("Read parameter constraint not satisfied "
+											+ param.getExpression().getLocation());
+								}
+							}
 						}
 					}
 				}
+
 				newTransitionEvent(TransitionEvent.CHANNEL_EVENT);
 				return new Pair<INode, Context>(node.getAction(), nextContext);
 			}
@@ -373,8 +387,8 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 	 * This is a silent transition and therefore the alphabet contains only tau event</li>
 	 * <li>External Choice Silent: If any of the actions can take a silent transition they will do it before getting
 	 * here again. We therefore don't take this situation into account</li>
-	 * <li>External Choice Skip: If one of the children is Skip we make a silent transition of the whole choice into skip.
-	 * We therefore just return the tau event</li>
+	 * <li>External Choice Skip: If one of the children is Skip we make a silent transition of the whole choice into
+	 * skip. We therefore just return the tau event</li>
 	 * <li>External Choice End: The alphabet contains an observable event for every child that can engaged in one.</li>
 	 * </ul>
 	 */
@@ -421,16 +435,16 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 						CmlTransition selectedTransition)
 						throws AnalysisException
 				{
-					NamesetValue leftNamesetValue = null;
-					NamesetValue rightNamesetValue = null;
+					SetValue leftNamesetValue = null;
+					SetValue rightNamesetValue = null;
 
 					if (node.getLeftNamesetExpression() != null)
 					{
-						leftNamesetValue = (NamesetValue) node.getLeftNamesetExpression().apply(cmlExpressionVisitor, question);
+						leftNamesetValue = (SetValue) node.getLeftNamesetExpression().apply(cmlExpressionVisitor, question);
 					}
 					if (node.getRightNamesetExpression() != null)
 					{
-						rightNamesetValue = (NamesetValue) node.getRightNamesetExpression().apply(cmlExpressionVisitor, question);
+						rightNamesetValue = (SetValue) node.getRightNamesetExpression().apply(cmlExpressionVisitor, question);
 					}
 
 					caseParallelBegin(node, leftNamesetValue, rightNamesetValue, question);
@@ -517,7 +531,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 			public Pair<INode, Context> execute(CmlTransition selectedTransition)
 					throws AnalysisException
 			{
-				// /THIS IS NOT CORRECT sEMANTICALLY,
+				//TODO: AKM: This does not correspond to the semantics
 				Context muContext = CmlContextFactory.newContext(node.getLocation(), "mu context", question);
 
 				NameValuePairList nvpl = new NameValuePairList();
@@ -532,7 +546,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 
 					PAction action = node.getActions().get(i);
 
-					AActionDefinition actionDef = CmlAstFactory.newAActionDefinition(node.getLocation(), NameScope.LOCAL, true, null, Pass.DEFS, null, action);
+					AActionDefinition actionDef = CmlAstFactory.newAActionDefinition(node.getLocation(), NameScope.LOCAL, true, null, Pass.DEFS, null, action.clone());
 
 					nvpl.add(new NameValuePair(name, new ActionValue(actionDef)));
 					if (i == 0)
@@ -549,7 +563,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 	}
 
 	private void caseParallelBegin(SParallelAction node,
-			NamesetValue leftNameset, NamesetValue rightNameset,
+			SetValue leftNameset, SetValue rightNameset,
 			Context question) throws AnalysisException
 	{
 		PAction left = node.getLeftAction();
@@ -640,16 +654,16 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 			@Override
 			public void caseParallelBegin() throws AnalysisException
 			{
-				NamesetValue leftNamesetValue = null;
-				NamesetValue rightNamesetValue = null;
+				SetValue leftNamesetValue = null;
+				SetValue rightNamesetValue = null;
 
 				if (node.getLeftNamesetExpression() != null)
 				{
-					leftNamesetValue = (NamesetValue) node.getLeftNamesetExpression().apply(cmlExpressionVisitor, question);
+					leftNamesetValue = (SetValue) node.getLeftNamesetExpression().apply(cmlExpressionVisitor, question);
 				}
 				if (node.getRightNamesetExpression() != null)
 				{
-					rightNamesetValue = (NamesetValue) node.getRightNamesetExpression().apply(cmlExpressionVisitor, question);
+					rightNamesetValue = (SetValue) node.getRightNamesetExpression().apply(cmlExpressionVisitor, question);
 				}
 
 				ActionInspectionVisitor.this.caseParallelBegin(node, leftNamesetValue, rightNamesetValue, question);

@@ -2,19 +2,13 @@ package eu.compassresearch.core.analysis.modelchecker.ast.auxiliary;
 
 import java.util.LinkedList;
 
-import org.overture.ast.patterns.AIdentifierPattern;
-
-import eu.compassresearch.ast.actions.AValParametrisation;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
-import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCACommunicationAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAReadCommunicationParameter;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCASignalCommunicationParameter;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAValParametrisation;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAWriteCommunicationParameter;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPCommunicationParameter;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPParametrisation;
-import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCATypeSingleDeclaration;
-import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAChannelDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCALocalDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCATypeDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAValueDefinition;
@@ -31,6 +25,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCALessNume
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANotEqualsBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANotUnaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAQuoteLiteralExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCARealLiteralExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASetEnumSetExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASetRangeSetExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAUnaryMinusUnaryExp;
@@ -45,6 +40,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANamedInvariant
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANatNumericBasicType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAProductType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAQuoteType;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCARealNumericBasicType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCASetType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCVoidType;
@@ -66,6 +62,8 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 		MCPCMLType result = null;
 		if(exp instanceof MCAIntLiteralExp){
 			result = this.getTypeFor((MCAIntLiteralExp)exp);
+		} else if(exp instanceof MCARealLiteralExp){
+			result = this.getTypeFor((MCARealLiteralExp)exp);
 		} else if(exp instanceof MCAVariableExp){
 			result = this.getTypeFor((MCAVariableExp)exp);
 		} else if(exp instanceof MCAQuoteLiteralExp){
@@ -85,6 +83,8 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 		MCPCMLType result = null;
 		if(exp instanceof MCAIntLiteralExp){
 			result = this.getTypeFor((MCAIntLiteralExp)exp);
+		} else if(exp instanceof MCARealLiteralExp){
+			result = this.getTypeFor((MCARealLiteralExp)exp);
 		} else if(exp instanceof MCAVariableExp){
 			result = this.getTypeForIOComm((MCAVariableExp)exp);
 		} else if(exp instanceof MCAQuoteLiteralExp){
@@ -403,6 +403,13 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 		
 		return result;
 	}
+	private MCPCMLType getTypeFor(MCARealLiteralExp exp){
+		MCPCMLType result = null;
+		
+		result = new MCARealNumericBasicType(exp.getValue());
+		
+		return result;
+	}
 	private MCPCMLType getTypeFor(MCAVariableExp exp){
 		MCPCMLType result = null;
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
@@ -551,6 +558,8 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 		
 		if(expression instanceof MCAIntLiteralExp){
 			result = this.obtainValue((MCAIntLiteralExp)expression);
+		} else if(expression instanceof MCARealLiteralExp){
+			result = this.obtainValue((MCARealLiteralExp)expression);
 		} else if(expression instanceof MCAVariableExp){
 			result = this.obtainValue((MCAVariableExp)expression);
 		} else if(expression instanceof MCAUnaryMinusUnaryExp){
@@ -566,6 +575,8 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 		
 		if(type instanceof MCAIntNumericBasicType){
 			result = new MCAIntLiteralExp("0");
+		} else if(type instanceof MCARealNumericBasicType){
+			result = new MCARealLiteralExp("0.0");
 		} else if(type instanceof MCANatNumericBasicType){
 			result = new MCAIntLiteralExp("0");
 		} else if(type instanceof MCANamedInvariantType){
@@ -644,6 +655,10 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 	
 	
 	private String obtainValue(MCAIntLiteralExp expression){
+		return expression.getValue();
+	}
+	
+	private String obtainValue(MCARealLiteralExp expression){
 		return expression.getValue();
 	}
 	

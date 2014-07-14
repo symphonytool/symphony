@@ -2,10 +2,6 @@ package eu.compassresearch.core.analysis.modelchecker.ast.definitions;
 
 import java.util.LinkedList;
 
-import org.overture.ast.definitions.SClassDefinition;
-
-import eu.compassresearch.ast.definitions.AActionClassDefinition;
-
 public class MCAActionClassDefinition implements MCPCMLDefinition {
 
 	private LinkedList<MCPCMLDefinition> definitions;

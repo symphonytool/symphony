@@ -1,7 +1,6 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.expressions;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.NamedSet;
-import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.NonEmptySet;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.Set;
 
 public class MCASetDifferenceBinaryExp extends MCASBinaryExp {

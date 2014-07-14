@@ -1,6 +1,5 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.types;
 
-import org.overture.ast.types.ABracketType;
 
 public class MCABracketType implements MCPCMLType {
 

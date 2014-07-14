@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.ActionsCmlTypeCheckerTests">
+<message column="6" line="3" message="Return statements only allowed inside operation bodies" messageType="error" number="3446" resource="actions-0053-neg.cml"/>
+<result/>
+</testResult>

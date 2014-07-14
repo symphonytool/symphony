@@ -6,17 +6,16 @@ import java.util.LinkedList;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAReadCommunicationParameter;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAValParametrisation;
-import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPCommunicationParameter;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPParametrisation;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ActionChannelDependency;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ExpressionEvaluator;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.NameValue;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.TypeManipulator;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.TypeValue;
-import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCATypeSingleDeclaration;
 import eu.compassresearch.core.analysis.modelchecker.ast.process.MCAActionProcess;
 import eu.compassresearch.core.analysis.modelchecker.ast.process.MCPProcess;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
+import eu.compassresearch.core.analysis.modelchecker.visitors.ArrayListSet;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
 
 public class MCAProcessDefinition implements MCPCMLDefinition {
@@ -161,7 +160,7 @@ private void addDependencies(String option,NewCMLModelcheckerContext context, St
 		//if the action has dependencies we get them from the context
 		
 		LinkedList<ActionChannelDependency> dependencies = context.getActionChannelDependendies(this.name);
-		LinkedList<ActionChannelDependency> allDependencies = new LinkedList<ActionChannelDependency>(); 
+		ArrayListSet<ActionChannelDependency> allDependencies = new ArrayListSet<ActionChannelDependency>(); 
 		
 		boolean hasNormalDependencies = dependencies.size() > 0;
 		boolean hasNormalDependenciesReal = false;
@@ -248,13 +247,14 @@ private void addDependencies(String option,NewCMLModelcheckerContext context, St
 				//}
 			}
 			result.append("State(");
-			result.append(context.maximalBinding.toFormula(MCNode.NAMED));
+			result.append(context.maximalBinding.toFormula(MCNode.STATE_DEPENDENCY_WITHOUT_INF_VARS));
 			result.append(",");
 			//result.append(actionString);
 			result.append("proc(\"" + this.name + "\"," + parameterString + ")");
 			result.append(")");
 		}
 		context.resetStateDependencies();
+		context.resetLocalVarNames();
 		if(!hasNormalDependenciesReal && !hasInfiniteUnamedDependencies && !hasStateDependencies){
 			String separator = " :- ";
 			int index = result.indexOf(separator);

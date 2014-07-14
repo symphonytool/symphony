@@ -1,0 +1,1591 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xmi:XMI xmi:version = "2.1" xmlns:xmi = "http://schema.omg.org/spec/XMI/2.1" xmlns:uml = "http://www.omg.org/spec/UML/20090901" xmlns:sysml = "http://www.omg.org/spec/SysML/20100301/SysML-profile" xmlns:StandardProfileL2 = "http://www.omg.org/spec/UML/20090901/StandardProfileL2" >
+  <documentation xmi:type = "xmi:Documentation">
+    <exporter>Artisan Studio</exporter>
+    <exporterVersion>7.4.4</exporterVersion>
+  </documentation>
+  <uml:Model name = "Insiel Case Study" xmi:id = "_7600423f-8e7f-48da-a17e-1498affb4cb8">
+      <packagedElement xmi:type = "uml:Package" xmi:id = "_65ce2f70-4242-4f6d-840d-a10ca7179a38" name = "Structure">
+        <packagedElement xmi:type = "uml:Class" xmi:id = "_1b02d381-9fc4-4044-9796-d5438847cbc0" name = "Case Study">
+          <ownedAttribute xmi:type = "uml:Property" xmi:id="_b620afc5-25e8-48fc-add8-46a0ab4aad9c" type = "_2540b75d-55aa-4fdf-9725-af865825e650" visibility = "private" aggregation = "composite" association = "_4198fbf7-6fb4-4216-8320-a1bd9c8a2524">
+          </ownedAttribute>
+        </packagedElement>
+        <packagedElement xmi:type = "uml:Class" xmi:id = "_2540b75d-55aa-4fdf-9725-af865825e650" name = "Insiel SoS">
+          <ownedAttribute xmi:type = "uml:Port" xmi:id = "_f1152bf3-7439-4a92-841d-24b4a3edbbbb" name = "Port1" visibility = "private" aggregation = "composite">
+          </ownedAttribute>
+          <ownedAttribute xmi:type = "uml:Property" xmi:id="_a8dc29c2-bd34-4c4a-8089-9e04d7da8eda" type = "_1b02d381-9fc4-4044-9796-d5438847cbc0" visibility = "private" association = "_4198fbf7-6fb4-4216-8320-a1bd9c8a2524">
+          </ownedAttribute>
+        </packagedElement>
+        <packagedElement xmi:type = "uml:DataType" xmi:id = "_f94b6046-b385-43b6-9dce-8fea9eb0a987" name = "Aid">
+        </packagedElement>
+        <packagedElement xmi:type = "uml:Association" xmi:id = "_4198fbf7-6fb4-4216-8320-a1bd9c8a2524" memberEnd = "_a8dc29c2-bd34-4c4a-8089-9e04d7da8eda _b620afc5-25e8-48fc-add8-46a0ab4aad9c">
+        </packagedElement>
+      </packagedElement>
+      <packagedElement xmi:type = "uml:Package" xmi:id = "_93a5faa9-b62d-4f39-8955-14095ee9aa1b" name = "Behaviour">
+        <packagedElement xmi:type = "uml:Package" xmi:id = "_366f6d4e-8749-4fae-89b5-d1c1cfcf16a5" name = "ERU state machine">
+          <packagedElement xmi:type = "uml:Class" xmi:id = "_b7c0c699-ac19-453b-ba45-8bc26a54e71e" name = "ERU">
+            <ownedAttribute xmi:type = "uml:Property" xmi:id = "_259592ea-e021-46de-b470-0ce9af9cefe3" name = "x" type = "_8630742c-58c7-4320-8641-cebc6e66fbb8" visibility = "private" aggregation = "composite">
+            </ownedAttribute>
+          </packagedElement>
+          <packagedElement xmi:type = "uml:StateMachine" xmi:id = "_35b3c74f-dbbf-4f35-a5f9-350af0e8bed9" name = "State Machine ERU">
+            <region xmi:type = "uml:Region" xmi:id = "_35b3c74f-dbbf-4f35-a5f9-350af0e8bed9region">
+              <subvertex xmi:type = "uml:State" xmi:id = "_e9486184-9e92-4e58-b701-f329c07b7f1d" name = "BROKEN">
+              </subvertex>
+              <subvertex xmi:type = "uml:State" xmi:id = "_266dec4d-cfd8-4852-bca3-89bc700cad32" name = "DRIVING">
+                <region xmi:type = "uml:Region" xmi:id = "_266dec4d-cfd8-4852-bca3-89bc700cad32region">
+                  <subvertex xmi:type = "uml:State" xmi:id = "_52a28175-74e4-4a63-a05e-60f69f756ec7" name = "RETURNING">
+                    <region xmi:type = "uml:Region" xmi:id = "_52a28175-74e4-4a63-a05e-60f69f756ec7region">
+                      <subvertex xmi:type = "uml:State" xmi:id = "_678c2122-8916-46e6-a371-282ac9801c60" name = "STARTED3">
+                        <entry xmi:id = "_5bee078a-9c5a-4afb-a6b1-ddf1460a77ceActiv" xmi:type = "uml:Activity" name = "x := STARTED3">
+                        </entry>
+                        <exit xmi:id = "_5f2c4b17-622d-4589-8b34-745d3cb2abe5Activ" xmi:type = "uml:Activity" name = "x := OUT_STARTED3">
+                        </exit>
+                      </subvertex>
+                      <subvertex xmi:type = "uml:State" xmi:id = "_3380ba74-4722-491b-9f25-6b3c24d66256" name = "STARTING3">
+                      </subvertex>
+                        <transition xmi:type = "uml:Transition" xmi:id = "_653b20f3-4233-465a-9bb4-7d008dc689f9" source = "_678c2122-8916-46e6-a371-282ac9801c60" target = "_3380ba74-4722-491b-9f25-6b3c24d66256">
+                        </transition>
+                        <transition xmi:type = "uml:Transition" xmi:id = "_ac3dbd4d-c0e8-419f-bc06-5f2325dd592f" source = "_678c2122-8916-46e6-a371-282ac9801c60" target = "_277c62fd-fe4a-4cfd-8fe1-bda49ce77a95">
+                          <trigger xmi:type = "uml:Trigger" xmi:id = "_2967a7c6-1190-4b63-ac1d-e9c00f3a56d6trigger" event = "_f6007a29-e708-41c8-815a-63e94f2c20a5">
+                          </trigger>
+                        </transition>
+                        <transition xmi:type = "uml:Transition" xmi:id = "_cedd2f8a-66c0-4354-ac60-460058505473" source = "_3380ba74-4722-491b-9f25-6b3c24d66256" target = "_678c2122-8916-46e6-a371-282ac9801c60">
+                          <trigger xmi:type = "uml:Trigger" xmi:id = "_3827f446-b313-4e39-94f6-f06ed03c5d6ctrigger" event = "_18d44cba-7c37-4937-a96d-e911d2492b6c">
+                          </trigger>
+                        </transition>
+                    </region>
+                    <entry xmi:id = "_cec7b725-06ee-4035-89cd-a1b1eeee667bActiv" xmi:type = "uml:Activity" name = "x := RETURNING">
+                    </entry>
+                    <exit xmi:id = "_ab1e19b5-f853-410c-856b-f8870cca5454Activ" xmi:type = "uml:Activity" name = "x := OUT_RETURNING">
+                    </exit>
+                  </subvertex>
+                  <subvertex xmi:type = "uml:State" xmi:id = "_dbd9626b-a858-4ce6-b8fa-6d630aefcba0" name = "TARGET_ATTENDED">
+                    <entry xmi:id = "_ce3243ec-fd2f-4356-b4be-bbdf680c5979Activ" xmi:type = "uml:Activity" name = "x := TARGET_ATTENDED">
+                    </entry>
+                    <exit xmi:id = "_1f3a05f5-01dc-41d8-984c-bcb1ba364822Activ" xmi:type = "uml:Activity" name = "x := OUT_TARGET_ATTENDED">
+                    </exit>
+                  </subvertex>
+                  <subvertex xmi:type = "uml:State" xmi:id = "_eba8c211-03dd-4f79-bade-92545cb47211" name = "TO_HOSPITAL">
+                    <region xmi:type = "uml:Region" xmi:id = "_eba8c211-03dd-4f79-bade-92545cb47211region">
+                      <subvertex xmi:type = "uml:State" xmi:id = "_62e3a9de-ad2f-40f9-942f-2d6c2e9b9253" name = "STARTED2">
+                        <entry xmi:id = "_e291fd63-d127-484c-89de-b50a976c8655Activ" xmi:type = "uml:Activity" name = "x:=STARTED2">
+                        </entry>
+                        <exit xmi:id = "_243ef46f-b361-41ca-a24e-1531167f010aActiv" xmi:type = "uml:Activity" name = "x:=OUT_STARTED2">
+                        </exit>
+                      </subvertex>
+                      <subvertex xmi:type = "uml:State" xmi:id = "_f91147ee-28aa-474f-b127-a8a98277d9a5" name = "STARTING2">
+                      </subvertex>
+                        <transition xmi:type = "uml:Transition" xmi:id = "_5d2de657-7553-432a-adac-ad6ae7ead1a0" source = "_62e3a9de-ad2f-40f9-942f-2d6c2e9b9253" target = "_f91147ee-28aa-474f-b127-a8a98277d9a5">
+                        </transition>
+                        <transition xmi:type = "uml:Transition" xmi:id = "_217bc347-cb9c-4a5b-8a8e-6493d8e5d6ee" source = "_62e3a9de-ad2f-40f9-942f-2d6c2e9b9253" target = "_3380ba74-4722-491b-9f25-6b3c24d66256">
+                          <trigger xmi:type = "uml:Trigger" xmi:id = "_83d82337-8d34-45ef-bab0-8c14d0678cfctrigger" event = "_ca524876-f775-4b1d-8f1e-155891645239">
+                          </trigger>
+                        </transition>
+                        <transition xmi:type = "uml:Transition" xmi:id = "_0ce8c558-591c-4915-8725-432355fd155a" source = "_f91147ee-28aa-474f-b127-a8a98277d9a5" target = "_62e3a9de-ad2f-40f9-942f-2d6c2e9b9253">
+                          <trigger xmi:type = "uml:Trigger" xmi:id = "_ce08cfc2-664f-48a7-8e43-c72b89755d2etrigger" event = "_18d44cba-7c37-4937-a96d-e911d2492b6c">
+                          </trigger>
+                        </transition>
+                    </region>
+                  </subvertex>
+                  <subvertex xmi:type = "uml:State" xmi:id = "_f0369624-ae9f-444e-8d5f-85e0218866bc" name = "TO_TARGET">
+                    <region xmi:type = "uml:Region" xmi:id = "_f0369624-ae9f-444e-8d5f-85e0218866bcregion">
+                      <subvertex xmi:type = "uml:Pseudostate" xmi:id = "_b54745e3-24c5-4f13-862f-9d4194ad790b" name = "Initial1">
+                      </subvertex>
+                      <subvertex xmi:type = "uml:State" xmi:id = "_35adbd83-899f-4326-b0e4-93988893a667" name = "STARTED1">
+                        <entry xmi:id = "_1e70250b-7878-4013-9f2c-b7015011d9abActiv" xmi:type = "uml:Activity" name = "x := STARTED1">
+                        </entry>
+                        <exit xmi:id = "_e3195bbf-2d85-4e01-a700-44d8eff86b3fActiv" xmi:type = "uml:Activity" name = "x := OUT_STARTED1">
+                        </exit>
+                      </subvertex>
+                      <subvertex xmi:type = "uml:State" xmi:id = "_1f520b1b-5b50-4000-a308-c91c1a2c17e4" name = "STARTING1">
+                        <entry xmi:id = "_e70cedc7-9c3d-4806-822f-ac15ec968533Activ" xmi:type = "uml:Activity" name = "x := STARTING1">
+                        </entry>
+                        <exit xmi:id = "_f6a2e234-ff79-4baa-99e7-24d9321aa950Activ" xmi:type = "uml:Activity" name = "x := OUT_TO_TARGET">
+                        </exit>
+                      </subvertex>
+                        <transition xmi:type = "uml:Transition" xmi:id = "_38dbdf7a-715c-41ce-b0de-65c22d2cd8c2" source = "_b54745e3-24c5-4f13-862f-9d4194ad790b" target = "_1f520b1b-5b50-4000-a308-c91c1a2c17e4">
+                        </transition>
+                        <transition xmi:type = "uml:Transition" xmi:id = "_ddfdfc98-cc1a-49d6-ab22-1614eaf2b134" source = "_35adbd83-899f-4326-b0e4-93988893a667" target = "_1f520b1b-5b50-4000-a308-c91c1a2c17e4">
+                        </transition>
+                        <transition xmi:type = "uml:Transition" xmi:id = "_6636e7c5-0223-47f3-be42-8288c32d8aeb" source = "_35adbd83-899f-4326-b0e4-93988893a667" target = "_dbd9626b-a858-4ce6-b8fa-6d630aefcba0">
+                          <trigger xmi:type = "uml:Trigger" xmi:id = "_1abb0343-0295-47ad-b0a2-fc4dcb6dd6c6trigger" event = "_5cf9de2b-5e46-4d75-906f-f8850391901e">
+                          </trigger>
+                        </transition>
+                        <transition xmi:type = "uml:Transition" xmi:id = "_177ac421-0949-41b7-ba4d-be3e61255b8b" source = "_1f520b1b-5b50-4000-a308-c91c1a2c17e4" target = "_35adbd83-899f-4326-b0e4-93988893a667">
+                          <trigger xmi:type = "uml:Trigger" xmi:id = "_1d51ffea-dd23-4e06-b07f-b853210ea514trigger" event = "_18d44cba-7c37-4937-a96d-e911d2492b6c">
+                          </trigger>
+                        </transition>
+                    </region>
+                    <entry xmi:id = "_12848940-b3c0-4a19-ab1a-eb9782e1f0e7Activ" xmi:type = "uml:Activity" name = "x := TO_TARGET">
+                    </entry>
+                    <exit xmi:id = "_d31ae1bc-e942-4b67-8d12-fefb1ca0f7d6Activ" xmi:type = "uml:Activity" name = "x := OUT_TO_TARGET">
+                    </exit>
+                  </subvertex>
+                    <transition xmi:type = "uml:Transition" xmi:id = "_f4b6e4e2-4042-455d-a6de-e4deac9ed621" source = "_dbd9626b-a858-4ce6-b8fa-6d630aefcba0" target = "_f91147ee-28aa-474f-b127-a8a98277d9a5">
+                      <trigger xmi:type = "uml:Trigger" xmi:id = "_f3dd31be-6059-4dab-b815-16ce5a31e7e3trigger" event = "_ca524876-f775-4b1d-8f1e-155891645239">
+                      </trigger>
+                    </transition>
+                    <transition xmi:type = "uml:Transition" xmi:id = "_b7ad776f-ff0c-42e4-81d6-58648b2fd208" source = "_f0369624-ae9f-444e-8d5f-85e0218866bc" target = "_f0369624-ae9f-444e-8d5f-85e0218866bc" kind = "internal">
+                    </transition>
+                </region>
+                <entry xmi:id = "_4b85e4fd-5116-41f5-864c-a49d3bee98f7Activ" xmi:type = "uml:Activity" name = "x:=DRIVING">
+                </entry>
+                <exit xmi:id = "_76f4ec18-2be8-4096-ae24-303c0ff75f5fActiv" xmi:type = "uml:Activity" name = "x:=OUT_DRIVING">
+                </exit>
+              </subvertex>
+              <subvertex xmi:type = "uml:State" xmi:id = "_d9f3cd25-ba00-4aec-8aeb-2fa9bc2c6030" name = "ERU_SENT">
+              </subvertex>
+              <subvertex xmi:type = "uml:State" xmi:id = "_01568498-48c3-48a9-9ddc-da9ae3ca6584" name = "FIXED_ERU">
+              </subvertex>
+              <subvertex xmi:type = "uml:Pseudostate" xmi:id = "_f491e9e2-50cb-40fe-a617-340fb8a09adf" name = "Initial">
+              </subvertex>
+              <subvertex xmi:type = "uml:State" xmi:id = "_277c62fd-fe4a-4cfd-8fe1-bda49ce77a95" name = "PARKED">
+              </subvertex>
+                <transition xmi:type = "uml:Transition" xmi:id = "_2a628c23-0edd-4030-93b2-70e5a6ea8594" source = "_e9486184-9e92-4e58-b701-f329c07b7f1d" target = "_01568498-48c3-48a9-9ddc-da9ae3ca6584">
+                  <trigger xmi:type = "uml:Trigger" xmi:id = "_507503d4-ee9a-4c4b-acc3-03915dc92f72trigger" event = "_58464b75-85b4-470a-abff-736b8979dcd7">
+                  </trigger>
+                </transition>
+                <transition xmi:type = "uml:Transition" xmi:id = "_33ae1142-0918-4481-b3ae-db386d66b3a7" source = "_266dec4d-cfd8-4852-bca3-89bc700cad32" target = "_e9486184-9e92-4e58-b701-f329c07b7f1d">
+                  <trigger xmi:type = "uml:Trigger" xmi:id = "_b023f868-9ed9-408e-a2ae-1ff7f816a9fetrigger" event = "_7d6e73b0-421a-49e8-aabc-052d785a543e">
+                  </trigger>
+                </transition>
+                <transition xmi:type = "uml:Transition" xmi:id = "_8fbbe283-94ea-45c3-b655-ae654e1d04c9" source = "_d9f3cd25-ba00-4aec-8aeb-2fa9bc2c6030" target = "_f0369624-ae9f-444e-8d5f-85e0218866bc">
+                  <trigger xmi:type = "uml:Trigger" xmi:id = "_08b2e806-8145-4987-a742-2b953c5f8c9btrigger" event = "_ca524876-f775-4b1d-8f1e-155891645239">
+                  </trigger>
+                </transition>
+                <transition xmi:type = "uml:Transition" xmi:id = "_74371332-873a-4b76-b49f-8d4b399df4b3" source = "_01568498-48c3-48a9-9ddc-da9ae3ca6584" target = "_3380ba74-4722-491b-9f25-6b3c24d66256">
+                  <trigger xmi:type = "uml:Trigger" xmi:id = "_93a83ee8-7c5b-45a0-b76a-7f3b4cc45e17trigger" event = "_ca524876-f775-4b1d-8f1e-155891645239">
+                  </trigger>
+                </transition>
+                <transition xmi:type = "uml:Transition" xmi:id = "_ad6b3fc7-ff3a-4d71-9ad6-570b4069d99f" source = "_f491e9e2-50cb-40fe-a617-340fb8a09adf" target = "_277c62fd-fe4a-4cfd-8fe1-bda49ce77a95">
+                  <trigger xmi:type = "uml:Trigger" xmi:id = "_d78a888b-b461-4019-a160-e3d045566c22trigger">
+                  </trigger>
+                </transition>
+                <transition xmi:type = "uml:Transition" xmi:id = "_20ae86d7-5249-4085-815d-0e630770c425" source = "_277c62fd-fe4a-4cfd-8fe1-bda49ce77a95" target = "_d9f3cd25-ba00-4aec-8aeb-2fa9bc2c6030">
+                  <trigger xmi:type = "uml:Trigger" xmi:id = "_25615e44-0bba-444e-98ae-579e67b5fba0trigger" event = "_0adc64f8-8a30-4bf1-8684-9047f561f964">
+                  </trigger>
+                </transition>
+            </region>
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Package" xmi:id = "_804709b8-9371-4843-bb23-ce1876439bd4" name = "ERU Events">
+            <packagedElement xmi:type = "uml:SignalEvent" xmi:id = "_5cf9de2b-5e46-4d75-906f-f8850391901e" name = "attends_target">
+            </packagedElement>
+            <packagedElement xmi:type = "uml:SignalEvent" xmi:id = "_7d6e73b0-421a-49e8-aabc-052d785a543e" name = "breaks_eru">
+            </packagedElement>
+            <packagedElement xmi:type = "uml:SignalEvent" xmi:id = "_18d44cba-7c37-4937-a96d-e911d2492b6c" name = "drives">
+            </packagedElement>
+            <packagedElement xmi:type = "uml:SignalEvent" xmi:id = "_58464b75-85b4-470a-abff-736b8979dcd7" name = "fixes_eru">
+            </packagedElement>
+            <packagedElement xmi:type = "uml:SignalEvent" xmi:id = "_f6007a29-e708-41c8-815a-63e94f2c20a5" name = "parks">
+            </packagedElement>
+            <packagedElement xmi:type = "uml:SignalEvent" xmi:id = "_0adc64f8-8a30-4bf1-8684-9047f561f964" name = "send_eru">
+            </packagedElement>
+            <packagedElement xmi:type = "uml:SignalEvent" xmi:id = "_ca524876-f775-4b1d-8f1e-155891645239" name = "starts_drive">
+            </packagedElement>
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Enumeration" xmi:id = "_8630742c-58c7-4320-8641-cebc6e66fbb8" name = "STATES">
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_fed286f3-4e3c-449a-ae02-d78f1ab71e34" name = "DRIVING" classifier = "_8630742c-58c7-4320-8641-cebc6e66fbb8">
+            </ownedLiteral>
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_939bbbdc-4b1e-4bb1-9229-ea05ea24eaf8" name = "PARKED" classifier = "_8630742c-58c7-4320-8641-cebc6e66fbb8">
+            </ownedLiteral>
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_5cf7c759-c400-4639-be14-6714b8d2206f" name = "ERU_SENT" classifier = "_8630742c-58c7-4320-8641-cebc6e66fbb8">
+            </ownedLiteral>
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_66c9c5ab-998f-4f20-8393-5757bad9ddb8" name = "TO_TARGET" classifier = "_8630742c-58c7-4320-8641-cebc6e66fbb8">
+            </ownedLiteral>
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_5cd618d1-4695-4a10-b380-798c1077e3f6" name = "RETURNING" classifier = "_8630742c-58c7-4320-8641-cebc6e66fbb8">
+            </ownedLiteral>
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_98340744-cdb4-4afd-bb52-07df10916ad7" name = "TARGET_ATTENDED" classifier = "_8630742c-58c7-4320-8641-cebc6e66fbb8">
+            </ownedLiteral>
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_c2f2fbd7-a689-4cce-a279-8d61fac976fe" name = "TO_HOSPITAL" classifier = "_8630742c-58c7-4320-8641-cebc6e66fbb8">
+            </ownedLiteral>
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_2c37b870-14a3-4c14-a7b2-5c7d3e7c269e" name = "STARTED1" classifier = "_8630742c-58c7-4320-8641-cebc6e66fbb8">
+            </ownedLiteral>
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_81c57a2d-d893-409b-a0d6-771c87c1919d" name = "STARTED2" classifier = "_8630742c-58c7-4320-8641-cebc6e66fbb8">
+            </ownedLiteral>
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_a60dce8d-939c-4751-816e-f615ec803b68" name = "STARTED3" classifier = "_8630742c-58c7-4320-8641-cebc6e66fbb8">
+            </ownedLiteral>
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_67d484b8-34ac-457a-8827-559cf0721fb6" name = "STARTING1" classifier = "_8630742c-58c7-4320-8641-cebc6e66fbb8">
+            </ownedLiteral>
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_ce833d2c-a7a3-4acf-8cdc-94a9e1881766" name = "STARTING2" classifier = "_8630742c-58c7-4320-8641-cebc6e66fbb8">
+            </ownedLiteral>
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_6002e5cb-e67f-43ab-8d20-7a73bb42a5ef" name = "STARTING3" classifier = "_8630742c-58c7-4320-8641-cebc6e66fbb8">
+            </ownedLiteral>
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_80eef24f-59ee-4263-a42d-826932d4dcf3" name = "BROKEN" classifier = "_8630742c-58c7-4320-8641-cebc6e66fbb8">
+            </ownedLiteral>
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_fa853270-16fc-4dbf-823f-f53135aaf3ef" name = "FIXED_ERU" classifier = "_8630742c-58c7-4320-8641-cebc6e66fbb8">
+            </ownedLiteral>
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_4b93e185-1a9e-4693-b060-75a7d72f9e17" name = "OUT_DRIVING" classifier = "_8630742c-58c7-4320-8641-cebc6e66fbb8">
+            </ownedLiteral>
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_10b80e97-1a1c-4611-a489-695665239609" name = "OUT_PARKED" classifier = "_8630742c-58c7-4320-8641-cebc6e66fbb8">
+            </ownedLiteral>
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_0b437de6-f316-408d-880f-82f2a6853840" name = "OUT_ERU_SENT" classifier = "_8630742c-58c7-4320-8641-cebc6e66fbb8">
+            </ownedLiteral>
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_aacddb7b-7ea3-41d3-b5ef-958595645388" name = "OUT_TO_TARGET" classifier = "_8630742c-58c7-4320-8641-cebc6e66fbb8">
+            </ownedLiteral>
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_1c420fef-10e1-47f9-95d3-86000f32e476" name = "OUT_RETURNING" classifier = "_8630742c-58c7-4320-8641-cebc6e66fbb8">
+            </ownedLiteral>
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_4664adb0-e480-437b-8c1a-807dd8e9aab0" name = "OUT_TARGET_ATTENDED" classifier = "_8630742c-58c7-4320-8641-cebc6e66fbb8">
+            </ownedLiteral>
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_7464069f-10b6-4d09-8312-1d7273985f7b" name = "OUT_TO_HOSPITAL" classifier = "_8630742c-58c7-4320-8641-cebc6e66fbb8">
+            </ownedLiteral>
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_e519ba71-fe31-447a-9bc4-6510c8dcd8a9" name = "OUT_STARTED1" classifier = "_8630742c-58c7-4320-8641-cebc6e66fbb8">
+            </ownedLiteral>
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_060cb344-e08a-4fc5-bb0d-5aafe8da38be" name = "OUT_STARTED2" classifier = "_8630742c-58c7-4320-8641-cebc6e66fbb8">
+            </ownedLiteral>
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_46fd0c80-0a52-43ac-a625-6d8676cee8bb" name = "OUT_STARTED3" classifier = "_8630742c-58c7-4320-8641-cebc6e66fbb8">
+            </ownedLiteral>
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_055fb85a-97a7-4f78-9ffe-c80222da8a4c" name = "OUT_STARTING1" classifier = "_8630742c-58c7-4320-8641-cebc6e66fbb8">
+            </ownedLiteral>
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_63aef349-609c-44dd-b13b-f4fcdf61ee7a" name = "OUT_STARTING2" classifier = "_8630742c-58c7-4320-8641-cebc6e66fbb8">
+            </ownedLiteral>
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_5f26b2be-0014-495c-9f13-19fb5eca5f1c" name = "OUT_STARTING3" classifier = "_8630742c-58c7-4320-8641-cebc6e66fbb8">
+            </ownedLiteral>
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_3ca23b0c-c67e-4dee-93bd-0d8758d98890" name = "OUT_BROKEN" classifier = "_8630742c-58c7-4320-8641-cebc6e66fbb8">
+            </ownedLiteral>
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_fe465f47-5a0b-4912-b7d3-e4344a26aa39" name = "OUT_FIXED_ERU" classifier = "_8630742c-58c7-4320-8641-cebc6e66fbb8">
+            </ownedLiteral>
+          </packagedElement>
+        </packagedElement>
+        <packagedElement xmi:type = "uml:Package" xmi:id = "_4edf1afd-3aa1-4417-b66d-c346b817ba0d" name = "Processes">
+          <packagedElement xmi:type = "uml:Class" xmi:id = "_0bcc0cde-515d-4140-81bd-73bfceff301c" name = "Acknowledge status change">
+            <ownedOperation xmi:type = "uml:Operation" xmi:id = "_3b956b58-7d54-4f6d-8ce5-6092897212b3op" name = "Drive" visibility = "public">
+              <ownedParameter xmi:type = "uml:Parameter" xmi:id = "_e3f6d5e7-f9ce-434d-bd9e-9c50d8c4b338" name = "destn">
+              </ownedParameter>
+            </ownedOperation>
+            <ownedOperation xmi:type = "uml:Operation" xmi:id = "_a6fa6f30-e77b-4576-a751-30311a24daf7op" name = "Update status" visibility = "public">
+            </ownedOperation>
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Class" xmi:id = "_d40de328-f8ae-4df3-8673-90f37a7fbe55" name = "Case Study Process">
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Class" xmi:id = "_217a5fe6-5f3f-4efe-823d-89910107e244" name = "Initiate Mission">
+            <generalization xmi:type = "uml:Generalization" xmi:id = "_55002012-ab7e-40ec-b35a-6b0684bf14ba" general = "_d40de328-f8ae-4df3-8673-90f37a7fbe55">
+            </generalization>
+            <ownedOperation xmi:type = "uml:Operation" xmi:id = "_b9dd0f0b-65de-4f76-940c-d48372720f5eop" name = "Find idle ERUs" visibility = "public">
+            </ownedOperation>
+            <ownedOperation xmi:type = "uml:Operation" xmi:id = "_a00bd8fb-82ac-42dd-aeeb-a9a71bb838c4op" name = "Allocate idle ERU" visibility = "public">
+            </ownedOperation>
+            <ownedOperation xmi:type = "uml:Operation" xmi:id = "_c017309a-61d2-449f-ad95-2f64f6a1aa28op" name = "Divert ERU" visibility = "public">
+            </ownedOperation>
+            <ownedOperation xmi:type = "uml:Operation" xmi:id = "_0439d0d9-a823-4560-ab49-edd26f1519fcop" name = "Send response info to ERU" visibility = "public">
+            </ownedOperation>
+            <ownedOperation xmi:type = "uml:Operation" xmi:id = "_192607cd-8395-405e-89dd-80158f0f4875op" name = "Wait" visibility = "public">
+            </ownedOperation>
+            <ownedOperation xmi:type = "uml:Operation" xmi:id = "_6a1a8e64-c78b-4833-bdd6-d0d0a9b28c73op" name = "Remove mission from Rescue previously serviced by diverted ERU and log diversion" visibility = "public">
+            </ownedOperation>
+            <ownedOperation xmi:type = "uml:Operation" xmi:id = "_ef3cf441-b123-4669-8737-0802f50be98dop" name = "Receive message" visibility = "public">
+                <ownedParameter xmi:type = "uml:Parameter" xmi:id = "_ef3cf441-b123-4669-8737-0802f50be98dreturn" direction = "return" type = "_d91d133b-6257-4daa-a281-e48c1fcdc1a7">
+                </ownedParameter>
+            </ownedOperation>
+            <ownedOperation xmi:type = "uml:Operation" xmi:id = "_104e28dd-94c5-4d63-a2d8-bb5f76da5205op" name = "&lt;&lt;F1&gt;&gt; Drop message" visibility = "public">
+            </ownedOperation>
+            <ownedBehavior xmi:type = "uml:Activity" xmi:id = "_860e2bbc-9266-43d8-9372-fac2c3c7afee" name = "Initiate Mission" isReentrant = "false">
+              <node xmi:type = "uml:InitialNode" xmi:id = "_fe434165-40a6-42fd-971f-79d383463d50" name = "Initial Node1" visibility = "public" outgoing = "_75767f12-58b3-4aab-a3d1-baac99061b20">
+              </node>
+              <node xmi:type = "uml:CallOperationAction" xmi:id = "_59951334-3d4c-4cc0-8caf-1d019b59968b" name = "Find idle ERUs" visibility = "public" outgoing = "_a9a79ce1-7aab-4034-bbaf-325e7a51fedb" incoming = "_c1e5a4f0-7b93-4ba9-a1c4-878ce77eda97 _aec32bc5-3dd9-48a1-a54b-f5ebf77dab50" operation = "_b9dd0f0b-65de-4f76-940c-d48372720f5eop">
+                <target xmi:type = "uml:InputPin" xmi:id = "_8f6d2d61-9b75-4b1e-af57-26ebe78d1c69" name = "Target Pin" visibility = "public">
+                </target>
+              </node>
+              <node xmi:type = "uml:DecisionNode" xmi:id = "_7ecec8ec-fde2-4be2-8b64-51c421f83119" name = "Decision Node1" visibility = "public" outgoing = "_237f4ef3-100f-48a6-9e48-217f255a5d0d _ab2a4075-1b47-44e8-ae57-8b8bb256af06" incoming = "_a9a79ce1-7aab-4034-bbaf-325e7a51fedb">
+              </node>
+              <node xmi:type = "uml:CallOperationAction" xmi:id = "_4c26c32b-c13f-4965-bfc2-6d7c131da939" name = "Allocate idle ERU" visibility = "public" outgoing = "_be54e174-922d-42d8-b2d3-e483ffb69815" incoming = "_237f4ef3-100f-48a6-9e48-217f255a5d0d" operation = "_a00bd8fb-82ac-42dd-aeeb-a9a71bb838c4op">
+                <target xmi:type = "uml:InputPin" xmi:id = "_1e944d88-58d4-41f8-8502-c35aedb732aa" name = "Target Pin" visibility = "public">
+                </target>
+              </node>
+              <node xmi:type = "uml:DecisionNode" xmi:id = "_f71cb69f-f13e-4f9b-9c82-babc4042702a" name = "Decision Node2" visibility = "public" outgoing = "_3a72e3ee-aea3-41af-a145-ef7fe2740fd6 _81967686-f983-48c7-8b81-57396a8e4f0d" incoming = "_ab2a4075-1b47-44e8-ae57-8b8bb256af06">
+              </node>
+              <node xmi:type = "uml:CallOperationAction" xmi:id = "_9bfc27bb-c26e-49d9-a826-431940ec5b96" name = "Divert ERU" visibility = "public" outgoing = "_ca2d7cfd-126b-4eb9-84cc-5ac444ab19e6" incoming = "_3a72e3ee-aea3-41af-a145-ef7fe2740fd6" operation = "_c017309a-61d2-449f-ad95-2f64f6a1aa28op">
+                <target xmi:type = "uml:InputPin" xmi:id = "_906145b1-16ef-4973-b3e3-f232eeefa0b5" name = "Target Pin" visibility = "public">
+                </target>
+              </node>
+              <node xmi:type = "uml:CallOperationAction" xmi:id = "_47be1c81-362c-4c18-8af7-292020f0f978" name = "Remove mission from Rescue previously serviced by diverted ERU and log diversion" visibility = "public" outgoing = "_4ec457f3-1141-4010-8b06-61c94b5453e1" incoming = "_e0038197-6c0c-4a5f-9e1a-02b373c79142" operation = "_6a1a8e64-c78b-4833-bdd6-d0d0a9b28c73op">
+                <target xmi:type = "uml:InputPin" xmi:id = "_e5a05f01-1c4a-4d1e-b6b9-136e4783da73" name = "Target Pin" visibility = "public">
+                </target>
+              </node>
+              <node xmi:type = "uml:CallOperationAction" xmi:id = "_5dc5c1f5-9e8e-4796-a5a2-f3d61f3c0d61" name = "Wait" visibility = "public" outgoing = "_aec32bc5-3dd9-48a1-a54b-f5ebf77dab50" incoming = "_81967686-f983-48c7-8b81-57396a8e4f0d" operation = "_192607cd-8395-405e-89dd-80158f0f4875op">
+                <target xmi:type = "uml:InputPin" xmi:id = "_8631b239-d6d4-49c7-a8be-57d906fd766e" name = "Target Pin" visibility = "public">
+                </target>
+              </node>
+              <node xmi:type = "uml:CallOperationAction" xmi:id = "_d3cd24c9-7d7e-4ceb-835d-479c47a85248" name = "Alert ERU" visibility = "public" outgoing = "_137aa83e-42a6-4578-a6ec-a1ee6fda5d59" incoming = "_be54e174-922d-42d8-b2d3-e483ffb69815 _4b2da5d1-d55e-430d-b691-b23e56ea2538" operation = "_0439d0d9-a823-4560-ab49-edd26f1519fcop">
+                <target xmi:type = "uml:InputPin" xmi:id = "_0fc78167-b3fc-4030-9281-aa41c40d2ed8" name = "Target Pin" visibility = "public">
+                </target>
+              </node>
+              <node xmi:type = "uml:SendSignalAction" xmi:id = "_297c5341-9896-4ca2-9165-e084f7d5eeb5" name = "Service  Mission" visibility = "public" outgoing = "_cf7e6e8c-658d-4eb7-87a3-8da2263696f7" incoming = "_3d3c4aef-5f4e-4fe6-aae7-9d01bc1cbea6" signal = "_8fe1da03-4ee0-4538-848e-e1f97f7299f0">
+                <argument xmi:type = "uml:InputPin" xmi:id = "_a7227dde-b9c2-491c-bbe2-a623adf5aee0" name = "Target Pin" visibility = "public">
+                </argument>
+              </node>
+              <node xmi:type = "uml:ForkNode" xmi:id = "_0a3069fb-61b9-4849-aa92-045e5d99cd61" name = "Fork Node1" visibility = "public" outgoing = "_e0038197-6c0c-4a5f-9e1a-02b373c79142 _4b2da5d1-d55e-430d-b691-b23e56ea2538" incoming = "_ca2d7cfd-126b-4eb9-84cc-5ac444ab19e6">
+              </node>
+              <node xmi:type = "uml:ActivityFinalNode" xmi:id = "_4583b966-e24d-4e39-b9bd-c460d36afd66" name = "Activity Final Node2" visibility = "public" incoming = "_cf7e6e8c-658d-4eb7-87a3-8da2263696f7">
+              </node>
+              <node xmi:type = "uml:FlowFinalNode" xmi:id = "_809f6823-f4c4-4007-873e-ba464c15d211" name = "Flow Final Node1" visibility = "public" incoming = "_1438941e-1627-4834-9b36-749bef42a284">
+              </node>
+              <node xmi:type = "uml:CallOperationAction" xmi:id = "_4f2d90fe-9ab9-4ac7-baed-6cb115ea0360" name = "Receive message" visibility = "public" outgoing = "_3d3c4aef-5f4e-4fe6-aae7-9d01bc1cbea6" incoming = "_cae66842-7529-4227-9f24-641d823cc20c" operation = "_ef3cf441-b123-4669-8737-0802f50be98dop">
+                <target xmi:type = "uml:InputPin" xmi:id = "_46e56be3-961b-46d0-9aa7-e8c7b345a996" name = "Target Pin" visibility = "public">
+                </target>
+              </node>
+              <node xmi:type = "uml:AcceptEventAction" xmi:id = "_cfee93e4-ebfb-438e-93f3-36790b9e760d" name = "Start mission" visibility = "public" outgoing = "_c1e5a4f0-7b93-4ba9-a1c4-878ce77eda97" incoming = "_75767f12-58b3-4aab-a3d1-baac99061b20">
+                <trigger xmi:type = "uml:Trigger" xmi:id = "_cfee93e4-ebfb-438e-93f3-36790b9e760dtrigger" event = "_36c989dd-d84a-4d05-9e6a-2135cd4572c9">
+                </trigger>
+              </node>
+              <node xmi:type = "uml:CallBehaviorAction" xmi:id = "" name = "Radio Send Message to ERU" visibility = "public" outgoing = "_cae66842-7529-4227-9f24-641d823cc20c" incoming = "_137aa83e-42a6-4578-a6ec-a1ee6fda5d59" behavior = "_ded3dba2-1bac-4189-8502-1b20b2906045">
+                <argument xmi:type = "uml:InputPin" xmi:id = "_aecda39d-a336-440b-81d2-cfa444a6d3d4" name = "voiceFlag" visibility = "public">
+                </argument>
+                <argument xmi:type = "uml:InputPin" xmi:id = "_57e93828-e274-425a-9ff6-995f7161dffa" name = "data" visibility = "public">
+                </argument>
+                <argument xmi:type = "uml:InputPin" xmi:id = "_a3998372-fc12-437b-8d1c-4aa7f3aa6053" name = "channel_id" visibility = "public">
+                </argument>
+              </node>
+              <node xmi:type = "uml:SendSignalAction" xmi:id = "_9831a3da-abd0-4661-a1ee-b57ffb10c723" name = "Start mission1" visibility = "public" outgoing = "_1438941e-1627-4834-9b36-749bef42a284" incoming = "_4ec457f3-1141-4010-8b06-61c94b5453e1" signal = "_ad389e86-95bf-4439-b734-af5f2a73024a">
+                <ownedComment xmi:type = "uml:Comment" xmi:id = "_8db64c39-4ac0-4df8-80d0-7dec643fed78" annotatedElement = "_9831a3da-abd0-4661-a1ee-b57ffb10c723" body = "A new mission needs sheduling for the response which was serviced by the diverted ERU ">
+                </ownedComment>
+                <argument xmi:type = "uml:InputPin" xmi:id = "_205c3234-2422-4a8d-b739-580df4cd55e9" name = "Target Pin" visibility = "public">
+                </argument>
+              </node>
+              <group xmi:type = "uml:ActivityPartition" xmi:id = "_00fbf986-130f-42f6-80ea-74b188f8a29e" name = "External Organizations" visibility = "public">
+              </group>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_75767f12-58b3-4aab-a3d1-baac99061b20" source = "_fe434165-40a6-42fd-971f-79d383463d50" target = "_cfee93e4-ebfb-438e-93f3-36790b9e760d">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_a9a79ce1-7aab-4034-bbaf-325e7a51fedb" source = "_59951334-3d4c-4cc0-8caf-1d019b59968b" target = "_7ecec8ec-fde2-4be2-8b64-51c421f83119">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_cae66842-7529-4227-9f24-641d823cc20c" target = "_4f2d90fe-9ab9-4ac7-baed-6cb115ea0360">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_237f4ef3-100f-48a6-9e48-217f255a5d0d" source = "_7ecec8ec-fde2-4be2-8b64-51c421f83119" target = "_4c26c32b-c13f-4965-bfc2-6d7c131da939">
+                <guard xmi:type = "uml:OpaqueExpression" xmi:id = "_237f4ef3-100f-48a6-9e48-217f255a5d0dguard">
+                    <body>idle ERU</body>
+                </guard>
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_be54e174-922d-42d8-b2d3-e483ffb69815" source = "_4c26c32b-c13f-4965-bfc2-6d7c131da939" target = "_d3cd24c9-7d7e-4ceb-835d-479c47a85248">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_3a72e3ee-aea3-41af-a145-ef7fe2740fd6" source = "_f71cb69f-f13e-4f9b-9c82-babc4042702a" target = "_9bfc27bb-c26e-49d9-a826-431940ec5b96">
+                <guard xmi:type = "uml:OpaqueExpression" xmi:id = "_3a72e3ee-aea3-41af-a145-ef7fe2740fd6guard">
+                    <body>higher criticality</body>
+                </guard>
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_c1e5a4f0-7b93-4ba9-a1c4-878ce77eda97" source = "_cfee93e4-ebfb-438e-93f3-36790b9e760d" target = "_59951334-3d4c-4cc0-8caf-1d019b59968b">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_ca2d7cfd-126b-4eb9-84cc-5ac444ab19e6" source = "_9bfc27bb-c26e-49d9-a826-431940ec5b96" target = "_0a3069fb-61b9-4849-aa92-045e5d99cd61">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_4ec457f3-1141-4010-8b06-61c94b5453e1" source = "_47be1c81-362c-4c18-8af7-292020f0f978" target = "_9831a3da-abd0-4661-a1ee-b57ffb10c723">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_aec32bc5-3dd9-48a1-a54b-f5ebf77dab50" source = "_5dc5c1f5-9e8e-4796-a5a2-f3d61f3c0d61" target = "_59951334-3d4c-4cc0-8caf-1d019b59968b">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_137aa83e-42a6-4578-a6ec-a1ee6fda5d59" source = "_d3cd24c9-7d7e-4ceb-835d-479c47a85248">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_cf7e6e8c-658d-4eb7-87a3-8da2263696f7" source = "_297c5341-9896-4ca2-9165-e084f7d5eeb5" target = "_4583b966-e24d-4e39-b9bd-c460d36afd66">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_e0038197-6c0c-4a5f-9e1a-02b373c79142" source = "_0a3069fb-61b9-4849-aa92-045e5d99cd61" target = "_47be1c81-362c-4c18-8af7-292020f0f978">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_3d3c4aef-5f4e-4fe6-aae7-9d01bc1cbea6" source = "_4f2d90fe-9ab9-4ac7-baed-6cb115ea0360" target = "_297c5341-9896-4ca2-9165-e084f7d5eeb5">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_1438941e-1627-4834-9b36-749bef42a284" source = "_9831a3da-abd0-4661-a1ee-b57ffb10c723" target = "_809f6823-f4c4-4007-873e-ba464c15d211">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_ab2a4075-1b47-44e8-ae57-8b8bb256af06" source = "_7ecec8ec-fde2-4be2-8b64-51c421f83119" target = "_f71cb69f-f13e-4f9b-9c82-babc4042702a">
+                <guard xmi:type = "uml:OpaqueExpression" xmi:id = "_ab2a4075-1b47-44e8-ae57-8b8bb256af06guard">
+                    <body>no idle ERU</body>
+                </guard>
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_81967686-f983-48c7-8b81-57396a8e4f0d" source = "_f71cb69f-f13e-4f9b-9c82-babc4042702a" target = "_5dc5c1f5-9e8e-4796-a5a2-f3d61f3c0d61">
+                <guard xmi:type = "uml:OpaqueExpression" xmi:id = "_81967686-f983-48c7-8b81-57396a8e4f0dguard">
+                    <body>lower criticality</body>
+                </guard>
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_4b2da5d1-d55e-430d-b691-b23e56ea2538" source = "_0a3069fb-61b9-4849-aa92-045e5d99cd61" target = "_d3cd24c9-7d7e-4ceb-835d-479c47a85248">
+              </edge>
+            </ownedBehavior>
+            <ownedBehavior xmi:type = "uml:Activity" xmi:id = "_7246e243-02f3-4c04-803c-fce73e8a93ed" name = "Initiate Mission [Fault 1]" isReentrant = "false">
+              <node xmi:type = "uml:InitialNode" xmi:id = "_504ed2ef-5409-4753-8dae-38aea0df6766" name = "Initial Node1" visibility = "public" outgoing = "_8febb36f-9e7b-4de6-ba93-6c1c2fed5978">
+              </node>
+              <node xmi:type = "uml:CallOperationAction" xmi:id = "_d7724e8c-7ed6-41e8-a928-aa1a594316b2" name = "Find idle ERUs" visibility = "public" outgoing = "_72dcdb0b-7698-4653-841c-5ab6e4b63f48" incoming = "_f18d39e3-ec9d-48aa-9a86-4cee5a5b58a8 _ad7e8f72-a5a9-40f1-903f-ab4cc3153dce" operation = "_b9dd0f0b-65de-4f76-940c-d48372720f5eop">
+                <target xmi:type = "uml:InputPin" xmi:id = "_383d2381-f0e3-4661-8c24-694c02101699" name = "Target Pin" visibility = "public">
+                </target>
+              </node>
+              <node xmi:type = "uml:DecisionNode" xmi:id = "_aeaaddc7-789e-43e8-860f-58a45c5c74b1" name = "Decision Node1" visibility = "public" outgoing = "_14b0e1ca-4241-4fbb-b445-8bcf1f611725 _3a7a3be5-4dc2-47a5-b944-2c82fa376f53" incoming = "_72dcdb0b-7698-4653-841c-5ab6e4b63f48">
+              </node>
+              <node xmi:type = "uml:CallOperationAction" xmi:id = "_3fcc559e-b3b2-4552-9c85-5730c1820a79" name = "Allocate idle ERU" visibility = "public" outgoing = "_fb2ecea1-4d96-4e94-90b5-efb643e1c83c" incoming = "_14b0e1ca-4241-4fbb-b445-8bcf1f611725" operation = "_a00bd8fb-82ac-42dd-aeeb-a9a71bb838c4op">
+                <target xmi:type = "uml:InputPin" xmi:id = "_6b51fbfe-c2e2-44d5-bd13-01a933d49cc5" name = "Target Pin" visibility = "public">
+                </target>
+              </node>
+              <node xmi:type = "uml:DecisionNode" xmi:id = "_565eed45-f8e2-4c66-a394-4b672866f531" name = "Decision Node2" visibility = "public" outgoing = "_0f0efcb5-3726-41d8-bc46-687e6aef2a34 _f8266ec6-3030-43aa-bb1a-083a016ff236" incoming = "_3a7a3be5-4dc2-47a5-b944-2c82fa376f53">
+              </node>
+              <node xmi:type = "uml:CallOperationAction" xmi:id = "_3a047322-ac27-4a1d-b9b7-0c95ca028be6" name = "Divert ERU" visibility = "public" outgoing = "_49000991-3896-4a86-868d-20f564865fab" incoming = "_0f0efcb5-3726-41d8-bc46-687e6aef2a34" operation = "_c017309a-61d2-449f-ad95-2f64f6a1aa28op">
+                <target xmi:type = "uml:InputPin" xmi:id = "_b89117a2-35a5-48e4-a966-8aca46586f04" name = "Target Pin" visibility = "public">
+                </target>
+              </node>
+              <node xmi:type = "uml:CallOperationAction" xmi:id = "_c515d3f0-0d28-454f-a05e-7eaa6945b680" name = "Log diversion" visibility = "public" outgoing = "_4819490d-9845-4669-8bfd-9018aea48082" incoming = "_0bf12cad-a517-430a-98dc-dd660cd7ed9f" operation = "_6a1a8e64-c78b-4833-bdd6-d0d0a9b28c73op">
+                <target xmi:type = "uml:InputPin" xmi:id = "_1b89dbb7-2c56-4245-a366-4f28719be4b5" name = "Target Pin" visibility = "public">
+                </target>
+              </node>
+              <node xmi:type = "uml:CallOperationAction" xmi:id = "_db5ca904-2217-45b0-a7e0-a19a254f4a7b" name = "Wait" visibility = "public" outgoing = "_ad7e8f72-a5a9-40f1-903f-ab4cc3153dce" incoming = "_f8266ec6-3030-43aa-bb1a-083a016ff236" operation = "_192607cd-8395-405e-89dd-80158f0f4875op">
+                <target xmi:type = "uml:InputPin" xmi:id = "_796d2e4a-baaf-41a7-bc1b-0d5b5f563553" name = "Target Pin" visibility = "public">
+                </target>
+              </node>
+              <node xmi:type = "uml:CallOperationAction" xmi:id = "_8de2aee7-9e3a-4edc-ad4b-33a196f380c7" name = "Alert ERU" visibility = "public" outgoing = "_35290f65-f805-4d25-99a1-0b0400cb9798" incoming = "_fb2ecea1-4d96-4e94-90b5-efb643e1c83c _53564dff-1af5-4b0e-a82d-489d6c3e88aa" operation = "_0439d0d9-a823-4560-ab49-edd26f1519fcop">
+                <target xmi:type = "uml:InputPin" xmi:id = "_8f894008-fb15-4441-b835-0891ffea8a5a" name = "Target Pin" visibility = "public">
+                </target>
+              </node>
+              <node xmi:type = "uml:SendSignalAction" xmi:id = "" name = "Service response" visibility = "public" outgoing = "_746e8704-fc31-4ece-8771-44da65fb8f0b" incoming = "_67fd25f5-d325-42c1-9f05-ac004f98a419" signal = "_8fe1da03-4ee0-4538-848e-e1f97f7299f0">
+                <argument xmi:type = "uml:InputPin" xmi:id = "_597f7b7c-f810-49cb-93c6-7aa1bfefb467" name = "Target Pin" visibility = "public">
+                </argument>
+              </node>
+              <node xmi:type = "uml:ForkNode" xmi:id = "_fafbbb84-23f7-41fc-9ab8-1389e2836158" name = "Fork Node1" visibility = "public" outgoing = "_0bf12cad-a517-430a-98dc-dd660cd7ed9f _53564dff-1af5-4b0e-a82d-489d6c3e88aa" incoming = "_49000991-3896-4a86-868d-20f564865fab">
+              </node>
+              <node xmi:type = "uml:ActivityFinalNode" xmi:id = "_06c97a7f-87e0-4746-a82f-6c7d63d555ea" name = "Activity Final Node2" visibility = "public" incoming = "_746e8704-fc31-4ece-8771-44da65fb8f0b">
+              </node>
+              <node xmi:type = "uml:FlowFinalNode" xmi:id = "_8f840672-a03a-49de-8e3e-0a87d0cdca87" name = "Flow Final Node1" visibility = "public" incoming = "_6b6fe42d-a3a9-41dc-ba9d-5306166134f6">
+              </node>
+              <node xmi:type = "uml:CallOperationAction" xmi:id = "_34196f4c-9acd-4dd0-8d7a-969f7d6c575b" name = "Receive message" visibility = "public" outgoing = "_67fd25f5-d325-42c1-9f05-ac004f98a419" incoming = "_354f3466-a420-4e04-b2df-82ba5b6e9b4c" operation = "_ef3cf441-b123-4669-8737-0802f50be98dop">
+                <target xmi:type = "uml:InputPin" xmi:id = "_829ce394-796e-4896-ac9a-c96d10e697f6" name = "Target Pin" visibility = "public">
+                </target>
+              </node>
+              <node xmi:type = "uml:AcceptEventAction" xmi:id = "_ff7dd192-6b79-40b1-8b2f-8bdacb5caa51" name = "Fault 1 activation" visibility = "public" outgoing = "_c0080d93-da58-4fa1-8cc0-2be4044fac34">
+                <trigger xmi:type = "uml:Trigger" xmi:id = "_ff7dd192-6b79-40b1-8b2f-8bdacb5caa51trigger" event = "_be4124d6-9117-4d2d-9301-2d072c04812f">
+                </trigger>
+              </node>
+              <node xmi:type = "uml:CallOperationAction" xmi:id = "_aabc4874-b4df-4467-9f39-230e0a42027c" name = "F1 drop message" visibility = "public" outgoing = "_268df529-8e45-4a8d-80b2-edaad79527a8" incoming = "_c0080d93-da58-4fa1-8cc0-2be4044fac34" operation = "_104e28dd-94c5-4d63-a2d8-bb5f76da5205op">
+                <target xmi:type = "uml:InputPin" xmi:id = "_286f6a67-3621-4901-9b39-fbbf079aafcb" name = "Target Pin" visibility = "public">
+                </target>
+              </node>
+              <node xmi:type = "uml:ActivityFinalNode" xmi:id = "_bf664e07-9fce-44b2-81ad-95d4ab965487" name = "Activity Final Node1" visibility = "public" incoming = "_268df529-8e45-4a8d-80b2-edaad79527a8">
+              </node>
+              <node xmi:type = "uml:AcceptEventAction" xmi:id = "_47efcea7-6d1b-4dca-9989-4be37f4bf837" name = "Fault 1 detection" visibility = "public" outgoing = "_2ed24bea-cfde-4b5f-85bf-f3f43f5c44e8">
+                <trigger xmi:type = "uml:Trigger" xmi:id = "_47efcea7-6d1b-4dca-9989-4be37f4bf837trigger" event = "_c95b8161-884c-4c8e-ae73-d71c0974e02c">
+                </trigger>
+              </node>
+              <node xmi:type = "uml:SendSignalAction" xmi:id = "" name = "Fault 1 recovery" visibility = "public" outgoing = "_b3c1564c-f677-4084-bcd2-412a73406966" incoming = "_2ed24bea-cfde-4b5f-85bf-f3f43f5c44e8" signal = "_3ea35dfc-0f45-41dc-ab2c-69883c580ecc">
+                <argument xmi:type = "uml:InputPin" xmi:id = "_0a0d381a-accd-4b18-98c8-c2211f0d752a" name = "Target Pin" visibility = "public">
+                </argument>
+              </node>
+              <node xmi:type = "uml:ActivityFinalNode" xmi:id = "_2b82c369-050a-4769-b9d5-b180aa1785e2" name = "Activity Final Node3" visibility = "public" incoming = "_b3c1564c-f677-4084-bcd2-412a73406966">
+              </node>
+              <node xmi:type = "uml:AcceptEventAction" xmi:id = "_7a4b9c35-a9a3-4f3a-829f-ff3b6361a603" name = "Start mission" visibility = "public" outgoing = "_f18d39e3-ec9d-48aa-9a86-4cee5a5b58a8" incoming = "_8febb36f-9e7b-4de6-ba93-6c1c2fed5978">
+                <trigger xmi:type = "uml:Trigger" xmi:id = "_7a4b9c35-a9a3-4f3a-829f-ff3b6361a603trigger" event = "_36c989dd-d84a-4d05-9e6a-2135cd4572c9">
+                </trigger>
+              </node>
+              <node xmi:type = "uml:SendSignalAction" xmi:id = "_13ace5bb-a11f-4710-a246-be3b0f39f5eb" name = "Start mission1" visibility = "public" outgoing = "_6b6fe42d-a3a9-41dc-ba9d-5306166134f6" incoming = "_4819490d-9845-4669-8bfd-9018aea48082" signal = "_ad389e86-95bf-4439-b734-af5f2a73024a">
+                <ownedComment xmi:type = "uml:Comment" xmi:id = "_80dcd5a4-c9dd-47da-a646-aa8befe216e9" annotatedElement = "_13ace5bb-a11f-4710-a246-be3b0f39f5eb" body = "A new mission needs sheduling for the response which was serviced by the diverted ERU ">
+                </ownedComment>
+                <argument xmi:type = "uml:InputPin" xmi:id = "_072a4c7e-66cb-4eb2-929a-9c09b547a950" name = "Target Pin" visibility = "public">
+                </argument>
+              </node>
+              <node xmi:type = "uml:CallBehaviorAction" xmi:id = "" name = "Radio Send Message to ERU" visibility = "public" outgoing = "_354f3466-a420-4e04-b2df-82ba5b6e9b4c" incoming = "_35290f65-f805-4d25-99a1-0b0400cb9798" behavior = "_ded3dba2-1bac-4189-8502-1b20b2906045">
+                <ownedComment xmi:type = "uml:Comment" xmi:id = "_507ecd32-ac69-4ac8-ac66-ffc98f6c748c" body = "Includes the interface operations destination lookup and send message.  Could be modelled as a sub-activity.">
+                </ownedComment>
+                <argument xmi:type = "uml:InputPin" xmi:id = "_48ad2106-d09a-42df-80bc-1f3d2e466723" name = "voiceFlag" visibility = "public">
+                </argument>
+                <argument xmi:type = "uml:InputPin" xmi:id = "_b979bb74-8fa7-4c9d-afee-c83265dc607f" name = "data" visibility = "public">
+                </argument>
+                <argument xmi:type = "uml:InputPin" xmi:id = "_1d61d363-970a-4bc8-82ae-008f6c838245" name = "channel_id" visibility = "public">
+                </argument>
+              </node>
+              <group xmi:type = "uml:InterruptibleActivityRegion" xmi:id = "_877985ca-05ee-47ac-8cd9-f7b917aba6aa" name = "Fault 1 activation" visibility = "public" interruptingEdge = "_c0080d93-da58-4fa1-8cc0-2be4044fac34">
+              </group>
+              <group xmi:type = "uml:InterruptibleActivityRegion" xmi:id = "_9970688c-0bad-4d61-8fb2-8e7f05e808cc" name = "Fault 1 detection" visibility = "public" interruptingEdge = "_2ed24bea-cfde-4b5f-85bf-f3f43f5c44e8">
+              </group>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_8febb36f-9e7b-4de6-ba93-6c1c2fed5978" source = "_504ed2ef-5409-4753-8dae-38aea0df6766" target = "_7a4b9c35-a9a3-4f3a-829f-ff3b6361a603">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_72dcdb0b-7698-4653-841c-5ab6e4b63f48" source = "_d7724e8c-7ed6-41e8-a928-aa1a594316b2" target = "_aeaaddc7-789e-43e8-860f-58a45c5c74b1">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_14b0e1ca-4241-4fbb-b445-8bcf1f611725" source = "_aeaaddc7-789e-43e8-860f-58a45c5c74b1" target = "_3fcc559e-b3b2-4552-9c85-5730c1820a79">
+                <guard xmi:type = "uml:OpaqueExpression" xmi:id = "_14b0e1ca-4241-4fbb-b445-8bcf1f611725guard">
+                    <body>idle ERU</body>
+                </guard>
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_6b6fe42d-a3a9-41dc-ba9d-5306166134f6" source = "_13ace5bb-a11f-4710-a246-be3b0f39f5eb" target = "_8f840672-a03a-49de-8e3e-0a87d0cdca87">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_fb2ecea1-4d96-4e94-90b5-efb643e1c83c" source = "_3fcc559e-b3b2-4552-9c85-5730c1820a79" target = "_8de2aee7-9e3a-4edc-ad4b-33a196f380c7">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_f18d39e3-ec9d-48aa-9a86-4cee5a5b58a8" source = "_7a4b9c35-a9a3-4f3a-829f-ff3b6361a603" target = "_d7724e8c-7ed6-41e8-a928-aa1a594316b2">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_0f0efcb5-3726-41d8-bc46-687e6aef2a34" source = "_565eed45-f8e2-4c66-a394-4b672866f531" target = "_3a047322-ac27-4a1d-b9b7-0c95ca028be6">
+                <guard xmi:type = "uml:OpaqueExpression" xmi:id = "_0f0efcb5-3726-41d8-bc46-687e6aef2a34guard">
+                    <body>higher criticality</body>
+                </guard>
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_49000991-3896-4a86-868d-20f564865fab" source = "_3a047322-ac27-4a1d-b9b7-0c95ca028be6" target = "_fafbbb84-23f7-41fc-9ab8-1389e2836158">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_4819490d-9845-4669-8bfd-9018aea48082" source = "_c515d3f0-0d28-454f-a05e-7eaa6945b680" target = "_13ace5bb-a11f-4710-a246-be3b0f39f5eb">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_ad7e8f72-a5a9-40f1-903f-ab4cc3153dce" source = "_db5ca904-2217-45b0-a7e0-a19a254f4a7b" target = "_d7724e8c-7ed6-41e8-a928-aa1a594316b2">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_35290f65-f805-4d25-99a1-0b0400cb9798" source = "_8de2aee7-9e3a-4edc-ad4b-33a196f380c7">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_746e8704-fc31-4ece-8771-44da65fb8f0b" target = "_06c97a7f-87e0-4746-a82f-6c7d63d555ea">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_0bf12cad-a517-430a-98dc-dd660cd7ed9f" source = "_fafbbb84-23f7-41fc-9ab8-1389e2836158" target = "_c515d3f0-0d28-454f-a05e-7eaa6945b680">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_b3c1564c-f677-4084-bcd2-412a73406966" target = "_2b82c369-050a-4769-b9d5-b180aa1785e2">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_67fd25f5-d325-42c1-9f05-ac004f98a419" source = "_34196f4c-9acd-4dd0-8d7a-969f7d6c575b">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_c0080d93-da58-4fa1-8cc0-2be4044fac34" source = "_ff7dd192-6b79-40b1-8b2f-8bdacb5caa51" target = "_aabc4874-b4df-4467-9f39-230e0a42027c">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_268df529-8e45-4a8d-80b2-edaad79527a8" source = "_aabc4874-b4df-4467-9f39-230e0a42027c" target = "_bf664e07-9fce-44b2-81ad-95d4ab965487">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_2ed24bea-cfde-4b5f-85bf-f3f43f5c44e8" source = "_47efcea7-6d1b-4dca-9989-4be37f4bf837">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_354f3466-a420-4e04-b2df-82ba5b6e9b4c" target = "_34196f4c-9acd-4dd0-8d7a-969f7d6c575b">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_3a7a3be5-4dc2-47a5-b944-2c82fa376f53" source = "_aeaaddc7-789e-43e8-860f-58a45c5c74b1" target = "_565eed45-f8e2-4c66-a394-4b672866f531">
+                <guard xmi:type = "uml:OpaqueExpression" xmi:id = "_3a7a3be5-4dc2-47a5-b944-2c82fa376f53guard">
+                    <body>no idle ERU</body>
+                </guard>
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_f8266ec6-3030-43aa-bb1a-083a016ff236" source = "_565eed45-f8e2-4c66-a394-4b672866f531" target = "_db5ca904-2217-45b0-a7e0-a19a254f4a7b">
+                <guard xmi:type = "uml:OpaqueExpression" xmi:id = "_f8266ec6-3030-43aa-bb1a-083a016ff236guard">
+                    <body>lower criticality</body>
+                </guard>
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_53564dff-1af5-4b0e-a82d-489d6c3e88aa" source = "_fafbbb84-23f7-41fc-9ab8-1389e2836158" target = "_8de2aee7-9e3a-4edc-ad4b-33a196f380c7">
+              </edge>
+            </ownedBehavior>
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Class" xmi:id = "_d91d133b-6257-4daa-a281-e48c1fcdc1a7" name = "Initiate Response">
+            <generalization xmi:type = "uml:Generalization" xmi:id = "_e9d4118f-8a63-46d1-abad-a33aa04bde75" general = "_d40de328-f8ae-4df3-8673-90f37a7fbe55">
+            </generalization>
+            <ownedBehavior xmi:type = "uml:Activity" xmi:id = "_5316367b-237d-4022-8008-7f5254eb6849" name = "Initiate Response" isReentrant = "false">
+              <node xmi:type = "uml:InitialNode" xmi:id = "_f800d315-7f16-4831-939c-ee21eabe51ee" name = "Initial Node1" visibility = "public" outgoing = "_8e5c122e-5a99-427a-9456-3f5101ff4c5d">
+              </node>
+              <node xmi:type = "uml:AcceptEventAction" xmi:id = "_78d31385-40e3-46b9-a2ad-ff4205576e5a" name = "Start response" visibility = "public" incoming = "_8e5c122e-5a99-427a-9456-3f5101ff4c5d">
+                <trigger xmi:type = "uml:Trigger" xmi:id = "_78d31385-40e3-46b9-a2ad-ff4205576e5atrigger" event = "_14692bc5-23c3-4de7-97d5-71656aec2aef">
+                </trigger>
+              </node>
+              <node xmi:type = "uml:SendSignalAction" xmi:id = "_9baa998e-d960-4563-9adf-446d349f3c9a" name = "Start mission" visibility = "public" outgoing = "_8c7b51ec-aa3c-4147-833f-543f2778c9e7" incoming = "_a64f6067-106a-4d7d-b702-7b98e30da3a3 _f102084f-26e4-4162-9fc3-9fdf8927a7e8" signal = "_ad389e86-95bf-4439-b734-af5f2a73024a">
+                <argument xmi:type = "uml:InputPin" xmi:id = "_69f9f3ee-1c5b-4514-a65e-c09d1c710aa0" name = "Target Pin" visibility = "public">
+                </argument>
+              </node>
+              <node xmi:type = "uml:DecisionNode" xmi:id = "_c96c058a-10b2-4618-a0c9-f91a69708f9b" name = "Decision Node1" visibility = "public">
+              </node>
+              <node xmi:type = "uml:DecisionNode" xmi:id = "_ee338635-fb4f-480f-a41d-4ea09a02975a" name = "Decision Node2" visibility = "public">
+              </node>
+              <node xmi:type = "uml:DecisionNode" xmi:id = "_dc7cab9e-c9fb-4bd6-991f-d5cd3cbe137e" name = "Decision Node3" visibility = "public" outgoing = "_ffca0814-3c4c-46ca-8ca3-cbd041684eaf" incoming = "_f8b3916d-d18f-48a6-9c68-348b540441ba">
+              </node>
+              <node xmi:type = "uml:SendSignalAction" xmi:id = "_958dc662-762f-4a6c-adb8-e5ab5510f6b4" name = "Activate external organization" visibility = "public" outgoing = "_0f9b6406-54ab-47ac-b5d9-c986ae4d0af8" signal = "_3dad679f-b77a-4d49-bffc-bec08f46654a">
+                <argument xmi:type = "uml:InputPin" xmi:id = "_204e5ba1-1fda-4d11-a9a7-351afab31165" name = "Target Pin" visibility = "public">
+                </argument>
+              </node>
+              <node xmi:type = "uml:DecisionNode" xmi:id = "_77689b32-daf1-49d3-b880-ad0077864d33" name = "Decision Node4" visibility = "public" outgoing = "_da33e366-913e-459e-af88-e4d84908b73a _f102084f-26e4-4162-9fc3-9fdf8927a7e8" incoming = "_8c7b51ec-aa3c-4147-833f-543f2778c9e7">
+              </node>
+              <node xmi:type = "uml:ForkNode" xmi:id = "_dfa0c757-d339-4acd-8ebd-7f105dd2fc86" name = "Fork Node1" visibility = "public" outgoing = "_f8b3916d-d18f-48a6-9c68-348b540441ba _a64f6067-106a-4d7d-b702-7b98e30da3a3 _36b08858-13f7-4224-86de-6d261794ab57">
+              </node>
+              <node xmi:type = "uml:FlowFinalNode" xmi:id = "_e828c54d-a408-4a7d-986e-8396f6d697fd" name = "Flow Final Node3" visibility = "public">
+              </node>
+              <node xmi:type = "uml:InitialNode" xmi:id = "_28f21b9c-78da-46c4-8d21-d6208b5ed996" name = "Initial Node2" visibility = "public">
+              </node>
+              <node xmi:type = "uml:ActivityFinalNode" xmi:id = "_95b09e24-1f56-46ff-a2b7-ece5e7b451c0" name = "Activity Final Node1" visibility = "public">
+              </node>
+              <node xmi:type = "uml:JoinNode" xmi:id = "_6afa1415-a012-4dc8-9e1f-0318f5d94f6a" name = "Join Node1" visibility = "public" incoming = "_da33e366-913e-459e-af88-e4d84908b73a _ffca0814-3c4c-46ca-8ca3-cbd041684eaf _f03c4b3f-3c5c-42a9-b9c1-0ac2c49ba981">
+              </node>
+              <node xmi:type = "uml:DecisionNode" xmi:id = "_9f071a1d-7d49-42e9-8a6e-54a2170a8043" name = "Hospitalization needed ?" visibility = "public" outgoing = "_f03c4b3f-3c5c-42a9-b9c1-0ac2c49ba981" incoming = "_36b08858-13f7-4224-86de-6d261794ab57">
+              </node>
+              <node xmi:type = "uml:FlowFinalNode" xmi:id = "_033b12b4-422b-4fe5-945f-39c57038fae5" name = "Flow Final Node1" visibility = "public" incoming = "_0f9b6406-54ab-47ac-b5d9-c986ae4d0af8">
+              </node>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_8e5c122e-5a99-427a-9456-3f5101ff4c5d" source = "_f800d315-7f16-4831-939c-ee21eabe51ee" target = "_78d31385-40e3-46b9-a2ad-ff4205576e5a">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_8c7b51ec-aa3c-4147-833f-543f2778c9e7" source = "_9baa998e-d960-4563-9adf-446d349f3c9a" target = "_77689b32-daf1-49d3-b880-ad0077864d33">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_f8b3916d-d18f-48a6-9c68-348b540441ba" source = "_dfa0c757-d339-4acd-8ebd-7f105dd2fc86" target = "_dc7cab9e-c9fb-4bd6-991f-d5cd3cbe137e">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_0f9b6406-54ab-47ac-b5d9-c986ae4d0af8" source = "_958dc662-762f-4a6c-adb8-e5ab5510f6b4" target = "_033b12b4-422b-4fe5-945f-39c57038fae5">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_da33e366-913e-459e-af88-e4d84908b73a" source = "_77689b32-daf1-49d3-b880-ad0077864d33" target = "_6afa1415-a012-4dc8-9e1f-0318f5d94f6a">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_a64f6067-106a-4d7d-b702-7b98e30da3a3" source = "_dfa0c757-d339-4acd-8ebd-7f105dd2fc86" target = "_9baa998e-d960-4563-9adf-446d349f3c9a">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_36b08858-13f7-4224-86de-6d261794ab57" source = "_dfa0c757-d339-4acd-8ebd-7f105dd2fc86" target = "_9f071a1d-7d49-42e9-8a6e-54a2170a8043">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_f102084f-26e4-4162-9fc3-9fdf8927a7e8" source = "_77689b32-daf1-49d3-b880-ad0077864d33" target = "_9baa998e-d960-4563-9adf-446d349f3c9a">
+                <guard xmi:type = "uml:OpaqueExpression" xmi:id = "_f102084f-26e4-4162-9fc3-9fdf8927a7e8guard">
+                    <body>more mission[s] ?</body>
+                </guard>
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_ffca0814-3c4c-46ca-8ca3-cbd041684eaf" source = "_dc7cab9e-c9fb-4bd6-991f-d5cd3cbe137e" target = "_6afa1415-a012-4dc8-9e1f-0318f5d94f6a">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_f03c4b3f-3c5c-42a9-b9c1-0ac2c49ba981" source = "_9f071a1d-7d49-42e9-8a6e-54a2170a8043" target = "_6afa1415-a012-4dc8-9e1f-0318f5d94f6a">
+              </edge>
+            </ownedBehavior>
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Class" xmi:id = "_a96d66bd-80ad-4992-bc8f-d49d8c9276da" name = "Locate position">
+            <ownedOperation xmi:type = "uml:Operation" xmi:id = "_9e3b74af-a8ce-4ab9-b2f9-5673f626fc82op" name = "Get toponym" visibility = "public">
+            </ownedOperation>
+            <ownedOperation xmi:type = "uml:Operation" xmi:id = "_c87b1de9-9f84-4dbc-a6c2-c5ce064c09e2op" name = "Browse map" visibility = "public">
+            </ownedOperation>
+            <ownedOperation xmi:type = "uml:Operation" xmi:id = "_90883d15-c38d-440f-9e98-7e77e73412a2op" name = "Lookup coord. from toponym" visibility = "public">
+            </ownedOperation>
+            <ownedBehavior xmi:type = "uml:Activity" xmi:id = "_656d7056-0949-4c69-8aa1-2e3daedb09fc" name = "Locate position" isReentrant = "false">
+              <ownedParameter xmi:type = "uml:Parameter" xmi:id = "_c462532c-400d-412f-9082-08ed7a3aa762" name = "coordinates">
+              </ownedParameter>
+              <ownedParameter xmi:type = "uml:Parameter" xmi:id = "_d7969278-793d-4bc6-b1da-6957bca6a148" name = "address">
+              </ownedParameter>
+              <ownedBehavior xmi:type = "uml:Activity" xmi:id = "_923f5cce-4464-4343-b2d6-cf6603e56c5b" name = "Get coord. from toponym" isReentrant = "false">
+                <node xmi:type = "uml:CallOperationAction" xmi:id = "_6bf7251c-91e2-490c-99b9-4c14b6f8a01a" name = "Get toponym" visibility = "public" operation = "_9e3b74af-a8ce-4ab9-b2f9-5673f626fc82op">
+                  <target xmi:type = "uml:InputPin" xmi:id = "_bf242395-c4c1-4f4e-b5b2-892296618f3c" name = "Target Pin" visibility = "public">
+                  </target>
+                </node>
+                <node xmi:type = "uml:CallOperationAction" xmi:id = "_0d08ae5a-6327-4e64-9207-a3de96b1d7aa" name = "Lookup coord. from toponym" visibility = "public" operation = "_90883d15-c38d-440f-9e98-7e77e73412a2op">
+                  <target xmi:type = "uml:InputPin" xmi:id = "_3cf7d001-c281-42a2-afe5-df6cd4cda1cd" name = "Target Pin" visibility = "public">
+                  </target>
+                </node>
+              </ownedBehavior>
+              <ownedBehavior xmi:type = "uml:Activity" xmi:id = "_e55e5729-175b-41dc-9288-d5b739731fe3" name = "Get coord. by search on map" isReentrant = "false">
+              </ownedBehavior>
+              <ownedBehavior xmi:type = "uml:Activity" xmi:id = "_89d684c2-ae2b-40db-8425-d60fe7c92e51" name = "Display resulting map" isReentrant = "false">
+              </ownedBehavior>
+              <node xmi:type = "uml:CallBehaviorAction" xmi:id = "_98135a1f-e16a-4a66-a72a-55f8ad82bb95" name = "Get coord. from toponym" visibility = "public" behavior = "_923f5cce-4464-4343-b2d6-cf6603e56c5b">
+              </node>
+              <node xmi:type = "uml:CallBehaviorAction" xmi:id = "_f8a78e50-f79b-4e81-b2d4-c661300ac447" name = "Get coord. by search on map" visibility = "public" behavior = "_e55e5729-175b-41dc-9288-d5b739731fe3">
+              </node>
+              <node xmi:type = "uml:CallBehaviorAction" xmi:id = "_a0d5c2d3-62e7-4b3d-880b-0204c941a4e8" name = "Display result on map" visibility = "public" outgoing = "_6dad37d1-5091-464a-9caa-c7743d842f62" behavior = "_89d684c2-ae2b-40db-8425-d60fe7c92e51">
+              </node>
+              <node xmi:type = "uml:CallOperationAction" xmi:id = "_96aed619-ea4e-47dd-86e4-22e7876a7dfd" name = "Get toponym" visibility = "public" outgoing = "_5d0df725-632a-45a9-85e3-8cc9b1b2022d" incoming = "_49efea80-d2be-43ce-8265-1bcad9e21a21" operation = "_9e3b74af-a8ce-4ab9-b2f9-5673f626fc82op">
+                <target xmi:type = "uml:InputPin" xmi:id = "_40bd0480-590c-4d55-828f-f8e1d5f296b9" name = "Target Pin" visibility = "public">
+                </target>
+              </node>
+              <node xmi:type = "uml:CallBehaviorAction" xmi:id = "_43e66359-2582-4828-9b1e-721d29c74e97" name = "Get coord. from toponym1" visibility = "public" outgoing = "_14bd2a55-e36c-46aa-94b8-6b40cb8abc79" incoming = "_0593d029-6a3d-4e1b-9706-702f977aedbe _5d0df725-632a-45a9-85e3-8cc9b1b2022d" behavior = "_923f5cce-4464-4343-b2d6-cf6603e56c5b">
+                <ownedComment xmi:type = "uml:Comment" xmi:id = "_43e66359-2582-4828-9b1e-721d29c74e97comment" body = " requires lookups  on server, with architectural details to be investigated , which could also result in SoS relevance (will the directory be present in local or accessed in the Phone System, or through a network ?)&#13;">
+                </ownedComment>
+              </node>
+              <node xmi:type = "uml:CallOperationAction" xmi:id = "_acdc17bf-9729-4341-86a9-408f38b6288b" name = "Browse map" visibility = "public" incoming = "_9b60f7c0-ea38-4301-be22-a7414851181f _2202d9b2-c121-43d2-ae1e-116fc7aba0a7" operation = "_c87b1de9-9f84-4dbc-a6c2-c5ce064c09e2op">
+                <target xmi:type = "uml:InputPin" xmi:id = "_8cd016d3-6b4f-4491-a8cc-fc38e1dbb8f7" name = "Target Pin" visibility = "public">
+                </target>
+              </node>
+              <node xmi:type = "uml:InitialNode" xmi:id = "_e120c50e-c84a-4bfe-81c2-ea724e1fa3a7" name = "Initial Node1" visibility = "public" outgoing = "_9dbbc41f-29b4-4603-b394-89aa5515081c">
+              </node>
+              <node xmi:type = "uml:DecisionNode" xmi:id = "_2ee88b2a-7bdf-45e9-b599-f288e8c56ace" name = "coords avail" visibility = "public" outgoing = "_98cd4ef4-c076-4c62-9f46-c6e5718f10ae" incoming = "_9dbbc41f-29b4-4603-b394-89aa5515081c">
+              </node>
+              <node xmi:type = "uml:DecisionNode" xmi:id = "_4459b3ad-aa91-46cd-8abc-f94816aaf3a8" name = "map ok" visibility = "public" outgoing = "_9b60f7c0-ea38-4301-be22-a7414851181f" incoming = "_6dad37d1-5091-464a-9caa-c7743d842f62">
+              </node>
+              <node xmi:type = "uml:ActivityFinalNode" xmi:id = "_498804a8-8e90-41f7-97d6-72f45cf38133" name = "Activity Final Node1" visibility = "public">
+              </node>
+              <node xmi:type = "uml:DecisionNode" xmi:id = "_ee2fe97d-62eb-4339-906e-0c48a29f3d56" name = "toponym is geocoded" visibility = "public" outgoing = "_2202d9b2-c121-43d2-ae1e-116fc7aba0a7" incoming = "_14bd2a55-e36c-46aa-94b8-6b40cb8abc79">
+              </node>
+              <node xmi:type = "uml:DecisionNode" xmi:id = "_fb27adf1-9cd1-40ab-979f-4ac4c9145754" name = "has addess" visibility = "public" outgoing = "_0593d029-6a3d-4e1b-9706-702f977aedbe _49efea80-d2be-43ce-8265-1bcad9e21a21" incoming = "_98cd4ef4-c076-4c62-9f46-c6e5718f10ae">
+              </node>
+              <node xmi:type = "uml:ActivityParameterNode" xmi:id = "_1f482a5e-fd9c-4f7d-b3bd-7fd15ea947ea" name = "coordinates" visibility = "public" parameter = "_c462532c-400d-412f-9082-08ed7a3aa762">
+              </node>
+              <node xmi:type = "uml:ActivityParameterNode" xmi:id = "_466d7f0d-89ae-45a6-91bb-ed33796829bf" name = "address" visibility = "public" parameter = "_d7969278-793d-4bc6-b1da-6957bca6a148">
+              </node>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_0593d029-6a3d-4e1b-9706-702f977aedbe" source = "_fb27adf1-9cd1-40ab-979f-4ac4c9145754" target = "_43e66359-2582-4828-9b1e-721d29c74e97">
+                <guard xmi:type = "uml:OpaqueExpression" xmi:id = "_0593d029-6a3d-4e1b-9706-702f977aedbeguard">
+                    <body>address value available</body>
+                </guard>
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_5d0df725-632a-45a9-85e3-8cc9b1b2022d" source = "_96aed619-ea4e-47dd-86e4-22e7876a7dfd" target = "_43e66359-2582-4828-9b1e-721d29c74e97">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_14bd2a55-e36c-46aa-94b8-6b40cb8abc79" source = "_43e66359-2582-4828-9b1e-721d29c74e97" target = "_ee2fe97d-62eb-4339-906e-0c48a29f3d56">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_9dbbc41f-29b4-4603-b394-89aa5515081c" source = "_e120c50e-c84a-4bfe-81c2-ea724e1fa3a7" target = "_2ee88b2a-7bdf-45e9-b599-f288e8c56ace">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_98cd4ef4-c076-4c62-9f46-c6e5718f10ae" source = "_2ee88b2a-7bdf-45e9-b599-f288e8c56ace" target = "_fb27adf1-9cd1-40ab-979f-4ac4c9145754">
+                <guard xmi:type = "uml:OpaqueExpression" xmi:id = "_98cd4ef4-c076-4c62-9f46-c6e5718f10aeguard">
+                    <body>input coords. missing</body>
+                </guard>
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_6dad37d1-5091-464a-9caa-c7743d842f62" source = "_a0d5c2d3-62e7-4b3d-880b-0204c941a4e8" target = "_4459b3ad-aa91-46cd-8abc-f94816aaf3a8">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_49efea80-d2be-43ce-8265-1bcad9e21a21" source = "_fb27adf1-9cd1-40ab-979f-4ac4c9145754" target = "_96aed619-ea4e-47dd-86e4-22e7876a7dfd">
+                <guard xmi:type = "uml:OpaqueExpression" xmi:id = "_49efea80-d2be-43ce-8265-1bcad9e21a21guard">
+                    <body>no address provided</body>
+                </guard>
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_9b60f7c0-ea38-4301-be22-a7414851181f" source = "_4459b3ad-aa91-46cd-8abc-f94816aaf3a8" target = "_acdc17bf-9729-4341-86a9-408f38b6288b">
+                <guard xmi:type = "uml:OpaqueExpression" xmi:id = "_9b60f7c0-ea38-4301-be22-a7414851181fguard">
+                    <body>need refine location</body>
+                </guard>
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_2202d9b2-c121-43d2-ae1e-116fc7aba0a7" source = "_ee2fe97d-62eb-4339-906e-0c48a29f3d56" target = "_acdc17bf-9729-4341-86a9-408f38b6288b">
+                <guard xmi:type = "uml:OpaqueExpression" xmi:id = "_2202d9b2-c121-43d2-ae1e-116fc7aba0a7guard">
+                    <body>toponym not found / unsufficient specification</body>
+                </guard>
+              </edge>
+            </ownedBehavior>
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Class" xmi:id = "_5b8e3d2a-9fee-4663-99a6-f5556b0790dc" name = "Monitor Response">
+            <generalization xmi:type = "uml:Generalization" xmi:id = "_0f04a540-7c67-4903-9bb2-ee91e53c4aba" general = "_d40de328-f8ae-4df3-8673-90f37a7fbe55">
+            </generalization>
+            <ownedBehavior xmi:type = "uml:Activity" xmi:id = "_22293c93-2135-42e8-98c3-c7784692200b" name = "Monitor Response" isReentrant = "false">
+              <node xmi:type = "uml:InitialNode" xmi:id = "_67ca7b28-258b-418c-a25a-fac979f3d8a4" name = "Initial Node1" visibility = "public" outgoing = "_b9d26c28-c321-42f7-95df-b7db0296aed8">
+              </node>
+              <node xmi:type = "uml:AcceptEventAction" xmi:id = "_a863b820-7879-4bc8-8ea2-3d5e5cb08d43" name = "Update ERU status" visibility = "public" incoming = "_b9d26c28-c321-42f7-95df-b7db0296aed8">
+                <trigger xmi:type = "uml:Trigger" xmi:id = "_a863b820-7879-4bc8-8ea2-3d5e5cb08d43trigger" event = "_207f472c-760f-4f41-a1d1-47f63dba5ea5">
+                </trigger>
+              </node>
+              <node xmi:type = "uml:ActivityFinalNode" xmi:id = "_6a8234d9-5e5c-4076-83a7-5b5fb5220e45" name = "Activity Final Node1" visibility = "public">
+              </node>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_b9d26c28-c321-42f7-95df-b7db0296aed8" source = "_67ca7b28-258b-418c-a25a-fac979f3d8a4" target = "_a863b820-7879-4bc8-8ea2-3d5e5cb08d43">
+              </edge>
+            </ownedBehavior>
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Class" xmi:id = "_9caf0f62-0f22-4c4b-83bf-d5a213c981c8" name = "Process Call">
+            <generalization xmi:type = "uml:Generalization" xmi:id = "_69540d1a-08cc-4645-b3de-d23a61e0c0e6" general = "_d40de328-f8ae-4df3-8673-90f37a7fbe55">
+            </generalization>
+            <ownedOperation xmi:type = "uml:Operation" xmi:id = "_88b1a8c0-210f-4936-af99-be85003da003op" name = "Enqueue call" visibility = "public">
+            </ownedOperation>
+            <ownedOperation xmi:type = "uml:Operation" xmi:id = "_49beeb84-ec1f-4bba-9295-50743595ba63op" name = "Integrate response event detail1" visibility = "public">
+            </ownedOperation>
+            <ownedOperation xmi:type = "uml:Operation" xmi:id = "_9a83f99b-53eb-430c-80d2-49fb23157933op" name = "Record conversation" visibility = "public">
+            </ownedOperation>
+            <ownedOperation xmi:type = "uml:Operation" xmi:id = "_668edc5e-67c3-4e78-a0fe-72b7ecd5ae8eop" name = "Obtain further detail" visibility = "public">
+            </ownedOperation>
+            <ownedOperation xmi:type = "uml:Operation" xmi:id = "_03c8a323-644b-4bc3-b07c-2bbc10fa033dop" name = "Detect end of conversation and stop recording" visibility = "public">
+            </ownedOperation>
+            <ownedOperation xmi:type = "uml:Operation" xmi:id = "_fd7ae1a8-99a0-4471-bdff-696f25e700cfop" name = "Define priority" visibility = "public">
+            </ownedOperation>
+            <ownedOperation xmi:type = "uml:Operation" xmi:id = "_7f2842f6-a0e9-4079-b9d8-634130cf6c1bop" name = "get address from calling phone number" visibility = "public">
+            </ownedOperation>
+            <ownedBehavior xmi:type = "uml:Activity" xmi:id = "_df5b5b49-cb54-481c-9468-4328e45e8976" name = "Process Call" isReentrant = "false">
+              <node xmi:type = "uml:InitialNode" xmi:id = "_1339a5c1-5036-4e5d-b8d0-6bb943e3d343" name = "Initial Node1" visibility = "public" outgoing = "_320aab1b-6e04-4ea0-a9e7-0b77b7093edf">
+              </node>
+              <node xmi:type = "uml:AcceptEventAction" xmi:id = "_3df293e2-c283-44d9-bd18-18f69bd82828" name = "Emergency call" visibility = "public" outgoing = "_f06105b2-8d70-4e05-b657-61304a7c6aef _541c5f83-bffe-4227-b5ce-c4b880b82db1" incoming = "_320aab1b-6e04-4ea0-a9e7-0b77b7093edf">
+                <trigger xmi:type = "uml:Trigger" xmi:id = "_3df293e2-c283-44d9-bd18-18f69bd82828trigger" event = "_0b77f6b2-808a-4c07-b509-26e89f43322c">
+                </trigger>
+              </node>
+              <node xmi:type = "uml:CallOperationAction" xmi:id = "_3ecd6a62-c8ab-4fcb-8071-29ef1defea70" name = "Enqueue call" visibility = "public" outgoing = "_bcd0b953-192a-4210-ad53-1151054f7ede" incoming = "_541c5f83-bffe-4227-b5ce-c4b880b82db1" operation = "_88b1a8c0-210f-4936-af99-be85003da003op">
+                <target xmi:type = "uml:InputPin" xmi:id = "_a0e8a47b-1e5a-4734-957f-f04a71e3da97" name = "Target Pin" visibility = "public">
+                </target>
+              </node>
+              <node xmi:type = "uml:DecisionNode" xmi:id = "_9489c0b8-c7b4-47ea-94cd-c06f5cd684ca" name = "Casualty found" visibility = "public" outgoing = "_e3dc7f90-52c4-44a8-9c9a-7a59d77233d5 _8832283e-d8c4-473b-abd3-ef190bd00512 _3d43a24e-eea7-497c-82d2-156de6930956 _3c51fa92-9568-499e-9079-396c15b0afa7" incoming = "_946fa8e2-9e35-4ef0-bfb4-0a3360b19b95">
+              </node>
+              <node xmi:type = "uml:ActivityFinalNode" xmi:id = "_5ab6b5cf-f592-47f3-af99-d9d50cbe38fd" name = "Activity Final Node1" visibility = "public" incoming = "_839f9940-bac1-442c-9c09-5e5989a11107">
+              </node>
+              <node xmi:type = "uml:SendSignalAction" xmi:id = "_7307cb6f-29d4-471b-b346-ee3f278a00d1" name = "Start response" visibility = "public" outgoing = "_ebd899d3-8b54-4daa-9af9-bde8f35d5702" incoming = "_4f4303b9-cef9-480c-a317-5d4b7391154b" signal = "_be20c590-2098-42bb-8dfd-1ef0db7a2656">
+                <argument xmi:type = "uml:InputPin" xmi:id = "_7788ae57-3f64-44f8-b1fd-6e232ae9ba62" name = "Target Pin" visibility = "public">
+                </argument>
+              </node>
+              <node xmi:type = "uml:DecisionNode" xmi:id = "_2f80ac0f-07b1-48a7-bca0-c39b964859fc" name = "Casualty exists" visibility = "public" outgoing = "_8db1c7b0-9138-4c4b-b470-0162a0b78406" incoming = "_b3636596-e8d6-42e1-a799-81f0789e170a">
+              </node>
+              <node xmi:type = "uml:DecisionNode" xmi:id = "_c0afea24-5b62-4f3d-9b57-3592a024d1e9" name = "Call is Pertinent" visibility = "public" outgoing = "_c40dcd88-7d35-4000-8124-2ee79985c40d _7cd9d6c8-73a1-4476-9e01-c238148d93f3" incoming = "_4a5d0d14-1b11-4b05-9ebb-47852d33825c">
+              </node>
+              <node xmi:type = "uml:CallOperationAction" xmi:id = "_27079807-4260-4fd5-a290-423eb36f73ad" name = "Record conversation" visibility = "public" outgoing = "_9fb76321-3d02-4f80-b68c-06848887f937" incoming = "_f06105b2-8d70-4e05-b657-61304a7c6aef _bb51ccb4-c5ad-43d6-aa31-557c635ff697" operation = "_9a83f99b-53eb-430c-80d2-49fb23157933op">
+                <target xmi:type = "uml:InputPin" xmi:id = "_2e5de691-ddf7-436b-bd66-f0f2a411976b" name = "Target Pin" visibility = "public">
+                </target>
+              </node>
+              <node xmi:type = "uml:CallOperationAction" xmi:id = "_b3e4bc3e-109f-4e5d-8594-aa3273aecc08" name = "Stop recording call" visibility = "public" outgoing = "_839f9940-bac1-442c-9c09-5e5989a11107" incoming = "_9fb76321-3d02-4f80-b68c-06848887f937" operation = "_03c8a323-644b-4bc3-b07c-2bbc10fa033dop">
+                <target xmi:type = "uml:InputPin" xmi:id = "_f0a91208-ca1b-4950-8ca8-cf3233488875" name = "Target Pin" visibility = "public">
+                </target>
+              </node>
+              <node xmi:type = "uml:DecisionNode" xmi:id = "_7cfd3ec4-900e-4b82-a8d9-60ceb5971743" name = "Further detail node" visibility = "public" outgoing = "_6ca9ffcf-13c5-46dd-9e7b-c9facbabcc48 _df184bc7-3e48-4a18-bf10-9d0993673385" incoming = "_ec390b5f-a244-4707-ae4a-dead004ec956">
+              </node>
+              <node xmi:type = "uml:JoinNode" xmi:id = "_1864b85d-d5ce-4e0b-8281-e12d8b4349f7" name = "hangup join node" visibility = "public" outgoing = "_06219ee5-dff6-4170-8808-49006b65c432" incoming = "_3c51fa92-9568-499e-9079-396c15b0afa7 _7cd9d6c8-73a1-4476-9e01-c238148d93f3 _df184bc7-3e48-4a18-bf10-9d0993673385 _8db1c7b0-9138-4c4b-b470-0162a0b78406">
+              </node>
+              <node xmi:type = "uml:ForkNode" xmi:id = "_66eab4c5-1cd5-41df-a497-2d142a14372f" name = "Further detail new response" visibility = "public" outgoing = "_cb0427ac-6cec-4548-abe5-55fed5f2dd07 _4f4303b9-cef9-480c-a317-5d4b7391154b">
+              </node>
+              <node xmi:type = "uml:JoinNode" xmi:id = "_61af3f31-458b-4353-a645-ee136fe23947" name = "add detail" visibility = "public" outgoing = "_ec390b5f-a244-4707-ae4a-dead004ec956" incoming = "_cb0427ac-6cec-4548-abe5-55fed5f2dd07 _315e159b-750f-4d27-bade-13335f06502b _9ac53a3b-7517-41b1-9a36-90c53317a5af">
+              </node>
+              <node xmi:type = "uml:SendSignalAction" xmi:id = "_ee90f307-f660-466c-8a1c-56b83107ed80" name = "Update Response" visibility = "public" outgoing = "_0136c7b9-0403-423a-89c0-cc10a99a5585" incoming = "_3a8af335-5017-42d0-967e-1542fe16af4a _c740aa1a-f5a2-4045-a390-12d276dc3d68" signal = "_97eaddc9-9cec-495b-98d0-ee2eef72d512">
+                <argument xmi:type = "uml:InputPin" xmi:id = "_ccdbf054-e7c9-45d0-8136-192bd3d837de" name = "Target Pin" visibility = "public">
+                </argument>
+              </node>
+              <node xmi:type = "uml:CallBehaviorAction" xmi:id = "" name = "Obtain further detail" visibility = "public" outgoing = "_9ac53a3b-7517-41b1-9a36-90c53317a5af _c740aa1a-f5a2-4045-a390-12d276dc3d68" incoming = "_466e1e4c-ceca-4d2f-818f-0ab3086d680b">
+                <ownedComment xmi:type = "uml:Comment" xmi:id = "_73eeafd7-625f-4a26-ab0a-65524dfbd0bdcomment" body = "placeholder to state that holding on a call and reopening conversatio or answering a call which is mapped to a previous call (new communication but same ">
+                </ownedComment>
+              </node>
+              <node xmi:type = "uml:CallBehaviorAction" xmi:id = "" name = "Obtain casualty details" visibility = "public" outgoing = "_946fa8e2-9e35-4ef0-bfb4-0a3360b19b95" incoming = "_c40dcd88-7d35-4000-8124-2ee79985c40d _edf4ba47-02f1-404d-acdd-de037724b116">
+              </node>
+              <node xmi:type = "uml:CallOperationAction" xmi:id = "_e5f403b2-7236-4112-aa6e-ed18561635b1" name = "Define priority" visibility = "public" outgoing = "_b3636596-e8d6-42e1-a799-81f0789e170a" incoming = "_8832283e-d8c4-473b-abd3-ef190bd00512" operation = "_fd7ae1a8-99a0-4471-bdff-696f25e700cfop">
+                <target xmi:type = "uml:InputPin" xmi:id = "_ff8ecb51-8b71-45d7-94e8-cb48cec6a451" name = "Target Pin" visibility = "public">
+                </target>
+              </node>
+              <node xmi:type = "uml:ForkNode" xmi:id = "_d35d8837-06c9-4d0c-aef7-7ee7deee4cd4" name = "Fork Node1" visibility = "public" outgoing = "_25ab8267-3c4c-4045-b3a2-15f2cce05fb4" incoming = "_06219ee5-dff6-4170-8808-49006b65c432">
+              </node>
+              <node xmi:type = "uml:DecisionNode" xmi:id = "_61bf303c-cc33-4003-b1dc-2ee7167c39f0" name = "need time lapse node" visibility = "public" outgoing = "_3a8af335-5017-42d0-967e-1542fe16af4a" incoming = "_6ca9ffcf-13c5-46dd-9e7b-c9facbabcc48">
+              </node>
+              <node xmi:type = "uml:CallBehaviorAction" xmi:id = "_b818502e-648b-4022-960b-68eb266284e7" name = "Integrate response event detail" visibility = "public" outgoing = "_315e159b-750f-4d27-bade-13335f06502b _466e1e4c-ceca-4d2f-818f-0ab3086d680b" incoming = "_e3dc7f90-52c4-44a8-9c9a-7a59d77233d5" behavior = "_a81b3c24-449d-4eeb-bd4e-e5759dc24d9c">
+              </node>
+              <node xmi:type = "uml:CallBehaviorAction" xmi:id = "_f6c8b280-0424-4a9e-9af5-8cb1e048ea2d" name = "Save call result" visibility = "public" outgoing = "_edf78a95-9c46-4925-a419-6dacba1a0482" incoming = "_25ab8267-3c4c-4045-b3a2-15f2cce05fb4" behavior = "_b68ec9fe-26a9-458e-8179-4d3ed8d397fe">
+              </node>
+              <node xmi:type = "uml:FlowFinalNode" xmi:id = "_b41707a8-4a7a-4d92-a4ea-207439f24f92" name = "Flow Final Node1" visibility = "public" incoming = "_edf78a95-9c46-4925-a419-6dacba1a0482">
+              </node>
+              <node xmi:type = "uml:CallBehaviorAction" xmi:id = "_a3d34dfb-7eff-410e-856c-0aa5c3940d2e" name = "Answer call" visibility = "public" outgoing = "_4a5d0d14-1b11-4b05-9ebb-47852d33825c _bb51ccb4-c5ad-43d6-aa31-557c635ff697" incoming = "_bcd0b953-192a-4210-ad53-1151054f7ede" behavior = "_4c8692fd-1590-4869-8342-b393398422fb">
+                <ownedComment xmi:type = "uml:Comment" xmi:id = "_a3d34dfb-7eff-410e-856c-0aa5c3940d2ecomment" body = "sub-activity of Process Call">
+                </ownedComment>
+              </node>
+              <node xmi:type = "uml:FlowFinalNode" xmi:id = "_4dbb4baf-0289-48c9-a28d-38e7f59b5af5" name = "Flow Final Node2" visibility = "public">
+              </node>
+              <node xmi:type = "uml:FlowFinalNode" xmi:id = "_be5b9da0-ffb4-445e-aa06-dbb6406e7bfc" name = "Flow Final Node3" visibility = "public" incoming = "_ebd899d3-8b54-4daa-9af9-bde8f35d5702">
+              </node>
+              <node xmi:type = "uml:FlowFinalNode" xmi:id = "_d9225d8d-ae40-4d49-b52e-2171ea217b1e" name = "Flow Final Node4" visibility = "public" incoming = "_0136c7b9-0403-423a-89c0-cc10a99a5585">
+              </node>
+              <node xmi:type = "uml:CallBehaviorAction" xmi:id = "_6d11c306-3cb4-4616-bd7a-33fdbcdb9874" name = "Replay of recorded conversation" visibility = "public" outgoing = "_edf4ba47-02f1-404d-acdd-de037724b116" incoming = "_3d43a24e-eea7-497c-82d2-156de6930956" behavior = "_b13805a0-345d-493d-8fb2-200a6f69b44e">
+              </node>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_3a8af335-5017-42d0-967e-1542fe16af4a" source = "_61bf303c-cc33-4003-b1dc-2ee7167c39f0" target = "_ee90f307-f660-466c-8a1c-56b83107ed80">
+                <guard xmi:type = "uml:OpaqueExpression" xmi:id = "_3a8af335-5017-42d0-967e-1542fe16af4aguard">
+                    <body>additional info is immediate</body>
+                </guard>
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_e3dc7f90-52c4-44a8-9c9a-7a59d77233d5" source = "_9489c0b8-c7b4-47ea-94cd-c06f5cd684ca" target = "_b818502e-648b-4022-960b-68eb266284e7">
+                <guard xmi:type = "uml:OpaqueExpression" xmi:id = "_e3dc7f90-52c4-44a8-9c9a-7a59d77233d5guard">
+                    <body>adds detail to exixstng event</body>
+                </guard>
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_bcd0b953-192a-4210-ad53-1151054f7ede" source = "_3ecd6a62-c8ab-4fcb-8071-29ef1defea70" target = "_a3d34dfb-7eff-410e-856c-0aa5c3940d2e">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_c40dcd88-7d35-4000-8124-2ee79985c40d" source = "_c0afea24-5b62-4f3d-9b57-3592a024d1e9">
+                <guard xmi:type = "uml:OpaqueExpression" xmi:id = "_c40dcd88-7d35-4000-8124-2ee79985c40dguard">
+                    <body>call accepted</body>
+                </guard>
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_f06105b2-8d70-4e05-b657-61304a7c6aef" source = "_3df293e2-c283-44d9-bd18-18f69bd82828" target = "_27079807-4260-4fd5-a290-423eb36f73ad">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_edf78a95-9c46-4925-a419-6dacba1a0482" source = "_f6c8b280-0424-4a9e-9af5-8cb1e048ea2d" target = "_b41707a8-4a7a-4d92-a4ea-207439f24f92">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_315e159b-750f-4d27-bade-13335f06502b" source = "_b818502e-648b-4022-960b-68eb266284e7" target = "_61af3f31-458b-4353-a645-ee136fe23947">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_ebd899d3-8b54-4daa-9af9-bde8f35d5702" source = "_7307cb6f-29d4-471b-b346-ee3f278a00d1" target = "_be5b9da0-ffb4-445e-aa06-dbb6406e7bfc">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_541c5f83-bffe-4227-b5ce-c4b880b82db1" source = "_3df293e2-c283-44d9-bd18-18f69bd82828" target = "_3ecd6a62-c8ab-4fcb-8071-29ef1defea70">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_320aab1b-6e04-4ea0-a9e7-0b77b7093edf" source = "_1339a5c1-5036-4e5d-b8d0-6bb943e3d343" target = "_3df293e2-c283-44d9-bd18-18f69bd82828">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_8832283e-d8c4-473b-abd3-ef190bd00512" source = "_9489c0b8-c7b4-47ea-94cd-c06f5cd684ca" target = "_e5f403b2-7236-4112-aa6e-ed18561635b1">
+                <guard xmi:type = "uml:OpaqueExpression" xmi:id = "_8832283e-d8c4-473b-abd3-ef190bd00512guard">
+                    <body>new event</body>
+                </guard>
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_946fa8e2-9e35-4ef0-bfb4-0a3360b19b95" target = "_9489c0b8-c7b4-47ea-94cd-c06f5cd684ca">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_9ac53a3b-7517-41b1-9a36-90c53317a5af" target = "_61af3f31-458b-4353-a645-ee136fe23947">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_0136c7b9-0403-423a-89c0-cc10a99a5585" source = "_ee90f307-f660-466c-8a1c-56b83107ed80" target = "_d9225d8d-ae40-4d49-b52e-2171ea217b1e">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_ec390b5f-a244-4707-ae4a-dead004ec956" source = "_61af3f31-458b-4353-a645-ee136fe23947" target = "_7cfd3ec4-900e-4b82-a8d9-60ceb5971743">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_cb0427ac-6cec-4548-abe5-55fed5f2dd07" source = "_66eab4c5-1cd5-41df-a497-2d142a14372f" target = "_61af3f31-458b-4353-a645-ee136fe23947">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_edf4ba47-02f1-404d-acdd-de037724b116" source = "_6d11c306-3cb4-4616-bd7a-33fdbcdb9874">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_4a5d0d14-1b11-4b05-9ebb-47852d33825c" source = "_a3d34dfb-7eff-410e-856c-0aa5c3940d2e" target = "_c0afea24-5b62-4f3d-9b57-3592a024d1e9">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_466e1e4c-ceca-4d2f-818f-0ab3086d680b" source = "_b818502e-648b-4022-960b-68eb266284e7">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_3d43a24e-eea7-497c-82d2-156de6930956" source = "_9489c0b8-c7b4-47ea-94cd-c06f5cd684ca" target = "_6d11c306-3cb4-4616-bd7a-33fdbcdb9874">
+                <guard xmi:type = "uml:OpaqueExpression" xmi:id = "_3d43a24e-eea7-497c-82d2-156de6930956guard">
+                    <body>[fault] unclear interrupted call</body>
+                </guard>
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_3c51fa92-9568-499e-9079-396c15b0afa7" source = "_9489c0b8-c7b4-47ea-94cd-c06f5cd684ca" target = "_1864b85d-d5ce-4e0b-8281-e12d8b4349f7">
+                <guard xmi:type = "uml:OpaqueExpression" xmi:id = "_3c51fa92-9568-499e-9079-396c15b0afa7guard">
+                    <body>discarded</body>
+                </guard>
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_7cd9d6c8-73a1-4476-9e01-c238148d93f3" source = "_c0afea24-5b62-4f3d-9b57-3592a024d1e9" target = "_1864b85d-d5ce-4e0b-8281-e12d8b4349f7">
+                <ownedComment xmi:type = "uml:Comment" xmi:id = "_690bb024-9829-472e-af1b-0df54f2d1c3e" annotatedElement = "_7cd9d6c8-73a1-4476-9e01-c238148d93f3" body = "a call may be &apos;discarded&apos; for wrong dialing, or it does not refer to en emergency or similar reasons">
+                </ownedComment>
+                <guard xmi:type = "uml:OpaqueExpression" xmi:id = "_7cd9d6c8-73a1-4476-9e01-c238148d93f3guard">
+                    <body>discarded</body>
+                </guard>
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_839f9940-bac1-442c-9c09-5e5989a11107" source = "_b3e4bc3e-109f-4e5d-8594-aa3273aecc08" target = "_5ab6b5cf-f592-47f3-af99-d9d50cbe38fd">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_06219ee5-dff6-4170-8808-49006b65c432" source = "_1864b85d-d5ce-4e0b-8281-e12d8b4349f7" target = "_d35d8837-06c9-4d0c-aef7-7ee7deee4cd4">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_6ca9ffcf-13c5-46dd-9e7b-c9facbabcc48" source = "_7cfd3ec4-900e-4b82-a8d9-60ceb5971743" target = "_61bf303c-cc33-4003-b1dc-2ee7167c39f0">
+                <guard xmi:type = "uml:OpaqueExpression" xmi:id = "_6ca9ffcf-13c5-46dd-9e7b-c9facbabcc48guard">
+                    <body>further detail</body>
+                </guard>
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_df184bc7-3e48-4a18-bf10-9d0993673385" source = "_7cfd3ec4-900e-4b82-a8d9-60ceb5971743" target = "_1864b85d-d5ce-4e0b-8281-e12d8b4349f7">
+                <guard xmi:type = "uml:OpaqueExpression" xmi:id = "_df184bc7-3e48-4a18-bf10-9d0993673385guard">
+                    <body>no further detail</body>
+                </guard>
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_8db1c7b0-9138-4c4b-b470-0162a0b78406" source = "_2f80ac0f-07b1-48a7-bca0-c39b964859fc" target = "_1864b85d-d5ce-4e0b-8281-e12d8b4349f7">
+                <guard xmi:type = "uml:OpaqueExpression" xmi:id = "_8db1c7b0-9138-4c4b-b470-0162a0b78406guard">
+                    <body>no response needed</body>
+                </guard>
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_b3636596-e8d6-42e1-a799-81f0789e170a" source = "_e5f403b2-7236-4112-aa6e-ed18561635b1" target = "_2f80ac0f-07b1-48a7-bca0-c39b964859fc">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_9fb76321-3d02-4f80-b68c-06848887f937" source = "_27079807-4260-4fd5-a290-423eb36f73ad" target = "_b3e4bc3e-109f-4e5d-8594-aa3273aecc08">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_25ab8267-3c4c-4045-b3a2-15f2cce05fb4" source = "_d35d8837-06c9-4d0c-aef7-7ee7deee4cd4" target = "_f6c8b280-0424-4a9e-9af5-8cb1e048ea2d">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_4f4303b9-cef9-480c-a317-5d4b7391154b" source = "_66eab4c5-1cd5-41df-a497-2d142a14372f" target = "_7307cb6f-29d4-471b-b346-ee3f278a00d1">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_bb51ccb4-c5ad-43d6-aa31-557c635ff697" source = "_a3d34dfb-7eff-410e-856c-0aa5c3940d2e" target = "_27079807-4260-4fd5-a290-423eb36f73ad">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_c740aa1a-f5a2-4045-a390-12d276dc3d68" target = "_ee90f307-f660-466c-8a1c-56b83107ed80">
+              </edge>
+            </ownedBehavior>
+            <ownedBehavior xmi:type = "uml:Activity" xmi:id = "" name = "Obtain further detail" isReentrant = "false">
+              <ownedBehavior xmi:type = "uml:Activity" xmi:id = "_d55de7d8-d513-498b-98bf-cc75326c8d9d" name = "Integrate or revise all details" isReentrant = "false">
+              </ownedBehavior>
+              <node xmi:type = "uml:InitialNode" xmi:id = "_aabcb598-9b96-473e-be56-895853e0484d" name = "Initial Node1" visibility = "public" outgoing = "_1b6b0901-4591-4f3c-a5b5-ba950cd00d3b">
+              </node>
+              <node xmi:type = "uml:ActivityFinalNode" xmi:id = "_c6fff019-728a-4df9-ae1c-4418ac8522f0" name = "Activity Final Node1" visibility = "public" incoming = "_da0ad379-ea49-49cf-96fe-da6330590b77">
+              </node>
+              <node xmi:type = "uml:CallBehaviorAction" xmi:id = "_13e50055-3b59-47e6-a718-7132ea79b7d2" name = "Obtain response details" visibility = "public" outgoing = "_da0ad379-ea49-49cf-96fe-da6330590b77" incoming = "_1b6b0901-4591-4f3c-a5b5-ba950cd00d3b">
+              </node>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_da0ad379-ea49-49cf-96fe-da6330590b77" source = "_13e50055-3b59-47e6-a718-7132ea79b7d2" target = "_c6fff019-728a-4df9-ae1c-4418ac8522f0">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_1b6b0901-4591-4f3c-a5b5-ba950cd00d3b" source = "_aabcb598-9b96-473e-be56-895853e0484d" target = "_13e50055-3b59-47e6-a718-7132ea79b7d2">
+              </edge>
+            </ownedBehavior>
+            <ownedBehavior xmi:type = "uml:Activity" xmi:id = "" name = "Obtain casualty details" isReentrant = "false">
+              <ownedParameter xmi:type = "uml:Parameter" xmi:id = "_7d17f3be-4de1-4a20-9b1a-03cb747bdaea" name = "calling_phone_number">
+              </ownedParameter>
+              <ownedBehavior xmi:type = "uml:Activity" xmi:id = "_432296c4-e599-429b-a837-1272aedde8ce" name = "Locate target" isReentrant = "false">
+              </ownedBehavior>
+              <ownedBehavior xmi:type = "uml:Activity" xmi:id = "_4ea1a750-c02f-4083-98d0-bff13d833c3d" name = "Get patient info" isReentrant = "false">
+              </ownedBehavior>
+              <ownedBehavior xmi:type = "uml:Activity" xmi:id = "_69752eeb-2c65-4c01-bd71-fa917313ea7b" name = "Get patient data from registry" isReentrant = "false">
+              </ownedBehavior>
+              <ownedBehavior xmi:type = "uml:Activity" xmi:id = "_54f88015-7c26-4820-afe3-68abc2cf8de5" name = "Get casualty environment info" isReentrant = "false">
+              </ownedBehavior>
+              <ownedBehavior xmi:type = "uml:Activity" xmi:id = "_06c82b4b-5946-4769-9254-de1756ec033f" name = "Assess required equipment" isReentrant = "false">
+              </ownedBehavior>
+              <ownedBehavior xmi:type = "uml:Activity" xmi:id = "_fa55a5dc-0e29-48b3-81fa-15d62985aec7" name = "Assess required vehicle type" isReentrant = "false">
+              </ownedBehavior>
+              <ownedBehavior xmi:type = "uml:Activity" xmi:id = "_4161716c-2d60-4458-95bb-795b1d33061e" name = "Get target location info" isReentrant = "false">
+                <ownedBehavior xmi:type = "uml:Activity" xmi:id = "_9631a96b-d3ae-432c-9c03-ab361d67134a" name = "TryGet address from phone number" isReentrant = "false">
+                </ownedBehavior>
+                <node xmi:type = "uml:CallBehaviorAction" xmi:id = "_3d2f9039-e921-4da8-ad04-a347141d37ab" name = "TryGet address from phone number" visibility = "public" outgoing = "_7cf9a166-e73e-46a8-9b05-192005a14f4f" incoming = "_0c033c3b-61f4-41a3-a4b9-6bb237dac45e" behavior = "_9631a96b-d3ae-432c-9c03-ab361d67134a">
+                  <ownedComment xmi:type = "uml:Comment" xmi:id = "_3d2f9039-e921-4da8-ad04-a347141d37abcomment" body = "architectural details to be investigated , which could also result in SoS relevance (will the directory be present in local or accessed in the Phone System, or through a network ?)">
+                  </ownedComment>
+                </node>
+                <node xmi:type = "uml:InitialNode" xmi:id = "_c579c8bd-10c3-4a74-ac03-5c9b5716d0ea" name = "Initial Node1" visibility = "public" outgoing = "_0c033c3b-61f4-41a3-a4b9-6bb237dac45e">
+                </node>
+                <node xmi:type = "uml:CallBehaviorAction" xmi:id = "_fd52ea20-4ffa-4833-822e-322c360cf91e" name = "Locate position" visibility = "public" outgoing = "_1b05f9b0-e9d3-47ff-9c53-e2f02e1e2381" incoming = "_7cf9a166-e73e-46a8-9b05-192005a14f4f" behavior = "_656d7056-0949-4c69-8aa1-2e3daedb09fc">
+                  <ownedComment xmi:type = "uml:Comment" xmi:id = "_fd52ea20-4ffa-4833-822e-322c360cf91ecomment" body = "Recalled by ">
+                  </ownedComment>
+                  <argument xmi:type = "uml:InputPin" xmi:id = "_caa67268-3fd1-40a7-876d-44eef2758608" name = "coordinates" visibility = "public">
+                  </argument>
+                  <argument xmi:type = "uml:InputPin" xmi:id = "_f2d09e5d-7373-4d26-bebc-78348393436e" name = "address" visibility = "public">
+                  </argument>
+                </node>
+                <node xmi:type = "uml:ActivityFinalNode" xmi:id = "_da65e619-b893-41a3-93c4-b22c9b38e0e3" name = "Activity Final Node1" visibility = "public" incoming = "_1b05f9b0-e9d3-47ff-9c53-e2f02e1e2381">
+                </node>
+                <edge xmi:type = "uml:ControlFlow" xmi:id = "_1b05f9b0-e9d3-47ff-9c53-e2f02e1e2381" source = "_fd52ea20-4ffa-4833-822e-322c360cf91e" target = "_da65e619-b893-41a3-93c4-b22c9b38e0e3">
+                </edge>
+                <edge xmi:type = "uml:ControlFlow" xmi:id = "_0c033c3b-61f4-41a3-a4b9-6bb237dac45e" source = "_c579c8bd-10c3-4a74-ac03-5c9b5716d0ea" target = "_3d2f9039-e921-4da8-ad04-a347141d37ab">
+                </edge>
+                <edge xmi:type = "uml:ControlFlow" xmi:id = "_7cf9a166-e73e-46a8-9b05-192005a14f4f" source = "_3d2f9039-e921-4da8-ad04-a347141d37ab" target = "_fd52ea20-4ffa-4833-822e-322c360cf91e">
+                </edge>
+              </ownedBehavior>
+              <ownedBehavior xmi:type = "uml:Activity" xmi:id = "_88f0fb67-7c4c-4655-8e45-f7191e68a263" name = "Assess other organizations needed" isReentrant = "false">
+              </ownedBehavior>
+              <ownedBehavior xmi:type = "uml:Activity" xmi:id = "_0206b4b5-06d9-43e0-b990-695c355e5a9e" name = "Get diagnose" isReentrant = "false">
+              </ownedBehavior>
+              <node xmi:type = "uml:CallBehaviorAction" xmi:id = "_7deebbc0-993b-4f86-921c-421dc0a3fb0c" name = "Get patient info" visibility = "public" outgoing = "_de18cbad-c5a1-4b29-97cc-987d84c8fcaf" incoming = "_48e90a40-98ad-478e-84c3-245cc9123b6b" behavior = "_4ea1a750-c02f-4083-98d0-bff13d833c3d">
+              </node>
+              <node xmi:type = "uml:CallBehaviorAction" xmi:id = "_2cb6545a-b490-46be-b164-9eef9206797b" name = "Get casualty environment info" visibility = "public" outgoing = "_db35cf10-41f4-41f9-9cf8-1baa86d4025b _52e6d290-9ce1-44a8-8dcf-eb8f4b5b6db8" incoming = "_67ca14a6-5575-40ef-a196-9701e0a9c50b" behavior = "_54f88015-7c26-4820-afe3-68abc2cf8de5">
+              </node>
+              <node xmi:type = "uml:CallBehaviorAction" xmi:id = "_a23f036f-ba8b-4d56-ac03-9975ad5cf86c" name = "Assess required equipment" visibility = "public" outgoing = "_d34de8f1-75d8-4f46-8d1f-cfed591a2a9a _17846212-b94a-4935-b360-10abc83260e0" incoming = "_85ad461e-0b83-411f-9b5b-a8d0639e1a4d" behavior = "_06c82b4b-5946-4769-9254-de1756ec033f">
+              </node>
+              <node xmi:type = "uml:CallBehaviorAction" xmi:id = "_ab4497ae-b0c3-40a0-b545-e968bc8a8771" name = "Assess required vehicle type" visibility = "public" outgoing = "_7a9cfd2d-1e5f-4f71-b13c-6942657534d7 _6e1c8b1e-d594-48a0-a337-29c874d1084a" incoming = "_e6fffb71-02fe-47ca-9853-d2de48f0dc00" behavior = "_fa55a5dc-0e29-48b3-81fa-15d62985aec7">
+              </node>
+              <node xmi:type = "uml:CallBehaviorAction" xmi:id = "_46033710-c1eb-4f11-ae12-c55c0f8fc846" name = "Get target location info" visibility = "public" outgoing = "_f3910e90-d67b-461d-841f-d6896b95f34c" incoming = "_93afc282-1713-4ab7-8d28-b020a6953b89" behavior = "_4161716c-2d60-4458-95bb-795b1d33061e">
+              </node>
+              <node xmi:type = "uml:CallBehaviorAction" xmi:id = "_1611bf4e-4270-47b0-8357-7f452f9c88b1" name = "Assess other organizations needed" visibility = "public" outgoing = "_ddb1930b-6f82-4853-9688-8b6a4049fe74" incoming = "_da82fbda-876b-481e-99b9-d32f8b59b6fd" behavior = "_88f0fb67-7c4c-4655-8e45-f7191e68a263">
+              </node>
+              <node xmi:type = "uml:CallBehaviorAction" xmi:id = "_d0928906-8548-4ffd-881c-a838978e89c4" name = "Get diagnose" visibility = "public" outgoing = "_23e23ec5-6b0b-4dde-9939-b0ebd5eeab07" incoming = "_011262e6-5114-4471-9bfa-01032b69a790" behavior = "_0206b4b5-06d9-43e0-b990-695c355e5a9e">
+              </node>
+              <node xmi:type = "uml:CallBehaviorAction" xmi:id = "_d96d54b1-b770-4995-8023-b08d119d9fc6" name = "Locate target" visibility = "public" outgoing = "_e6fffb71-02fe-47ca-9853-d2de48f0dc00" incoming = "_f3910e90-d67b-461d-841f-d6896b95f34c" behavior = "_432296c4-e599-429b-a837-1272aedde8ce">
+              </node>
+              <node xmi:type = "uml:CallBehaviorAction" xmi:id = "_9b128ad5-f41c-4629-afb3-b75a389db895" name = "Get patient data from registry" visibility = "public" outgoing = "_5a87ed0d-ec1c-4fba-8759-2be649796805" incoming = "_e4d82eaa-c566-4e5d-88c5-2a33a3ae759f" behavior = "_69752eeb-2c65-4c01-bd71-fa917313ea7b">
+              </node>
+              <node xmi:type = "uml:InitialNode" xmi:id = "_29a4c5a3-afdf-4f08-961b-0133f2ef51a2" name = "Initial Node1" visibility = "public" outgoing = "_9a230a59-8b9d-4712-9532-d6527415be0e">
+              </node>
+              <node xmi:type = "uml:ForkNode" xmi:id = "_2eec961b-cf2e-4a4b-b8e0-541d1887b881" name = "get details fork" visibility = "public" outgoing = "_48e90a40-98ad-478e-84c3-245cc9123b6b _67ca14a6-5575-40ef-a196-9701e0a9c50b _93afc282-1713-4ab7-8d28-b020a6953b89" incoming = "_64b4a11b-110e-4d29-8eaa-c436d2f5776c">
+              </node>
+              <node xmi:type = "uml:ForkNode" xmi:id = "_aafb3ed6-e3a1-44d4-8a20-a282821264b4" name = "patient fork" visibility = "public" outgoing = "_011262e6-5114-4471-9bfa-01032b69a790 _e4d82eaa-c566-4e5d-88c5-2a33a3ae759f" incoming = "_de18cbad-c5a1-4b29-97cc-987d84c8fcaf">
+              </node>
+              <node xmi:type = "uml:JoinNode" xmi:id = "_fd831403-b787-4c6d-9f54-8e295bdeba9b" name = "got casualty join" visibility = "public" outgoing = "_26b5c5a4-a93f-4b63-85bb-4e13d445d159" incoming = "_23e23ec5-6b0b-4dde-9939-b0ebd5eeab07 _db35cf10-41f4-41f9-9cf8-1baa86d4025b _5a87ed0d-ec1c-4fba-8759-2be649796805">
+              </node>
+              <node xmi:type = "uml:JoinNode" xmi:id = "_a6c10a29-dc8a-4e8b-a39f-14f20a55438b" name = "assessed resources join" visibility = "public" outgoing = "_da82fbda-876b-481e-99b9-d32f8b59b6fd" incoming = "_52e6d290-9ce1-44a8-8dcf-eb8f4b5b6db8 _d34de8f1-75d8-4f46-8d1f-cfed591a2a9a _6e1c8b1e-d594-48a0-a337-29c874d1084a">
+              </node>
+              <node xmi:type = "uml:JoinNode" xmi:id = "_5eec115b-d472-4a1a-9449-1de997614f2a" name = "got casualty details join" visibility = "public" outgoing = "_4ca46126-2a34-4882-8c1f-9c49ce8d928a" incoming = "_17846212-b94a-4935-b360-10abc83260e0 _ddb1930b-6f82-4853-9688-8b6a4049fe74 _346f543d-d7b9-489e-81e6-f5dd130d8977 _7a9cfd2d-1e5f-4f71-b13c-6942657534d7">
+              </node>
+              <node xmi:type = "uml:ForkNode" xmi:id = "_00754319-ab45-418d-b5de-140bff9727fd" name = "got casualty fork" visibility = "public" outgoing = "_85ad461e-0b83-411f-9b5b-a8d0639e1a4d _346f543d-d7b9-489e-81e6-f5dd130d8977" incoming = "_26b5c5a4-a93f-4b63-85bb-4e13d445d159">
+              </node>
+              <node xmi:type = "uml:ActivityFinalNode" xmi:id = "_2d9d5098-15f8-4651-9d99-ba028673587d" name = "Activity Final Node1" visibility = "public" incoming = "_4ca46126-2a34-4882-8c1f-9c49ce8d928a">
+              </node>
+              <node xmi:type = "uml:ValueSpecificationAction" xmi:id = "_fc7c6249-7bd5-43b5-b686-995603b620e3" name = "Get calling phone number" visibility = "public" outgoing = "_7c596845-87f4-4c15-b08b-e3dbd35877cd" incoming = "_f13c40c9-0c07-4dda-8c18-9677c9c7f62a">
+                <value xmi:type = "uml:OpaqueExpression" xmi:id = "_fc7c6249-7bd5-43b5-b686-995603b620e3value" language = "English">
+                    <body></body>
+                </value>
+                <result xmi:type = "uml:OutputPin" xmi:id = "_5fb3c26d-2238-4dc4-b376-911e53946daf" name = "Result Pin" visibility = "public">
+                </result>
+              </node>
+              <node xmi:type = "uml:DecisionNode" xmi:id = "_3c997edd-4719-4eb5-b7ac-085d08cf501d" name = "Decision Node1" visibility = "public" outgoing = "_f13c40c9-0c07-4dda-8c18-9677c9c7f62a _600c0f47-6762-47ee-b1fc-6867be7a4c52" incoming = "_9a230a59-8b9d-4712-9532-d6527415be0e">
+              </node>
+              <node xmi:type = "uml:JoinNode" xmi:id = "_a969f264-ad1f-4093-adf1-db4aa47945e9" name = "Join got phone number" visibility = "public" outgoing = "_64b4a11b-110e-4d29-8eaa-c436d2f5776c" incoming = "_7c596845-87f4-4c15-b08b-e3dbd35877cd _600c0f47-6762-47ee-b1fc-6867be7a4c52">
+              </node>
+              <node xmi:type = "uml:ActivityParameterNode" xmi:id = "_65123257-3cbd-427a-8ae4-7a31779352aa" name = "calling_phone_number" visibility = "public" parameter = "_7d17f3be-4de1-4a20-9b1a-03cb747bdaea">
+              </node>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_85ad461e-0b83-411f-9b5b-a8d0639e1a4d" source = "_00754319-ab45-418d-b5de-140bff9727fd" target = "_a23f036f-ba8b-4d56-ac03-9975ad5cf86c">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_da82fbda-876b-481e-99b9-d32f8b59b6fd" source = "_a6c10a29-dc8a-4e8b-a39f-14f20a55438b" target = "_1611bf4e-4270-47b0-8357-7f452f9c88b1">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_e6fffb71-02fe-47ca-9853-d2de48f0dc00" source = "_d96d54b1-b770-4995-8023-b08d119d9fc6" target = "_ab4497ae-b0c3-40a0-b545-e968bc8a8771">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_48e90a40-98ad-478e-84c3-245cc9123b6b" source = "_2eec961b-cf2e-4a4b-b8e0-541d1887b881" target = "_7deebbc0-993b-4f86-921c-421dc0a3fb0c">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_23e23ec5-6b0b-4dde-9939-b0ebd5eeab07" source = "_d0928906-8548-4ffd-881c-a838978e89c4" target = "_fd831403-b787-4c6d-9f54-8e295bdeba9b">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_db35cf10-41f4-41f9-9cf8-1baa86d4025b" source = "_2cb6545a-b490-46be-b164-9eef9206797b" target = "_fd831403-b787-4c6d-9f54-8e295bdeba9b">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_52e6d290-9ce1-44a8-8dcf-eb8f4b5b6db8" source = "_2cb6545a-b490-46be-b164-9eef9206797b" target = "_a6c10a29-dc8a-4e8b-a39f-14f20a55438b">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_d34de8f1-75d8-4f46-8d1f-cfed591a2a9a" source = "_a23f036f-ba8b-4d56-ac03-9975ad5cf86c" target = "_a6c10a29-dc8a-4e8b-a39f-14f20a55438b">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_64b4a11b-110e-4d29-8eaa-c436d2f5776c" source = "_a969f264-ad1f-4093-adf1-db4aa47945e9" target = "_2eec961b-cf2e-4a4b-b8e0-541d1887b881">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_011262e6-5114-4471-9bfa-01032b69a790" source = "_aafb3ed6-e3a1-44d4-8a20-a282821264b4" target = "_d0928906-8548-4ffd-881c-a838978e89c4">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_67ca14a6-5575-40ef-a196-9701e0a9c50b" source = "_2eec961b-cf2e-4a4b-b8e0-541d1887b881" target = "_2cb6545a-b490-46be-b164-9eef9206797b">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_e4d82eaa-c566-4e5d-88c5-2a33a3ae759f" source = "_aafb3ed6-e3a1-44d4-8a20-a282821264b4" target = "_9b128ad5-f41c-4629-afb3-b75a389db895">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_de18cbad-c5a1-4b29-97cc-987d84c8fcaf" source = "_7deebbc0-993b-4f86-921c-421dc0a3fb0c" target = "_aafb3ed6-e3a1-44d4-8a20-a282821264b4">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_f13c40c9-0c07-4dda-8c18-9677c9c7f62a" source = "_3c997edd-4719-4eb5-b7ac-085d08cf501d" target = "_fc7c6249-7bd5-43b5-b686-995603b620e3">
+                <guard xmi:type = "uml:OpaqueExpression" xmi:id = "_f13c40c9-0c07-4dda-8c18-9677c9c7f62aguard">
+                    <body>calling phone number not available</body>
+                </guard>
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_93afc282-1713-4ab7-8d28-b020a6953b89" source = "_2eec961b-cf2e-4a4b-b8e0-541d1887b881" target = "_46033710-c1eb-4f11-ae12-c55c0f8fc846">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_17846212-b94a-4935-b360-10abc83260e0" source = "_a23f036f-ba8b-4d56-ac03-9975ad5cf86c" target = "_5eec115b-d472-4a1a-9449-1de997614f2a">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_ddb1930b-6f82-4853-9688-8b6a4049fe74" source = "_1611bf4e-4270-47b0-8357-7f452f9c88b1" target = "_5eec115b-d472-4a1a-9449-1de997614f2a">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_26b5c5a4-a93f-4b63-85bb-4e13d445d159" source = "_fd831403-b787-4c6d-9f54-8e295bdeba9b" target = "_00754319-ab45-418d-b5de-140bff9727fd">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_346f543d-d7b9-489e-81e6-f5dd130d8977" source = "_00754319-ab45-418d-b5de-140bff9727fd" target = "_5eec115b-d472-4a1a-9449-1de997614f2a">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_4ca46126-2a34-4882-8c1f-9c49ce8d928a" source = "_5eec115b-d472-4a1a-9449-1de997614f2a" target = "_2d9d5098-15f8-4651-9d99-ba028673587d">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_7a9cfd2d-1e5f-4f71-b13c-6942657534d7" source = "_ab4497ae-b0c3-40a0-b545-e968bc8a8771" target = "_5eec115b-d472-4a1a-9449-1de997614f2a">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_5a87ed0d-ec1c-4fba-8759-2be649796805" source = "_9b128ad5-f41c-4629-afb3-b75a389db895" target = "_fd831403-b787-4c6d-9f54-8e295bdeba9b">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_9a230a59-8b9d-4712-9532-d6527415be0e" source = "_29a4c5a3-afdf-4f08-961b-0133f2ef51a2" target = "_3c997edd-4719-4eb5-b7ac-085d08cf501d">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_7c596845-87f4-4c15-b08b-e3dbd35877cd" source = "_fc7c6249-7bd5-43b5-b686-995603b620e3" target = "_a969f264-ad1f-4093-adf1-db4aa47945e9">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_f3910e90-d67b-461d-841f-d6896b95f34c" source = "_46033710-c1eb-4f11-ae12-c55c0f8fc846" target = "_d96d54b1-b770-4995-8023-b08d119d9fc6">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_600c0f47-6762-47ee-b1fc-6867be7a4c52" source = "_3c997edd-4719-4eb5-b7ac-085d08cf501d" target = "_a969f264-ad1f-4093-adf1-db4aa47945e9">
+                <guard xmi:type = "uml:OpaqueExpression" xmi:id = "_600c0f47-6762-47ee-b1fc-6867be7a4c52guard">
+                    <body>phone number from phone system</body>
+                </guard>
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_6e1c8b1e-d594-48a0-a337-29c874d1084a" source = "_ab4497ae-b0c3-40a0-b545-e968bc8a8771" target = "_a6c10a29-dc8a-4e8b-a39f-14f20a55438b">
+              </edge>
+            </ownedBehavior>
+            <ownedBehavior xmi:type = "uml:Activity" xmi:id = "_a81b3c24-449d-4eeb-bd4e-e5759dc24d9c" name = "Integrate response event detail" isReentrant = "false">
+              <ownedBehavior xmi:type = "uml:Activity" xmi:id = "_f1a74e20-f504-454d-961c-964abb292e32" name = "Retrieve previous call" isReentrant = "false">
+                <ownedComment xmi:type = "uml:Comment" xmi:id = "_f1a74e20-f504-454d-961c-964abb292e32comment" body = "may include choice from recent calls visible in operator UI or browsing list of calls by appropriate keys">
+                </ownedComment>
+              </ownedBehavior>
+              <node xmi:type = "uml:InitialNode" xmi:id = "_9cbbdca3-4fb2-4de2-bf90-36ca0060a6df" name = "Initial Node1" visibility = "public">
+              </node>
+              <node xmi:type = "uml:CallBehaviorAction" xmi:id = "_e703cc96-9c07-43da-ae09-f1b58505ccfb" name = "Retrieve previous call" visibility = "public" behavior = "_f1a74e20-f504-454d-961c-964abb292e32">
+                <ownedComment xmi:type = "uml:Comment" xmi:id = "_e703cc96-9c07-43da-ae09-f1b58505ccfbcomment" body = "may consist of choice from recent calls prompted to the operator or browsing calls by appropriate keys followed by selection&#13;">
+                </ownedComment>
+              </node>
+              <node xmi:type = "uml:ActivityFinalNode" xmi:id = "_8fdecbd5-a207-4435-8fbe-b087bd383f3e" name = "Activity Final Node1" visibility = "public">
+              </node>
+            </ownedBehavior>
+            <ownedBehavior xmi:type = "uml:Activity" xmi:id = "_b68ec9fe-26a9-458e-8179-4d3ed8d397fe" name = "Save call result" isReentrant = "false">
+            </ownedBehavior>
+            <ownedBehavior xmi:type = "uml:Activity" xmi:id = "_4c8692fd-1590-4869-8342-b393398422fb" name = "Answer call" isReentrant = "false">
+              <node xmi:type = "uml:InitialNode" xmi:id = "_79950a32-759b-45d6-bc3b-8e2d218d4426" name = "Initial Node1" visibility = "public">
+              </node>
+              <node xmi:type = "uml:FlowFinalNode" xmi:id = "_cbe20ba1-3714-4ea6-8a4e-1091b0db7879" name = "Flow Final Node1" visibility = "public">
+              </node>
+              <node xmi:type = "uml:ActivityFinalNode" xmi:id = "_db71eeb8-a822-40fc-9c9e-c3d60af50910" name = "Activity Final Node1" visibility = "public" incoming = "_515fb3e6-9fbb-4ac1-a6fb-acaa08a8560d">
+              </node>
+              <node xmi:type = "uml:OpaqueAction" xmi:id = "_213cc229-ce0a-42e0-a282-8d9e1335bcea" name = "start conversation on phone appliance" visibility = "public" outgoing = "_09aeefe9-fa18-4ba1-a420-209be642643b">
+              </node>
+              <node xmi:type = "uml:JoinNode" xmi:id = "_3a0b1052-c817-4a7c-9728-8751422ec2eb" name = "Join Node1" visibility = "public" outgoing = "_515fb3e6-9fbb-4ac1-a6fb-acaa08a8560d" incoming = "_09aeefe9-fa18-4ba1-a420-209be642643b">
+              </node>
+              <node xmi:type = "uml:FlowFinalNode" xmi:id = "_3401fd77-0147-4cef-ad82-888ecb9ad992" name = "Flow Final Node2" visibility = "public">
+              </node>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_515fb3e6-9fbb-4ac1-a6fb-acaa08a8560d" source = "_3a0b1052-c817-4a7c-9728-8751422ec2eb" target = "_db71eeb8-a822-40fc-9c9e-c3d60af50910">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_09aeefe9-fa18-4ba1-a420-209be642643b" source = "_213cc229-ce0a-42e0-a282-8d9e1335bcea" target = "_3a0b1052-c817-4a7c-9728-8751422ec2eb">
+              </edge>
+            </ownedBehavior>
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Class" xmi:id = "_b2f38b7a-76ef-420e-b9c2-c355d31d9c85" name = "Radio Send Message to ERU">
+            <ownedBehavior xmi:type = "uml:Activity" xmi:id = "_ded3dba2-1bac-4189-8502-1b20b2906045" name = "Radio Send Message to ERU" isReentrant = "false">
+              <ownedParameter xmi:type = "uml:Parameter" xmi:id = "_0acbf8ab-a1c9-4128-a684-74f457a37a07" name = "voiceFlag">
+              </ownedParameter>
+              <ownedParameter xmi:type = "uml:Parameter" xmi:id = "_6351cbf5-439a-47af-b1ef-142d6f5dd0ae" name = "data">
+              </ownedParameter>
+              <ownedParameter xmi:type = "uml:Parameter" xmi:id = "_a80af344-6af7-402d-b6fa-b3dc276209a7" name = "channel_id">
+              </ownedParameter>
+              <node xmi:type = "uml:InitialNode" xmi:id = "_47ce7835-3066-4365-8f93-46972744281e" name = "Initial Node1" visibility = "public">
+              </node>
+              <node xmi:type = "uml:ForkNode" xmi:id = "_6422cf4c-565d-43dc-a0c9-2a6aeb3f265c" name = "Fork Node1" visibility = "public" outgoing = "_5e0ddb58-855e-4a97-bca0-315fa02a8982 _9d4ea3d9-ec33-461b-9ace-1d69d56af1a6">
+              </node>
+              <node xmi:type = "uml:DecisionNode" xmi:id = "_9344a698-a7db-4b0b-b7e2-1d7a0f039d86" name = "Decision Node1" visibility = "public" incoming = "_9d4ea3d9-ec33-461b-9ace-1d69d56af1a6">
+              </node>
+              <node xmi:type = "uml:DecisionNode" xmi:id = "_0226ec64-c020-4ddf-8e06-289fa0334a0d" name = "Decision Node2" visibility = "public" incoming = "_5e0ddb58-855e-4a97-bca0-315fa02a8982">
+              </node>
+              <node xmi:type = "uml:FlowFinalNode" xmi:id = "_71496652-a738-490e-8fa8-374506bf86b5" name = "Flow Final Node1" visibility = "public">
+              </node>
+              <node xmi:type = "uml:JoinNode" xmi:id = "_eb5a2fb2-03a5-4c49-b517-c1bfdbf1ff79" name = "Join Node1" visibility = "public" outgoing = "_e97022f1-7c12-4d20-ae7e-c86625b93c01">
+              </node>
+              <node xmi:type = "uml:ActivityFinalNode" xmi:id = "_2746225f-52f8-4eb2-822f-cba46d2948b7" name = "Activity Final Node1" visibility = "public" incoming = "_e97022f1-7c12-4d20-ae7e-c86625b93c01">
+              </node>
+              <node xmi:type = "uml:ActivityParameterNode" xmi:id = "_58b1c1a2-d7d0-47e2-bcd0-dda617e96143" name = "voiceFlag" visibility = "public" parameter = "_0acbf8ab-a1c9-4128-a684-74f457a37a07">
+              </node>
+              <node xmi:type = "uml:ActivityParameterNode" xmi:id = "_2e3387ae-d31b-4317-bb01-863e28a6e38f" name = "data" visibility = "public" parameter = "_6351cbf5-439a-47af-b1ef-142d6f5dd0ae">
+              </node>
+              <node xmi:type = "uml:ActivityParameterNode" xmi:id = "_db5f3eff-816c-44fa-a327-a0b29780ca66" name = "channel_id" visibility = "public" parameter = "_a80af344-6af7-402d-b6fa-b3dc276209a7">
+              </node>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_e97022f1-7c12-4d20-ae7e-c86625b93c01" source = "_eb5a2fb2-03a5-4c49-b517-c1bfdbf1ff79" target = "_2746225f-52f8-4eb2-822f-cba46d2948b7">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_5e0ddb58-855e-4a97-bca0-315fa02a8982" source = "_6422cf4c-565d-43dc-a0c9-2a6aeb3f265c" target = "_0226ec64-c020-4ddf-8e06-289fa0334a0d">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_9d4ea3d9-ec33-461b-9ace-1d69d56af1a6" source = "_6422cf4c-565d-43dc-a0c9-2a6aeb3f265c" target = "_9344a698-a7db-4b0b-b7e2-1d7a0f039d86">
+              </edge>
+            </ownedBehavior>
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Class" xmi:id = "_1ab0861e-7f1f-4771-9f82-5f697ed31b88" name = "Replay of recorded conversation">
+            <generalization xmi:type = "uml:Generalization" xmi:id = "_da1b7e0a-d311-44f9-8c28-ab13feeab05a" general = "_d40de328-f8ae-4df3-8673-90f37a7fbe55">
+            </generalization>
+            <ownedBehavior xmi:type = "uml:Activity" xmi:id = "_b13805a0-345d-493d-8fb2-200a6f69b44e" name = "Replay of recorded conversation" isReentrant = "false">
+              <node xmi:type = "uml:InitialNode" xmi:id = "_b7747040-3706-46ec-9ee1-f27be08510f1" name = "Initial Node1" visibility = "public" outgoing = "_210413e2-b185-45e0-ac14-376b96b92a8f">
+                <ownedRule xmi:type = "uml:Constraint" xmi:id = "_0033bbe8-6120-4954-9895-0d9d082dbbfa" name = "Constraint1" constrainedElement = "_b7747040-3706-46ec-9ee1-f27be08510f1">
+                  <specification xmi:type = "uml:OpaqueExpression" xmi:id = "_0033bbe8-6120-4954-9895-0d9d082dbbfaspecification" body = "must be authenticated in the system. Verify permissions  to operators to replaying conversations of other operators">
+                  </specification>
+                </ownedRule>
+              </node>
+              <node xmi:type = "uml:ActivityFinalNode" xmi:id = "_811b5962-85f9-453b-ad81-0918f19b383d" name = "Activity Final Node1" visibility = "public">
+              </node>
+              <group xmi:type = "uml:StructuredActivityNode" xmi:id = "_9e69730d-4fe2-46c1-86ca-9aab96163578" name = "Retrieve call information" visibility = "public" node = "_40c5a411-571d-4d46-b8ac-9047fcc2e72d _78782f90-29f2-4b94-a241-5f5bb802c3d5 _7850a173-956b-413f-8a17-9b1aab171fc5">
+              </group>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_210413e2-b185-45e0-ac14-376b96b92a8f" source = "_b7747040-3706-46ec-9ee1-f27be08510f1" target = "_6d17443a-5e17-4701-98ff-7b78b358d8ef">
+              </edge>
+            </ownedBehavior>
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Class" xmi:id = "_1d10313b-16d9-4ada-87a8-d13af70c1bb3" name = "Respond To Fault 1">
+            <generalization xmi:type = "uml:Generalization" xmi:id = "_dd3ca897-ba63-4e36-8208-178e6997ccc9" general = "_d40de328-f8ae-4df3-8673-90f37a7fbe55">
+            </generalization>
+            <ownedOperation xmi:type = "uml:Operation" xmi:id = "_b8a64ba9-acc7-4576-ab67-e7f18f4915d6op" name = "Resend reponse info to ERU" visibility = "public">
+            </ownedOperation>
+            <ownedOperation xmi:type = "uml:Operation" xmi:id = "_e13364dd-a36f-45af-be01-681c5a63417aop" name = "Log fault 1" visibility = "public">
+            </ownedOperation>
+            <ownedOperation xmi:type = "uml:Operation" xmi:id = "_a12eea91-bf85-4888-8ce7-bd1832a9eb97op" name = "Process message" visibility = "public">
+            </ownedOperation>
+            <ownedOperation xmi:type = "uml:Operation" xmi:id = "_942e80a9-37a6-463c-8668-f5d64a31ec24op" name = "Receive message" visibility = "public">
+            </ownedOperation>
+            <ownedBehavior xmi:type = "uml:Activity" xmi:id = "_7c61e3a8-b64b-48dd-99a2-bdb1dcc6b30e" name = "Respond To Fault 1" isReentrant = "false">
+              <node xmi:type = "uml:AcceptEventAction" xmi:id = "_fcf78d16-c765-4d4f-926d-e263c542af65" name = "Fault 1 recovery" visibility = "public" outgoing = "_8cb263a1-3f62-44f4-985a-11030627fccd" incoming = "_87687402-ef78-4ca5-844d-c8829a882404">
+                <trigger xmi:type = "uml:Trigger" xmi:id = "_fcf78d16-c765-4d4f-926d-e263c542af65trigger" event = "_0e4a5024-aa83-4f17-84b4-e05c131bad92">
+                </trigger>
+              </node>
+              <node xmi:type = "uml:InitialNode" xmi:id = "_86976781-16e2-4ec9-ae63-ef7fd9377a4f" name = "Initial Node1" visibility = "public" outgoing = "_87687402-ef78-4ca5-844d-c8829a882404">
+              </node>
+              <node xmi:type = "uml:CallOperationAction" xmi:id = "_b55df609-faeb-43a3-a8b3-361da7263d3b" name = "Log fault 1" visibility = "public" outgoing = "_8e4f3f48-cdd9-4049-8cba-831f724bd22b" incoming = "_8cb263a1-3f62-44f4-985a-11030627fccd" operation = "_e13364dd-a36f-45af-be01-681c5a63417aop">
+                <target xmi:type = "uml:InputPin" xmi:id = "_70853c29-5014-4bbe-87a6-083660b86b80" name = "Target Pin" visibility = "public">
+                </target>
+              </node>
+              <node xmi:type = "uml:CallOperationAction" xmi:id = "_a3197992-66cf-4a99-99f9-a6f7f59dbde0" name = "Resend response info to ERU" visibility = "public" outgoing = "_728c87ef-9883-4ca4-b999-5f6605a6601f" incoming = "_8e4f3f48-cdd9-4049-8cba-831f724bd22b" operation = "_b8a64ba9-acc7-4576-ab67-e7f18f4915d6op">
+                <target xmi:type = "uml:InputPin" xmi:id = "_ee1add6a-7a56-451d-98d9-9f093727c365" name = "Target Pin" visibility = "public">
+                </target>
+              </node>
+              <node xmi:type = "uml:CallOperationAction" xmi:id = "_93232ed3-c66f-4729-b9c6-ca3f1185546d" name = "Process message" visibility = "public" outgoing = "_f9c492bb-9d1a-4626-8bf0-5c9447ecd18a" incoming = "_728c87ef-9883-4ca4-b999-5f6605a6601f" operation = "_a12eea91-bf85-4888-8ce7-bd1832a9eb97op">
+                <ownedComment xmi:type = "uml:Comment" xmi:id = "_8c0b96e9-3623-4249-a951-1be487ababfb" annotatedElement = "_93232ed3-c66f-4729-b9c6-ca3f1185546d" body = "The mobile phone may also fail, could include another fault activation and recovery diagram to include that option.">
+                </ownedComment>
+                <target xmi:type = "uml:InputPin" xmi:id = "_19239901-bfed-48aa-8288-13f59205192c" name = "Target Pin" visibility = "public">
+                </target>
+              </node>
+              <node xmi:type = "uml:CallOperationAction" xmi:id = "_f179bc54-10ac-4800-bc0f-bd03cd445091" name = "Receive message" visibility = "public" outgoing = "_7f58307e-84f8-4e56-a4a0-5f5aaa15c0cb" incoming = "_f9c492bb-9d1a-4626-8bf0-5c9447ecd18a" operation = "_942e80a9-37a6-463c-8668-f5d64a31ec24op">
+                <target xmi:type = "uml:InputPin" xmi:id = "_ac7d279c-aeeb-4771-bb9a-f25fcce49a52" name = "Target Pin" visibility = "public">
+                </target>
+              </node>
+              <node xmi:type = "uml:SendSignalAction" xmi:id = "" name = "Service response" visibility = "public" outgoing = "_3c8bdb80-17d4-40a6-a2bd-cd2cbc06a5ed" incoming = "_7f58307e-84f8-4e56-a4a0-5f5aaa15c0cb" signal = "_8fe1da03-4ee0-4538-848e-e1f97f7299f0">
+                <argument xmi:type = "uml:InputPin" xmi:id = "_7e6cb517-f913-414f-83da-bc7af04421e1" name = "Target Pin" visibility = "public">
+                </argument>
+              </node>
+              <node xmi:type = "uml:ActivityFinalNode" xmi:id = "_649513a0-f33b-4c1c-a451-1bdfe8eb12e2" name = "Activity Final Node1" visibility = "public" incoming = "_3c8bdb80-17d4-40a6-a2bd-cd2cbc06a5ed">
+              </node>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_87687402-ef78-4ca5-844d-c8829a882404" source = "_86976781-16e2-4ec9-ae63-ef7fd9377a4f" target = "_fcf78d16-c765-4d4f-926d-e263c542af65">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_8e4f3f48-cdd9-4049-8cba-831f724bd22b" source = "_b55df609-faeb-43a3-a8b3-361da7263d3b" target = "_a3197992-66cf-4a99-99f9-a6f7f59dbde0">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_728c87ef-9883-4ca4-b999-5f6605a6601f" source = "_a3197992-66cf-4a99-99f9-a6f7f59dbde0" target = "_93232ed3-c66f-4729-b9c6-ca3f1185546d">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_f9c492bb-9d1a-4626-8bf0-5c9447ecd18a" source = "_93232ed3-c66f-4729-b9c6-ca3f1185546d" target = "_f179bc54-10ac-4800-bc0f-bd03cd445091">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_7f58307e-84f8-4e56-a4a0-5f5aaa15c0cb" source = "_f179bc54-10ac-4800-bc0f-bd03cd445091">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_3c8bdb80-17d4-40a6-a2bd-cd2cbc06a5ed" target = "_649513a0-f33b-4c1c-a451-1bdfe8eb12e2">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_8cb263a1-3f62-44f4-985a-11030627fccd" source = "_fcf78d16-c765-4d4f-926d-e263c542af65" target = "_b55df609-faeb-43a3-a8b3-361da7263d3b">
+              </edge>
+            </ownedBehavior>
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Class" xmi:id = "_30fbe2a9-75f3-4540-98e5-972265e89986" name = "Service Mission">
+            <generalization xmi:type = "uml:Generalization" xmi:id = "_5dfecb37-dab7-4d5e-8d32-26a8de9af9a1" general = "_d40de328-f8ae-4df3-8673-90f37a7fbe55">
+            </generalization>
+            <ownedOperation xmi:type = "uml:Operation" xmi:id = "_2be76854-1a5f-4f9f-a8ca-b876afe4eb43op" name = "Drop off at hospital" visibility = "public">
+            </ownedOperation>
+            <ownedOperation xmi:type = "uml:Operation" xmi:id = "_a4d3891d-fe80-4ddc-a2b1-98137e55309bop" name = "Attend target" visibility = "public">
+            </ownedOperation>
+            <ownedAttribute xmi:type = "uml:Property" xmi:id="_ed4e8fd2-d854-49cf-9782-894d4cdc0e05" type = "_0bcc0cde-515d-4140-81bd-73bfceff301c" visibility = "private" aggregation = "shared" association = "_ef529bf5-9432-4180-bcf9-f7082b242cbf">
+            </ownedAttribute>
+            <ownedBehavior xmi:type = "uml:Activity" xmi:id = "_6fc40970-f9c2-489d-8f30-d686413e3c28" name = "Service  Mission" isReentrant = "false">
+              <ownedBehavior xmi:type = "uml:Activity" xmi:id = "" name = "Acknowledge status change" isReentrant = "false">
+                <node xmi:type = "uml:InitialNode" xmi:id = "_da1f8a35-5385-4a85-a92f-0ecf6663576b" name = "Initial Node1" visibility = "public" outgoing = "_82ce8f58-500c-487b-b9c0-e0e394553945">
+                </node>
+                <node xmi:type = "uml:CallOperationAction" xmi:id = "_d2f5e5d8-91a9-4650-b5d5-0a879c7a2245" name = "Update status" visibility = "public" outgoing = "_dfd6a14b-af71-4a7c-aef5-366a0fa1de08" incoming = "_e81f380c-7b8d-4500-a516-650ab68d6239" operation = "_a6fa6f30-e77b-4576-a751-30311a24daf7op">
+                  <target xmi:type = "uml:InputPin" xmi:id = "_086a1dcc-94b9-4eb0-8c96-f1494b7f37ba" name = "Target Pin" visibility = "public">
+                  </target>
+                </node>
+                <node xmi:type = "uml:DecisionNode" xmi:id = "_8f6c0440-1cef-4a40-8d2d-e0268ab58026" name = "Decision Node1" visibility = "public" outgoing = "_ac32079d-2e58-4206-bca7-22cdbe337a28 _e81f380c-7b8d-4500-a516-650ab68d6239" incoming = "_1b6dd43e-070e-473d-ae97-971f6aeaf666">
+                </node>
+                <node xmi:type = "uml:ActivityFinalNode" xmi:id = "_47f76f2d-4c8d-4a81-9c55-a7df8aab9313" name = "Activity Final Node1" visibility = "public" incoming = "_8458e129-bf76-451c-97f3-0960060efe1d">
+                </node>
+                <node xmi:type = "uml:SendSignalAction" xmi:id = "" name = "Update ERU status" visibility = "public" outgoing = "_8458e129-bf76-451c-97f3-0960060efe1d" incoming = "_dfd6a14b-af71-4a7c-aef5-366a0fa1de08" signal = "_9a4b347c-2346-4ac2-b772-fbb9f88e5866">
+                  <argument xmi:type = "uml:InputPin" xmi:id = "_49aa7121-ad7a-4f18-8aee-db3730c4ec66" name = "Target Pin" visibility = "public">
+                  </argument>
+                </node>
+                <node xmi:type = "uml:CallOperationAction" xmi:id = "_834cfad0-966c-42d4-bff1-8b61adc03ed1" name = "Drive" visibility = "public" outgoing = "_1b6dd43e-070e-473d-ae97-971f6aeaf666" incoming = "_ac32079d-2e58-4206-bca7-22cdbe337a28 _82ce8f58-500c-487b-b9c0-e0e394553945" operation = "_3b956b58-7d54-4f6d-8ce5-6092897212b3op">
+                  <target xmi:type = "uml:InputPin" xmi:id = "_7ec56aec-2bea-4d62-aace-a8eac6f5103c" name = "Target Pin" visibility = "public">
+                  </target>
+                  <argument xmi:type = "uml:InputPin" xmi:id = "_5996597b-cc5d-4263-ae9a-1b71bfcd69b7" name = "destn" visibility = "public">
+                  </argument>
+                </node>
+                <edge xmi:type = "uml:ControlFlow" xmi:id = "_dfd6a14b-af71-4a7c-aef5-366a0fa1de08" source = "_d2f5e5d8-91a9-4650-b5d5-0a879c7a2245">
+                </edge>
+                <edge xmi:type = "uml:ControlFlow" xmi:id = "_ac32079d-2e58-4206-bca7-22cdbe337a28" source = "_8f6c0440-1cef-4a40-8d2d-e0268ab58026" target = "_834cfad0-966c-42d4-bff1-8b61adc03ed1">
+                  <guard xmi:type = "uml:OpaqueExpression" xmi:id = "_ac32079d-2e58-4206-bca7-22cdbe337a28guard">
+                      <body>Destination not reached</body>
+                  </guard>
+                </edge>
+                <edge xmi:type = "uml:ControlFlow" xmi:id = "_1b6dd43e-070e-473d-ae97-971f6aeaf666" source = "_834cfad0-966c-42d4-bff1-8b61adc03ed1" target = "_8f6c0440-1cef-4a40-8d2d-e0268ab58026">
+                </edge>
+                <edge xmi:type = "uml:ControlFlow" xmi:id = "_8458e129-bf76-451c-97f3-0960060efe1d" target = "_47f76f2d-4c8d-4a81-9c55-a7df8aab9313">
+                </edge>
+                <edge xmi:type = "uml:ControlFlow" xmi:id = "_82ce8f58-500c-487b-b9c0-e0e394553945" source = "_da1f8a35-5385-4a85-a92f-0ecf6663576b" target = "_834cfad0-966c-42d4-bff1-8b61adc03ed1">
+                </edge>
+                <edge xmi:type = "uml:ControlFlow" xmi:id = "_e81f380c-7b8d-4500-a516-650ab68d6239" source = "_8f6c0440-1cef-4a40-8d2d-e0268ab58026" target = "_d2f5e5d8-91a9-4650-b5d5-0a879c7a2245">
+                  <guard xmi:type = "uml:OpaqueExpression" xmi:id = "_e81f380c-7b8d-4500-a516-650ab68d6239guard">
+                      <body>Destination reached</body>
+                  </guard>
+                </edge>
+              </ownedBehavior>
+              <node xmi:type = "uml:AcceptEventAction" xmi:id = "_37a7ff99-3473-4f1a-84a1-958a4d693926" name = "Service  mission" visibility = "public" outgoing = "_9c287ed9-069e-4dad-b411-13a42bca2517" incoming = "_856d077e-ebe7-4364-bbd3-99c482eca33f">
+                <trigger xmi:type = "uml:Trigger" xmi:id = "_37a7ff99-3473-4f1a-84a1-958a4d693926trigger" event = "_17dec20a-6403-4d3a-9c66-7cd9c024b908">
+                </trigger>
+              </node>
+              <node xmi:type = "uml:InitialNode" xmi:id = "_205fe45a-df6a-46bb-af42-34576913e3ec" name = "Initial Node1" visibility = "public" outgoing = "_856d077e-ebe7-4364-bbd3-99c482eca33f">
+              </node>
+              <node xmi:type = "uml:CallBehaviorAction" xmi:id = "_ce62b919-8126-4ffb-8a8f-7d4e00f1e341" name = "Drive" visibility = "public" outgoing = "_73194aa2-ee0d-4b6b-b854-e5b2b93a4942" incoming = "_9c287ed9-069e-4dad-b411-13a42bca2517">
+              </node>
+              <node xmi:type = "uml:SendSignalAction" xmi:id = "_d93eb9e2-1595-474b-bd48-50d5b3a42911" name = "Attend target" visibility = "public" outgoing = "_9707a4e7-8066-4f01-adf9-4744b2e6dea3" incoming = "_73194aa2-ee0d-4b6b-b854-e5b2b93a4942" signal = "_3c603f68-6227-4f0b-a2da-de116633a581">
+                <argument xmi:type = "uml:InputPin" xmi:id = "_22bef41f-a8e2-420d-a5c8-3a3d10f999e0" name = "Target Pin" visibility = "public">
+                </argument>
+              </node>
+              <node xmi:type = "uml:DecisionNode" xmi:id = "_f0a852a3-6f27-4962-9523-06edcf2af3e5" name = "Decision Node1" visibility = "public" outgoing = "_ef5135b7-3d08-4a0c-a638-8b13bf6ae579 _662a6c1d-65a5-48dc-8ae6-6d7e421fdcc2" incoming = "_3cc5f643-0832-4384-981e-4f1d76102731">
+              </node>
+              <node xmi:type = "uml:CallBehaviorAction" xmi:id = "_a9382f05-8f17-42d3-9d4c-54a9a1dcc578" name = "Drive1" visibility = "public" outgoing = "_2f3a0303-fcc3-454d-a057-b719f3ac24ca" incoming = "_662a6c1d-65a5-48dc-8ae6-6d7e421fdcc2">
+              </node>
+              <node xmi:type = "uml:CallBehaviorAction" xmi:id = "_5406db26-2d32-47de-b385-c27b7ded4868" name = "Drive2" visibility = "public" outgoing = "_2bde7f3c-6ba1-4f3d-9e6c-55fb02c11112" incoming = "_ef5135b7-3d08-4a0c-a638-8b13bf6ae579">
+              </node>
+              <node xmi:type = "uml:CallOperationAction" xmi:id = "_f50adaa3-0a3e-4712-9850-d1c7693e07cd" name = "Drop off at hospital" visibility = "public" outgoing = "_6fb69048-d9f7-4e34-80be-a51ef0220e48" incoming = "_2bde7f3c-6ba1-4f3d-9e6c-55fb02c11112" operation = "_2be76854-1a5f-4f9f-a8ca-b876afe4eb43op">
+                <target xmi:type = "uml:InputPin" xmi:id = "_a256c85b-f403-463c-8cf4-0d55a8757eec" name = "Target Pin" visibility = "public">
+                </target>
+              </node>
+              <node xmi:type = "uml:CallOperationAction" xmi:id = "_4e2462c6-6318-4320-be94-79eaf845d814" name = "Attend target1" visibility = "public" outgoing = "_3cc5f643-0832-4384-981e-4f1d76102731" incoming = "_9707a4e7-8066-4f01-adf9-4744b2e6dea3" operation = "_a4d3891d-fe80-4ddc-a2b1-98137e55309bop">
+                <target xmi:type = "uml:InputPin" xmi:id = "_e53b435d-dd17-4b2f-96c4-d02874be4e07" name = "Target Pin" visibility = "public">
+                </target>
+              </node>
+              <node xmi:type = "uml:CallBehaviorAction" xmi:id = "_9621cf8e-47f5-49eb-9e38-98ca720930d1" name = "Drive3" visibility = "public" outgoing = "_5b5a38bc-8b41-40b6-9286-c23554b5c1ef" incoming = "_6fb69048-d9f7-4e34-80be-a51ef0220e48">
+              </node>
+              <node xmi:type = "uml:ActivityFinalNode" xmi:id = "_526b199d-7e10-4dbf-927b-44f8f1f3b1a3" name = "Activity Final Node1" visibility = "public" incoming = "_5b5a38bc-8b41-40b6-9286-c23554b5c1ef">
+              </node>
+              <node xmi:type = "uml:ActivityFinalNode" xmi:id = "_1202a8ec-8c23-44cc-bdc8-909ec6d2ad5d" name = "Activity Final Node2" visibility = "public" incoming = "_2f3a0303-fcc3-454d-a057-b719f3ac24ca">
+              </node>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_9c287ed9-069e-4dad-b411-13a42bca2517" source = "_37a7ff99-3473-4f1a-84a1-958a4d693926" target = "_ce62b919-8126-4ffb-8a8f-7d4e00f1e341">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_856d077e-ebe7-4364-bbd3-99c482eca33f" source = "_205fe45a-df6a-46bb-af42-34576913e3ec" target = "_37a7ff99-3473-4f1a-84a1-958a4d693926">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_73194aa2-ee0d-4b6b-b854-e5b2b93a4942" source = "_ce62b919-8126-4ffb-8a8f-7d4e00f1e341" target = "_d93eb9e2-1595-474b-bd48-50d5b3a42911">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_9707a4e7-8066-4f01-adf9-4744b2e6dea3" source = "_d93eb9e2-1595-474b-bd48-50d5b3a42911" target = "_4e2462c6-6318-4320-be94-79eaf845d814">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_ef5135b7-3d08-4a0c-a638-8b13bf6ae579" source = "_f0a852a3-6f27-4962-9523-06edcf2af3e5" target = "_5406db26-2d32-47de-b385-c27b7ded4868">
+                <guard xmi:type = "uml:OpaqueExpression" xmi:id = "_ef5135b7-3d08-4a0c-a638-8b13bf6ae579guard">
+                    <body>Patient needs hospital</body>
+                </guard>
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_5b5a38bc-8b41-40b6-9286-c23554b5c1ef" source = "_9621cf8e-47f5-49eb-9e38-98ca720930d1" target = "_526b199d-7e10-4dbf-927b-44f8f1f3b1a3">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_2f3a0303-fcc3-454d-a057-b719f3ac24ca" source = "_a9382f05-8f17-42d3-9d4c-54a9a1dcc578" target = "_1202a8ec-8c23-44cc-bdc8-909ec6d2ad5d">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_2bde7f3c-6ba1-4f3d-9e6c-55fb02c11112" source = "_5406db26-2d32-47de-b385-c27b7ded4868" target = "_f50adaa3-0a3e-4712-9850-d1c7693e07cd">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_6fb69048-d9f7-4e34-80be-a51ef0220e48" source = "_f50adaa3-0a3e-4712-9850-d1c7693e07cd" target = "_9621cf8e-47f5-49eb-9e38-98ca720930d1">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_3cc5f643-0832-4384-981e-4f1d76102731" source = "_4e2462c6-6318-4320-be94-79eaf845d814" target = "_f0a852a3-6f27-4962-9523-06edcf2af3e5">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_662a6c1d-65a5-48dc-8ae6-6d7e421fdcc2" source = "_f0a852a3-6f27-4962-9523-06edcf2af3e5" target = "_a9382f05-8f17-42d3-9d4c-54a9a1dcc578">
+                <guard xmi:type = "uml:OpaqueExpression" xmi:id = "_662a6c1d-65a5-48dc-8ae6-6d7e421fdcc2guard">
+                    <body>Patient doesn&apos;t need hospital</body>
+                </guard>
+              </edge>
+            </ownedBehavior>
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Class" xmi:id = "_9606ac33-c3f9-4f0a-a1c6-14cc00f570a5" name = "Time Mission">
+            <generalization xmi:type = "uml:Generalization" xmi:id = "_d15882b8-53af-4124-8a63-b33260c395ce" general = "_d40de328-f8ae-4df3-8673-90f37a7fbe55">
+            </generalization>
+            <ownedOperation xmi:type = "uml:Operation" xmi:id = "_d74d7cc6-270f-4865-b2d0-79b2b9d311e9op" name = "Start timer" visibility = "public">
+            </ownedOperation>
+            <ownedOperation xmi:type = "uml:Operation" xmi:id = "_8d745003-b61e-440b-819d-4ca393e31fb0op" name = "Stop timer" visibility = "public">
+            </ownedOperation>
+            <ownedOperation xmi:type = "uml:Operation" xmi:id = "_e85d21f9-9651-4190-80c8-955bf2aa1aefop" name = "Log time" visibility = "public">
+            </ownedOperation>
+            <ownedBehavior xmi:type = "uml:Activity" xmi:id = "_cb70a996-b354-4f9e-9013-6e418588727a" name = "Time  Mission" isReentrant = "false">
+              <node xmi:type = "uml:InitialNode" xmi:id = "_e0029d72-7897-47f1-a338-a0696852878f" name = "Initial Node1" visibility = "public" outgoing = "_87c0ed93-9e2b-4185-80f7-90f956862ab5">
+              </node>
+              <node xmi:type = "uml:AcceptEventAction" xmi:id = "_1e0e04cf-76c8-48d6-bc10-3964cc4262ee" name = "Service response" visibility = "public" outgoing = "_2d57cdf0-e37b-4398-aff7-417fbbe4751d" incoming = "_87c0ed93-9e2b-4185-80f7-90f956862ab5">
+                <ownedComment xmi:type = "uml:Comment" xmi:id = "_5f3d1c82-fb4c-468a-8396-b521dcbb8dd2" annotatedElement = "_1a28b625-3cf3-4ab5-8b0d-f7a8158f8979" body = "Valid to have two input events like this?">
+                </ownedComment>
+                <trigger xmi:type = "uml:Trigger" xmi:id = "_1e0e04cf-76c8-48d6-bc10-3964cc4262eetrigger" event = "_17dec20a-6403-4d3a-9c66-7cd9c024b908">
+                </trigger>
+              </node>
+              <node xmi:type = "uml:CallOperationAction" xmi:id = "_01f6156b-eab1-4503-aba9-e0c6d1d8e970" name = "Start timer" visibility = "public" outgoing = "_0f6c3c33-1173-46a7-b882-c25c83a81b24" incoming = "_2d57cdf0-e37b-4398-aff7-417fbbe4751d" operation = "_d74d7cc6-270f-4865-b2d0-79b2b9d311e9op">
+                <target xmi:type = "uml:InputPin" xmi:id = "_49748ebb-537b-4fce-b188-57fec69301cd" name = "Target Pin" visibility = "public">
+                </target>
+              </node>
+              <node xmi:type = "uml:AcceptEventAction" xmi:id = "_1a28b625-3cf3-4ab5-8b0d-f7a8158f8979" name = "At target" visibility = "public" outgoing = "_b531db15-bc6a-4e6e-b704-2a1190463ba1" incoming = "_0f6c3c33-1173-46a7-b882-c25c83a81b24">
+                <trigger xmi:type = "uml:Trigger" xmi:id = "_1a28b625-3cf3-4ab5-8b0d-f7a8158f8979trigger" event = "_ec0e440f-3269-4089-ad46-e6a4b2a604eb">
+                </trigger>
+              </node>
+              <node xmi:type = "uml:CallOperationAction" xmi:id = "_883a2d4d-4e0a-4a0b-8c25-2cd8bc03ad6e" name = "Stop timer" visibility = "public" outgoing = "_1041d306-b067-4dd6-90ba-d7f379b74a38" incoming = "_b531db15-bc6a-4e6e-b704-2a1190463ba1" operation = "_8d745003-b61e-440b-819d-4ca393e31fb0op">
+                <target xmi:type = "uml:InputPin" xmi:id = "_0331d704-db70-457d-b79b-7620dc25b3b2" name = "Target Pin" visibility = "public">
+                </target>
+              </node>
+              <node xmi:type = "uml:CallOperationAction" xmi:id = "_f8790765-c931-43f1-acd6-68472e25cb9d" name = "Log time" visibility = "public" outgoing = "_28ece42d-028c-4782-a564-d484b835d3c8" incoming = "_1041d306-b067-4dd6-90ba-d7f379b74a38" operation = "_e85d21f9-9651-4190-80c8-955bf2aa1aefop">
+                <target xmi:type = "uml:InputPin" xmi:id = "_f1d0ffc3-937b-4c91-b68a-8ecdda31960e" name = "Target Pin" visibility = "public">
+                </target>
+              </node>
+              <node xmi:type = "uml:ActivityFinalNode" xmi:id = "_9b76f166-bbcc-461a-9770-08ab2cb31926" name = "Activity Final Node1" visibility = "public" incoming = "_28ece42d-028c-4782-a564-d484b835d3c8">
+              </node>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_2d57cdf0-e37b-4398-aff7-417fbbe4751d" source = "_1e0e04cf-76c8-48d6-bc10-3964cc4262ee" target = "_01f6156b-eab1-4503-aba9-e0c6d1d8e970">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_0f6c3c33-1173-46a7-b882-c25c83a81b24" source = "_01f6156b-eab1-4503-aba9-e0c6d1d8e970" target = "_1a28b625-3cf3-4ab5-8b0d-f7a8158f8979">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_b531db15-bc6a-4e6e-b704-2a1190463ba1" source = "_1a28b625-3cf3-4ab5-8b0d-f7a8158f8979" target = "_883a2d4d-4e0a-4a0b-8c25-2cd8bc03ad6e">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_1041d306-b067-4dd6-90ba-d7f379b74a38" source = "_883a2d4d-4e0a-4a0b-8c25-2cd8bc03ad6e" target = "_f8790765-c931-43f1-acd6-68472e25cb9d">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_28ece42d-028c-4782-a564-d484b835d3c8" source = "_f8790765-c931-43f1-acd6-68472e25cb9d" target = "_9b76f166-bbcc-461a-9770-08ab2cb31926">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_87c0ed93-9e2b-4185-80f7-90f956862ab5" source = "_e0029d72-7897-47f1-a338-a0696852878f" target = "_1e0e04cf-76c8-48d6-bc10-3964cc4262ee">
+              </edge>
+            </ownedBehavior>
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Class" xmi:id = "_35e314a3-949c-4eef-8ef3-9091c256c020" name = "update response">
+            <generalization xmi:type = "uml:Generalization" xmi:id = "_2accd6db-acca-4133-a06d-0e74a5967c3c" general = "_d40de328-f8ae-4df3-8673-90f37a7fbe55">
+            </generalization>
+            <ownedBehavior xmi:type = "uml:Activity" xmi:id = "_085402f2-2d06-4990-a766-1c4912d1f221" name = "update response" isReentrant = "false">
+              <node xmi:type = "uml:InitialNode" xmi:id = "_358fc41d-5b69-4143-816e-ff2fc9b8e01c" name = "Initial Node1" visibility = "public" outgoing = "_5f2fc0f6-bc3c-4e77-92d1-d24c9e7dd597">
+              </node>
+              <node xmi:type = "uml:ForkNode" xmi:id = "_06898fbd-c4e8-41b1-9194-d10eda12610d" name = "Fork Node1" visibility = "public" outgoing = "_e01666b9-a16f-4555-a873-eda8e8674f90 _f9ada75a-4440-49be-824b-117007d51289 _654205bd-30ce-449d-9772-bd29b32ceb6e" incoming = "_5f2fc0f6-bc3c-4e77-92d1-d24c9e7dd597">
+              </node>
+              <node xmi:type = "uml:DecisionNode" xmi:id = "_d5aa2ebf-05bf-4c05-9e27-81ef504dce02" name = "Decision Node1" visibility = "public" outgoing = "_ac91e13d-2fd5-4da2-a3a0-fb8adfeb52e6" incoming = "_e01666b9-a16f-4555-a873-eda8e8674f90">
+              </node>
+              <node xmi:type = "uml:DecisionNode" xmi:id = "_f23a8afb-ee87-4a38-b341-2759365f558b" name = "Decision Node2" visibility = "public" outgoing = "_5fe16fa9-d464-4972-be8b-b2dbc5383b1d _73987811-7191-4497-bd4a-ae3ab0fbb5a4" incoming = "_f9ada75a-4440-49be-824b-117007d51289">
+              </node>
+              <node xmi:type = "uml:DecisionNode" xmi:id = "_56432de4-59c0-42ee-be72-50529be285fc" name = "Decision Node3" visibility = "public" outgoing = "_0b753fc3-2ee4-45cb-b230-09fbec77fea9 _23773bf0-869c-4a98-a68c-113ecc07766b" incoming = "_654205bd-30ce-449d-9772-bd29b32ceb6e">
+              </node>
+              <node xmi:type = "uml:SendSignalAction" xmi:id = "_3118eda2-ab95-4a19-a6fa-1210740c6aad" name = "Activate External Organization" visibility = "public" signal = "_24c48408-1d2a-4469-904d-5a9671f81737">
+                <argument xmi:type = "uml:InputPin" xmi:id = "_7ac679e2-d59c-4910-9539-61a734a968b8" name = "Target Pin" visibility = "public">
+                </argument>
+              </node>
+              <node xmi:type = "uml:SendSignalAction" xmi:id = "_21003d9a-a7e6-4d61-bc67-7339d83969c1" name = "Start mission" visibility = "public" outgoing = "_9ce12938-5db5-47fa-ab4b-1ab72b3ac30a" incoming = "_5fe16fa9-d464-4972-be8b-b2dbc5383b1d" signal = "_ad389e86-95bf-4439-b734-af5f2a73024a">
+                <argument xmi:type = "uml:InputPin" xmi:id = "_19b08d0d-02f1-4aed-afdf-701d29a866b2" name = "Target Pin" visibility = "public">
+                </argument>
+              </node>
+              <node xmi:type = "uml:CallBehaviorAction" xmi:id = "_2c8bcac7-5d17-4749-896c-173b317c52de" name = "Radio Send Message to ERU" visibility = "public" outgoing = "_33d8d5f5-4878-4a70-8868-024b07a05912" incoming = "_0b753fc3-2ee4-45cb-b230-09fbec77fea9" behavior = "_ded3dba2-1bac-4189-8502-1b20b2906045">
+                <ownedComment xmi:type = "uml:Comment" xmi:id = "_9b529ba8-0e76-4204-8d4f-92dc062496ab" annotatedElement = "_2c8bcac7-5d17-4749-896c-173b317c52de" body = "faulty behaviour can occur if radio receiver on ERU is not working or not reachable">
+                </ownedComment>
+                <argument xmi:type = "uml:InputPin" xmi:id = "_224d891c-8df3-4f7f-95ae-43988d2c1145" name = "voiceFlag" visibility = "public">
+                </argument>
+                <argument xmi:type = "uml:InputPin" xmi:id = "_d4963a91-1ae2-42a8-b837-034b49ea1df4" name = "data" visibility = "public">
+                </argument>
+                <argument xmi:type = "uml:InputPin" xmi:id = "_a3e79ab7-aab9-4205-ae53-0c60cb3941da" name = "channel_id" visibility = "public">
+                </argument>
+              </node>
+              <node xmi:type = "uml:JoinNode" xmi:id = "_7fde4cc0-a3f7-462c-a555-37dbb10b428e" name = "Join Node1" visibility = "public" outgoing = "_6b766e1d-c98b-49bc-83fc-ee5fe94a52f4" incoming = "_9ce12938-5db5-47fa-ab4b-1ab72b3ac30a _33d8d5f5-4878-4a70-8868-024b07a05912 _23773bf0-869c-4a98-a68c-113ecc07766b _73987811-7191-4497-bd4a-ae3ab0fbb5a4 _ac91e13d-2fd5-4da2-a3a0-fb8adfeb52e6">
+              </node>
+              <node xmi:type = "uml:ActivityFinalNode" xmi:id = "_08c388fd-185d-41cd-98cf-462b4578f79e" name = "Activity Final Node1" visibility = "public" incoming = "_6b766e1d-c98b-49bc-83fc-ee5fe94a52f4">
+              </node>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_0b753fc3-2ee4-45cb-b230-09fbec77fea9" source = "_56432de4-59c0-42ee-be72-50529be285fc" target = "_2c8bcac7-5d17-4749-896c-173b317c52de">
+                <guard xmi:type = "uml:OpaqueExpression" xmi:id = "_0b753fc3-2ee4-45cb-b230-09fbec77fea9guard">
+                    <body>needed corrections to target  or other info to be sent to ERU</body>
+                </guard>
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_5fe16fa9-d464-4972-be8b-b2dbc5383b1d" source = "_f23a8afb-ee87-4a38-b341-2759365f558b" target = "_21003d9a-a7e6-4d61-bc67-7339d83969c1">
+                <guard xmi:type = "uml:OpaqueExpression" xmi:id = "_5fe16fa9-d464-4972-be8b-b2dbc5383b1dguard">
+                    <body>additional mission needed</body>
+                </guard>
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_9ce12938-5db5-47fa-ab4b-1ab72b3ac30a" source = "_21003d9a-a7e6-4d61-bc67-7339d83969c1" target = "_7fde4cc0-a3f7-462c-a555-37dbb10b428e">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_33d8d5f5-4878-4a70-8868-024b07a05912" source = "_2c8bcac7-5d17-4749-896c-173b317c52de" target = "_7fde4cc0-a3f7-462c-a555-37dbb10b428e">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_e01666b9-a16f-4555-a873-eda8e8674f90" source = "_06898fbd-c4e8-41b1-9194-d10eda12610d" target = "_d5aa2ebf-05bf-4c05-9e27-81ef504dce02">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_5f2fc0f6-bc3c-4e77-92d1-d24c9e7dd597" source = "_358fc41d-5b69-4143-816e-ff2fc9b8e01c" target = "_06898fbd-c4e8-41b1-9194-d10eda12610d">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_6b766e1d-c98b-49bc-83fc-ee5fe94a52f4" source = "_7fde4cc0-a3f7-462c-a555-37dbb10b428e" target = "_08c388fd-185d-41cd-98cf-462b4578f79e">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_f9ada75a-4440-49be-824b-117007d51289" source = "_06898fbd-c4e8-41b1-9194-d10eda12610d" target = "_f23a8afb-ee87-4a38-b341-2759365f558b">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_654205bd-30ce-449d-9772-bd29b32ceb6e" source = "_06898fbd-c4e8-41b1-9194-d10eda12610d" target = "_56432de4-59c0-42ee-be72-50529be285fc">
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_23773bf0-869c-4a98-a68c-113ecc07766b" source = "_56432de4-59c0-42ee-be72-50529be285fc" target = "_7fde4cc0-a3f7-462c-a555-37dbb10b428e">
+                <guard xmi:type = "uml:OpaqueExpression" xmi:id = "_23773bf0-869c-4a98-a68c-113ecc07766bguard">
+                    <body>no mission corrections</body>
+                </guard>
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_73987811-7191-4497-bd4a-ae3ab0fbb5a4" source = "_f23a8afb-ee87-4a38-b341-2759365f558b" target = "_7fde4cc0-a3f7-462c-a555-37dbb10b428e">
+                <guard xmi:type = "uml:OpaqueExpression" xmi:id = "_73987811-7191-4497-bd4a-ae3ab0fbb5a4guard">
+                    <body>no more missions needed</body>
+                </guard>
+              </edge>
+              <edge xmi:type = "uml:ControlFlow" xmi:id = "_ac91e13d-2fd5-4da2-a3a0-fb8adfeb52e6" source = "_d5aa2ebf-05bf-4c05-9e27-81ef504dce02" target = "_7fde4cc0-a3f7-462c-a555-37dbb10b428e">
+                <guard xmi:type = "uml:OpaqueExpression" xmi:id = "_ac91e13d-2fd5-4da2-a3a0-fb8adfeb52e6guard">
+                    <body>no more organizations needed</body>
+                </guard>
+              </edge>
+            </ownedBehavior>
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Signal" xmi:id = "_24c48408-1d2a-4469-904d-5a9671f81737" name = "Activate External Organization">
+          </packagedElement>
+          <packagedElement xmi:type = "uml:SignalEvent" xmi:id = "_e8bbf7aa-56ee-4a30-be5d-effbe44a9fdd" name = "Event1" signal = "_97eaddc9-9cec-495b-98d0-ee2eef72d512">
+          </packagedElement>
+          <packagedElement xmi:type = "uml:SignalEvent" xmi:id = "_893b2453-ac31-42ae-b66e-59fb170d46ea" name = "Event2" signal = "_97eaddc9-9cec-495b-98d0-ee2eef72d512">
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Package" xmi:id = "_ecd5d90e-160f-4433-bb52-84941db051e5" name = "Signals and Events">
+            <packagedElement xmi:type = "uml:Package" xmi:id = "_e0e2864c-1060-4baf-8b1e-d1e89410073c" name = "Events">
+              <packagedElement xmi:type = "uml:SignalEvent" xmi:id = "_ec0e440f-3269-4089-ad46-e6a4b2a604eb" name = "At target">
+              </packagedElement>
+              <packagedElement xmi:type = "uml:SignalEvent" xmi:id = "_0b77f6b2-808a-4c07-b509-26e89f43322c" name = "Emergency call">
+              </packagedElement>
+              <packagedElement xmi:type = "uml:SignalEvent" xmi:id = "_be4124d6-9117-4d2d-9301-2d072c04812f" name = "Fault 1 activation">
+              </packagedElement>
+              <packagedElement xmi:type = "uml:SignalEvent" xmi:id = "_c95b8161-884c-4c8e-ae73-d71c0974e02c" name = "Fault 1 detection">
+              </packagedElement>
+              <packagedElement xmi:type = "uml:SignalEvent" xmi:id = "_0e4a5024-aa83-4f17-84b4-e05c131bad92" name = "Fault 1 recovery">
+              </packagedElement>
+              <packagedElement xmi:type = "uml:SignalEvent" xmi:id = "_17dec20a-6403-4d3a-9c66-7cd9c024b908" name = "Service response">
+              </packagedElement>
+              <packagedElement xmi:type = "uml:SignalEvent" xmi:id = "_36c989dd-d84a-4d05-9e6a-2135cd4572c9" name = "Start mission">
+              </packagedElement>
+              <packagedElement xmi:type = "uml:SignalEvent" xmi:id = "_14692bc5-23c3-4de7-97d5-71656aec2aef" name = "Start response">
+              </packagedElement>
+              <packagedElement xmi:type = "uml:SignalEvent" xmi:id = "_207f472c-760f-4f41-a1d1-47f63dba5ea5" name = "Update ERU status">
+              </packagedElement>
+            </packagedElement>
+            <packagedElement xmi:type = "uml:Package" xmi:id = "_0a83ebff-70a6-46d6-a238-cfcf83733ff6" name = "Signals">
+              <packagedElement xmi:type = "uml:Signal" xmi:id = "_3dad679f-b77a-4d49-bffc-bec08f46654a" name = "Activate external organization">
+              </packagedElement>
+              <packagedElement xmi:type = "uml:Signal" xmi:id = "_3c603f68-6227-4f0b-a2da-de116633a581" name = "At target">
+              </packagedElement>
+              <packagedElement xmi:type = "uml:Signal" xmi:id = "_3ea35dfc-0f45-41dc-ab2c-69883c580ecc" name = "Fault 1 recovery">
+              </packagedElement>
+              <packagedElement xmi:type = "uml:Signal" xmi:id = "_8fe1da03-4ee0-4538-848e-e1f97f7299f0" name = "Service Mission">
+              </packagedElement>
+              <packagedElement xmi:type = "uml:Signal" xmi:id = "_ad389e86-95bf-4439-b734-af5f2a73024a" name = "Start mission">
+              </packagedElement>
+              <packagedElement xmi:type = "uml:Signal" xmi:id = "_be20c590-2098-42bb-8dfd-1ef0db7a2656" name = "Start response">
+              </packagedElement>
+              <packagedElement xmi:type = "uml:Signal" xmi:id = "_9a4b347c-2346-4ac2-b772-fbb9f88e5866" name = "Update ERU status">
+              </packagedElement>
+              <packagedElement xmi:type = "uml:Signal" xmi:id = "_97eaddc9-9cec-495b-98d0-ee2eef72d512" name = "Update response">
+              </packagedElement>
+            </packagedElement>
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Abstraction" xmi:id = "_29ef8767-9c4e-4fae-bda0-f6e0b0476050">
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Abstraction" xmi:id = "_eb19d717-4689-4f8f-95c2-8f1bf9de1292">
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Abstraction" xmi:id = "_5720a04d-4f6b-41ad-9804-421d4ce91b5c">
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Abstraction" xmi:id = "_35519326-ad49-4ea5-ab5a-17dec59baaf1">
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Abstraction" xmi:id = "_01df3f52-82d0-4138-a130-caf790475bb3">
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Abstraction" xmi:id = "_d93c9255-3eff-457a-9dba-9c549da0f4fe">
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Association" xmi:id = "_ef529bf5-9432-4180-bcf9-f7082b242cbf" memberEnd = "_72a7a4be-f445-4b7c-b575-d47e2f1b9602 _ed4e8fd2-d854-49cf-9782-894d4cdc0e05">
+            <ownedEnd xmi:type = "uml:Property" xmi:id = "_72a7a4be-f445-4b7c-b575-d47e2f1b9602" type = "_30fbe2a9-75f3-4540-98e5-972265e89986" visibility = "private" association = "_ef529bf5-9432-4180-bcf9-f7082b242cbf">
+            </ownedEnd>
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Abstraction" xmi:id = "_4be57961-6a4d-45c2-b1b6-3e948d584ec8">
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Abstraction" xmi:id = "_189ad89a-bd01-42cb-8c7e-427f29f42af2" supplier = "_0bcc0cde-515d-4140-81bd-73bfceff301c">
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Abstraction" xmi:id = "_b028a8bb-2698-4398-93af-4d5f2cf612a6">
+          </packagedElement>
+        </packagedElement>
+      </packagedElement>
+      <packagedElement xmi:type = "uml:Package" xmi:id = "_2647a7b6-27e2-4689-821b-39ff0f2271cb" name = "Port protocol types">
+        <packagedElement xmi:type = "uml:DataType" xmi:id = "_d968f122-a47f-43f4-9ccf-15e65dddea5e" name = "COM">
+        </packagedElement>
+        <packagedElement xmi:type = "uml:DataType" xmi:id = "_3011b47b-e848-416f-b7fd-9f2d3450211e" name = "Mobile Phone">
+        </packagedElement>
+        <packagedElement xmi:type = "uml:DataType" xmi:id = "_bb81febb-3370-4348-96cb-c15e037afac3" name = "Phone">
+        </packagedElement>
+        <packagedElement xmi:type = "uml:DataType" xmi:id = "_135e6f0a-5256-4036-8c0e-d34537674d8d" name = "Radio signal">
+        </packagedElement>
+        <packagedElement xmi:type = "uml:DataType" xmi:id = "_86c435ce-d13b-4bcf-a507-1b33de0be7cf" name = "TCP-IP">
+        </packagedElement>
+        <packagedElement xmi:type = "uml:Interface" xmi:id = "_69fd8d66-07a1-4c06-845f-2c7e0a23cda6" name = "FlowSpecification1" visibility = "public">
+        </packagedElement>
+      </packagedElement>
+      <profileApplication xmi:type="uml:ProfileApplication" xmi:id="_profileApplication0">
+  <appliedProfile  xmi:type="uml:Profile" href="http://www.omg.org/spec/SysML/20100301/SysML-profile.uml#_0"/>
+</profileApplication>
+<profileApplication xmi:type="uml:ProfileApplication" xmi:id="_profileApplication1">
+  <appliedProfile  xmi:type="uml:Profile" href="http://www.omg.org/spec/UML/20090901/StandardProfileL2.xmi#_0"/>
+</profileApplication>
+  </uml:Model>
+    <sysml:Block base_Class = "_1b02d381-9fc4-4044-9796-d5438847cbc0" xmi:id = "_830e357d-4657-41af-bfbf-f45d6e34953b_1b02d381-9fc4-4044-9796-d5438847cbc0" />
+    <sysml:Block base_Class = "_2540b75d-55aa-4fdf-9725-af865825e650" xmi:id = "_830e357d-4657-41af-bfbf-f45d6e34953b_2540b75d-55aa-4fdf-9725-af865825e650" />
+    <sysml:ValueType base_Class = "_f94b6046-b385-43b6-9dce-8fea9eb0a987" xmi:id = "_8efc902e-2790-4a8f-8818-72c36711d8aa_f94b6046-b385-43b6-9dce-8fea9eb0a987" />
+    <sysml:Block base_Class = "_b7c0c699-ac19-453b-ba45-8bc26a54e71e" xmi:id = "_830e357d-4657-41af-bfbf-f45d6e34953b_b7c0c699-ac19-453b-ba45-8bc26a54e71e" />
+    <sysml:Block base_Class = "_0bcc0cde-515d-4140-81bd-73bfceff301c" xmi:id = "_830e357d-4657-41af-bfbf-f45d6e34953b_0bcc0cde-515d-4140-81bd-73bfceff301c" />
+    <sysml:Block base_Class = "_d40de328-f8ae-4df3-8673-90f37a7fbe55" xmi:id = "_830e357d-4657-41af-bfbf-f45d6e34953b_d40de328-f8ae-4df3-8673-90f37a7fbe55" />
+    <sysml:Block base_Class = "_217a5fe6-5f3f-4efe-823d-89910107e244" xmi:id = "_830e357d-4657-41af-bfbf-f45d6e34953b_217a5fe6-5f3f-4efe-823d-89910107e244" />
+    <sysml:Allocated xmi:id = "_a28d6370-308a-4ce8-9fc3-a144449b8280_d8717e63-36db-4744-913a-c0525df134e3" />
+    <sysml:Allocated xmi:id = "_a28d6370-308a-4ce8-9fc3-a144449b8280_eead0dd8-dd6f-4bf6-8595-154fcbc3e8ab" />
+    <sysml:Allocated xmi:id = "_a28d6370-308a-4ce8-9fc3-a144449b8280_7583ddee-0f24-4956-ae9e-525fdec83a75" />
+    <sysml:Allocated xmi:id = "_a28d6370-308a-4ce8-9fc3-a144449b8280_f01c9ffd-898f-4ad1-ada3-e7ab24ee3b67" />
+    <sysml:Block base_Class = "_d91d133b-6257-4daa-a281-e48c1fcdc1a7" xmi:id = "_830e357d-4657-41af-bfbf-f45d6e34953b_d91d133b-6257-4daa-a281-e48c1fcdc1a7" />
+    <sysml:Block base_Class = "_a96d66bd-80ad-4992-bc8f-d49d8c9276da" xmi:id = "_830e357d-4657-41af-bfbf-f45d6e34953b_a96d66bd-80ad-4992-bc8f-d49d8c9276da" />
+    <sysml:Block base_Class = "_5b8e3d2a-9fee-4663-99a6-f5556b0790dc" xmi:id = "_830e357d-4657-41af-bfbf-f45d6e34953b_5b8e3d2a-9fee-4663-99a6-f5556b0790dc" />
+    <sysml:Block base_Class = "_9caf0f62-0f22-4c4b-83bf-d5a213c981c8" xmi:id = "_830e357d-4657-41af-bfbf-f45d6e34953b_9caf0f62-0f22-4c4b-83bf-d5a213c981c8" />
+    <sysml:RequirementRelated xmi:id = "_b4ff75df-d03e-4b60-a0ea-a46b76237da0_37efb28b-126a-4ea8-9f3f-8f4abda802bd" />
+    <sysml:RequirementRelated xmi:id = "_b4ff75df-d03e-4b60-a0ea-a46b76237da0_529c89b8-256b-4efd-8715-dabd27b1d36a" />
+    <sysml:Block base_Class = "_b2f38b7a-76ef-420e-b9c2-c355d31d9c85" xmi:id = "_830e357d-4657-41af-bfbf-f45d6e34953b_b2f38b7a-76ef-420e-b9c2-c355d31d9c85" />
+    <sysml:Block base_Class = "_1ab0861e-7f1f-4771-9f82-5f697ed31b88" xmi:id = "_830e357d-4657-41af-bfbf-f45d6e34953b_1ab0861e-7f1f-4771-9f82-5f697ed31b88" />
+    <sysml:Block base_Class = "_1d10313b-16d9-4ada-87a8-d13af70c1bb3" xmi:id = "_830e357d-4657-41af-bfbf-f45d6e34953b_1d10313b-16d9-4ada-87a8-d13af70c1bb3" />
+    <sysml:Allocated xmi:id = "_a28d6370-308a-4ce8-9fc3-a144449b8280_b82d3cc0-819a-4e62-b88a-4db29ae52ee0" />
+    <sysml:Block base_Class = "_30fbe2a9-75f3-4540-98e5-972265e89986" xmi:id = "_830e357d-4657-41af-bfbf-f45d6e34953b_30fbe2a9-75f3-4540-98e5-972265e89986" />
+    <sysml:RequirementRelated xmi:id = "_b4ff75df-d03e-4b60-a0ea-a46b76237da0_0256e834-e876-4f0c-9c3a-07888b3c5b7d" />
+    <sysml:Allocated xmi:id = "_a28d6370-308a-4ce8-9fc3-a144449b8280_8d9a954d-5790-46bd-a35d-54b7a8946866" />
+    <sysml:Block base_Class = "_9606ac33-c3f9-4f0a-a1c6-14cc00f570a5" xmi:id = "_830e357d-4657-41af-bfbf-f45d6e34953b_9606ac33-c3f9-4f0a-a1c6-14cc00f570a5" />
+    <sysml:Block base_Class = "_35e314a3-949c-4eef-8ef3-9091c256c020" xmi:id = "_830e357d-4657-41af-bfbf-f45d6e34953b_35e314a3-949c-4eef-8ef3-9091c256c020" />
+    <sysml:Allocate base_Abstraction = "_29ef8767-9c4e-4fae-bda0-f6e0b0476050" xmi:id = "_b719c717-9492-4202-9c00-ce0ebbc60b28_29ef8767-9c4e-4fae-bda0-f6e0b0476050" />
+    <sysml:Allocate base_Abstraction = "_eb19d717-4689-4f8f-95c2-8f1bf9de1292" xmi:id = "_b719c717-9492-4202-9c00-ce0ebbc60b28_eb19d717-4689-4f8f-95c2-8f1bf9de1292" />
+    <sysml:Allocate base_Abstraction = "_5720a04d-4f6b-41ad-9804-421d4ce91b5c" xmi:id = "_b719c717-9492-4202-9c00-ce0ebbc60b28_5720a04d-4f6b-41ad-9804-421d4ce91b5c" />
+    <sysml:Allocate base_Abstraction = "_35519326-ad49-4ea5-ab5a-17dec59baaf1" xmi:id = "_b719c717-9492-4202-9c00-ce0ebbc60b28_35519326-ad49-4ea5-ab5a-17dec59baaf1" />
+    <sysml:Allocate base_Abstraction = "_01df3f52-82d0-4138-a130-caf790475bb3" xmi:id = "_b719c717-9492-4202-9c00-ce0ebbc60b28_01df3f52-82d0-4138-a130-caf790475bb3" />
+    <sysml:Allocate base_Abstraction = "_d93c9255-3eff-457a-9dba-9c549da0f4fe" xmi:id = "_b719c717-9492-4202-9c00-ce0ebbc60b28_d93c9255-3eff-457a-9dba-9c549da0f4fe" />
+    <sysml:ValueType base_Class = "_d968f122-a47f-43f4-9ccf-15e65dddea5e" xmi:id = "_8efc902e-2790-4a8f-8818-72c36711d8aa_d968f122-a47f-43f4-9ccf-15e65dddea5e" />
+    <sysml:ValueType base_Class = "_3011b47b-e848-416f-b7fd-9f2d3450211e" xmi:id = "_8efc902e-2790-4a8f-8818-72c36711d8aa_3011b47b-e848-416f-b7fd-9f2d3450211e" />
+    <sysml:ValueType base_Class = "_bb81febb-3370-4348-96cb-c15e037afac3" xmi:id = "_8efc902e-2790-4a8f-8818-72c36711d8aa_bb81febb-3370-4348-96cb-c15e037afac3" />
+    <sysml:ValueType base_Class = "_135e6f0a-5256-4036-8c0e-d34537674d8d" xmi:id = "_8efc902e-2790-4a8f-8818-72c36711d8aa_135e6f0a-5256-4036-8c0e-d34537674d8d" />
+    <sysml:ValueType base_Class = "_86c435ce-d13b-4bcf-a507-1b33de0be7cf" xmi:id = "_8efc902e-2790-4a8f-8818-72c36711d8aa_86c435ce-d13b-4bcf-a507-1b33de0be7cf" />
+    <sysml:FlowSpecification base_Interface = "_69fd8d66-07a1-4c06-845f-2c7e0a23cda6" xmi:id = "_2b9a405b-373b-4765-9842-6f49194ad6b0_69fd8d66-07a1-4c06-845f-2c7e0a23cda6" />
+</xmi:XMI>

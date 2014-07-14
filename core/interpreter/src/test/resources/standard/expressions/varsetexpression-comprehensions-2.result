@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <testResult>
-   <exception>ContextException</exception>
-  <interpreterState></interpreterState>
+   <exception></exception>
+  <interpreterState>FINISHED</interpreterState>
   <trace>
-    <events></events>
+    <events>a.1.2,a.2.2,a.1.2,a.2.2</events>
   </trace>
 
 </testResult>

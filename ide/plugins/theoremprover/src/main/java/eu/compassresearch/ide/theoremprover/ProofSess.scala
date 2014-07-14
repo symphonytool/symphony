@@ -81,6 +81,29 @@ class ProofSess(val poEDM: EditDocumentModel, val proj: ICmlProject, val pol: IP
 
     }
   }
+  
+  def sledgehammerPO(ipo: IProofObligation) {
+
+    // Only enqueue if the ipo has not been submitted yet
+    if (!poSubmitted.contains(ipo.getNumber())) {
+      if (ipo.getStatus() == POStatus.UNPROVED) {
+        ipo.setStatus(POStatus.SUBMITTED)
+        PogPluginRunner.redrawPos(proj, pol)
+      }
+      poSubmitted += ipo.getNumber()
+      val isaPO = TPVisitor.generatePoStr(ast, ipo)
+      val doc = poEDM.document
+      val offset = doc.getLineOffset(doc.getNumberOfLines() - 1)
+      val byPos = offset + (isaPO.length() - TPConstants.BY_CML_AUTO_TAC_OFFSET)
+
+      poPending ++= PoThm(offset, isaPO + "\n", offset, byPos, ipo.getNumber()) :: List()
+      //  doc.get
+      doc.replace(offset, 0, isaPO + "\n")
+      thyProvider.saveDocument(new NullProgressMonitor(), null, poEDM.document, true)
+      poEDM.submitFullPerspective(new NullProgressMonitor())
+
+    }
+  }
 
   // When commands change (e.g. results from the prover), notify the handler about changed ranges.
   /** Subscribe to commands change session events */

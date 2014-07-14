@@ -1,7 +1,5 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.types;
 
-import java.util.LinkedList;
-
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAValueDefinition;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
 

@@ -1,0 +1,5 @@
+channels
+    a: nat
+process Test = begin
+ @ a?x: (false) -> Skip
+end

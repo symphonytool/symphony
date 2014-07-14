@@ -1,0 +1,3 @@
+functions
+  f : int
+  f(x) == x + 1

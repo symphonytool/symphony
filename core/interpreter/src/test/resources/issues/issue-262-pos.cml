@@ -1,0 +1,31 @@
+channels
+  a
+  b : nat
+
+values
+  range : set of nat = {1,2,3,4,5}
+
+chansets
+/*
+  Just_a = {| a |}              -- { a }
+  All_cs = {| a, b |}           -- { a, b.1, b.2, b.3, b.4, b.5, b.6, ... }
+  Even_b = {| b.i | i in set range @ i mod 2 = 0 |} -- { b.2, b.4 }
+  Odd_b  = {| b.i | i in set range @ i mod 2 = 1 |} -- { b.1, b.3, b.5 }
+  */
+  C1 = {a,b.1,b.2}
+  C2 = {b.1}
+
+process A =begin @ Skip end
+process B = begin @ Skip end
+
+
+/*process Inter =
+  A [| All_cs inter Odd_b |] B -- { b.1, b.3, b.5 }*/
+
+process Inter =
+  A [| C1 inter C2 |] B -- { b.1, b.3, b.5 }
+
+
+/* expected trace:
+   <a, b.1, b.2, b.1, b.3, b.1, b.3>
+*/

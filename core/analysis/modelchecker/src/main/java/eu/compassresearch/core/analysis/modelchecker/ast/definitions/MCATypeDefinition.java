@@ -3,8 +3,6 @@ package eu.compassresearch.core.analysis.modelchecker.ast.definitions;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import org.overture.ast.definitions.AExplicitFunctionDefinition;
-
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ExpressionEvaluator;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.TypeManipulator;

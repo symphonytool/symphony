@@ -1,11 +1,9 @@
 package eu.compassresearch.core.interpreter;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -16,6 +14,7 @@ import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ValueException;
+import org.overture.interpreter.values.SetValue;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.CmlAstFactory;
@@ -28,6 +27,7 @@ import eu.compassresearch.core.interpreter.api.CmlBehaviorFactory;
 import eu.compassresearch.core.interpreter.api.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
+import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.transitions.HiddenTransition;
@@ -40,10 +40,9 @@ import eu.compassresearch.core.interpreter.api.transitions.ops.MapOperation;
 import eu.compassresearch.core.interpreter.api.transitions.ops.RemoveChannelNames;
 import eu.compassresearch.core.interpreter.api.transitions.ops.RetainChannelNames;
 import eu.compassresearch.core.interpreter.api.transitions.ops.RetainChannelNamesAndTau;
-import eu.compassresearch.core.interpreter.api.values.ChannelNameSetValue;
 import eu.compassresearch.core.interpreter.api.values.ChannelValue;
 import eu.compassresearch.core.interpreter.api.values.CmlChannel;
-import eu.compassresearch.core.interpreter.api.values.NamesetValue;
+import eu.compassresearch.core.interpreter.api.values.NameValue;
 import eu.compassresearch.core.interpreter.api.values.RenamingValue;
 import eu.compassresearch.core.interpreter.runtime.DelayedWriteContext;
 import eu.compassresearch.core.interpreter.utility.LocationExtractor;
@@ -74,7 +73,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 	protected CmlTransitionSet syncOnTimeAndJoinChildren()
 			throws AnalysisException
 	{
-		return owner.getLeftChild().inspect().synchronizeOn(owner.getRightChild().inspect(), new ChannelNameSetValue(), true);
+		return owner.getLeftChild().inspect().synchronizeOn(owner.getRightChild().inspect(), new SetValue(), true);
 	}
 
 	protected Inspection caseChannelRenaming(final INode node,
@@ -167,12 +166,13 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		{
 			// The left and right channel sets has already been evaluated in the setup visitor and put in the context,
 			// so we just fetch them.
-			ChannelNameSetValue leftChanset = (ChannelNameSetValue) question.lookup(NamespaceUtility.getLeftPrecalculatedChannetSet());
-			ChannelNameSetValue rightChanset = (ChannelNameSetValue) question.lookup(NamespaceUtility.getRightPrecalculatedChannetSet());
+			SetValue leftChanset = (SetValue) question.lookup(NamespaceUtility.getLeftPrecalculatedChannetSet());
+			SetValue rightChanset = (SetValue) question.lookup(NamespaceUtility.getRightPrecalculatedChannetSet());
 
 			// next we find the intersection of of them, since these are the ones that left and right must sync on
-			ChannelNameSetValue intersectionChanset = new ChannelNameSetValue(leftChanset);
-			intersectionChanset.retainAll(rightChanset);
+			SetValue intersectionChanset = new SetValue();
+			intersectionChanset.values.addAll(leftChanset.values);
+			intersectionChanset.values.retainAll(rightChanset.values);
 
 			final CmlTransitionSet leftChildAlpha = owner.getLeftChild().inspect();
 			final CmlTransitionSet rightChildAlpha = owner.getRightChild().inspect();
@@ -242,26 +242,6 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		}
 	}
 
-//	private static Context removeFirstDelayedContext( Context ctxt)
-//	{
-//		if(ctxt instanceof DelayedWriteContext)
-//		{
-//			return ctxt.outer;
-//		}else
-//		{
-//			do{
-//				if(ctxt.outer instanceof DelayedWriteContext)
-//				{
-//					DelayedWriteContext.setOuter(ctxt,ctxt.outer.outer);
-//					break;
-//				}
-//				
-//				ctxt = ctxt.outer;
-//			}while(ctxt!=null && ctxt.outer!=null);
-//			return ctxt;
-//		}
-//	}
-	
 	/**
 	 * Handles the external choice end rule
 	 * 
@@ -275,7 +255,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		Context newCurrentContext = theChoosenOne.getNextState().second;
 		Context delayedCtxt = newCurrentContext;
 
-		//TODO some how it is not the outer one in issue 235
+		// TODO some how it is not the outer one in issue 235
 		while (delayedCtxt != null)
 		{
 			if (delayedCtxt instanceof DelayedWriteContext)
@@ -285,8 +265,8 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 			}
 			delayedCtxt = delayedCtxt.outer;
 		}
-		
-//		newCurrentContext = removeFirstDelayedContext( newCurrentContext);
+
+		// newCurrentContext = removeFirstDelayedContext( newCurrentContext);
 
 		if (theChoosenOne.getLeftChild() != null)
 		{
@@ -301,6 +281,13 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		}
 
 		setRightChild(theChoosenOne.getRightChild());
+
+		/*
+		 * The setup visitor CommonSetupVisitor#caseReplicated sets the field
+		 * ConcreteCmlBehaviour.this.preConstructedChildContexts but if a recursion happens after the external choice
+		 * then this pre-calculated field must be cleared before since setup relies on it being null at entry
+		 */
+		CommonInspectionVisitor.this.visitorAccess.setChildContexts(null);
 
 		return new Pair<INode, Context>(theChoosenOne.getNextState().first, newCurrentContext);
 	}
@@ -476,7 +463,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 	{
 
 		// convert the channel set of the current node to a alphabet
-		ChannelNameSetValue cs = eval(chansetExp, question);
+		SetValue cs = eval(chansetExp, question);
 
 		// Get all the child alphabets and add the events that are not in the channel set
 		final CmlBehaviour leftChild = owner.getLeftChild();
@@ -530,22 +517,43 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 			{
 
 				Context leftChildContext = owner.getLeftChild().getNextState().second;
-				NamesetValue leftNameset = (NamesetValue) leftChildContext.check(NamespaceUtility.getNamesetName());
+				SetValue leftNameset = (SetValue) leftChildContext.check(NamespaceUtility.getNamesetName());
 				if (leftNameset != null)
 				{
-					for (ILexNameToken name : leftNameset)
+					for (Value val : leftNameset.values)
 					{
-						question.lookup(name).set(name.getLocation(), leftChildContext.lookup(name), question);
+						if (val instanceof NameValue)
+						{
+							ILexNameToken name = ((NameValue) val).name;
+
+							question.lookup(name).set(name.getLocation(), leftChildContext.lookup(name), question);
+						} else
+						{
+							throw new InterpreterRuntimeException("Only "
+									+ NameValue.class.getSimpleName()
+									+ " must be present in a name value set. Actual: "
+									+ val);
+						}
 					}
 				}
 
 				Context rightChildContext = owner.getRightChild().getNextState().second;
-				NamesetValue rightNameset = (NamesetValue) rightChildContext.check(NamespaceUtility.getNamesetName());
+				SetValue rightNameset = (SetValue) rightChildContext.check(NamespaceUtility.getNamesetName());
 				if (rightNameset != null)
 				{
-					for (ILexNameToken name : rightNameset)
+					for (Value val : rightNameset.values)
 					{
-						question.lookup(name).set(name.getLocation(), rightChildContext.lookup(name), question);
+						if (val instanceof NameValue)
+						{
+							ILexNameToken name = ((NameValue) val).name;
+							question.lookup(name).set(name.getLocation(), rightChildContext.lookup(name), question);
+						} else
+						{
+							throw new InterpreterRuntimeException("Only "
+									+ NameValue.class.getSimpleName()
+									+ " must be present in a name value set. Actual: "
+									+ val);
+						}
 					}
 				}
 
@@ -558,20 +566,10 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		};
 	}
 
-	@SuppressWarnings("rawtypes")
-	protected ChannelNameSetValue eval(PVarsetExpression chansetExpression,
+	protected SetValue eval(PVarsetExpression chansetExpression,
 			Context question) throws AnalysisException
 	{
-		Value val = chansetExpression.apply(cmlExpressionVisitor, question);
-		if (val instanceof ChannelNameSetValue)
-		{
-			return (ChannelNameSetValue) val;
-		} else if (val instanceof Set && ((Set) val).isEmpty())
-		{
-			return new ChannelNameSetValue(new HashSet<ChannelValue>());
-		}
-
-		throw new CmlInterpreterException(chansetExpression, InterpretationErrorMessages.FATAL_ERROR.customizeMessage("Failed to evaluate chanset expression"));
+		return (SetValue) chansetExpression.apply(cmlExpressionVisitor, question);
 	}
 
 	/**

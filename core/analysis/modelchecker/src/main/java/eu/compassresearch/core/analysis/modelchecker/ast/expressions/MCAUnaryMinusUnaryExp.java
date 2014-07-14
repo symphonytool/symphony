@@ -2,8 +2,6 @@ package eu.compassresearch.core.analysis.modelchecker.ast.expressions;
 
 import java.util.LinkedList;
 
-import org.overture.ast.expressions.AUnaryMinusUnaryExp;
-
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.PatternValue;
 
 public class MCAUnaryMinusUnaryExp implements MCPCMLExp {

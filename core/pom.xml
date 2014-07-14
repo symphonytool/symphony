@@ -7,7 +7,7 @@
   <parent>
     <groupId>eu.compassresearch</groupId>
     <artifactId>root</artifactId>
-    <version>0.3.2</version>
+    <version>0.3.4</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -23,6 +23,7 @@
     <module>interpreter</module>
    
     <module>cmdline</module>
+	 <module>s2c</module>
   </modules>
 
 

@@ -3,6 +3,6 @@
 <message column="3" line="17" message="Channel b is not declared" messageType="error" number="3431" resource="channels-0013-neg.cml"/>
 <message column="3" line="17" message="Communication &quot;b&quot; declared with too many arguments. Actual 1, Expected 0" messageType="error" number="3434" resource="channels-0013-neg.cml"/>
 <message column="3" line="17" message="Communication not allowed over untyped channel: b." messageType="error" number="3425" resource="channels-0013-neg.cml"/>
-<message column="11" line="17" message="Constraint must be a boolean expression: {2, 3}" messageType="error" number="3429" resource="channels-0013-neg.cml"/>
+<message column="11" line="17" message="Constraint must be a boolean expression: set of (nat1)" messageType="error" number="3429" resource="channels-0013-neg.cml"/>
 <result/>
 </testResult>

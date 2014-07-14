@@ -7,6 +7,7 @@ import org.overture.ast.analysis.QuestionAnswerAdaptor;
 import org.overture.ast.expressions.AAndBooleanBinaryExp;
 import org.overture.ast.expressions.AApplyExp;
 import org.overture.ast.expressions.ABooleanConstExp;
+import org.overture.ast.expressions.ADivideNumericBinaryExp;
 import org.overture.ast.expressions.AEqualsBinaryExp;
 import org.overture.ast.expressions.AGreaterEqualNumericBinaryExp;
 import org.overture.ast.expressions.AGreaterNumericBinaryExp;
@@ -22,6 +23,7 @@ import org.overture.ast.expressions.ANotUnaryExp;
 import org.overture.ast.expressions.AOrBooleanBinaryExp;
 import org.overture.ast.expressions.APlusNumericBinaryExp;
 import org.overture.ast.expressions.AQuoteLiteralExp;
+import org.overture.ast.expressions.ARealLiteralExp;
 import org.overture.ast.expressions.ASeqCompSeqExp;
 import org.overture.ast.expressions.ASeqEnumSeqExp;
 import org.overture.ast.expressions.ASetDifferenceBinaryExp;
@@ -34,7 +36,6 @@ import org.overture.ast.expressions.AUnaryMinusUnaryExp;
 import org.overture.ast.expressions.AUndefinedExp;
 import org.overture.ast.expressions.AVariableExp;
 import org.overture.ast.expressions.PExp;
-import org.overture.ast.expressions.SNumericBinaryBase;
 import org.overture.ast.node.INode;
 import org.overture.ast.patterns.PMultipleBind;
 import org.overture.ast.types.PType;
@@ -49,12 +50,10 @@ import eu.compassresearch.ast.expressions.ANameChannelExp;
 import eu.compassresearch.ast.expressions.AUnionVOpVarsetExpression;
 import eu.compassresearch.ast.expressions.PCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
-import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ExpressionEvaluator;
-import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.GuardDefGenerator;
-import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.NewMCGuardDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAAndBooleanBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAApplyExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCABooleanConstExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCADivideNumericBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAEnumVarsetExpression;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAEqualsBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAFatCompVarsetExpression;
@@ -75,6 +74,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANotUnary
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAOrBooleanBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAPlusNumericBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAQuoteLiteralExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCARealLiteralExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASeqCompSeqExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASeqEnumSeqExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASetDifferenceBinaryExp;
@@ -89,10 +89,8 @@ import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAUnionVOp
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAVariableExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPVarsetExpression;
-import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCVoidValue;
 import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCASetBind;
 import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCPMultipleBind;
-import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCAIfStm;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 
 public class NewMCExpressionVisitor extends
@@ -426,6 +424,15 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 		return new MCAIntLiteralExp(node.getValue().toString()); 
 	}
 
+	
+	@Override
+	public MCNode caseARealLiteralExp(ARealLiteralExp node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+
+		return new MCARealLiteralExp(node.getValue().toString());
+	}
+
+
 	@Override
 	public MCNode caseATimesNumericBinaryExp(
 			ATimesNumericBinaryExp node, NewCMLModelcheckerContext question)
@@ -438,13 +445,24 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 		return result;
 	}
 
+	
+	@Override
+	public MCNode caseADivideNumericBinaryExp(ADivideNumericBinaryExp node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		MCPCMLExp left = (MCPCMLExp) node.getLeft().apply(rootVisitor, question);
+		MCPCMLExp right = (MCPCMLExp) node.getRight().apply(rootVisitor, question);
+		MCADivideNumericBinaryExp result = new MCADivideNumericBinaryExp(left, right);
+			
+		return result;
+	}
+
+
 	@Override
 	public MCNode caseABracketedExp(ABracketedExp node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
 		
 		return node.getExpression().apply(rootVisitor,question);
 	}
-
 	
 	@Override
 	public MCNode caseAIfExp(AIfExp node, NewCMLModelcheckerContext question)

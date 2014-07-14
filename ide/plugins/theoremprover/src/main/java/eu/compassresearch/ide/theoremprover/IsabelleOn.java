@@ -11,7 +11,7 @@ public class IsabelleOn extends AbstractSourceProvider {
 	public final static String MY_STATE = "eu.compassresearch.ide.theoremprover.tpon";
 	public final static String ON = "ON";
 	public final static String OFF = "OFF";
-	private boolean on = true;
+	private boolean on = false;
 
 
 	@Override

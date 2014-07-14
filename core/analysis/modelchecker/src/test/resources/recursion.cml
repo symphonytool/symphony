@@ -1,5 +1,7 @@
 channels
- strt 
+ strt
+ a
+ b 
  
 process Recursion = 
 begin

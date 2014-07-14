@@ -40,6 +40,8 @@ public class MCPosGuardDef extends MCGuardDef{
 					result.append(condition.toFormula(option));
 				}
 			}
+		}else{
+			result.append(basicString);
 		}
 		result.append(".\n");
 		

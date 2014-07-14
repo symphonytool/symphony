@@ -10,18 +10,16 @@ import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ExpressionEva
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.IntroduceCommand;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.TypeManipulator;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.TypeValue;
-import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCATypeSingleDeclaration;
-import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCABooleanBasicType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAChannelType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAIntNumericBasicType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANamedInvariantType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANatNumericBasicType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAProductType;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCARealNumericBasicType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAUnionType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCTypeWrapper;
-import eu.compassresearch.core.analysis.modelchecker.ast.types.MCTypeWrapperBuilder;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCVoidType;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
 
@@ -103,6 +101,7 @@ public class MCAChannelDefinition implements MCPCMLDefinition {
 									if(typeWrapper == null){
 										typeWrapper = MCTypeWrapper.getWrapperForType(realType.toFormula(MCNode.DEFAULT));
 									}
+									
 									result.append(typeWrapper);
 										result.append("(");
 										
@@ -173,9 +172,9 @@ public class MCAChannelDefinition implements MCPCMLDefinition {
 			MCATypeDefinition typeDef = context.getTypeDefinition(((MCANamedInvariantType) realType).getName());
 			if(typeDef != null){
 				realType = typeDef.getType();
-			}
+			} 
 		} 
-		result = this.isTyped() && (realType instanceof MCAIntNumericBasicType || realType instanceof MCANatNumericBasicType);
+		result = this.isTyped() && (realType instanceof MCAIntNumericBasicType || realType instanceof MCANatNumericBasicType || realType instanceof MCARealNumericBasicType);
 		
 		
 		return result;

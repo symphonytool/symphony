@@ -1,0 +1,23 @@
+channels
+a
+
+process Terminate = 
+begin
+ @ a -> Skip
+end
+
+process Deadlock = 
+begin
+ @ a -> Stop
+end
+
+process TestEChoice = []i in set {1,2} @ Terminate
+
+process P = 
+begin
+ state
+   data:nat := 0
+
+@ [2 < 3] & a -> Skip
+
+end

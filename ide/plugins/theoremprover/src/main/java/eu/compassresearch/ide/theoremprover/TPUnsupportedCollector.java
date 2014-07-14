@@ -156,7 +156,6 @@ import org.overture.ast.types.AVoidType;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismReplicatedAction;
 import eu.compassresearch.ast.actions.AChannelRenamingAction;
-import eu.compassresearch.ast.actions.AChaosAction;
 import eu.compassresearch.ast.actions.ACommonInterleavingReplicatedAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.ADivAction;
@@ -603,13 +602,6 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 	}
 
 	@Override
-	public void caseAChaosAction(AChaosAction node) throws AnalysisException {
-		unsupported = false;
-		// Do not remove the super call below.
-		super.caseAChaosAction(node);
-	}
-
-	@Override
 	public void caseACharacterPattern(ACharacterPattern node)
 			throws AnalysisException {
 		// unsupported=false;
@@ -897,7 +889,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 	@Override
 	public void caseADomainResByBinaryExp(ADomainResByBinaryExp node)
 			throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseADomainResByBinaryExp(node);
@@ -906,7 +898,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 	@Override
 	public void caseADomainResToBinaryExp(ADomainResToBinaryExp node)
 			throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseADomainResToBinaryExp(node);
@@ -1756,7 +1748,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 
 	@Override
 	public void caseALetDefExp(ALetDefExp node) throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseALetDefExp(node);
@@ -2330,7 +2322,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 	@Override
 	public void caseARangeResByBinaryExp(ARangeResByBinaryExp node)
 			throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseARangeResByBinaryExp(node);
@@ -2339,7 +2331,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 	@Override
 	public void caseARangeResToBinaryExp(ARangeResToBinaryExp node)
 			throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseARangeResToBinaryExp(node);
@@ -3141,7 +3133,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 	@Override
 	public void caseAUntimedTimeoutAction(AUntimedTimeoutAction node)
 			throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseAUntimedTimeoutAction(node);

@@ -1,3 +1,6 @@
+channels 
+a
+
 process Timeout2 = 
 begin 
 
