@@ -256,17 +256,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		Context delayedCtxt = newCurrentContext;
 
 		// TODO some how it is not the outer one in issue 235
-		while (delayedCtxt != null)
-		{
-			if (delayedCtxt instanceof DelayedWriteContext)
-			{
-				((DelayedWriteContext) delayedCtxt).writeChanges();
-				break;
-			}
-			delayedCtxt = delayedCtxt.outer;
-		}
-
-		// newCurrentContext = removeFirstDelayedContext( newCurrentContext);
+		delayedCtxt = applyChangesInDelayedContext(delayedCtxt);
 
 		if (theChoosenOne.getLeftChild() != null)
 		{
@@ -290,6 +280,33 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		CommonInspectionVisitor.this.visitorAccess.setChildContexts(null);
 
 		return new Pair<INode, Context>(theChoosenOne.getNextState().first, newCurrentContext);
+	}
+
+	/**
+	 * Applies changes from the first active {@link DelayedWriteContext} and disables it.
+	 * 
+	 * @param delayedCtxt
+	 * @return
+	 * @throws ValueException
+	 * @throws AnalysisException
+	 */
+	protected Context applyChangesInDelayedContext(Context delayedCtxt)
+			throws ValueException, AnalysisException
+	{
+		while (delayedCtxt != null)
+		{
+			if (delayedCtxt instanceof DelayedWriteContext)
+			{
+				DelayedWriteContext delayed = ((DelayedWriteContext) delayedCtxt);
+				if (!delayed.isDisabled())
+				{
+					delayed.writeChanges();
+					break;
+				}
+			}
+			delayedCtxt = delayedCtxt.outer;
+		}
+		return delayedCtxt;
 	}
 
 	/**

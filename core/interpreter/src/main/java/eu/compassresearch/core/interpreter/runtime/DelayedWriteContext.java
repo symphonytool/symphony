@@ -51,6 +51,11 @@ public class DelayedWriteContext extends Context
 	{
 		this.disable = true;
 	}
+	
+	public boolean isDisabled()
+	{
+		return this.disable;
+	}
 
 	public Value wrap(Value val, Object name)
 	{
@@ -113,13 +118,6 @@ public class DelayedWriteContext extends Context
 		return wrap(super.check(name), name);
 	}
 	
-	@Override
-	public ObjectValue getSelf()
-	{
-		// TODO Auto-generated method stub
-		return super.getSelf();
-	}
-
 	@Override
 	public String toString()
 	{
@@ -200,8 +198,6 @@ public class DelayedWriteContext extends Context
 			Value v = get(var);
 			result.put(var, v.deepCopy());
 		}
-		
-		
 
 		return result;
 	}
