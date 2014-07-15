@@ -216,54 +216,54 @@ process {-> package='eu.compassresearch.ast.process'
 action {-> package='eu.compassresearch.ast.actions'
        | [location]:location
        | (type):type}
-    = {skip} //what is the semantic meaning of CML skip vs VDM skip?
-    | {stop}
-    | {div}
+    = {skip} // equivalent to VDM skip
+    | {stop} // deadlock
+    | {div}  // infinite loop
     | {wait}
         [expression]:exp
-    | {communication}
+    | {communication}  // a -> A
         [identifier]:LexIdentifierToken
         [communicationParameters]:communicationParameter*
         [action]:action
-    | {guarded}
+    | {guarded}   // [ e ] & A
         [expression]:exp
         [action]:action
-    | {sequentialComposition}
+    | {sequentialComposition} // A ; A
         [left]:action
         [right]:action
-    | {externalChoice}
+    | {externalChoice} // A [] A
         [left]:action
         [right]:action
-    | {internalChoice}
+    | {internalChoice} // A |~| A
         [left]:action
         [right]:action
-    | {interrupt}
+    | {interrupt} // A /_\ A
         [left]:action
         [right]:action
-    | {timedInterrupt}
+    | {timedInterrupt} // A /_e_\ A
         [left]:action
         [right]:action
         [timeExpression]:exp
-    | {untimedTimeout}
+    | {untimedTimeout} // A [_e_> A
         [left]:action
         [right]:action
-    | {timeout}
+    | {timeout} // A [_> A
         [left]:action
         [right]:action
         [timeoutExpression]:exp
-    | {hiding}
+    | {hiding} // A \\ cs
         [left]:action
         [chansetExpression]:VarsetExpression
-    | {startDeadline}
+    | {startDeadline} // A startsby e
         [left]:action
         [expression]:exp
-    | {endDeadline}
+    | {endDeadline} // A endsby e
         [left]:action
         [expression]:exp
-    | {channelRenaming}
+    | {channelRenaming} // A [[c<-b]]
         [action]:action
         [renameExpression]:exp.#Channel.#Rename
-    | {mu}
+    | {mu} // mu X, ... @ (A,...)
         [identifiers]:LexIdentifierToken*
         [actions]:action*
     | #Parallel
