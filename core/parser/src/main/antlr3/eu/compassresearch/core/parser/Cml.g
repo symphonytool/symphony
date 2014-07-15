@@ -1121,11 +1121,6 @@ actionReplicated returns[PAction action]
 actionSimpleReplOp returns[SReplicatedAction op]
     : '[]'      { $op = new AExternalChoiceReplicatedAction(); }
     | '|~|'     { $op = new AInternalChoiceReplicatedAction(); }
-    | '[||' varsetExpr '||]'
-        {
-            $op = new ACommonInterleavingReplicatedAction();
-            ((ACommonInterleavingReplicatedAction)$op).setNamesetExpression($varsetExpr.vexp);
-        }
     ;
 
 actionSetReplOp returns[SReplicatedAction op]

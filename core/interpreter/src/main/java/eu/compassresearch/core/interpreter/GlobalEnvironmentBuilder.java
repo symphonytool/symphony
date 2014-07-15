@@ -5,9 +5,7 @@ import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
-import org.overture.ast.lex.LexLocation;
 import org.overture.interpreter.runtime.Context;
-import org.overture.interpreter.runtime.StateContext;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.analysis.AnalysisCMLAdaptor;
