@@ -570,6 +570,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 						}
 					}
 				}
+				applyChangesInDelayedContext(question);
 
 				clearLeftChild();
 				clearRightChild();

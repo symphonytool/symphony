@@ -251,6 +251,14 @@ class ActionSetupVisitor extends CommonSetupVisitor
 
 		}, question);
 	}
+	
+	@Override
+	public Pair<INode, Context> caseAInterleavingParallelAction(
+			AInterleavingParallelAction node, Context question)
+			throws AnalysisException
+	{
+		return new Pair<INode, Context>(node,AbstractReplicationFactory.createDelayedContext(question, node));
+	}
 
 	@Override
 	public Pair<INode, Context> caseAGeneralisedParallelismReplicatedAction(

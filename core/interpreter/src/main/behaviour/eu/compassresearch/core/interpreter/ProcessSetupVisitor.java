@@ -4,6 +4,7 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
 
+import eu.compassresearch.ast.actions.AInterleavingParallelAction;
 import eu.compassresearch.ast.actions.AStopAction;
 import eu.compassresearch.ast.process.AAlphabetisedParallelismProcess;
 import eu.compassresearch.ast.process.AAlphabetisedParallelismReplicatedProcess;
@@ -25,6 +26,7 @@ import eu.compassresearch.ast.process.AStartDeadlineProcess;
 import eu.compassresearch.ast.process.ATimedInterruptProcess;
 import eu.compassresearch.ast.process.ATimeoutProcess;
 import eu.compassresearch.ast.process.AUntimedTimeoutProcess;
+import eu.compassresearch.core.interpreter.CommonSetupVisitor.AbstractReplicationFactory;
 import eu.compassresearch.core.interpreter.api.CmlBehaviorFactory;
 import eu.compassresearch.core.interpreter.api.CmlBehaviour;
 import eu.compassresearch.core.interpreter.utility.Pair;
@@ -189,6 +191,14 @@ class ProcessSetupVisitor extends CommonSetupVisitor
 			}
 
 		}, question);
+	}
+
+	@Override
+	public Pair<INode, Context> caseAInterleavingParallelAction(
+			AInterleavingParallelAction node, Context question)
+			throws AnalysisException
+	{
+		return new Pair<INode, Context>(node,AbstractReplicationFactory.createDelayedContext(question, node));
 	}
 
 	@Override
