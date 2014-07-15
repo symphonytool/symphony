@@ -9,6 +9,10 @@ import org.overture.interpreter.values.Value;
 public class MultiConstraint implements ValueConstraint
 {
 
+	/**
+	 * serial
+	 */
+	private static final long serialVersionUID = 1L;
 	List<ValueConstraint> constraints;
 
 	public MultiConstraint(List<ValueConstraint> constraints)
