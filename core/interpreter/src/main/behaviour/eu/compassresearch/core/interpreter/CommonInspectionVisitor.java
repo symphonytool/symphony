@@ -1,9 +1,11 @@
 package eu.compassresearch.core.interpreter;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -16,6 +18,7 @@ import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ValueException;
 import org.overture.interpreter.values.SetValue;
 import org.overture.interpreter.values.Value;
+import org.overture.typechecker.util.HackLexNameToken;
 
 import eu.compassresearch.ast.CmlAstFactory;
 import eu.compassresearch.ast.actions.ASkipAction;
@@ -45,6 +48,7 @@ import eu.compassresearch.core.interpreter.api.values.CmlChannel;
 import eu.compassresearch.core.interpreter.api.values.NameValue;
 import eu.compassresearch.core.interpreter.api.values.RenamingValue;
 import eu.compassresearch.core.interpreter.runtime.DelayedWriteContext;
+import eu.compassresearch.core.interpreter.runtime.DelayedWriteContext.INameFilter;
 import eu.compassresearch.core.interpreter.utility.LocationExtractor;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
@@ -285,11 +289,12 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 	 * Applies changes from the first active {@link DelayedWriteContext} and disables it.
 	 * 
 	 * @param delayedCtxt
+	 * @param filter
 	 * @throws ValueException
 	 * @throws AnalysisException
 	 */
-	protected void applyChangesInDelayedContext(Context delayedCtxt)
-			throws ValueException, AnalysisException
+	protected void applyChangesInDelayedContext(Context delayedCtxt,
+			INameFilter filter) throws ValueException, AnalysisException
 	{
 		while (delayedCtxt != null)
 		{
@@ -298,12 +303,25 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 				DelayedWriteContext delayed = ((DelayedWriteContext) delayedCtxt);
 				if (!delayed.isDisabled())
 				{
-					delayed.writeChanges();
+					delayed.writeChanges(filter);
 					break;
 				}
 			}
 			delayedCtxt = delayedCtxt.outer;
 		}
+	}
+
+	/**
+	 * Applies changes from the first active {@link DelayedWriteContext} and disables it.
+	 * 
+	 * @param delayedCtxt
+	 * @throws ValueException
+	 * @throws AnalysisException
+	 */
+	protected void applyChangesInDelayedContext(Context delayedCtxt)
+			throws ValueException, AnalysisException
+	{
+		applyChangesInDelayedContext(delayedCtxt, null);
 	}
 
 	/**
@@ -529,9 +547,10 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 			public Pair<INode, Context> execute(CmlTransition selectedTransition)
 					throws AnalysisException
 			{
-
+				// FIXME: clean up needed
 				Context leftChildContext = owner.getLeftChild().getNextState().second;
-				SetValue leftNameset = (SetValue) leftChildContext.check(NamespaceUtility.getNamesetName());
+				final SetValue leftNameset = (SetValue) leftChildContext.check(NamespaceUtility.getNamesetName());
+				Set<ILexNameToken> leftNames = new HashSet<ILexNameToken>();
 				if (leftNameset != null)
 				{
 					for (Value val : leftNameset.values)
@@ -539,7 +558,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 						if (val instanceof NameValue)
 						{
 							ILexNameToken name = ((NameValue) val).name;
-
+							leftNames.add(name);
 							question.lookup(name).set(name.getLocation(), leftChildContext.lookup(name), question);
 						} else
 						{
@@ -551,8 +570,14 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 					}
 				}
 
+				INameFilter leftNameFilter = new NameSetFilter(leftNames);
+				applyChangesInDelayedContext(leftChildContext, leftNameFilter);
+
 				Context rightChildContext = owner.getRightChild().getNextState().second;
 				SetValue rightNameset = (SetValue) rightChildContext.check(NamespaceUtility.getNamesetName());
+
+				Set<ILexNameToken> rightNames = new HashSet<ILexNameToken>();
+
 				if (rightNameset != null)
 				{
 					for (Value val : rightNameset.values)
@@ -560,6 +585,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 						if (val instanceof NameValue)
 						{
 							ILexNameToken name = ((NameValue) val).name;
+							rightNames.add(name);
 							question.lookup(name).set(name.getLocation(), rightChildContext.lookup(name), question);
 						} else
 						{
@@ -570,6 +596,10 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 						}
 					}
 				}
+
+				INameFilter rightNameFilter = new NameSetFilter(rightNames);
+				applyChangesInDelayedContext(rightChildContext, rightNameFilter);
+
 				applyChangesInDelayedContext(question);
 
 				clearLeftChild();
@@ -579,6 +609,32 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 				return new Pair<INode, Context>(node, question);
 			}
 		};
+	}
+
+	private static class NameSetFilter implements INameFilter
+	{
+		private Set<ILexNameToken> names;
+
+		public NameSetFilter(Set<ILexNameToken> names)
+		{
+			this.names = names;
+		}
+
+		@Override
+		public boolean accept(ILexNameToken name)
+		{
+			if (names != null)
+			{
+				for (ILexNameToken n : names)
+				{
+					if (HackLexNameToken.isEqual(n, name))
+					{
+						return true;
+					}
+				}
+			}
+			return false;
+		}
 	}
 
 	protected SetValue eval(PVarsetExpression chansetExpression,

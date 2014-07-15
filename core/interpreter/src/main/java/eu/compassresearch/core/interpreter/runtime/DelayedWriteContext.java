@@ -17,6 +17,13 @@ import org.overture.interpreter.values.UpdatableValue;
 import org.overture.interpreter.values.Value;
 import org.overture.typechecker.util.LexNameTokenMap;
 
+import eu.compassresearch.ast.actions.AExternalChoiceAction;
+import eu.compassresearch.ast.actions.AGeneralisedParallelismParallelAction;
+import eu.compassresearch.ast.actions.AGeneralisedParallelismReplicatedAction;
+import eu.compassresearch.ast.actions.AInterleavingParallelAction;
+import eu.compassresearch.ast.process.AExternalChoiceProcess;
+import eu.compassresearch.ast.process.AGeneralisedParallelismProcess;
+
 /**
  * Context that create transactions for all state changed and waits for them to be written by a call to
  * {@link DelayedWriteContext#writeChanges()}
@@ -30,9 +37,26 @@ public class DelayedWriteContext extends Context
 	 */
 	private static final long serialVersionUID = 2677833973970244511L;
 
+	/**
+	 * A filter that accepts none filtered objects
+	 * 
+	 * @author kel
+	 */
+	public static interface INameFilter
+	{
+		/**
+		 * Accepts none filtered objects
+		 * 
+		 * @param name
+		 *            the object to by checked against the filter
+		 * @return returns true if accepted or false if filtered
+		 */
+		public boolean accept(ILexNameToken name);
+	}
+
 	protected Map<ILexNameToken, DelayedUpdatableWrapper> obtainedValues = new LexNameTokenMap<DelayedUpdatableWrapper>();
 	protected final INode owner;
-	
+
 	boolean disable = false;
 
 	public DelayedWriteContext(INode owner, IInterpreterAssistantFactory af,
@@ -41,20 +65,21 @@ public class DelayedWriteContext extends Context
 		super(af, location, title, outer);
 		this.owner = owner;
 	}
-	
-	public DelayedWriteContext(INode owner,IInterpreterAssistantFactory af,
-			ILexLocation location, String title, Context outer,Map<ILexNameToken, DelayedUpdatableWrapper> obtainedValues)
+
+	public DelayedWriteContext(INode owner, IInterpreterAssistantFactory af,
+			ILexLocation location, String title, Context outer,
+			Map<ILexNameToken, DelayedUpdatableWrapper> obtainedValues)
 	{
 		super(af, location, title, outer);
 		this.obtainedValues.putAll(obtainedValues);
 		this.owner = owner;
 	}
-	
+
 	protected void disable()
 	{
 		this.disable = true;
 	}
-	
+
 	public boolean isDisabled()
 	{
 		return this.disable;
@@ -62,11 +87,11 @@ public class DelayedWriteContext extends Context
 
 	public Value wrap(Value val, Object name)
 	{
-		if(disable)
+		if (disable)
 		{
 			return val;
 		}
-		
+
 		if (name instanceof ILexNameToken)
 		{
 			Value v = obtainedValues.get((ILexNameToken) name);
@@ -87,10 +112,10 @@ public class DelayedWriteContext extends Context
 		}
 
 		if (val instanceof UpdatableValue
-				&& !(val instanceof DelayedUpdatableWrapper))
+				)//&& !(val instanceof DelayedUpdatableWrapper))
 		{
 			// this is state
-			DelayedUpdatableWrapper wrappedVal = new DelayedUpdatableWrapper( (UpdatableValue) val);
+			DelayedUpdatableWrapper wrappedVal = new DelayedUpdatableWrapper((UpdatableValue) val);
 
 			if (name instanceof ILexNameToken)
 			{
@@ -120,30 +145,66 @@ public class DelayedWriteContext extends Context
 	{
 		return wrap(super.check(name), name);
 	}
-	
+
 	@Override
 	public String toString()
 	{
-		return "Delayed ctxt: " + super.toString() + " delayed states: "
-				+ obtainedValues;
+		return "Delayed ctxt for '" + formatNode(this.owner) + "': "
+				+ " \n\tdelayed states: " + obtainedValues + 
+					 " \n\tdisabled: " + isDisabled()+ "\n"
+				+ super.toString();
+	}
+
+	private static String formatNode(INode owner)
+	{
+		String name = owner.getClass().getSimpleName();
+		
+		if(name.equals("AExternalChoiceAction")||name.equals("AExternalChoiceProcess"))
+		{
+			return "[]";
+		}else if(name.equals("AInterleavingParallelAction")||name.equals("AInterleavingParallelProcess"))
+		{
+			return "|||";
+		}else if(name.equals("AGeneralisedParallelismParallelAction")||name.equals("AGeneralisedParallelismProcess"))
+		{
+			return "[||]";
+		}else if(name.contains("Replicated"))
+		{
+			return "replicated something";
+		}
+		
+		return (""+owner).replace('\n', ' ').replace('\t', ' ');
 	}
 
 	public void writeChanges() throws ValueException, AnalysisException
 	{
-		for (DelayedUpdatableWrapper val : obtainedValues.values())
-		{
-			val.set();
-		}
-		
+		writeChanges(null);
+	}
+
+	public void writeChanges(INameFilter filter) throws ValueException,
+			AnalysisException
+	{
+		// for (DelayedUpdatableWrapper val : obtainedValues.values())
+		// {
+		// val.set();
+		// }
+
 		Set<ILexNameToken> toBeRemoved = new HashSet<ILexNameToken>();
-		for (Entry<ILexNameToken, Value> entry: super.entrySet())
+		for (Entry<ILexNameToken, Value> entry : super.entrySet())
 		{
-			if(entry.getValue() instanceof DelayedUpdatableWrapper)
+			if (entry.getValue() instanceof DelayedUpdatableWrapper)
 			{
-				toBeRemoved.add(entry.getKey());
+				DelayedUpdatableWrapper upVal = (DelayedUpdatableWrapper) entry.getValue();
+				ILexNameToken key = entry.getKey();
+				toBeRemoved.add(key);
+
+				if (filter == null || filter.accept(key))
+				{
+					upVal.set();
+				}
 			}
 		}
-		
+
 		for (ILexNameToken key : toBeRemoved)
 		{
 			remove(key);
@@ -153,14 +214,14 @@ public class DelayedWriteContext extends Context
 
 	public static void setOuter(Context source, Context newOuter)
 	{
-		for(Field f :source.getClass().getFields())
+		for (Field f : source.getClass().getFields())
 		{
-			if(f.getName().equals("outer"))
+			if (f.getName().equals("outer"))
 			{
 				f.setAccessible(true);
 				try
 				{
-					f.set(source,new Context(newOuter.assistantFactory,newOuter.location,"", newOuter));
+					f.set(source, new Context(newOuter.assistantFactory, newOuter.location, "", newOuter));
 					return;
 				} catch (IllegalArgumentException e)
 				{
@@ -174,7 +235,7 @@ public class DelayedWriteContext extends Context
 			}
 		}
 	}
-	
+
 	@Override
 	public Context deepCopy()
 	{
@@ -188,15 +249,14 @@ public class DelayedWriteContext extends Context
 		Map<ILexNameToken, DelayedUpdatableWrapper> resultObtainedValues = new LexNameTokenMap<DelayedUpdatableWrapper>();
 		for (Entry<ILexNameToken, DelayedUpdatableWrapper> entry : this.obtainedValues.entrySet())
 		{
-			resultObtainedValues.put(entry.getKey(), (DelayedUpdatableWrapper)entry.getValue().deepCopy());
+			resultObtainedValues.put(entry.getKey(), (DelayedUpdatableWrapper) entry.getValue().deepCopy());
 		}
-		
-		Context result =
-			new DelayedWriteContext(owner,assistantFactory,location, title, below,resultObtainedValues);
+
+		Context result = new DelayedWriteContext(owner, assistantFactory, location, title, below, resultObtainedValues);
 
 		result.threadState = threadState;
-		
-		for (ILexNameToken var: keySet())
+
+		for (ILexNameToken var : keySet())
 		{
 			Value v = get(var);
 			result.put(var, v.deepCopy());
@@ -204,9 +264,9 @@ public class DelayedWriteContext extends Context
 
 		return result;
 	}
-	
+
 	public boolean isOwnedBy(INode node)
 	{
-		return owner==node;
+		return owner == node;
 	}
 }
