@@ -141,6 +141,14 @@ class ProcessSetupVisitor extends CommonSetupVisitor
 	}
 
 	@Override
+	public Pair<INode, Context> caseAExternalChoiceProcess(
+			AExternalChoiceProcess node, Context question)
+			throws AnalysisException
+	{
+		return new Pair<INode, Context>(node, AbstractReplicationFactory.createDelayedContext(question, node));
+	}
+
+	@Override
 	public Pair<INode, Context> caseAExternalChoiceReplicatedProcess(
 			final AExternalChoiceReplicatedProcess node, final Context question)
 			throws AnalysisException

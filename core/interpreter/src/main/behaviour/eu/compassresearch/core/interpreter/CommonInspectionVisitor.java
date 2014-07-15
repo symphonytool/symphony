@@ -253,10 +253,9 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 			throws AnalysisException
 	{
 		Context newCurrentContext = theChoosenOne.getNextState().second;
-		Context delayedCtxt = newCurrentContext;
 
 		// TODO some how it is not the outer one in issue 235
-		delayedCtxt = applyChangesInDelayedContext(delayedCtxt);
+		applyChangesInDelayedContext(newCurrentContext);
 
 		if (theChoosenOne.getLeftChild() != null)
 		{
@@ -286,11 +285,10 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 	 * Applies changes from the first active {@link DelayedWriteContext} and disables it.
 	 * 
 	 * @param delayedCtxt
-	 * @return
 	 * @throws ValueException
 	 * @throws AnalysisException
 	 */
-	protected Context applyChangesInDelayedContext(Context delayedCtxt)
+	protected void applyChangesInDelayedContext(Context delayedCtxt)
 			throws ValueException, AnalysisException
 	{
 		while (delayedCtxt != null)
@@ -306,7 +304,6 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 			}
 			delayedCtxt = delayedCtxt.outer;
 		}
-		return delayedCtxt;
 	}
 
 	/**

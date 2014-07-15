@@ -8,11 +8,11 @@ import java.util.Set;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.intf.lex.ILexNameToken;
+import org.overture.ast.node.INode;
 import org.overture.interpreter.assistant.IInterpreterAssistantFactory;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ValueException;
 import org.overture.interpreter.values.DelayedUpdatableWrapper;
-import org.overture.interpreter.values.ObjectValue;
 import org.overture.interpreter.values.UpdatableValue;
 import org.overture.interpreter.values.Value;
 import org.overture.typechecker.util.LexNameTokenMap;
@@ -31,20 +31,23 @@ public class DelayedWriteContext extends Context
 	private static final long serialVersionUID = 2677833973970244511L;
 
 	protected Map<ILexNameToken, DelayedUpdatableWrapper> obtainedValues = new LexNameTokenMap<DelayedUpdatableWrapper>();
+	protected final INode owner;
 	
 	boolean disable = false;
 
-	public DelayedWriteContext(IInterpreterAssistantFactory af,
+	public DelayedWriteContext(INode owner, IInterpreterAssistantFactory af,
 			ILexLocation location, String title, Context outer)
 	{
 		super(af, location, title, outer);
+		this.owner = owner;
 	}
 	
-	public DelayedWriteContext(IInterpreterAssistantFactory af,
+	public DelayedWriteContext(INode owner,IInterpreterAssistantFactory af,
 			ILexLocation location, String title, Context outer,Map<ILexNameToken, DelayedUpdatableWrapper> obtainedValues)
 	{
 		super(af, location, title, outer);
 		this.obtainedValues.putAll(obtainedValues);
+		this.owner = owner;
 	}
 	
 	protected void disable()
@@ -189,7 +192,7 @@ public class DelayedWriteContext extends Context
 		}
 		
 		Context result =
-			new DelayedWriteContext(assistantFactory,location, title, below,resultObtainedValues);
+			new DelayedWriteContext(owner,assistantFactory,location, title, below,resultObtainedValues);
 
 		result.threadState = threadState;
 		
@@ -200,5 +203,10 @@ public class DelayedWriteContext extends Context
 		}
 
 		return result;
+	}
+	
+	public boolean isOwnedBy(INode node)
+	{
+		return owner==node;
 	}
 }
