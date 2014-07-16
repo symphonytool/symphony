@@ -4,12 +4,12 @@ types
   ProperState = Signal
   inv ps == ps in set {dark, stop, warning, drive}
 
-  DwarfType :: lastproperstate    : ProperState
-               turnoff            : set of LampId 
-               turnon             : set of LampId
-               laststate          : Signal
-               currentstate       : Signal
-               desiredproperstate : ProperState
+  DwarfType :: lastproperstate    : ProperState //{}
+               turnoff            : set of LampId //{L2}
+               turnon             : set of LampId//{L3}
+               laststate          : Signal // {L1}
+               currentstate       : Signal // {L1,L2}
+               desiredproperstate : ProperState //{L1,L3}
   inv d ==
     (((d.currentstate \ d.turnoff) union d.turnon) = d.desiredproperstate) and
     (d.turnoff inter d.turnon = {}) and
@@ -23,13 +23,15 @@ types
     ((d.lastproperstate = dark) => d.desiredproperstate in set {dark,stop}) and
     -- DarkOnlyFromStop
     ((d.desiredproperstate = dark) => d.lastproperstate in set {dark,stop})
-    
+
+/*    
   DwarfSignal = DwarfType
   inv d == NeverShowAll(d) and 
   		    MaxOneLampChange(d) and 
   		    ForbidStopToDrive(d) and 
   		    DarkOnlyToStop(d) and 
   		    DarkOnlyFromStop(d)
+*/
 
 values
   dark: Signal    = {}
@@ -37,7 +39,7 @@ values
   warning: Signal = {<L1>, <L3>}
   drive: Signal   = {<L2>, <L3>}
 
-functions
+/*functions
 
   NeverShowAll: DwarfType -> bool
   NeverShowAll(d) == d.currentstate <> {<L1>,<L2>,<L3>}
@@ -53,7 +55,7 @@ functions
   
   DarkOnlyFromStop: DwarfType -> bool
   DarkOnlyFromStop(d) == (dark = d.desiredproperstate) => stop = d.lastproperstate
-
+*/
 channels
   init
   light: LampId
