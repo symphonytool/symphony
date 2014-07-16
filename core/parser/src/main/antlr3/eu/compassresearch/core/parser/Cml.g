@@ -627,14 +627,17 @@ processReplicated returns[PProcess proc]
         }
     | ';' seqReplicationDeclarationList '@' repld=process
         {
-            ASequentialCompositionReplicatedProcess ascrp = new ASequentialCompositionReplicatedProcess();
-            ascrp.setReplicationDeclaration($seqReplicationDeclarationList.rdecls);
-            ascrp.setReplicatedProcess($repld.proc);
-            $proc = ascrp;
+            ASequentialCompositionReplicatedProcess scrp = new ASequentialCompositionReplicatedProcess();
+            scrp.setReplicationDeclaration($seqReplicationDeclarationList.rdecls);
+            scrp.setReplicatedProcess($repld.proc);
+            $proc = scrp;
         }
-    | '||' replicationDeclarationList '@' '[' varsetExpr ']' repld=process
+    | '||' replicationDeclarationList '@' '[' varsetExpr? ']' repld=process
         {
-            $proc = new AAlphabetisedParallelismReplicatedProcess(null, $replicationDeclarationList.rdecls, $repld.proc, $varsetExpr.vexp);
+            PVarsetExpression cs = $varsetExpr.vexp;
+            if (cs == null)
+                cs = new AFatEnumVarsetExpression(null, new ArrayList<ANameChannelExp>());
+            $proc = new AAlphabetisedParallelismReplicatedProcess(null, $replicationDeclarationList.rdecls, $repld.proc, cs);
         }
     ;
 
@@ -642,10 +645,10 @@ processReplOp returns[SReplicatedProcess op]
     : '[]'      { $op = new AExternalChoiceReplicatedProcess(); }
     | '|~|'     { $op = new AInternalChoiceReplicatedProcess(); }
     | '|||'     { $op = new AInterleavingReplicatedProcess(); }
-    | '[|' varsetExpr '|]'
+    | '[|' cs=varsetExpr '|]'
         {
             AGeneralisedParallelismReplicatedProcess gprp = new AGeneralisedParallelismReplicatedProcess();
-            gprp.setChansetExpression($varsetExpr.vexp);
+            gprp.setChansetExpression($cs.vexp);
             $op = gprp;
         }
     ;
@@ -1074,61 +1077,74 @@ action returns[PAction action]
     ;
 
 actionSuffix returns[PAction suffix]
-    : 'startsby' expression     { $suffix = new AStartDeadlineAction(null, null, $expression.exp); }
-    | 'endsby' expression       { $suffix = new AEndDeadlineAction(null, null, $expression.exp);   }
-    | '\\\\' varsetExpr         { $suffix = new AHidingAction(null, null, $varsetExpr.vexp);       }
+    : 'startsby' e=expression   { $suffix = new AStartDeadlineAction(null, null, $e.exp); }
+    | 'endsby' e=expression     { $suffix = new AEndDeadlineAction(null, null, $e.exp);   }
+    | '\\\\' cs=varsetExpr      { $suffix = new AHidingAction(null, null, $cs.vexp);      }
     ;
 
 actionReplicated returns[PAction action]
-    : actionSimpleReplOp replicationDeclarationList '@' repld=action
+    : ';' seqReplicationDeclarationList '@' repld=action
         {
-            SReplicatedAction sra = $actionSimpleReplOp.op;
-            sra.setReplicationDeclaration($replicationDeclarationList.rdecls);
-            sra.setReplicatedAction($repld.action);
-            $action = sra;
+            ASequentialCompositionReplicatedAction scra = new ASequentialCompositionReplicatedAction();
+            scra.setReplicationDeclaration($seqReplicationDeclarationList.rdecls);
+            scra.setReplicatedAction($repld.action);
+            $action = scra;
         }
-    | ';' seqReplicationDeclarationList '@' repld=action
+    | '[]' replicationDeclarationList '@' repld=action
         {
-            ASequentialCompositionReplicatedAction ascra = new ASequentialCompositionReplicatedAction();
-            ascra.setReplicationDeclaration($seqReplicationDeclarationList.rdecls);
-            ascra.setReplicatedAction($repld.action);
-            $action = ascra;
+            AExternalChoiceReplicatedAction ecra = new AExternalChoiceReplicatedAction();
+            ecra.setReplicationDeclaration($replicationDeclarationList.rdecls);
+            ecra.setReplicatedAction($repld.action);
+            $action = ecra;
         }
-    | actionSetReplOp replicationDeclarationList '@' '[' varsetExpr ']' repld=action
+    | '|~|' replicationDeclarationList '@' repld=action
         {
-            SReplicatedAction sra = $actionSetReplOp.op;
-            sra.setReplicationDeclaration($replicationDeclarationList.rdecls);
-            sra.setReplicatedAction($repld.action);
-            if (sra instanceof AInterleavingReplicatedAction)
-                ((AInterleavingReplicatedAction)sra).setNamesetExpression($varsetExpr.vexp);
-            else if (sra instanceof AGeneralisedParallelismReplicatedAction)
-                ((AGeneralisedParallelismReplicatedAction)sra).setNamesetExpression($varsetExpr.vexp);
-            else
-                System.err.println("FIXME --- log a never-happens as we just got a class that shouldn't be possible");
-            $action = sra;
+            AInternalChoiceReplicatedAction icra = new AInternalChoiceReplicatedAction();
+            icra.setReplicationDeclaration($replicationDeclarationList.rdecls);
+            icra.setReplicatedAction($repld.action);
+            $action = icra;
         }
-    | '||' replicationDeclarationList '@' '[' ns=varsetExpr '|' cs=varsetExpr ']' repld=action
+    | '|||' replicationDeclarationList '@' '[' ns=varsetExpr? ']' repld=action
         {
-            AAlphabetisedParallelismReplicatedAction raction = new AAlphabetisedParallelismReplicatedAction();
-            raction.setReplicationDeclaration($replicationDeclarationList.rdecls);
-            raction.setNamesetExpression($ns.vexp);
-            raction.setChansetExpression($cs.vexp);
-            raction.setReplicatedAction($repld.action);
-            $action = raction;
+            AInterleavingReplicatedAction ira = new AInterleavingReplicatedAction();
+            ira.setReplicationDeclaration($replicationDeclarationList.rdecls);
+            ira.setReplicatedAction($repld.action);
+            if ($ns.vexp == null) {
+                ira.setNamesetExpression(new AFatEnumVarsetExpression(null, new ArrayList<ANameChannelExp>()));
+            } else {
+                ira.setNamesetExpression($ns.vexp);
+            }
+            $action = ira;
         }
-    ;
-
-actionSimpleReplOp returns[SReplicatedAction op]
-    : '[]'      { $op = new AExternalChoiceReplicatedAction(); }
-    | '|~|'     { $op = new AInternalChoiceReplicatedAction(); }
-    ;
-
-actionSetReplOp returns[SReplicatedAction op]
-    : '|||'     { $op = new AInterleavingReplicatedAction(); }
-    | '[|' varsetExpr '|]'
+    | '[|' cs=varsetExpr '|]' replicationDeclarationList '@' '[' ns=varsetExpr? ']' repld=action
         {
-            $op = new AGeneralisedParallelismReplicatedAction();
-            ((AGeneralisedParallelismReplicatedAction)$op).setChansetExpression($varsetExpr.vexp);
+            AGeneralisedParallelismReplicatedAction gpra = new AGeneralisedParallelismReplicatedAction();
+            gpra.setChansetExpression($cs.vexp);
+            gpra.setReplicationDeclaration($replicationDeclarationList.rdecls);
+            gpra.setReplicatedAction($repld.action);
+            if ($ns.vexp == null) {
+                gpra.setNamesetExpression(new AFatEnumVarsetExpression(null, new ArrayList<ANameChannelExp>()));
+            } else {
+                gpra.setNamesetExpression($ns.vexp);
+            }
+            $action = gpra;
+        }
+    | '||' replicationDeclarationList '@' '[' ns=varsetExpr? '|' cs=varsetExpr? ']' repld=action
+        {
+            AAlphabetisedParallelismReplicatedAction apra = new AAlphabetisedParallelismReplicatedAction();
+            apra.setReplicationDeclaration($replicationDeclarationList.rdecls);
+            if ($ns.vexp == null) {
+                apra.setNamesetExpression(new AFatEnumVarsetExpression(null, new ArrayList<ANameChannelExp>()));
+            } else {
+                apra.setNamesetExpression($ns.vexp);
+            }
+            if ($cs.vexp == null) {
+                apra.setChansetExpression(new AFatEnumVarsetExpression(null, new ArrayList<ANameChannelExp>()));
+            } else {
+                apra.setChansetExpression($cs.vexp);
+            }
+            apra.setReplicatedAction($repld.action);
+            $action = apra;
         }
     ;
 
