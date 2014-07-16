@@ -48,7 +48,7 @@ import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.values.ProcessObjectValue;
 import eu.compassresearch.core.interpreter.runtime.DelayedWriteContext;
-import eu.compassresearch.core.interpreter.runtime.DelayedWriteObjectContext;
+import eu.compassresearch.core.interpreter.runtime.DelayedWriteObjectValue;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
 public class StatementInspectionVisitor extends AbstractInspectionVisitor
@@ -220,8 +220,11 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 				{
 					if(tmp instanceof DelayedWriteContext)
 					{
+						if(!((DelayedWriteContext) tmp).isDisabled()){
 						delayedCtxt = (DelayedWriteContext) tmp;
+						
 						break;
+						}
 					}
 					tmp = tmp.outer;
 				}
@@ -231,7 +234,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 				{
 				// copy the op and modify self to write protected mode
 					op = (OperationValue) opVal.clone();
-					op.setSelf(new DelayedWriteObjectContext(opVal.getSelf(),delayedCtxt));
+					op.setSelf(new DelayedWriteObjectValue(opVal.getSelf(),delayedCtxt));
 				}
 				
 				// evaluate all the arguments

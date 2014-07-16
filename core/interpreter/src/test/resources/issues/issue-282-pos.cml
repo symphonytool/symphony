@@ -1,0 +1,22 @@
+
+channels
+	a: int
+	b: int
+	finished
+
+process P = begin 
+	state 
+		var : nat := 0 
+		var2 : nat := 0 
+		
+operations
+
+	op:int==>()
+	op(x) == var := x
+
+	op2:int==>()
+	op2(y) == var2 := y
+	
+@ (a.var->op(1); a.var->Skip [|| {|var|} | {|var2|} ||] b.var2->op2(2); b.var2->Skip); finished->a.var->b.var2->Skip 
+
+end
