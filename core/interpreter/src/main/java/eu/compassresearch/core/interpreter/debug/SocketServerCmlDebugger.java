@@ -413,6 +413,7 @@ public class SocketServerCmlDebugger implements CmlDebugger,
 		worker.setDaemon(true);
 		worker.start();
 		runningInterpreter.initialize();
+		runningInterpreter.setSuspendBeforeTermination(true);
 	}
 
 	private void requestSetup()
