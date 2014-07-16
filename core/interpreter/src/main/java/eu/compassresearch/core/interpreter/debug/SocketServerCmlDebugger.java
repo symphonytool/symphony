@@ -96,6 +96,11 @@ public class SocketServerCmlDebugger implements CmlDebugger,
 			}
 		}
 
+		public boolean isStopped()
+		{
+			return this.stopped;
+		}
+
 		@Override
 		public void run()
 		{
@@ -131,9 +136,9 @@ public class SocketServerCmlDebugger implements CmlDebugger,
 
 	/**
 	 * Connects to the request tcp connection on "localhost" (for now) where the eclipse UI should listening.
-	 * @param host 
-	 * @param port 
 	 * 
+	 * @param host
+	 * @param port
 	 * @throws UnknownHostException
 	 * @throws IOException
 	 */
@@ -424,7 +429,7 @@ public class SocketServerCmlDebugger implements CmlDebugger,
 	@Override
 	public void start(SelectionStrategy strategy)
 	{
-
+		boolean success = false;
 		try
 		{
 			requestSetup();
@@ -436,6 +441,7 @@ public class SocketServerCmlDebugger implements CmlDebugger,
 			runningInterpreter.execute(strategy);
 
 			stopped(CmlInterpreterStateDTO.createCmlInterpreterStateDTO(runningInterpreter));
+			success = true;
 		} catch (CmlInterpreterException e)
 		{
 			CmlInterpreterStateDTO status = CmlInterpreterStateDTO.createCmlInterpreterStateDTO(runningInterpreter);
@@ -464,7 +470,24 @@ public class SocketServerCmlDebugger implements CmlDebugger,
 			stopped(status);
 		} finally
 		{
-			runningInterpreter.onStateChanged().unregisterObserver(this);
+			try
+			{
+				if (!success)
+				{
+					runningInterpreter.forceInternalSuspend();
+					while (!commandDispatcher.isStopped())
+					{
+						Thread.sleep(1000);
+					}
+				}
+				System.out.println("stopping debugger");
+			} catch (InterruptedException e)
+			{
+
+			} finally
+			{
+				runningInterpreter.onStateChanged().unregisterObserver(this);
+			}
 		}
 	}
 

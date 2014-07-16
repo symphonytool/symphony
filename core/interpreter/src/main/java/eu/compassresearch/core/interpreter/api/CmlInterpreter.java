@@ -129,6 +129,8 @@ public interface CmlInterpreter
 	public void suspend() throws InterruptedException;
 
 	public void step();
+	
+	public void forceInternalSuspend() throws InterruptedException;
 
 	// public CmlInterpreter getInstance();
 	PExp parseExpression(String line, String module) throws Exception;

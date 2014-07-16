@@ -313,10 +313,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			Console.err.println("DEADLOCKED");
 			if (suspendBeforeTermination())
 			{
-				synchronized (suspendObject)
-				{
-					this.suspendObject.wait();
-				}
+				forceInternalSuspend();
 			}
 		} else if (!behaviour.finished())
 		{
@@ -467,6 +464,11 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	{
 		setNewState(CmlInterpreterState.SUSPENDED);
 
+		forceInternalSuspend();
+	}
+
+	public void forceInternalSuspend() throws InterruptedException
+	{
 		synchronized (suspendObject)
 		{
 			this.suspendObject.wait();
