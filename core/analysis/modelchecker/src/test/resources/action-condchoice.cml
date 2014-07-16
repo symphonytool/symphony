@@ -1,0 +1,4 @@
+process P = 
+begin 
+	@ if ( 2 < 3 or 4 > 5) then Skip else Skip
+end

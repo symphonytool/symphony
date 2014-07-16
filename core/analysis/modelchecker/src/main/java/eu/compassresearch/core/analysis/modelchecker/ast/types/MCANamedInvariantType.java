@@ -27,6 +27,16 @@ public class MCANamedInvariantType implements MCPCMLType {
 		return result.toString();
 	}
 
+	
+	@Override
+	public boolean equals(Object obj) {
+		boolean result = false;
+		if(obj instanceof MCANamedInvariantType){
+			result = this.name.equals(((MCANamedInvariantType) obj).getName());
+		}
+		return result;
+	}
+
 	public String getName() {
 		return name;
 	}
