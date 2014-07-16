@@ -28,6 +28,7 @@ import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.LaunchConfigurationDelegate;
 import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.WorkbenchException;
@@ -48,6 +49,7 @@ import eu.compassresearch.ide.core.resources.ICmlProject;
 import eu.compassresearch.ide.interpreter.CmlDebugPlugin;
 import eu.compassresearch.ide.interpreter.ICmlDebugConstants;
 import eu.compassresearch.ide.interpreter.model.CmlDebugTarget;
+import eu.compassresearch.ide.interpreter.views.CmlEventHistoryView;
 
 public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 {
@@ -184,7 +186,17 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 					IWorkbench workbench = PlatformUI.getWorkbench();
 					workbench.showPerspective("org.eclipse.debug.ui.DebugPerspective", workbench.getActiveWorkbenchWindow());
 					PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(ICmlDebugConstants.ID_CML_OPTION_VIEW);
-					PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(ICmlDebugConstants.ID_CML_HISTORY_VIEW);
+				IViewPart historyView = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(ICmlDebugConstants.ID_CML_HISTORY_VIEW);
+			
+				if(historyView!=null)
+				{
+					if(historyView  instanceof CmlEventHistoryView)
+					{
+						CmlEventHistoryView ceh = (CmlEventHistoryView) historyView;
+						ceh.clear();
+					}
+				}
+				
 				} catch (WorkbenchException e)
 				{
 					// TODO Auto-generated catch block
