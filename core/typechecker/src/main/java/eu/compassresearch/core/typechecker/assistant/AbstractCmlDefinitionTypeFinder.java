@@ -11,7 +11,6 @@ import org.overture.typechecker.utilities.DefinitionTypeFinder;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismReplicatedAction;
 import eu.compassresearch.ast.actions.AChannelRenamingAction;
-import eu.compassresearch.ast.actions.ACommonInterleavingReplicatedAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.ADivAction;
 import eu.compassresearch.ast.actions.AEndDeadlineAction;
@@ -746,14 +745,6 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	@Override
 	public PType caseAInternalChoiceReplicatedAction(
 			AInternalChoiceReplicatedAction node) throws AnalysisException
-	{
-
-		return null;
-	}
-
-	@Override
-	public PType caseACommonInterleavingReplicatedAction(
-			ACommonInterleavingReplicatedAction node) throws AnalysisException
 	{
 
 		return null;

@@ -299,8 +299,6 @@ action {-> package='eu.compassresearch.ast.actions'
     = {sequentialComposition}
     | {externalChoice}
     | {internalChoice}
-    | {commonInterleaving}
-        [namesetExpression]:VarsetExpression
     | {interleaving}
         [namesetExpression]:VarsetExpression
     | {generalisedParallelism}

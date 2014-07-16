@@ -12,7 +12,6 @@ import org.overture.typechecker.utilities.DefinitionCollector;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismReplicatedAction;
 import eu.compassresearch.ast.actions.AChannelRenamingAction;
-import eu.compassresearch.ast.actions.ACommonInterleavingReplicatedAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.ADivAction;
 import eu.compassresearch.ast.actions.AEndDeadlineAction;
@@ -767,14 +766,6 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	@Override
 	public List<PDefinition> caseAInternalChoiceReplicatedAction(
 			AInternalChoiceReplicatedAction node) throws AnalysisException
-	{
-
-		return null;
-	}
-
-	@Override
-	public List<PDefinition> caseACommonInterleavingReplicatedAction(
-			ACommonInterleavingReplicatedAction node) throws AnalysisException
 	{
 
 		return null;
