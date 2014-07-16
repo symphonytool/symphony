@@ -62,6 +62,7 @@ import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.lex.CmlLexNameToken;
 import eu.compassresearch.ast.statements.AActionStm;
+import eu.compassresearch.core.interpreter.CommonSetupVisitor.AbstractReplicationFactory;
 import eu.compassresearch.core.interpreter.api.CmlBehaviorFactory;
 import eu.compassresearch.core.interpreter.api.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
@@ -570,7 +571,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 		PAction right = node.getRightAction();
 		Pair<Context, Context> childContexts = getChildContexts(question);
 
-		Context leftCopy = childContexts.first.deepCopy();
+		Context leftCopy =AbstractReplicationFactory.createDelayedContext(childContexts.first,left);
 
 		if (leftNameset != null)
 		{
@@ -579,7 +580,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 
 		CmlBehaviour leftInstance = cmlBehaviorFactory.newCmlBehaviour(left, leftCopy, owner.getName().clone(), owner);
 
-		Context rightCopy = childContexts.second.deepCopy();
+		Context rightCopy =AbstractReplicationFactory.createDelayedContext( childContexts.second,right);
 
 		if (rightNameset != null)
 		{
