@@ -13,9 +13,7 @@ import org.overture.ast.patterns.PPattern;
 import org.overture.ast.statements.PObjectDesignator;
 import org.overture.ast.statements.PStateDesignator;
 import org.overture.ast.statements.PStm;
-import org.overture.ast.util.definitions.ClassList;
 import org.overture.interpreter.eval.DelegateExpressionEvaluator;
-import org.overture.interpreter.runtime.ClassInterpreter;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ValueException;
 import org.overture.interpreter.runtime.VdmRuntime;
@@ -31,7 +29,6 @@ import org.overture.interpreter.values.ValueSet;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.expressions.ABracketedExp;
-import eu.compassresearch.ast.expressions.ACompVarsetExpression;
 import eu.compassresearch.ast.expressions.AEnumVarsetExpression;
 import eu.compassresearch.ast.expressions.AEnumerationRenameChannelExp;
 import eu.compassresearch.ast.expressions.AFatCompVarsetExpression;
@@ -46,7 +43,6 @@ import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.patterns.ARenamePair;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
-import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.api.values.ChannelValue;
 import eu.compassresearch.core.interpreter.api.values.CmlChannel;
 import eu.compassresearch.core.interpreter.api.values.LatticeTopValue;
@@ -291,14 +287,6 @@ public class CmlExpressionVisitor extends
 		}
 
 		return new SetValue(result);
-	}
-
-	@Override
-	public Value caseACompVarsetExpression(ACompVarsetExpression node,
-			Context question) throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-		return super.caseACompVarsetExpression(node, question);
 	}
 
 	@Override

@@ -12,7 +12,6 @@ import org.overture.typechecker.utilities.ImplicitDefinitionFinder;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismReplicatedAction;
 import eu.compassresearch.ast.actions.AChannelRenamingAction;
-import eu.compassresearch.ast.actions.ACommonInterleavingReplicatedAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.ADivAction;
 import eu.compassresearch.ast.actions.AEndDeadlineAction;
@@ -695,14 +694,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	@Override
 	public void caseAInternalChoiceReplicatedAction(
 			AInternalChoiceReplicatedAction node, Environment question)
-			throws AnalysisException
-	{
-
-	}
-
-	@Override
-	public void caseACommonInterleavingReplicatedAction(
-			ACommonInterleavingReplicatedAction node, Environment question)
 			throws AnalysisException
 	{
 

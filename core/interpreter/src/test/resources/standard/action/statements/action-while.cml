@@ -6,5 +6,9 @@ begin
 	state
 	v : int := 2
 
-	@ while v < 4 do (([v = 2] & (v := v + 1; a -> Skip)) [] ([v = 3] & (b -> v := v + 1)))
+	@ while v < 4 do (
+						([v = 2] & (v := v + 1; a -> Skip)) 
+						[] 
+						([v = 3] & (b -> v := 5))
+					)
 end

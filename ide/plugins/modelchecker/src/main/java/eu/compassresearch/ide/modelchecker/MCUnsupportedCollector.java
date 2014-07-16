@@ -156,7 +156,6 @@ import org.overture.ast.types.AVoidType;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismReplicatedAction;
 import eu.compassresearch.ast.actions.AChannelRenamingAction;
-import eu.compassresearch.ast.actions.ACommonInterleavingReplicatedAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.ADivAction;
 import eu.compassresearch.ast.actions.AEndDeadlineAction;
@@ -732,15 +731,6 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseAClassClassDefinition(node);
-	}
-
-	@Override
-	public void caseACommonInterleavingReplicatedAction(
-			ACommonInterleavingReplicatedAction node) throws AnalysisException {
-		// unsupported=false;
-		// TODO Uncomment the above line to signal support for this node
-		// Do not remove the super call below.
-		super.caseACommonInterleavingReplicatedAction(node);
 	}
 
 	@Override

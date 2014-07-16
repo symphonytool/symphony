@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.types.SNumericBasicType;
@@ -202,7 +203,7 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 	 * Replication
 	 */
 
-	abstract class AbstractReplicationFactory
+	abstract static class AbstractReplicationFactory
 	{
 		private final INode node;
 
@@ -237,10 +238,62 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 		 * @param outer
 		 * @return
 		 */
+		Context createReplicationDelayedChildContext(NameValuePairList npvl,
+				INode node, Context outer)
+		{
+			Context childContext = createDelayedContext(outer, node);
+
+			for (NameValuePair nvp : npvl)
+			{
+				// turn the values into constants, important for the delayed context removal later
+				NameValuePair pair = new NameValuePair(nvp.name, nvp.value.getConstant());
+				childContext.putNew(pair);
+			}
+
+			return childContext;
+		}
+
+		/**
+		 * Create a new replication child context for a particular node. This is a context that delays all writes to
+		 * state. Note that the creation will be skipped if the location of the node matches the location set in the
+		 * outer context, if so the outer context is returned.
+		 * 
+		 * @param outer
+		 * @param currentNode
+		 * @return
+		 */
+		public static Context createDelayedContext(Context outer,
+				INode currentNode)
+		{
+			final ILexLocation location = LocationExtractor.extractLocation(currentNode);
+
+			Context oCtxt = outer;
+			while(oCtxt.outer!=null)
+			{
+				if (oCtxt instanceof DelayedWriteContext && ((DelayedWriteContext)oCtxt).isOwnedBy(currentNode))
+				{
+					return outer;// already done of this node
+				}	
+				oCtxt = oCtxt.outer;
+			}
+			
+			Context childContext = new DelayedWriteContext(currentNode,outer.assistantFactory, location, "delayed write context for "
+					+ outer.title, outer);
+			return childContext;
+		}
+
+		/**
+		 * Create a new replication child context.
+		 * 
+		 * @param npvl
+		 * @param node
+		 * @param outer
+		 * @return
+		 */
 		Context createReplicationChildContext(NameValuePairList npvl,
 				INode node, Context outer)
 		{
-			Context childContext = new DelayedWriteContext(outer.assistantFactory, LocationExtractor.extractLocation(node), "delayed write context for "
+			Context childContext = new Context(outer.assistantFactory, LocationExtractor.extractLocation(node), "local context for "
 					+ outer.title, outer);
 
 			for (NameValuePair nvp : npvl)
@@ -305,7 +358,12 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 				 * method as well
 				 */
 				final INode nextNode = factory.getReplicatedNode();
+				/*
+				 * do not create delayed context here. There is not way to determine when to write the values and there
+				 * is only ever one of these
+				 */
 				final Context nextContext = factory.createReplicationChildContext(nextChildValue, nextNode, question);
+
 				storeReplificationQualifierRemainder(nextNode, ql, nextContext);
 
 				return new Pair<INode, Context>(nextNode, nextContext);
@@ -318,7 +376,7 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 				replicatedContext.put(replicationContextValueName, ql);
 				storeReplificationQualifierRemainder(nextNode, ql, replicatedContext);
 
-				Context leftChildContext = factory.createReplicationChildContext(nextChildValue, nextNode, question);
+				Context leftChildContext = factory.createReplicationDelayedChildContext(nextChildValue, nextNode, question);
 				storeReplificationQualifierRemainder(nextNode, ql, leftChildContext);
 
 				Context rightChildContext = replicatedContext;
