@@ -218,6 +218,13 @@ class ActionSetupVisitor extends CommonSetupVisitor
 	{
 		Pair<INode, Context> res = caseReplicated(node, node.getReplicationDeclaration(), new AbstractReplicationFactory(node)
 		{
+			
+//			@Override
+//			Context createReplicationDelayedChildContext(
+//					NameValuePairList npvl, INode node, Context outer)
+//			{
+//			return super.createReplicationChildContext(npvl, node, outer);
+//			}
 
 			@Override
 			public INode createNextReplication()
@@ -388,6 +395,7 @@ class ActionSetupVisitor extends CommonSetupVisitor
 	{
 		Context forIndexContext = CmlContextFactory.newContext(node.getLocation(), "For index context", question);
 		Value idValue = node.getFrom().apply(this.cmlExpressionVisitor, question);
+		idValue = idValue.deepCopy();
 		forIndexContext.putNew(new NameValuePair(node.getVar(), idValue));
 
 		Value byValue = null;
@@ -415,6 +423,7 @@ class ActionSetupVisitor extends CommonSetupVisitor
 	{
 		Context context = CmlContextFactory.newContext(node.getLocation(), "For all loop context", question);
 		Value v = node.getSet().apply(cmlExpressionVisitor, question);
+		v = v.deepCopy();
 		context.putNew(new NameValuePair(NamespaceUtility.getForAllName(), v));
 
 		// put the front element in scope of the action
