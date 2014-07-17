@@ -24,6 +24,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCALessEqua
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCALessNumericBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANotEqualsBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANotUnaryExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAOrBooleanBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAQuoteLiteralExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCARealLiteralExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASetEnumSetExp;
@@ -790,6 +791,28 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 		return resp;
 	}
 	
+	public boolean evaluate(MCAOrBooleanBinaryExp expression){
+		boolean resp = false;
+		
+		MCPCMLExp left = expression.getLeft();
+		MCPCMLExp right = expression.getRight();
+		
+		resp = evaluate(left) || evaluate(right);
+		
+		return resp;
+	}
+	
+	public boolean evaluate(MCAAndBooleanBinaryExp expression){
+		boolean resp = false;
+		
+		MCPCMLExp left = expression.getLeft();
+		MCPCMLExp right = expression.getRight();
+		
+		resp = evaluate(left) && evaluate(right);
+		
+		return resp;
+	}
+	
 	public boolean evaluate(MCALessEqualNumericBinaryExp expression){
 		boolean resp = false;
 		
@@ -829,6 +852,9 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 		} else if(expression instanceof MCAAndBooleanBinaryExp){
 			resp = this.canEvaluate(((MCAAndBooleanBinaryExp) expression).getLeft()) 
 					&& this.canEvaluate(((MCAAndBooleanBinaryExp) expression).getRight());
+		} else if(expression instanceof MCAOrBooleanBinaryExp){
+			resp = this.canEvaluate(((MCAOrBooleanBinaryExp) expression).getLeft()) 
+					&& this.canEvaluate(((MCAOrBooleanBinaryExp) expression).getRight());
 		}
 		return resp;
 	}
@@ -865,6 +891,22 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 		return result;
 	}
 	
+	public boolean canEvaluate(MCAAndBooleanBinaryExp expression){
+		boolean result = true;
+		
+		result = canEvaluate(expression.getLeft()) && canEvaluate(expression.getRight()); 
+				
+		return result;
+	}
+	
+	public boolean canEvaluate(MCAOrBooleanBinaryExp expression){
+		boolean result = true;
+		
+		result = canEvaluate(expression.getLeft()) && canEvaluate(expression.getRight()); 
+				
+		return result;
+	}
+	
 	@Override
 	public boolean evaluate(MCPCMLExp expression) {
 		boolean resp = false;
@@ -880,7 +922,9 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 			resp = this.evaluate((MCALessEqualNumericBinaryExp)expression);
 		} else if(expression instanceof MCAGreaterNumericBinaryExp){
 			resp = this.evaluate((MCAGreaterNumericBinaryExp)expression);
-		} 
+		} else if(expression instanceof MCAOrBooleanBinaryExp){
+			resp = this.evaluate((MCAOrBooleanBinaryExp)expression);
+		}
 		return resp;
 	}
 

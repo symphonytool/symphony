@@ -77,6 +77,7 @@ public class MCAChannelDefinition implements MCPCMLDefinition {
 					if(realType instanceof MCAChannelType){
 						realType = ((MCAChannelType) realType).getType();
 					}
+					
 					IntroduceCommand introduce = new IntroduceCommand(realType); 
 					//if(!this.isInfiniteType()){
 					//	introduce.setNumberOfInstances(typeValues.size());

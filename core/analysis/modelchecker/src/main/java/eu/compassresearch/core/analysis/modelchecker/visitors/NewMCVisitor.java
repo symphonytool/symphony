@@ -355,7 +355,8 @@ public class NewMCVisitor extends
 		//String cml_file = "src/test/resources/TestOutput.cml";
 		//String cml_file = "src/test/resources/DeadFree.cml";
 		//String cml_file = "src/test/resources/use-reals.cml";
-		String cml_file = "src/test/resources/echoice-process.cml";
+		//String cml_file = "src/test/resources/echoice-process.cml";
+		String cml_file = "src/test/resources/action-condchoice.cml";
 		
 		
 		//String cml_file = "src/test/resources/MC_Tests_2.cml";
