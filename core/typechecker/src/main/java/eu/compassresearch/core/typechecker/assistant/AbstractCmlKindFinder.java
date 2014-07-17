@@ -10,7 +10,6 @@ import org.overture.typechecker.utilities.KindFinder;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismReplicatedAction;
 import eu.compassresearch.ast.actions.AChannelRenamingAction;
-import eu.compassresearch.ast.actions.ACommonInterleavingReplicatedAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.ADivAction;
 import eu.compassresearch.ast.actions.AEndDeadlineAction;
@@ -762,14 +761,6 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	@Override
 	public String caseAInternalChoiceReplicatedAction(
 			AInternalChoiceReplicatedAction node) throws AnalysisException
-	{
-
-		return null;
-	}
-
-	@Override
-	public String caseACommonInterleavingReplicatedAction(
-			ACommonInterleavingReplicatedAction node) throws AnalysisException
 	{
 
 		return null;

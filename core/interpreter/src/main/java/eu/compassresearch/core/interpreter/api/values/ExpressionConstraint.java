@@ -16,17 +16,15 @@ import eu.compassresearch.core.interpreter.CmlExpressionVisitor;
 public class ExpressionConstraint implements ValueConstraint
 {
 
+	/**
+	 * serial
+	 */
+	private static final long serialVersionUID = 1L;
 	private PExp constraintExpression;
 	private Context evaluationContext;
 	private ILexNameToken name;
 	private CmlExpressionVisitor expVisitor = new CmlExpressionVisitor();
 
-	// public ExpressionConstraint(PExp constraintExpression, Context evaluationContext, ILexNameToken name)
-	// {
-	// this.constraintExpression = constraintExpression;
-	// this.evaluationContext = evaluationContext;
-	// this.name = name;
-	// }
 
 	public ExpressionConstraint(AReadCommunicationParameter node,
 			Context evaluationContext)

@@ -14,7 +14,6 @@ import org.overture.ast.patterns.PPattern;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismReplicatedAction;
 import eu.compassresearch.ast.actions.AChannelRenamingAction;
-import eu.compassresearch.ast.actions.ACommonInterleavingReplicatedAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.ADivAction;
 import eu.compassresearch.ast.actions.AEndDeadlineAction;
@@ -219,11 +218,6 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		return ThmProcessUtil.undefined;
 	}
 	
-	public String caseACommonInterleavingReplicatedAction(
-			ACommonInterleavingReplicatedAction node, ThmVarsContext vars) throws AnalysisException{
-		return ThmProcessUtil.undefined;
-	}
-
 	public String caseAEndDeadlineAction(AEndDeadlineAction node, ThmVarsContext vars) throws AnalysisException{
 		return ThmProcessUtil.undefined;
 	}

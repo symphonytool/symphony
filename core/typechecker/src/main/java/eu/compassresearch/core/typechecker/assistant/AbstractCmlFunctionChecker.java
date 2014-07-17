@@ -10,7 +10,6 @@ import org.overture.typechecker.utilities.FunctionChecker;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismReplicatedAction;
 import eu.compassresearch.ast.actions.AChannelRenamingAction;
-import eu.compassresearch.ast.actions.ACommonInterleavingReplicatedAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.ADivAction;
 import eu.compassresearch.ast.actions.AEndDeadlineAction;
@@ -747,14 +746,6 @@ public class AbstractCmlFunctionChecker extends FunctionChecker implements
 	@Override
 	public Boolean caseAInternalChoiceReplicatedAction(
 			AInternalChoiceReplicatedAction node) throws AnalysisException
-	{
-
-		return false;
-	}
-
-	@Override
-	public Boolean caseACommonInterleavingReplicatedAction(
-			ACommonInterleavingReplicatedAction node) throws AnalysisException
 	{
 
 		return false;

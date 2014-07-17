@@ -15,7 +15,6 @@ import org.overture.pog.utility.POException;
 
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AChannelRenamingAction;
-import eu.compassresearch.ast.actions.ACommonInterleavingReplicatedAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.ADivAction;
 import eu.compassresearch.ast.actions.AEndDeadlineAction;
@@ -603,28 +602,6 @@ public class POGActionVisitor extends
 			CmlProofObligationList pol = new CmlProofObligationList();
 
 			// TODO: Any ADivAction POs?
-			return pol;
-		} catch (Exception e)
-		{
-			throw new POException(node, e.getMessage());
-		}
-	}
-
-	@Override
-	public CmlProofObligationList caseACommonInterleavingReplicatedAction(
-			ACommonInterleavingReplicatedAction node, IPOContextStack question)
-			throws AnalysisException
-	{
-		try
-		{
-			CmlProofObligationList pol = new CmlProofObligationList();
-
-			// Get subparts
-			PAction acts = node.getReplicatedAction();
-			LinkedList<PSingleDeclaration> decls = node.getReplicationDeclaration();
-			PVarsetExpression namesetExp = node.getNamesetExpression();
-
-			// TODO: Any ACommonInterleavingReplicatedAction POs?
 			return pol;
 		} catch (Exception e)
 		{

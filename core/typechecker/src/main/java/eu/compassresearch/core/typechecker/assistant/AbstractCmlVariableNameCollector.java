@@ -11,7 +11,6 @@ import org.overture.typechecker.utilities.VariableNameCollector;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismReplicatedAction;
 import eu.compassresearch.ast.actions.AChannelRenamingAction;
-import eu.compassresearch.ast.actions.ACommonInterleavingReplicatedAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.ADivAction;
 import eu.compassresearch.ast.actions.AEndDeadlineAction;
@@ -771,14 +770,6 @@ public class AbstractCmlVariableNameCollector extends VariableNameCollector
 	@Override
 	public LexNameList caseAInternalChoiceReplicatedAction(
 			AInternalChoiceReplicatedAction node) throws AnalysisException
-	{
-
-		return null;
-	}
-
-	@Override
-	public LexNameList caseACommonInterleavingReplicatedAction(
-			ACommonInterleavingReplicatedAction node) throws AnalysisException
 	{
 
 		return null;

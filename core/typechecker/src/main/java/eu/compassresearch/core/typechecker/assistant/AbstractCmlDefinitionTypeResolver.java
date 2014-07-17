@@ -10,7 +10,6 @@ import org.overture.typechecker.utilities.DefinitionTypeResolver;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismReplicatedAction;
 import eu.compassresearch.ast.actions.AChannelRenamingAction;
-import eu.compassresearch.ast.actions.ACommonInterleavingReplicatedAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.ADivAction;
 import eu.compassresearch.ast.actions.AEndDeadlineAction;
@@ -794,15 +793,6 @@ public class AbstractCmlDefinitionTypeResolver extends DefinitionTypeResolver im
 	@Override
 	public void caseAInternalChoiceReplicatedAction(
 			AInternalChoiceReplicatedAction node, NewQuestion question)
-			throws AnalysisException
-	{
-		
-		
-	}
-
-	@Override
-	public void caseACommonInterleavingReplicatedAction(
-			ACommonInterleavingReplicatedAction node, NewQuestion question)
 			throws AnalysisException
 	{
 		
