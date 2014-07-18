@@ -290,7 +290,12 @@ public class NewMCVisitor extends
 		context.propertyToCheck = propertyToCheck;
 		context.mainProcessName = mainProcessName;
 		
-		for (PDefinition paragraph : definitions) {
+		MCDependenciesVisitor visitor = new MCDependenciesVisitor(definitions);
+		List<PDefinition> filteredDefinitions = visitor.filterDependencies(definitions, mainProcessName);
+		
+		
+		//for (PDefinition paragraph : definitions) {
+		for (PDefinition paragraph : filteredDefinitions) {
 			paragraph.apply(this, context);
 		}
 		
@@ -379,29 +384,31 @@ public class NewMCVisitor extends
 			return;
 		}
 		*/
+		//String mainProcessName = "Test_TurnOnProduct";
+				//String mainProcessName = "TargetProduct_DD_SD_InterfaceProtocolView";
+				
+				//String mainProcessName = "RegisterProc";
+				//String mainProcessName = "N_LAZY_Q";
+				//String mainProcessName = "StreamingPlayerCSProcess";
+				//String mainProcessName = "CoSimulationServer";
+				//String mainProcessName = "Simple";
+				//String mainProcessName = "TargetProduct_DD_SD_InterfaceProtocolView";
+				//String mainProcessName = "P";
+				//String mainProcessName = "ChaosE";
+				//String mainProcessName = "CUSSoS";
+//				String mainProcessName = "Test";
+				//String mainProcessName = "PHide";
+				String mainProcessName = "T1";
+				
+				//String mainProcessName = "TestTraces1";
+				
+				//String mainProcessName = "ad_Initiate_Rescue_Activation___Fault_1";
+				//String mainProcessName = "Dphils";
+				//String mainProcessName = "ERUs";
+		
 		NewCMLModelcheckerContext.getInstance().setNumberOfInstances(1);
 		NewMCVisitor visitor1 = new NewMCVisitor();
-		//String mainProcessName = "Test_TurnOnProduct";
-		//String mainProcessName = "TargetProduct_DD_SD_InterfaceProtocolView";
 		
-		//String mainProcessName = "RegisterProc";
-		//String mainProcessName = "N_LAZY_Q";
-		//String mainProcessName = "StreamingPlayerCSProcess";
-		//String mainProcessName = "CoSimulationServer";
-		//String mainProcessName = "Simple";
-		//String mainProcessName = "TargetProduct_DD_SD_InterfaceProtocolView";
-		//String mainProcessName = "P";
-		//String mainProcessName = "ChaosE";
-		//String mainProcessName = "CUSSoS";
-//		String mainProcessName = "Test";
-		//String mainProcessName = "PHide";
-		String mainProcessName = "P";
-		
-		//String mainProcessName = "TestTraces1";
-		
-		//String mainProcessName = "ad_Initiate_Rescue_Activation___Fault_1";
-		//String mainProcessName = "Dphils";
-		//String mainProcessName = "ERUs";
 		
 		String formulaCode = visitor1.generateFormulaScript(source1.getParagraphs(),Utilities.DEADLOCK_PROPERTY,mainProcessName);
 		//String[] codes1 = visitor1.generateFormulaCodeForAll(Utilities.DEADLOCK_PROPERTY);
