@@ -8,6 +8,7 @@ import org.overture.ast.node.INode;
 public interface IRefineLaw {
 
 	public String getName();
+	public String getDetail();
 	public boolean isApplicable(INode node);
 	public Refinement apply(Map<String, String> metas, INode node, int offset);
 	public List<String> getMetaNames();

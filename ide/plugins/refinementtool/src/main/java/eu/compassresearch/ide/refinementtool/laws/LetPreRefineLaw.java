@@ -36,6 +36,11 @@ public class LetPreRefineLaw implements IRefineLaw {
 	}
 
 	@Override
+	public String getDetail() {
+		return "";
+	}	
+		
+	@Override
 	public boolean isApplicable(INode node) {
 		return (node instanceof ALetStm); 
 	}

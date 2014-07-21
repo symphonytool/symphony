@@ -33,6 +33,12 @@ public class ImplicitOperationRefineLaw implements IRefineLaw {
 	public String getName() {
 		return "Implicit Operation Refinement";
 	}
+	
+	@Override
+	public String getDetail() {
+		return "Introduce a specification statement in an explicit operation";
+	}	
+
 
 	@Override
 	public boolean isApplicable(INode node) {

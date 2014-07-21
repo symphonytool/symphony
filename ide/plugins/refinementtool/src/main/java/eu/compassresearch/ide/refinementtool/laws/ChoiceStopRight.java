@@ -20,6 +20,11 @@ public class ChoiceStopRight implements IRefineLaw {
 	}
 
 	@Override
+	public String getDetail() {
+		return "P [] STOP [= P";
+	}	
+		
+	@Override
 	public boolean isApplicable(INode node) {
 		// TODO Auto-generated method stub
 		if (node instanceof AExternalChoiceAction) {

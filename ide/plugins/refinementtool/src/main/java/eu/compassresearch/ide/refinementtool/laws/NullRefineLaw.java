@@ -18,6 +18,11 @@ public class NullRefineLaw implements IRefineLaw {
 	}
 
 	@Override
+	public String getDetail() {
+		return "";
+	}	
+		
+	@Override
 	public boolean isApplicable(INode node) {
 		// TODO Auto-generated method stub
 		return false;

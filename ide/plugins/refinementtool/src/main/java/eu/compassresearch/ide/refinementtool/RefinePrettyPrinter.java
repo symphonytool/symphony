@@ -25,7 +25,9 @@ import org.overture.ast.statements.PStm;
 import org.overture.ast.types.AUnionType;
 import org.overture.ast.types.PType;
 
+import eu.compassresearch.ast.actions.AExternalChoiceAction;
 import eu.compassresearch.ast.actions.AStmAction;
+import eu.compassresearch.ast.actions.AStopAction;
 import eu.compassresearch.ast.actions.AUntimedTimeoutAction;
 import eu.compassresearch.ast.actions.AValParametrisation;
 import eu.compassresearch.ast.actions.AVresParametrisation;
@@ -38,8 +40,8 @@ import eu.compassresearch.ast.process.AUntimedTimeoutProcess;
 import eu.compassresearch.ast.statements.AActionStm;
 
 public class RefinePrettyPrinter extends QuestionAnswerCMLAdaptor<Integer, String> {
-	private String eol = System.getProperty("line.separator");
-	private CmlPExprPrettyPrinter cmlpp = new CmlPExprPrettyPrinter();
+	protected String eol = System.getProperty("line.separator");
+	protected CmlPExprPrettyPrinter cmlpp = new CmlPExprPrettyPrinter();
 	
 	public static String tabs(Integer n) {
 		String s = "";
@@ -393,6 +395,18 @@ public class RefinePrettyPrinter extends QuestionAnswerCMLAdaptor<Integer, Strin
 			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseALetStm(node, question);
+	}
+
+	@Override
+	public String caseAExternalChoiceAction(AExternalChoiceAction node,
+			Integer q) throws AnalysisException {
+		return node.getLeft().apply(this, q) + " [] " + node.getRight().apply(this, q);
+	}
+
+	@Override
+	public String caseAStopAction(AStopAction node, Integer question)
+			throws AnalysisException {
+		return "Stop";
 	}
 	
 }

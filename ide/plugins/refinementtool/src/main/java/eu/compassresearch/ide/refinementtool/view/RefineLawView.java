@@ -28,6 +28,8 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.part.ViewPart;
 import org.overture.ast.node.INode;
@@ -36,6 +38,7 @@ import org.overture.ide.plugins.poviewer.IPoviewerConstants;
 import org.overture.ide.ui.utility.EditorUtility;
 import org.overture.pog.pub.IProofObligation;
 
+import eu.compassresearch.ide.pog.view.PoDetailView;
 import eu.compassresearch.ide.refinementtool.IRefineLaw;
 import eu.compassresearch.ide.refinementtool.RefConstants;
 
@@ -101,7 +104,17 @@ public class RefineLawView extends ViewPart implements ISelectionListener
 	@Override
 	public void selectionChanged(IWorkbenchPart arg0, ISelection arg1) {
 		// TODO Auto-generated method stub
+		PoDetailView rdv = null;
 		
+		IWorkbenchWindow window = arg0.getSite().getWorkbenchWindow();
+		
+		try {
+			rdv = (PoDetailView) window.getActivePage().showView(RefConstants.REF_LAW_VIEW);
+		} catch (PartInitException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 	}
 
 	@Override

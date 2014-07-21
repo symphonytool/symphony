@@ -27,6 +27,11 @@ public class SpecPostRefineLaw implements IRefineLaw {
 	}
 
 	@Override
+	public String getDetail() {
+		return "";
+	}	
+		
+	@Override
 	public boolean isApplicable(INode node) {
 		if (node instanceof ASpecificationStm) {
 			ASpecificationStm spec =  (ASpecificationStm) node;

@@ -33,12 +33,16 @@ import eu.compassresearch.ide.refinementtool.laws.DummyRefineLaw;
 import eu.compassresearch.ide.refinementtool.laws.ImplicitOperationRefineLaw;
 import eu.compassresearch.ide.refinementtool.laws.LetIntroRefineLaw;
 import eu.compassresearch.ide.refinementtool.laws.LetPreRefineLaw;
+import eu.compassresearch.ide.refinementtool.laws.MaudeRefineLaw;
 import eu.compassresearch.ide.refinementtool.laws.NullRefineLaw;
 import eu.compassresearch.ide.refinementtool.laws.SpecIterRefineLaw;
 import eu.compassresearch.ide.refinementtool.laws.SpecPostRefineLaw;
 import eu.compassresearch.ide.refinementtool.laws.SpecPreRefineLaw;
 import eu.compassresearch.ide.refinementtool.laws.SpecSeqRefineLaw;
 import eu.compassresearch.ide.refinementtool.laws.SpecSkipRefineLaw;
+import eu.compassresearch.ide.refinementtool.maude.MaudePrettyPrinter;
+import eu.compassresearch.ide.refinementtool.maude.MaudeRefineInfo;
+import eu.compassresearch.ide.refinementtool.maude.MaudeRefiner;
 import eu.compassresearch.ide.refinementtool.view.RefineLawView;
 import eu.compassresearch.ide.ui.editor.core.CmlEditor;
 
@@ -91,7 +95,14 @@ public class RefineHandler extends AbstractHandler {
 		ICmlProject cmlProj = (ICmlProject) project
 				.getAdapter(ICmlProject.class);
 
+		MaudeRefiner mref = cmlProj.getModel().getAttribute(RefConstants.REF_MAUDE, MaudeRefiner.class);
 		List<IRefineLaw> laws = cmlProj.getModel().getAttribute(RefConstants.REF_LAWS_ID, List.class);
+		
+		if (mref == null) {
+			// FIXME: Need a generic way of configuring Maude and theory location
+			mref = new MaudeRefiner("/usr/bin/maude", "/home/simon/Uni/COMPASS/maude/cml-refine.maude");
+			cmlProj.getModel().setAttribute(RefConstants.REF_MAUDE, mref);
+		}
 		
 		if (laws == null) {
 			laws = new LinkedList<IRefineLaw>();
@@ -149,7 +160,7 @@ public class RefineHandler extends AbstractHandler {
 		RefineLawView rv = null;
 		
 		try {
-			rv = (RefineLawView) window.getActivePage().showView(RefConstants.REF_LAW_VIEW);
+			rv  = (RefineLawView) window.getActivePage().showView(RefConstants.REF_LAW_VIEW);
 		} catch (PartInitException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -158,6 +169,17 @@ public class RefineHandler extends AbstractHandler {
 		rv.clearLaws();
 		rv.setSelection(selection);
 		rv.setNode(node);
+		
+		MaudePrettyPrinter mpp = new MaudePrettyPrinter();
+		
+		try {
+			for (MaudeRefineInfo l : mref.findApplLaws(node.apply(mpp, 0))) {
+				rv.addRefineLaw(new MaudeRefineLaw(l, mref));
+			}
+		} catch (AnalysisException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		for (IRefineLaw l : laws) {
 			while (node instanceof AActionStm || node instanceof AStmAction) {

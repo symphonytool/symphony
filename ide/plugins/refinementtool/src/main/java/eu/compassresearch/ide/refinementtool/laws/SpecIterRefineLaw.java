@@ -37,6 +37,11 @@ public class SpecIterRefineLaw implements IRefineLaw {
 	}
 
 	@Override
+	public String getDetail() {
+		return "";
+	}	
+	
+	@Override
 	public boolean isApplicable(INode node) {
 		CmlPExprPrettyPrinter cmlpp = new CmlPExprPrettyPrinter();
 		if (node instanceof ASpecificationStm) {

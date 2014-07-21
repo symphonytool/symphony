@@ -28,6 +28,11 @@ public class LetIntroRefineLaw implements IRefineLaw {
 	}
 
 	@Override
+	public String getDetail() {
+		return "";
+	}	
+	
+	@Override
 	public boolean isApplicable(INode node) {
 		return (node instanceof PStm || node instanceof PAction);
 	}

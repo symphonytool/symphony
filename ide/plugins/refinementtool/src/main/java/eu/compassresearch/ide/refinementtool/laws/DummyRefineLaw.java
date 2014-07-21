@@ -18,6 +18,11 @@ public class DummyRefineLaw implements IRefineLaw {
 	}
 
 	@Override
+	public String getDetail() {
+		return "P [= DUMMY";
+	}	
+		
+	@Override
 	public boolean isApplicable(INode node) {
 		return true;
 	}
