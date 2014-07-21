@@ -9,6 +9,7 @@ import org.overture.ast.node.INode;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
+import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.process.AActionProcess;
 import eu.compassresearch.ast.process.AAlphabetisedParallelismReplicatedProcess;
 import eu.compassresearch.ast.process.AExternalChoiceProcess;
@@ -172,11 +173,24 @@ public class NewMCProcessVisitor extends
 			procDef = (MCAProcessDefinition) node.getProcessDefinition().apply(rootVisitor, question);
 		} 
 		
-		MCAReferenceProcess result = new MCAReferenceProcess(name, args, procDef);
+		AProcessDefinition parentDef = this.getParentProcessDefinition(node);
+		
+		MCAReferenceProcess result = new MCAReferenceProcess(name, args, procDef,parentDef.getName().getName());
 		
 		return result;
 	}
 
+	private AProcessDefinition getParentProcessDefinition(AReferenceProcess node){
+		AProcessDefinition result = null;
+		INode parent = node.parent();
+		while((parent != null) && !(parent instanceof AProcessDefinition)){
+			parent = parent.parent();
+		}
+		if(parent != null && parent instanceof AProcessDefinition){
+			result = (AProcessDefinition) parent;
+		}
+		return result;
+	} 
 
 
 	@Override

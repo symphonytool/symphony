@@ -361,7 +361,8 @@ public class NewMCVisitor extends
 		//String cml_file = "src/test/resources/DeadFree.cml";
 		//String cml_file = "src/test/resources/use-reals.cml";
 		//String cml_file = "src/test/resources/echoice-process.cml";
-		String cml_file = "src/test/resources/action-condchoice.cml";
+		//String cml_file = "src/test/resources/action-condchoice.cml";
+		String cml_file = "src/test/resources/Param.cml";
 		
 		
 		//String cml_file = "src/test/resources/MC_Tests_2.cml";
@@ -398,7 +399,8 @@ public class NewMCVisitor extends
 				//String mainProcessName = "CUSSoS";
 //				String mainProcessName = "Test";
 				//String mainProcessName = "PHide";
-				String mainProcessName = "T1";
+				String mainProcessName = "Call";
+				//String mainProcessName = "Param";
 				
 				//String mainProcessName = "TestTraces1";
 				

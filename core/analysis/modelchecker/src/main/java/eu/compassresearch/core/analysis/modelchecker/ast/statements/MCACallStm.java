@@ -3,13 +3,18 @@ package eu.compassresearch.core.analysis.modelchecker.ast.statements;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAValParametrisation;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPParametrisation;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCActionCall;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCFunctionCall;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCGenericCall;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCOperationCall;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ParameterDependency;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ParameterFact;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAActionDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAExplicitCmlOperationDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAExplicitFunctionDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCALocalDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCSCmlOperationDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCSFunctionDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
@@ -19,11 +24,13 @@ public class MCACallStm implements MCPCMLStm {
 
 	private String name;
 	private LinkedList<MCPCMLExp> args;
+	private String parentDefinitionName;
 	
 	
-	public MCACallStm(String name, LinkedList<MCPCMLExp> args) {
+	public MCACallStm(String name, LinkedList<MCPCMLExp> args, String parentDefinitionName) {
 		this.name = name;
 		this.args = args;
+		this.parentDefinitionName = parentDefinitionName;
 	}
 
 
@@ -44,6 +51,17 @@ public class MCACallStm implements MCPCMLStm {
 					callResolved = true;
 					call = new MCActionCall(nameToSearch, args);
 					result.append(call.toFormula(option));
+					if(args.size() == 1){ //there is one parameter being used
+						MCAActionDefinition actionDef = context.getActionByName(nameToSearch);
+						LinkedList<MCPParametrisation> parameters = actionDef.getDeclarations();
+						MCALocalDefinition localDef = new MCALocalDefinition(parameters.getFirst().toFormula(option), null);
+						MCAValParametrisation param = new MCAValParametrisation(localDef);
+						ParameterDependency paramDep = new ParameterDependency(nameToSearch,param,this.parentDefinitionName); 
+						context.parameterDependencies.add(paramDep);
+						
+						ParameterFact paramFact = new ParameterFact(nameToSearch, args.getFirst());
+						context.parameterFacts.add(paramFact);
+					}
 					break;
 				}
 			}
@@ -95,5 +113,16 @@ public class MCACallStm implements MCPCMLStm {
 	public void setArgs(LinkedList<MCPCMLExp> args) {
 		this.args = args;
 	}
+
+
+	public String getParentDefinitionName() {
+		return parentDefinitionName;
+	}
+
+
+	public void setParentDefinitionName(String parentDefinitionName) {
+		this.parentDefinitionName = parentDefinitionName;
+	}
+	
 	
 }

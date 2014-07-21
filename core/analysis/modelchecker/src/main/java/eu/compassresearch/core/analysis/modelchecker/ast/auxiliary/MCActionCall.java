@@ -57,86 +57,29 @@ public class MCActionCall extends MCGenericCall {
 			result.append(")");
 		} else{
 			
-			StringBuilder assignments = buildAssignments(parameters,args,context, option);
+			//StringBuilder assignments = buildAssignments(parameters,args,context, option);
 			
-			result.append("seqC(");
-			result.append(assignments.toString());
-			result.append(",proc(\"" + this.name + "\"");
+			//result.append("seqC(");
+			//result.append(assignments.toString());
+			//result.append(",proc(\"" + this.name + "\"");
+			result.append("proc(\"" + this.name + "\"");
 			result.append(",");
 			ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
 			MCPCMLType argsType = null;
 			//if (option.equals(MCNode.DEFAULT)){
-				argsType = evaluator.instantiateMCType(this.args);
+			argsType = evaluator.instantiateMCTypeFromParams(parameters);
+			//argsType = evaluator.instantiateMCType(this.args);
 			//} else if(option.equals(MCNode.NAMED) || option.equals(MCNode.GENERIC)){
 			//	argsType = evaluator.instantiateMCTypeFromPatterns(this.paramPatterns);
 			//}
 			result.append(argsType.toFormula(option));
 			result.append(")");
-			result.append(")");
+			//result.append(")");
 			
 		}
 		return result.toString();
 	}
 
-	private StringBuilder buildAssignments(LinkedList<MCPParametrisation> realParameters,LinkedList<MCPCMLExp> realArgs,NewCMLModelcheckerContext context, String option){
-		StringBuilder result = new StringBuilder();
-		LinkedList<MCPCMLExp> args  = new LinkedList<MCPCMLExp>();
-		args.addAll(realArgs);
-		LinkedList<MCPParametrisation> parameters = new LinkedList<MCPParametrisation>();
-		parameters.addAll(realParameters);
-		
-		if(parameters.size() == 1){
-			MCPCMLExp expression = args.getFirst();
-			String varName = parameters.getFirst().toFormula(MCNode.DEFAULT);
-			MCAUnresolvedStateDesignator varDesignator = new MCAUnresolvedStateDesignator(new MCAVariableExp(varName));
-			MCAAssignmentStm assignment = new MCAAssignmentStm(expression,varDesignator);
-			MCAssignDef assignDef = new MCAssignDef(assignment.getCounterId(),expression,new MCAVariableExp(varName),assignment);
-			context.assignDefs.add(assignDef);
-			result.append(assignment.toFormula(option));
-		} else{
-			//build an assignment for each parameter
-			result.append("seqC(");
-			MCPCMLExp expression = args.removeFirst();
-			String varName = parameters.removeFirst().toFormula(MCNode.DEFAULT);
-			MCAUnresolvedStateDesignator varDesignator = new MCAUnresolvedStateDesignator(new MCAVariableExp(varName));
-			MCAAssignmentStm assignment = new MCAAssignmentStm(expression,varDesignator);
-			MCAssignDef assignDef = new MCAssignDef(assignment.getCounterId(),expression,new MCAVariableExp(varName),assignment);
-			context.assignDefs.add(assignDef);
-			result.append(assignment.toFormula(option)); 	
-			result.append(",");
-			StringBuilder remainingAssignments = this.buildAssignments(parameters, args, context, option);
-			result.append(remainingAssignments.toString());
-			result.append(")");
-		}
-		/*	
-		MCPStateDesignator target = (MCPStateDesignator) node.getTarget().apply(rootVisitor, question);
-		MCAAssignmentStm result = new MCAAssignmentStm(expression,target);
-		INode ancestor = node.parent();
-		MCAssignDef assignDef = null;
-		if(ancestor instanceof AStmAction){
-			ancestor = ancestor.parent();
-			if(ancestor instanceof AActionStm){
-				ancestor = ancestor.parent();
-				if(!(ancestor instanceof AExplicitOperationDefinition)){
-					//assignments inside operation definitions should not originate assign defs.
-					if(target instanceof MCAUnresolvedStateDesignator){
-						assignDef = new MCAssignDef(result.getCounterId(), expression,((MCAUnresolvedStateDesignator) target).getPath(), result);
-					}else if (target instanceof MCAIdentifierStateDesignator){
-						MCAVariableExp name = new MCAVariableExp(((MCAIdentifierStateDesignator) target).getName());
-						assignDef = new MCAssignDef(result.getCounterId(), expression,name, result);
-					}
-					question.assignDefs.add(assignDef);
-				}
-			} else{
-				MCAAssignmentStm stm = new MCAAssignmentStm(expression, target);
-				stm.setCounterId(result.getCounterId());
-				MCAVariableExp name = new MCAVariableExp(target.toFormula(MCNode.DEFAULT));
-				assignDef = new MCAssignDef(result.getCounterId(), expression, name, stm);
-				question.assignDefs.add(assignDef);
-			}
-		}
-		*/
-		return result;
-	}
+	
 	
 }

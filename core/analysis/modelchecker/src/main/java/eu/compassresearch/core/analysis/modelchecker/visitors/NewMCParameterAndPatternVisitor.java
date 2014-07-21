@@ -182,7 +182,7 @@ public class NewMCParameterAndPatternVisitor extends QuestionAnswerCMLAdaptor<Ne
 		MCPCMLType valType = declaration.getType();
 		ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
 		MCPCMLExp expression = evaluator.getDefaultValue(valType);
-		question.maximalBinding = question.maximalBinding.addBinding("nP", valName, expression);
+		//question.maximalBinding = question.maximalBinding.addBinding("nP", valName, expression);
 		
 		return result;
 	}

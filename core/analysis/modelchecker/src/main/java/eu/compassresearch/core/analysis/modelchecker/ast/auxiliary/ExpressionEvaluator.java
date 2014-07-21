@@ -194,7 +194,7 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 	private MCPCMLType getTypeFor(MCALocalDefinition def){
 		MCPCMLType result = null;
 		
-		result = new MCANamedInvariantType(def.getName(), def.getName());
+		result = new MCANamedInvariantType(def.getName(), def.getType().toString());
 		
 		return result;
 	}
