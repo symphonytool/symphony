@@ -1,6 +1,7 @@
 package eu.compassresearch.core.interpreter.runtime;
 
 import java.lang.reflect.Field;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -55,6 +56,7 @@ public class DelayedWriteContext extends Context
 	}
 
 	protected Map<ILexNameToken, DelayedUpdatableWrapper> obtainedValues = new LexNameTokenMap<DelayedUpdatableWrapper>();
+	protected Map<Integer, Map<ILexNameToken, DelayedUpdatableWrapper>> obtainedFieldValues = new HashMap<Integer, Map<ILexNameToken, DelayedUpdatableWrapper>>();
 	protected final INode owner;
 
 	boolean disable = false;
@@ -68,10 +70,11 @@ public class DelayedWriteContext extends Context
 
 	public DelayedWriteContext(INode owner, IInterpreterAssistantFactory af,
 			ILexLocation location, String title, Context outer,
-			Map<ILexNameToken, DelayedUpdatableWrapper> obtainedValues)
+			Map<ILexNameToken, DelayedUpdatableWrapper> obtainedValues,Map<Integer, Map<ILexNameToken, DelayedUpdatableWrapper>> obtainedFieldValues)
 	{
 		super(af, location, title, outer);
 		this.obtainedValues.putAll(obtainedValues);
+		this.obtainedFieldValues.putAll(obtainedFieldValues);
 		this.owner = owner;
 	}
 
@@ -83,6 +86,61 @@ public class DelayedWriteContext extends Context
 	public boolean isDisabled()
 	{
 		return this.disable;
+	}
+
+	public Value wrapField(Value val, ILexNameToken name,
+			int owningObjectReference)
+	{
+		if (disable)
+		{
+			return val;
+		}
+
+		Map<ILexNameToken, DelayedUpdatableWrapper> obtainedValues = obtainedFieldValues.get(owningObjectReference);
+
+		if (obtainedValues != null)
+		{
+			Value v = obtainedValues.get((ILexNameToken) name);
+			for (ILexNameToken var : obtainedValues.keySet())
+			{
+				// This is a relaxed check since we don't completely control the module. But any name that matched the
+				// overridden state will be overridden.
+				if (var.getName().equals(((ILexNameToken) name).getName()))
+				{
+					v = obtainedValues.get(var);
+					break;
+				}
+			}
+			if (v != null)
+			{
+				return v;
+			}
+		}
+
+		if (val instanceof UpdatableValue)
+		{
+			// this is state
+			DelayedUpdatableWrapper wrappedVal = new DelayedUpdatableWrapper((UpdatableValue) val);
+
+			storeFieldObjectValue(owningObjectReference, name, wrappedVal);
+
+			return wrappedVal;
+		}
+
+		return val;
+	}
+
+	private void storeFieldObjectValue(int objId, ILexNameToken name,
+			DelayedUpdatableWrapper val)
+	{
+		Map<ILexNameToken, DelayedUpdatableWrapper> map = this.obtainedFieldValues.get(objId);
+		if (map == null)
+		{
+			map = new LexNameTokenMap<DelayedUpdatableWrapper>();
+			this.obtainedFieldValues.put(objId, map);
+		}
+		map.put(name, val);
+
 	}
 
 	public Value wrap(Value val, Object name)
@@ -111,8 +169,7 @@ public class DelayedWriteContext extends Context
 			}
 		}
 
-		if (val instanceof UpdatableValue
-				)//&& !(val instanceof DelayedUpdatableWrapper))
+		if (val instanceof UpdatableValue)
 		{
 			// this is state
 			DelayedUpdatableWrapper wrappedVal = new DelayedUpdatableWrapper((UpdatableValue) val);
@@ -126,6 +183,40 @@ public class DelayedWriteContext extends Context
 		}
 
 		return val;
+	}
+
+	public Value lookup(ILexNameToken name, int objectReference)
+	{
+		if (this.obtainedFieldValues.containsKey(objectReference))
+		{
+			Map<ILexNameToken, DelayedUpdatableWrapper> map = this.obtainedFieldValues.get(objectReference);
+			Value v = map.get(name);
+			for (ILexNameToken var : map.keySet())
+			{
+				// This is a relaxed check since we don't completely control the module. But any name that matched the
+				// overridden state will be overridden.
+				if (var.getName().equals(((ILexNameToken) name).getName()))
+				{
+					v = map.get(var);
+					break;
+				}
+			}
+			if (v != null)
+			{
+				return v;
+			}
+		}
+
+		Context ctxt = this.outer;
+		while (ctxt != null)
+		{
+			if (ctxt instanceof DelayedWriteContext)
+			{
+				return ((DelayedWriteContext) ctxt).lookup(name, objectReference);
+			}
+			ctxt = ctxt.outer;
+		}
+		return null;
 	}
 
 	@Override
@@ -149,31 +240,54 @@ public class DelayedWriteContext extends Context
 	@Override
 	public String toString()
 	{
-		return "Delayed ctxt for '" + formatNode(this.owner) + "': "
-				+ " \n\tdelayed states: " + obtainedValues + 
-					 " \n\tdisabled: " + isDisabled()+ "\n"
-				+ super.toString();
+		return "Delayed ctxt for '"
+				+ formatNode(this.owner)
+				+ "': "
+				+ (obtainedValues.isEmpty() ? "" : " \n\tdelayed states: "
+						+ obtainedValues) + "\n" + getFieldValuesString()
+				+ " \n\tdisabled: " + isDisabled() + "\n" + super.toString();
+	}
+
+	private String getFieldValuesString()
+	{
+		StringBuffer sb = new StringBuffer();
+
+		for (Entry<Integer, Map<ILexNameToken, DelayedUpdatableWrapper>> map : this.obtainedFieldValues.entrySet())
+		{
+			sb.append("\t\t" + map.getKey() + "\n");
+			for (Entry<ILexNameToken, DelayedUpdatableWrapper> entry : map.getValue().entrySet())
+			{
+				sb.append("\t\t\t" + entry.getKey() + " = " + entry.getValue()
+						+ "\n");
+			}
+		}
+
+		return sb.toString();
+
 	}
 
 	private static String formatNode(INode owner)
 	{
 		String name = owner.getClass().getSimpleName();
-		
-		if(name.equals("AExternalChoiceAction")||name.equals("AExternalChoiceProcess"))
+
+		if (name.equals("AExternalChoiceAction")
+				|| name.equals("AExternalChoiceProcess"))
 		{
 			return "[]";
-		}else if(name.equals("AInterleavingParallelAction")||name.equals("AInterleavingParallelProcess"))
+		} else if (name.equals("AInterleavingParallelAction")
+				|| name.equals("AInterleavingParallelProcess"))
 		{
 			return "|||";
-		}else if(name.equals("AGeneralisedParallelismParallelAction")||name.equals("AGeneralisedParallelismProcess"))
+		} else if (name.equals("AGeneralisedParallelismParallelAction")
+				|| name.equals("AGeneralisedParallelismProcess"))
 		{
 			return "[||]";
-		}else if(name.contains("Replicated"))
+		} else if (name.contains("Replicated"))
 		{
 			return "replicated something";
 		}
-		
-		return (""+owner).replace('\n', ' ').replace('\t', ' ');
+
+		return ("" + owner).replace('\n', ' ').replace('\t', ' ');
 	}
 
 	public void writeChanges() throws ValueException, AnalysisException
@@ -184,10 +298,7 @@ public class DelayedWriteContext extends Context
 	public void writeChanges(INameFilter filter) throws ValueException,
 			AnalysisException
 	{
-		// for (DelayedUpdatableWrapper val : obtainedValues.values())
-		// {
-		// val.set();
-		// }
+		// handle standard fields
 
 		Set<ILexNameToken> toBeRemoved = new HashSet<ILexNameToken>();
 		for (Entry<ILexNameToken, Value> entry : super.entrySet())
@@ -201,6 +312,7 @@ public class DelayedWriteContext extends Context
 				if (filter == null || filter.accept(key))
 				{
 					upVal.set();
+
 				}
 			}
 		}
@@ -209,7 +321,81 @@ public class DelayedWriteContext extends Context
 		{
 			remove(key);
 		}
+
+		DelayedWriteContext nextDelayedCtxt = getNextDelayedContext();
+		toBeRemoved.clear();
+
+		// handle object fields, obtained through self objects in operations
+		Set<Integer> objRefsToBeRemoved = new HashSet<Integer>();
+		for (Entry<Integer, Map<ILexNameToken, DelayedUpdatableWrapper>> map : this.obtainedFieldValues.entrySet())
+		{
+			for (Entry<ILexNameToken, DelayedUpdatableWrapper> entry : map.getValue().entrySet())
+			{
+				ILexNameToken key = entry.getKey();
+				toBeRemoved.add(key);
+
+				if (filter == null || filter.accept(key))
+				{
+					if (nextDelayedCtxt == null)
+					{
+						entry.getValue().set();
+					} else
+					{
+						nextDelayedCtxt.storeFieldObjectValue(map.getKey(), entry.getKey(), entry.getValue());
+					}
+
+				}
+
+			}
+
+			for (ILexNameToken name : toBeRemoved)
+			{
+				map.getValue().remove(name);
+			}
+
+			if (map.getValue().isEmpty())
+			{
+				objRefsToBeRemoved.add(map.getKey());
+			}
+		}
+
+		for (Integer id : objRefsToBeRemoved)
+		{
+			this.obtainedFieldValues.remove(id);
+		}
+
 		disable();
+	}
+
+	/**
+	 * Obtains the next not disabled delayed context or null
+	 * 
+	 * @return next context or null if none exists thats active
+	 */
+	public DelayedWriteContext getNextDelayedContext()
+	{
+		Context tmp = this.outer;
+		while (tmp != null)
+		{
+			if (tmp instanceof DelayedWriteContext)
+			{
+				DelayedWriteContext c = (DelayedWriteContext) tmp;
+				if (!c.disable)
+				{
+					return c;
+				}
+			}
+			tmp = tmp.outer;
+		}
+
+		return null;
+	}
+
+	@Override
+	public Value remove(Object key)
+	{
+		this.obtainedValues.remove(key);
+		return super.remove(key);
 	}
 
 	public static void setOuter(Context source, Context newOuter)
@@ -252,7 +438,20 @@ public class DelayedWriteContext extends Context
 			resultObtainedValues.put(entry.getKey(), (DelayedUpdatableWrapper) entry.getValue().deepCopy());
 		}
 
-		Context result = new DelayedWriteContext(owner, assistantFactory, location, title, below, resultObtainedValues);
+		Map<Integer, Map<ILexNameToken, DelayedUpdatableWrapper>> resultObtainedFieldValues = new HashMap<Integer, Map<ILexNameToken, DelayedUpdatableWrapper>>();
+		for (Entry<Integer, Map<ILexNameToken, DelayedUpdatableWrapper>> map : this.obtainedFieldValues.entrySet())
+		{
+			Map<ILexNameToken, DelayedUpdatableWrapper> innerMap = new LexNameTokenMap<DelayedUpdatableWrapper>();
+			
+			for (Entry<ILexNameToken, DelayedUpdatableWrapper> entry : map.getValue().entrySet())
+			{
+				innerMap.put(entry.getKey(), (DelayedUpdatableWrapper) entry.getValue().deepCopy());
+			}
+						
+			resultObtainedFieldValues.put(map.getKey(), innerMap);
+		}
+		
+		Context result = new DelayedWriteContext(owner, assistantFactory, location, title, below, resultObtainedValues, resultObtainedFieldValues);
 
 		result.threadState = threadState;
 

@@ -1,11 +1,15 @@
 package eu.compassresearch.core.interpreter;
 
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.expressions.AApplyExp;
 import org.overture.ast.expressions.PExp;
+import org.overture.ast.intf.lex.ILexLocation;
+import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.statements.AAssignmentStm;
 import org.overture.ast.statements.AAtomicStm;
@@ -24,10 +28,12 @@ import org.overture.ast.statements.ASpecificationStm;
 import org.overture.ast.statements.AWhileStm;
 import org.overture.ast.statements.PStm;
 import org.overture.interpreter.runtime.Context;
+import org.overture.interpreter.runtime.ObjectContext;
 import org.overture.interpreter.runtime.PatternMatchException;
 import org.overture.interpreter.runtime.ValueException;
 import org.overture.interpreter.values.IntegerValue;
 import org.overture.interpreter.values.NameValuePair;
+import org.overture.interpreter.values.ObjectValue;
 import org.overture.interpreter.values.OperationValue;
 import org.overture.interpreter.values.Value;
 import org.overture.interpreter.values.ValueList;
@@ -193,9 +199,12 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 
 		});
 	}
+	
+	
 
-	/*
-	 * 
+
+	/**
+	 * custom method handling call statements. it handles the resetting the self object for delayed contexts
 	 */
 	@Override
 	public Inspection caseACallStm(final ACallStm node, final Context question)
@@ -211,49 +220,65 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 			{
 				// first find the operation value in the context
 				OperationValue opVal = (OperationValue) question.lookup(node.getName()).deref();
-				
-				OperationValue op =opVal;
-				DelayedWriteContext delayedCtxt = null;
-				Context tmp = question;
-				
-				while(tmp!=null)
-				{
-					if(tmp instanceof DelayedWriteContext)
-					{
-						if(!((DelayedWriteContext) tmp).isDisabled()){
-						delayedCtxt = (DelayedWriteContext) tmp;
-						
-						break;
-						}
-					}
-					tmp = tmp.outer;
-				}
-				
-				
-				if(delayedCtxt!=null)
-				{
-				// copy the op and modify self to write protected mode
-					op = (OperationValue) opVal.clone();
-					op.setSelf(new DelayedWriteObjectValue(opVal.getSelf(),delayedCtxt));
-				}
-				
-				// evaluate all the arguments
-				ValueList argValues = new ValueList();
-				for (PExp arg : node.getArgs())
-				{
-					argValues.add(arg.apply(cmlExpressionVisitor, question));
-				}
 
-				// Note args cannot be Updateable, so we convert them here. This means
-				// that TransactionValues pass the local "new" value to the far end.
-				// ValueList constValues = argValues.getConstant();
-
-				op.eval(node.getLocation(), argValues, question);
+				invokeOperation(node.getLocation(),node.getName(),node.getArgs(), question, opVal,cmlExpressionVisitor);
 
 				return new Pair<INode, Context>(CmlAstFactory.newASkipAction(node.getLocation()), question);
 			}
+
+			
 		});
 
+	}
+	
+	public static Value invokeOperation(final ILexLocation loc, INode name,
+			List<PExp> args, final Context question, OperationValue opVal, QuestionAnswerCMLAdaptor<Context, Value> cmlExpressionVisitor)
+			throws AnalysisException
+	{
+		OperationValue op = opVal;
+		DelayedWriteContext delayedCtxt = null;
+		Context tmp = question;
+
+		while (tmp != null)
+		{
+			if (tmp instanceof DelayedWriteContext)
+			{
+				if (!((DelayedWriteContext) tmp).isDisabled())
+				{
+					delayedCtxt = (DelayedWriteContext) tmp;
+
+					break;
+				}
+			}
+			tmp = tmp.outer;
+		}
+
+		if (delayedCtxt != null)
+		{
+			// copy the op and modify self to write protected mode
+			op = (OperationValue) opVal.clone();
+			op.setSelf(new DelayedWriteObjectValue(opVal.getSelf(), delayedCtxt));
+		}else
+		{
+			if(op.getSelf() instanceof DelayedWriteObjectValue)
+			{
+				op.setSelf(((DelayedWriteObjectValue)op.getSelf()).getOriginalSelf());
+			}
+		}
+
+		// evaluate all the arguments
+		ValueList argValues = new ValueList();
+		for (PExp arg : args)
+		{
+			argValues.add(arg.apply(cmlExpressionVisitor, question));
+		}
+
+		// Note args cannot be Updateable, so we convert them here. This means
+		// that TransactionValues pass the local "new" value to the far end.
+		// ValueList constValues = argValues.getConstant();
+
+		Value returnVal= op.eval(loc, argValues, question);
+		return returnVal;
 	}
 
 	@Override
