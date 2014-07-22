@@ -26,6 +26,7 @@ import org.overture.ast.types.AUnionType;
 import org.overture.ast.types.PType;
 
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
+import eu.compassresearch.ast.actions.AGuardedAction;
 import eu.compassresearch.ast.actions.AStmAction;
 import eu.compassresearch.ast.actions.AStopAction;
 import eu.compassresearch.ast.actions.AUntimedTimeoutAction;
@@ -408,5 +409,13 @@ public class RefinePrettyPrinter extends QuestionAnswerCMLAdaptor<Integer, Strin
 			throws AnalysisException {
 		return "Stop";
 	}
+
+	@Override
+	public String caseAGuardedAction(AGuardedAction node, Integer q)
+			throws AnalysisException {
+		return "[" + node.getExpression().apply(cmlpp) + "] & " + node.getAction().apply(this, q); 
+	}
+	
+	
 	
 }

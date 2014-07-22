@@ -7,7 +7,7 @@ import org.overture.ast.expressions.AVariableExp;
 import eu.compassresearch.ide.refinementtool.CmlPExprPrettyPrinter;
 
 public class MaudePExprPrettyPrinter extends CmlPExprPrettyPrinter {
-
+	
 	public MaudePExprPrettyPrinter() {
 		// TODO Auto-generated constructor stub
 	}
@@ -15,12 +15,12 @@ public class MaudePExprPrettyPrinter extends CmlPExprPrettyPrinter {
 	@Override
 	public String caseABooleanConstExp(ABooleanConstExp node)
 			throws AnalysisException {
-		return "b(" + node.getValue().toString() + ")";
+		return "#b(" + node.getValue().toString() + ")";
 	}
 
 	@Override
 	public String caseAVariableExp(AVariableExp node) throws AnalysisException {
-		return "nm(\"" + node.getName().toString() + "\")";
+		return "#nm(\"" + node.getName().toString() + "\")";
 	}
 	
 }
