@@ -5,14 +5,10 @@ import java.util.LinkedList;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAReadCommunicationParameter;
-import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAValParametrisation;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPParametrisation;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ActionChannelDependency;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ExpressionEvaluator;
-import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.NameValue;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ParameterDependency;
-import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.TypeManipulator;
-import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.TypeValue;
 import eu.compassresearch.core.analysis.modelchecker.ast.process.MCAActionProcess;
 import eu.compassresearch.core.analysis.modelchecker.ast.process.MCPProcess;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
@@ -288,27 +284,11 @@ private void addDependencies(String option,NewCMLModelcheckerContext context, St
 		
 	}
 
-	private void generateCombinations(LinkedList<ActionChannelDependency> chanDefList, String operator, LinkedList<String> result){
-		
-		if(chanDefList.size() == 2){
-			String firstExpression = chanDefList.getFirst().getParameters().getFirst().toString();
-			String secondExpression = chanDefList.getLast().getParameters().getFirst().toString();
-			String expression = firstExpression + " " + operator + " " + secondExpression;
-			result.add(expression);
-		} else if (chanDefList.size() > 2){
-			String firstExpression = chanDefList.pollFirst().getChannelDefinition().getType().getTypeAsName();
-			for (ActionChannelDependency chanDef : chanDefList) {
-				String secondExpression = chanDef.getChannelDefinition().getType().getTypeAsName();
-				String expression = firstExpression + " " + operator + " " + secondExpression;
-				result.add(expression);
-			}
-			generateCombinations(chanDefList,operator,result);
-		}
-		
-	}
-
 	
-
+	@Override
+	public String toString() {
+		return this.name;
+	}
 
 	public LinkedList<MCPParametrisation> getLocalState() {
 		return localState;

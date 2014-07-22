@@ -42,7 +42,7 @@ public class MCACallAction implements MCPAction {
 				//if(localAction.getName().toString().equals(this.name.toString())){
 					callResolved = true;
 					//call = new MCActionCall(name, args);
-					call = new MCActionCall(nameToSearch, args);
+					call = new MCActionCall(nameToSearch, args,null);
 					break;
 				}
 			}
@@ -51,7 +51,7 @@ public class MCACallAction implements MCPAction {
 			for (MCAProcessDefinition pDefinition : context.processDefinitions) {
 				if(((MCAProcessDefinition) pDefinition).getName().toString().equals(this.name)){
 					callResolved = true;
-					call = new MCActionCall(name, args);
+					call = new MCActionCall(name, args,null);
 					break;
 				}
 			}

@@ -18,6 +18,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCALocalDef
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCSCmlOperationDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCSFunctionDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
 
 public class MCACallStm implements MCPCMLStm {
@@ -49,17 +50,24 @@ public class MCACallStm implements MCPCMLStm {
 				//if(localAction.getName().toString().equals(this.name.toString())){
 				if(localAction.getName().toString().equals(nameToSearch)){
 					callResolved = true;
-					call = new MCActionCall(nameToSearch, args);
+					call = new MCActionCall(nameToSearch, args,null);
 					result.append(call.toFormula(option));
 					if(args.size() == 1){ //there is one parameter being used
 						MCAActionDefinition actionDef = context.getActionByName(nameToSearch);
-						LinkedList<MCPParametrisation> parameters = actionDef.getDeclarations();
-						MCALocalDefinition localDef = new MCALocalDefinition(parameters.getFirst().toFormula(option), null);
+						MCALocalDefinition localDef = new MCALocalDefinition(null, null);
+						//if the variable is a communication variable the it is present on the bindings
+						if(context.maximalBinding.containsVariable(args.getFirst().toString())){
+							localDef.setName(args.getFirst().toString());
+						}else{
+							LinkedList<MCPParametrisation> parameters = actionDef.getDeclarations();
+							localDef.setName(parameters.getFirst().toFormula(option));
+						}
+						
 						MCAValParametrisation param = new MCAValParametrisation(localDef);
 						ParameterDependency paramDep = new ParameterDependency(nameToSearch,param,this.parentDefinitionName); 
 						context.parameterDependencies.add(paramDep);
-						
-						ParameterFact paramFact = new ParameterFact(nameToSearch, args.getFirst());
+						MCPCMLType parType = ((MCAValParametrisation)localAction.getDeclarations().getFirst()).getDeclaration().getType();
+						ParameterFact paramFact = new ParameterFact(nameToSearch, args.getFirst(),parType);
 						context.parameterFacts.add(paramFact);
 					}
 					break;

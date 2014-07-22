@@ -180,7 +180,8 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 				varValue = evaluator.getDefaultValue(type);
 			} 
 		}
-		question.maximalBinding = question.maximalBinding.addBinding("nP", varName, varValue);
+		///PPPPPPPPPPPPPPPPP
+		question.maximalBinding = question.maximalBinding.addBinding("nP", varName, varValue, type);
 		
 		MCAAssignmentDefinition result = new MCAAssignmentDefinition(varName, expression, type);
 				
@@ -427,8 +428,8 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 			} 
 			
 		}
-		
-		question.maximalBinding = question.maximalBinding.addBinding("nP", name, varValue);
+		////PPPPPPPPPPPPPPPP
+		question.maximalBinding = question.maximalBinding.addBinding("nP", name, varValue, type);
 		
 		return result;
 	}

@@ -349,7 +349,7 @@ public class NewMCVisitor extends
 		//String cml_file = "src/test/resources/action-vardecl.cml";
 		//String cml_file = "src/test/resources/simpler-register.cml";
 		//String cml_file = "src/test/resources/Dphils.cml";
-		//String cml_file = "src/test/resources/BeoAVDeviceDiscovery-final-version-model-checker.cml";
+		//String cml_file = "src/test/resources/BeoAVDeviceDiscovery_final_version_model_checker.cml";
 		//String cml_file = "src/test/resources/beo-spec.cml";
 		//String cml_file = "src/test/resources/BEO_StreamingSoS_MC.cml";
 		//String cml_file = "src/test/resources/BeoAVDeviceDiscovery-subtletly.cml";
@@ -393,7 +393,7 @@ public class NewMCVisitor extends
 				//String mainProcessName = "StreamingPlayerCSProcess";
 				//String mainProcessName = "CoSimulationServer";
 				//String mainProcessName = "Simple";
-				//String mainProcessName = "TargetProduct_DD_SD_InterfaceProtocolView";
+				//String mainProcessName = "TargetProduct_SR_InterfaceProtocolView";
 				//String mainProcessName = "P";
 				//String mainProcessName = "ChaosE";
 				//String mainProcessName = "CUSSoS";

@@ -7,24 +7,30 @@ import java.util.Stack;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCActionCall;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCGenericCall;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCOperationCall;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ParameterDependency;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ParameterFact;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAActionDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAExplicitCmlOperationDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCALocalDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAProcessDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCPCMLDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCSCmlOperationDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
 
 public class MCAReferenceAction implements MCPAction {
 
 	private String name;
 	private LinkedList<MCPCMLExp> args;
+	protected String parentDefinitionName;
 	
 	
-	public MCAReferenceAction(String name, LinkedList<MCPCMLExp> args) {
+	public MCAReferenceAction(String name, LinkedList<MCPCMLExp> args, String parentDefinitionName) {
 		super();
 		this.name = name;
 		this.args = args;
+		this.parentDefinitionName = parentDefinitionName;
 	}
 
 
@@ -56,19 +62,21 @@ public class MCAReferenceAction implements MCPAction {
 		
 		if(localActions.size() > 0){ //if there are auxiliary actions
 			for (MCAActionDefinition localAction : localActions) {
-				//if(localAction.getName().toString().equals(this.name.toString())){
 				if(localAction.getName().toString().equals(nameToSearch)){
 					callResolved = true;
-					//this call forces the generation of lieIn facts
-					//if(localAction.getAction() instanceof MCACommunicationAction){
-					//	localAction.toFormula(option);
-					//}
-					if(localAction.getDeclarations().size() == 0){
-						//call = new MCActionCall(name, new LinkedList<MCPCMLExp>());
-						call = new MCActionCall(nameToSearch, new LinkedList<MCPCMLExp>());
-					}else{
-						//call = new MCActionCall(name, args);
-						call = new MCActionCall(nameToSearch, args);
+					call = new MCActionCall(nameToSearch, args, null);
+					
+					result.append(call.toFormula(option));
+					if(args.size() == 1){ //there is one parameter being used
+						MCAActionDefinition actionDef = context.getActionByName(name);
+						LinkedList<MCPParametrisation> parameters = actionDef.getDeclarations();
+						MCALocalDefinition localDef = new MCALocalDefinition(parameters.getFirst().toFormula(option), null);
+						MCAValParametrisation param = new MCAValParametrisation(localDef);
+						ParameterDependency paramDep = new ParameterDependency(this.name,param,this.parentDefinitionName); 
+						context.parameterDependencies.add(paramDep);
+						MCPCMLType parType = ((MCAValParametrisation)localAction.getDeclarations().getFirst()).getDeclaration().getType();
+						ParameterFact paramFact = new ParameterFact(this.name, args.getFirst(),parType);
+						context.parameterFacts.add(paramFact);
 					}
 					break;
 					
@@ -80,7 +88,8 @@ public class MCAReferenceAction implements MCPAction {
 			for (MCAProcessDefinition pDefinition : context.processDefinitions) {
 					if(((MCAProcessDefinition) pDefinition).getName().toString().equals(this.name)){
 						callResolved = true;
-						call = new MCActionCall(name, args);
+						call = new MCActionCall(name, args,null);
+						result.append(call.toFormula(option));
 						break;
 					}
 			}
@@ -91,14 +100,14 @@ public class MCAReferenceAction implements MCPAction {
 				if(pDefinition instanceof MCAExplicitCmlOperationDefinition){
 					if(((MCAExplicitCmlOperationDefinition) pDefinition).getName().toString().equals(this.name)){
 						call = new MCOperationCall(name, args, null);
-						
+						result.append(call.toFormula(option));
 					}
 				}
 			}
 		}
 		
 		
-		result.append(call.toFormula(option));
+		//result.append(call.toFormula(option));
 
 		return result.toString();
 
@@ -123,5 +132,16 @@ public class MCAReferenceAction implements MCPAction {
 	public void setArgs(LinkedList<MCPCMLExp> args) {
 		this.args = args;
 	}
+
+
+	public String getParentDefinitionName() {
+		return parentDefinitionName;
+	}
+
+
+	public void setParentDefinitionName(String parentDefinitionName) {
+		this.parentDefinitionName = parentDefinitionName;
+	}
+	
 	
 }

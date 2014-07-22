@@ -1,7 +1,16 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.auxiliary;
 
-import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAValParametrisation;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPParametrisation;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCALocalDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCATypeDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAChannelType;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAIntNumericBasicType;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANamedInvariantType;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANatNumericBasicType;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCARealNumericBasicType;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
+import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
 
 public class ParameterDependency {
 	
@@ -24,8 +33,8 @@ public class ParameterDependency {
 			result.append("\",");
 			result.append(parametrisation.getDeclaration().getName());
 			result.append(")");
-		
-		return result.toString();
+
+			return result.toString();
 	}
 	
 	@Override
@@ -37,6 +46,32 @@ public class ParameterDependency {
 		}
 		return result;
 	}
+	
+	private boolean isInfiniteType(){
+		boolean result = false;
+		if(this.parametrisation instanceof MCAValParametrisation){
+			MCALocalDefinition localDef = parametrisation.getDeclaration();
+			String name = localDef.getName();
+			MCPCMLType realType = localDef.getType();
+			
+			if(realType instanceof MCAChannelType){
+				realType = ((MCAChannelType) realType).getType();
+			} 
+			if(realType instanceof MCANamedInvariantType){
+				NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
+				realType = context.getFinalType(((MCANamedInvariantType) realType).getName());
+				//MCATypeDefinition typeDef = context.getTypeDefinition(((MCANamedInvariantType) realType).getName());
+				//if(typeDef != null){
+				//	realType = typeDef.getType();
+				//} 
+			}
+			
+			result = (realType instanceof MCAIntNumericBasicType || realType instanceof MCANatNumericBasicType || realType instanceof MCARealNumericBasicType);
+		}
+		
+		return result;
+	}
+	
 	public MCPParametrisation getParametrisation() {
 		return parametrisation;
 	}

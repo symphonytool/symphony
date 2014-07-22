@@ -17,6 +17,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCALocalDef
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAProcessDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCSCmlOperationDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 import eu.compassresearch.core.analysis.modelchecker.visitors.ArrayListSet;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
 
@@ -47,10 +48,11 @@ public class MCAReferenceProcess implements MCPProcess {
 			for (MCAActionDefinition localAction : localActions) {
 				if(localAction.getName().toString().equals(this.name.toString())){
 					callResolved = true;
-					call = new MCActionCall(name, args);
+					call = new MCActionCall(name, args,null);
 					result.append(call.toFormula(option));
 					if(args.size() == 1){ //there is one parameter being used
-						ParameterFact paramFact = new ParameterFact(this.name, args.getFirst());
+						MCPCMLType parType = ((MCAValParametrisation)localAction.getDeclarations().getFirst()).getDeclaration().getType();
+						ParameterFact paramFact = new ParameterFact(this.name, args.getFirst(),parType);
 						context.parameterFacts.add(paramFact);
 					}
 					break;
@@ -72,7 +74,7 @@ public class MCAReferenceProcess implements MCPProcess {
 						ParameterDependency paramDep = new ParameterDependency(this.name,param,this.parentDefinitionName); 
 						context.parameterDependencies.add(paramDep);
 						
-						ParameterFact paramFact = new ParameterFact(this.name, args.getFirst());
+						ParameterFact paramFact = new ParameterFact(this.name, args.getFirst(),parameters.getFirst().getDeclaration().getType());
 						context.parameterFacts.add(paramFact);
 					}
 					break;
