@@ -546,14 +546,13 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 			final Context question) throws AnalysisException
 	{
 
-		Context guardCtxt = CmlContextFactory.newContext(node.getExpression().getLocation(), "guard context", question);
 		// First we evaluate the guard expression
-		Value guardExp = node.getExpression().apply(cmlExpressionVisitor, guardCtxt);
+		Value guardExp = node.getExpression().apply(cmlExpressionVisitor, question);
 
 		CmlTransitionSet alpha = null;
 
 		// if the gaurd is true then we return the silent transition to the guarded action
-		if (guardExp.boolValue(guardCtxt))
+		if (guardExp.boolValue(question))
 		{
 			alpha = createTauTransitionWithTime(node.getAction());
 			// else we return the empty alphabet since no transition is possible
