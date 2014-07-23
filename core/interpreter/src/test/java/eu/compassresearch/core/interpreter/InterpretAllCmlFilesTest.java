@@ -160,7 +160,7 @@ public class InterpretAllCmlFilesTest
 		if (!new File(resultPath).exists())
 		{
 
-			String ex = "";
+			String ex = "N/A";
 			if (exception != null)
 			{
 				StringWriter sw = new StringWriter();
@@ -179,7 +179,7 @@ public class InterpretAllCmlFilesTest
 
 			Assert.fail("Result file doesn't exist: " + resultPath
 					+ "\n\nActual result:\nEvents: " + traceToString
-					+ "\n\nTime trace: " + observable + "\n\nException: " + ex);
+					+ "\n\nTime trace: " + observable+"\n\nInterpreter State: "+interpreter.getState() + "\n\nException: " + ex);
 			return;
 		}
 		ExpectedTestResult testResult = ExpectedTestResult.parseTestResultFile(resultPath);
