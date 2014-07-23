@@ -1,12 +1,16 @@
 package eu.compassresearch.core.interpreter;
 
+import java.util.List;
+
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.node.INode;
 import org.overture.ast.statements.AForAllStm;
 import org.overture.ast.statements.AForIndexStm;
 import org.overture.ast.statements.AForPatternBindStm;
 import org.overture.ast.statements.ASkipStm;
 import org.overture.ast.statements.AStopStm;
+import org.overture.ast.types.PType;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.PatternMatchException;
 import org.overture.interpreter.values.IntegerValue;
@@ -17,6 +21,7 @@ import org.overture.interpreter.values.ValueSet;
 
 import eu.compassresearch.ast.CmlAstFactory;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
+import eu.compassresearch.ast.actions.AAlphabetisedParallelismReplicatedAction;
 import eu.compassresearch.ast.actions.AChannelRenamingAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.ADivAction;
@@ -41,6 +46,9 @@ import eu.compassresearch.ast.actions.ATimedInterruptAction;
 import eu.compassresearch.ast.actions.ATimeoutAction;
 import eu.compassresearch.ast.actions.AUntimedTimeoutAction;
 import eu.compassresearch.ast.actions.AWaitAction;
+import eu.compassresearch.ast.actions.PAction;
+import eu.compassresearch.ast.declarations.PSingleDeclaration;
+import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.statements.AActionStm;
 import eu.compassresearch.core.interpreter.api.CmlBehaviorFactory;
 import eu.compassresearch.core.interpreter.api.CmlBehaviour;
@@ -281,6 +289,23 @@ class ActionSetupVisitor extends CommonSetupVisitor
 			{
 				// TODO The i'th namesetexpression should be evaluated in the i'th context
 				return new AGeneralisedParallelismParallelAction(node.getLocation(), node.getReplicatedAction().clone(), node.getNamesetExpression(), node.getNamesetExpression(), node.clone(), node.getChansetExpression().clone());
+			}
+
+		}, question);
+	}
+	
+	@Override
+	public Pair<INode, Context> caseAAlphabetisedParallelismReplicatedAction(
+			final AAlphabetisedParallelismReplicatedAction node, Context question)
+			throws AnalysisException
+	{
+		return caseReplicated(node, node.getReplicationDeclaration(), new AbstractReplicationFactory(node)
+		{
+
+			@Override
+			public INode createNextReplication()
+			{														
+				return new AAlphabetisedParallelismParallelAction(node.getLocation(), node.getReplicatedAction().clone(), node.getNamesetExpression(), node.getNamesetExpression(), node.clone(), node.getChansetExpression().clone(),node.getChansetExpression().clone());
 			}
 
 		}, question);
