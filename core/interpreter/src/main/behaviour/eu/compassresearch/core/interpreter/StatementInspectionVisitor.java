@@ -1,15 +1,12 @@
 package eu.compassresearch.core.interpreter;
 
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
-import org.overture.ast.expressions.AApplyExp;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.intf.lex.ILexLocation;
-import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.statements.AAssignmentStm;
 import org.overture.ast.statements.AAtomicStm;
@@ -28,12 +25,10 @@ import org.overture.ast.statements.ASpecificationStm;
 import org.overture.ast.statements.AWhileStm;
 import org.overture.ast.statements.PStm;
 import org.overture.interpreter.runtime.Context;
-import org.overture.interpreter.runtime.ObjectContext;
 import org.overture.interpreter.runtime.PatternMatchException;
 import org.overture.interpreter.runtime.ValueException;
 import org.overture.interpreter.values.IntegerValue;
 import org.overture.interpreter.values.NameValuePair;
-import org.overture.interpreter.values.ObjectValue;
 import org.overture.interpreter.values.OperationValue;
 import org.overture.interpreter.values.Value;
 import org.overture.interpreter.values.ValueList;

@@ -18,13 +18,6 @@ import org.overture.interpreter.values.UpdatableValue;
 import org.overture.interpreter.values.Value;
 import org.overture.typechecker.util.LexNameTokenMap;
 
-import eu.compassresearch.ast.actions.AExternalChoiceAction;
-import eu.compassresearch.ast.actions.AGeneralisedParallelismParallelAction;
-import eu.compassresearch.ast.actions.AGeneralisedParallelismReplicatedAction;
-import eu.compassresearch.ast.actions.AInterleavingParallelAction;
-import eu.compassresearch.ast.process.AExternalChoiceProcess;
-import eu.compassresearch.ast.process.AGeneralisedParallelismProcess;
-
 /**
  * Context that create transactions for all state changed and waits for them to be written by a call to
  * {@link DelayedWriteContext#writeChanges()}

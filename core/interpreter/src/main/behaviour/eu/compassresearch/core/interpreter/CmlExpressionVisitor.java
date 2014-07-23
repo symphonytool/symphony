@@ -15,7 +15,6 @@ import org.overture.ast.statements.PObjectDesignator;
 import org.overture.ast.statements.PStateDesignator;
 import org.overture.ast.statements.PStm;
 import org.overture.interpreter.eval.DelegateExpressionEvaluator;
-import org.overture.interpreter.eval.StatementEvaluator;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ValueException;
 import org.overture.interpreter.runtime.VdmRuntime;
