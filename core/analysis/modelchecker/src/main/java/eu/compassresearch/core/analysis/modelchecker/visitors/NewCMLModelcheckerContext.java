@@ -476,9 +476,17 @@ public class NewCMLModelcheckerContext {
 	public boolean hasParameterDependencies(String name){
 		boolean result = false;
 		for (ParameterDependency paramDep : this.parameterDependencies) {
-			if(paramDep.getName().equals(name) || paramDep.getParentProcessDefinitionName().equals(name)){
-				result = true;
-				break;
+			if(paramDep.getName() != null){
+				if(paramDep.getName().equals(name)){
+					result = true;
+					break;
+				}
+			}
+			if(paramDep.getParentProcessDefinitionName() != null){
+				if(paramDep.getParentProcessDefinitionName().equals(name)){
+					result = true;
+					break;
+				}
 			}
 		}
 

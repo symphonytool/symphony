@@ -271,9 +271,11 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 		
 		LinkedList<MCPCMLPattern> mcParamPatterns = new LinkedList<MCPCMLPattern>();
 		int patternPosition = 0;
+		PType opType = node.getType();
+		MCPCMLType operationType = (MCPCMLType) opType.apply(rootVisitor, question);
+
 		for (PPattern pPattern : node.getParameterPatterns()) {
 			MCPCMLPattern pattern = (MCPCMLPattern) pPattern.apply(rootVisitor, question);
-			PType opType = node.getType();
 			MCPCMLExp varValue = null;
 			ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
 			if(opType instanceof AOperationType){
@@ -288,7 +290,7 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 		}
 		
 		MCAExplicitCmlOperationDefinition result = 
-				new MCAExplicitCmlOperationDefinition(name,body,null,null,null,null,mcParamPatterns,null,null);
+				new MCAExplicitCmlOperationDefinition(name,body,null,null,null,null,mcParamPatterns,null,null, operationType);
 		
 		question.operations.add(result);
 		

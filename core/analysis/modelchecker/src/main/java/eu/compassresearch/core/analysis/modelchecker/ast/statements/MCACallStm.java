@@ -18,6 +18,8 @@ import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCALocalDef
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCSCmlOperationDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCSFunctionDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCPCMLPattern;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAOperationType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
 
@@ -80,8 +82,27 @@ public class MCACallStm implements MCPCMLStm {
 					//((MCAExplicitCmlOperationDefinition) pDefinition).setParentAction(this);
 					if(((MCAExplicitCmlOperationDefinition) pDefinition).getName().toString().equals(this.name)){
 						callResolved = true;
-						call = new MCOperationCall(name, args, null);
+						call = new MCOperationCall(name, args, null,((MCAExplicitCmlOperationDefinition) pDefinition).getOperationType());
 						result.append(call.toFormula(option));
+						if(args.size() == 1){ //there is one parameter being used
+							LinkedList<MCPCMLPattern> paramPatterns = ((MCAExplicitCmlOperationDefinition) pDefinition).getParamPatterns();
+							MCALocalDefinition localDef = new MCALocalDefinition(null, null);
+							//if the variable is a communication variable the it is present on the bindings
+							if(context.maximalBinding.containsVariable(args.getFirst().toString())){
+								localDef.setName(args.getFirst().toString());
+							}else{
+								//LinkedList<MCPParametrisation> parameters = param.getDeclarations();
+								localDef.setName(paramPatterns.getFirst().toFormula(option));
+							}
+							/*
+							MCAValParametrisation param = new MCAValParametrisation(localDef);
+							ParameterDependency paramDep = new ParameterDependency(nameToSearch,param,this.parentDefinitionName); 
+							context.parameterDependencies.add(paramDep);
+							MCPCMLType parType = ((MCAOperationType) ((MCAExplicitCmlOperationDefinition) pDefinition).getOperationType()).getParameters().getFirst();
+							ParameterFact paramFact = new ParameterFact(nameToSearch, args.getFirst(),parType);
+							context.parameterFacts.add(paramFact);
+							*/
+						}
 						break;
 					}
 				}

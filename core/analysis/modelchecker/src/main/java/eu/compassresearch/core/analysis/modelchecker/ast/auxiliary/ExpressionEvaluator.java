@@ -43,6 +43,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAProductType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAQuoteType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCARealNumericBasicType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCASetType;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLNumericType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCVoidType;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
@@ -427,8 +428,14 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 			MCPCMLType varType = bind.getVariableType(); 
 			if(varType instanceof MCAIntNumericBasicType || varType instanceof MCANatNumericBasicType 
 					|| varType instanceof MCABooleanBasicType || varType instanceof MCARealNumericBasicType){
-				
+
 				result = bind.getVariableType();
+				if(result instanceof MCPCMLNumericType){
+					((MCPCMLNumericType) result).setValue(exp.getName());
+				} else if (result instanceof MCABooleanBasicType){
+					((MCABooleanBasicType) result).setValue(Boolean.valueOf(exp.getName()));
+				}
+				
 			}else{
 				result = new MCANamedInvariantType(exp.getName(),varType.toFormula(MCNode.DEFAULT));
 			}

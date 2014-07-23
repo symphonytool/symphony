@@ -62,7 +62,7 @@ public class MCACallAction implements MCPAction {
 				if(pDefinition instanceof MCAExplicitCmlOperationDefinition){
 					if(((MCAExplicitCmlOperationDefinition) pDefinition).getName().toString().equals(this.name)){
 						callResolved = true;
-						call = new MCOperationCall(name, args, null);
+						call = new MCOperationCall(name, args, null,((MCAExplicitCmlOperationDefinition) pDefinition).getOperationType());
 						break;
 					}
 				}

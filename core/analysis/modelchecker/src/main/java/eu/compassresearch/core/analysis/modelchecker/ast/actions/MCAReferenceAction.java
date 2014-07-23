@@ -99,7 +99,7 @@ public class MCAReferenceAction implements MCPAction {
 			for (MCSCmlOperationDefinition pDefinition : context.operations) {
 				if(pDefinition instanceof MCAExplicitCmlOperationDefinition){
 					if(((MCAExplicitCmlOperationDefinition) pDefinition).getName().toString().equals(this.name)){
-						call = new MCOperationCall(name, args, null);
+						call = new MCOperationCall(name, args, null, ((MCAExplicitCmlOperationDefinition) pDefinition).getOperationType());
 						result.append(call.toFormula(option));
 					}
 				}

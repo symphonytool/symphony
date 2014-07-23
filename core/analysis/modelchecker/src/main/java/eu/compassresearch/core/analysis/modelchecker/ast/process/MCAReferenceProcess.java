@@ -86,7 +86,7 @@ public class MCAReferenceProcess implements MCPProcess {
 				if(pDefinition instanceof MCAExplicitCmlOperationDefinition){
 					//((MCAExplicitCmlOperationDefinition) pDefinition).setParentAction(this);
 					if(((MCAExplicitCmlOperationDefinition) pDefinition).getName().toString().equals(this.name)){
-						call = new MCOperationCall(name, args, null);
+						call = new MCOperationCall(name, args, null,((MCAExplicitCmlOperationDefinition) pDefinition).getOperationType());
 						result.append(call.toFormula(option));
 						break;
 					}
