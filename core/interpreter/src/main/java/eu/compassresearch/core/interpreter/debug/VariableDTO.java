@@ -18,7 +18,6 @@ import org.overture.interpreter.values.SetValue;
 import org.overture.interpreter.values.UpdatableValue;
 import org.overture.interpreter.values.Value;
 
-import de.be4.classicalb.core.parser.node.PDefinition;
 import eu.compassresearch.ast.definitions.AActionClassDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.core.interpreter.api.values.ActionValue;
@@ -215,26 +214,7 @@ public class VariableDTO
 
 				children.add(fieldDto);
 			}
-		}/*else if(derefedVal instanceof ProcessObjectValue)
-		{
-			ProcessObjectValue v = (ProcessObjectValue) derefedVal;
-			name = v.getProcessDefinition().getName().getName();
-			fullName = name;
-			for (Entry<ILexNameToken, Value> vv : v.members.entrySet())
-			{
-				if(!showValue(vv.getValue()))
-				{
-					continue;
-				}
-				
-				VariableDTO fieldDto = extractVariable(vv.getKey().getName(), vv.getKey().getName(), vv.getValue());
-
-				List<VariableDTO> childrenMaplet = new Vector<VariableDTO>();
-				childrenMaplet.add(fieldDto);
-
-				children.add(fieldDto);
-			}
-		}*/else if(derefedVal instanceof ObjectValue)
+		}else if(derefedVal instanceof ObjectValue)
 		{
 			ObjectValue v = (ObjectValue) derefedVal;
 			if(v instanceof ProcessObjectValue)

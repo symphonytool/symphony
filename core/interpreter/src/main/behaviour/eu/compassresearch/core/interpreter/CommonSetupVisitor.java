@@ -270,7 +270,7 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 			Context oCtxt = outer;
 			while(oCtxt.outer!=null)
 			{
-				if (oCtxt instanceof DelayedWriteContext && ((DelayedWriteContext)oCtxt).isOwnedBy(currentNode))
+				if (oCtxt instanceof DelayedWriteContext && ((DelayedWriteContext)oCtxt).isOwnedBy(currentNode)&& !((DelayedWriteContext)oCtxt).isDisabled())
 				{
 					return outer;// already done of this node
 				}	
