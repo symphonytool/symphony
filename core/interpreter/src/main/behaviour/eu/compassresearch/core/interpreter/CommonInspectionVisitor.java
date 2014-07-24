@@ -540,6 +540,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 	protected CmlCalculationStep caseParallelEnd(final INode node,
 			final Context question)
 	{
+		final boolean isProcess = (this instanceof ProcessInspectionVisitor);
 		return new CmlCalculationStep()
 		{
 
@@ -547,66 +548,83 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 			public Pair<INode, Context> execute(CmlTransition selectedTransition)
 					throws AnalysisException
 			{
-				// FIXME: clean up needed
 				Context leftChildContext = owner.getLeftChild().getNextState().second;
+				Context rightChildContext = owner.getRightChild().getNextState().second;
+
+				INameFilter leftNameFilter = null;
+				INameFilter rightNameFilter = null;
+
 				final SetValue leftNameset = (SetValue) leftChildContext.check(NamespaceUtility.getNamesetName());
 				Set<ILexNameToken> leftNames = new HashSet<ILexNameToken>();
 				if (leftNameset != null)
 				{
-					for (Value val : leftNameset.values)
-					{
-						if (val instanceof NameValue)
-						{
-							ILexNameToken name = ((NameValue) val).name;
-							leftNames.add(name);
-							question.lookup(name).set(name.getLocation(), leftChildContext.lookup(name), question);
-						} else
-						{
-							throw new InterpreterRuntimeException("Only "
-									+ NameValue.class.getSimpleName()
-									+ " must be present in a name value set. Actual: "
-									+ val);
-						}
-					}
+					leftNames = copyValues(leftNameset, leftChildContext, question);
 				}
 
-				INameFilter leftNameFilter = new NameSetFilter(leftNames);
-				applyChangesInDelayedContext(leftChildContext, leftNameFilter);
+				leftNameFilter = new NameSetFilter(leftNames);
 
-				Context rightChildContext = owner.getRightChild().getNextState().second;
 				SetValue rightNameset = (SetValue) rightChildContext.check(NamespaceUtility.getNamesetName());
 
 				Set<ILexNameToken> rightNames = new HashSet<ILexNameToken>();
 
 				if (rightNameset != null)
 				{
-					for (Value val : rightNameset.values)
-					{
-						if (val instanceof NameValue)
-						{
-							ILexNameToken name = ((NameValue) val).name;
-							rightNames.add(name);
-							question.lookup(name).set(name.getLocation(), rightChildContext.lookup(name), question);
-						} else
-						{
-							throw new InterpreterRuntimeException("Only "
-									+ NameValue.class.getSimpleName()
-									+ " must be present in a name value set. Actual: "
-									+ val);
-						}
-					}
+					rightNames = copyValues(rightNameset, rightChildContext, question);
 				}
 
-				INameFilter rightNameFilter = new NameSetFilter(rightNames);
-				applyChangesInDelayedContext(rightChildContext, rightNameFilter);
+				rightNameFilter = new NameSetFilter(rightNames);
 
-				applyChangesInDelayedContext(question);
+				if (!isProcess)
+				{
+					applyChangesInDelayedContext(leftChildContext, leftNameFilter);
+					applyChangesInDelayedContext(rightChildContext, rightNameFilter);
+
+					applyChangesInDelayedContext(question);
+				}
 
 				clearLeftChild();
 				clearRightChild();
 
 				// now this process evolves into Skip
 				return new Pair<INode, Context>(node, question);
+			}
+
+			/**
+			 * Utility method to copy named from one context to an other, where the names are given by the nameset and
+			 * all names are returned after
+			 * 
+			 * @param nameset
+			 *            the names to copy
+			 * @param fromCtxt
+			 *            the context where the names exist
+			 * @param toCtxt
+			 *            the context to copy to
+			 * @return a set of all names
+			 * @throws ValueException
+			 *             if the name faild to evaulate
+			 * @throws AnalysisException
+			 */
+			protected Set<ILexNameToken> copyValues(final SetValue nameset,
+					Context fromCtxt, final Context toCtxt)
+					throws ValueException, AnalysisException
+			{
+				Set<ILexNameToken> leftNames = new HashSet<ILexNameToken>();
+				for (Value val : nameset.values)
+				{
+					if (val instanceof NameValue)
+					{
+						ILexNameToken name = ((NameValue) val).name;
+						leftNames.add(name);
+						toCtxt.lookup(name).set(name.getLocation(), fromCtxt.lookup(name), toCtxt);
+					} else
+					{
+						throw new InterpreterRuntimeException("Only "
+								+ NameValue.class.getSimpleName()
+								+ " must be present in a name value set. Actual: "
+								+ val);
+					}
+				}
+				return leftNames;
 			}
 		};
 	}
