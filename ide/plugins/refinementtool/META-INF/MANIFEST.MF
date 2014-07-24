@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Symphony IDE Refinement Plugin
 Bundle-SymbolicName: eu.compassresearch.ide.refinementtool;singleton:=true
 Bundle-Version: 0.3.5.qualifier
-Bundle-Activator: eu.compassresearch.ide.refinementtool.Activator
+Bundle-Activator: eu.compassresearch.ide.refinementtool.CmlRefinePlugin
 Bundle-Vendor: The COMPASS Project
 Export-Package: eu.compassresearch.ide.refinementtool
 Require-Bundle: org.eclipse.debug.ui,

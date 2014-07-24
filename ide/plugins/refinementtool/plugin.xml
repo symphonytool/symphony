@@ -3,6 +3,15 @@
 
 <plugin>
 
+     <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="eu.compassresearch.ide.refinementtool.maude.MaudeSetupPreferencePage"
+            id="eu.compassresearch.ide.refinementtool.maude.setuppage"
+            name="Maude Setup">
+      </page>
+   </extension>
+
 <extension
          point="org.eclipse.ui.perspectives">
 		<perspective
@@ -172,7 +181,7 @@
 		</view>
 		<view
             category="eu.compassresearch.ide.ui.category"
-            class="eu.compassresearch.ide.pog.view.PoDetailView"
+            class="eu.compassresearch.ide.refinementtool.view.RefineDetailView"
             icon="icons/ref_icon.png"
             id="eu.compassresearch.ide.refinementtool.RefineDetail"
             name="Refinement Law Details">

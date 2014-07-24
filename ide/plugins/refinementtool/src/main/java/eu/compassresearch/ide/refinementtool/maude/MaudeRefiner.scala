@@ -16,9 +16,10 @@ class MaudeRefiner(cmd: String, refine: String) {
     , "\\#nm\\(\"(\\w+)\"\\)" -> "$1" ) 
   
   def findApplLaws(cml: String) : java.util.List[MaudeRefineInfo] = {
-    val mts = maude.search1("refs[" + cml + "]", "rinf[NM,DS,INP]");
+    val mts = maude.search1("refs[" + cml + "]", "rinf[NM,DS,LD,INP]");
     return mts.map(m => new MaudeRefineInfo( m.get("NM").get.tail.init // Trim off leading/trailing quotes
     									   , m.get("DS").get.tail.init
+    									   , m.get("LD").get.tail.init
     									   , Set.empty)).to[ListBuffer]
   }
   

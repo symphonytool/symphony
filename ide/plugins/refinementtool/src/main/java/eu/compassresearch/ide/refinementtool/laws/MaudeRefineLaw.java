@@ -35,7 +35,7 @@ public class MaudeRefineLaw implements IRefineLaw {
 
 	@Override
 	public String getDetail() {
-		return "";
+		return minfo.law();
 	}
 
 	@Override

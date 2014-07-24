@@ -24,6 +24,7 @@ import eu.compassresearch.ast.actions.AStmAction;
 import eu.compassresearch.ast.statements.AActionStm;
 import eu.compassresearch.ide.core.resources.ICmlProject;
 import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
+import eu.compassresearch.ide.refinementtool.CmlRefinePlugin;
 import eu.compassresearch.ide.refinementtool.INodeNearCaret;
 import eu.compassresearch.ide.refinementtool.IRefineLaw;
 import eu.compassresearch.ide.refinementtool.RefConstants;
@@ -99,9 +100,13 @@ public class RefineHandler extends AbstractHandler {
 		List<IRefineLaw> laws = cmlProj.getModel().getAttribute(RefConstants.REF_LAWS_ID, List.class);
 		
 		if (mref == null) {
+			String maudeLoc = CmlRefinePlugin.getDefault().getPreferenceStore().getString(RefConstants.MAUDE_LOC);
+			String maudeThy = CmlRefinePlugin.getDefault().getPreferenceStore().getString(RefConstants.MAUDE_THY);
 			// FIXME: Need a generic way of configuring Maude and theory location
-			mref = new MaudeRefiner("/usr/bin/maude", "/home/simon/Uni/COMPASS/maude/cml-refine.maude");
-			cmlProj.getModel().setAttribute(RefConstants.REF_MAUDE, mref);
+			if (maudeLoc != "" && maudeThy != "") {
+				mref = new MaudeRefiner(maudeLoc, maudeThy);
+				cmlProj.getModel().setAttribute(RefConstants.REF_MAUDE, mref);
+			}
 		}
 		
 		if (laws == null) {
@@ -170,15 +175,19 @@ public class RefineHandler extends AbstractHandler {
 		rv.setSelection(selection);
 		rv.setNode(node);
 		
-		MaudePrettyPrinter mpp = new MaudePrettyPrinter();
+		// If Maude is available, search for appropriate laws
+		if (mref != null) {
 		
-		try {
-			for (MaudeRefineInfo l : mref.findApplLaws(node.apply(mpp, 0))) {
-				rv.addRefineLaw(new MaudeRefineLaw(l, mref));
+			MaudePrettyPrinter mpp = new MaudePrettyPrinter();
+		
+			try {
+				for (MaudeRefineInfo l : mref.findApplLaws(node.apply(mpp, 0))) {
+					rv.addRefineLaw(new MaudeRefineLaw(l, mref));
+				}
+			} catch (AnalysisException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-		} catch (AnalysisException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 		
 		for (IRefineLaw l : laws) {

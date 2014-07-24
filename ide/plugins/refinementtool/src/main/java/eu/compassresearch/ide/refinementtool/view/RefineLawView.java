@@ -14,10 +14,12 @@ import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TableLayout;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
@@ -30,6 +32,7 @@ import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.part.ViewPart;
 import org.overture.ast.node.INode;
@@ -42,7 +45,7 @@ import eu.compassresearch.ide.pog.view.PoDetailView;
 import eu.compassresearch.ide.refinementtool.IRefineLaw;
 import eu.compassresearch.ide.refinementtool.RefConstants;
 
-public class RefineLawView extends ViewPart implements ISelectionListener
+public class RefineLawView extends ViewPart
 {
 
 	ITextSelection selection = null;
@@ -101,18 +104,21 @@ public class RefineLawView extends ViewPart implements ISelectionListener
 		return null;
 	}
 	
-	@Override
 	public void selectionChanged(IWorkbenchPart arg0, ISelection arg1) {
-		// TODO Auto-generated method stub
-		PoDetailView rdv = null;
+		RefineDetailView rdv = null;
+		IRefineLaw law = getCurrentlySelectedLaw();
 		
-		IWorkbenchWindow window = arg0.getSite().getWorkbenchWindow();
+		if (law != null) {
 		
-		try {
-			rdv = (PoDetailView) window.getActivePage().showView(RefConstants.REF_LAW_VIEW);
-		} catch (PartInitException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			IWorkbenchWindow window = arg0.getSite().getWorkbenchWindow();
+		
+			try {
+				rdv = (RefineDetailView) window.getActivePage().showView(RefConstants.REF_LAW_VIEW);
+				rdv.setRefLaw(law.getDetail());
+			} catch (PartInitException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 
 	}
@@ -137,8 +143,33 @@ public class RefineLawView extends ViewPart implements ISelectionListener
 
 		viewer.setContentProvider(new ViewContentProvider());
 		viewer.setLabelProvider(new ViewLabelProvider());
-		viewer.setInput(laws);
+		viewer.setInput(laws);	
+		
+		// getSite().getWorkbenchWindow().getSelectionService().addSelectionListener(this);
+		
+		viewer.addSelectionChangedListener(new ISelectionChangedListener() {
 
+			@Override
+			public void selectionChanged(SelectionChangedEvent arg0) {
+				RefineDetailView rdv = null;
+				IRefineLaw law = getCurrentlySelectedLaw();
+				
+				if (law != null) {
+				
+					IWorkbenchWindow window = getSite().getWorkbenchWindow();
+				
+					try {
+						rdv = (RefineDetailView) window.getActivePage().showView(RefConstants.REF_DETAIL_VIEW);
+						rdv.setRefLaw(law.getDetail());
+					} catch (PartInitException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}				
+			}
+			
+		});
+		
 	    viewer.addDoubleClickListener(new IDoubleClickListener() {
 	        public void doubleClick(DoubleClickEvent event) {
 	          IHandlerService handlerService = (IHandlerService) getSite()
@@ -152,8 +183,6 @@ public class RefineLawView extends ViewPart implements ISelectionListener
 			}
 	        }
 	      });
-        
-        
 		
 		// viewer.addDoubleClickListener(listener);
 
