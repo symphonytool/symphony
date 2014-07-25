@@ -25,8 +25,12 @@ import org.overture.ast.statements.PStm;
 import org.overture.ast.types.AUnionType;
 import org.overture.ast.types.PType;
 
+import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
 import eu.compassresearch.ast.actions.AGuardedAction;
+import eu.compassresearch.ast.actions.AReadCommunicationParameter;
+import eu.compassresearch.ast.actions.ASignalCommunicationParameter;
+import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.AStmAction;
 import eu.compassresearch.ast.actions.AStopAction;
 import eu.compassresearch.ast.actions.AUntimedTimeoutAction;
@@ -34,6 +38,7 @@ import eu.compassresearch.ast.actions.AValParametrisation;
 import eu.compassresearch.ast.actions.AVresParametrisation;
 import eu.compassresearch.ast.actions.AWaitAction;
 import eu.compassresearch.ast.actions.AWriteCommunicationParameter;
+import eu.compassresearch.ast.actions.PCommunicationParameter;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.process.AActionProcess;
@@ -41,17 +46,6 @@ import eu.compassresearch.ast.process.AUntimedTimeoutProcess;
 import eu.compassresearch.ast.statements.AActionStm;
 
 public class RefinePrettyPrinter extends QuestionAnswerCMLAdaptor<Integer, String> {
-	protected String eol = System.getProperty("line.separator");
-	protected CmlPExprPrettyPrinter cmlpp = new CmlPExprPrettyPrinter();
-	
-	public static String tabs(Integer n) {
-		String s = "";
-		for (int i = 0; i < n; i++) {
-			s+="\t";
-		}
-		return s;
-	}
-	
 	public static <A> List<A> delimit(List<A> list, A dl) {
 		List<A> nl = new LinkedList<A>();
 		if (list.size() > 0) {
@@ -63,20 +57,40 @@ public class RefinePrettyPrinter extends QuestionAnswerCMLAdaptor<Integer, Strin
 		}
 		return nl;
 	}
+	public static String printFrame(List<AExternalClause> exts) {
+		StringBuilder sb = new StringBuilder();
+		if (exts.size() > 0) {
+			sb.append("frame ");
+			
+			for (AExternalClause e: exts) {
+				sb.append(e.getMode().toString()+" ");
+				List<String> names = new LinkedList<String>();
+				for (ILexNameToken n: e.getIdentifiers()) {
+					names.add(n.toString());
+				}
+				if (names.size() > 0) {
+					sb.append(names.get(0));
+					for (int i = 1; i < names.size(); i++) {
+						sb.append(", "+names.get(i));
+					}
+				}
+				sb.append(" ");
+			}
+		}
+		return sb.toString();
+	}
 	
-	@Override
-	public String createNewReturnValue(INode arg0, Integer arg1)
-			throws AnalysisException {
-		// TODO Auto-generated method stub
-		return null;
+	public static String tabs(Integer n) {
+		String s = "";
+		for (int i = 0; i < n; i++) {
+			s+="\t";
+		}
+		return s;
 	}
-
-	@Override
-	public String createNewReturnValue(Object arg0, Integer arg1)
-			throws AnalysisException {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	
+	protected String eol = System.getProperty("line.separator");
+	
+	protected CmlPExprPrettyPrinter cmlpp = new CmlPExprPrettyPrinter();
 
 	@Override
 	public String caseAActionDefinition(AActionDefinition node, Integer question)
@@ -98,128 +112,80 @@ public class RefinePrettyPrinter extends QuestionAnswerCMLAdaptor<Integer, Strin
 	}
 
 	@Override
+	public String caseAAssignmentDefinition(AAssignmentDefinition node,
+			Integer question) throws AnalysisException {
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append(tabs(question));
+		sb.append(node.getName().getSimpleName());
+		sb.append(" : ");
+		sb.append(node.getType());
+
+		if (node.getExpression() != null) {
+			sb.append(" := ");
+			sb.append(node.getExpression().apply(cmlpp));
+		}
+		
+		return sb.toString();
+	}
+
+	@Override
 	public String caseAAssignmentStm(AAssignmentStm node, Integer question)
 			throws AnalysisException {
 		return node.getTarget().toString() + " := " + node.getExp().toString();
 	}
 
-	public String caseAWriteCommunicationParameter(
-			AWriteCommunicationParameter node, Integer question)
-			throws AnalysisException {
+	@Override
+	public String caseABlockSimpleBlockStm(ABlockSimpleBlockStm node,
+			Integer question) throws AnalysisException {
 		
-		return "!("+node.getExpression().apply(this,0)+")";
-	}
-	/* (non-Javadoc)
-	 * @see eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor#caseAWaitAction(eu.compassresearch.ast.actions.AWaitAction, java.lang.Object)
-	 */
-	@Override
-	public String caseAWaitAction(AWaitAction node, Integer question)
-			throws AnalysisException {
-		return tabs(question)+"Wait "+node.getExpression().apply(this,0);
-	}
-	/* (non-Javadoc)
-	 * @see eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor#caseAVresParametrisation(eu.compassresearch.ast.actions.AVresParametrisation, java.lang.Object)
-	 */
-	@Override
-	public String caseAVresParametrisation(AVresParametrisation node,
-			Integer question) throws AnalysisException {
-		return "vres "+node.getDeclaration().apply(this,0);
-	}
-	/* (non-Javadoc)
-	 * @see org.overture.ast.analysis.QuestionAnswerAdaptor#caseAWhileStm(org.overture.ast.statements.AWhileStm, java.lang.Object)
-	 */
-	@Override
-	public String caseAWhileStm(AWhileStm node, Integer question)
-			throws AnalysisException {
-		return tabs(question)+"while "+node.getExp().apply(this,0)+" do \n"+node.getStatement().apply(this,question+1);
-	}
-
-	/* (non-Javadoc)
-	 * @see eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor#caseAUntimedTimeoutProcess(eu.compassresearch.ast.process.AUntimedTimeoutProcess, java.lang.Object)
-	 */
-	@Override
-	public String caseAUntimedTimeoutProcess(AUntimedTimeoutProcess node,
-			Integer question) throws AnalysisException {
-		return tabs(question)+node.getLeft().apply(this,0)+" [_> "+node.getRight().apply(this,0);
-	}
-	/* (non-Javadoc)
-	 * @see eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor#caseAUntimedTimeoutAction(eu.compassresearch.ast.actions.AUntimedTimeoutAction, java.lang.Object)
-	 */
-	@Override
-	public String caseAUntimedTimeoutAction(AUntimedTimeoutAction node,
-			Integer question) throws AnalysisException {
-		return tabs(question)+node.getLeft().apply(this,0)+" [_> "+node.getRight().apply(this,0);
-	}
-	/* (non-Javadoc)
-	 * @see eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor#caseAValParametrisation(eu.compassresearch.ast.actions.AValParametrisation, java.lang.Object)
-	 */
-	@Override
-	public String caseAValParametrisation(AValParametrisation node,
-			Integer question) throws AnalysisException {
-		return "val "+node.getDeclaration().apply(this,0);
-	}
-
-	/* (non-Javadoc)
-	 * @see org.overture.ast.analysis.QuestionAnswerAdaptor#caseAUnionType(org.overture.ast.types.AUnionType, java.lang.Object)
-	 */
-	@Override
-	public String caseAUnionType(AUnionType node, Integer question)
-			throws AnalysisException {
-		LinkedList<PType> types = node.getTypes();
-		if (types.size() > 0) {
-			String s = types.get(0).apply(this,0);
-			for (int i = 1; i < types.size(); i++) {
-				s += " | " + types.get(i).apply(this,0);
+		StringBuilder sb = new StringBuilder();
+		
+		List<AAssignmentDefinition> defs = node.getAssignmentDefs();
+		
+		sb.append("(");
+		
+		if (defs.size() > 0) {
+			sb.append("dcl ");
+			sb.append(defs.get(0).apply(this, 0));
+			for (int i = 1; i < defs.size(); i ++) {
+				sb.append(", ");
+				sb.append(defs.get(i).apply(this, 0));
 			}
-			return s;
-		} else {
-			throw new AnalysisException("Union type of size 0");
+			sb.append(" @ ");
 		}
+		
+		List<PStm> stats = node.getStatements();
+		
+		if (stats.size() > 0) {
+			sb.append(stats.get(0).apply(this, 0));
+			for (int i = 1; i < stats.size(); i ++) {
+				sb.append("; ");
+				sb.append(stats.get(i).apply(this, 0));
+			}
+		}
+			
+		sb.append(")");
+		
+		return sb.toString();
 	}
+	@Override
+	public String caseACommunicationAction(ACommunicationAction a,
+			Integer question) throws AnalysisException {
+		
+		StringBuffer sb = new StringBuffer();
+		
+		sb.append(a.getIdentifier().toString());
+		
+		for (PCommunicationParameter p : a.getCommunicationParameters()) {
+			sb.append(p.apply(this, question));
+		}
 	
-
-	/* (non-Javadoc)
-	 * @see org.overture.ast.analysis.QuestionAnswerAdaptor#caseAUnionPattern(org.overture.ast.patterns.AUnionPattern, java.lang.Object)
-	 */
-	@Override
-	public String caseAUnionPattern(AUnionPattern node, Integer question)
-			throws AnalysisException {
-		return tabs(question) + node.toString();
-	}
-
-	/* (non-Javadoc)
-	 * @see org.overture.ast.analysis.QuestionAnswerAdaptor#caseAValueDefinition(org.overture.ast.definitions.AValueDefinition, java.lang.Object)
-	 */
-	@Override
-	public String caseAValueDefinition(AValueDefinition node, Integer question)
-			throws AnalysisException {
-		String s = tabs(question);
-		if (node.getAccess() != null)
-			s += node.getAccess().apply(this,0)+" ";
+		sb.append(" -> ");
+		sb.append(a.getAction().apply(this, question));
 		
-		s += node.getPattern().apply(this,0);
-		
-		if (node.getType() != null)
-			s += ": "+node.getType().apply(this,0);
-		
-		s += " = "+node.getExpression().apply(this,0);
-		return s;
+		return sb.toString();
 	}
-	/* (non-Javadoc)
-	 * @see org.overture.ast.analysis.QuestionAnswerAdaptor#defaultPExp(org.overture.ast.expressions.PExp, java.lang.Object)
-	 */
-	@Override
-	public String defaultPExp(PExp node, Integer question)
-			throws AnalysisException {
-		return tabs(question)+node.apply(cmlpp);
-	}
-	
-	@Override
-	public String caseASetCompSetExp(ASetCompSetExp node, Integer question)
-			throws AnalysisException {
-		return super.caseASetCompSetExp(node, question);
-	}
-
 	@Override
 	public String caseAExplicitOperationDefinition(
 			AExplicitOperationDefinition n, Integer question)
@@ -275,78 +241,52 @@ public class RefinePrettyPrinter extends QuestionAnswerCMLAdaptor<Integer, Strin
 		
 	}
 	@Override
-	public String caseABlockSimpleBlockStm(ABlockSimpleBlockStm node,
-			Integer question) throws AnalysisException {
-		
-		StringBuilder sb = new StringBuilder();
-		
-		List<AAssignmentDefinition> defs = node.getAssignmentDefs();
-		
-		sb.append("(");
-		
-		if (defs.size() > 0) {
-			sb.append("dcl ");
-			sb.append(defs.get(0).apply(this, 0));
-			for (int i = 1; i < defs.size(); i ++) {
-				sb.append(", ");
-				sb.append(defs.get(i).apply(this, 0));
-			}
-			sb.append(" @ ");
-		}
-		
-		List<PStm> stats = node.getStatements();
-		
-		if (stats.size() > 0) {
-			sb.append(stats.get(0).apply(this, 0));
-			for (int i = 1; i < stats.size(); i ++) {
-				sb.append("; ");
-				sb.append(stats.get(i).apply(this, 0));
-			}
-		}
-			
-		sb.append(")");
-		
-		return sb.toString();
+	public String caseAExternalChoiceAction(AExternalChoiceAction node,
+			Integer q) throws AnalysisException {
+		return node.getLeft().apply(this, q) + " [] " + node.getRight().apply(this, q);
+	}
+
+	@Override
+	public String caseAGuardedAction(AGuardedAction node, Integer q)
+			throws AnalysisException {
+		return "[" + node.getExpression().apply(cmlpp) + "] & " + node.getAction().apply(this, q); 
 	}
 	@Override
-	public String caseAAssignmentDefinition(AAssignmentDefinition node,
-			Integer question) throws AnalysisException {
-		StringBuilder sb = new StringBuilder();
-		
-		sb.append(tabs(question));
-		sb.append(node.getName().getSimpleName());
-		sb.append(" : ");
-		sb.append(node.getType());
+	public String caseALetStm(ALetStm node, Integer question)
+			throws AnalysisException {
+		// TODO Auto-generated method stub
+		return super.caseALetStm(node, question);
+	}
+	@Override
+	public String caseAReadCommunicationParameter(
+			AReadCommunicationParameter node, Integer question)
+			throws AnalysisException {
+		return "?("+node.getExpression().apply(this,question)+")";
+	}
 
-		if (node.getExpression() != null) {
-			sb.append(" := ");
-			sb.append(node.getExpression().apply(cmlpp));
-		}
-		
-		return sb.toString();
+	@Override
+	public String caseAReturnStm(AReturnStm node, Integer question)
+			throws AnalysisException {
+		return "return " + node.getExpression().toString();
 	}
 	
-	public static String printFrame(List<AExternalClause> exts) {
-		StringBuilder sb = new StringBuilder();
-		if (exts.size() > 0) {
-			sb.append("frame ");
-			
-			for (AExternalClause e: exts) {
-				sb.append(e.getMode().toString()+" ");
-				List<String> names = new LinkedList<String>();
-				for (ILexNameToken n: e.getIdentifiers()) {
-					names.add(n.toString());
-				}
-				if (names.size() > 0) {
-					sb.append(names.get(0));
-					for (int i = 1; i < names.size(); i++) {
-						sb.append(", "+names.get(i));
-					}
-				}
-				sb.append(" ");
-			}
-		}
-		return sb.toString();
+
+	@Override
+	public String caseASetCompSetExp(ASetCompSetExp node, Integer question)
+			throws AnalysisException {
+		return super.caseASetCompSetExp(node, question);
+	}
+
+	@Override
+	public String caseASignalCommunicationParameter(
+			ASignalCommunicationParameter node, Integer question)
+			throws AnalysisException {
+		return ".("+node.getExpression().apply(this,question)+")";
+	}
+	@Override
+	public String caseASkipAction(ASkipAction node, Integer question)
+			throws AnalysisException {
+		return tabs(question)+"Skip";
 	}
 	
 	@Override
@@ -379,41 +319,140 @@ public class RefinePrettyPrinter extends QuestionAnswerCMLAdaptor<Integer, Strin
 	}
 
 	@Override
-	public String caseAReturnStm(AReturnStm node, Integer question)
-			throws AnalysisException {
-		return "return " + node.getExpression().toString();
-	}
-
-	@Override
 	public String caseAStmAction(AStmAction node, Integer question)
 			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseAStmAction(node, question);
 	}
-
-	@Override
-	public String caseALetStm(ALetStm node, Integer question)
-			throws AnalysisException {
-		// TODO Auto-generated method stub
-		return super.caseALetStm(node, question);
-	}
-
-	@Override
-	public String caseAExternalChoiceAction(AExternalChoiceAction node,
-			Integer q) throws AnalysisException {
-		return node.getLeft().apply(this, q) + " [] " + node.getRight().apply(this, q);
-	}
-
 	@Override
 	public String caseAStopAction(AStopAction node, Integer question)
 			throws AnalysisException {
-		return "Stop";
+		return tabs(question)+"Stop";
+	}
+	/* (non-Javadoc)
+	 * @see org.overture.ast.analysis.QuestionAnswerAdaptor#caseAUnionPattern(org.overture.ast.patterns.AUnionPattern, java.lang.Object)
+	 */
+	@Override
+	public String caseAUnionPattern(AUnionPattern node, Integer question)
+			throws AnalysisException {
+		return tabs(question) + node.toString();
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.overture.ast.analysis.QuestionAnswerAdaptor#caseAUnionType(org.overture.ast.types.AUnionType, java.lang.Object)
+	 */
+	@Override
+	public String caseAUnionType(AUnionType node, Integer question)
+			throws AnalysisException {
+		LinkedList<PType> types = node.getTypes();
+		if (types.size() > 0) {
+			String s = types.get(0).apply(this,0);
+			for (int i = 1; i < types.size(); i++) {
+				s += " | " + types.get(i).apply(this,0);
+			}
+			return s;
+		} else {
+			throw new AnalysisException("Union type of size 0");
+		}
+	}
+	
+	/* (non-Javadoc)
+	 * @see eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor#caseAUntimedTimeoutAction(eu.compassresearch.ast.actions.AUntimedTimeoutAction, java.lang.Object)
+	 */
+	@Override
+	public String caseAUntimedTimeoutAction(AUntimedTimeoutAction node,
+			Integer question) throws AnalysisException {
+		return tabs(question)+node.getLeft().apply(this,0)+" [_> "+node.getRight().apply(this,0);
 	}
 
+	/* (non-Javadoc)
+	 * @see eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor#caseAUntimedTimeoutProcess(eu.compassresearch.ast.process.AUntimedTimeoutProcess, java.lang.Object)
+	 */
 	@Override
-	public String caseAGuardedAction(AGuardedAction node, Integer q)
+	public String caseAUntimedTimeoutProcess(AUntimedTimeoutProcess node,
+			Integer question) throws AnalysisException {
+		return tabs(question)+node.getLeft().apply(this,0)+" [_> "+node.getRight().apply(this,0);
+	}
+
+	/* (non-Javadoc)
+	 * @see eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor#caseAValParametrisation(eu.compassresearch.ast.actions.AValParametrisation, java.lang.Object)
+	 */
+	@Override
+	public String caseAValParametrisation(AValParametrisation node,
+			Integer question) throws AnalysisException {
+		return "val "+node.getDeclaration().apply(this,0);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.overture.ast.analysis.QuestionAnswerAdaptor#caseAValueDefinition(org.overture.ast.definitions.AValueDefinition, java.lang.Object)
+	 */
+	@Override
+	public String caseAValueDefinition(AValueDefinition node, Integer question)
 			throws AnalysisException {
-		return "[" + node.getExpression().apply(cmlpp) + "] & " + node.getAction().apply(this, q); 
+		String s = tabs(question);
+		if (node.getAccess() != null)
+			s += node.getAccess().apply(this,0)+" ";
+		
+		s += node.getPattern().apply(this,0);
+		
+		if (node.getType() != null)
+			s += ": "+node.getType().apply(this,0);
+		
+		s += " = "+node.getExpression().apply(this,0);
+		return s;
+	}
+
+	/* (non-Javadoc)
+	 * @see eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor#caseAVresParametrisation(eu.compassresearch.ast.actions.AVresParametrisation, java.lang.Object)
+	 */
+	@Override
+	public String caseAVresParametrisation(AVresParametrisation node,
+			Integer question) throws AnalysisException {
+		return "vres "+node.getDeclaration().apply(this,0);
+	}
+
+	/* (non-Javadoc)
+	 * @see eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor#caseAWaitAction(eu.compassresearch.ast.actions.AWaitAction, java.lang.Object)
+	 */
+	@Override
+	public String caseAWaitAction(AWaitAction node, Integer question)
+			throws AnalysisException {
+		return tabs(question)+"Wait "+node.getExpression().apply(this,0);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.overture.ast.analysis.QuestionAnswerAdaptor#caseAWhileStm(org.overture.ast.statements.AWhileStm, java.lang.Object)
+	 */
+	@Override
+	public String caseAWhileStm(AWhileStm node, Integer question)
+			throws AnalysisException {
+		return tabs(question)+"while "+node.getExp().apply(this,0)+" do \n"+node.getStatement().apply(this,question+1);
+	}
+	public String caseAWriteCommunicationParameter(
+			AWriteCommunicationParameter node, Integer question)
+			throws AnalysisException {
+		return "!("+node.getExpression().apply(this,0)+")";
+	}
+	@Override
+	public String createNewReturnValue(INode arg0, Integer arg1)
+			throws AnalysisException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public String createNewReturnValue(Object arg0, Integer arg1)
+			throws AnalysisException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.overture.ast.analysis.QuestionAnswerAdaptor#defaultPExp(org.overture.ast.expressions.PExp, java.lang.Object)
+	 */
+	@Override
+	public String defaultPExp(PExp node, Integer question)
+			throws AnalysisException {
+		return tabs(question)+node.apply(cmlpp);
 	}
 	
 	
