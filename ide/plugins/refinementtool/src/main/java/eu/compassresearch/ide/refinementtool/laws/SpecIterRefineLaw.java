@@ -72,7 +72,7 @@ public class SpecIterRefineLaw implements IRefineLaw {
 	}
 
 	@Override
-	public Refinement apply(Map<String, String> metas, INode node, int offset) {
+	public Refinement apply(Map<String, INode> metas, INode node, int offset) {
 
 		CmlPExprPrettyPrinter cmlpp = new CmlPExprPrettyPrinter();		
 		
@@ -134,7 +134,8 @@ public class SpecIterRefineLaw implements IRefineLaw {
 
 			try {
 				sb.append(inv.apply(cmlpp));
-				sb.append(" and (0 <= " + metas.get(LOOPVARIANT) + " and " + metas.get(LOOPVARIANT) + " < " + metas.get(LOOPVARIANT) + ")");
+				String loopinv = metas.get(LOOPVARIANT).apply(cmlpp);
+				sb.append(" and (0 <= " + loopinv + " and " + loopinv + " < " + loopinv + ")");
 			} catch (AnalysisException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();

@@ -1,5 +1,6 @@
 package eu.compassresearch.ide.refinementtool.handlers;
 
+import java.io.ByteArrayInputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,15 +23,18 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.handlers.HandlerUtil;
+import org.overture.ast.expressions.PExp;
 import org.overture.ast.node.INode;
 
 import eu.compassresearch.ast.actions.AStmAction;
 import eu.compassresearch.ast.statements.AActionStm;
 import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligationList;
+import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.ide.core.resources.ICmlProject;
 import eu.compassresearch.ide.pog.view.PoListView;
 import eu.compassresearch.ide.refinementtool.IRefineLaw;
 import eu.compassresearch.ide.refinementtool.RefConstants;
+import eu.compassresearch.ide.refinementtool.RefUtils;
 import eu.compassresearch.ide.refinementtool.Refinement;
 import eu.compassresearch.ide.refinementtool.view.RefineLawView;
 import eu.compassresearch.ide.ui.editor.core.CmlEditor;
@@ -114,18 +118,19 @@ public class RefineApplyHandler extends AbstractHandler {
 				if (law.getMetas().size() > 0) {
 					
 					boolean failed = false;
-					Map<String, String> mv = new HashMap<String, String>();
+					Map<String, INode> mv = new HashMap<String, INode>();
 					
 					for (String m : law.getMetas().keySet()) {
+						MetaVarValidator mvv = new MetaVarValidator(law.getMetas().get(m));
 						InputDialog id = new InputDialog(window.getShell()
 								,"Input meta-variable"
 								,"Please enter " + m + " of type " + law.getMetas().get(m)
 								,""
-								,new IInputValidator() { public String isValid(String s) { return null; } } );
+								,mvv);
 						id.open();
 						
 						if (id.getValue() != null ) {
-							mv.put(m, id.getValue());
+							mv.put(m, mvv.getMVnode());
 						} else {
 							failed = true;
 							break;
@@ -137,7 +142,7 @@ public class RefineApplyHandler extends AbstractHandler {
 					
 				}
 				else {				
-					ref = law.apply(new HashMap<String, String>(), node, lineOffset);
+					ref = law.apply(new HashMap<String, INode>(), node, lineOffset);
 				}
 				
 				if (ref != null) {

@@ -47,7 +47,7 @@ public class ImplicitOperationRefineLaw implements IRefineLaw {
 	}
 
 	@Override
-	public Refinement apply(Map<String, String> metas, INode node, int offset) {
+	public Refinement apply(Map<String, INode> metas, INode node, int offset) {
 		AImplicitOperationDefinition oo = ((AImplicitOperationDefinition) node).clone(); 
 		
 		// Create a specification statement to act as the body

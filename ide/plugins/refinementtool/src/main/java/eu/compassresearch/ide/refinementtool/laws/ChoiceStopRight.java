@@ -35,7 +35,7 @@ public class ChoiceStopRight implements IRefineLaw {
 	}
 
 	@Override
-	public Refinement apply(Map<String, String> metas, INode node, int offset) {
+	public Refinement apply(Map<String, INode> metas, INode node, int offset) {
 		return new Refinement(
 				((AExternalChoiceAction) node)
 						.getLeft().toString(), new LinkedList<CmlProofObligation>());

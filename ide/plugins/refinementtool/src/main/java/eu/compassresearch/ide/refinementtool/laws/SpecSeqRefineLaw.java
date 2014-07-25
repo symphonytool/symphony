@@ -40,7 +40,7 @@ public class SpecSeqRefineLaw implements IRefineLaw {
 	}
 
 	@Override
-	public Refinement apply(Map<String, String> metas, INode node, int offset) {
+	public Refinement apply(Map<String, INode> metas, INode node, int offset) {
 		
 		CmlPExprPrettyPrinter cmlpp = new CmlPExprPrettyPrinter();
 		ASpecificationStm spec = (ASpecificationStm) node;
@@ -51,7 +51,14 @@ public class SpecSeqRefineLaw implements IRefineLaw {
 		PExp post = spec.getPostcondition().clone();
 		List<AExternalClause> w = (List<AExternalClause>) spec.getExternals().clone();
 		
-		String mid = metas.get(MIDCONDITION);
+		String mid = "";
+		
+	    try {
+			mid = metas.get(MIDCONDITION).apply(cmlpp);
+		} catch (AnalysisException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		StringBuilder sb = new StringBuilder();
 		

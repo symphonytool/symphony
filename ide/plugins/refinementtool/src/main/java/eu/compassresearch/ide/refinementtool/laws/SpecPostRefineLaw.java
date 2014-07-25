@@ -42,7 +42,7 @@ public class SpecPostRefineLaw implements IRefineLaw {
 	}
 
 	@Override
-	public Refinement apply(Map<String, String> metas, INode node, int offset) {
+	public Refinement apply(Map<String, INode> metas, INode node, int offset) {
 		ASpecificationStm spec =  (ASpecificationStm) node.clone();
 		
 		RefinePrettyPrinter cmlpp = new RefinePrettyPrinter();
@@ -51,7 +51,7 @@ public class SpecPostRefineLaw implements IRefineLaw {
 		
 		newspec.setExternals(spec.getExternals());
 
-		PExp newpost = RefUtils.parsePExp(metas.get(NEWPOST));
+		PExp newpost = (PExp) metas.get(NEWPOST);
 		
 		newspec.setPrecondition(spec.getPrecondition().clone());
 		newspec.setPostcondition(newpost.clone());

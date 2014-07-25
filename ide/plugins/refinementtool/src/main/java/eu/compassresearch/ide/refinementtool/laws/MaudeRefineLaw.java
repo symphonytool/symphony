@@ -1,5 +1,6 @@
 package eu.compassresearch.ide.refinementtool.laws;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -44,7 +45,7 @@ public class MaudeRefineLaw implements IRefineLaw {
 	}
 
 	@Override
-	public Refinement apply(Map<String, String> metas, INode node, int offset) {
+	public Refinement apply(Map<String, INode> metas, INode node, int offset) {
 		MaudePrettyPrinter mpp = new MaudePrettyPrinter();
 		
 	    String cml = "Skip";
@@ -58,7 +59,18 @@ public class MaudeRefineLaw implements IRefineLaw {
 		
 		List<CmlProofObligation> ps = new LinkedList<CmlProofObligation>();
 		
-		return new Refinement(mref.applyLaw(cml, minfo, scala.collection.JavaConversions.asScalaMap(metas)), ps);
+		Map<String, String> mets = new HashMap<String, String>();
+		
+		for (String k : metas.keySet()) {
+			try {
+				mets.put(k, metas.get(k).apply(mpp, 0));
+			} catch (AnalysisException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		return new Refinement(mref.applyLaw(cml, minfo, scala.collection.JavaConversions.asScalaMap(mets)), ps);
 	}
 
 	@Override

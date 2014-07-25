@@ -39,7 +39,7 @@ public class LetIntroRefineLaw implements IRefineLaw {
 	}
 
 	@Override
-	public Refinement apply(Map<String, String> metas, INode node, int offset) {
+	public Refinement apply(Map<String, INode> metas, INode node, int offset) {
 		String nodeString = "";
 		// FIXME: The variable given must be fresh in node for this law to be applicable,
 		// need to write a visitor to check this
@@ -53,7 +53,18 @@ public class LetIntroRefineLaw implements IRefineLaw {
 	
 		List<CmlProofObligation> pos = new LinkedList<CmlProofObligation>();
 		
-		return new Refinement("let " + metas.get(NEWVARNAME) + " = " + metas.get(NEWVARVAL) + " in (" + nodeString + ")", pos);
+		String newvarname = "";
+		String newvarval = "";
+		
+		try {
+			newvarname = metas.get(NEWVARNAME).apply(cmlpp, 0);
+			newvarval = metas.get(NEWVARVAL).apply(cmlpp, 0);
+		} catch (AnalysisException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return new Refinement("let " + newvarname + " = " + newvarval + " in (" + nodeString + ")", pos);
 	}
 
 	@Override

@@ -47,7 +47,7 @@ public class LetPreRefineLaw implements IRefineLaw {
 	}
 
 	@Override
-	public Refinement apply(Map<String, String> metas, INode node, int offset) {
+	public Refinement apply(Map<String, INode> metas, INode node, int offset) {
 		
 		ALetStm ls = ((ALetStm) node).clone();
 		List<PDefinition> defs = ls.getLocalDefs();

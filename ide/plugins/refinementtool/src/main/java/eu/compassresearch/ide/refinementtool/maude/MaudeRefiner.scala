@@ -5,6 +5,7 @@ import scala.collection.JavaConversions._
 import scala.util.matching._
 import scala.util.parsing.combinator.Parsers
 import scala.util.parsing.combinator.JavaTokenParsers
+import org.overture.ast.node.INode
 
 class MaudeRefiner(cmd: String, refine: String) {
 

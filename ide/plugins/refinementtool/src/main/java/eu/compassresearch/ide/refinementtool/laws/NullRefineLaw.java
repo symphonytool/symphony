@@ -30,7 +30,7 @@ public class NullRefineLaw implements IRefineLaw {
 	}
 
 	@Override
-	public Refinement apply(Map<String, String> metas, INode node, int offset) {
+	public Refinement apply(Map<String, INode> metas, INode node, int offset) {
 		// TODO Auto-generated method stub
 		return null;
 	}

@@ -37,7 +37,7 @@ public class SpecSkipRefineLaw implements IRefineLaw {
 	}
 
 	@Override
-	public Refinement apply(Map<String, String> metas, INode node, int offset) {
+	public Refinement apply(Map<String, INode> metas, INode node, int offset) {
 		ASpecificationStm spec = (ASpecificationStm) node;
 		
 		List<CmlProofObligation> pos = new LinkedList<CmlProofObligation>();
