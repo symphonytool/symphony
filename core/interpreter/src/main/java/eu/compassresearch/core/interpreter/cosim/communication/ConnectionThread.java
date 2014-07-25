@@ -8,15 +8,13 @@ import java.util.Map;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.SynchronousQueue;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.cosim.IProcessBehaviourDelegationManager;
 import eu.compassresearch.core.interpreter.cosim.MessageManager;
 import eu.compassresearch.core.interpreter.cosim.ProcessDelegate;
+import eu.compassresearch.core.interpreter.cosim.communication.protocol.CoSimProtocolVersion1;
 import eu.compassresearch.core.interpreter.debug.messaging.JsonMessage;
 
 /**
@@ -68,7 +66,7 @@ public class ConnectionThread extends Thread
 		this.socket = conn;
 		this.socket.setSoTimeout(0);
 		this.principal = principal;
-		this.comm = new MessageManager(conn);
+		this.comm = new MessageManager(conn, new CoSimProtocolVersion1());
 		this.delegationManager = delegationManager;
 		setDaemon(true);
 	}
@@ -152,11 +150,36 @@ public class ConnectionThread extends Thread
 		} else if (message instanceof InspectReplyMessage)
 		{
 			InspectReplyMessage replyMsg = (InspectReplyMessage) message;
-			availableTransitionsMap.get(replyMsg.getProcess()).add(replyMsg.getTransitions());
+			final SynchronousQueue<CmlTransitionSet> synchronousQueue = availableTransitionsMap.get(replyMsg.getProcess());
+
+			try
+			{
+				System.out.println("got transisions offering now ("+replyMsg.getProcess()+"): "+replyMsg.getTransitions());
+				synchronousQueue.put(replyMsg.getTransitions());
+			} catch (IllegalStateException e)
+			{
+				// this is queue full, it may happen due to phantom Tau's used to signal, try me again later, i'm
+				// working on it and may be finished as next inspect
+				System.err.println("Queue full: "+synchronousQueue);
+				synchronousQueue.poll();
+				System.err.println("Trying again: "+replyMsg.getTransitions());
+				synchronousQueue.add(replyMsg.getTransitions());
+			} catch (InterruptedException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		} else if (message instanceof FinishedReplyMessage)
 		{
 			FinishedReplyMessage replyMsg = (FinishedReplyMessage) message;
-			isFinishedMap.get(replyMsg.getProcess()).offer(replyMsg.isFinished());
+			try
+			{
+				isFinishedMap.get(replyMsg.getProcess()).put(replyMsg.isFinished());
+			} catch (InterruptedException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		} else if (message instanceof ExecuteCompletedMessage)
 		{
 			executingSem.release();
@@ -167,17 +190,18 @@ public class ConnectionThread extends Thread
 		}
 	}
 
-	public CmlTransitionSet inspect(String processName)
-			throws JsonGenerationException, JsonMappingException, IOException,
+	public CmlTransitionSet inspect(String processName) throws Exception,
 			InterruptedException
 	{
 		checkAbortState();
 		comm.send(new InspectMessage(processName));
-		return availableTransitionsMap.get(processName).take();
+		System.out.println("Waiting for taking ("+processName+")");
+		CmlTransitionSet tmp = availableTransitionsMap.get(processName).take();
+		System.out.println("took: ("+processName+")"+tmp);
+		return tmp;
 	}
 
-	public void execute(CmlTransition transition)
-			throws JsonGenerationException, JsonMappingException, IOException
+	public void execute(CmlTransition transition) throws Exception, IOException
 	{
 		checkAbortState();
 
@@ -203,9 +227,8 @@ public class ConnectionThread extends Thread
 		}
 	}
 
-	public boolean isFinished(String processName)
-			throws JsonGenerationException, JsonMappingException, IOException,
-			InterruptedException
+	public boolean isFinished(String processName) throws Exception,
+			IOException, InterruptedException
 	{
 		checkAbortState();
 
@@ -217,8 +240,7 @@ public class ConnectionThread extends Thread
 		return isFinishedMap.get(processName).take();
 	}
 
-	public void disconnect() throws JsonGenerationException,
-			JsonMappingException, IOException
+	public void disconnect() throws Exception, IOException
 	{
 		comm.send(new DisconnectMessage());
 		connected = false;

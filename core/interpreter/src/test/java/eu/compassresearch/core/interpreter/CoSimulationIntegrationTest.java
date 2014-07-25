@@ -23,7 +23,15 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 		{
 			this.process = process;
 			this.finishWatch = finishWatch;
+
 		}
+	}
+
+	final Thread self;
+
+	public CoSimulationIntegrationTest()
+	{
+		this.self = Thread.currentThread();
 	}
 
 	public ProcessInfo setUpCoordinator(String file, String mainProcess,
@@ -108,6 +116,8 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 
 		private final String matchString;
 
+		private IMatchHandler handler;
+
 		public ConsoleWatcher(String name, String matchString)
 		{
 			this.name = name;
@@ -117,7 +127,7 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 		@Override
 		public String toString()
 		{
-			return "Console watcher for: " + name+" is matched: "+matched;
+			return "Console watcher for: " + name + " is matched: " + matched;
 		}
 
 		/*
@@ -130,6 +140,10 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 			if (line.contains(matchString))
 			{
 				matched = true;
+				if (handler != null)
+				{
+					handler.matched(this);
+				}
 			}
 		}
 
@@ -141,6 +155,12 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 		public boolean isMatched()
 		{
 			return matched;
+		}
+
+		@Override
+		public void setMatchHandler(IMatchHandler handler)
+		{
+			this.handler = handler;
 		}
 
 	}
@@ -231,14 +251,14 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 	{
 		String source = "src/test/resources/cosim/SyncOnString.cml";
 		final ConsoleWatcher deadlockedWatch = new ConsoleWatcher("Main", SIMULATOR_STATUS_EVENT_DEADLOCKED);
-		ProcessInfo coordinator = setUpCoordinator(source, "Main", "Reader",deadlockedWatch);
+		ProcessInfo coordinator = setUpCoordinator(source, "Main", "Reader", deadlockedWatch);
 		ProcessInfo client = setUpClient(source, "Reader");
 
 		waitForCompletion(coordinator.process, DEFAULT_TIMEOUT);
 		waitForCompletion(client.process, DEFAULT_TIMEOUT);
 
-//		System.err.println(coordinator.finishWatch);
-//		System.err.println(deadlockedWatch);
+		// System.err.println(coordinator.finishWatch);
+		// System.err.println(deadlockedWatch);
 		Assert.assertTrue("Simulators did not finish successfully", deadlockedWatch.matched);
 
 	}
@@ -261,10 +281,23 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 	{
 		String source = "src/test/resources/cosim/externalAbort.cml";
 
-		ConsoleWatcher watch = new ConsoleWatcher("coordinator", "The external co-simulation process A aborted with error: 999 execution error");
+		ConsoleWatcher watch = new ConsoleWatcher("coordinator", "A aborted with error:999 execution error");
 
-		ProcessInfo coordinator = setUpCoordinator(source, "P", "A", watch);
+		final ProcessInfo coordinator = setUpCoordinator(source, "P", "A", watch);
+
 		setUpExternalClient(SubSystem.class, "A", new String[] { port.toString() });
+
+		watch.setMatchHandler(new IMatchHandler()
+		{
+
+			@Override
+			public void matched(IConsoleWatcher watch)
+			{
+				System.out.println("Match handler killing");
+				killAllProcesses();
+				self.interrupt();
+			}
+		});
 
 		waitForCompletion(coordinator.process, DEFAULT_TIMEOUT);
 

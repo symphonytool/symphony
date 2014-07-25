@@ -6,10 +6,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-
 import eu.compassresearch.core.interpreter.cosim.communication.Utils;
+import eu.compassresearch.core.interpreter.cosim.communication.protocol.ICoSimProtocol;
 import eu.compassresearch.core.interpreter.debug.messaging.JsonMessage;
 import eu.compassresearch.core.interpreter.debug.messaging.MessageCommunicator;
 
@@ -23,11 +21,13 @@ public class MessageManager
 {
 	private BufferedReader input;
 	private BufferedOutputStream output;
-
-	public MessageManager(Socket socket) throws IOException
+	private ICoSimProtocol protocol;
+	
+	public MessageManager(Socket socket,ICoSimProtocol protocol) throws IOException
 	{
 		this.input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		this.output = new BufferedOutputStream(socket.getOutputStream());
+		this.protocol = protocol;
 	}
 
 	public void close()
@@ -46,10 +46,11 @@ public class MessageManager
 		}
 	}
 
-	public void send(JsonMessage message) throws JsonGenerationException,
-			JsonMappingException, IOException
+	public void send(JsonMessage message) throws Exception
 	{
-		MessageCommunicator.sendRawMessage(output, message);
+		output.write(protocol.encode(message));
+		output.write(System.lineSeparator().getBytes());
+		output.flush();
 	}
 
 	public JsonMessage receive() throws IOException
@@ -58,7 +59,30 @@ public class MessageManager
 
 		while (msg == null)
 		{
-			msg = MessageCommunicator.receiveRawMessage(input);
+			String strMessage = input.readLine();
+			
+//			logger.trace("Read RAW: " + strMessage);
+			if (strMessage != null)
+			{
+				try
+				{
+					Object[] data =protocol.decode(strMessage.getBytes(), Object[].class);
+					if (data != null && data.length > 0)
+					{
+						msg = (JsonMessage) data[0];
+//						logger.debug("Read " + msg);
+						msg.toString();
+						break;
+					}
+
+				} catch (Exception e)
+				{
+					e.printStackTrace();
+				}
+			}
+			
+			
+			
 			Utils.milliPause(10);
 		}
 		return msg;
