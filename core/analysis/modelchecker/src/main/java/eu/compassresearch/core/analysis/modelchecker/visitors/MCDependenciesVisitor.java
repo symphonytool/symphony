@@ -16,9 +16,20 @@ import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.analysis.QuestionCMLAdaptor;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.process.AActionProcess;
+import eu.compassresearch.ast.process.AAlphabetisedParallelismReplicatedProcess;
 import eu.compassresearch.ast.process.AExternalChoiceProcess;
+import eu.compassresearch.ast.process.AExternalChoiceReplicatedProcess;
 import eu.compassresearch.ast.process.AGeneralisedParallelismProcess;
+import eu.compassresearch.ast.process.AHidingProcess;
+import eu.compassresearch.ast.process.AInterleavingProcess;
+import eu.compassresearch.ast.process.AInternalChoiceProcess;
+import eu.compassresearch.ast.process.AInternalChoiceReplicatedProcess;
+import eu.compassresearch.ast.process.AInterruptProcess;
 import eu.compassresearch.ast.process.AReferenceProcess;
+import eu.compassresearch.ast.process.ASequentialCompositionProcess;
+import eu.compassresearch.ast.process.ATimedInterruptProcess;
+import eu.compassresearch.ast.process.ATimeoutProcess;
+import eu.compassresearch.ast.process.AUntimedTimeoutProcess;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPParametrisation;
@@ -52,7 +63,7 @@ public class MCDependenciesVisitor extends
 	public MCDependenciesVisitor(List<PDefinition> originalDefinitions) {
 		this.originalDefinitions = originalDefinitions;
 		this.filteredDefinitions = new ArrayList<PDefinition>();
-		this.copyBasicDefinitions();
+		//this.copyBasicDefinitions();
 	}
 
 	/**
@@ -68,10 +79,10 @@ public class MCDependenciesVisitor extends
 
 	@Override
 	public List<PDefinition> caseAProcessDefinition(AProcessDefinition node) throws AnalysisException {
-			
-		//if(!filteredDefinitions.contains(node)){
+		
+		if(!this.filteredDefinitions.contains(node)){
 			this.filteredDefinitions.add(node);
-		//}
+		}
 		
 		node.getProcess().apply(this); 
 
@@ -82,6 +93,39 @@ public class MCDependenciesVisitor extends
 	
 
 		
+	@Override
+	public List<PDefinition> caseAInterruptProcess(AInterruptProcess node)
+			throws AnalysisException {
+
+		node.getLeft().apply(this);
+		node.getRight().apply(this);
+		
+		return this.filteredDefinitions;
+	}
+	
+	
+
+	@Override
+	public List<PDefinition> caseAInterleavingProcess(AInterleavingProcess node)
+			throws AnalysisException {
+
+		node.getLeft().apply(this);
+		node.getRight().apply(this);
+		
+		return this.filteredDefinitions;
+		
+	}
+
+	@Override
+	public List<PDefinition> caseAGeneralisedParallelismProcess(
+			AGeneralisedParallelismProcess node) throws AnalysisException {
+		
+		node.getLeft().apply(this);
+		node.getRight().apply(this);
+		
+		return this.filteredDefinitions;
+	}
+	
 	@Override
 	public List<PDefinition> caseAExternalChoiceProcess(
 			AExternalChoiceProcess node) throws AnalysisException {
@@ -94,15 +138,7 @@ public class MCDependenciesVisitor extends
 
 	
 	
-	@Override
-	public List<PDefinition> caseAGeneralisedParallelismProcess(
-			AGeneralisedParallelismProcess node) throws AnalysisException {
-		
-		node.getLeft().apply(this);
-		node.getRight().apply(this);
-		
-		return this.filteredDefinitions;
-	}
+	
 
 	@Override
 	public List<PDefinition> caseAReferenceProcess(AReferenceProcess node)
@@ -114,6 +150,103 @@ public class MCDependenciesVisitor extends
 		if(referenced != null){
 			referenced.apply(this);
 		}
+		
+		return this.filteredDefinitions;
+	}
+
+	@Override
+	public List<PDefinition> caseAHidingProcess(AHidingProcess node)
+			throws AnalysisException {
+		
+		node.getLeft().apply(this);
+
+		return this.filteredDefinitions;
+	}
+
+	
+	@Override
+	public List<PDefinition> caseASequentialCompositionProcess(
+			ASequentialCompositionProcess node) throws AnalysisException {
+		
+		node.getLeft().apply(this);
+		node.getRight().apply(this);
+		
+		return this.filteredDefinitions;
+	}
+
+	
+	@Override
+	public List<PDefinition> caseAInternalChoiceProcess(
+			AInternalChoiceProcess node) throws AnalysisException {
+		
+		node.getLeft().apply(this);
+		node.getRight().apply(this);
+		
+		return this.filteredDefinitions;
+	}
+
+	
+	@Override
+	public List<PDefinition> caseATimedInterruptProcess(
+			ATimedInterruptProcess node) throws AnalysisException {
+		
+		node.getLeft().apply(this);
+		node.getRight().apply(this);
+		
+		return this.filteredDefinitions;
+	}
+
+	
+	@Override
+	public List<PDefinition> caseAUntimedTimeoutProcess(
+			AUntimedTimeoutProcess node) throws AnalysisException {
+		
+		node.getLeft().apply(this);
+		node.getRight().apply(this);
+		
+		return this.filteredDefinitions;
+	}
+
+	
+	@Override
+	public List<PDefinition> caseATimeoutProcess(ATimeoutProcess node)
+			throws AnalysisException {
+		
+		node.getLeft().apply(this);
+		node.getRight().apply(this);
+		
+		return this.filteredDefinitions;
+	}
+
+	
+	@Override
+	public List<PDefinition> caseAExternalChoiceReplicatedProcess(
+			AExternalChoiceReplicatedProcess node) throws AnalysisException {
+
+		node.getReplicatedProcess().apply(this);
+		
+		return this.filteredDefinitions;
+	}
+	
+	
+
+	@Override
+	public List<PDefinition> caseAInternalChoiceReplicatedProcess(
+			AInternalChoiceReplicatedProcess node) throws AnalysisException {
+		
+		node.getReplicatedProcess().apply(this);
+		
+		return this.filteredDefinitions;
+	}
+	
+	
+
+	@Override
+	public List<PDefinition> caseAAlphabetisedParallelismReplicatedProcess(
+			AAlphabetisedParallelismReplicatedProcess node)
+			throws AnalysisException {
+
+		node.getReplicatedProcess().apply(this);
 		
 		return this.filteredDefinitions;
 	}
@@ -131,6 +264,22 @@ public class MCDependenciesVisitor extends
 		}
 		
 		return result;
+	}
+	
+	private AProcessDefinition buildInitialDependencies(String selectedProcessName){
+		AProcessDefinition result = this.getProcessDefinitionByName(selectedProcessName);
+		if(result != null){
+			this.copyBasicDefinitions();
+		}
+		return result;
+	}
+	
+	public List<PDefinition> filterDependencies(List<PDefinition> originalDefs, String selectedProcessName) throws AnalysisException{
+		AProcessDefinition selectedProcess = this.buildInitialDependencies(selectedProcessName);
+		if(selectedProcess != null){
+			selectedProcess.apply(this);
+		}
+		return this.filteredDefinitions;
 	}
 	
 	@Override

@@ -36,9 +36,17 @@ public class MCANatNumericBasicType extends MCPCMLNumericType {
 		return new MCANatNumericBasicType(new String(this.getValue()));
 	}
 
+	
 	@Override
 	public String getTypeAsName() {
 		return MCTypeWrapper.getTypeWrapperString(this.getClass());
 	}
+
+	@Override
+	public String toString() {
+		return "nat";
+	}
+	
+	
 
 }

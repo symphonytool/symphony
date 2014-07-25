@@ -78,6 +78,7 @@ public class FormulaSpecification {
 		this.auxiliaryDomain.replace("//WRAPPERS_USER_DEF_TYPES", wappersUserTypeNames.toString());
 	}
 	
+	
 	public String buildFormulaScript() throws IOException, AnalysisException{
 		
 		StringBuilder result = new StringBuilder();

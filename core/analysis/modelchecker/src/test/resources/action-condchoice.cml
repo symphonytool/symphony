@@ -3,4 +3,13 @@ begin
 	@ if ( 2 < 3 or 4 > 5) then Skip else Skip
 end
 
+process Q = 
+begin 
+	@ Skip
+end
+
 process T = P [] P
+
+process T1 = T |~| P
+
+process T2 = T1 /_\ Q

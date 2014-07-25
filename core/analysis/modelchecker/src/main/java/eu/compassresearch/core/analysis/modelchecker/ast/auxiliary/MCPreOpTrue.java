@@ -39,7 +39,7 @@ public class MCPreOpTrue implements MCNode {
 		
 		MCSCmlOperationDefinition opDef = context.getOperationDefinition(this.name);
 		if(opDef instanceof MCAExplicitCmlOperationDefinition){
-			MCOperationCall opCall = new MCOperationCall(this.name, null, ((MCAExplicitCmlOperationDefinition) opDef).getParamPatterns());
+			MCOperationCall opCall = new MCOperationCall(this.name, null, ((MCAExplicitCmlOperationDefinition) opDef).getParamPatterns(),((MCAExplicitCmlOperationDefinition) opDef).getOperationType());
 			result.append(opCall.toFormula(NAMED));
 		}
 		result.append(")");

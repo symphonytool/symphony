@@ -361,5 +361,5 @@ process AllNodes = ||| i in set allNodes @  (Node(i))
 
 process Election = AllNodes [|{|inn,out,n_req|}|] MessageStore
 
-process P = Election [|{|init,on,n_req,test,inn,out,test,off,following|}|]  begin @ init.1->init.2->init.3->on.1->on.2->on.3->n_req.1->out.mk_MSG(1, 1, nil)->following.1->Skip end
+process P = Election [|{|init,on,n_req,test,inn,out,test,off|}|]  begin @ init.1->init.2->init.3->on.1->on.2->on.3->n_req.1->out.mk_MSG(1, 1, nil)->Skip end
  

@@ -88,6 +88,9 @@
 	//Wrappers for user defined types
 	//WRAPPERS_USER_DEF_TYPES
 	
+	//Wrappers for parameters
+    primitive ParamW ::= (name:String, value:Type).
+	
 	// Bindings 
     NullBind            ::= {nBind}. 
 	primitive SingleBind ::= (name: String, val:Type).               

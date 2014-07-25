@@ -1,16 +1,12 @@
 package eu.compassresearch.core.interpreter;
 
-import java.util.List;
-
 import org.overture.ast.analysis.AnalysisException;
-import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.node.INode;
 import org.overture.ast.statements.AForAllStm;
 import org.overture.ast.statements.AForIndexStm;
 import org.overture.ast.statements.AForPatternBindStm;
 import org.overture.ast.statements.ASkipStm;
 import org.overture.ast.statements.AStopStm;
-import org.overture.ast.types.PType;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.PatternMatchException;
 import org.overture.interpreter.values.IntegerValue;
@@ -46,9 +42,6 @@ import eu.compassresearch.ast.actions.ATimedInterruptAction;
 import eu.compassresearch.ast.actions.ATimeoutAction;
 import eu.compassresearch.ast.actions.AUntimedTimeoutAction;
 import eu.compassresearch.ast.actions.AWaitAction;
-import eu.compassresearch.ast.actions.PAction;
-import eu.compassresearch.ast.declarations.PSingleDeclaration;
-import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.statements.AActionStm;
 import eu.compassresearch.core.interpreter.api.CmlBehaviorFactory;
 import eu.compassresearch.core.interpreter.api.CmlBehaviour;
