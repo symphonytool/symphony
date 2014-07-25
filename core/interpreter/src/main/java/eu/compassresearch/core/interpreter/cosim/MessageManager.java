@@ -66,12 +66,11 @@ public class MessageManager
 			{
 				try
 				{
-					Object[] data =protocol.decode(strMessage.getBytes(), Object[].class);
-					if (data != null && data.length > 0)
+					JsonMessage data =protocol.decode(strMessage.getBytes(), JsonMessage.class);
+					if (data != null )
 					{
-						msg = (JsonMessage) data[0];
+						msg = (JsonMessage) data;
 //						logger.debug("Read " + msg);
-						msg.toString();
 						break;
 					}
 
