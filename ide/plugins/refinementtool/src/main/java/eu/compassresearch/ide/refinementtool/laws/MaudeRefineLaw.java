@@ -58,12 +58,12 @@ public class MaudeRefineLaw implements IRefineLaw {
 		
 		List<CmlProofObligation> ps = new LinkedList<CmlProofObligation>();
 		
-		return new Refinement(mref.applyLaw(cml, minfo), ps);
+		return new Refinement(mref.applyLaw(cml, minfo, scala.collection.JavaConversions.asScalaMap(metas)), ps);
 	}
 
 	@Override
-	public List<String> getMetaNames() {
-		return new LinkedList<String>();
+	public Map<String,String> getMetas() {
+		return minfo.getMetas();
 	}
 
 }

@@ -1,5 +1,6 @@
 package eu.compassresearch.ide.refinementtool.laws;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -90,12 +91,10 @@ public class SpecPreRefineLaw implements IRefineLaw {
 	}
 
 	@Override
-	public List<String> getMetaNames() {
-		List<String> l = new LinkedList<String>();
-		l.add(NEWPRE);
-		l.add("Ho hum!");
-		return l;
-
-	}
+	public Map<String, String> getMetas() {
+		Map<String,String> m = new HashMap<String, String>();
+		m.put(NEWPRE, "expression");
+		return m;
+	}		
 
 }

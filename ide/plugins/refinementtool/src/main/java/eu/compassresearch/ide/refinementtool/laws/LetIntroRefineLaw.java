@@ -1,5 +1,6 @@
 package eu.compassresearch.ide.refinementtool.laws;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -56,11 +57,11 @@ public class LetIntroRefineLaw implements IRefineLaw {
 	}
 
 	@Override
-	public List<String> getMetaNames() {
-		List<String> l = new LinkedList<String>();
-		l.add(NEWVARNAME);
-		l.add(NEWVARVAL);
-		return l;
+	public Map<String, String> getMetas() {
+		Map<String, String> m = new HashMap<String, String>();
+		m.put(NEWVARNAME, "expression");
+		m.put(NEWVARVAL, "expression");
+		return m;
 	}
 
 }

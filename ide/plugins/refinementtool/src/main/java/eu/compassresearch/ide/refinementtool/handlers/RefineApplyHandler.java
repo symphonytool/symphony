@@ -111,15 +111,15 @@ public class RefineApplyHandler extends AbstractHandler {
 			}
 			try {
 				Refinement ref = null;
-				if (law.getMetaNames().size() > 0) {
+				if (law.getMetas().size() > 0) {
 					
 					boolean failed = false;
 					Map<String, String> mv = new HashMap<String, String>();
 					
-					for (String m : law.getMetaNames()) {
+					for (String m : law.getMetas().keySet()) {
 						InputDialog id = new InputDialog(window.getShell()
 								,"Input meta-variable"
-								,"Please enter " + m
+								,"Please enter " + m + " of type " + law.getMetas().get(m)
 								,""
 								,new IInputValidator() { public String isValid(String s) { return null; } } );
 						id.open();
