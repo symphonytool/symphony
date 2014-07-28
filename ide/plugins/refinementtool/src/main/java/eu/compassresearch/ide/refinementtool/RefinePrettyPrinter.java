@@ -453,6 +453,21 @@ public class RefinePrettyPrinter extends QuestionAnswerCMLAdaptor<Integer, Strin
 			throws AnalysisException {
 		return tabs(question)+node.getLeft().apply(this,0)+" ; "+node.getRight().apply(this,0);
 	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	/* (non-Javadoc)
 	 * @see org.overture.ast.analysis.QuestionAnswerAdaptor#defaultPExp(org.overture.ast.expressions.PExp, java.lang.Object)
 	 */
