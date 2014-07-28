@@ -173,7 +173,8 @@ public class FaultToleranceModelCheckingJob extends
 							done = true;
 							t.interrupt();
 							FormulaIntegrator.getInstance().finalize();
-						} else if (property.isChecked()) {
+						} else if (property.isChecked()
+								|| property.getException() != null) {
 							done = true;
 						}
 					}

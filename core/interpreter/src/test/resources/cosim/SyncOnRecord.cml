@@ -16,7 +16,7 @@ b: R
 
 values
 
-MAX = 10
+MAX = 2
 
 process Main = Writer [|{a,b}|] Echo 
 

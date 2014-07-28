@@ -1,5 +1,6 @@
 package eu.compassresearch.ide.refinementtool.laws;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -29,12 +30,17 @@ public class SpecSeqRefineLaw implements IRefineLaw {
 	}
 
 	@Override
+	public String getDetail() {
+		return "";
+	}	
+		
+	@Override
 	public boolean isApplicable(INode node) {
 		return (node instanceof ASpecificationStm);
 	}
 
 	@Override
-	public Refinement apply(Map<String, String> metas, INode node, int offset) {
+	public Refinement apply(Map<String, INode> metas, INode node, int offset) {
 		
 		CmlPExprPrettyPrinter cmlpp = new CmlPExprPrettyPrinter();
 		ASpecificationStm spec = (ASpecificationStm) node;
@@ -45,7 +51,14 @@ public class SpecSeqRefineLaw implements IRefineLaw {
 		PExp post = spec.getPostcondition().clone();
 		List<AExternalClause> w = (List<AExternalClause>) spec.getExternals().clone();
 		
-		String mid = metas.get(MIDCONDITION);
+		String mid = "";
+		
+	    try {
+			mid = metas.get(MIDCONDITION).apply(cmlpp);
+		} catch (AnalysisException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		StringBuilder sb = new StringBuilder();
 		
@@ -90,10 +103,10 @@ public class SpecSeqRefineLaw implements IRefineLaw {
 	}
 
 	@Override
-	public List<String> getMetaNames() {
-		List<String> l = new LinkedList<String>();
-		l.add(MIDCONDITION);
-		return l;
-	}
-
+	public Map<String, String> getMetas() {
+		Map<String,String> m = new HashMap<String, String>();
+		m.put(MIDCONDITION, "expression");
+		return m;
+	}	
+	
 }

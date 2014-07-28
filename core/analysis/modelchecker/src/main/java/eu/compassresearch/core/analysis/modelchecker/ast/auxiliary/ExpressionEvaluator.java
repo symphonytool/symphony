@@ -43,6 +43,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAProductType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAQuoteType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCARealNumericBasicType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCASetType;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLNumericType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCVoidType;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
@@ -194,7 +195,7 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 	private MCPCMLType getTypeFor(MCALocalDefinition def){
 		MCPCMLType result = null;
 		
-		result = new MCANamedInvariantType(def.getName(), def.getName());
+		result = new MCANamedInvariantType(def.getName(), def.getType().toString());
 		
 		return result;
 	}
@@ -414,16 +415,42 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 	private MCPCMLType getTypeFor(MCAVariableExp exp){
 		MCPCMLType result = null;
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
-		NameValue mapping = context.getNameValue(exp.getName());
-		//if there is a local variable with the same name assigned with a value, then use such a value
-		if(mapping != null){
-			result = new MCANamedInvariantType(mapping.getVariableValue(), mapping.getVariableName());
-		} else{
-			mapping = context.getNameValueInIndexedVariables(exp.getName());
-			if(mapping != null){
-				result = new MCANamedInvariantType(mapping.getVariableValue(),mapping.getVariableName());
+		//it first tries to get from declared values
+		MCAValueDefinition valueDef =  context.getValueDefinition(exp.getName());
+		if(valueDef != null){
+			if(valueDef.getExpression() != null){
+				result = new MCANamedInvariantType(valueDef.getExpression().toFormula(MCNode.DEFAULT), valueDef.getType().toString());
+			} else{
+				result = valueDef.getType();
+			}
+		} else if(context.maximalBinding.containsVariable(exp.getName())){ //if it is a state variable (it is present in the maxima binding
+			SingleBind bind = context.maximalBinding.getSingleBind(exp.getName());
+			MCPCMLType varType = bind.getVariableType(); 
+			if(varType instanceof MCAIntNumericBasicType || varType instanceof MCANatNumericBasicType 
+					|| varType instanceof MCABooleanBasicType || varType instanceof MCARealNumericBasicType){
+
+				result = bind.getVariableType();
+				if(result instanceof MCPCMLNumericType){
+					((MCPCMLNumericType) result).setValue(exp.getName());
+				} else if (result instanceof MCABooleanBasicType){
+					((MCABooleanBasicType) result).setValue(Boolean.valueOf(exp.getName()));
+				}
+				
 			}else{
-				result = new MCANamedInvariantType(exp.getName(),exp.getName());
+				result = new MCANamedInvariantType(exp.getName(),varType.toFormula(MCNode.DEFAULT));
+			}
+		}else{
+			NameValue mapping = context.getNameValue(exp.getName());
+			//if there is a local variable with the same name assigned with a value, then use such a value
+			if(mapping != null){
+				result = new MCANamedInvariantType(mapping.getVariableValue(), mapping.getVariableName());
+			} else{
+				mapping = context.getNameValueInIndexedVariables(exp.getName());
+				if(mapping != null){
+					result = new MCANamedInvariantType(mapping.getVariableValue(),mapping.getVariableName());
+				}else{
+					result = new MCANamedInvariantType(exp.getName(),exp.getName());
+				}
 			}
 		}
 		

@@ -105,14 +105,21 @@ public class NewMCParameterAndPatternVisitor extends QuestionAnswerCMLAdaptor<Ne
 		MCAReadCommunicationParameter result = new MCAReadCommunicationParameter(expression,pattern); 
 		
 		String name = node.getPattern().toString();
+		String channelName = null;
+		MCAChannelDefinition chanDef = null;
+		MCPCMLType realType = null;
+		ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
 		
 		if(expression == null){
 			INode parent = node.parent();
 			if(parent instanceof ACommunicationAction){
-				String channelName = ((ACommunicationAction) parent).getIdentifier().getName();
-				MCAChannelDefinition chanDef = question.getChannelDefinition(channelName);
-				ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
-				MCPCMLType realType = chanDef.getType();
+				channelName = ((ACommunicationAction) parent).getIdentifier().getName();
+				chanDef = question.getChannelDefinition(channelName);
+				//String channelName = ((ACommunicationAction) parent).getIdentifier().getName();
+				//MCAChannelDefinition chanDef = question.getChannelDefinition(channelName);
+				
+				realType = chanDef.getType();
+				//MCPCMLType realType = chanDef.getType();
 				if(realType instanceof MCAChannelType){
 					realType = ((MCAChannelType) realType).getType();
 					
@@ -122,25 +129,23 @@ public class NewMCParameterAndPatternVisitor extends QuestionAnswerCMLAdaptor<Ne
 						//simply use the defaul value for integers
 						expression = new MCAIntLiteralExp("0");
 					}else{
-						//if(chanDef.isInfiniteType()){
-							//expression = //evaluator.getDefaultValueForInfiniteType(realType);
-							//		new MCAVariableExp(pattern.toFormula(MCNode.DEFAULT));
-						//}else{
 							expression = evaluator.getDefaultValue(realType);
-						//}
 					}
 				}
 				if(chanDef.isInfiniteType()){
-					
-					MCPCMLType type = question.getFinalType(realType.toFormula(MCNode.DEFAULT));
-					expression = evaluator.getDefaultValue(type);
+					realType = question.getFinalType(realType.toFormula(MCNode.DEFAULT));
+					expression = evaluator.getDefaultValue(realType);
+					//type = question.getFinalType(realType.toFormula(MCNode.DEFAULT));
+					//expression = evaluator.getDefaultValue(type);
 				}
 				
 			} 
 			
+		}else{
+			realType = evaluator.instantiateMCType(expression);
 		}
 		
-		question.maximalBinding = question.maximalBinding.addBinding("nP", name, expression);
+		question.maximalBinding = question.maximalBinding.addBinding("nP", name, expression, realType);
 
 		return result;
 	}
@@ -182,7 +187,7 @@ public class NewMCParameterAndPatternVisitor extends QuestionAnswerCMLAdaptor<Ne
 		MCPCMLType valType = declaration.getType();
 		ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
 		MCPCMLExp expression = evaluator.getDefaultValue(valType);
-		question.maximalBinding = question.maximalBinding.addBinding("nP", valName, expression);
+		//question.maximalBinding = question.maximalBinding.addBinding("nP", valName, expression);
 		
 		return result;
 	}

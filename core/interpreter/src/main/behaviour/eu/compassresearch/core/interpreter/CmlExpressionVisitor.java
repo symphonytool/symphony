@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.expressions.AApplyExp;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.intf.lex.ILexNameToken;
@@ -20,6 +21,7 @@ import org.overture.interpreter.runtime.VdmRuntime;
 import org.overture.interpreter.runtime.VdmRuntimeError;
 import org.overture.interpreter.values.NameValuePair;
 import org.overture.interpreter.values.NameValuePairList;
+import org.overture.interpreter.values.OperationValue;
 import org.overture.interpreter.values.Quantifier;
 import org.overture.interpreter.values.QuantifierList;
 import org.overture.interpreter.values.SetValue;
@@ -109,6 +111,27 @@ public class CmlExpressionVisitor extends
 			Context question) throws AnalysisException
 	{
 		throw new CmlInterpreterException(InterpretationErrorMessages.CASE_NOT_IMPLEMENTED.customizeMessage(node.getClass().getSimpleName()));
+	}
+
+	@Override
+	public Value caseAApplyExp(AApplyExp node, Context ctxt)
+			throws AnalysisException
+	{
+		try
+		{
+			Value object = node.getRoot().apply(VdmRuntime.getExpressionEvaluator(), ctxt).deref();
+			if (object instanceof OperationValue)
+			{
+				return StatementInspectionVisitor.invokeOperation(node.getLocation(),node, node.getArgs(), ctxt, (OperationValue)object, this);
+			} else
+			{
+				return super.caseAApplyExp(node, ctxt);
+			}
+		} catch (ValueException e)
+		{
+			return VdmRuntimeError.abort(node.getLocation(), e);
+		}
+
 	}
 
 	protected ChannelValue createChannelNameValue(ILexIdentifierToken id,
@@ -245,7 +268,6 @@ public class CmlExpressionVisitor extends
 			return VdmRuntimeError.abort(node.getLocation(), e);
 		}
 	}
-
 
 	@Override
 	public Value caseAInterVOpVarsetExpression(AInterVOpVarsetExpression node,

@@ -126,67 +126,11 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 	}
 
 	@Override
-	public Inspection caseAAlphabetisedParallelismParallelAction(
-			final AAlphabetisedParallelismParallelAction node,
-			final Context question) throws AnalysisException
-	{
-		return caseAlphabetisedParallelism(node, new parallelCompositionHelper()
-		{
-
-			@Override
-			public void caseParallelBegin() throws AnalysisException
-			{
-				ActionInspectionVisitor.this.caseParallelBegin(node, null, null, question);
-
-			}
-		}, question);
-	}
-
-	@Override
 	public Inspection caseAStmAction(AStmAction node, Context question)
 			throws AnalysisException
 	{
 		return node.getStatement().apply(this.parentVisitor, question);
 	}
-
-	// /**
-	// * This implements the 7.5.10 Action Reference transition rule in D23.2.
-	// */
-	// @Override
-	// public Inspection caseACallAction(final ACallAction node,
-	// final Context question) throws AnalysisException
-	// {
-	// final Value value = lookupName(node.getName(), question);
-	// if (value instanceof ActionValue)
-	// {
-	// // first find the action value in the context
-	// final ActionValue actionVal = (ActionValue) value;
-	//
-	// return newInspection(createTauTransitionWithoutTime(actionVal.getActionDefinition().getAction(), null), new
-	// CmlCalculationStep()
-	// {
-	//
-	// @Override
-	// public Pair<INode, Context> execute(
-	// CmlTransition selectedTransition)
-	// throws AnalysisException
-	// {
-	//
-	// //the following if is copied from areference action. Not sure why it is here
-	// if (!owner.getName().getLastAction().equals(node.getName().getName()))
-	// {
-	// owner.getName().addAction(node.getName().getName());
-	// }
-	//
-	// return caseReferenceAction(node.getLocation(), node.getArgs(), actionVal, question);
-	// }
-	// });
-	//
-	// } else
-	// {
-	// throw new CmlInterpreterException(node, InterpretationErrorMessages.FATAL_ERROR.customizeMessage());
-	// }
-	// }
 
 	/**
 	 * This implements the 7.5.10 Action Reference transition rule in D23.2.
@@ -532,7 +476,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 			public Pair<INode, Context> execute(CmlTransition selectedTransition)
 					throws AnalysisException
 			{
-				//TODO: AKM: This does not correspond to the semantics
+				// TODO: AKM: This does not correspond to the semantics
 				Context muContext = CmlContextFactory.newContext(node.getLocation(), "mu context", question);
 
 				NameValuePairList nvpl = new NameValuePairList();
@@ -563,15 +507,14 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 		});
 	}
 
-	private void caseParallelBegin(SParallelAction node,
-			SetValue leftNameset, SetValue rightNameset,
-			Context question) throws AnalysisException
+	private void caseParallelBegin(SParallelAction node, SetValue leftNameset,
+			SetValue rightNameset, Context question) throws AnalysisException
 	{
 		PAction left = node.getLeftAction();
 		PAction right = node.getRightAction();
 		Pair<Context, Context> childContexts = getChildContexts(question);
 
-		Context leftCopy =AbstractReplicationFactory.createDelayedContext(childContexts.first,left);
+		Context leftCopy = AbstractReplicationFactory.createDelayedContext(childContexts.first, left);
 
 		if (leftNameset != null)
 		{
@@ -580,7 +523,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 
 		CmlBehaviour leftInstance = cmlBehaviorFactory.newCmlBehaviour(left, leftCopy, owner.getName().clone(), owner);
 
-		Context rightCopy =AbstractReplicationFactory.createDelayedContext( childContexts.second,right);
+		Context rightCopy = AbstractReplicationFactory.createDelayedContext(childContexts.second, right);
 
 		if (rightNameset != null)
 		{
@@ -655,21 +598,55 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 			@Override
 			public void caseParallelBegin() throws AnalysisException
 			{
-				SetValue leftNamesetValue = null;
-				SetValue rightNamesetValue = null;
-
-				if (node.getLeftNamesetExpression() != null)
-				{
-					leftNamesetValue = (SetValue) node.getLeftNamesetExpression().apply(cmlExpressionVisitor, question);
-				}
-				if (node.getRightNamesetExpression() != null)
-				{
-					rightNamesetValue = (SetValue) node.getRightNamesetExpression().apply(cmlExpressionVisitor, question);
-				}
-
-				ActionInspectionVisitor.this.caseParallelBegin(node, leftNamesetValue, rightNamesetValue, question);
+				createChildContextsWithNamesets(node, question);
 			}
+
 		}, node.getChansetExpression(), question);
+	}
+
+	@Override
+	public Inspection caseAAlphabetisedParallelismParallelAction(
+			final AAlphabetisedParallelismParallelAction node,
+			final Context question) throws AnalysisException
+	{
+		return caseAlphabetisedParallelism(node, new parallelCompositionHelper()
+		{
+
+			@Override
+			public void caseParallelBegin() throws AnalysisException
+			{
+				createChildContextsWithNamesets(node, question);
+
+			}
+		}, question);
+	}
+
+	/**
+	 * utility method for creating child contexts for {@link SParallelAction} nodes which evaluates the namesets and
+	 * calls {@link ActionInspectionVisitor#caseParallelBegin(SParallelAction, SetValue, SetValue, Context)}
+	 * 
+	 * @param node
+	 *            the parallel node
+	 * @param question
+	 *            the current context
+	 * @throws AnalysisException
+	 */
+	protected void createChildContextsWithNamesets(final SParallelAction node,
+			final Context question) throws AnalysisException
+	{
+		SetValue leftNamesetValue = null;
+		SetValue rightNamesetValue = null;
+
+		if (node.getLeftNamesetExpression() != null)
+		{
+			leftNamesetValue = (SetValue) node.getLeftNamesetExpression().apply(cmlExpressionVisitor, question);
+		}
+		if (node.getRightNamesetExpression() != null)
+		{
+			rightNamesetValue = (SetValue) node.getRightNamesetExpression().apply(cmlExpressionVisitor, question);
+		}
+
+		ActionInspectionVisitor.this.caseParallelBegin(node, leftNamesetValue, rightNamesetValue, question);
 	}
 
 	protected Pair<INode, Context> caseReferenceAction(ILexLocation location,

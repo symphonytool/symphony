@@ -1,5 +1,6 @@
 package eu.compassresearch.ide.refinementtool.laws;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +38,11 @@ public class SpecIterRefineLaw implements IRefineLaw {
 	}
 
 	@Override
+	public String getDetail() {
+		return "";
+	}	
+	
+	@Override
 	public boolean isApplicable(INode node) {
 		CmlPExprPrettyPrinter cmlpp = new CmlPExprPrettyPrinter();
 		if (node instanceof ASpecificationStm) {
@@ -66,7 +72,7 @@ public class SpecIterRefineLaw implements IRefineLaw {
 	}
 
 	@Override
-	public Refinement apply(Map<String, String> metas, INode node, int offset) {
+	public Refinement apply(Map<String, INode> metas, INode node, int offset) {
 
 		CmlPExprPrettyPrinter cmlpp = new CmlPExprPrettyPrinter();		
 		
@@ -128,7 +134,8 @@ public class SpecIterRefineLaw implements IRefineLaw {
 
 			try {
 				sb.append(inv.apply(cmlpp));
-				sb.append(" and (0 <= " + metas.get(LOOPVARIANT) + " and " + metas.get(LOOPVARIANT) + " < " + metas.get(LOOPVARIANT) + ")");
+				String loopinv = metas.get(LOOPVARIANT).apply(cmlpp);
+				sb.append(" and (0 <= " + loopinv + " and " + loopinv + " < " + loopinv + ")");
 			} catch (AnalysisException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -150,10 +157,10 @@ public class SpecIterRefineLaw implements IRefineLaw {
 	}
 
 	@Override
-	public List<String> getMetaNames() {
-		List<String> l = new LinkedList<String>();
-		l.add(LOOPVARIANT);
-		return l;
-	}
-
+	public Map<String, String> getMetas() {
+		Map<String,String> m = new HashMap<String, String>();
+		m.put(LOOPVARIANT, "expression");
+		return m;
+	}	
+	
 }

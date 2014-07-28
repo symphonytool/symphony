@@ -1,5 +1,6 @@
 package eu.compassresearch.ide.refinementtool.laws;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +21,11 @@ public class ChoiceStopLeft implements IRefineLaw {
 	}
 
 	@Override
+	public String getDetail() {
+		return "STOP [] P [= P";
+	}	
+		
+	@Override
 	public boolean isApplicable(INode node) {
 		// TODO Auto-generated method stub
 		if (node instanceof AExternalChoiceAction) {
@@ -29,15 +35,15 @@ public class ChoiceStopLeft implements IRefineLaw {
 	}
 
 	@Override
-	public Refinement apply(Map<String, String> metas, INode node, int offset) {
+	public Refinement apply(Map<String, INode> metas, INode node, int offset) {
 		return new Refinement(
 				((AExternalChoiceAction) node)
 						.getRight().toString(), new LinkedList<CmlProofObligation>());
 	}
 
 	@Override
-	public List<String> getMetaNames() {
-		return new LinkedList<String>();
-	}	
+	public Map<String, String> getMetas() {
+		return new HashMap<String, String>();
+	}
 	
 }

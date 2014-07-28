@@ -1,6 +1,7 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.auxiliary;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 
 
 public class NullBinding implements Binding {
@@ -30,8 +31,8 @@ public class NullBinding implements Binding {
 	}
 	
 	@Override
-	public Binding addBinding(String procName, String varName, MCPCMLExp varValue){
-		SingleBind newBind = new SingleBind(varName, varValue);
+	public Binding addBinding(String procName, String varName, MCPCMLExp varValue, MCPCMLType type){
+		SingleBind newBind = new SingleBind(varName, varValue, type);
 		Binding result = new BBinding(procName,newBind,this);
 		return result;
 	}
@@ -54,6 +55,11 @@ public class NullBinding implements Binding {
 	}
 	public StringBuilder generateAllDelFacts(int number){
 		return new StringBuilder();
+	}
+
+	@Override
+	public SingleBind getSingleBind(String varName) {
+		return null;
 	}
 
 }
