@@ -20,6 +20,10 @@
     <maven.test.skip>true</maven.test.skip>
     <maven.javadoc.skip>true</maven.javadoc.skip>
     <tycho.version>0.20.0</tycho.version>
+    <!-- used by the theorem prover and refinement engine plugins -->
+    <scala.version>2.10.4</scala.version>
+    <scala.maven.version>2.15.2</scala.maven.version>
+    <!-- <java.version>1.7</java.version> -->
   </properties>
 
   <modules>
