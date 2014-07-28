@@ -1,0 +1,407 @@
+fmod VALUE is
+    pr NAT .
+    pr QID .
+    
+    sorts BoolValue NatValue QuoteValue Value .
+    subsorts BoolValue NatValue QuoteValue < Value .
+
+    sort LooseConst .
+    subsort LooseConst < Value .
+    op w : Nat -> LooseConst .
+
+    op #b : Bool -> BoolValue .
+    op #n : Nat -> NatValue .
+    op #q : Qid -> QuoteValue .
+endfm     
+
+fmod NAME is
+    pr RAT .
+    pr STRING .
+
+    sorts Identifier .
+    -----sorts QuoteLiteral SymLiteral .
+    sorts Name OldName .
+    sort ActionName .  ---- For recurion actions
+
+    subsort Identifier < Name .
+
+    op #nm : String -> Identifier .
+    op _~ : Identifier -> OldName .
+
+    ----op <_> : Identifier -> QuoteLiteral .
+endfm
+
+view Name from TRIV to NAME is 
+    sort Elt to Name .
+endv
+
+---- a comma-separated set of names
+fmod NAME-SET is      
+    pr SET{Name} * (sort NeSet{Name} to NeNameSet, sort Set{Name} to NameSet) .
+endfm
+
+---- an empty juxtaposition of names
+fmod NAME-LIST is      
+    pr LIST{Name} * (sort NeList{Name} to NeNameList, sort List{Name} to NameList) .
+endfm
+
+---- A special case of the more general CINNI Calculus, in which 
+---- every var occurance is bound by the innermost binding instance,
+---- i.e., v{n} is always v{0}.
+fmod CINNI is
+    ----pr NAME-SET .
+    ----pr NAME-LIST .
+    pr NAME .
+
+    sort Subst .
+  
+    op `[_<-_`] : Name Name  -> Subst [ctor] .          ---- Expr or just Names and values?!
+    op `[lift__`] : Name Subst -> Subst [ctor] .
+    op __ : Subst Name -> Name .  
+  
+    vars X Y A : Name .
+    vars S : Subst .
+  
+    eq [X <- A] X = A .
+    ceq [X <- A] Y = Y if (X == Y) =/= true . 
+  
+    eq [lift X S] X = X .
+    ceq [lift X S] Y = S Y if (X == Y) =/= true . 
+
+endfm
+
+fmod EXPRESSION is 
+    pr VALUE .
+    pr NAME .
+
+    ---- Expressions
+    sorts Expr .
+
+    subsort Name OldName Value < Expr .   
+
+    vars E E1 E2 E3 : Expr .
+
+    ----sorts Elseif ElseifList .
+    ----subsort Elseif < ElseifList .
+    ----op elseif_then_ : Expr Expr -> Elseif .
+    ----op __ : ElseifList ElseifList -> ElseifList [assoc] .
+    ---- Condtional Expressions
+    op #meta : String String -> Expr .
+    op if_then_else_ : Expr Expr Expr -> Expr .
+    ----op if_then__else_ : Expr Expr ElseifList Expr -> Expr .
+    
+    ---- Unary Expressions
+    ----ops + - : Expr -> Expr .      ---- may cause a parsing conflict with lists e.g. x + (y + z)  vs x +(y + z)
+    ops abs floor not : Expr -> Expr .
+
+    ---- Binary Expressions
+    ops _*_ _/_ _div_ _rem_ _mod_ : Expr Expr -> Expr  [prec 15] . 
+    ops _+_ _-_ : Expr Expr -> Expr [prec 20] .
+    ops _<_ _<=_ _>_ _>=_ _==_ _<>_ : Expr Expr -> Expr [prec 25] .
+    ops _or_ _and_ : Expr Expr -> Expr [assoc comm prec 28] .
+    ops _=>_ _<=>_ : Expr Expr -> Expr [prec 30] .
+
+    eq #b(true) => E = E .
+    eq #b(false) => E = #b(true) .
+    eq #b(false) and E = #b(false) .
+    eq #b(true) and E = E .
+    eq #b(false) or E = E .
+    eq #b(true) or E = #b(true) .
+    eq not(not(E)) = E .
+
+endfm
+
+view Expr from TRIV to EXPRESSION is 
+    sort Elt to Expr .
+endv
+
+---- a comma-separated set of expressions
+fmod EXPR-SET is      
+    pr SET{Expr} * (sort NeSet{Expr} to NeExprSet, sort Set{Expr} to ExprSet) .
+endfm
+
+---- an empty juxtaposition of expressions
+fmod EXPR-LIST is      
+    pr LIST{Expr} * (sort NeList{Expr} to NeExprList, sort List{Expr} to ExprList) .
+endfm
+
+fmod EXPRESSION-EXTENSION is
+    pr EXPR-SET .
+    pr EXPR-LIST .
+    pr CINNI .
+
+    sort SetExpr .
+    subsort SetExpr < Expr .
+ 
+    vars E E1 E2 E3 : Expr .
+    vars V V1 V2 : Value .
+
+    op `{_`} : NeExprSet -> SetExpr .
+    op `{`} : -> SetExpr .
+
+    op _is`in_ : Expr SetExpr -> Expr [prec 35] .
+
+    var NeXS : NeExprSet .     
+    vars X Y A : Name .
+    vars S : Subst .
+
+    ---- generalization of substitution to ExprSet
+    op __ : Subst NeExprSet -> ExprSet .
+    eq S (X,NeXS) = (S X), (S NeXS) .
+
+    op `[lift__`] : NeExprSet Subst -> Subst .
+    eq [lift (X,NeXS) S] = [lift X [lift NeXS S]] .
+
+    op usedV : Expr -> ExprSet .
+    eq usedV(X) = X .
+    eq usedV(V) = {} .
+    eq usedV(if E1 then E2 else E3) = usedV(E1) , usedV(E2) , usedV(E3) .
+    eq usedV(abs(E)) = usedV(E) .
+    eq usedV(floor(E)) = usedV(E) .
+    eq usedV(not(E)) = usedV(E) .
+    eq usedV(E1 * E2) = usedV(E1) , usedV(E2) .
+    eq usedV(E1 / E2) = usedV(E1) , usedV(E2) .
+    eq usedV(E1 div E2) = usedV(E1) , usedV(E2) .
+    eq usedV(E1 rem E2) = usedV(E1) , usedV(E2) .
+    eq usedV(E1 mod E2) = usedV(E1) , usedV(E2) .
+    eq usedV(E1 + E2) = usedV(E1) , usedV(E2) .
+    eq usedV(E1 - E2) = usedV(E1) , usedV(E2) .
+
+endfm
+
+fmod ACTION is
+    pr EXPRESSION-EXTENSION .
+    
+    sorts Action Communication .
+    
+    subsort ActionName < Action .
+
+    ops Stop Skip Div : -> Action .
+    
+    op _:=_ : Name Expr -> Action [prec 38] .
+    op [_] & _ : Expr Action -> Action [prec 40] .
+    op _;_ : Action Action -> Action [gather (e E) prec 45] .
+    op _ |~| _ : Action Action -> Action [assoc comm prec 50] .
+    op _[]_ : Action Action -> Action [assoc comm prec 50] .
+    op _ \ _ : Action ExprSet -> Action [prec 25] .
+    op if_then_else_ : Expr Action Action -> Action [prec 52] .
+    op mu_@_ : ActionName Action -> Action [prec 54] .
+    op [pre_,post_] : Expr Expr -> Action [prec 40] .
+
+    op _?_:_ : Name Name Expr -> Communication [prec 38] .  ----input (env. choice) [read]
+    op _!_ : Name Expr -> Communication [prec 38] .     ---- output to env. [write]
+
+    op _->_ : Communication Action -> Action [prec 55] .
+    op var_:_@_ : Name Expr Action -> Action [prec 56] .
+    op end_ : Name -> Action .
+
+
+    vars N N1 N2 : Name . vars X Y : ActionName . vars A A1 A2 S1 S2 : Action .
+    vars E E1 E2 E3 : Expr .
+
+    --- ActionName substitution for recursion
+    op _[mu_@_] : Action ActionName Action -> Action [prec 60] . 
+    eq Skip[mu X @ A] = Skip .
+    eq Div[mu X @ A] = Div .
+    eq (N := E)[mu X @ A] = N := E .
+    eq (S1 ; S2)[mu X @ A] = (S1[mu X @ A]) ; (S2[mu X @ A]) .
+    eq (S1 |~| S2)[mu X @ A] = (S1[mu X @ A]) ; (S2[mu X @ A]) .
+    eq (if E then S1 else S2)[mu X @ A] = if E then (S1[mu X @ A]) else (S2[mu X @ A]) .
+    eq ([E] & S1)[mu X @ A] = [E] & (S1[mu X @ A]) .
+    eq (mu X @ S1)[mu X @ A] = mu X @ S1 .
+    ceq (mu Y @ S1)[mu X @ A] = mu Y @ (S1[mu X @ A]) if Y =/= X .
+
+    eq ( N1 ? N2 : E -> A1)[mu X @ A] = N1 ? N2 : E -> (A1[mu X @ A]) .
+    eq ( N1 ! N2 -> A1)[mu X @ A] = N1 ! N2 -> (A1[mu X @ A]) .
+    eq (var N : E @ A1)[mu X @ A] = var N : E @ (A1[mu X @ A]) .
+    eq (end N)[mu X @ A] = end N .
+----    eq (let N @ A1)[mu X @ A] = let N @ (A1[mu X @ A]) .   
+
+    eq X[mu X @ A] = mu X @ A .
+    ceq Y[mu X @ A] = Y if X =/= Y . 
+
+    op usedV : Action -> ExprSet .
+    eq usedV(Stop) = {} .
+    eq usedV(Skip) = {} .
+    eq usedV(Div)  = {} .
+    eq usedV(N := E) = N , usedV(E) .
+    eq usedV(S1 ; S2) = usedV(S1) , usedV(S2) .
+    eq usedV(S1 [] S2) = usedV(S1) , usedV(S2) .
+    eq usedV(S1 |~| S2) = usedV(S1) , usedV(S2) .
+
+    op isSubAct : Action Action -> Bool .
+    ceq isSubAct(A1, A2) = true if A1 == A2 .  
+
+    op FV : Communication -> ExprSet .
+    eq FV(N ! E) = usedV(E) .
+    eq FV(N1 ? N2 : E) = N2 .
+
+    op FV : Action -> ExprSet .
+    eq FV(Stop) = {} .
+
+    op wrtV : Action -> ExprSet .
+
+    op usedC : Action -> ExprSet .
+endfm
+
+view Action from TRIV to ACTION is 
+    sort Elt to Action .
+endv
+
+fmod ACT-OR-EXPR is
+  pr ACTION .
+  
+  sort ActOrExpr .
+
+  vars A : Action .
+  vars E : Expr .
+
+  op act : Action -> ActOrExpr .
+  op exp : Expr -> ActOrExpr .
+
+  op isAct  : ActOrExpr -> Bool .
+  op getAct : ActOrExpr -> Action .
+  op isExp  : ActOrExpr -> Bool .
+  op getExp : ActOrExpr -> Expr .
+
+  eq isAct(act(A)) = true .
+  eq isAct(exp(E)) = false .
+
+  eq getAct(act(A)) = A .
+
+  eq isExp(act(A)) = false .
+  eq isExp(exp(E)) = true .
+
+  eq getExp(exp(E)) = E .
+
+endfm
+
+view ActOrExpr from TRIV to ACT-OR-EXPR is 
+    sort Elt to ActOrExpr .
+endv
+
+
+fmod REFINE-MAP is
+  pr MAP{String, ActOrExpr} * (sort Map{String,ActOrExpr} to RefMap) .
+endfm
+
+mod ACTION-REFINE is
+    pr ACTION .
+    pr ACT-OR-EXPR .
+    pr REFINE-MAP .
+
+    sorts RefConf RefInfo .
+    op refine[_,_] : String RefConf -> RefConf .
+    op <_|_|_> : Action RefMap Expr -> RefConf . 
+    op refs[_] : Action -> RefInfo [ctor frozen].
+    op rinf[_,_,_,_] : String String String SetExpr -> RefInfo [ctor frozen].
+ 
+    vars NM DS LD : String .
+    var  INP : SetExpr .
+    var R : RefConf .
+    var RI : RefInfo .
+    vars A A1 A2 : Action .
+    vars c c1 c2 : Communication .
+    vars g g1 g2 : Expr .
+    vars p p1 p2 : Expr .
+    vars X Y : ActionName .
+    var M : RefMap .
+
+    rl [pre-guard-combination] :
+    refs[[g1] & ([g2] & A)] => rinf["guard-combination", "Guard combination", "[g1] \& [g2] \& A [= [g1 and g2] \& A", {}] .
+
+    rl [guard-combination] :
+    refine["guard-combination", < [g1] & ([g2] & A) | M | p >] => < [g1 and g2] & A | M | p > .
+
+    rl [pre-true-guard] :
+    refs[[#b(true)] & A] => rinf["true-guard", "True Guard", "[true] & A [= A", {}] .
+
+    rl [true-guard] :
+    refine["true-guard", < [#b(true)] & A | M | p >] => < A | M | p > .
+
+    rl [pre-extchoice-stop-left] :
+    refs [ Stop [] A ] => rinf["extchoice-stop-left", "External Choice: Stop Left Unit", "Stop [] A [= A", {}] .
+
+    rl [extchoice-stop-left] :
+    refine["extchoice-stop-left", < Stop [] A | M | p >] => < A | M | p > .
+
+    rl [pre-guard-weaken] :
+    refs[ [g1] & A ] => 
+      rinf[ "guard-weaken"
+          , "Guard Weakening"
+          , "[g1] \& A [= [g2] \& A provided g2 => g1", {#meta("g2", "expression")}] .
+
+    crl [guard-weaken] :
+    refine["guard-weaken", < [g1] & A | M | p >] => < [getExp(M["g2"])] & A | empty | g1 => getExp(M["g2"]) and p > 
+    if M["g2"] =/= undefined and isExp(M["g2"]) .
+
+*** Guards refinement laws
+
+    rl [pre-seq-left-identity] :
+    refs[Skip ; A] => rinf["seq-left-identity", "Sequential Composition Left Identity", "Skip ; A [= A", {}] .
+
+    rl [seq-left-identity] :
+    refine["seq-left-identity", < Skip ; A | M | p >] => < A | M | p > .
+
+*** (
+    rl [pre-guard-association] : 
+    refs[([g] & A1) ; A2] => rinf["guard-association", "Guard/Sequence: Association", {}] .
+
+    rl [guard-association] :
+    < "guard-association" | ([g] & A1) ; A2 | M | p > => < [g] & (A1 ; A2) | M | p > .
+
+    rl [pre-true-guard] :
+    refs[[#b(true)] & A] => rinf["true-guard", "True Guard", {}] .
+    
+    rl [true-guard] :
+    < "true-guard", [#b(true)] & A | M | p > => < "true-guard", A | M | p > .
+
+    rl [pre-false-guard] :
+    refs[[#b(false)] & A] => rinf["false-guard", "False Guard", {}] .
+    
+    rl [false-guard] :
+    < "false-guard" | [#b(false)] & A | M | p > => < Stop | M | p > .
+
+    rl [pre-guarded-stop] :
+    refs[[g] & Stop] => rinf["guarded-stop", "Guarded Stop", {}] .
+    
+    rl [guarded-stop] :
+    < "guarded-stop" | [g] & Stop | M | p > => < Stop | M | p > .
+
+    rl [pre-guard-extchoice-distr] :
+    refs[ [g] & (A1 [] A2) ] => rinf["guard-ext-choice-distr", "Guard/External Choice Distribution", {}] .
+
+    rl [guard-extchoice-distr] :
+    < [g] & (A1 [] A2) | M | p > => < ([g] & A1) [] ([g] & A2) | M | p > .
+
+    rl [pre-prefix-seq-assoc] :
+    refs[ c -> (A1 ; A2) ] => rinf["prefix-seq-assoc", "Prefix/Sequential Associativity", {}] .
+    if (intersection(FV(A2), FV(c)) == empty) .
+
+    crl [prefix-seq-assoc] :
+    < c -> (A1 ; A2) | M | p > => < (c -> A1) ; A2 | M | p > 
+    if (intersection(FV(A2), FV(c)) == empty) .
+
+    rl [pre-extchoice-stop-left] :
+    refs [ Stop [] A ] => rinf["extchoice-stop-left", "External Choice: Stop Left Unit", {}] .
+
+    rl [extchoice-stop-left] :
+    < Stop [] A | M | p > => < A | M | p > .
+
+    rl [pre-extchoice-stop-right] :
+    refs [ A [] Stop ] => rinf["extchoice-stop-right", "External Choice: Stop Right Unit", {}] .
+
+    rl [extchoice-stop-right] :
+    < A [] Stop | M | p > => < A | M | p > .
+
+
+    rl [stop-sequential-idem] :
+    < Stop ; Stop | M | p > => < Stop | M | p > .
+
+    rl [server-intro] :
+    < mu X @ A ; X > => 
+    if M["S"] =/= undefined and isAct(M["S"]) and isSubAct(getAct(M["S"]), A).
+)
+    
+
+endm
