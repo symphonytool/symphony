@@ -8,29 +8,20 @@ import org.slf4j.LoggerFactory;
 import eu.compassresearch.core.interpreter.debug.messaging.MessageCommunicator;
 
 /**
- * Default protocol using jackson serialization. This protocol sends/receives an array of messages
+ * Default protocol using jackson serialization. This protocol sends/receives a single message at the time
  * @author kel
  *
  */
-public class CoSimProtocolVersion1 implements ICoSimProtocol
+public class CoSimProtocolVersion2 implements ICoSimProtocol
 {
-	public static final String VERSION = "1.0.0";
-	final Logger logger = LoggerFactory.getLogger(CoSimProtocolVersion1.class);
+	final Logger logger = LoggerFactory.getLogger(CoSimProtocolVersion2.class);
+	public static final String VERSION = "2.0.0";
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public <T> T decode(byte[] data, Class<T> type) throws Exception
 	{
 		T res = null;
-		Object[] tmp = MessageCommunicator.mapperInstance().readValue(data, Object[].class);
-
-		if (tmp != null && tmp.length > 0)
-		{
-			res = (T) tmp[0];
-		} else
-		{
-			res = (T) tmp;
-		}
+		res= MessageCommunicator.mapperInstance().readValue(data, type);
 
 		logger.trace("Decoded RAW: " + new String(data) + " as type: "
 				+ type.getSimpleName() + " --- " + res);
@@ -47,7 +38,7 @@ public class CoSimProtocolVersion1 implements ICoSimProtocol
 	public byte[] encode(Object o) throws Exception
 	{
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		MessageCommunicator.mapperInstance().writeValue(out, new Object[] { o });
+		MessageCommunicator.mapperInstance().writeValue(out, o );
 		out.flush();
 		logger.trace("Encoded RAW: " + out.toString());
 		return out.toByteArray();
