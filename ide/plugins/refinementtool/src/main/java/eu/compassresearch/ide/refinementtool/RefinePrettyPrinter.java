@@ -29,6 +29,7 @@ import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
 import eu.compassresearch.ast.actions.AGuardedAction;
 import eu.compassresearch.ast.actions.AReadCommunicationParameter;
+import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASignalCommunicationParameter;
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.AStmAction;
@@ -445,7 +446,13 @@ public class RefinePrettyPrinter extends QuestionAnswerCMLAdaptor<Integer, Strin
 		// TODO Auto-generated method stub
 		return null;
 	}
-
+	
+	@Override
+	public String caseASequentialCompositionAction(
+			ASequentialCompositionAction node, Integer question)
+			throws AnalysisException {
+		return tabs(question)+node.getLeft().apply(this,0)+" ; "+node.getRight().apply(this,0);
+	}
 	/* (non-Javadoc)
 	 * @see org.overture.ast.analysis.QuestionAnswerAdaptor#defaultPExp(org.overture.ast.expressions.PExp, java.lang.Object)
 	 */
