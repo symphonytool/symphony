@@ -1,0 +1,17 @@
+channels 
+  a : nat 
+
+process P = begin
+
+state
+  v : nat := 1
+  v2 : nat := 2
+  
+actions
+A= val i : nat @ a.i -> a.3 -> Skip
+
+
+
+@ A(1) [ {v} | {|a.1|} || {|a.2|} | {v2} ] A(2)
+
+end

@@ -23,7 +23,7 @@ import eu.compassresearch.ide.faulttolerance.Message;
  * 
  */
 public class FaultToleranceVerificationCleanupJob extends
-		FaultToleranceVerificationJobBase {
+		FaultToleranceVerificationPrerequisitesJobBase {
 
 	private final IFolder folder;
 

@@ -3,8 +3,8 @@ package eu.compassresearch.core.interpreter;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
+import org.overture.interpreter.values.NameValuePairList;
 
-import eu.compassresearch.ast.actions.AInterleavingParallelAction;
 import eu.compassresearch.ast.actions.AStopAction;
 import eu.compassresearch.ast.process.AAlphabetisedParallelismProcess;
 import eu.compassresearch.ast.process.AAlphabetisedParallelismReplicatedProcess;
@@ -26,7 +26,6 @@ import eu.compassresearch.ast.process.AStartDeadlineProcess;
 import eu.compassresearch.ast.process.ATimedInterruptProcess;
 import eu.compassresearch.ast.process.ATimeoutProcess;
 import eu.compassresearch.ast.process.AUntimedTimeoutProcess;
-import eu.compassresearch.core.interpreter.CommonSetupVisitor.AbstractReplicationFactory;
 import eu.compassresearch.core.interpreter.api.CmlBehaviorFactory;
 import eu.compassresearch.core.interpreter.api.CmlBehaviour;
 import eu.compassresearch.core.interpreter.utility.Pair;
@@ -142,13 +141,6 @@ class ProcessSetupVisitor extends CommonSetupVisitor
 		return res.first.apply(ProcessSetupVisitor.this, res.second);
 	}
 
-	@Override
-	public Pair<INode, Context> caseAExternalChoiceProcess(
-			AExternalChoiceProcess node, Context question)
-			throws AnalysisException
-	{
-		return new Pair<INode, Context>(node, AbstractReplicationFactory.createDelayedContext(question, node));
-	}
 
 	@Override
 	public Pair<INode, Context> caseAExternalChoiceReplicatedProcess(
@@ -168,6 +160,13 @@ class ProcessSetupVisitor extends CommonSetupVisitor
 			INode createTerminator()
 			{
 				return new AStopAction(node.getLocation());
+			}
+			
+			@Override
+			Context createReplicationDelayedChildContext(
+					NameValuePairList npvl, INode node, Context outer)
+			{
+			return super.createReplicationChildContext(npvl, node, outer);
 			}
 
 		}, question);
@@ -189,17 +188,17 @@ class ProcessSetupVisitor extends CommonSetupVisitor
 			{
 				return new AGeneralisedParallelismProcess(node.getLocation(), node.getReplicatedProcess().clone(), node.getChansetExpression().clone(), node.clone());
 			}
+			
+			@Override
+			Context createReplicationDelayedChildContext(
+					NameValuePairList npvl, INode node, Context outer)
+			{
+			return super.createReplicationChildContext(npvl, node, outer);
+			}
 
 		}, question);
 	}
 
-	@Override
-	public Pair<INode, Context> caseAInterleavingParallelAction(
-			AInterleavingParallelAction node, Context question)
-			throws AnalysisException
-	{
-		return new Pair<INode, Context>(node,AbstractReplicationFactory.createDelayedContext(question, node));
-	}
 
 	@Override
 	public Pair<INode, Context> caseAInterleavingReplicatedProcess(
@@ -214,6 +213,13 @@ class ProcessSetupVisitor extends CommonSetupVisitor
 			public INode createNextReplication()
 			{
 				return new AInterleavingProcess(node.getLocation(), node.getReplicatedProcess().clone(), node.clone());
+			}
+			
+			@Override
+			Context createReplicationDelayedChildContext(
+					NameValuePairList npvl, INode node, Context outer)
+			{
+			return super.createReplicationChildContext(npvl, node, outer);
 			}
 
 		}, question);

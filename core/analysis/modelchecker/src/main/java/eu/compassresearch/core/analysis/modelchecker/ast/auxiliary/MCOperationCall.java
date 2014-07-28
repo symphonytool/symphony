@@ -16,10 +16,12 @@ import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelchecker
 public class MCOperationCall extends MCGenericCall{
 
 	private LinkedList<MCPCMLPattern> paramPatterns;
+	private MCPCMLType opType;
 	
-	public MCOperationCall(String name, LinkedList<MCPCMLExp> args, LinkedList<MCPCMLPattern> paramPatterns) {
+	public MCOperationCall(String name, LinkedList<MCPCMLExp> args, LinkedList<MCPCMLPattern> paramPatterns, MCPCMLType opType) {
 		super(name,args);
 		this.paramPatterns = paramPatterns;
+		this.opType = opType;
 	}
 
 
@@ -104,5 +106,26 @@ public class MCOperationCall extends MCGenericCall{
 		this.args = args;
 	}
 
+
+	public LinkedList<MCPCMLPattern> getParamPatterns() {
+		return paramPatterns;
+	}
+
+
+	public void setParamPatterns(LinkedList<MCPCMLPattern> paramPatterns) {
+		this.paramPatterns = paramPatterns;
+	}
+
+
+	public MCPCMLType getOpType() {
+		return opType;
+	}
+
+
+	public void setOpType(MCPCMLType opType) {
+		this.opType = opType;
+	}
+
+	
 	
 }

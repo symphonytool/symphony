@@ -290,7 +290,12 @@ public class NewMCVisitor extends
 		context.propertyToCheck = propertyToCheck;
 		context.mainProcessName = mainProcessName;
 		
-		for (PDefinition paragraph : definitions) {
+		MCDependenciesVisitor visitor = new MCDependenciesVisitor(definitions);
+		List<PDefinition> filteredDefinitions = visitor.filterDependencies(definitions, mainProcessName);
+		
+		
+		//for (PDefinition paragraph : definitions) {
+		for (PDefinition paragraph : filteredDefinitions) {
 			paragraph.apply(this, context);
 		}
 		
@@ -344,7 +349,7 @@ public class NewMCVisitor extends
 		//String cml_file = "src/test/resources/action-vardecl.cml";
 		//String cml_file = "src/test/resources/simpler-register.cml";
 		//String cml_file = "src/test/resources/Dphils.cml";
-		//String cml_file = "src/test/resources/BeoAVDeviceDiscovery-final-version-model-checker.cml";
+		//String cml_file = "src/test/resources/BeoAVDeviceDiscovery_final_version_model_checker.cml";
 		//String cml_file = "src/test/resources/beo-spec.cml";
 		//String cml_file = "src/test/resources/BEO_StreamingSoS_MC.cml";
 		//String cml_file = "src/test/resources/BeoAVDeviceDiscovery-subtletly.cml";
@@ -355,7 +360,12 @@ public class NewMCVisitor extends
 		//String cml_file = "src/test/resources/TestOutput.cml";
 		//String cml_file = "src/test/resources/DeadFree.cml";
 		//String cml_file = "src/test/resources/use-reals.cml";
-		String cml_file = "src/test/resources/echoice-process.cml";
+		//String cml_file = "src/test/resources/echoice-process.cml";
+		//String cml_file = "src/test/resources/action-condchoice.cml";
+		//String cml_file = "src/test/resources/Param.cml";
+		//String cml_file = "src/test/resources/inf.cml";
+		String cml_file = "src/test/resources/T243v2-MC.cml";
+		
 		
 		
 		//String cml_file = "src/test/resources/MC_Tests_2.cml";
@@ -378,29 +388,33 @@ public class NewMCVisitor extends
 			return;
 		}
 		*/
+		//String mainProcessName = "Test_TurnOnProduct";
+				//String mainProcessName = "TargetProduct_DD_SD_InterfaceProtocolView";
+				
+				//String mainProcessName = "RegisterProc";
+				//String mainProcessName = "N_LAZY_Q";
+				//String mainProcessName = "StreamingPlayerCSProcess";
+				//String mainProcessName = "CoSimulationServer";
+				//String mainProcessName = "Simple";
+				//String mainProcessName = "TargetProduct_SR_InterfaceProtocolView";
+				//String mainProcessName = "P";
+				//String mainProcessName = "ChaosE";
+				//String mainProcessName = "CUSSoS";
+//				String mainProcessName = "Test";
+				//String mainProcessName = "PHide";
+				//String mainProcessName = "Call";
+				//String mainProcessName = "Param";
+				//String mainProcessName = "P";
+				
+				//String mainProcessName = "TestTraces1";
+				
+				//String mainProcessName = "ad_Initiate_Rescue_Activation___Fault_1";
+				//String mainProcessName = "Dphils";
+				String mainProcessName = "TestCounter";
+		
 		NewCMLModelcheckerContext.getInstance().setNumberOfInstances(1);
 		NewMCVisitor visitor1 = new NewMCVisitor();
-		//String mainProcessName = "Test_TurnOnProduct";
-		//String mainProcessName = "TargetProduct_DD_SD_InterfaceProtocolView";
 		
-		//String mainProcessName = "RegisterProc";
-		//String mainProcessName = "N_LAZY_Q";
-		//String mainProcessName = "StreamingPlayerCSProcess";
-		//String mainProcessName = "CoSimulationServer";
-		//String mainProcessName = "Simple";
-		//String mainProcessName = "TargetProduct_DD_SD_InterfaceProtocolView";
-		//String mainProcessName = "P";
-		//String mainProcessName = "ChaosE";
-		//String mainProcessName = "CUSSoS";
-//		String mainProcessName = "Test";
-		//String mainProcessName = "PHide";
-		String mainProcessName = "P";
-		
-		//String mainProcessName = "TestTraces1";
-		
-		//String mainProcessName = "ad_Initiate_Rescue_Activation___Fault_1";
-		//String mainProcessName = "Dphils";
-		//String mainProcessName = "ERUs";
 		
 		String formulaCode = visitor1.generateFormulaScript(source1.getParagraphs(),Utilities.DEADLOCK_PROPERTY,mainProcessName);
 		//String[] codes1 = visitor1.generateFormulaCodeForAll(Utilities.DEADLOCK_PROPERTY);

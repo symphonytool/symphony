@@ -17,6 +17,7 @@ import org.overture.interpreter.values.ValueSet;
 
 import eu.compassresearch.ast.CmlAstFactory;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
+import eu.compassresearch.ast.actions.AAlphabetisedParallelismReplicatedAction;
 import eu.compassresearch.ast.actions.AChannelRenamingAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.ADivAction;
@@ -218,13 +219,13 @@ class ActionSetupVisitor extends CommonSetupVisitor
 	{
 		Pair<INode, Context> res = caseReplicated(node, node.getReplicationDeclaration(), new AbstractReplicationFactory(node)
 		{
-			
-//			@Override
-//			Context createReplicationDelayedChildContext(
-//					NameValuePairList npvl, INode node, Context outer)
-//			{
-//			return super.createReplicationChildContext(npvl, node, outer);
-//			}
+
+			// @Override
+			// Context createReplicationDelayedChildContext(
+			// NameValuePairList npvl, INode node, Context outer)
+			// {
+			// return super.createReplicationChildContext(npvl, node, outer);
+			// }
 
 			@Override
 			public INode createNextReplication()
@@ -258,13 +259,13 @@ class ActionSetupVisitor extends CommonSetupVisitor
 
 		}, question);
 	}
-	
+
 	@Override
 	public Pair<INode, Context> caseAInterleavingParallelAction(
 			AInterleavingParallelAction node, Context question)
 			throws AnalysisException
 	{
-		return new Pair<INode, Context>(node,AbstractReplicationFactory.createDelayedContext(question, node));
+		return new Pair<INode, Context>(node, AbstractReplicationFactory.createDelayedContext(question, node));
 	}
 
 	@Override
@@ -287,11 +288,35 @@ class ActionSetupVisitor extends CommonSetupVisitor
 	}
 	
 	@Override
+	public Pair<INode, Context> caseAAlphabetisedParallelismReplicatedAction(
+			final AAlphabetisedParallelismReplicatedAction node, Context question)
+			throws AnalysisException
+	{
+		return caseReplicated(node, node.getReplicationDeclaration(), new AbstractReplicationFactory(node)
+		{
+
+			@Override
+			public INode createNextReplication()
+			{														
+				return new AAlphabetisedParallelismParallelAction(node.getLocation(), node.getReplicatedAction().clone(), node.getNamesetExpression(), node.getNamesetExpression(), node.clone(), node.getChansetExpression().clone(),node.getChansetExpression().clone());
+			}
+
+		}, question);
+	}
+
+	@Override
 	public Pair<INode, Context> caseAExternalChoiceAction(
 			AExternalChoiceAction node, Context question)
 			throws AnalysisException
 	{
-		return new Pair<INode, Context>(node,AbstractReplicationFactory.createDelayedContext(question, node));
+		Pair<Context, Context> pair = getChildContexts(null);
+		if (pair.first == null && pair.second == null)
+		{
+			Context first = AbstractReplicationFactory.createDelayedContext(question, node.getLeft());
+			Context second = AbstractReplicationFactory.createDelayedContext(question, node.getRight());
+			setChildContexts(new Pair<Context, Context>(first, second));
+		}
+		return super.caseAExternalChoiceAction(node, question);
 	}
 
 	@Override
