@@ -2,19 +2,13 @@ package eu.compassresearch.core.analysis.modelchecker.ast.auxiliary;
 
 import java.util.LinkedList;
 
-import org.overture.ast.patterns.AIdentifierPattern;
-
-import eu.compassresearch.ast.actions.AValParametrisation;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
-import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCACommunicationAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAReadCommunicationParameter;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCASignalCommunicationParameter;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAValParametrisation;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAWriteCommunicationParameter;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPCommunicationParameter;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPParametrisation;
-import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCATypeSingleDeclaration;
-import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAChannelDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCALocalDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCATypeDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAValueDefinition;
@@ -30,6 +24,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCALessEqua
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCALessNumericBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANotEqualsBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANotUnaryExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAOrBooleanBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAQuoteLiteralExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCARealLiteralExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASetEnumSetExp;
@@ -48,6 +43,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAProductType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAQuoteType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCARealNumericBasicType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCASetType;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLNumericType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCVoidType;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
@@ -199,7 +195,7 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 	private MCPCMLType getTypeFor(MCALocalDefinition def){
 		MCPCMLType result = null;
 		
-		result = new MCANamedInvariantType(def.getName(), def.getName());
+		result = new MCANamedInvariantType(def.getName(), def.getType().toString());
 		
 		return result;
 	}
@@ -419,16 +415,42 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 	private MCPCMLType getTypeFor(MCAVariableExp exp){
 		MCPCMLType result = null;
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
-		NameValue mapping = context.getNameValue(exp.getName());
-		//if there is a local variable with the same name assigned with a value, then use such a value
-		if(mapping != null){
-			result = new MCANamedInvariantType(mapping.getVariableValue(), mapping.getVariableName());
-		} else{
-			mapping = context.getNameValueInIndexedVariables(exp.getName());
-			if(mapping != null){
-				result = new MCANamedInvariantType(mapping.getVariableValue(),mapping.getVariableName());
+		//it first tries to get from declared values
+		MCAValueDefinition valueDef =  context.getValueDefinition(exp.getName());
+		if(valueDef != null){
+			if(valueDef.getExpression() != null){
+				result = new MCANamedInvariantType(valueDef.getExpression().toFormula(MCNode.DEFAULT), valueDef.getType().toString());
+			} else{
+				result = valueDef.getType();
+			}
+		} else if(context.maximalBinding.containsVariable(exp.getName())){ //if it is a state variable (it is present in the maxima binding
+			SingleBind bind = context.maximalBinding.getSingleBind(exp.getName());
+			MCPCMLType varType = bind.getVariableType(); 
+			if(varType instanceof MCAIntNumericBasicType || varType instanceof MCANatNumericBasicType 
+					|| varType instanceof MCABooleanBasicType || varType instanceof MCARealNumericBasicType){
+
+				result = bind.getVariableType();
+				if(result instanceof MCPCMLNumericType){
+					((MCPCMLNumericType) result).setValue(exp.getName());
+				} else if (result instanceof MCABooleanBasicType){
+					((MCABooleanBasicType) result).setValue(Boolean.valueOf(exp.getName()));
+				}
+				
 			}else{
-				result = new MCANamedInvariantType(exp.getName(),exp.getName());
+				result = new MCANamedInvariantType(exp.getName(),varType.toFormula(MCNode.DEFAULT));
+			}
+		}else{
+			NameValue mapping = context.getNameValue(exp.getName());
+			//if there is a local variable with the same name assigned with a value, then use such a value
+			if(mapping != null){
+				result = new MCANamedInvariantType(mapping.getVariableValue(), mapping.getVariableName());
+			} else{
+				mapping = context.getNameValueInIndexedVariables(exp.getName());
+				if(mapping != null){
+					result = new MCANamedInvariantType(mapping.getVariableValue(),mapping.getVariableName());
+				}else{
+					result = new MCANamedInvariantType(exp.getName(),exp.getName());
+				}
 			}
 		}
 		
@@ -796,6 +818,28 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 		return resp;
 	}
 	
+	public boolean evaluate(MCAOrBooleanBinaryExp expression){
+		boolean resp = false;
+		
+		MCPCMLExp left = expression.getLeft();
+		MCPCMLExp right = expression.getRight();
+		
+		resp = evaluate(left) || evaluate(right);
+		
+		return resp;
+	}
+	
+	public boolean evaluate(MCAAndBooleanBinaryExp expression){
+		boolean resp = false;
+		
+		MCPCMLExp left = expression.getLeft();
+		MCPCMLExp right = expression.getRight();
+		
+		resp = evaluate(left) && evaluate(right);
+		
+		return resp;
+	}
+	
 	public boolean evaluate(MCALessEqualNumericBinaryExp expression){
 		boolean resp = false;
 		
@@ -835,6 +879,9 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 		} else if(expression instanceof MCAAndBooleanBinaryExp){
 			resp = this.canEvaluate(((MCAAndBooleanBinaryExp) expression).getLeft()) 
 					&& this.canEvaluate(((MCAAndBooleanBinaryExp) expression).getRight());
+		} else if(expression instanceof MCAOrBooleanBinaryExp){
+			resp = this.canEvaluate(((MCAOrBooleanBinaryExp) expression).getLeft()) 
+					&& this.canEvaluate(((MCAOrBooleanBinaryExp) expression).getRight());
 		}
 		return resp;
 	}
@@ -871,6 +918,22 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 		return result;
 	}
 	
+	public boolean canEvaluate(MCAAndBooleanBinaryExp expression){
+		boolean result = true;
+		
+		result = canEvaluate(expression.getLeft()) && canEvaluate(expression.getRight()); 
+				
+		return result;
+	}
+	
+	public boolean canEvaluate(MCAOrBooleanBinaryExp expression){
+		boolean result = true;
+		
+		result = canEvaluate(expression.getLeft()) && canEvaluate(expression.getRight()); 
+				
+		return result;
+	}
+	
 	@Override
 	public boolean evaluate(MCPCMLExp expression) {
 		boolean resp = false;
@@ -886,7 +949,9 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 			resp = this.evaluate((MCALessEqualNumericBinaryExp)expression);
 		} else if(expression instanceof MCAGreaterNumericBinaryExp){
 			resp = this.evaluate((MCAGreaterNumericBinaryExp)expression);
-		} 
+		} else if(expression instanceof MCAOrBooleanBinaryExp){
+			resp = this.evaluate((MCAOrBooleanBinaryExp)expression);
+		}
 		return resp;
 	}
 

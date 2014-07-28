@@ -4,7 +4,6 @@ import java.util.LinkedList;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.QuestionAnswerAdaptor;
-import org.overture.ast.analysis.intf.IQuestionAnswer;
 import org.overture.ast.node.INode;
 import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.patterns.ASetBind;
@@ -19,7 +18,6 @@ import eu.compassresearch.ast.actions.AWriteCommunicationParameter;
 import eu.compassresearch.ast.actions.PCommunicationParameter;
 import eu.compassresearch.ast.actions.PParametrisation;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
-import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAReadCommunicationParameter;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCASignalCommunicationParameter;
@@ -27,14 +25,10 @@ import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAValParametri
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAWriteCommunicationParameter;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPCommunicationParameter;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ExpressionEvaluator;
-import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.TypeManipulator;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAChannelDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCALocalDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAIntLiteralExp;
-import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAUndefinedExp;
-import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAVariableExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
-import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCVoidValue;
 import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCAIdentifierPattern;
 import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCASetBind;
 import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCATypeMultipleBind;
@@ -111,14 +105,21 @@ public class NewMCParameterAndPatternVisitor extends QuestionAnswerCMLAdaptor<Ne
 		MCAReadCommunicationParameter result = new MCAReadCommunicationParameter(expression,pattern); 
 		
 		String name = node.getPattern().toString();
+		String channelName = null;
+		MCAChannelDefinition chanDef = null;
+		MCPCMLType realType = null;
+		ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
 		
 		if(expression == null){
 			INode parent = node.parent();
 			if(parent instanceof ACommunicationAction){
-				String channelName = ((ACommunicationAction) parent).getIdentifier().getName();
-				MCAChannelDefinition chanDef = question.getChannelDefinition(channelName);
-				ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
-				MCPCMLType realType = chanDef.getType();
+				channelName = ((ACommunicationAction) parent).getIdentifier().getName();
+				chanDef = question.getChannelDefinition(channelName);
+				//String channelName = ((ACommunicationAction) parent).getIdentifier().getName();
+				//MCAChannelDefinition chanDef = question.getChannelDefinition(channelName);
+				
+				realType = chanDef.getType();
+				//MCPCMLType realType = chanDef.getType();
 				if(realType instanceof MCAChannelType){
 					realType = ((MCAChannelType) realType).getType();
 					
@@ -128,25 +129,23 @@ public class NewMCParameterAndPatternVisitor extends QuestionAnswerCMLAdaptor<Ne
 						//simply use the defaul value for integers
 						expression = new MCAIntLiteralExp("0");
 					}else{
-						//if(chanDef.isInfiniteType()){
-							//expression = //evaluator.getDefaultValueForInfiniteType(realType);
-							//		new MCAVariableExp(pattern.toFormula(MCNode.DEFAULT));
-						//}else{
 							expression = evaluator.getDefaultValue(realType);
-						//}
 					}
 				}
 				if(chanDef.isInfiniteType()){
-					
-					MCPCMLType type = question.getFinalType(realType.toFormula(MCNode.DEFAULT));
-					expression = evaluator.getDefaultValue(type);
+					realType = question.getFinalType(realType.toFormula(MCNode.DEFAULT));
+					expression = evaluator.getDefaultValue(realType);
+					//type = question.getFinalType(realType.toFormula(MCNode.DEFAULT));
+					//expression = evaluator.getDefaultValue(type);
 				}
 				
 			} 
 			
+		}else{
+			realType = evaluator.instantiateMCType(expression);
 		}
 		
-		question.maximalBinding = question.maximalBinding.addBinding("nP", name, expression);
+		question.maximalBinding = question.maximalBinding.addBinding("nP", name, expression, realType);
 
 		return result;
 	}
@@ -188,7 +187,7 @@ public class NewMCParameterAndPatternVisitor extends QuestionAnswerCMLAdaptor<Ne
 		MCPCMLType valType = declaration.getType();
 		ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
 		MCPCMLExp expression = evaluator.getDefaultValue(valType);
-		question.maximalBinding = question.maximalBinding.addBinding("nP", valName, expression);
+		//question.maximalBinding = question.maximalBinding.addBinding("nP", valName, expression);
 		
 		return result;
 	}

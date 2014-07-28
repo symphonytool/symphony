@@ -1,6 +1,5 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.auxiliary;
 
-import java.util.Iterator;
 import java.util.LinkedList;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;

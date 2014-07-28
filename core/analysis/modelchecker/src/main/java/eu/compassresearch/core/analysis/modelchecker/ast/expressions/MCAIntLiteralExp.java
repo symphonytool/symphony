@@ -2,8 +2,6 @@ package eu.compassresearch.core.analysis.modelchecker.ast.expressions;
 
 import java.util.LinkedList;
 
-import org.overture.ast.expressions.AIntLiteralExp;
-
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.PatternValue;
 
 public class MCAIntLiteralExp implements MCNumericExp {

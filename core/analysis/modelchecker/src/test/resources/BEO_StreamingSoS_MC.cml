@@ -131,7 +131,7 @@ actions
 end
 
 //Test SoS process
-//process TestTPCS1 = TestTraces1 [|{|ch_init,ch_genericEvent,ch_streamingReply|}|]StreamingPlayerCSProcess -- do not syn aopn the error channel, want to deadlock i any sync happens on the error reply channel
+process TestTPCS1 = TestTraces1 [|{|ch_init,ch_genericEvent,ch_streamingReply|}|]StreamingPlayerCSProcess -- do not syn aopn the error channel, want to deadlock i any sync happens on the error reply channel
 
 
 

@@ -2,11 +2,8 @@ package eu.compassresearch.core.analysis.modelchecker.ast.expressions;
 
 import java.util.LinkedList;
 
-import org.overture.ast.patterns.ASetBind;
-
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.PatternValue;
 import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCASetBind;
-import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 
 public class MCASeqCompSeqExp implements MCPCMLExp{
 

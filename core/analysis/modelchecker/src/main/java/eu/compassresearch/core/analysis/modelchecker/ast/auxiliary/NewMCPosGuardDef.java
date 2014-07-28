@@ -1,7 +1,6 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.auxiliary;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
-import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAOrBooleanBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCPCMLStm;
@@ -25,9 +24,11 @@ public class NewMCPosGuardDef extends NewMCGuardDef{
 			if(condition instanceof MCAOrBooleanBinaryExp){
 				//guardNDef must be replicated
 				//first guardNDef
-				result.append(basicString);
-				result.append(((MCAOrBooleanBinaryExp) condition).getLeft().toFormula(option));
-				result.append(".\n");
+				//result.append(basicString);
+				//result.append(((MCAOrBooleanBinaryExp) condition).getLeft().toFormula(option));
+				//result.append(".\n");
+				basicString.append(((MCAOrBooleanBinaryExp) condition).getLeft().toFormula(option));
+				basicString.append(".\n");
 				//second guardNDef
 				result.append(basicString);
 				result.append(((MCAOrBooleanBinaryExp) condition).getRight().toFormula(option));
@@ -35,6 +36,8 @@ public class NewMCPosGuardDef extends NewMCGuardDef{
 				result.append(basicString);
 				result.append(condition.toFormula(option));
 			}
+		}else{
+			result.append(basicString);
 		}
 		result.append(".\n");
 		

@@ -136,7 +136,7 @@ public class Formula implements IFORMULAInvoker {
 				DEFAULT_MODEL_NAME + "\n";
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 		
-		if(context.instantiatesFromInfiniteDomain()){
+		if(context.instantiatesFromInfiniteDomain() && result.isSatisfiable()){
 			knowsCommand = 	FORMULA_KNOWS_CMD + " " +
 					SPECIFIC_MODEL_NAME + "\n";
 		}

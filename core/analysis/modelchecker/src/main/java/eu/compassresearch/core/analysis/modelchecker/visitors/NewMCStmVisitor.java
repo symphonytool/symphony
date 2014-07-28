@@ -14,12 +14,13 @@ import org.overture.ast.statements.ACallStm;
 import org.overture.ast.statements.AIdentifierStateDesignator;
 import org.overture.ast.statements.AIfStm;
 import org.overture.ast.statements.ASkipStm;
-import org.overture.ast.statements.PStateDesignator;
-import org.overture.ast.statements.PStateDesignatorBase;
 import org.overture.ast.statements.PStm;
 
 import eu.compassresearch.ast.actions.AStmAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
+import eu.compassresearch.ast.definitions.AActionDefinition;
+import eu.compassresearch.ast.definitions.AProcessDefinition;
+import eu.compassresearch.ast.process.AReferenceProcess;
 import eu.compassresearch.ast.statements.AActionStm;
 import eu.compassresearch.ast.statements.AUnresolvedStateDesignator;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
@@ -166,11 +167,43 @@ public class NewMCStmVisitor extends
 		for (PExp pExp : node.getArgs()) {
 			args.add((MCPCMLExp) pExp.apply(rootVisitor, question));
 		}
-		MCACallStm result = new MCACallStm(name, args);
+		
+		MCACallStm result = new MCACallStm(name, args, null);
+		
+		AActionDefinition parentDef = this.getParentActionDefinition(node);
+		if(parentDef != null){
+			result.setParentDefinitionName(parentDef.getName().getName());
+		}else{
+			AProcessDefinition parentProcDef = this.getParentProcessDefinition(node);
+			result.setParentDefinitionName(parentProcDef.getName().getName());
+		}
 		
 		return result;
 	}
 
+	private AProcessDefinition getParentProcessDefinition(ACallStm node){
+		AProcessDefinition result = null;
+		INode parent = node.parent();
+		while((parent != null) && !(parent instanceof AProcessDefinition)){
+			parent = parent.parent();
+		}
+		if(parent != null && parent instanceof AProcessDefinition){
+			result = (AProcessDefinition) parent;
+		}
+		return result;
+	} 
+	private AActionDefinition getParentActionDefinition(ACallStm node){
+		AActionDefinition result = null;
+		
+		INode parent = node.parent();
+		while((parent != null) && !(parent instanceof AActionDefinition)){
+			parent = parent.parent();
+		}
+		if(parent != null && parent instanceof AActionDefinition){
+			result = (AActionDefinition) parent;
+		}
+		return result;
+	}
 	
 	@Override
 	public MCNode caseAIfStm(AIfStm node, NewCMLModelcheckerContext question)

@@ -18,10 +18,13 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.MultiRule;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.progress.IProgressService;
+import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.intf.lex.ILexLocation;
 
+import eu.compassresearch.ide.core.resources.ICmlProject;
 import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
+import eu.compassresearch.ide.core.unsupported.UnsupportedElementInfo;
 import eu.compassresearch.ide.faulttolerance.Activator;
 import eu.compassresearch.ide.faulttolerance.FaultToleranceProperty;
 import eu.compassresearch.ide.faulttolerance.FaultToleranceType;
@@ -33,7 +36,9 @@ import eu.compassresearch.ide.faulttolerance.jobs.FaultToleranceVerificationClea
 import eu.compassresearch.ide.faulttolerance.jobs.FilesPreparationJob;
 import eu.compassresearch.ide.faulttolerance.jobs.IFaultToleranceVerificationPreRequisite;
 import eu.compassresearch.ide.faulttolerance.jobs.MarkerUpdaterJob;
+import eu.compassresearch.ide.faulttolerance.jobs.UpdateUnsupportedElementsJob;
 import eu.compassresearch.ide.modelchecker.MCConstants;
+import eu.compassresearch.ide.modelchecker.MCUnsupportedCollector;
 
 /**
  * @author Andr&eacute; Didier (<a href=
@@ -126,6 +131,8 @@ public class FaultToleranceVerificationHandler extends SelectProcessHandler {
 		private final List<FaultToleranceProperty> properties;
 		private IFolder folder;
 		private Exception exception;
+		private final List<UnsupportedElementInfo> unsupportedElementsInfo;
+
 		private String definitionsMessage;
 
 		public Response() {
@@ -139,6 +146,7 @@ public class FaultToleranceVerificationHandler extends SelectProcessHandler {
 					FaultToleranceType.LimitedFaultTolerance);
 			fullFaultTolerance = new FaultToleranceProperty(
 					FaultToleranceType.FullFaultTolerance);
+			this.unsupportedElementsInfo = new LinkedList<>();
 			this.properties = new ArrayList<>(5);
 			this.properties.add(deadlockFreedom);
 			this.properties.add(divergenceFreedom);
@@ -207,6 +215,24 @@ public class FaultToleranceVerificationHandler extends SelectProcessHandler {
 			return deadlockFreedom;
 		}
 
+		@Override
+		public void add(List<UnsupportedElementInfo> unsupportedElementsInfo) {
+			this.unsupportedElementsInfo.addAll(unsupportedElementsInfo);
+		}
+
+		@Override
+		public boolean hasUnsupportedElements() {
+			return !unsupportedElementsInfo.isEmpty();
+		}
+
+		/**
+		 * @return the unsupportedElementsInfo
+		 */
+		@Override
+		public List<UnsupportedElementInfo> getUnsupportedElementsInfo() {
+			return unsupportedElementsInfo;
+		}
+
 	}
 
 	@Override
@@ -234,10 +260,31 @@ public class FaultToleranceVerificationHandler extends SelectProcessHandler {
 		prepareLimitedFaultTolerance(request, response);
 		prepareFullFaultTolerance(request, response);
 
+		checkCompatibility(request, response);
+
 		IProgressService progressService = Activator.getDefault()
 				.getWorkbench().getProgressService();
 
 		startJobs(createJobs(request, response), progressService, shell);
+	}
+
+	/**
+	 * Checks model-checker compatibility.
+	 * 
+	 * @param request
+	 * @param response
+	 */
+	private void checkCompatibility(Request request, Response response) {
+		try {
+			ICmlProject cmlProj = request.getSourceUnit().getProject();
+			List<UnsupportedElementInfo> uns = new MCUnsupportedCollector()
+					.getUnsupporteds(cmlProj.getModel().getAst());
+			if (!uns.isEmpty()) {
+				response.add(uns);
+			}
+		} catch (AnalysisException e) {
+			response.setException(e);
+		}
 	}
 
 	private void prepareFolder(Request request, Response response) {
@@ -336,7 +383,7 @@ public class FaultToleranceVerificationHandler extends SelectProcessHandler {
 	}
 
 	private List<Set<Job>> createJobs(
-			IFaultToleranceVerificationRequest request,
+			final IFaultToleranceVerificationRequest request,
 			final IFaultToleranceVerificationResponse response) {
 		List<Set<Job>> jobsSets = new LinkedList<>();
 
@@ -345,7 +392,9 @@ public class FaultToleranceVerificationHandler extends SelectProcessHandler {
 		IFaultToleranceVerificationPreRequisite allDefinitionsOk = new IFaultToleranceVerificationPreRequisite() {
 			@Override
 			public boolean checkPreRequisite() {
-				return response.getDefinitionsMessage() == null;
+				return response.getDefinitionsMessage() == null
+						&& response.getException() == null
+						&& !response.hasUnsupportedElements();
 			}
 
 			@Override
@@ -436,6 +485,8 @@ public class FaultToleranceVerificationHandler extends SelectProcessHandler {
 		Job cleanupJob = new FaultToleranceVerificationCleanupJob(request,
 				response);
 
+		Job uj = new UpdateUnsupportedElementsJob(request, response);
+
 		add(0, filesPreparation, jobsSets);
 
 		add(1, deadlockFreedom, jobsSets);
@@ -449,6 +500,8 @@ public class FaultToleranceVerificationHandler extends SelectProcessHandler {
 		add(3, cleanupJob, jobsSets);
 
 		add(4, markerJob, jobsSets);
+
+		add(5, uj, jobsSets);
 
 		return jobsSets;
 

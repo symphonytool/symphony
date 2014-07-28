@@ -1,6 +1,5 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.expressions;
 
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 

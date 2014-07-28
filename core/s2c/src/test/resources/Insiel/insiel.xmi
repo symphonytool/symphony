@@ -23,6 +23,10 @@
       </packagedElement>
       <packagedElement xmi:type = "uml:Package" xmi:id = "_93a5faa9-b62d-4f39-8955-14095ee9aa1b" name = "Behaviour">
         <packagedElement xmi:type = "uml:Package" xmi:id = "_366f6d4e-8749-4fae-89b5-d1c1cfcf16a5" name = "ERU state machine">
+          <packagedElement xmi:type = "uml:Class" xmi:id = "_b7c0c699-ac19-453b-ba45-8bc26a54e71e" name = "ERU">
+            <ownedAttribute xmi:type = "uml:Property" xmi:id = "_259592ea-e021-46de-b470-0ce9af9cefe3" name = "x" type = "_8630742c-58c7-4320-8641-cebc6e66fbb8" visibility = "private" aggregation = "composite">
+            </ownedAttribute>
+          </packagedElement>
           <packagedElement xmi:type = "uml:StateMachine" xmi:id = "_35b3c74f-dbbf-4f35-a5f9-350af0e8bed9" name = "State Machine ERU">
             <region xmi:type = "uml:Region" xmi:id = "_35b3c74f-dbbf-4f35-a5f9-350af0e8bed9region">
               <subvertex xmi:type = "uml:State" xmi:id = "_e9486184-9e92-4e58-b701-f329c07b7f1d" name = "BROKEN">
@@ -32,6 +36,10 @@
                   <subvertex xmi:type = "uml:State" xmi:id = "_52a28175-74e4-4a63-a05e-60f69f756ec7" name = "RETURNING">
                     <region xmi:type = "uml:Region" xmi:id = "_52a28175-74e4-4a63-a05e-60f69f756ec7region">
                       <subvertex xmi:type = "uml:State" xmi:id = "_678c2122-8916-46e6-a371-282ac9801c60" name = "STARTED3">
+                        <entry xmi:id = "_5bee078a-9c5a-4afb-a6b1-ddf1460a77ceActiv" xmi:type = "uml:Activity" name = "x := STARTED3">
+                        </entry>
+                        <exit xmi:id = "_5f2c4b17-622d-4589-8b34-745d3cb2abe5Activ" xmi:type = "uml:Activity" name = "x := OUT_STARTED3">
+                        </exit>
                       </subvertex>
                       <subvertex xmi:type = "uml:State" xmi:id = "_3380ba74-4722-491b-9f25-6b3c24d66256" name = "STARTING3">
                       </subvertex>
@@ -46,12 +54,24 @@
                           </trigger>
                         </transition>
                     </region>
+                    <entry xmi:id = "_cec7b725-06ee-4035-89cd-a1b1eeee667bActiv" xmi:type = "uml:Activity" name = "x := RETURNING">
+                    </entry>
+                    <exit xmi:id = "_ab1e19b5-f853-410c-856b-f8870cca5454Activ" xmi:type = "uml:Activity" name = "x := OUT_RETURNING">
+                    </exit>
                   </subvertex>
                   <subvertex xmi:type = "uml:State" xmi:id = "_dbd9626b-a858-4ce6-b8fa-6d630aefcba0" name = "TARGET_ATTENDED">
+                    <entry xmi:id = "_ce3243ec-fd2f-4356-b4be-bbdf680c5979Activ" xmi:type = "uml:Activity" name = "x := TARGET_ATTENDED">
+                    </entry>
+                    <exit xmi:id = "_1f3a05f5-01dc-41d8-984c-bcb1ba364822Activ" xmi:type = "uml:Activity" name = "x := OUT_TARGET_ATTENDED">
+                    </exit>
                   </subvertex>
                   <subvertex xmi:type = "uml:State" xmi:id = "_eba8c211-03dd-4f79-bade-92545cb47211" name = "TO_HOSPITAL">
                     <region xmi:type = "uml:Region" xmi:id = "_eba8c211-03dd-4f79-bade-92545cb47211region">
                       <subvertex xmi:type = "uml:State" xmi:id = "_62e3a9de-ad2f-40f9-942f-2d6c2e9b9253" name = "STARTED2">
+                        <entry xmi:id = "_e291fd63-d127-484c-89de-b50a976c8655Activ" xmi:type = "uml:Activity" name = "x:=STARTED2">
+                        </entry>
+                        <exit xmi:id = "_243ef46f-b361-41ca-a24e-1531167f010aActiv" xmi:type = "uml:Activity" name = "x:=OUT_STARTED2">
+                        </exit>
                       </subvertex>
                       <subvertex xmi:type = "uml:State" xmi:id = "_f91147ee-28aa-474f-b127-a8a98277d9a5" name = "STARTING2">
                       </subvertex>
@@ -69,10 +89,22 @@
                   </subvertex>
                   <subvertex xmi:type = "uml:State" xmi:id = "_f0369624-ae9f-444e-8d5f-85e0218866bc" name = "TO_TARGET">
                     <region xmi:type = "uml:Region" xmi:id = "_f0369624-ae9f-444e-8d5f-85e0218866bcregion">
+                      <subvertex xmi:type = "uml:Pseudostate" xmi:id = "_b54745e3-24c5-4f13-862f-9d4194ad790b" name = "Initial1">
+                      </subvertex>
                       <subvertex xmi:type = "uml:State" xmi:id = "_35adbd83-899f-4326-b0e4-93988893a667" name = "STARTED1">
+                        <entry xmi:id = "_1e70250b-7878-4013-9f2c-b7015011d9abActiv" xmi:type = "uml:Activity" name = "x := STARTED1">
+                        </entry>
+                        <exit xmi:id = "_e3195bbf-2d85-4e01-a700-44d8eff86b3fActiv" xmi:type = "uml:Activity" name = "x := OUT_STARTED1">
+                        </exit>
                       </subvertex>
                       <subvertex xmi:type = "uml:State" xmi:id = "_1f520b1b-5b50-4000-a308-c91c1a2c17e4" name = "STARTING1">
+                        <entry xmi:id = "_e70cedc7-9c3d-4806-822f-ac15ec968533Activ" xmi:type = "uml:Activity" name = "x := STARTING1">
+                        </entry>
+                        <exit xmi:id = "_f6a2e234-ff79-4baa-99e7-24d9321aa950Activ" xmi:type = "uml:Activity" name = "x := OUT_TO_TARGET">
+                        </exit>
                       </subvertex>
+                        <transition xmi:type = "uml:Transition" xmi:id = "_38dbdf7a-715c-41ce-b0de-65c22d2cd8c2" source = "_b54745e3-24c5-4f13-862f-9d4194ad790b" target = "_1f520b1b-5b50-4000-a308-c91c1a2c17e4">
+                        </transition>
                         <transition xmi:type = "uml:Transition" xmi:id = "_ddfdfc98-cc1a-49d6-ab22-1614eaf2b134" source = "_35adbd83-899f-4326-b0e4-93988893a667" target = "_1f520b1b-5b50-4000-a308-c91c1a2c17e4">
                         </transition>
                         <transition xmi:type = "uml:Transition" xmi:id = "_6636e7c5-0223-47f3-be42-8288c32d8aeb" source = "_35adbd83-899f-4326-b0e4-93988893a667" target = "_dbd9626b-a858-4ce6-b8fa-6d630aefcba0">
@@ -84,12 +116,22 @@
                           </trigger>
                         </transition>
                     </region>
+                    <entry xmi:id = "_12848940-b3c0-4a19-ab1a-eb9782e1f0e7Activ" xmi:type = "uml:Activity" name = "x := TO_TARGET">
+                    </entry>
+                    <exit xmi:id = "_d31ae1bc-e942-4b67-8d12-fefb1ca0f7d6Activ" xmi:type = "uml:Activity" name = "x := OUT_TO_TARGET">
+                    </exit>
                   </subvertex>
                     <transition xmi:type = "uml:Transition" xmi:id = "_f4b6e4e2-4042-455d-a6de-e4deac9ed621" source = "_dbd9626b-a858-4ce6-b8fa-6d630aefcba0" target = "_f91147ee-28aa-474f-b127-a8a98277d9a5">
                       <trigger xmi:type = "uml:Trigger" xmi:id = "_f3dd31be-6059-4dab-b815-16ce5a31e7e3trigger" event = "_ca524876-f775-4b1d-8f1e-155891645239">
                       </trigger>
                     </transition>
+                    <transition xmi:type = "uml:Transition" xmi:id = "_b7ad776f-ff0c-42e4-81d6-58648b2fd208" source = "_f0369624-ae9f-444e-8d5f-85e0218866bc" target = "_f0369624-ae9f-444e-8d5f-85e0218866bc" kind = "internal">
+                    </transition>
                 </region>
+                <entry xmi:id = "_4b85e4fd-5116-41f5-864c-a49d3bee98f7Activ" xmi:type = "uml:Activity" name = "x:=DRIVING">
+                </entry>
+                <exit xmi:id = "_76f4ec18-2be8-4096-ae24-303c0ff75f5fActiv" xmi:type = "uml:Activity" name = "x:=OUT_DRIVING">
+                </exit>
               </subvertex>
               <subvertex xmi:type = "uml:State" xmi:id = "_d9f3cd25-ba00-4aec-8aeb-2fa9bc2c6030" name = "ERU_SENT">
               </subvertex>
@@ -107,7 +149,7 @@
                   <trigger xmi:type = "uml:Trigger" xmi:id = "_b023f868-9ed9-408e-a2ae-1ff7f816a9fetrigger" event = "_7d6e73b0-421a-49e8-aabc-052d785a543e">
                   </trigger>
                 </transition>
-                <transition xmi:type = "uml:Transition" xmi:id = "_8fbbe283-94ea-45c3-b655-ae654e1d04c9" source = "_d9f3cd25-ba00-4aec-8aeb-2fa9bc2c6030" target = "_1f520b1b-5b50-4000-a308-c91c1a2c17e4">
+                <transition xmi:type = "uml:Transition" xmi:id = "_8fbbe283-94ea-45c3-b655-ae654e1d04c9" source = "_d9f3cd25-ba00-4aec-8aeb-2fa9bc2c6030" target = "_f0369624-ae9f-444e-8d5f-85e0218866bc">
                   <trigger xmi:type = "uml:Trigger" xmi:id = "_08b2e806-8145-4987-a742-2b953c5f8c9btrigger" event = "_ca524876-f775-4b1d-8f1e-155891645239">
                   </trigger>
                 </transition>
@@ -140,6 +182,68 @@
             </packagedElement>
             <packagedElement xmi:type = "uml:SignalEvent" xmi:id = "_ca524876-f775-4b1d-8f1e-155891645239" name = "starts_drive">
             </packagedElement>
+          </packagedElement>
+          <packagedElement xmi:type = "uml:Enumeration" xmi:id = "_8630742c-58c7-4320-8641-cebc6e66fbb8" name = "STATES">
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_fed286f3-4e3c-449a-ae02-d78f1ab71e34" name = "DRIVING" classifier = "_8630742c-58c7-4320-8641-cebc6e66fbb8">
+            </ownedLiteral>
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_939bbbdc-4b1e-4bb1-9229-ea05ea24eaf8" name = "PARKED" classifier = "_8630742c-58c7-4320-8641-cebc6e66fbb8">
+            </ownedLiteral>
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_5cf7c759-c400-4639-be14-6714b8d2206f" name = "ERU_SENT" classifier = "_8630742c-58c7-4320-8641-cebc6e66fbb8">
+            </ownedLiteral>
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_66c9c5ab-998f-4f20-8393-5757bad9ddb8" name = "TO_TARGET" classifier = "_8630742c-58c7-4320-8641-cebc6e66fbb8">
+            </ownedLiteral>
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_5cd618d1-4695-4a10-b380-798c1077e3f6" name = "RETURNING" classifier = "_8630742c-58c7-4320-8641-cebc6e66fbb8">
+            </ownedLiteral>
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_98340744-cdb4-4afd-bb52-07df10916ad7" name = "TARGET_ATTENDED" classifier = "_8630742c-58c7-4320-8641-cebc6e66fbb8">
+            </ownedLiteral>
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_c2f2fbd7-a689-4cce-a279-8d61fac976fe" name = "TO_HOSPITAL" classifier = "_8630742c-58c7-4320-8641-cebc6e66fbb8">
+            </ownedLiteral>
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_2c37b870-14a3-4c14-a7b2-5c7d3e7c269e" name = "STARTED1" classifier = "_8630742c-58c7-4320-8641-cebc6e66fbb8">
+            </ownedLiteral>
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_81c57a2d-d893-409b-a0d6-771c87c1919d" name = "STARTED2" classifier = "_8630742c-58c7-4320-8641-cebc6e66fbb8">
+            </ownedLiteral>
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_a60dce8d-939c-4751-816e-f615ec803b68" name = "STARTED3" classifier = "_8630742c-58c7-4320-8641-cebc6e66fbb8">
+            </ownedLiteral>
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_67d484b8-34ac-457a-8827-559cf0721fb6" name = "STARTING1" classifier = "_8630742c-58c7-4320-8641-cebc6e66fbb8">
+            </ownedLiteral>
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_ce833d2c-a7a3-4acf-8cdc-94a9e1881766" name = "STARTING2" classifier = "_8630742c-58c7-4320-8641-cebc6e66fbb8">
+            </ownedLiteral>
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_6002e5cb-e67f-43ab-8d20-7a73bb42a5ef" name = "STARTING3" classifier = "_8630742c-58c7-4320-8641-cebc6e66fbb8">
+            </ownedLiteral>
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_80eef24f-59ee-4263-a42d-826932d4dcf3" name = "BROKEN" classifier = "_8630742c-58c7-4320-8641-cebc6e66fbb8">
+            </ownedLiteral>
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_fa853270-16fc-4dbf-823f-f53135aaf3ef" name = "FIXED_ERU" classifier = "_8630742c-58c7-4320-8641-cebc6e66fbb8">
+            </ownedLiteral>
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_4b93e185-1a9e-4693-b060-75a7d72f9e17" name = "OUT_DRIVING" classifier = "_8630742c-58c7-4320-8641-cebc6e66fbb8">
+            </ownedLiteral>
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_10b80e97-1a1c-4611-a489-695665239609" name = "OUT_PARKED" classifier = "_8630742c-58c7-4320-8641-cebc6e66fbb8">
+            </ownedLiteral>
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_0b437de6-f316-408d-880f-82f2a6853840" name = "OUT_ERU_SENT" classifier = "_8630742c-58c7-4320-8641-cebc6e66fbb8">
+            </ownedLiteral>
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_aacddb7b-7ea3-41d3-b5ef-958595645388" name = "OUT_TO_TARGET" classifier = "_8630742c-58c7-4320-8641-cebc6e66fbb8">
+            </ownedLiteral>
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_1c420fef-10e1-47f9-95d3-86000f32e476" name = "OUT_RETURNING" classifier = "_8630742c-58c7-4320-8641-cebc6e66fbb8">
+            </ownedLiteral>
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_4664adb0-e480-437b-8c1a-807dd8e9aab0" name = "OUT_TARGET_ATTENDED" classifier = "_8630742c-58c7-4320-8641-cebc6e66fbb8">
+            </ownedLiteral>
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_7464069f-10b6-4d09-8312-1d7273985f7b" name = "OUT_TO_HOSPITAL" classifier = "_8630742c-58c7-4320-8641-cebc6e66fbb8">
+            </ownedLiteral>
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_e519ba71-fe31-447a-9bc4-6510c8dcd8a9" name = "OUT_STARTED1" classifier = "_8630742c-58c7-4320-8641-cebc6e66fbb8">
+            </ownedLiteral>
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_060cb344-e08a-4fc5-bb0d-5aafe8da38be" name = "OUT_STARTED2" classifier = "_8630742c-58c7-4320-8641-cebc6e66fbb8">
+            </ownedLiteral>
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_46fd0c80-0a52-43ac-a625-6d8676cee8bb" name = "OUT_STARTED3" classifier = "_8630742c-58c7-4320-8641-cebc6e66fbb8">
+            </ownedLiteral>
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_055fb85a-97a7-4f78-9ffe-c80222da8a4c" name = "OUT_STARTING1" classifier = "_8630742c-58c7-4320-8641-cebc6e66fbb8">
+            </ownedLiteral>
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_63aef349-609c-44dd-b13b-f4fcdf61ee7a" name = "OUT_STARTING2" classifier = "_8630742c-58c7-4320-8641-cebc6e66fbb8">
+            </ownedLiteral>
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_5f26b2be-0014-495c-9f13-19fb5eca5f1c" name = "OUT_STARTING3" classifier = "_8630742c-58c7-4320-8641-cebc6e66fbb8">
+            </ownedLiteral>
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_3ca23b0c-c67e-4dee-93bd-0d8758d98890" name = "OUT_BROKEN" classifier = "_8630742c-58c7-4320-8641-cebc6e66fbb8">
+            </ownedLiteral>
+            <ownedLiteral xmi:type = "uml:EnumerationLiteral" xmi:id = "_fe465f47-5a0b-4912-b7d3-e4344a26aa39" name = "OUT_FIXED_ERU" classifier = "_8630742c-58c7-4320-8641-cebc6e66fbb8">
+            </ownedLiteral>
           </packagedElement>
         </packagedElement>
         <packagedElement xmi:type = "uml:Package" xmi:id = "_4edf1afd-3aa1-4417-b66d-c346b817ba0d" name = "Processes">
@@ -1449,6 +1553,7 @@
     <sysml:Block base_Class = "_1b02d381-9fc4-4044-9796-d5438847cbc0" xmi:id = "_830e357d-4657-41af-bfbf-f45d6e34953b_1b02d381-9fc4-4044-9796-d5438847cbc0" />
     <sysml:Block base_Class = "_2540b75d-55aa-4fdf-9725-af865825e650" xmi:id = "_830e357d-4657-41af-bfbf-f45d6e34953b_2540b75d-55aa-4fdf-9725-af865825e650" />
     <sysml:ValueType base_Class = "_f94b6046-b385-43b6-9dce-8fea9eb0a987" xmi:id = "_8efc902e-2790-4a8f-8818-72c36711d8aa_f94b6046-b385-43b6-9dce-8fea9eb0a987" />
+    <sysml:Block base_Class = "_b7c0c699-ac19-453b-ba45-8bc26a54e71e" xmi:id = "_830e357d-4657-41af-bfbf-f45d6e34953b_b7c0c699-ac19-453b-ba45-8bc26a54e71e" />
     <sysml:Block base_Class = "_0bcc0cde-515d-4140-81bd-73bfceff301c" xmi:id = "_830e357d-4657-41af-bfbf-f45d6e34953b_0bcc0cde-515d-4140-81bd-73bfceff301c" />
     <sysml:Block base_Class = "_d40de328-f8ae-4df3-8673-90f37a7fbe55" xmi:id = "_830e357d-4657-41af-bfbf-f45d6e34953b_d40de328-f8ae-4df3-8673-90f37a7fbe55" />
     <sysml:Block base_Class = "_217a5fe6-5f3f-4efe-823d-89910107e244" xmi:id = "_830e357d-4657-41af-bfbf-f45d6e34953b_217a5fe6-5f3f-4efe-823d-89910107e244" />

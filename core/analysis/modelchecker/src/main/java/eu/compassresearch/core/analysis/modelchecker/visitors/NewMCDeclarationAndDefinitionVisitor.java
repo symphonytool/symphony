@@ -21,7 +21,6 @@ import org.overture.ast.node.INode;
 import org.overture.ast.patterns.PPattern;
 import org.overture.ast.types.ANamedInvariantType;
 import org.overture.ast.types.AOperationType;
-import org.overture.ast.types.AUnionType;
 import org.overture.ast.types.PType;
 
 import eu.compassresearch.ast.actions.PParametrisation;
@@ -39,7 +38,6 @@ import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPParametrisation;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ExpressionEvaluator;
-import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCAssignDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCAExpressionSingleDeclaration;
 import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCATypeSingleDeclaration;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAActionClassDefinition;
@@ -182,7 +180,8 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 				varValue = evaluator.getDefaultValue(type);
 			} 
 		}
-		question.maximalBinding = question.maximalBinding.addBinding("nP", varName, varValue);
+		///PPPPPPPPPPPPPPPPP
+		question.maximalBinding = question.maximalBinding.addBinding("nP", varName, varValue, type);
 		
 		MCAAssignmentDefinition result = new MCAAssignmentDefinition(varName, expression, type);
 				
@@ -272,9 +271,11 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 		
 		LinkedList<MCPCMLPattern> mcParamPatterns = new LinkedList<MCPCMLPattern>();
 		int patternPosition = 0;
+		PType opType = node.getType();
+		MCPCMLType operationType = (MCPCMLType) opType.apply(rootVisitor, question);
+
 		for (PPattern pPattern : node.getParameterPatterns()) {
 			MCPCMLPattern pattern = (MCPCMLPattern) pPattern.apply(rootVisitor, question);
-			PType opType = node.getType();
 			MCPCMLExp varValue = null;
 			ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
 			if(opType instanceof AOperationType){
@@ -289,7 +290,7 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 		}
 		
 		MCAExplicitCmlOperationDefinition result = 
-				new MCAExplicitCmlOperationDefinition(name,body,null,null,null,null,mcParamPatterns,null,null);
+				new MCAExplicitCmlOperationDefinition(name,body,null,null,null,null,mcParamPatterns,null,null, operationType);
 		
 		question.operations.add(result);
 		
@@ -429,8 +430,8 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 			} 
 			
 		}
-		
-		question.maximalBinding = question.maximalBinding.addBinding("nP", name, varValue);
+		////PPPPPPPPPPPPPPPP
+		question.maximalBinding = question.maximalBinding.addBinding("nP", name, varValue, type);
 		
 		return result;
 	}

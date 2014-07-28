@@ -71,16 +71,27 @@ public class BBinding implements Binding {
 	}
 	
 	@Override
+	public SingleBind getSingleBind(String varName) {
+		SingleBind result = null;
+		if(this.head.getVariableName().equals(varName)){
+			result = this.head;
+		}else{
+			result = this.tail.getSingleBind(varName);
+		}
+		return result;
+	}
+	
+	@Override
 	public BBinding copy(){
 		return new BBinding(this.procName,this.head.copy(),this.tail.copy());
 	}
-	public Binding addBinding(String procName, String varName, MCPCMLExp varValue){
+	public Binding addBinding(String procName, String varName, MCPCMLExp varValue, MCPCMLType type){
 		Binding result = this;
 		
 		if(head.getVariableName().equals(varName)){
 			head.setVariableValue(varValue);
 		} else{
-			tail = tail.addBinding(procName, varName, varValue);
+			tail = tail.addBinding(procName, varName, varValue, type);
 		}
 		return result;
 	}
@@ -109,6 +120,7 @@ public class BBinding implements Binding {
 			getSingleBindings(bindList, ((BBinding) binding).getTail());
 		}
 	}
+	
 	@Override
 	public StringBuilder generateAllFetchFacts(int number){
 		StringBuilder result = new StringBuilder();
@@ -172,6 +184,8 @@ public class BBinding implements Binding {
 	public void setTail(Binding tail) {
 		this.tail = tail;
 	}
+
+	
 
 	
 

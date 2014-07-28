@@ -21,30 +21,15 @@ public class PartialModelBuilder {
 		
 		generateGivenProc(content,option);
 		
+		generateParameterFacts(content,option);
+		
 		return content.toString();
 	}
 	
-	private void generateLieInFacts(StringBuilder content, String option){
+	private void generateParameterFacts(StringBuilder content, String option){
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
-		for (MCLieInFact lieIn : context.lieIn) {
-			//content.append(lieIn.toFormula(option) + "\n");
-			lieIn.prepareLieInFact();
-		}
-		for (MCLieInFact lieIn :  context.realLieInFacts) {
-			String lieInFactStr = lieIn.toFormula(option);
-			if(content.indexOf(lieInFactStr) == -1){
-				content.append(lieIn.toFormula(option) + "\n");
-			}
-		}
-	}
-	
-	private void generateChannels(StringBuilder content, String option){
-		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
-		for (MCAChannelDefinition chanDef : context.channelDefs) {
-			content.append(chanDef.toFormula(option));
-			if(chanDef.isTyped()){
-				content.append("\n");
-			}
+		for (ParameterFact paramFact : context.parameterFacts) {
+			content.append(paramFact.toFormula(option) + "\n");
 		}
 	}
 	

@@ -1,7 +1,5 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.types;
 
-import java.util.LinkedList;
-
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAValueDefinition;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
 
@@ -27,6 +25,16 @@ public class MCANamedInvariantType implements MCPCMLType {
 			result.append(this.name);
 		}
 		return result.toString();
+	}
+
+	
+	@Override
+	public boolean equals(Object obj) {
+		boolean result = false;
+		if(obj instanceof MCANamedInvariantType){
+			result = this.name.equals(((MCANamedInvariantType) obj).getName());
+		}
+		return result;
 	}
 
 	public String getName() {

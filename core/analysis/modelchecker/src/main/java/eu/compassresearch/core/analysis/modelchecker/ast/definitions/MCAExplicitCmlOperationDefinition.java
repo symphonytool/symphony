@@ -2,20 +2,14 @@ package eu.compassresearch.core.analysis.modelchecker.ast.definitions;
 
 import java.util.LinkedList;
 
-import org.overture.ast.definitions.AExplicitOperationDefinition;
-import org.overture.ast.statements.AAssignmentStm;
-
-import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCASequentialCompositionAction;
-import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCASingleGeneralAssignmentStatementAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAStmAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.Binding;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ExpressionEvaluator;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCOperationCall;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCPreOpTrue;
-import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCStringType;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASetDifferenceBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASetUnionBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAVariableExp;
@@ -28,7 +22,6 @@ import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCAIdentifie
 import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCAUnresolvedStateDesignator;
 import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCPCMLStm;
 import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCPStateDesignator;
-import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANamedInvariantType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
 
@@ -45,13 +38,15 @@ public class MCAExplicitCmlOperationDefinition implements
 	private MCAStateDefinition state;
 	private MCPCMLType actualResult;
 	private MCPAction parentAction;
+	private MCPCMLType operationType;
 	
 	public MCAExplicitCmlOperationDefinition(String name, MCPCMLStm body,
 			MCPCMLExp precondition, MCPCMLExp postcondition,
 			MCAExplicitFunctionDefinition predef,
 			MCAExplicitFunctionDefinition postdef,
 			LinkedList<MCPCMLPattern> paramPatterns,
-			MCAStateDefinition state, MCPCMLType actualResult) {
+			MCAStateDefinition state, MCPCMLType actualResult, 
+			MCPCMLType operationType) {
 		
 		this.name = name;
 		this.body = body;
@@ -62,7 +57,9 @@ public class MCAExplicitCmlOperationDefinition implements
 		this.paramPatterns = paramPatterns;
 		this.state = state;
 		this.actualResult = actualResult;
-		this.parentAction = new MCOperationCall(this.name, null, paramPatterns);
+		this.operationType = operationType;
+		this.parentAction = new MCOperationCall(this.name, null, paramPatterns,operationType);
+		
 	}
 
 	
@@ -103,7 +100,7 @@ public class MCAExplicitCmlOperationDefinition implements
 		//changing only its parameters
 		//create a operation call and use generic translation
 		//result.append(this.parentAction.toFormula(option));
-		MCOperationCall opCall = new MCOperationCall(this.name, null, paramPatterns);
+		MCOperationCall opCall = new MCOperationCall(this.name, null, paramPatterns, operationType);
 		result.append(opCall.toFormula(NAMED));
 		
 		result.append(")");
@@ -369,6 +366,18 @@ public class MCAExplicitCmlOperationDefinition implements
 
 	public void setParentAction(MCPAction parentAction) {
 		this.parentAction = parentAction;
+	}
+
+
+
+	public MCPCMLType getOperationType() {
+		return operationType;
+	}
+
+
+
+	public void setOperationType(MCPCMLType operationType) {
+		this.operationType = operationType;
 	}
 
 	

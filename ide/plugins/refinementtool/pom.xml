@@ -4,7 +4,7 @@
   <parent>
     <groupId>eu.compassresearch.ide</groupId>
     <artifactId>eu.compassresearch.ide.plugins</artifactId>
-    <version>0.3.3-SNAPSHOT</version>
+    <version>0.3.5-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -16,76 +16,119 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>copy-dependencies</id>
-            <phase>process-sources</phase>
-            <goals>
-              <goal>copy</goal>
-            </goals>
-            <configuration>
-              <outputDirectory>${basedir}/jars</outputDirectory>
-              <overWriteReleases>true</overWriteReleases>
-              <overWriteSnapshots>true</overWriteSnapshots>
-              <overWriteIfNewer>true</overWriteIfNewer>
-              <stripVersion>true</stripVersion>
-              <artifactItems>
-                <artifactItem>
-                  <groupId>eu.compassresearch.core.analysis</groupId>
-                  <artifactId>refinementtool</artifactId>
-                  <version>${project.version}</version>
-                </artifactItem>
-              </artifactItems>
-            </configuration>
-          </execution>
-        </executions>
+	<groupId>org.scala-tools</groupId>
+	<artifactId>maven-scala-plugin</artifactId>
+	<version>${scala.maven.version}</version>
+	<executions>
+	  <execution>
+	    <id>scala-compile-first</id>
+	    <phase>process-resources</phase>
+	    <goals>
+	      <goal>add-source</goal>
+	      <goal>compile</goal>
+	    </goals>
+	  </execution>
+	  <execution>
+	    <id>scala-test-compile</id>
+	    <phase>process-test-resources</phase>
+	    <goals>
+	      <goal>testCompile</goal>
+	    </goals>
+	  </execution>
+	</executions>
       </plugin>
 
-      <plugin>
-	<groupId>org.apache.maven.plugins</groupId>
-	<artifactId>maven-clean-plugin</artifactId>
-	<configuration>
-          <failOnError>false</failOnError>
-	  <filesets>
-	    <fileset>
-	      <directory>${basedir}/jars</directory>
-	      <followSymlinks>false</followSymlinks>
-	    </fileset>
-	  </filesets>
-	</configuration>
-      </plugin>
+      <!-- If the core refinementtool jar becomes necessary again,
+           uncomment out both the maven-dependency-plugin and
+           maven-clean-plugin blocks, and add the "jars/," line back
+           to build.properties. jwc/28July2014 -->
+      
+      <!-- <plugin> -->
+      <!--   <groupId>org.apache.maven.plugins</groupId> -->
+      <!--   <artifactId>maven-dependency-plugin</artifactId> -->
+      <!--   <executions> -->
+      <!--     <execution> -->
+      <!--       <id>copy-dependencies</id> -->
+      <!--       <phase>process-sources</phase> -->
+      <!--       <goals> -->
+      <!--         <goal>copy</goal> -->
+      <!--       </goals> -->
+      <!--       <configuration> -->
+      <!--         <outputDirectory>${basedir}/jars</outputDirectory> -->
+      <!--         <overWriteReleases>true</overWriteReleases> -->
+      <!--         <overWriteSnapshots>true</overWriteSnapshots> -->
+      <!--         <overWriteIfNewer>true</overWriteIfNewer> -->
+      <!--         <stripVersion>true</stripVersion> -->
+      <!--         <artifactItems> -->
+      <!--           <artifactItem> -->
+      <!--             <groupId>eu.compassresearch.core.analysis</groupId> -->
+      <!--             <artifactId>refinementtool</artifactId> -->
+      <!--             <version>${project.version}</version> -->
+      <!--           </artifactItem> -->
+      <!--         </artifactItems> -->
+      <!--       </configuration> -->
+      <!--     </execution> -->
+      <!--   </executions> -->
+      <!-- </plugin> -->
+
+      <!-- <plugin> -->
+      <!--   <groupId>org.apache.maven.plugins</groupId> -->
+      <!--   <artifactId>maven-clean-plugin</artifactId> -->
+      <!--   <configuration> -->
+      <!--     <failOnError>false</failOnError> -->
+      <!--     <filesets> -->
+      <!--       <fileset> -->
+      <!--         <directory>${basedir}/jars</directory> -->
+      <!--         <followSymlinks>false</followSymlinks> -->
+      <!--       </fileset> -->
+      <!--     </filesets> -->
+      <!--   </configuration> -->
+      <!-- </plugin> -->
     </plugins>
 
     <pluginManagement>
       <plugins>
-    	<plugin>
-    	  <groupId>org.eclipse.m2e</groupId>
-    	  <artifactId>lifecycle-mapping</artifactId>
-    	  <version>1.0.0</version>
-    	  <configuration>
-    	    <lifecycleMappingMetadata>
-    	      <pluginExecutions>
-    		<pluginExecution>
-    		  <pluginExecutionFilter>
-    		    <groupId>org.apache.maven.plugins</groupId>
-    		    <artifactId>maven-dependency-plugin</artifactId>
-    		    <versionRange>[1.0.0,)</versionRange>
-    		    <goals>
-    		      <goal>copy</goal>
-    		    </goals>
-    		  </pluginExecutionFilter>
-    		  <action>
-    		    <execute>
-                      <runOnIncremental>false</runOnIncremental>
-                    </execute>
-    		  </action>
-    		</pluginExecution>
-    	      </pluginExecutions>
-    	    </lifecycleMappingMetadata>
-    	  </configuration>
-    	</plugin>
+	<plugin>
+	  <groupId>org.eclipse.m2e</groupId>
+	  <artifactId>lifecycle-mapping</artifactId>
+	  <version>1.0.0</version>
+	  <configuration>
+	    <lifecycleMappingMetadata>
+	      <pluginExecutions>
+		<pluginExecution>
+		  <pluginExecutionFilter>
+		    <groupId>org.apache.maven.plugins</groupId>
+		    <artifactId>maven-dependency-plugin</artifactId>
+		    <versionRange>[1.0.0,)</versionRange>
+		    <goals>
+		      <goal>copy</goal>
+		    </goals>
+		  </pluginExecutionFilter>
+		  <action>
+		    <execute>
+		      <runOnIncremental>false</runOnIncremental>
+		    </execute>
+		  </action>
+		</pluginExecution>
+		<pluginExecution>
+		  <pluginExecutionFilter>
+	            <groupId>org.scala-tools</groupId>
+	            <artifactId>maven-scala-plugin</artifactId>
+	            <versionRange>${scala.maven.version}</versionRange>
+		    <goals>
+		      <goal>add-source</goal>
+		      <goal>compile</goal>
+		      <goal>testCompile</goal>
+		    </goals>
+		  </pluginExecutionFilter>
+		  <action>
+		    <execute />
+		  </action>
+		</pluginExecution>
+	      </pluginExecutions>
+	    </lifecycleMappingMetadata>
+	  </configuration>
+	</plugin>
       </plugins>
     </pluginManagement>
   </build>

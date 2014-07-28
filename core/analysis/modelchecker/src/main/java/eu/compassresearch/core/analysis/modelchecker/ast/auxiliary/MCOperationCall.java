@@ -4,7 +4,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
-import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPCommunicationParameter;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.StateDependency;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAActionDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAProcessDefinition;
@@ -17,10 +16,12 @@ import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelchecker
 public class MCOperationCall extends MCGenericCall{
 
 	private LinkedList<MCPCMLPattern> paramPatterns;
+	private MCPCMLType opType;
 	
-	public MCOperationCall(String name, LinkedList<MCPCMLExp> args, LinkedList<MCPCMLPattern> paramPatterns) {
+	public MCOperationCall(String name, LinkedList<MCPCMLExp> args, LinkedList<MCPCMLPattern> paramPatterns, MCPCMLType opType) {
 		super(name,args);
 		this.paramPatterns = paramPatterns;
+		this.opType = opType;
 	}
 
 
@@ -105,5 +106,26 @@ public class MCOperationCall extends MCGenericCall{
 		this.args = args;
 	}
 
+
+	public LinkedList<MCPCMLPattern> getParamPatterns() {
+		return paramPatterns;
+	}
+
+
+	public void setParamPatterns(LinkedList<MCPCMLPattern> paramPatterns) {
+		this.paramPatterns = paramPatterns;
+	}
+
+
+	public MCPCMLType getOpType() {
+		return opType;
+	}
+
+
+	public void setOpType(MCPCMLType opType) {
+		this.opType = opType;
+	}
+
+	
 	
 }

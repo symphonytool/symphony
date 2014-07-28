@@ -7,10 +7,9 @@ import org.overture.ast.analysis.QuestionAnswerAdaptor;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.node.INode;
 
-import eu.compassresearch.ast.actions.AReferenceAction;
-import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
+import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.process.AActionProcess;
 import eu.compassresearch.ast.process.AAlphabetisedParallelismReplicatedProcess;
 import eu.compassresearch.ast.process.AExternalChoiceProcess;
@@ -26,11 +25,6 @@ import eu.compassresearch.ast.process.ATimedInterruptProcess;
 import eu.compassresearch.ast.process.ATimeoutProcess;
 import eu.compassresearch.ast.process.AUntimedTimeoutProcess;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
-import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAExternalChoiceReplicatedAction;
-import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAGeneralisedParallelismParallelAction;
-import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCATimedInterruptAction;
-import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCATimeoutAction;
-import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAUntimedTimeoutAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCPSingleDeclaration;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAActionClassDefinition;
@@ -179,11 +173,24 @@ public class NewMCProcessVisitor extends
 			procDef = (MCAProcessDefinition) node.getProcessDefinition().apply(rootVisitor, question);
 		} 
 		
-		MCAReferenceProcess result = new MCAReferenceProcess(name, args, procDef);
+		AProcessDefinition parentDef = this.getParentProcessDefinition(node);
+		
+		MCAReferenceProcess result = new MCAReferenceProcess(name, args, procDef,parentDef.getName().getName());
 		
 		return result;
 	}
 
+	private AProcessDefinition getParentProcessDefinition(AReferenceProcess node){
+		AProcessDefinition result = null;
+		INode parent = node.parent();
+		while((parent != null) && !(parent instanceof AProcessDefinition)){
+			parent = parent.parent();
+		}
+		if(parent != null && parent instanceof AProcessDefinition){
+			result = (AProcessDefinition) parent;
+		}
+		return result;
+	} 
 
 
 	@Override

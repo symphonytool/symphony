@@ -176,7 +176,8 @@ public class TPVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContext, ThmNodeL
 				nodes.addAll(node.apply(new TPVisitor(), new ThmVarsContext()));
 			}catch (Exception e) {
 					nodeErrors = nodeErrors + "(*Thy gen error:*)\n" + 
-								"(*Could not generate Isabelle syntax for CML node - please submit bug report with CML file*)\n\n";
+								"(*Could not generate Isabelle syntax for CML node - please submit bug report with CML file*)\n" +
+					            "(* Type:" + e.toString() + "*)\n\n";
 				}
 		}
 

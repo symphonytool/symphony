@@ -31,8 +31,8 @@ public class NullBinding implements Binding {
 	}
 	
 	@Override
-	public Binding addBinding(String procName, String varName, MCPCMLExp varValue){
-		SingleBind newBind = new SingleBind(varName, varValue);
+	public Binding addBinding(String procName, String varName, MCPCMLExp varValue, MCPCMLType type){
+		SingleBind newBind = new SingleBind(varName, varValue, type);
 		Binding result = new BBinding(procName,newBind,this);
 		return result;
 	}
@@ -55,6 +55,11 @@ public class NullBinding implements Binding {
 	}
 	public StringBuilder generateAllDelFacts(int number){
 		return new StringBuilder();
+	}
+
+	@Override
+	public SingleBind getSingleBind(String varName) {
+		return null;
 	}
 
 }

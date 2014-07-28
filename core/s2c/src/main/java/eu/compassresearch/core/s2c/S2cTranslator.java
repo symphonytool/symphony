@@ -381,7 +381,10 @@ public class S2cTranslator
 		System.out.println("----------------------------------------------------------------------------");
 		System.out.println(sm);
 
-		return new SysMlToCmlTranslator(signals, theClassDef, sm, allClasses,alldatatypes).translate(output,overwrite);
+		/* If the state machine has interlevel transitions */
+		return new SysMLToCMLWithInterlevelTransitions(signals, theClassDef, sm, allClasses,alldatatypes).translate(output,overwrite);
+		/* else */
+		//return new SysMlToCmlTranslator(signals, theClassDef, sm, allClasses,alldatatypes).translate(output,overwrite);
 	}
 
 	protected List<Operation> buildOperations(Document doc, XPath xpath,

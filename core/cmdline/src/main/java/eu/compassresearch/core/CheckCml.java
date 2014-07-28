@@ -68,29 +68,31 @@ public class CheckCml
 	 */
 	private static enum Switch
 	{
-		S2C("s2c",
-				"State machine to CML, -s2c=<xmi> convert the <xmi> file to cml and write the output here.",
-				true),
-		
 		DOT("dot",
-			"Dot Graph, -dot=<out> write ast dot graph to file <out>.",
+			"Enable dot graph output to file <out>, -dot=<out>.",
 			true),
 
 		DOT_PATH("dotpath",
-			"Path to dot, -dotpath=<path> a path where dot can be found.",
+			"The path to the dot binary, -dotpath=<path>.",
 			true),
 
 		POG("pog",
-			"Proof Obligation Generator, the proof obligation generator",
+			"Enable Proof Obligation Generator output.",
 			false),
 
-		INTER("i", "Interactive mode", false),
+		INTER("i",
+			"Interactive mode, read input from stdin.",
+			false),
 
 		EXEC("e",
-			"Simulation, -e=<processID>, simulate the process identified by <processID>",
+			"Enable simulation of process <procID>, -e=<procID>.",
 			true),
 
-		NO_TC("no-tc", "Disable typechecking", false);
+		NO_TC("no-tc", "Disable typechecking.", false),
+
+		S2C("s2c",
+			"Enable state machine to CML tranlation, -s2c=<xmiFile>.",
+			true);
 
 		// Switch state
 		private String sw;
@@ -122,7 +124,7 @@ public class CheckCml
 
 		public String toString()
 		{
-			return String.format("-%-10s -  %s", sw, description);
+			return String.format("-%-8s -  %s", sw, description);
 		}
 
 		public static Switch fromString(String arg, StringBuilder error)

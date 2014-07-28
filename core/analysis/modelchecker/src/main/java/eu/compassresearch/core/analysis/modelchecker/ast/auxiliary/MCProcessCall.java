@@ -2,11 +2,6 @@ package eu.compassresearch.core.analysis.modelchecker.ast.auxiliary;
 
 import java.util.LinkedList;
 
-import org.overture.ast.definitions.AExplicitOperationDefinition;
-import org.overture.ast.node.INode;
-
-import eu.compassresearch.ast.actions.AStmAction;
-import eu.compassresearch.ast.statements.AActionStm;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPParametrisation;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAProcessDefinition;
@@ -14,9 +9,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAVariable
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCPCMLPattern;
 import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCAAssignmentStm;
-import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCAIdentifierStateDesignator;
 import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCAUnresolvedStateDesignator;
-import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCPStateDesignator;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCVoidType;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
@@ -52,21 +45,23 @@ public class MCProcessCall extends MCGenericCall{
 			result.append(argsType.toFormula(option));
 			result.append(")");
 		}else{
-			StringBuilder assignments = buildAssignments(parameters,args,context, option);
-			result.append("seqC(");
-			result.append(assignments.toString());
-			result.append(",proc(\"" + this.name + "\"");
+			//StringBuilder assignments = buildAssignments(parameters,args,context, option);
+			//result.append("seqC(");
+			//result.append(assignments.toString());
+			//result.append(",proc(\"" + this.name + "\"");
+			result.append("proc(\"" + this.name + "\"");
 			result.append(",");
 			ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
 			MCPCMLType argsType = null;
 			if (option.equals(MCNode.DEFAULT)){
-				argsType = evaluator.instantiateMCType(this.args);
+				argsType = evaluator.instantiateMCTypeFromParams(parameters);
+				//argsType = evaluator.instantiateMCTypeFromPatterns(this.paramPatterns);
 			} else if(option.equals(MCNode.NAMED) || option.equals(MCNode.GENERIC)){
 				argsType = evaluator.instantiateMCTypeFromPatterns(this.paramPatterns);
 			}
 			result.append(argsType.toFormula(option));
 			result.append(")");
-			result.append(")");
+			//result.append(")");
 		} 
 		/*
 		result.append("proc(\"" + this.name + "\"");
@@ -146,6 +141,16 @@ public class MCProcessCall extends MCGenericCall{
 
 	public void setArgs(LinkedList<MCPCMLExp> args) {
 		this.args = args;
+	}
+
+
+	public LinkedList<MCPCMLPattern> getParamPatterns() {
+		return paramPatterns;
+	}
+
+
+	public void setParamPatterns(LinkedList<MCPCMLPattern> paramPatterns) {
+		this.paramPatterns = paramPatterns;
 	}
 
 	

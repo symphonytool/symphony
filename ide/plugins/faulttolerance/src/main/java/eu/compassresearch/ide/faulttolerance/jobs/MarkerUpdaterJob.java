@@ -23,7 +23,7 @@ import eu.compassresearch.ide.faulttolerance.Message;
  *         >alrd@cin.ufpe.br</a>)
  * 
  */
-public class MarkerUpdaterJob extends FaultToleranceVerificationJobBase
+public class MarkerUpdaterJob extends FaultToleranceVerificationPrerequisitesJobBase
 		implements IMarkerModifier {
 
 	public MarkerUpdaterJob(IFaultToleranceVerificationRequest request,
@@ -79,6 +79,7 @@ public class MarkerUpdaterJob extends FaultToleranceVerificationJobBase
 			for (MarkerData markerData : markerDataSet) {
 				renewMarker(markerData, request, response);
 			}
+
 			return Status.OK_STATUS;
 		} finally {
 			monitor.done();
@@ -90,7 +91,11 @@ public class MarkerUpdaterJob extends FaultToleranceVerificationJobBase
 			IFaultToleranceVerificationRequest request,
 			IFaultToleranceVerificationResponse response) {
 
-		if (response.getDefinitionsMessage() != null) {
+		if (response.hasUnsupportedElements()) {
+			markerDataSet.add(new MarkerData(false, IMarker.SEVERITY_WARNING,
+					Message.UNSUPPORTED_MC_ELEMENTS.format(request
+							.getSystemName())));
+		} else if (response.getDefinitionsMessage() != null) {
 			markerDataSet.add(new MarkerData(false, IMarker.SEVERITY_ERROR,
 					Message.MISSING_DEFINITIONS.format(request.getSystemName(),
 							response.getDefinitionsMessage())));

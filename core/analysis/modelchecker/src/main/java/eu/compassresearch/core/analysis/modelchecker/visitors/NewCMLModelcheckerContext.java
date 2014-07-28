@@ -10,7 +10,6 @@ import org.overture.ast.node.INode;
 
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
-import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPCommunicationParameter;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.StateDependency;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ActionChannelDependency;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.Binding;
@@ -24,6 +23,8 @@ import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCLieInFact;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.NameValue;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.NewMCGuardDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.NullBinding;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ParameterDependency;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ParameterFact;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAActionDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAChannelDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAChansetDefinition;
@@ -39,7 +40,6 @@ import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASBinaryE
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAVariableExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPVarsetExpression;
-import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAChannelType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAIntNumericBasicType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANamedInvariantType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANatNumericBasicType;
@@ -76,6 +76,8 @@ public class NewCMLModelcheckerContext {
 	public ArrayListSet<ActionChannelDependency> infiniteChannelDependencies;
 	public ArrayListSet<ActionChannelDependency> unamedChannelDependencies;
 	public ArrayListSet<StateDependency> actionProcStateDependencies;
+	public ArrayListSet<ParameterDependency> parameterDependencies;
+	public ArrayListSet<ParameterFact> parameterFacts;
 	public ArrayListSet<MCPVarsetExpression> globalChanSets;
 	public ArrayListSet<NameValue> localVariablesMapping;
 	public Stack<NameValue> localIndexedVariablesMapping;
@@ -353,6 +355,8 @@ public class NewCMLModelcheckerContext {
 		localActions = new ArrayListSet<MCAActionDefinition>();
 		conditions = new ArrayListSet<MCCondition>();
 		channelDependencies = new ArrayListSet<ActionChannelDependency>();
+		parameterDependencies = new ArrayListSet<ParameterDependency>();
+		parameterFacts = new ArrayListSet<ParameterFact>();
 		infiniteChannelDependencies = new ArrayListSet<ActionChannelDependency>();
 		actionProcStateDependencies = new ArrayListSet<StateDependency>();
 		unamedChannelDependencies = new ArrayListSet<ActionChannelDependency>();
@@ -469,6 +473,60 @@ public class NewCMLModelcheckerContext {
 		return result;
 	}
 	
+	public boolean hasParameterDependencies(String name){
+		boolean result = false;
+		for (ParameterDependency paramDep : this.parameterDependencies) {
+			if(paramDep.getName() != null){
+				if(paramDep.getName().equals(name)){
+					result = true;
+					break;
+				}
+			}
+			if(paramDep.getParentProcessDefinitionName() != null){
+				if(paramDep.getParentProcessDefinitionName().equals(name)){
+					result = true;
+					break;
+				}
+			}
+		}
+
+		return result;
+	}
+	
+	public ParameterDependency getParameterDependency(String name){
+		ParameterDependency result = null;
+		for (ParameterDependency paramDep : this.parameterDependencies) {
+			if(paramDep.getName().equals(name)){
+				result = paramDep;
+				break;
+			}
+		}
+
+		return result;
+	}
+	/*
+	public ParameterDependency getParameterDependencyByParentName(String name){
+		ParameterDependency result = null;
+		for (ParameterDependency paramDep : this.parameterDependencies) {
+			if(paramDep.getParentProcessDefinitionName().equals(name)){
+				result = paramDep;
+				break;
+			}
+		}
+
+		return result;
+	}
+	*/
+	public LinkedList<ParameterDependency> getParameterDependenciesByParentName(String name){
+		LinkedList<ParameterDependency> result = new LinkedList<ParameterDependency>();
+		for (ParameterDependency paramDep : this.parameterDependencies) {
+			if(paramDep.getParentProcessDefinitionName().equals(name)){
+				result.add(paramDep);
+			}
+		}
+
+		return result;
+	}
 	public String generateName(String originalName){
 		StringBuilder result = new StringBuilder();
 		result.append(originalName);
