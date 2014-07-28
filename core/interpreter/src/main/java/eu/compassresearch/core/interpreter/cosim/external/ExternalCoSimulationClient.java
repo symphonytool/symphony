@@ -12,9 +12,6 @@ import java.util.Vector;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.SynchronousQueue;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-
 import eu.compassresearch.core.interpreter.api.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
@@ -32,6 +29,7 @@ import eu.compassresearch.core.interpreter.cosim.communication.FinishedRequestMe
 import eu.compassresearch.core.interpreter.cosim.communication.InspectMessage;
 import eu.compassresearch.core.interpreter.cosim.communication.InspectReplyMessage;
 import eu.compassresearch.core.interpreter.cosim.communication.RegisterSubSystemMessage;
+import eu.compassresearch.core.interpreter.cosim.communication.protocol.CoSimProtocolVersion1;
 import eu.compassresearch.core.interpreter.debug.messaging.JsonMessage;
 
 /**
@@ -76,7 +74,7 @@ public class ExternalCoSimulationClient extends Thread
 		InetAddress server = InetAddress.getByName(host);
 		socket = new Socket(server, port);
 		socket.setSoTimeout(0);
-		comm = new MessageManager(socket);
+		comm = new MessageManager(socket,new CoSimProtocolVersion1());
 	}
 
 	@Override
@@ -98,7 +96,7 @@ public class ExternalCoSimulationClient extends Thread
 		{
 			// Caused by die(), and CDMJ death
 			e.printStackTrace();
-		} catch (IOException e)
+		} catch (Exception e)
 		{
 			System.out.println("Connection exception: " + e.getMessage());
 
@@ -122,7 +120,7 @@ public class ExternalCoSimulationClient extends Thread
 		}
 	}
 
-	private void receive() throws SocketException, IOException
+	private void receive() throws SocketException, IOException,Exception
 	{
 		JsonMessage message = comm.receive();
 
@@ -145,10 +143,6 @@ public class ExternalCoSimulationClient extends Thread
 				throw new InterpreterRuntimeException("Interpreter inspection failed in co-simulation client", e);
 			}
 
-			for (CmlTransition t : transitions.filterByType(ObservableTransition.class))
-			{
-				System.out.println("Offering event: " + t.getTransitionId());
-			}
 			comm.send(new InspectReplyMessage(inspectMessage.getProcess(), transitions));
 		} else if (message instanceof ExecuteMessage)
 		{
@@ -205,7 +199,7 @@ public class ExternalCoSimulationClient extends Thread
 		try
 		{
 			comm.send(new RegisterSubSystemMessage(Arrays.asList(processes)));
-		} catch (IOException e)
+		} catch (Exception e)
 		{
 			throw new InterpreterRuntimeException("The co-simulation client failed to send the provides implementation message", e);
 		}
@@ -257,7 +251,7 @@ public class ExternalCoSimulationClient extends Thread
 	}
 
 	public void abort(int error, String message)
-			throws JsonGenerationException, JsonMappingException, IOException
+			throws Exception, IOException
 	{
 		comm.send(new AbortMessage(error, message));
 	}

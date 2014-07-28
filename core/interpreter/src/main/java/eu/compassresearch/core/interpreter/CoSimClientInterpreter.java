@@ -7,6 +7,7 @@ import java.util.TreeSet;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
 
+import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.core.interpreter.api.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
@@ -14,15 +15,15 @@ import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.transitions.TauTransition;
 import eu.compassresearch.core.interpreter.cosim.CoSimulationClient;
-import eu.compassresearch.core.interpreter.cosim.communication.Utils;
 
 /**
- * This is a custom interpreter implementation that changes the  VanillaCmlInterpreter such that a co-simulation
- * client can delegate the control flow to a remote coordinator.
+ * This is a custom interpreter implementation that changes the VanillaCmlInterpreter such that a co-simulation client
+ * can delegate the control flow to a remote coordinator.
  * 
  * @author kel
  */
-public class CoSimCmlInterpreter extends VanillaCmlInterpreter
+public class CoSimClientInterpreter extends VanillaCmlInterpreter implements
+		ICoSimClientInterpreter
 {
 	private Thread executionThread = null;
 	private CoSimulationClient client;
@@ -34,7 +35,7 @@ public class CoSimCmlInterpreter extends VanillaCmlInterpreter
 	 */
 	private CmlBehaviour activeBehaviour;
 
-	public CoSimCmlInterpreter(List<PDefinition> definitions, Config config,
+	public CoSimClientInterpreter(List<PDefinition> definitions, Config config,
 			CoSimulationClient client)
 	{
 		super(definitions, config);
@@ -58,7 +59,7 @@ public class CoSimCmlInterpreter extends VanillaCmlInterpreter
 		CmlTransitionSet transitions = null;
 
 		// let this simulator execute all non-observable
-		transitions = extractSilentTransitions(availableEvents, transitions);
+		transitions = extractSilentTransitions(availableEvents);
 
 		if (transitions == null || transitions.isEmpty())
 		{
@@ -66,8 +67,24 @@ public class CoSimCmlInterpreter extends VanillaCmlInterpreter
 			try
 			{
 				SortedSet<CmlTransition> set = new TreeSet<CmlTransition>();
-				set.add(client.getExecutableTransition());
-				transitions = new CmlTransitionSet(set);
+				final CmlTransition executableTransition = client.getExecutableTransition();
+				set.add(executableTransition);
+
+				if (executableTransition instanceof TauTransition)
+				{
+					System.out.println("client got tau from server, and local avaliable are: "
+							+ availableEvents);
+					if (availableEvents.isEmpty())
+					{
+						throw new InterpreterRuntimeException("internal error, missing events: "
+								+ availableEvents);
+					}
+					transitions = extractSilentTransitions(availableEvents);
+				} else
+				{
+					transitions = new CmlTransitionSet(set);
+				}
+
 			} catch (InterruptedException e)
 			{
 				if (getState() == CmlInterpreterState.FINISHED)
@@ -81,30 +98,41 @@ public class CoSimCmlInterpreter extends VanillaCmlInterpreter
 	}
 
 	protected synchronized CmlTransitionSet extractSilentTransitions(
-			CmlTransitionSet availableEvents, CmlTransitionSet transitions)
+			CmlTransitionSet availableEvents)
 	{
-		for (CmlTransition transition : availableEvents.filterByType(TauTransition.class))
-		{
-			runningInternalExecution = true;
-			transitions = new CmlTransitionSet(transition);
-			break;
-		}
+		CmlTransitionSet transitions = availableEvents.filterByType(TauTransition.class);
 		return transitions;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see eu.compassresearch.core.interpreter.ICoSimClientInterpreter#inspect()
+	 */
+	@Override
 	public CmlTransitionSet inspect() throws AnalysisException
 	{
 		CmlTransitionSet tmp = internalInspect();
-		while (runningInternalExecution)
-		{
-			Utils.milliPause(10);
 
-			tmp = internalInspect();
-			if (tmp != null)
-			{
-				break;
-			}
+		System.out.println("Client wants to reply with: " + tmp);
+
+		if (tmp == null || tmp.hasType(TauTransition.class))
+		{
+			TauTransition tau = new TauTransition(activeBehaviour, new ASkipAction(), "skip");
+			tmp = new CmlTransitionSet(tau);
+			System.out.println("Client replies with: " + tmp);
+			return tmp;
 		}
+
+		tmp = tmp.removeAllType(TauTransition.class);
+
+		if (tmp.isEmpty())
+		{
+			TauTransition tau = new TauTransition(activeBehaviour, new ASkipAction(), "skip");
+			System.out.println("Internal interpreter state: " + this.getState());
+			tmp = new CmlTransitionSet(tau);
+		}
+
+		System.out.println("Client replies with: " + tmp);
 
 		return tmp;
 
@@ -129,6 +157,11 @@ public class CoSimCmlInterpreter extends VanillaCmlInterpreter
 		this.runningInternalExecution = false;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see eu.compassresearch.core.interpreter.ICoSimClientInterpreter#stop()
+	 */
+	@Override
 	public void stop()
 	{
 		setNewState(CmlInterpreterState.FINISHED);
