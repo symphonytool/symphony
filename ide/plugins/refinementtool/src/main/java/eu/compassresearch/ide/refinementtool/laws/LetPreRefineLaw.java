@@ -1,5 +1,6 @@
 package eu.compassresearch.ide.refinementtool.laws;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -36,12 +37,17 @@ public class LetPreRefineLaw implements IRefineLaw {
 	}
 
 	@Override
+	public String getDetail() {
+		return "";
+	}	
+		
+	@Override
 	public boolean isApplicable(INode node) {
 		return (node instanceof ALetStm); 
 	}
 
 	@Override
-	public Refinement apply(Map<String, String> metas, INode node, int offset) {
+	public Refinement apply(Map<String, INode> metas, INode node, int offset) {
 		
 		ALetStm ls = ((ALetStm) node).clone();
 		List<PDefinition> defs = ls.getLocalDefs();
@@ -111,8 +117,8 @@ public class LetPreRefineLaw implements IRefineLaw {
 	}
 
 	@Override
-	public List<String> getMetaNames() {
-		return new LinkedList<String>();
+	public Map<String, String> getMetas() {
+		return new HashMap<String, String>();
 	}
 
 }

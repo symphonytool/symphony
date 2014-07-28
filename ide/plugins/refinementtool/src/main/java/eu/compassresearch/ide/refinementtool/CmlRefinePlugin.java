@@ -4,19 +4,19 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
-public class Activator extends AbstractUIPlugin
+public class CmlRefinePlugin extends AbstractUIPlugin
 {
 
 
 	// The shared instance
-	private static Activator plugin;
+	private static CmlRefinePlugin plugin;
 
 	public static boolean DEBUG = true;
 	
 	/**
 	 * The constructor
 	 */
-	public Activator() {
+	public CmlRefinePlugin() {
 	}
 
 	/*
@@ -44,7 +44,7 @@ public class Activator extends AbstractUIPlugin
 	 *
 	 * @return the shared instance
 	 */
-	public static Activator getDefault() {
+	public static CmlRefinePlugin getDefault() {
 		return plugin;
 	}
 	

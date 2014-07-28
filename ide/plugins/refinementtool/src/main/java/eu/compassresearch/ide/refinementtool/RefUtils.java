@@ -5,6 +5,7 @@ import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
 import org.overture.ast.expressions.PExp;
 
+import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.core.parser.CmlLexer;
 import eu.compassresearch.core.parser.CmlParser;
 
@@ -25,10 +26,27 @@ public abstract class RefUtils {
 		try {
 			pexp = parser.expression().exp;
 		} catch (RecognitionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			
 		}
 		return pexp;
+	}
+
+	public static PAction parsePAction(String act) {
+
+		ANTLRStringStream as = new ANTLRStringStream(act);
+		CmlLexer cmlLexer = new CmlLexer(as);
+		CommonTokenStream ct = new CommonTokenStream(cmlLexer);
+		CmlParser parser = new CmlParser(ct);
+		
+		PAction pact = null;
+		
+		try {
+			pact = parser.action().action;
+		} catch (RecognitionException e) {
+			
+		}
+		return pact;
+		
 	}
 	
 }
