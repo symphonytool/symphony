@@ -50,17 +50,23 @@ public class TauTransition extends AbstractCmlTransition
 	@Override
 	public String toString()
 	{
+		if(this.getEventSources().isEmpty())
+		{
+			return kind+" "+transitionMessage+ " --- missing event source";
+		}
 		// We now that it always has one source because it an internal transition
-		INode transitionSrcNode = this.getEventSources().iterator().next().getNextState().first;
+		final CmlBehaviour source = this.getEventSources().iterator().next();
+	
 		if (CmlRuntime.expandShowHiddenEvents())
 		{
+			INode transitionSrcNode = source.getNextState().first;
 			return kind
 					+ "("
-					+ formatNode(transitionSrcNode)//.getClass().getSimpleName()
+					+ formatNode(transitionSrcNode)
 					+ (transitionMessage != null ? "--" + transitionMessage
 							+ "->" : "->")
 
-					+ formatNode(destinationNode)/*.getClass().getSimpleName()*/ + ") : "
+					+ formatNode(destinationNode) + ") : "
 					+ getEventSources();
 		} else
 		{
