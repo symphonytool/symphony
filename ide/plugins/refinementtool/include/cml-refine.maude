@@ -194,6 +194,8 @@ fmod ACTION is
     op _->_ : Communication Action -> Action [prec 55] .
     op var_:_@_ : Name Expr Action -> Action [prec 56] .
     op end_ : Name -> Action .
+    op #ref_(_) : Name NeExprSet -> Action .
+    op #ref_ : Name -> Action .
 
 
     vars N N1 N2 : Name . vars X Y : ActionName . vars A A1 A2 S1 S2 : Action .
