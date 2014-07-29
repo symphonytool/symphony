@@ -101,13 +101,13 @@ fmod EXPRESSION is
     ops _or_ _and_ : Expr Expr -> Expr [assoc comm prec 28] .
     ops _=>_ _<=>_ : Expr Expr -> Expr [prec 30] .
 
-    eq #b(true) => E = E .
+    ***(eq #b(true) => E = E .
     eq #b(false) => E = #b(true) .
     eq #b(false) and E = #b(false) .
     eq #b(true) and E = E .
     eq #b(false) or E = E .
     eq #b(true) or E = #b(true) .
-    eq not(not(E)) = E .
+    eq not(not(E)) = E .)
 
 endfm
 
@@ -194,6 +194,8 @@ fmod ACTION is
     op _->_ : Communication Action -> Action [prec 55] .
     op var_:_@_ : Name Expr Action -> Action [prec 56] .
     op end_ : Name -> Action .
+    op #ref_(_) : Name NeExprSet -> Action .
+    op #ref_ : Name -> Action .
 
 
     vars N N1 N2 : Name . vars X Y : ActionName . vars A A1 A2 S1 S2 : Action .
@@ -308,7 +310,7 @@ mod ACTION-REFINE is
     var M : RefMap .
 
     rl [pre-guard-combination] :
-    refs[[g1] & ([g2] & A)] => rinf["guard-combination", "Guard combination", "[g1] \& [g2] \& A [= [g1 and g2] \& A", {}] .
+    refs[[g1] & ([g2] & A)] => rinf["guard-combination", "Guard combination", "[g1] & [g2] & A [= [g1 and g2] & A", {}] .
 
     rl [guard-combination] :
     refine["guard-combination", < [g1] & ([g2] & A) | M | p >] => < [g1 and g2] & A | M | p > .
@@ -329,13 +331,37 @@ mod ACTION-REFINE is
     refs[ [g1] & A ] => 
       rinf[ "guard-weaken"
           , "Guard Weakening"
-          , "[g1] \& A [= [g2] \& A provided g2 => g1", {#meta("g2", "expression")}] .
+          , "[g1] & A [= [g2] & A provided g2 => g1", {#meta("g2", "expression")}] .
 
     crl [guard-weaken] :
     refine["guard-weaken", < [g1] & A | M | p >] => < [getExp(M["g2"])] & A | empty | g1 => getExp(M["g2"]) and p > 
     if M["g2"] =/= undefined and isExp(M["g2"]) .
 
-*** Guards refinement laws
+    rl [pre-guard-expansion-lr] :
+    refs[[ g1 or g2 ] &  A]
+      => rinf[
+	  "guard-expansion-lr", 
+	  "Guard Expansion (left to right)", 
+	  "[g1 or g2] & A [= [g1] & A [] [g2] & A",
+	  {}
+	] .
+
+    rl [guard-expansion-lr] :
+	refine["guard-expansion-lr", < [ g1 or g2 ] & A | M | p >] =>
+    < [ g1 ] & A [] [ g2 ] & A | M | p > .
+
+    rl [pre-guard-expansion-rl] :
+    refs[[ g1 ] & A [] [ g2 ] & A]
+      => rinf[
+	  "guard-expansion-rl", 
+	  "Guard Expansion (right to left)", 
+	  "[g1] & A [] [g2] & A [= [g1 or g2] & A",
+	  {}
+	] .
+
+    rl [guard-expansion-rl] :
+	refine["guard-expansion-rl", < [ g1 ] & A [] [ g2 ] & A | M | p >] =>
+    < [ g1 or g2 ] & A | M | p > .
 
     rl [pre-seq-left-identity] :
     refs[Skip ; A] => rinf["seq-left-identity", "Sequential Composition Left Identity", "Skip ; A [= A", {}] .

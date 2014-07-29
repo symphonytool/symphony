@@ -1,5 +1,6 @@
 package eu.compassresearch.ide.refinementtool;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -29,6 +30,7 @@ import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
 import eu.compassresearch.ast.actions.AGuardedAction;
 import eu.compassresearch.ast.actions.AReadCommunicationParameter;
+import eu.compassresearch.ast.actions.AReferenceAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASignalCommunicationParameter;
 import eu.compassresearch.ast.actions.ASkipAction;
@@ -244,7 +246,7 @@ public class RefinePrettyPrinter extends QuestionAnswerCMLAdaptor<Integer, Strin
 	@Override
 	public String caseAExternalChoiceAction(AExternalChoiceAction node,
 			Integer q) throws AnalysisException {
-		return node.getLeft().apply(this, q) + " [] " + node.getRight().apply(this, q);
+		return node.getLeft().apply(this, q) + " [] " + node.getRight().apply(this, 0);
 	}
 
 	@Override
@@ -322,8 +324,7 @@ public class RefinePrettyPrinter extends QuestionAnswerCMLAdaptor<Integer, Strin
 	@Override
 	public String caseAStmAction(AStmAction node, Integer question)
 			throws AnalysisException {
-		// TODO Auto-generated method stub
-		return super.caseAStmAction(node, question);
+		return node.getStatement().apply(this, question);
 	}
 	@Override
 	public String caseAStopAction(AStopAction node, Integer question)
@@ -452,6 +453,39 @@ public class RefinePrettyPrinter extends QuestionAnswerCMLAdaptor<Integer, Strin
 			ASequentialCompositionAction node, Integer question)
 			throws AnalysisException {
 		return tabs(question)+node.getLeft().apply(this,0)+" ; "+node.getRight().apply(this,0);
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	@Override
+	public String caseAReferenceAction(AReferenceAction node, Integer question)
+			throws AnalysisException {
+		StringBuilder sb = new StringBuilder();
+		sb.append(node.getName());
+		if (node.getArgs().size() > 0) {
+			sb.append("(");
+			for (Iterator<PExp> it = node.getArgs().iterator(); it.hasNext(); ) {
+				PExp exp = it.next();
+				sb.append(exp.apply(this,0));
+				if (it.hasNext()) {
+					sb.append(", ");
+				}
+			}
+			sb.append(")");
+		}
+		return sb.toString();
 	}
 	/* (non-Javadoc)
 	 * @see org.overture.ast.analysis.QuestionAnswerAdaptor#defaultPExp(org.overture.ast.expressions.PExp, java.lang.Object)

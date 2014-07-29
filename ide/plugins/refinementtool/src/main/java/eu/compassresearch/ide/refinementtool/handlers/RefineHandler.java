@@ -30,6 +30,7 @@ import eu.compassresearch.ide.refinementtool.IRefineLaw;
 import eu.compassresearch.ide.refinementtool.RefConstants;
 import eu.compassresearch.ide.refinementtool.laws.ChoiceStopLeft;
 import eu.compassresearch.ide.refinementtool.laws.ChoiceStopRight;
+import eu.compassresearch.ide.refinementtool.laws.CopyRuleLR;
 import eu.compassresearch.ide.refinementtool.laws.DummyRefineLaw;
 import eu.compassresearch.ide.refinementtool.laws.ImplicitOperationRefineLaw;
 import eu.compassresearch.ide.refinementtool.laws.LetIntroRefineLaw;
@@ -124,6 +125,7 @@ public class RefineHandler extends AbstractHandler {
 			laws.add(new SpecPostRefineLaw());
 			laws.add(new LetIntroRefineLaw());
 			laws.add(new LetPreRefineLaw());
+			laws.add(new CopyRuleLR());
 			
 			cmlProj.getModel().setAttribute(RefConstants.REF_LAWS_ID, laws);  
 		}
