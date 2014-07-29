@@ -128,7 +128,7 @@ public class ExternalProcessTest
 			final String name, final boolean quiet,
 			final IConsoleWatcher... watch)
 	{
-		InputStream stdout = serverProces.getInputStream();
+		InputStream stdout = serverProcess.getInputStream();
 		final BufferedReader reader = new BufferedReader(new InputStreamReader(stdout));
 		new Thread(new Runnable()
 		{
