@@ -45,6 +45,11 @@ public class MessageManager
 		{
 		}
 	}
+	
+	public void setProtocol(ICoSimProtocol protocol)
+	{
+		this.protocol = protocol;
+	}
 
 	public void send(JsonMessage message) throws Exception
 	{

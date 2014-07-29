@@ -159,7 +159,7 @@ public class ExternalProcessTest
 		}).start();
 	}
 
-	public static Process startSecondJVM(Class<?> main, String[] args)
+	public Process startSecondJVM(Class<?> main, String[] args)
 			throws Exception
 	{
 		String separator = System.getProperty("file.separator");
@@ -177,7 +177,11 @@ public class ExternalProcessTest
 		processBuilder.command(arguments);
 		Process process = processBuilder.start();
 
-		// process.waitFor();
+		/* This is important (we need to be able to manually
+		 * kill these later, if everything fails).
+		 */
+		processes.add(process);
+
 		return process;
 	}
 
@@ -191,6 +195,7 @@ public class ExternalProcessTest
 			@Override
 			public void run()
 			{
+				System.out.println("Killing any remaining processes...");
 				killAllProcesses();
 			}
 
