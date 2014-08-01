@@ -44,7 +44,7 @@ begin
    
  actions
 -- Counting = (c.id.(count) -> a.id -> incCount();Counting) 
- Counting = (a!id -> incCount();c!counter -> Counting) 
+ Counting = (a!id -> incCount(); Stop;c!counter -> Counting) 
  @ Counting
  end 
 

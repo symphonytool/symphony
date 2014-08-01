@@ -504,6 +504,19 @@ public class NewCMLModelcheckerContext {
 
 		return result;
 	}
+	
+	public LinkedList<ParameterDependency> getParameterDependencyByVariable(String variableName){
+		LinkedList<ParameterDependency> result = new LinkedList<ParameterDependency>();
+		
+		for (ParameterDependency parameterDependency : this.parameterDependencies) {
+			if(parameterDependency.getParametrisation().getDeclaration().getName().equals(variableName)){
+				result.add(parameterDependency);
+			}
+		}
+		
+		return result;
+	}
+	
 	/*
 	public ParameterDependency getParameterDependencyByParentName(String name){
 		ParameterDependency result = null;

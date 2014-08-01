@@ -193,10 +193,18 @@ public class MCAActionDefinition implements MCPCMLDefinition {
 					result.append(",");
 				}
 			}
+			//LinkedList<ParameterDependency> paramDependencies = context.getParameterDependenciesByParentName(this.name);
 			LinkedList<ParameterDependency> paramDependencies = context.getParameterDependenciesByParentName(this.name);
 			
 			ParameterDependency paramDep = context.getParameterDependency(this.name);
 			if(paramDep != null){
+				if(this.declarations.size() > 0){
+					if(!this.declarations.getFirst().getDeclaration().getName().equals(paramDep.getParametrisation().getDeclaration().getName())){
+						paramDep.setName(paramDep.getParentProcessDefinitionName());
+					}
+				}else{
+					paramDep.setName(paramDep.getParentProcessDefinitionName());
+				}
 				paramDependencies.add(paramDep);
 			}
 			Iterator<ParameterDependency> it = paramDependencies.iterator();

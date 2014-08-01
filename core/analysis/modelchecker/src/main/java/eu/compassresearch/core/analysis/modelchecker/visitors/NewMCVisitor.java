@@ -329,7 +329,7 @@ public class NewMCVisitor extends
 		
 		
 		//String cml_file = "src/test/resources/BeoAVDeviceDiscovery-final version-model checker.cml";
-		//String cml_file = "src/test/resources/simpler-register.cml";
+		String cml_file = "src/test/resources/simpler-register.cml";
 		//String cml_file = "src/test/resources/simpler-BeoAVDeviceDiscovery.cml";
 		//String cml_file = "src/test/resources/ERSystem.cml";
 		//String cml_file = "src/test/resources/par-test.cml";
@@ -364,7 +364,7 @@ public class NewMCVisitor extends
 		//String cml_file = "src/test/resources/action-condchoice.cml";
 		//String cml_file = "src/test/resources/Param.cml";
 		//String cml_file = "src/test/resources/inf.cml";
-		String cml_file = "src/test/resources/T243v2-MC.cml";
+		//String cml_file = "src/test/resources/T243v2-MC.cml";
 		
 		
 		
@@ -391,7 +391,7 @@ public class NewMCVisitor extends
 		//String mainProcessName = "Test_TurnOnProduct";
 				//String mainProcessName = "TargetProduct_DD_SD_InterfaceProtocolView";
 				
-				//String mainProcessName = "RegisterProc";
+				String mainProcessName = "RegisterProc";
 				//String mainProcessName = "N_LAZY_Q";
 				//String mainProcessName = "StreamingPlayerCSProcess";
 				//String mainProcessName = "CoSimulationServer";
@@ -410,7 +410,7 @@ public class NewMCVisitor extends
 				
 				//String mainProcessName = "ad_Initiate_Rescue_Activation___Fault_1";
 				//String mainProcessName = "Dphils";
-				String mainProcessName = "TestCounter";
+				//String mainProcessName = "TestCounter";
 		
 		NewCMLModelcheckerContext.getInstance().setNumberOfInstances(1);
 		NewMCVisitor visitor1 = new NewMCVisitor();
