@@ -190,18 +190,18 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 			CmlTransitionSet rightIndependentTransitions = rightChildAlpha.filter(new RetainChannelNamesAndTau(rightChanset), new RemoveChannelNames(intersectionChanset));
 
 			// combine all the common channel events that are in the channel set
-			CmlTransitionSet leftSync = leftChildAlpha.filter(new RetainChannelNames(intersectionChanset));
-			CmlTransitionSet rightSync = rightChildAlpha.filter(new RetainChannelNames(intersectionChanset));
-			SortedSet<CmlTransition> syncEvents = new TreeSet<CmlTransition>();
+			CmlTransitionSet leftSyncTransitions = leftChildAlpha.filter(new RetainChannelNames(intersectionChanset));
+			CmlTransitionSet rightSyncTransitions = rightChildAlpha.filter(new RetainChannelNames(intersectionChanset));
+			SortedSet<CmlTransition> availSyncTransitions = new TreeSet<CmlTransition>();
 			// Find the intersection between the child alphabets and the channel set and join them.
 			// Then if both left and right have them the next step will combine them.
-			for (ObservableTransition leftTrans : leftSync.filterByTypeAsSet(ObservableTransition.class))
+			for (ObservableTransition leftTrans : leftSyncTransitions.filterByTypeAsSet(ObservableTransition.class))
 			{
-				for (ObservableTransition rightTrans : rightSync.filterByTypeAsSet(ObservableTransition.class))
+				for (ObservableTransition rightTrans : rightSyncTransitions.filterByTypeAsSet(ObservableTransition.class))
 				{
 					if (leftTrans.isSynchronizableWith(rightTrans))
 					{
-						syncEvents.add(leftTrans.synchronizeWith(rightTrans));
+						availSyncTransitions.add(leftTrans.synchronizeWith(rightTrans));
 					}
 				}
 			}
@@ -210,7 +210,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 			 * Finally we create the returned alphabet by joining all the Synchronized events together with all the
 			 * event of the children that are not in the channel set.
 			 */
-			CmlTransitionSet resultAlpha = new CmlTransitionSet(syncEvents).dunion(leftIndependentTransitions, rightIndependentTransitions);
+			CmlTransitionSet resultAlpha = new CmlTransitionSet(availSyncTransitions).dunion(leftIndependentTransitions, rightIndependentTransitions);
 
 			return newInspection(resultAlpha, new CmlCalculationStep()
 			{
