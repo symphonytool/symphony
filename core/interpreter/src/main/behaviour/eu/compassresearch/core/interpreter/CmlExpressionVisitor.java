@@ -31,6 +31,7 @@ import org.overture.interpreter.values.ValueSet;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.expressions.ABracketedExp;
+import eu.compassresearch.ast.expressions.ACompVarsetExpression;
 import eu.compassresearch.ast.expressions.AEnumVarsetExpression;
 import eu.compassresearch.ast.expressions.AEnumerationRenameChannelExp;
 import eu.compassresearch.ast.expressions.AFatCompVarsetExpression;
@@ -310,21 +311,33 @@ public class CmlExpressionVisitor extends
 
 		return new SetValue(result);
 	}
-
+	
+	@Override
+	public Value caseACompVarsetExpression(ACompVarsetExpression node,
+			Context ctxt) throws AnalysisException
+	{
+		return evalCompVarset(node,node.getPredicate(),node.getChannelNameExp(),node.getBindings(), ctxt);
+	}
+	
 	@Override
 	public Value caseAFatCompVarsetExpression(AFatCompVarsetExpression node,
 			Context ctxt) throws AnalysisException
 	{
+		return evalCompVarset(node,node.getPredicate(),node.getChannelNameExp(),node.getBindings(), ctxt);
+	}
 
+	protected Value evalCompVarset(PVarsetExpression node, PExp predicate, ANameChannelExp channelExp, List<PMultipleBind> binds, Context ctxt)
+			throws AnalysisException
+	{
 		SetValue set = new SetValue();
 
-		boolean isChannel = isChannelSetExp(node.getChannelNameExp(), ctxt);
+		boolean isChannel = isChannelSetExp(channelExp, ctxt);
 
 		try
 		{
 			QuantifierList quantifiers = new QuantifierList();
 
-			for (PMultipleBind mb : node.getBindings())
+			for (PMultipleBind mb : binds)
 			{
 				ValueList bvals = ctxt.assistantFactory.createPMultipleBindAssistant().getBindValues(mb, ctxt);
 
@@ -361,14 +374,14 @@ public class CmlExpressionVisitor extends
 				}
 
 				if (matches
-						&& (node.getPredicate() == null || node.getPredicate().apply(VdmRuntime.getExpressionEvaluator(), evalContext).boolValue(ctxt)))
+						&& (predicate == null || predicate.apply(VdmRuntime.getExpressionEvaluator(), evalContext).boolValue(ctxt)))
 				{
 					if (isChannel)
 					{
-						set.values.add(createChannelNameValue(node.getChannelNameExp(), evalContext));
+						set.values.add(createChannelNameValue(channelExp, evalContext));
 					} else
 					{
-						set.values.add(new NameValue(NamespaceUtility.createSimpleName(node.getChannelNameExp().getIdentifier())));
+						set.values.add(new NameValue(NamespaceUtility.createSimpleName(channelExp.getIdentifier())));
 					}
 				}
 			}
@@ -379,6 +392,8 @@ public class CmlExpressionVisitor extends
 
 		return set;
 	}
+
+
 
 	@Override
 	public Value caseAIdentifierVarsetExpression(
