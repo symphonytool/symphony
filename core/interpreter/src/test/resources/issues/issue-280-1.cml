@@ -1,0 +1,19 @@
+channels
+  c: nat
+
+chansets
+  csA = {| c.1 |}
+  csB = {| c.1 |}
+  csOpen = {|c|}
+
+process POD = begin 
+@ 
+  ( c?x -> 
+    Skip
+  [ csOpen || csB ] 
+    c!1 ->
+    Skip )
+[|{|c.1|}|] c.1 -> Skip
+  
+
+end 

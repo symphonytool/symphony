@@ -42,7 +42,6 @@ import eu.compassresearch.core.interpreter.api.transitions.ops.Filter;
 import eu.compassresearch.core.interpreter.api.transitions.ops.MapOperation;
 import eu.compassresearch.core.interpreter.api.transitions.ops.RemoveChannelNames;
 import eu.compassresearch.core.interpreter.api.transitions.ops.RetainChannelNames;
-import eu.compassresearch.core.interpreter.api.transitions.ops.RetainChannelNamesAndTau;
 import eu.compassresearch.core.interpreter.api.values.ChannelValue;
 import eu.compassresearch.core.interpreter.api.values.CmlChannel;
 import eu.compassresearch.core.interpreter.api.values.NameValue;
@@ -175,19 +174,39 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 
 			// next we find the intersection of of them, since these are the ones that left and right must sync on
 			SetValue intersectionChanset = new SetValue();
-			intersectionChanset.values.addAll(leftChanset.values);
-			intersectionChanset.values.retainAll(rightChanset.values);
+			
+			for (Value lv : leftChanset.values)
+			{
+				ChannelValue clv = (ChannelValue) lv;
+				for (Value rv : rightChanset.values)
+				{
+					ChannelValue crv = (ChannelValue) rv;
+					if (clv.isComparable(crv)) {
+						intersectionChanset.values.add(clv.meet(crv));
+					}
+				}
+			}
+			
 
 			final CmlTransitionSet leftChildAlpha = owner.getLeftChild().inspect();
 			final CmlTransitionSet rightChildAlpha = owner.getRightChild().inspect();
+
+			/*
+			 * First constrain the left/right children's alphabets down to only those that are actually allowed by the
+			 * alphabetised parallel construct
+			 */
+			CmlTransitionSet constLeftChildAlpha = leftChildAlpha.constrainedExpand(leftChanset);
+			CmlTransitionSet constRightChildAlpha = rightChildAlpha.constrainedExpand(rightChanset);
 
 			/*
 			 * The independent transitions are the ones that are defined in the corresponding channel set which is not
 			 * in the intersection of the left and right channel set. This is calculated by taking the each child
 			 * alphabet and first retain corresponding channel set and then remove the intersection.
 			 */
-			CmlTransitionSet leftIndependentTransitions = leftChildAlpha.filter(new RetainChannelNamesAndTau(leftChanset), new RemoveChannelNames(intersectionChanset));
-			CmlTransitionSet rightIndependentTransitions = rightChildAlpha.filter(new RetainChannelNamesAndTau(rightChanset), new RemoveChannelNames(intersectionChanset));
+			CmlTransitionSet leftIndependentTransitions = constLeftChildAlpha.filter(new RemoveChannelNames(intersectionChanset));
+			leftIndependentTransitions = leftIndependentTransitions.removeAllType(TimedTransition.class);
+			CmlTransitionSet rightIndependentTransitions = constRightChildAlpha.filter(new RemoveChannelNames(intersectionChanset));
+			rightIndependentTransitions = rightIndependentTransitions.removeAllType(TimedTransition.class);
 
 			// combine all the common channel events that are in the channel set
 			CmlTransitionSet leftSyncTransitions = leftChildAlpha.filter(new RetainChannelNames(intersectionChanset));
@@ -201,7 +220,10 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 				{
 					if (leftTrans.isSynchronizableWith(rightTrans))
 					{
-						availSyncTransitions.add(leftTrans.synchronizeWith(rightTrans));
+						final ObservableTransition mergedTransition = leftTrans.synchronizeWith(rightTrans);
+						
+						//maybe this could be null
+						availSyncTransitions.add(mergedTransition);
 					}
 				}
 			}
@@ -211,6 +233,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 			 * event of the children that are not in the channel set.
 			 */
 			CmlTransitionSet resultAlpha = new CmlTransitionSet(availSyncTransitions).dunion(leftIndependentTransitions, rightIndependentTransitions);
+			resultAlpha = resultAlpha.compress();
 
 			return newInspection(resultAlpha, new CmlCalculationStep()
 			{

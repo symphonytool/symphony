@@ -35,9 +35,11 @@ public class RetainChannelNames implements Filter
 			{
 				if (val instanceof ChannelValue)
 				{
-					ChannelValue channelNameValue = (ChannelValue) val;
-					if (obsChannelEvent.getChannelName().isComparable(channelNameValue)
-							&& channelNameValue.isGTEQPrecise(obsChannelEvent.getChannelName()))
+					ChannelValue value = (ChannelValue) val;
+					final ChannelValue obsValue = obsChannelEvent.getChannelName();
+
+					if (obsChannelEvent.getChannelName().isComparable(value)
+							&& (value.isEquallyOrMorePrecise(obsValue) || obsValue.isEquallyOrMorePrecise(value)))
 					{
 						return true;
 					}

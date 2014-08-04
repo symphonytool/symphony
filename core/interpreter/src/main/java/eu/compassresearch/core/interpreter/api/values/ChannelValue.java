@@ -183,7 +183,15 @@ public class ChannelValue extends Value
 		return true;
 	}
 
-	public boolean isGTEQPrecise(ChannelValue other)
+	/**
+	 * Checks if <b>other</b> is equal or more precise than this. e.g. if <b>this</b> is c.? and other is c.1 then true else false. <br/>
+	 * <b>Note the twitched args compared to the method name.</b>
+	 * 
+	 * @param other
+	 *            the transition to check if is isEquallyOrMorePrecise to this
+	 * @return
+	 */
+	public boolean isEquallyOrMorePrecise(ChannelValue other)
 	{
 		boolean res = true;
 		for (int i = 0; i < values.size(); i++)
@@ -231,5 +239,15 @@ public class ChannelValue extends Value
 					+ index);
 		}
 		values.set(index, value);
+	}
+
+	/**
+	 * return the constraint associated with the value
+	 * 
+	 * @return
+	 */
+	public List<ValueConstraint> getConstraints()
+	{
+		return this.constraints;
 	}
 }
