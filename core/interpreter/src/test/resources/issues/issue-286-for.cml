@@ -1,0 +1,20 @@
+
+
+
+channels
+
+b:set of int
+
+process P = 
+begin
+
+state
+z:set of int:={}
+
+actions
+A = x:set of int @for all y in set x do
+		z:=z union {y}
+
+@b.z->A({1});b.z->Skip
+
+end
