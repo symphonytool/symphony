@@ -1,5 +1,6 @@
 package eu.compassresearch.ide.refinementtool.laws;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -28,12 +29,17 @@ public class LetIntroRefineLaw implements IRefineLaw {
 	}
 
 	@Override
+	public String getDetail() {
+		return "";
+	}	
+	
+	@Override
 	public boolean isApplicable(INode node) {
 		return (node instanceof PStm || node instanceof PAction);
 	}
 
 	@Override
-	public Refinement apply(Map<String, String> metas, INode node, int offset) {
+	public Refinement apply(Map<String, INode> metas, INode node, int offset) {
 		String nodeString = "";
 		// FIXME: The variable given must be fresh in node for this law to be applicable,
 		// need to write a visitor to check this
@@ -47,15 +53,26 @@ public class LetIntroRefineLaw implements IRefineLaw {
 	
 		List<CmlProofObligation> pos = new LinkedList<CmlProofObligation>();
 		
-		return new Refinement("let " + metas.get(NEWVARNAME) + " = " + metas.get(NEWVARVAL) + " in (" + nodeString + ")", pos);
+		String newvarname = "";
+		String newvarval = "";
+		
+		try {
+			newvarname = metas.get(NEWVARNAME).apply(cmlpp, 0);
+			newvarval = metas.get(NEWVARVAL).apply(cmlpp, 0);
+		} catch (AnalysisException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return new Refinement("let " + newvarname + " = " + newvarval + " in (" + nodeString + ")", pos);
 	}
 
 	@Override
-	public List<String> getMetaNames() {
-		List<String> l = new LinkedList<String>();
-		l.add(NEWVARNAME);
-		l.add(NEWVARVAL);
-		return l;
+	public Map<String, String> getMetas() {
+		Map<String, String> m = new HashMap<String, String>();
+		m.put(NEWVARNAME, "expression");
+		m.put(NEWVARVAL, "expression");
+		return m;
 	}
 
 }

@@ -160,7 +160,7 @@ public class InterpretAllCmlFilesTest
 		if (!new File(resultPath).exists())
 		{
 
-			String ex = "";
+			String ex = "N/A";
 			if (exception != null)
 			{
 				StringWriter sw = new StringWriter();
@@ -179,7 +179,7 @@ public class InterpretAllCmlFilesTest
 
 			Assert.fail("Result file doesn't exist: " + resultPath
 					+ "\n\nActual result:\nEvents: " + traceToString
-					+ "\n\nTime trace: " + observable + "\n\nException: " + ex);
+					+ "\n\nTime trace: " + observable+"\n\nInterpreter State: "+interpreter.getState() + "\n\nException: " + ex);
 			return;
 		}
 		ExpectedTestResult testResult = ExpectedTestResult.parseTestResultFile(resultPath);
@@ -220,9 +220,9 @@ public class InterpretAllCmlFilesTest
 		}
 		Pattern trace = testResult.getExpectedEventTracePattern();
 		Matcher matcher = trace.matcher(eventTrace);
-		assertTrue("The actual trace: '" + eventTrace
-				+ "' does not match expected: '"
-				+ testResult.getExpectedEventTracePattern() + "'" + " status: "+interpreter.getState(), matcher.matches());
+		assertTrue("The actual trace: \n\n'" + eventTrace
+				+ "' \ndoes not match expected: \n'"
+				+ testResult.getExpectedEventTracePattern() + "'\n\n" + " status: "+interpreter.getState()+ " expected: "+testResult.getInterpreterState(), matcher.matches());
 
 		// TimedTrace
 		if (testResult.hasTimedTrace())

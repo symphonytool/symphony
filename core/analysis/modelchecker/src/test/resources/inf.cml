@@ -5,28 +5,38 @@
 //This must be set in the Model Checker preferences.
 //furthermore, this example shows a system that cannot be analysed by tools like FDR and PAT due to 
 //manipulation of infinite events.  
+//NOK. The conversion of the argument x is nat. It should be x.
 types
-    MYNAT = nat 
-    MYNATB = nat
+    NATA = nat 
+    NATB = nat
       
 channels 
-a:MYNAT
-b:MYNATB
+a:NATA
+b:NATB
 
 process P = 
 begin 
   state
-   n : MYNAT := 0
-
+   n : NATA := 0
   operations
    Double:nat ==> ()
    Double(k) == n := 2*k
   actions
-   --MAIN =  a?x -> Double(x); b?y -> MAIN
-   MAIN =  a?x -> Double(x); b?y -> if (n = y and y > 2) then Stop else MAIN
-   --MAIN = a?x -> a?y -> if (2*x = y and y > 2) then Stop else MAIN
+   MAIN = a?x -> Double(x); a?y -> if (n = y and y > 2) then Stop else Skip 
  @ MAIN  
 end
 
-channels
+-- one instantiation for each type communicated in a and b are enough to find the deadlock
+//NOK. The conversion of the argument x1 is nat. It should be x1.
+process PRec = 
+begin 
+  state
+   value : NATA := 0
+  operations
+   Triple:nat ==> ()
+   Triple(v) == value := 3*v
+  actions
+   MAIN = a?x1 -> Triple(x1); b?y1 -> if (value = y1 and y1 > 2) then Stop else MAIN 
+ @ MAIN  
+end
     

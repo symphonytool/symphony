@@ -834,7 +834,7 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		}
 	//	String firstString = ThmExprUtil.getIsabelleExprStr(svars, boundvars, ex.getFirst()); 
 	//	String predString = ThmExprUtil.getIsabelleExprStr(svars, boundvars, ex.getPredicate()); 
-		return "{" + firstString + " | " + bindstr.toString() + " @ " + predString + "}";
+		return "[" + firstString + " | " + bindstr.toString() + " @ " + predString + "]";
 	}
 
 	public String caseASeqEnumSeqExp(ASeqEnumSeqExp ex, ThmVarsContext vars) throws AnalysisException{

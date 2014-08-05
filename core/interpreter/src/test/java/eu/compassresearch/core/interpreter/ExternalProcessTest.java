@@ -12,10 +12,7 @@ import java.util.Set;
 import java.util.Vector;
 
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
-
-import eu.compassresearch.core.interpreter.cosim.communication.Utils;
 
 public class ExternalProcessTest
 {
@@ -27,9 +24,16 @@ public class ExternalProcessTest
 
 		public abstract boolean isMatched();
 
+		public abstract void setMatchHandler(IMatchHandler handler);
+
 	}
 
-	protected static final int DEFAULT_TIMEOUT = 60 * 1000;
+	protected static interface IMatchHandler
+	{
+		public void matched(IConsoleWatcher watch);
+	}
+
+	protected static final int DEFAULT_TIMEOUT = 60 * 1000 * 5;
 	protected boolean quiet = false;
 	protected Set<Process> processes = new HashSet<Process>();
 	protected Integer port = null;
@@ -74,41 +78,40 @@ public class ExternalProcessTest
 	protected void waitForCompletion(final Process coordinator,
 			final int timeout) throws InterruptedException
 	{
-		
+
 		final Thread t = Thread.currentThread();
-		Thread timer = new Thread(t.getThreadGroup(),new Runnable()
+		Thread timer = new Thread(t.getThreadGroup(), new Runnable()
 		{
 
 			@Override
 			public void run()
 			{
-				Utils.milliPause(timeout);
-				coordinator.destroy();
-				try{
-				Assert.fail("Simulation timeout reached. Value = " + timeout);
-				}catch(AssertionError e )
+				try
 				{
-					System.err.println("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH");
-					 t.getUncaughtExceptionHandler().uncaughtException(t, e);
+					Thread.sleep(timeout);
+					System.out.println("Test timeout (" + timeout
+							+ ") reached killing process");
+					coordinator.destroy();
+				} catch (InterruptedException e)
+				{
+					// ?
 				}
+
 			}
 		});
 
 		timer.setDaemon(true);
-//		timer.setUncaughtExceptionHandler(new UncaughtExceptionHandler()
-//		{
-//
-//			@Override
-//			public void uncaughtException(Thread t, Throwable e)
-//			{
-//				t.getThreadGroup().
-//
-//			}
-//		});
 
 		timer.start();
 
-		coordinator.waitFor();
+		try
+		{
+			coordinator.waitFor();
+		} catch (InterruptedException e)
+		{
+			// ignore
+		}
+		timer.interrupt();
 	}
 
 	protected static boolean isFinished(IConsoleWatcher... watched)
@@ -156,7 +159,7 @@ public class ExternalProcessTest
 		}).start();
 	}
 
-	public static Process startSecondJVM(Class<?> main, String[] args)
+	public Process startSecondJVM(Class<?> main, String[] args)
 			throws Exception
 	{
 		String separator = System.getProperty("file.separator");
@@ -174,13 +177,53 @@ public class ExternalProcessTest
 		processBuilder.command(arguments);
 		Process process = processBuilder.start();
 
-		// process.waitFor();
+		/* This is important (we need to be able to manually
+		 * kill these later, if everything fails).
+		 */
+		processes.add(process);
+
 		return process;
 	}
 
 	public ExternalProcessTest()
 	{
 		super();
+
+		// force all processes to die when the java application exits
+		Runtime.getRuntime().addShutdownHook(new Thread()
+		{
+			@Override
+			public void run()
+			{
+				System.out.println("Killing any remaining processes...");
+				killAllProcesses();
+			}
+
+		});
+	}
+
+	protected void killAllProcesses()
+	{
+		if (!processes.isEmpty())
+		{
+			System.out.println("Killing..." + processes);
+			for (Process p : processes)
+			{
+				try
+				{
+					p.exitValue();
+				} catch (IllegalThreadStateException e)
+				{
+					try
+					{
+						p.destroy();
+					} catch (Exception ex)
+					{
+						// ignore
+					}
+				}
+			}
+		}
 	}
 
 	@Before
@@ -193,16 +236,8 @@ public class ExternalProcessTest
 	@After
 	public void tearDown() throws Exception
 	{
-		for (Process p : processes)
-		{
-			try
-			{
-				p.destroy();
-			} catch (Exception e)
-			{
 
-			}
-		}
+		killAllProcesses();
 	}
 
 }

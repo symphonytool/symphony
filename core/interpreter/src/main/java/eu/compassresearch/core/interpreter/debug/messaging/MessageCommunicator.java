@@ -59,7 +59,7 @@ public class MessageCommunicator
 
 	final static Logger logger = LoggerFactory.getLogger(MessageCommunicator.class);
 
-	protected static ObjectMapper mapperInstance()
+	public static ObjectMapper mapperInstance()
 	{
 		if (mapper == null)
 		{
@@ -189,7 +189,7 @@ public class MessageCommunicator
 	 * Constructs a message by deserializing the output from requestReader and returns it in a MessageContainer.
 	 * 
 	 * @param requestReader
-	 * @param defaultMessage 
+	 * @param defaultMessage
 	 * @return
 	 * @throws IOException
 	 */

@@ -14,10 +14,6 @@ public class MCAValParametrisation implements MCPParametrisation {
 
 	@Override
 	public String toFormula(String option) {
-		// TODO Auto-generated method stub
-		//question.getScriptContent().append("Int(");
-		//question.getScriptContent().append(node.getDeclaration().getIdentifiers().getFirst().toString());
-		//question.getScriptContent().append(")");
 		return this.declaration.toFormula(option);
 	}
 

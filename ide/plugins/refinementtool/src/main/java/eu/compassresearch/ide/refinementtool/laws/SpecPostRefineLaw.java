@@ -1,5 +1,6 @@
 package eu.compassresearch.ide.refinementtool.laws;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +28,11 @@ public class SpecPostRefineLaw implements IRefineLaw {
 	}
 
 	@Override
+	public String getDetail() {
+		return "";
+	}	
+		
+	@Override
 	public boolean isApplicable(INode node) {
 		if (node instanceof ASpecificationStm) {
 			ASpecificationStm spec =  (ASpecificationStm) node;
@@ -36,7 +42,7 @@ public class SpecPostRefineLaw implements IRefineLaw {
 	}
 
 	@Override
-	public Refinement apply(Map<String, String> metas, INode node, int offset) {
+	public Refinement apply(Map<String, INode> metas, INode node, int offset) {
 		ASpecificationStm spec =  (ASpecificationStm) node.clone();
 		
 		RefinePrettyPrinter cmlpp = new RefinePrettyPrinter();
@@ -45,7 +51,7 @@ public class SpecPostRefineLaw implements IRefineLaw {
 		
 		newspec.setExternals(spec.getExternals());
 
-		PExp newpost = RefUtils.parsePExp(metas.get(NEWPOST));
+		PExp newpost = (PExp) metas.get(NEWPOST);
 		
 		newspec.setPrecondition(spec.getPrecondition().clone());
 		newspec.setPostcondition(newpost.clone());
@@ -79,10 +85,10 @@ public class SpecPostRefineLaw implements IRefineLaw {
 	}
 
 	@Override
-	public List<String> getMetaNames() {
-		List<String> l = new LinkedList<String>();
-		l.add(NEWPOST);
-		return l;
-	}
-
+	public Map<String, String> getMetas() {
+		Map<String,String> m = new HashMap<String, String>();
+		m.put(NEWPOST, "expression");
+		return m;
+	}	
+	
 }
