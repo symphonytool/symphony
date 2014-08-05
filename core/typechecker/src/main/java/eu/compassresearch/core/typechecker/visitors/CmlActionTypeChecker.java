@@ -1025,7 +1025,7 @@ public class CmlActionTypeChecker extends
 
 		if (!node.getParametrisations().isEmpty())
 		{
-			info = question.newInfo(PParametrisationAssistant.updateEnvironment(question.env, node.getParametrisations()));
+			info = question.newInfo(PParametrisationAssistant.updateEnvironment(THIS,question.env, node.getParametrisations()));
 		}
 
 		PType actionType = node.getAction().apply(THIS, info);

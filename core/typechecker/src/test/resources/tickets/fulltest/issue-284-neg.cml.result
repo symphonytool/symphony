@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.TicketsCmlTypeCheckerTests">
+<message column="30" line="3" message="Symbol 'n' is not an updatable variable." messageType="error" number="3247" resource="issue-284-neg.cml"/>
+<result/>
+</testResult>
