@@ -7,7 +7,7 @@ state
 all_nodes_nat : set of nat := {0,1,2}
 actions
 NEWAlive = alive : set of nat @ 
-  ([] i in set (alive) @ on!i -> NEWAlive(alive))
+  ([] i in set alive @ on!i -> NEWAlive(alive))
 
 NEWAliveTwo = alive : set of nat @ 
   (on!1 -> NEWAliveTwo(alive union {1}))
