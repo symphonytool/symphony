@@ -18,9 +18,11 @@ import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.patterns.PPattern;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.types.PType;
+import org.overture.parser.messages.VDMError;
 import org.overture.typechecker.Environment;
 import org.overture.typechecker.FlatCheckedEnvironment;
 import org.overture.typechecker.TypeCheckInfo;
+import org.overture.typechecker.TypeChecker;
 
 import eu.compassresearch.ast.actions.AResParametrisation;
 import eu.compassresearch.ast.actions.AVresParametrisation;
@@ -28,6 +30,7 @@ import eu.compassresearch.ast.actions.PParametrisation;
 import eu.compassresearch.ast.definitions.AActionClassDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.lex.CmlLexNameToken;
+import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
 
 public class PParametrisationAssistant
 {
@@ -84,6 +87,27 @@ public class PParametrisationAssistant
 			{
 				ivd = AstFactory.newAInstanceVariableDefinition(def.getName(), def.getType(), def.getExpression());
 				isValue = false;
+
+				if (tDecl.parent() instanceof AProcessDefinition)
+				{
+					String type = tDecl instanceof AResParametrisation ? "res"
+							: "vres";
+
+					boolean alreadyReported = false;
+					for (VDMError err : TypeChecker.getErrors())
+					{
+						if (err.number == TypeErrorMessages.RES_VRES_NOT_ALLOWED_IN_PROCESS_DEFINITION.number
+								&& err.location == tDecl.getLocation())
+						{
+							alreadyReported = true;
+							break;
+						}
+					}
+					if (!alreadyReported)
+					{
+						TypeChecker.report(TypeErrorMessages.RES_VRES_NOT_ALLOWED_IN_PROCESS_DEFINITION.number, TypeErrorMessages.RES_VRES_NOT_ALLOWED_IN_PROCESS_DEFINITION.customizeMessage(type), tDecl.getLocation());
+					}
+				}
 			} else
 			{
 
