@@ -157,10 +157,9 @@ public class FileHandler
 			  projectFile.create(loadedFile.getContents(), true, null);
 			  
 		  } else {
-			  //TODO report error, file list should be handled at the GUI level
+			  ResourcesPlugin.getPlugin().getLog().log(new Status(IStatus.ERROR, Activator.PLUGIN_ID, 0, "Project file not found: " + projectFile, null));
 		  }
 		}
-		
 	}
 
 	private static IFolder getCollaborationDirectory(String workspaceProjectName)
@@ -202,6 +201,27 @@ public class FileHandler
 		return project;
 	}
 
+	//Will retrieve a file from the collaboration dir. If file is not already stored, it will 
+	//copy it from the workspace to the collaboration dir before returning it. 
+	public static String persistFileAndRetrieveContents(File file) throws CoreException, IOException
+	{
+		CollaborationProject collaborationProject = file.getCollaborationProject();
+		
+		IFile iFile;
+		//if file is not already stored, copy it from the workspace to the collaboration dir, before retrieving it. 
+		if (!file.isStored())
+		{
+			iFile = FileHandler.copyFileToCollaborationDir(file, collaborationProject);
+			file.setAsStored();
+		} else
+		{
+			iFile = FileHandler.loadFileFromCollaborationDir(file, collaborationProject);
+		}
+
+		//return file contents
+		return CollaborationPluginUtils.convertStreamToString(iFile.getContents());
+	}
+	
 	public void saveCollaborationProject(
 			CollaborationProject collaborationProject) throws CoreException,
 			IOException
@@ -267,7 +287,7 @@ public class FileHandler
 
 		return null;
 	}
-
+	
 	public static String calculateSha(IFile file)
 	{
 		String sha = null;
@@ -320,26 +340,5 @@ public class FileHandler
 		{
 			formatter.close();
 		}
-	}
-	
-	//Will retrieve a file from the collaboration dir. If file is not already stored, it will 
-	//copy it from the workspace to the collaboration dir before returning it. 
-	public static String persistFileAndRetrieveContents(File file) throws CoreException, IOException
-	{
-		CollaborationProject collaborationProject = file.getCollaborationProject();
-		
-		IFile iFile;
-		//if file is not already stored, copy it from the workspace to the collaboration dir, before retrieving it. 
-		if (!file.isStored())
-		{
-			iFile = FileHandler.copyFileToCollaborationDir(file, collaborationProject);
-			file.setAsStored();
-		} else
-		{
-			iFile = FileHandler.loadFileFromCollaborationDir(file, collaborationProject);
-		}
-
-		//return file contents
-		return CollaborationPluginUtils.convertStreamToString(iFile.getContents());
 	}
 }

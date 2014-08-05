@@ -121,7 +121,7 @@ public class DistributedSimulationManager
 		ICmlModel model = cmlProj.getModel();
 		List<String> processes = CmlUtil.getGlobalProcessesFromSourceAsString(model);
 
-
+//TODO
 //		if (processes.isEmpty())
 //		{
 //			CollaborationDialogs.getInstance().displayNotificationPopup("Distributed Simulation", Notification.Dist_Simulation_ERROR_NO_PROCESSES);
