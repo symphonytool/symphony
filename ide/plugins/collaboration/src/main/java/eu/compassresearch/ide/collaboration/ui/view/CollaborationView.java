@@ -25,6 +25,7 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelection;
@@ -38,6 +39,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
@@ -79,6 +81,7 @@ public class CollaborationView extends ViewPart
 	protected Action rejectContractAction;
 	protected Action initDistributedSimulationAction;
 	protected Action addToCollaborationGroup;
+	private Action deleteCollaborationProject;
 
 
 	public void createPartControl(Composite parent)
@@ -194,8 +197,23 @@ public class CollaborationView extends ViewPart
 			{
 				initiatedDistributedSimulation();
 			}
-		};
+		};		
 		initDistributedSimulationAction.setToolTipText("Initiate simulation between collaborators");
+		
+		deleteCollaborationProject = new Action("Delete Collaboration Project")
+		{
+			public void run()
+			{
+				Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+				boolean result =  MessageDialog.openConfirm(shell, 
+						"Delete Collaboration Project", "Really delete collaboration project?");
+				
+				if(result){
+					deleteCollaborationProject();
+				}
+			}
+		};
+		initDistributedSimulationAction.setToolTipText("Delete the collaboration project and notify collaborators of \"left\" status");
 	}
 
 	private void addContextMenu()
@@ -224,9 +242,10 @@ public class CollaborationView extends ViewPart
 					{
 						if (hasConnection)
 						{
-							// CollaborationProject collaboration = (CollaborationProject) selectedDomainObject;
 							manager.add(initDistributedSimulationAction);
 						}
+						
+						manager.add(deleteCollaborationProject);
 
 					} else if (selectedDomainObject instanceof Configuration)
 					{
@@ -390,7 +409,7 @@ public class CollaborationView extends ViewPart
 		}
 	}
 	
-	protected String encodeArrayAsCoommaSeperatedString(String... item)
+	protected String encodeArrayAsCommaSeperatedString(String... item)
 	{
 		StringBuffer sb = new StringBuffer();
 		for (Iterator<String> iterator = Arrays.asList(item).iterator(); iterator.hasNext();)
@@ -461,10 +480,29 @@ public class CollaborationView extends ViewPart
 		if (selectedDomainObject instanceof Configuration)
 		{
 			Configuration configurationToReject = (Configuration) selectedDomainObject;
-
 			CollaborationDataModelManager collabMgM = Activator.getDefault().getDataModelManager();
-
 			collabMgM.rejectConfiguration(configurationToReject);
+		}
+	}
+	
+	protected void deleteCollaborationProject()
+	{
+		Model selectedDomainObject = getSelectedEntry();
+		
+		if (selectedDomainObject == null)
+		{
+			return;
+		}
+
+		if (selectedDomainObject instanceof CollaborationProject)
+		{
+			CollaborationProject project = (CollaborationProject) selectedDomainObject;
+			CollaborationDataModelManager collabMgM = Activator.getDefault().getDataModelManager();
+			boolean deleted = collabMgM.deleteProject(project);
+			
+			if(deleted) {
+				CollaborationDialogs.getInstance().displayNotificationPopup(project.getName(), "Collaboration Project deleted.");
+			}
 		}
 	}
 
@@ -624,7 +662,7 @@ public class CollaborationView extends ViewPart
 
 	public void setFocus()
 	{
-		treeViewer.expandAll();
+		//treeViewer.expandAll();
 	}
 
 	public void expandAll()

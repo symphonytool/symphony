@@ -19,7 +19,7 @@ public class ConfigurationStatusMessageHandler extends
 	@Override
 	public void process(ConfigurationStatusMessage msg)
 	{
-		final ConfigurationStatusMessage statusMsg = (ConfigurationStatusMessage) msg;
+		final ConfigurationStatusMessage statusMsg = msg;
 
 		Display.getDefault().asyncExec(new Runnable()
 		{

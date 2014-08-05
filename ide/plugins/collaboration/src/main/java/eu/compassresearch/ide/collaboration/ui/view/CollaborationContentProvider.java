@@ -153,6 +153,6 @@ public class CollaborationContentProvider implements ITreeContentProvider,
 
 	public void onObjectRemove(DeltaEvent event)
 	{
-		onObjectRemove(event);
+		viewer.refresh(null, true);
 	}
 }
