@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 
 import org.eclipse.compare.CompareConfiguration;
 import org.eclipse.compare.CompareEditorInput;
@@ -55,9 +56,11 @@ import eu.compassresearch.ide.collaboration.datamodel.File;
 import eu.compassresearch.ide.collaboration.datamodel.Model;
 import eu.compassresearch.ide.collaboration.distributedsimulation.DistributedSimulationManager;
 import eu.compassresearch.ide.collaboration.files.FileComparison;
+import eu.compassresearch.ide.collaboration.files.FileStatus;
 import eu.compassresearch.ide.collaboration.notifications.Notification;
 import eu.compassresearch.ide.collaboration.ui.menu.AddCollaboratorRosterMenuContributionItem;
 import eu.compassresearch.ide.collaboration.ui.menu.CollaborationDialogs;
+import eu.compassresearch.ide.collaboration.ui.menu.CompareConfigurationsDialog;
 
 /**
  * @see ViewPart
@@ -76,6 +79,7 @@ public class CollaborationView extends ViewPart
 	protected Action rejectContractAction;
 	protected Action initDistributedSimulationAction;
 	protected Action addToCollaborationGroup;
+
 
 	public void createPartControl(Composite parent)
 	{
@@ -487,36 +491,44 @@ public class CollaborationView extends ViewPart
 				return;
 			}
 
-			configurationCompare.getCompareResult();
+			List<FileStatus> compareResult = configurationCompare.getCompareResult();
+			CompareConfigurationsDialog compDialog = new CompareConfigurationsDialog(configuration, compareResult, PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell());
+			compDialog.open();
 
 		} else if ((selectedDomainObject instanceof File))
 		{
 			File selectedFile = (File) selectedDomainObject;
 
-			try
+			compareFileWithPrev(dataModelManager, selectedFile);
+		}
+	}
+
+	public void compareFileWithPrev(
+			CollaborationDataModelManager dataModelManager, File selectedFile)
+	{
+		try
+		{
+			FileComparison prevAndSelectedCompare = dataModelManager.compareFileWithPrev(selectedFile);
+			// is file defined previously
+			if (prevAndSelectedCompare == null)
 			{
-				FileComparison prevAndSelectedCompare = dataModelManager.compareFileWithPrev(selectedFile);
-				// is file defined previously
-				if (prevAndSelectedCompare == null)
-				{
-					CollaborationDialogs.getInstance().displayNotificationPopup(selectedFile.getName(), Notification.Collab_Dialog_ERROR_COMPARE_NO_PREVIOUS);
-					return;
-				}
-
-				// are they identical?
-				if (prevAndSelectedCompare.isIdentical())
-				{
-					CollaborationDialogs.getInstance().displayNotificationPopup(selectedFile.getName(), Notification.Collab_Dialog_COMPARE_ARE_IDENTICAL);
-					return;
-				}
-
-				showCompareDialog(prevAndSelectedCompare);
-
-			} catch (CoreException | IOException e)
-			{
-				e.printStackTrace();
-				Notification.logError(Notification.Collab_Dialog_ERROR_COMPARE_FAILED, e);
+				CollaborationDialogs.getInstance().displayNotificationPopup(selectedFile.getName(), Notification.Collab_Dialog_ERROR_COMPARE_NO_PREVIOUS);
+				return;
 			}
+
+			// are they identical?
+			if (prevAndSelectedCompare.isIdentical())
+			{
+				CollaborationDialogs.getInstance().displayNotificationPopup(selectedFile.getName(), Notification.Collab_Dialog_COMPARE_ARE_IDENTICAL);
+				return;
+			}
+
+			showCompareDialog(prevAndSelectedCompare);
+
+		} catch (CoreException | IOException e)
+		{
+			e.printStackTrace();
+			Notification.logError(Notification.Collab_Dialog_ERROR_COMPARE_FAILED, e);
 		}
 	}
 
@@ -524,15 +536,18 @@ public class CollaborationView extends ViewPart
 	{
 		final CompareConfiguration compareConfiguration = new CompareConfiguration();
 		compareConfiguration.setLeftLabel(fileCompare.getPreviousFileName());
+		compareConfiguration.setLeftEditable(false);
 		compareConfiguration.setRightLabel(fileCompare.getTargetFileName());
-		CompareUI.openCompareDialog(new CompareEditorInput(compareConfiguration)
+		compareConfiguration.setRightEditable(false);
+		
+		CompareEditorInput compareDialog = new CompareEditorInput(compareConfiguration)
 		{
 			@Override
 			protected Object prepareInput(final IProgressMonitor monitor)
 					throws InvocationTargetException, InterruptedException
 			{
-
 				CompareItem left = new CompareItem(fileCompare.getTargetFileName(), fileCompare.getTargetFileContent());
+				
 				CompareItem right = new CompareItem(fileCompare.getPreviousFileName(), fileCompare.getPreviousFileContent());
 				DiffNode diffNode = new DiffNode(left, right);
 
@@ -543,8 +558,10 @@ public class CollaborationView extends ViewPart
 			public String getCancelButtonLabel()
 			{
 				return Notification.Collab_Dialog_BTN_OK;
-			}
-		});
+			}	
+		};
+		
+		CompareUI.openCompareDialog(compareDialog);
 	}
 
 	private void openFileInEditor(File file,

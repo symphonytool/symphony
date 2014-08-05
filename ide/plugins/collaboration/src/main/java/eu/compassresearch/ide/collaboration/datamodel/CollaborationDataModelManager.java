@@ -388,14 +388,19 @@ public class CollaborationDataModelManager
 			}
 		}
 		
+		
+		ArrayList<User> sendTo = new ArrayList<User>(configurationsToSend.keySet());
+		
 		//send 
 		Set<Entry<User, NewConfigurationMessage>> entrySet = configurationsToSend.entrySet();
 		for (Entry<User, NewConfigurationMessage> entry : entrySet)
 		{
-			connectionManager.sendTo(entry.getKey(), entry.getValue());
+			NewConfigurationMessage msg = entry.getValue();
+			msg.addSendTo(sendTo);
+			connectionManager.sendTo(entry.getKey(), msg);
 		}
 		
-		 return new ArrayList<User>(configurationsToSend.keySet());
+		 return sendTo;
 	}
 
 	/**
