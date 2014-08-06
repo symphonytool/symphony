@@ -25,6 +25,7 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
@@ -481,7 +482,15 @@ public class CollaborationView extends ViewPart
 		{
 			Configuration configurationToReject = (Configuration) selectedDomainObject;
 			CollaborationDataModelManager collabMgM = Activator.getDefault().getDataModelManager();
-			collabMgM.rejectConfiguration(configurationToReject);
+			//
+			
+			 InputDialog dlg = new InputDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
+			            "Reject configuration", "Reason for rejecting model proposed in configuration:", "", null);
+			 
+			 dlg.open();
+			 
+			 String reason = dlg.getValue();
+			 collabMgM.rejectConfiguration(configurationToReject, reason);
 		}
 	}
 	

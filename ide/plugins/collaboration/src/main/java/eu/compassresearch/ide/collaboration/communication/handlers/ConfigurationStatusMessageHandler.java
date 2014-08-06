@@ -7,6 +7,7 @@ import eu.compassresearch.ide.collaboration.communication.messages.Configuration
 import eu.compassresearch.ide.collaboration.communication.messages.ConfigurationStatusMessage.NegotiationStatus;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationDataModelManager;
 import eu.compassresearch.ide.collaboration.datamodel.ConfigurationStatus.ConfigurationNegotiationStatus;
+import eu.compassresearch.ide.collaboration.ui.menu.CollaborationDialogs;
 
 public class ConfigurationStatusMessageHandler extends
 		BaseMessageHandler<ConfigurationStatusMessage>
@@ -28,8 +29,20 @@ public class ConfigurationStatusMessageHandler extends
 				CollaborationDataModelManager modelMgm = Activator.getDefault().getDataModelManager();
 
 				ConfigurationNegotiationStatus status = convertMessageStatus(statusMsg.getStatus());
-
+				String configurationId = statusMsg.getConfigurationId();
+				String description = statusMsg.getDescription();
+				description = (description != null ? "\n" + description : "");
+				String name = statusMsg.getSenderID().getName();
 				modelMgm.updateConfigurationStatus(statusMsg.getSenderID(), statusMsg.getConfigurationId(), status, statusMsg.getProjectID());
+				
+				String notificationText = "";
+				if(status == ConfigurationNegotiationStatus.REJECT) {
+					notificationText = "Rejected configuration: " +  configurationId +  description;
+				} else if(status == ConfigurationNegotiationStatus.ACCEPT) {
+					notificationText = "Accepted configuration: " +  configurationId +  description;
+				}
+				
+				CollaborationDialogs.getInstance().displayNotificationPopup(name, notificationText);
 			}
 		});
 	}

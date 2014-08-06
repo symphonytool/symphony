@@ -552,14 +552,15 @@ public class CollaborationDataModelManager
 	
 	/**
 	 * Reject a received configuration and send status to all collaborators
+	 * @param reason 
 	 */
-	public void rejectConfiguration(Configuration configurationToReject)
+	public void rejectConfiguration(Configuration configurationToReject, String reason)
 	{
 		ConnectionManager connectionManager = Activator.getDefault().getConnectionManager();
 		ID connectedUser = connectionManager.getConnectedUser();
 		CollaborationProject collaborationProject = configurationToReject.getCollaborationProject();
 		
-		ConfigurationStatusMessage statMsg = new ConfigurationStatusMessage(connectionManager.getConnectedUser(), collaborationProject.getUniqueID(), configurationToReject.getUniqueID(), NegotiationStatus.REJECT);
+		ConfigurationStatusMessage statMsg = new ConfigurationStatusMessage(connectionManager.getConnectedUser(), collaborationProject.getUniqueID(), configurationToReject.getUniqueID(), NegotiationStatus.REJECT, reason);
 		connectionManager.sendToAll(statMsg, collaborationProject);
 		
 		configurationToReject.setStatus(connectedUser, ConfigurationNegotiationStatus.REJECT);
@@ -567,13 +568,13 @@ public class CollaborationDataModelManager
 
 	/**
 	 * Updated a received configuration status sent by a collaborator
+	 * @param status 
 	 */
-	public void updateConfigurationStatus(ID id, String configurationId,
-			ConfigurationNegotiationStatus negotiationStatus, String projectId)
+	public void updateConfigurationStatus(ID id, String configurationId, ConfigurationNegotiationStatus status, String projectId)
 	{
 		CollaborationProject collaborationProject = getCollaborationProjectFromID(projectId);
 		Configuration configuration = collaborationProject.getConfiguration(configurationId);
-		configuration.setStatus(id, negotiationStatus);
+		configuration.setStatus(id, status);
 	}
 
 	/**

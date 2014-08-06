@@ -8,6 +8,7 @@ public class ConfigurationStatusMessage extends BaseMessage
 
 	private final String configurationId;
 	private final NegotiationStatus status; 
+	private String description;
 
 	public enum NegotiationStatus {
 	    ACCEPT, REJECT, RENEGOTIATED; 
@@ -15,10 +16,16 @@ public class ConfigurationStatusMessage extends BaseMessage
 	
 	public ConfigurationStatusMessage(ID sender, String projectID, String configurationId, NegotiationStatus status)
 	{
+		this(sender, projectID, configurationId, status, null);
+	}
+	
+	public ConfigurationStatusMessage(ID sender, String projectID, String configurationId, NegotiationStatus status, String description)
+	{
 		super(sender,projectID);
 		
 		this.configurationId = configurationId;
 		this.status = status;
+		this.description = description;
 	}
 
 	public String getConfigurationId()
@@ -29,5 +36,10 @@ public class ConfigurationStatusMessage extends BaseMessage
 	public NegotiationStatus getStatus()
 	{
 		return status;
+	}
+	
+	public String getDescription()
+	{
+		return description;
 	}
 }

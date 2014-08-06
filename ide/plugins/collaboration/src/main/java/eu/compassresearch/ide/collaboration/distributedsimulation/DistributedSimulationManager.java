@@ -30,7 +30,6 @@ import eu.compassresearch.ide.collaboration.communication.messages.SimulationSta
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationGroup;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationProject;
 import eu.compassresearch.ide.collaboration.datamodel.User;
-import eu.compassresearch.ide.collaboration.notifications.Notification;
 import eu.compassresearch.ide.collaboration.ui.menu.CollaborationDialogs;
 import eu.compassresearch.ide.collaboration.ui.menu.DistributedSimulationInitialisationDialog;
 import eu.compassresearch.ide.collaboration.ui.menu.DistributedSimulationRequestDialog;
