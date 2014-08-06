@@ -17,7 +17,9 @@ class MaudeRefiner(cmd: String, refine: String) {
     ( "\\#b\\(true\\)"  -> "true"
     , "\\#b\\(false\\)" -> "false"
     , "\\#nm\\(\"(\\w+)\"\\)" -> "$1" 
-    , "\\#ref" -> "" ) 
+    , "\\#anm\\(\"(\\w+)\"\\)" -> "$1"
+    , "=def=" -> "="
+    , "\\#paren" -> "") 
 
   object MetaSetParser extends JavaTokenParsers {
     val stringParser = stringLiteral ^^ {str => str.substring(1, str.length - 1)}
@@ -65,13 +67,18 @@ class MaudeRefiner(cmd: String, refine: String) {
                                                      + "(" + x._2 + ")" + "," + m + ")")
    
     
-    val mts = maude.search1("refine[\"" + mri.key + "\", < " + cml + " | " + M + " | p > ]", "< A | M | p >");
-    val pogs = mts.head.get("p").get.split("and")
-    
-    // pogs.to[ListBuffer]
-    
-    // Apply all regular expression replacements
-    replacers.foldLeft(mts.head.get("A").get)((x,vs) => x.replaceAll(vs._1, vs._2))
-    
+    var mts = maude.search1("refine[\"" + mri.key + "\", < " + cml + " | " + M + " | p > ]", "< A | M | p >");
+    if (mts.size > 0) {
+      val pogs = mts.head.get("p").get.split("and")
+      // pogs.to[ListBuffer]
+      // Apply all regular expression replacements
+      replacers.foldLeft(mts.head.get("A").get)((x,vs) => x.replaceAll(vs._1, vs._2))
+    } else {
+      mts = maude.search1("refine[\"" + mri.key + "\", < " + cml + " | " + M + " | p > ]", "< Decl | M | p >");
+      val pogs = mts.head.get("p").get.split("and")
+      // pogs.to[ListBuffer]
+      // Apply all regular expression replacements
+      replacers.foldLeft(mts.head.get("Decl").get)((x,vs) => x.replaceAll(vs._1, vs._2))
+    } 
   }
 }

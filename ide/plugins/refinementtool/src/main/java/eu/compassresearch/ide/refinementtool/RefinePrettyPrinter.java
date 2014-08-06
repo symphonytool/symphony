@@ -7,6 +7,7 @@ import java.util.List;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AAssignmentDefinition;
 import org.overture.ast.definitions.AExplicitOperationDefinition;
+import org.overture.ast.definitions.ALocalDefinition;
 import org.overture.ast.definitions.APrivateAccess;
 import org.overture.ast.definitions.AValueDefinition;
 import org.overture.ast.expressions.ASetCompSetExp;
@@ -26,6 +27,7 @@ import org.overture.ast.statements.PStm;
 import org.overture.ast.types.AUnionType;
 import org.overture.ast.types.PType;
 
+import scala.collection.convert.DecorateAsJava;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
 import eu.compassresearch.ast.actions.AGuardedAction;
@@ -42,6 +44,7 @@ import eu.compassresearch.ast.actions.AVresParametrisation;
 import eu.compassresearch.ast.actions.AWaitAction;
 import eu.compassresearch.ast.actions.AWriteCommunicationParameter;
 import eu.compassresearch.ast.actions.PCommunicationParameter;
+import eu.compassresearch.ast.actions.PParametrisation;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.process.AActionProcess;
@@ -98,8 +101,19 @@ public class RefinePrettyPrinter extends QuestionAnswerCMLAdaptor<Integer, Strin
 	@Override
 	public String caseAActionDefinition(AActionDefinition node, Integer question)
 			throws AnalysisException {
-		// TODO Auto-generated method stub
-		return super.caseAActionDefinition(node, question);
+		StringBuilder sb = new StringBuilder();
+		sb.append(tabs(question));
+		sb.append(node.getName().getSimpleName());
+		sb.append(" = ");
+		List<PParametrisation> params = node.getDeclarations();
+		for (Iterator<PParametrisation> it = params.iterator(); it.hasNext(); ) {
+			PParametrisation param = it.next();
+			sb.append(param.apply(this,0));
+			if (it.hasNext()) sb.append(", ");
+			else sb.append(" @ ");
+		}
+		sb.append(node.getAction().apply(this,0));
+		return sb.toString();
 	}
 
 	@Override
@@ -455,15 +469,15 @@ public class RefinePrettyPrinter extends QuestionAnswerCMLAdaptor<Integer, Strin
 		return tabs(question)+node.getLeft().apply(this,0)+" ; "+node.getRight().apply(this,0);
 	}
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+	@Override
+	public String caseALocalDefinition(ALocalDefinition node, Integer question)
+			throws AnalysisException {
+		StringBuilder sb = new StringBuilder();
+		sb.append(node.getName().getSimpleName());
+		sb.append(": ");
+		sb.append(node.getType().toString());
+		return sb.toString();
+	}
 	
 	
 	
@@ -495,6 +509,8 @@ public class RefinePrettyPrinter extends QuestionAnswerCMLAdaptor<Integer, Strin
 			throws AnalysisException {
 		return tabs(question)+node.apply(cmlpp);
 	}
+	
+	
 	
 	
 	
