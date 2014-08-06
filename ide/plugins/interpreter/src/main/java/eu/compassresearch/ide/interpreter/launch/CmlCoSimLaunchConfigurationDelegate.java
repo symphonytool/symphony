@@ -6,6 +6,7 @@ import java.util.Map;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 
+import eu.compassresearch.core.interpreter.CmlRuntime;
 import eu.compassresearch.core.interpreter.debug.CmlInterpreterArguments;
 import eu.compassresearch.ide.interpreter.ICmlDebugConstants;
 
@@ -23,6 +24,8 @@ public class CmlCoSimLaunchConfigurationDelegate extends
 				: "client");
 		map.put(CmlInterpreterArguments.COSIM_EXTERNAL_PROCESSES.key, configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_COSIM_EXTERNAL_PROCESSES, ""));
 		map.put(CmlInterpreterArguments.COSIM_HOST.key, configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_COSIM_HOST, ""));
+		
+		map.put(CmlInterpreterArguments.RANDOM_SEED.key, configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_RANDOM_SEED, CmlRuntime.randomSeed));
 
 		return map;
 	}

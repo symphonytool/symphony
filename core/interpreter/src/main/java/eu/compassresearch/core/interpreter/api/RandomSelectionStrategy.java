@@ -9,6 +9,7 @@ import org.overture.ast.types.PType;
 import org.overture.interpreter.values.UndefinedValue;
 import org.overture.interpreter.values.Value;
 
+import eu.compassresearch.core.interpreter.CmlRuntime;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.transitions.LabelledTransition;
@@ -23,7 +24,7 @@ import eu.compassresearch.core.interpreter.api.values.ChannelValue;
 public class RandomSelectionStrategy implements SelectionStrategy
 {
 
-	private static final long randomSeed = 675674345;
+	private static final long randomSeed = CmlRuntime.randomSeed;
 	private final Random rndChoice = new Random(randomSeed);
 	CmlTransitionSet availableChannelEvents;
 

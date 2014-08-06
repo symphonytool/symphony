@@ -75,7 +75,7 @@ public class DebugMain
 			JSONObject jargs = (JSONObject) JSONValue.parse(args[0]);
 			// retrieve the paths for the cml sources of the project
 			List<String> sourcesPaths = new LinkedList<String>();
-			Object sourcesPathsObject = jargs.get(CmlInterpreterArguments.CML_SOURCES_PATH.key);
+			Object sourcesPathsObject = jargs.get(CmlInterpreterArguments.SOURCES_PATH.key);
 			// Since the used json encoding for some reason does not encode a list of size of 1 as a list but
 			// as a single normal string, we need to check this.
 			if (sourcesPathsObject instanceof List<?>)
@@ -90,7 +90,7 @@ public class DebugMain
 			String startProcessName = (String) jargs.get(CmlInterpreterArguments.PROCESS_NAME.toString());
 			// retrieve the interpretation mode
 			InterpreterExecutionMode interpreterExecutionMode = InterpreterExecutionMode.ANIMATE;
-			boolean execMode = (boolean) jargs.get(CmlInterpreterArguments.CML_EXEC_MODE.key);
+			boolean execMode = (boolean) jargs.get(CmlInterpreterArguments.EXEC_MODE.key);
 			if (!execMode)
 			{
 				interpreterExecutionMode = InterpreterExecutionMode.SIMULATE;
@@ -102,6 +102,11 @@ public class DebugMain
 			{
 				usage("The path to the cml sources are not defined");
 				return;
+			}
+			
+			if (jargs.containsKey(CmlInterpreterArguments.RANDOM_SEED.key))
+			{
+				CmlRuntime.randomSeed= Integer.valueOf( ""+jargs.get(CmlInterpreterArguments.RANDOM_SEED.key));
 			}
 
 			if (jargs.containsKey(CmlInterpreterArguments.REMOTE_NAME.key))

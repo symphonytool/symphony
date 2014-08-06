@@ -105,8 +105,11 @@ public abstract class AbstractCmlInterpreter implements CmlInterpreter
 	/**
 	 * Set the new state of the interpreter, and fires a state change event if it change or if the always fire event
 	 * condition is true
-	 * @param newState the new state
-	 * @param alwaysFireEvent if true a state change event is fired unconditionally
+	 * 
+	 * @param newState
+	 *            the new state
+	 * @param alwaysFireEvent
+	 *            if true a state change event is fired unconditionally
 	 */
 	protected void setNewState(CmlInterpreterState newState,
 			boolean alwaysFireEvent)
@@ -151,8 +154,8 @@ public abstract class AbstractCmlInterpreter implements CmlInterpreter
 		Settings.usingDBGP = true;
 		// Configure overture to generate values in type binds. e.g. i : int
 		Properties.numeric_type_bind_generation = true;
-		Properties.minint = -128;
-		Properties.maxint = 128;
+		// the rest of type bind of int is loaded through the property file
+
 		/*
 		 * configure the thread management in the overture interpreter
 		 */
@@ -281,7 +284,7 @@ public abstract class AbstractCmlInterpreter implements CmlInterpreter
 	{
 		debugContexts.put(id, new DebugContext(location, context));
 	}
-	
+
 	/**
 	 * Clear debug contexts, this must be done when interpretation resumes
 	 */

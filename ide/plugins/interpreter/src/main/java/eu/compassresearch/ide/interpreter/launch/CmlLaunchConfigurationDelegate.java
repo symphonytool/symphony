@@ -43,6 +43,7 @@ import org.overture.ide.debug.core.dbgp.DbgpServer;
 import org.overture.ide.debug.core.launching.VdmLaunchConfigurationDelegate;
 import org.overture.ide.debug.utils.VdmProjectClassPathCollector;
 
+import eu.compassresearch.core.interpreter.CmlRuntime;
 import eu.compassresearch.core.interpreter.debug.CmlDebugDefaultValues;
 import eu.compassresearch.core.interpreter.debug.CmlInterpreterArguments;
 import eu.compassresearch.ide.core.resources.ICmlProject;
@@ -134,8 +135,10 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 		// Write out the launch configuration to the interpreter runner
 		Map<String, Object> configurationMap = new HashMap<String, Object>();
 		configurationMap.put(CmlInterpreterArguments.PROCESS_NAME.key, configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_PROCESS_NAME, ""));
-		configurationMap.put(CmlInterpreterArguments.CML_SOURCES_PATH.key, getSources(configuration));
-		configurationMap.put(CmlInterpreterArguments.CML_EXEC_MODE.key, configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_IS_ANIMATION, true));
+		configurationMap.put(CmlInterpreterArguments.SOURCES_PATH.key, getSources(configuration));
+		configurationMap.put(CmlInterpreterArguments.EXEC_MODE.key, configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_IS_ANIMATION, true));
+
+		configurationMap.put(CmlInterpreterArguments.RANDOM_SEED.key, configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_RANDOM_SEED, CmlRuntime.randomSeed));
 
 		configurationMap.put(CmlInterpreterArguments.HOST.key, "localhost");
 		configurationMap.put(CmlInterpreterArguments.PORT.key, port);
@@ -186,17 +189,17 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 					IWorkbench workbench = PlatformUI.getWorkbench();
 					workbench.showPerspective("org.eclipse.debug.ui.DebugPerspective", workbench.getActiveWorkbenchWindow());
 					PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(ICmlDebugConstants.ID_CML_OPTION_VIEW);
-				IViewPart historyView = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(ICmlDebugConstants.ID_CML_HISTORY_VIEW);
-			
-				if(historyView!=null)
-				{
-					if(historyView  instanceof CmlEventHistoryView)
+					IViewPart historyView = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(ICmlDebugConstants.ID_CML_HISTORY_VIEW);
+
+					if (historyView != null)
 					{
-						CmlEventHistoryView ceh = (CmlEventHistoryView) historyView;
-						ceh.clear();
+						if (historyView instanceof CmlEventHistoryView)
+						{
+							CmlEventHistoryView ceh = (CmlEventHistoryView) historyView;
+							ceh.clear();
+						}
 					}
-				}
-				
+
 				} catch (WorkbenchException e)
 				{
 					// TODO Auto-generated catch block
@@ -290,6 +293,11 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 		List<String> properties = new Vector<String>();
 
 		properties.add(VdmLaunchConfigurationDelegate.getProbHomeProperty());
+		properties.add("minint="
+				+ configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_COSIM_MININT, "0"));
+		properties.add("maxint="
+				+ configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_COSIM_MAXINT, "255"));
+		properties.add("numeric_type_bind_generation=true");
 
 		return VdmLaunchConfigurationDelegate.writePropertyFile(project, "overture.properties", properties);
 	}
