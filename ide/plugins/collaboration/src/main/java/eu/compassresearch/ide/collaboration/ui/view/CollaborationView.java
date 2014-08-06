@@ -35,6 +35,7 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -340,7 +341,6 @@ public class CollaborationView extends ViewPart
 					return;
 				} else if (selection instanceof TreeSelection)
 				{
-
 					TreeSelection ts = (TreeSelection) selection;
 					Object clickedElement = ts.getFirstElement();
 
@@ -368,20 +368,31 @@ public class CollaborationView extends ViewPart
 	{
 		Model selectedDomainObject = getSelectedEntry();
 
-		if (selectedDomainObject == null)
+		if (selectedDomainObject != null && selectedDomainObject instanceof Configuration)
 		{
-			return;
-		}
-		if (selectedDomainObject instanceof Configuration)
-		{
-
 			Configuration selectedConfig = (Configuration) selectedDomainObject;
 
 			CollaborationDataModelManager dataModelManager = Activator.getDefault().getDataModelManager();
 
 			try
 			{
-				dataModelManager.activateConfiguration(selectedConfig);
+				//check for existing files
+				List<File> existingFiles = dataModelManager.filesExistInWorkspace(selectedConfig);
+				
+				String files = "\n\n";
+				for (File file : existingFiles)
+				{
+					files += file.toString() + "\n" ;
+				}
+				
+				Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+				boolean confirmed = MessageDialog.openConfirm(shell, 
+						"Active Configuration: Overwrite files", "Activation will overwrite: " + files + "\n Continue?");
+				
+				if(confirmed){
+					dataModelManager.activateConfiguration(selectedConfig);
+				}
+				
 			} catch (CoreException e)
 			{
 				ResourcesPlugin.getPlugin().getLog().log(new Status(IStatus.ERROR, Activator.PLUGIN_ID, 0, e.getMessage(), e));
@@ -487,10 +498,12 @@ public class CollaborationView extends ViewPart
 			 InputDialog dlg = new InputDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
 			            "Reject configuration", "Reason for rejecting model proposed in configuration:", "", null);
 			 
-			 dlg.open();
+			 int result = dlg.open();
 			 
-			 String reason = dlg.getValue();
-			 collabMgM.rejectConfiguration(configurationToReject, reason);
+			 if(result == Window.OK) {
+				 String reason = dlg.getValue();
+				 collabMgM.rejectConfiguration(configurationToReject, reason);
+			 }
 		}
 	}
 	

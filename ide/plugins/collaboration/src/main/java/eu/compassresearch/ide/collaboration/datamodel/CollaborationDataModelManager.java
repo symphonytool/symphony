@@ -524,7 +524,7 @@ public class CollaborationDataModelManager
 
 
 	/**
-	 * Compare a file with the equally named file from the previous (parent) configuration
+	 * Activate configuration; meaning that the files in the configuration will be copied to the workspace attached to the project
 	 */
 	public void activateConfiguration(Configuration configToActivate)
 			throws CoreException
@@ -532,7 +532,15 @@ public class CollaborationDataModelManager
 		Files files = configToActivate.getFiles();
 		FileHandler.copyFilesToProjectWorkspace(files.getFilesList(), configToActivate.getCollaborationProject());
 	}
-
+	
+	/**
+	 * Return a list of files in the configuration that are present in the workspace
+	 * 
+	 */
+	public List<File> filesExistInWorkspace(Configuration selectedConfig) throws CoreException
+	{
+		return FileHandler.filesExistInWorkspace(selectedConfig.getFiles(), selectedConfig.getCollaborationProject());
+	}
 	
 	/**
 	 * Approve a received configuration and send status to all collaborators
