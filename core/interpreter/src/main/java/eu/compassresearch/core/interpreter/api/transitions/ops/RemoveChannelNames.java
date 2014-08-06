@@ -28,7 +28,7 @@ public class RemoveChannelNames implements Filter
 			ChannelValue channelNameValue)
 	{
 		return transition.getChannelName().isComparable(channelNameValue)
-				&& channelNameValue.isGTEQPrecise(transition.getChannelName());
+				&& channelNameValue.isEquallyOrMorePrecise(transition.getChannelName());
 	}
 
 	@Override

@@ -1,0 +1,22 @@
+channels
+  ent: nat * nat
+
+chansets
+  csA = {| ent.x.(1) | x in set {2} |}
+  csB = {| ent.(2).x | x in set {1} |}
+  csOpen = {| ent |}
+
+process POD = begin 
+  actions
+    //A = ent?o!1 -> A
+  
+@ 
+  ( ent!2!1 -> 
+    ent!2?o:(o<>1) -> 
+    Skip
+  [ csOpen || csB ] 
+    ent!2!1 ->
+    ent!2!1 ->
+    Skip )
+
+end 

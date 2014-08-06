@@ -15,6 +15,7 @@ import org.overture.interpreter.values.IntegerValue;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.core.interpreter.NamespaceUtility;
+import eu.compassresearch.core.interpreter.api.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.transitions.LabelledTransition;
@@ -59,7 +60,7 @@ public class SubSystem implements IProcessDelegate
 	{
 		CmlChannel channel = createChannelValue(name);
 		ChannelValue channelName = new ChannelValue(channel, new LinkedList<Value>(), null);
-		ObservableTransition transition = new ObservableLabelledTransition(null, channelName);
+		ObservableTransition transition = new ObservableLabelledTransition((CmlBehaviour)null, channelName);
 		return transition;
 	}
 
@@ -73,7 +74,7 @@ public class SubSystem implements IProcessDelegate
 		}
 
 		ChannelValue channelName = new ChannelValue(channel, values, null);
-		ObservableTransition transition = new ObservableLabelledTransition(null, channelName);
+		ObservableTransition transition = new ObservableLabelledTransition((CmlBehaviour)null, channelName);
 		return transition;
 	}
 
@@ -87,7 +88,7 @@ public class SubSystem implements IProcessDelegate
 		}
 
 		ChannelValue channelName = new ChannelValue(channel, values, null);
-		ObservableTransition transition = new ObservableLabelledTransition(null, channelName);
+		ObservableTransition transition = new ObservableLabelledTransition((CmlBehaviour)null, channelName);
 		return transition;
 	}
 
