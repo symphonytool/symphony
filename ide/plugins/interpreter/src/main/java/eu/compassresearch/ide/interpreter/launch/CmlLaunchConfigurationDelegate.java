@@ -238,6 +238,9 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 
 		File overturePropertiesFile = prepareCustomOvertureProperties(project, configuration);
 		additionalCpEntries.add(overturePropertiesFile.getParentFile().getAbsolutePath());
+		
+		File vdmjPropertiesFile = prepareCustomVdmjProperties(project, configuration);
+		additionalCpEntries.add(vdmjPropertiesFile.getParentFile().getAbsolutePath());
 
 		commandArray.add(ICmlDebugConstants.DEBUG_ENGINE_CLASS);
 		commandArray.addAll(1, getVmArguments(configuration));
@@ -293,13 +296,31 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 		List<String> properties = new Vector<String>();
 
 		properties.add(VdmLaunchConfigurationDelegate.getProbHomeProperty());
-		properties.add("minint="
-				+ configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_COSIM_MININT, "0"));
-		properties.add("maxint="
-				+ configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_COSIM_MAXINT, "255"));
-		properties.add("numeric_type_bind_generation=true");
 
 		return VdmLaunchConfigurationDelegate.writePropertyFile(project, "overture.properties", properties);
+	}
+	
+	/**
+	 * Create the custom overture.properties file loaded by the debugger
+	 * 
+	 * @param project
+	 * @param configuration
+	 *            a configuration or null
+	 * @return
+	 * @throws CoreException
+	 */
+	public static File prepareCustomVdmjProperties(IVdmProject project,
+			ILaunchConfiguration configuration) throws CoreException
+	{
+		List<String> properties = new Vector<String>();
+
+		properties.add("minint="
+				+ configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_MININT, 0));
+		properties.add("maxint="
+				+ configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_MAXINT, 255));
+		properties.add("numeric_type_bind_generation=true");
+
+		return VdmLaunchConfigurationDelegate.writePropertyFile(project, "vdmj.properties", properties);
 	}
 
 	private Collection<? extends String> removeDublicateLogAppenders(
