@@ -10,19 +10,26 @@ import eu.compassresearch.core.interpreter.api.CmlBehaviour.BehaviourName;
 
 public class DefaultCmlBehaviorFactory implements CmlBehaviorFactory
 {
+	
+	private IInspectListener inspectListner;
+
+	public DefaultCmlBehaviorFactory(IInspectListener inspectListner)
+	{
+		this.inspectListner = inspectListner;
+	}
 
 	@Override
 	public CmlBehaviour newCmlBehaviour(INode action, Context context,
 			CmlBehaviour parent) throws AnalysisException
 	{
-		return new ConcreteCmlBehaviour(action, context, parent, this);
+		return new ConcreteCmlBehaviour(action, context, parent, this, inspectListner);
 	}
 
 	@Override
 	public CmlBehaviour newCmlBehaviour(INode action, Context context,
 			BehaviourName name, CmlBehaviour parent) throws AnalysisException
 	{
-		return new ConcreteCmlBehaviour(action, context, name, parent, this);
+		return new ConcreteCmlBehaviour(action, context, name, parent, this,inspectListner);
 	}
 
 }

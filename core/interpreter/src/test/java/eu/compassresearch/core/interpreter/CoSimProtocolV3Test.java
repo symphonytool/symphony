@@ -102,7 +102,7 @@ public class CoSimProtocolV3Test
 	public void testInspectReplyMessage() throws Exception
 	{
 		AActionProcess p = new AActionProcess();
-		CmlBehaviour behaviour = new DefaultCmlBehaviorFactory().newCmlBehaviour(p, null, new CmlBehaviour.BehaviourName("p"), null);
+		CmlBehaviour behaviour = new VanillaInterpreterFactory().getBehaviorFactory().newCmlBehaviour(p, null, new CmlBehaviour.BehaviourName("p"), null);
 		CmlChannel channel = new CmlChannel(null, new CmlLexNameToken("M", "c", null));
 		List<Value> values = new ValueList();
 		values.add(new LatticeTopValue(AstFactory.newAIntNumericBasicType(null)));
@@ -118,7 +118,7 @@ public class CoSimProtocolV3Test
 	public void testExecuteMessage() throws Exception
 	{
 		AActionProcess p = new AActionProcess();
-		CmlBehaviour behaviour = new DefaultCmlBehaviorFactory().newCmlBehaviour(p, null, new CmlBehaviour.BehaviourName("p"), null);
+		CmlBehaviour behaviour = new VanillaInterpreterFactory().getBehaviorFactory().newCmlBehaviour(p, null, new CmlBehaviour.BehaviourName("p"), null);
 		CmlChannel channel = new CmlChannel(null, new CmlLexNameToken("M", "c", null));
 		List<Value> values = new ValueList();
 		values.add(new LatticeTopValue(AstFactory.newAIntNumericBasicType(null)));
@@ -204,7 +204,7 @@ public class CoSimProtocolV3Test
 	public void testTimedTransition() throws Exception
 	{
 		AActionProcess p = new AActionProcess();
-		CmlBehaviour behaviour = new DefaultCmlBehaviorFactory().newCmlBehaviour(p, null, new CmlBehaviour.BehaviourName("p"), null);
+		CmlBehaviour behaviour = new VanillaInterpreterFactory().getBehaviorFactory().newCmlBehaviour(p, null, new CmlBehaviour.BehaviourName("p"), null);
 		TimedTransition val = new TimedTransition(behaviour, 0);
 
 		String expected = String.format(TIMED_TRANSITION_TIMELIMIT_0, val.getHashedEventSources().first());
@@ -216,7 +216,7 @@ public class CoSimProtocolV3Test
 	public void testLabelledTransition() throws Exception
 	{
 		AActionProcess p = new AActionProcess();
-		CmlBehaviour behaviour = new DefaultCmlBehaviorFactory().newCmlBehaviour(p, null, new CmlBehaviour.BehaviourName("p"), null);
+		CmlBehaviour behaviour = new VanillaInterpreterFactory().getBehaviorFactory().newCmlBehaviour(p, null, new CmlBehaviour.BehaviourName("p"), null);
 		CmlChannel channel = new CmlChannel(null, new CmlLexNameToken("M", "c", null));
 		ChannelValue channelVal = new ChannelValue(channel);
 		ObservableLabelledTransition val = new ObservableLabelledTransition(behaviour, channelVal);
@@ -230,7 +230,7 @@ public class CoSimProtocolV3Test
 	public void testLabelledTransitionInt() throws Exception
 	{
 		AActionProcess p = new AActionProcess();
-		CmlBehaviour behaviour = new DefaultCmlBehaviorFactory().newCmlBehaviour(p, null, new CmlBehaviour.BehaviourName("p"), null);
+		CmlBehaviour behaviour = new VanillaInterpreterFactory().getBehaviorFactory().newCmlBehaviour(p, null, new CmlBehaviour.BehaviourName("p"), null);
 		CmlChannel channel = new CmlChannel(null, new CmlLexNameToken("M", "c", null));
 		List<Value> values = new ValueList();
 		values.add(new IntegerValue(5));
@@ -246,7 +246,7 @@ public class CoSimProtocolV3Test
 	public void testLabelledTransitionLatticeInt() throws Exception
 	{
 		AActionProcess p = new AActionProcess();
-		CmlBehaviour behaviour = new DefaultCmlBehaviorFactory().newCmlBehaviour(p, null, new CmlBehaviour.BehaviourName("p"), null);
+		CmlBehaviour behaviour = new VanillaInterpreterFactory().getBehaviorFactory().newCmlBehaviour(p, null, new CmlBehaviour.BehaviourName("p"), null);
 		CmlChannel channel = new CmlChannel(null, new CmlLexNameToken("M", "c", null));
 		List<Value> values = new ValueList();
 		values.add(new LatticeTopValue(AstFactory.newAIntNumericBasicType(null)));

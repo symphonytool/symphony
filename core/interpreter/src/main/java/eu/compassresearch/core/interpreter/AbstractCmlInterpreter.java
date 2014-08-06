@@ -95,11 +95,23 @@ public abstract class AbstractCmlInterpreter implements CmlInterpreter
 	}
 
 	/**
-	 * Set the new state of the interpreter
+	 * Set the new state of the interpreter. And fires a state change event if the state changed
 	 */
 	protected void setNewState(CmlInterpreterState newState)
 	{
-		if (currentState != newState)
+		setNewState(newState, false);
+	}
+
+	/**
+	 * Set the new state of the interpreter, and fires a state change event if it change or if the always fire event
+	 * condition is true
+	 * @param newState the new state
+	 * @param alwaysFireEvent if true a state change event is fired unconditionally
+	 */
+	protected void setNewState(CmlInterpreterState newState,
+			boolean alwaysFireEvent)
+	{
+		if (currentState != newState || alwaysFireEvent)
 		{
 			currentState = newState;
 			stateChangedEventHandler.fireEvent(new InterpreterStateChangedEvent(this));
@@ -137,7 +149,7 @@ public abstract class AbstractCmlInterpreter implements CmlInterpreter
 		Settings.release = Release.VDM_10;
 		// enable debugging in VDM source code
 		Settings.usingDBGP = true;
-		//Configure overture to generate values in type binds. e.g. i : int
+		// Configure overture to generate values in type binds. e.g. i : int
 		Properties.numeric_type_bind_generation = true;
 		Properties.minint = -128;
 		Properties.maxint = 128;
@@ -268,6 +280,14 @@ public abstract class AbstractCmlInterpreter implements CmlInterpreter
 	public void setDebugContext(int id, Context context, ILexLocation location)
 	{
 		debugContexts.put(id, new DebugContext(location, context));
+	}
+	
+	/**
+	 * Clear debug contexts, this must be done when interpretation resumes
+	 */
+	public void clearDebugContexts()
+	{
+		debugContexts.clear();
 	}
 
 }
