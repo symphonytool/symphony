@@ -1,0 +1,22 @@
+channels
+
+c: nat
+
+chansets
+
+csA = {|c.1,c.3|}
+csB = {|c.2,c.3|}
+
+process P = begin
+
+actions
+
+A = c.3->c.1->c.4->Skip
+B = c.3->c.2->c.4->Skip
+
+
+@
+
+A [csA || csB] B
+
+end

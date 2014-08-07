@@ -14,7 +14,7 @@ import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.cosim.IProcessBehaviourDelegationManager;
 import eu.compassresearch.core.interpreter.cosim.MessageManager;
 import eu.compassresearch.core.interpreter.cosim.ProcessDelegate;
-import eu.compassresearch.core.interpreter.cosim.communication.protocol.CoSimProtocolVersion1;
+import eu.compassresearch.core.interpreter.cosim.communication.protocol.CoSimProtocolFactory;
 import eu.compassresearch.core.interpreter.debug.messaging.JsonMessage;
 
 /**
@@ -56,6 +56,11 @@ public class ConnectionThread extends Thread
 	Semaphore executingSem = new Semaphore(0);
 	private String registeredProcessName;
 	private AbortMessage abortedMsg;
+	
+	/**
+	 * Protocol factory
+	 */
+	private CoSimProtocolFactory protocolFactory = new CoSimProtocolFactory();
 
 	public ConnectionThread(ThreadGroup group, Socket conn, boolean principal,
 			IProcessBehaviourDelegationManager delegationManager)
@@ -66,7 +71,7 @@ public class ConnectionThread extends Thread
 		this.socket = conn;
 		this.socket.setSoTimeout(0);
 		this.principal = principal;
-		this.comm = new MessageManager(conn, new CoSimProtocolVersion1());
+		this.comm = new MessageManager(conn,protocolFactory.getInstance(protocolFactory.DEFAULT_VERSION));
 		this.delegationManager = delegationManager;
 		setDaemon(true);
 	}
@@ -141,7 +146,11 @@ public class ConnectionThread extends Thread
 
 		if (message instanceof RegisterSubSystemMessage)
 		{
-			for (String processName : ((RegisterSubSystemMessage) message).getProcesses())
+			final RegisterSubSystemMessage regMsg = (RegisterSubSystemMessage) message;
+			
+			this.comm.setProtocol(protocolFactory.getInstance(regMsg.version));
+			
+			for (String processName : regMsg.getProcesses())
 			{
 				this.registeredProcessName = processName;
 				this.delegationManager.addDelegate(new ProcessDelegate(registeredProcessName, this));

@@ -5,13 +5,34 @@ import java.util.List;
 import org.overture.ast.definitions.PDefinition;
 
 import eu.compassresearch.core.interpreter.api.CmlBehaviorFactory;
+import eu.compassresearch.core.interpreter.api.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 
 public class VanillaInterpreterFactory implements InterpreterFactory
 {
+	/**
+	 * The active interpreter
+	 */
+	private CmlInterpreter activeInterpreter = null;
 
-	protected CmlBehaviorFactory cmlBehaviorFactory = new DefaultCmlBehaviorFactory();
+	/**
+	 * delegate method to delegate inspect events to the active interpreter when created
+	 */
+	protected IInspectListener delegatedListener = new IInspectListener()
+	{
+
+		@Override
+		public void inspectStarted(CmlBehaviour behaviour)
+		{
+			if (activeInterpreter != null)
+			{
+				activeInterpreter.inspectStarted(behaviour);
+			}
+		}
+	};
+
+	protected CmlBehaviorFactory cmlBehaviorFactory = new DefaultCmlBehaviorFactory(delegatedListener);
 
 	/*
 	 * (non-Javadoc)
@@ -35,6 +56,7 @@ public class VanillaInterpreterFactory implements InterpreterFactory
 	{
 		VanillaCmlInterpreter interpreter = new VanillaCmlInterpreter(definitions, newDefaultConfig());
 		CmlContextFactory.configureDBGPReader(interpreter);
+		this.activeInterpreter = interpreter;
 		return interpreter;
 	}
 
@@ -49,6 +71,7 @@ public class VanillaInterpreterFactory implements InterpreterFactory
 	{
 		VanillaCmlInterpreter interpreter = new VanillaCmlInterpreter(definitions, config);
 		CmlContextFactory.configureDBGPReader(interpreter);
+		this.activeInterpreter = interpreter;
 		return interpreter;
 	}
 
@@ -70,5 +93,11 @@ public class VanillaInterpreterFactory implements InterpreterFactory
 	public Config newDefaultConfig(boolean filterTockEvents)
 	{
 		return new Config(filterTockEvents, cmlBehaviorFactory);
+	}
+
+	@Override
+	public CmlBehaviorFactory getBehaviorFactory()
+	{
+		return this.cmlBehaviorFactory;
 	}
 }

@@ -14,10 +14,9 @@ import eu.compassresearch.core.interpreter.cosim.CoSimulationClient;
  * 
  * @author kel
  */
-public final class CoSimClientInterpreterFactory implements InterpreterFactory
+public final class CoSimClientInterpreterFactory extends VanillaInterpreterFactory
 {
 
-	CmlBehaviorFactory cmlBehaviorFactory = new DefaultCmlBehaviorFactory();
 	private CoSimulationClient client;
 
 	public CoSimClientInterpreterFactory(CoSimulationClient client)

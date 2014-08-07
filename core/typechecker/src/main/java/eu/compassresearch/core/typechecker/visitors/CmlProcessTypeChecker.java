@@ -109,7 +109,7 @@ public class CmlProcessTypeChecker extends
 	{
 
 		Environment base = new PrivateActionClassEnvironment(question.assistantFactory, node.getActionDefinition(), question.env);
-		Environment env = PParametrisationAssistant.updateEnvironment(base, node.getActionDefinition());
+		Environment env = PParametrisationAssistant.updateEnvironment(THIS,base, node.getActionDefinition());
 
 		TypeCheckInfo q = new TypeCheckInfo(question.assistantFactory, env, NameScope.NAMESANDSTATE);
 

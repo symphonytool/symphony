@@ -48,11 +48,16 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 {
 
 	/**
-	 * 
+	 * the global context
 	 */
 	protected Context globalContext;
 	protected String defaultName = null;
 	protected AProcessDefinition topProcess;
+	
+	/**
+	 * The id of the last known active behavior
+	 */
+	private int activeBehaviourId;
 
 	/**
 	 * Sync object used to suspend the execution
@@ -338,6 +343,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	protected void executeBehaviour(CmlBehaviour behaviour)
 			throws AnalysisException
 	{
+		activeBehaviourId = selectedEvent.getEventSources().first().getId();
 		behaviour.execute(selectedEvent);
 	}
 
@@ -374,8 +380,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	{
 		for (CmlTransition event : availableEvents)
 		{
-			// TODO this should be handled differently
-			Context context = event.getEventSources().iterator().next().getNextState().second;
+			Context context = event.getEventSources().first().getNextState().second;
 
 			String state;
 
@@ -436,7 +441,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	@Override
 	public void setCurrentDebugContext(Context context, ILexLocation location)
 	{
-		setDebugContext(selectedEvent.getEventSources().iterator().next().getId(), context, location);
+		setDebugContext(activeBehaviourId, context, location);
 	}
 
 	private CmlTransitionSet filterEvents(CmlTransitionSet availableEvents)
@@ -455,6 +460,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		synchronized (suspendObject)
 		{
 			stepping = false;
+			super.clearDebugContexts();
 			this.suspendObject.notifyAll();
 		}
 	}
@@ -462,7 +468,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	@Override
 	public void suspend() throws InterruptedException
 	{
-		setNewState(CmlInterpreterState.SUSPENDED);
+		setNewState(CmlInterpreterState.SUSPENDED,true);
 
 		forceInternalSuspend();
 	}
@@ -548,6 +554,14 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	public PExp parseExpression(String line, String module) throws Exception
 	{
 		return ParserUtil.parseExpression(new File("Console"), ParserUtil.getCharStream(line, StandardCharsets.UTF_8.name()), PreParser.StreamType.Plain).exp;
+	}
+	
+	
+
+	@Override
+	public void inspectStarted(CmlBehaviour behaviour)
+	{
+		this.activeBehaviourId = behaviour.getId();
 	}
 
 }

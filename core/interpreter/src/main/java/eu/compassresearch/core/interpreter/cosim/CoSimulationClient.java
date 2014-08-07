@@ -31,7 +31,7 @@ import eu.compassresearch.core.interpreter.cosim.communication.FinishedRequestMe
 import eu.compassresearch.core.interpreter.cosim.communication.InspectMessage;
 import eu.compassresearch.core.interpreter.cosim.communication.InspectReplyMessage;
 import eu.compassresearch.core.interpreter.cosim.communication.RegisterSubSystemMessage;
-import eu.compassresearch.core.interpreter.cosim.communication.protocol.CoSimProtocolVersion1;
+import eu.compassresearch.core.interpreter.cosim.communication.protocol.CoSimProtocolFactory;
 import eu.compassresearch.core.interpreter.debug.messaging.JsonMessage;
 
 /**
@@ -76,7 +76,8 @@ public class CoSimulationClient extends Thread
 		InetAddress server = InetAddress.getByName(host);
 		socket = new Socket(server, port);
 		socket.setSoTimeout(0);
-		comm = new MessageManager(socket, new CoSimProtocolVersion1());
+		CoSimProtocolFactory protocolFactory = new CoSimProtocolFactory();
+		comm = new MessageManager(socket, protocolFactory.getInstance(protocolFactory.DEFAULT_VERSION));
 	}
 
 	@Override

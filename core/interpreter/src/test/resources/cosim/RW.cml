@@ -9,7 +9,7 @@ b: int
 
 values
 
-MAX = 10
+MAX = 3
 
 process Main = Writer [|{a,b}|] Echo 
 
