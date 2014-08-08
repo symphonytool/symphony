@@ -1,0 +1,13 @@
+channels
+
+c: nat
+
+process P = begin 
+
+actions
+
+A=c.1 -> c.2 -> Skip
+
+@ c.3 -> A; c.1 -> Skip [|{c.i| i in set{1,2}}|] c.4 -> A
+
+end

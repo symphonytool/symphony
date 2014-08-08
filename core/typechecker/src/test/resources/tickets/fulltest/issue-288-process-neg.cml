@@ -1,0 +1,7 @@
+process P1 = res n : nat1 @ begin
+@Skip
+end
+
+process P2 = vres n : nat1 @ begin
+@Skip
+end

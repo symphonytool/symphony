@@ -10,8 +10,10 @@ import org.overture.ast.definitions.AStateDefinition;
 import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.AValueDefinition;
 import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.definitions.SClassDefinition;
 import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.intf.lex.ILexNameToken;
+import org.overture.ast.node.INode;
 import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.interpreter.assistant.IInterpreterAssistantFactory;
 import org.overture.interpreter.runtime.Context;
@@ -142,7 +144,7 @@ public class CmlNamedValueLister extends AbstractNameValueLister
 			AExplicitFunctionDefinition node, Context question)
 			throws AnalysisException
 	{
-		// FIXME not sure what this if is about, but the rest is dublicated
+		// FIXME not sure what this if is about, but the rest is duplicated
 		if (node.parent() instanceof ATypeDefinition)
 		{
 			node.setIsTypeInvariant(true);
@@ -151,7 +153,44 @@ public class CmlNamedValueLister extends AbstractNameValueLister
 			node.setIsTypeInvariant(false);
 		}
 
-		return super.caseAExplicitFunctionDefinition(node, question);
+		NameValuePairList list = super.caseAExplicitFunctionDefinition(node, question);
+
+		return duplicateNamesWithModuleSet(list, node);
+	}
+
+	/**
+	 * Since CML in places has a slidly different way of representing names. i.e. it actually dont have static stuff. We
+	 * need to handle this since VDM requires static (functions) to have the module set for function-to-function calls
+	 * but not for op-to-fun calls so we add both.
+	 * 
+	 * @param list
+	 * @param node
+	 * @return
+	 */
+	private static NameValuePairList duplicateNamesWithModuleSet(
+			NameValuePairList list, INode node)
+	{
+		NameValuePairList dupList = new NameValuePairList();
+		dupList.addAll(list);
+
+		if (!list.isEmpty())
+		{
+			for (NameValuePair nvp : list)
+			{
+				if (nvp.name.getModule().isEmpty())
+				{
+					SClassDefinition def = node.getAncestor(SClassDefinition.class);
+					if (def != null)
+					{
+						CmlLexNameToken name2 = new CmlLexNameToken(def.getName().getName(), nvp.name.getName(), nvp.name.getLocation(), nvp.name.isOld(), nvp.name.getExplicit());
+						name2.setTypeQualifier(nvp.name.getTypeQualifier());
+						dupList.add(new NameValuePair(name2, nvp.value));
+					}
+				}
+			}
+		}
+
+		return dupList;
 	}
 
 	@Override

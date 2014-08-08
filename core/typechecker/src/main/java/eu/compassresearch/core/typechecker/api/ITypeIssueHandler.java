@@ -272,6 +272,7 @@ public interface ITypeIssueHandler extends IStatusListener
 	 * 
 	 * @param offendingSubtree
 	 *            - The offending AST node
+	 * @param location 
 	 * @param message
 	 *            - A message detailing the nature of the the error and preferably hinting how to fix it.
 	 */
@@ -288,6 +289,7 @@ public interface ITypeIssueHandler extends IStatusListener
 	 *            - The subtree found to be inhibiting an ill shape.
 	 * @param message
 	 *            - A message detailing the kind of check made to trigger this warning.
+	 * @param arguments 
 	 */
 	public void addTypeWarning(INode hazardousSubtree,
 			TypeWarningMessages message, String... arguments);

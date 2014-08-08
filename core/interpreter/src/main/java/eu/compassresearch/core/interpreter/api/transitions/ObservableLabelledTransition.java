@@ -44,7 +44,7 @@ public class ObservableLabelledTransition extends AbstractCmlTransition
 
 	}
 
-	private ObservableLabelledTransition(SortedSet<CmlBehaviour> sources,
+	public ObservableLabelledTransition(SortedSet<CmlBehaviour> sources,
 			ChannelValue channelName)
 	{
 		super(sources);
@@ -125,7 +125,7 @@ public class ObservableLabelledTransition extends AbstractCmlTransition
 				: null;
 
 		if (isChannelsComparable(otherLT)
-				&& (this.getChannelName().isGTEQPrecise(otherLT.getChannelName()) || otherLT.getChannelName().isGTEQPrecise(this.getChannelName())))
+				&& (this.getChannelName().isEquallyOrMorePrecise(otherLT.getChannelName()) || otherLT.getChannelName().isEquallyOrMorePrecise(this.getChannelName())))
 		{
 			ChannelValue meetValue = this.getChannelName().meet(otherLT.getChannelName());
 			try

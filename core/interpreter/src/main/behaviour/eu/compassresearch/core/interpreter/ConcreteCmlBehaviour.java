@@ -3,6 +3,7 @@ package eu.compassresearch.core.interpreter;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Vector;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.intf.lex.ILexNameToken;
@@ -124,6 +125,11 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	 */
 	protected boolean waitPrime = false;
 
+	/**
+	 * List of listeners for inspection events
+	 */
+	final transient private List<IInspectListener> inspectListeners = new Vector<IInspectListener>();
+
 	protected EventSourceHandler<CmlBehaviorStateObserver, CmlBehaviorStateEvent> stateEventhandler = new EventSourceHandler<CmlBehaviorStateObserver, CmlBehaviorStateEvent>(this, new EventFireMediator<CmlBehaviorStateObserver, CmlBehaviorStateEvent>()
 	{
 
@@ -153,12 +159,13 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	 *            set the parent here if any else set to null
 	 */
 	private ConcreteCmlBehaviour(CmlBehaviour parent, BehaviourName name,
-			CmlBehaviorFactory cmlBehaviorFactory)
+			CmlBehaviorFactory cmlBehaviorFactory, IInspectListener inspectListener)
 	{
 
 		this.parent = parent;
 		this.name = name;
 		this.cmlBehaviorFactory = cmlBehaviorFactory;
+		this.inspectListeners.add(inspectListener);
 
 		VisitorAccess visitorAccess = new VisitorAccess()
 		{
@@ -257,17 +264,17 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	}
 
 	ConcreteCmlBehaviour(INode action, Context context, CmlBehaviour parent,
-			CmlBehaviorFactory cmlBehaviorFactory) throws AnalysisException
+			CmlBehaviorFactory cmlBehaviorFactory, IInspectListener inspectListener) throws AnalysisException
 	{
-		this(parent, new BehaviourName("Child of " + parent.getName()), cmlBehaviorFactory);
+		this(parent, new BehaviourName("Child of " + parent.getName()), cmlBehaviorFactory,inspectListener);
 		setNext(new Pair<INode, Context>(action, context));
 	}
 
 	ConcreteCmlBehaviour(INode action, Context context, BehaviourName name,
-			CmlBehaviour parent, CmlBehaviorFactory cmlBehaviorFactory)
+			CmlBehaviour parent, CmlBehaviorFactory cmlBehaviorFactory, IInspectListener inspectListener)
 			throws AnalysisException
 	{
-		this(parent, name, cmlBehaviorFactory);
+		this(parent, name, cmlBehaviorFactory,inspectListener);
 		setNext(new Pair<INode, Context>(action, context));
 	}
 
@@ -295,7 +302,8 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	@Override
 	public String toString()
 	{
-		return name.toString()+"\n\tNext: "+(next!=null?next.first:"null");
+		return name.toString() + "\n\tNext: "
+				+ (next != null ? next.first : "null");
 	}
 
 	/**
@@ -339,9 +347,9 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 
 		if (next == null || newNext.first != next.first && !hasChildren())
 		{
-			//Fix for issue: https://github.com/symphonytool/symphony/issues/237
-			next =setup(newNext);
-			
+			// Fix for issue: https://github.com/symphonytool/symphony/issues/237
+			next = setup(newNext);
+
 			return true;
 		} else
 		{
@@ -350,17 +358,18 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 		}
 	}
 
-	protected Pair<INode, Context> setup(Pair<INode, Context> next) throws AnalysisException
+	protected Pair<INode, Context> setup(Pair<INode, Context> next)
+			throws AnalysisException
 	{
-		INode tmp =null;
-		
+		INode tmp = null;
+
 		Pair<INode, Context> current = next;
 		do
 		{
-			tmp =current.first;
-			current = current.first.apply(setupVisitor, current.second);	
-		}while(current.first != tmp);
-		
+			tmp = current.first;
+			current = current.first.apply(setupVisitor, current.second);
+		} while (current.first != tmp);
+
 		return current;
 	}
 
@@ -369,6 +378,7 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 		if (lastInspection == null
 				|| !lastInspection.getTrace().equals(this.getTraceModel()))
 		{
+			notifyInspectListenersStarted();
 			lastInspection = next.first.apply(inspectionVisitor, next.second);
 		}
 	}
@@ -721,5 +731,20 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 		}
 
 		return newCurrent;
+	}
+	
+	
+	/**
+	 * Notifies all listeners for inspection
+	 */
+	private void notifyInspectListenersStarted()
+	{
+		for (IInspectListener listener : this.inspectListeners)
+		{
+			if(listener!=null)
+			{
+				listener.inspectStarted(this);
+			}
+		}
 	}
 }

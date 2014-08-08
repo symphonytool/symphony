@@ -23,11 +23,13 @@ import eu.compassresearch.core.interpreter.cosim.IProcessDelegate;
 public class CoSimCmlBehaviorFactory implements CmlBehaviorFactory
 {
 	private final IProcessBehaviourDelegationManager delegationManager;
+	private IInspectListener inspectListner;
 
 	public CoSimCmlBehaviorFactory(
-			IProcessBehaviourDelegationManager delegationManager)
+			IProcessBehaviourDelegationManager delegationManager,IInspectListener inspectListner)
 	{
 		this.delegationManager = delegationManager;
+		this.inspectListner = inspectListner;
 	}
 
 	@Override
@@ -55,7 +57,7 @@ public class CoSimCmlBehaviorFactory implements CmlBehaviorFactory
 						+ parent.getName()), this, delegate);
 			}
 		}
-		return new ConcreteCmlBehaviour(node, context, parent, this);
+		return new ConcreteCmlBehaviour(node, context, parent, this,inspectListner);
 	}
 
 	@Override
@@ -85,7 +87,7 @@ public class CoSimCmlBehaviorFactory implements CmlBehaviorFactory
 			}
 		}
 
-		return new ConcreteCmlBehaviour(node, context, name, parent, this);
+		return new ConcreteCmlBehaviour(node, context, name, parent, this,inspectListner);
 	}
 
 }

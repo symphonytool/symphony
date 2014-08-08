@@ -27,11 +27,12 @@ public final class VanillaFactory
 	/**
 	 * create an instance of the Vanilla type checker.
 	 * 
-	 * @param cmlSource
+	 * @param cmlSources
 	 *            - List of parsed CML source to type check
 	 * @param issueHandler
 	 *            - Optional parameter can be null in which case the type checker will collect any type errors to be
 	 *            retrieved later. Otherwise an instance that handles errors when reported by the type checker.
+	 * @return 
 	 */
 	public static ICmlTypeChecker newTypeChecker(
 			List<? extends PDefinition> cmlSources,

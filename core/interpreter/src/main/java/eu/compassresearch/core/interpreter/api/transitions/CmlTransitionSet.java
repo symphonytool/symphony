@@ -2,8 +2,10 @@ package eu.compassresearch.core.interpreter.api.transitions;
 
 import java.io.PrintStream;
 import java.util.Iterator;
+import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.Vector;
 
 import org.overture.interpreter.values.SetValue;
 import org.overture.interpreter.values.Value;
@@ -13,18 +15,20 @@ import eu.compassresearch.core.interpreter.api.transitions.ops.MapOperation;
 import eu.compassresearch.core.interpreter.api.transitions.ops.RemoveChannelNames;
 import eu.compassresearch.core.interpreter.api.transitions.ops.RemoveTock;
 import eu.compassresearch.core.interpreter.api.transitions.ops.RetainChannelNamesAndTime;
+import eu.compassresearch.core.interpreter.api.values.ChannelValue;
 import eu.compassresearch.core.interpreter.api.values.LatticeTopValue;
+import eu.compassresearch.core.interpreter.api.values.LooseValue;
 
 /**
  * This represents a set of CmlTransition objects
  * 
- * @author akm
+ * @author akm & Kel
  */
 public class CmlTransitionSet implements Iterable<CmlTransition>
 {
 
 	/**
-	 * 
+	 * serial
 	 */
 	@SuppressWarnings("unused")
 	private static final long serialVersionUID = 5192258370825756900L;
@@ -440,9 +444,125 @@ public class CmlTransitionSet implements Iterable<CmlTransition>
 
 	}
 
+	/**
+	 * Creates a new {@link CmlTransitionSet} object from self that is specialised based on the constraint set. So,
+	 * unknown values in synchronisations (i.e. c.?) will be specialised by allowed channel values in the constraint
+	 * set. I.e., if the constraint set has c.1, and this set has c.?, then the resulting set will have c.1. If there
+	 * are possible synchronisations on channels not in the constraint set, they will be not be present in the result.
+	 * 
+	 * @param constraints
+	 * @return
+	 */
+	public CmlTransitionSet constrainedExpand(SetValue constraints)
+	{
+		SortedSet<CmlTransition> eventSet = new TreeSet<CmlTransition>();
+
+		for (CmlTransition ev : transitions)
+		{
+			if (ev instanceof ObservableLabelledTransition)
+			{
+				ObservableLabelledTransition lev = (ObservableLabelledTransition) ev;
+				for (Value val : constraints.values)
+				{
+					ChannelValue constraint = (ChannelValue) val;
+					final ChannelValue value = lev.getChannelName();
+					if (value.isComparable(constraint))
+					{
+						if (value.isPrecise())
+						{
+							eventSet.add(ev);
+						} else
+						{
+							List<Value> preciseValues = new Vector<Value>();
+
+							Iterator<Value> itrValue = value.getValues().iterator();
+							Iterator<Value> itrConstraint = constraint.getValues().iterator();
+
+							while (itrValue.hasNext()
+									&& itrConstraint.hasNext())
+							{
+								Value tVal = itrValue.next();
+								Value cVal = itrConstraint.next();
+
+								if (tVal instanceof LooseValue)
+								{
+									preciseValues.add(cVal);
+								} else
+								{
+									preciseValues.add(tVal);
+								}
+							}
+
+							final ChannelValue channelName = new ChannelValue(value.getChannel(), preciseValues, value.getConstraints());
+							eventSet.add(new ObservableLabelledTransition(lev.getEventSources(), channelName));
+						}
+					}
+				}
+
+			} else
+			{
+				eventSet.add(ev);
+			}
+		}
+
+		return new CmlTransitionSet(eventSet);
+	}
+
 	@Override
 	public Iterator<CmlTransition> iterator()
 	{
 		return transitions.iterator();
+	}
+
+	/**
+	 * This compresses a transition set such that events of the form c.1 and c.? will be merged into c.? where the new
+	 * c.? will contain the sources of both
+	 * 
+	 * @return
+	 */
+	public CmlTransitionSet compress()
+	{
+		SortedSet<CmlTransition> eventSet = new TreeSet<CmlTransition>();
+		SortedSet<CmlTransition> discardSet = new TreeSet<CmlTransition>();
+
+		for (CmlTransition ev : transitions)
+		{
+			if (ev instanceof ObservableLabelledTransition)
+			{
+				ObservableLabelledTransition oev = (ObservableLabelledTransition) ev;
+				if (!oev.getChannelName().isPrecise())
+				{
+					CmlTransition tmpTransition = oev;
+					for (CmlTransition ev2 : transitions)
+					{
+						if (ev!=ev2 && ev instanceof ObservableLabelledTransition)
+						{
+							ObservableLabelledTransition oev2 = (ObservableLabelledTransition) ev2;
+							if (oev.getChannelName().isEquallyOrMorePrecise(oev2.getChannelName()))
+							{
+								tmpTransition = new ObservableLabelledTransition(tmpTransition, ev2, oev.getChannelName());
+								discardSet.add(oev2);
+							}
+						}
+
+					}
+
+					eventSet.add(tmpTransition);
+				} else
+				{
+					eventSet.add(ev);
+				}
+			} else
+			{
+				eventSet.add(ev);
+			}
+		}
+		
+		if(!discardSet.isEmpty())
+		{
+			eventSet.removeAll(discardSet);
+		}
+
+		return new CmlTransitionSet(eventSet);
 	}
 }
