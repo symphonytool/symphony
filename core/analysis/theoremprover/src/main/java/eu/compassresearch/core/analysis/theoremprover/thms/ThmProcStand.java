@@ -29,7 +29,7 @@ public class ThmProcStand extends ThmDecl {
 		sb.append(ThmProcessUtil.isaProcBegin + "\n");
 
 	    sb.append(ThmProcessUtil.isaProc + " \"" + ThmProcessUtil.isaMainAction + " = " 
-	              + ThmProcessUtil.procDelimLeft + body + ThmProcessUtil.procDelimRight + "\"\n" + tacHook(name));
+	              + ThmProcessUtil.procDelimLeft + body + ThmProcessUtil.procDelimRight + "\""); 
 				  
 		sb.append("\n" + ThmProcessUtil.isaProcEnd);
 

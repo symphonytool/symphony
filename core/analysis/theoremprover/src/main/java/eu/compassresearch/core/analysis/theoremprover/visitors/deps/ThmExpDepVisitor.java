@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.definitions.AValueDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.AAbsoluteUnaryExp;
 import org.overture.ast.expressions.AAndBooleanBinaryExp;
@@ -100,6 +101,7 @@ import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.patterns.AIdentifierPattern;
+import org.overture.ast.patterns.ARecordPattern;
 import org.overture.ast.patterns.ASetBind;
 import org.overture.ast.patterns.ASetMultipleBind;
 import org.overture.ast.patterns.ATypeBind;
@@ -195,9 +197,25 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 			{
 				ATypeMultipleBind tmb = (ATypeMultipleBind) b;					
 				for (Iterator<PPattern> itr = tmb.getPlist().listIterator(); itr.hasNext(); ) {
-					AIdentifierPattern p = (AIdentifierPattern) itr.next();
+					PPattern pattern = itr.next();
+					if(pattern instanceof AIdentifierPattern){
+						AIdentifierPattern p = (AIdentifierPattern) pattern;
 					
-					bvars.add(p.getName());
+						bvars.add(p.getName());
+					}
+					else if (pattern instanceof ARecordPattern){
+						ARecordPattern p = (ARecordPattern) pattern;
+						
+						for (Iterator<PPattern> itr2 = p.getPlist().listIterator(); itr2.hasNext(); ) {
+
+							PPattern fpatt = itr2.next();
+							if(fpatt instanceof AIdentifierPattern){
+								AIdentifierPattern fpattid = (AIdentifierPattern) fpatt;
+								bvars.add(fpattid.getName());
+
+							}
+						}
+					}
 				}
 				nodeDeps.addAll(tmb.getType().apply(thmDepVisitor, bvars));
 			}
@@ -205,11 +223,26 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 			{
 				ASetMultipleBind smb = (ASetMultipleBind) b;
 				for (Iterator<PPattern> itr = smb.getPlist().listIterator(); itr.hasNext(); ) {
-					AIdentifierPattern p = (AIdentifierPattern) itr.next();
+					PPattern pattern = itr.next();
+					if(pattern instanceof AIdentifierPattern){
+						AIdentifierPattern p = (AIdentifierPattern) pattern;
 					
-					bvars.add(p.getName());
+						bvars.add(p.getName());
+					}else if (pattern instanceof ARecordPattern){
+						ARecordPattern p = (ARecordPattern) pattern;
+						
+						for (Iterator<PPattern> itr2 = p.getPlist().listIterator(); itr2.hasNext(); ) {
+
+							PPattern fpatt = itr2.next();
+							if(fpatt instanceof AIdentifierPattern){
+								AIdentifierPattern fpattid = (AIdentifierPattern) fpatt;
+								bvars.add(fpattid.getName());
+
+							}
+						}
+					}
 				}
-				nodeDeps.addAll(smb.getSet().apply(thmDepVisitor, bvars));
+				nodeDeps.addAll(smb.getSet().apply(thmDepVisitor, bvars));	
 			}
 		}
 		nodeDeps.addAll(ex.getPredicate().apply(thmDepVisitor, bvars));
@@ -253,9 +286,25 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 			{
 				ATypeMultipleBind tmb = (ATypeMultipleBind) b;					
 				for (Iterator<PPattern> itr = tmb.getPlist().listIterator(); itr.hasNext(); ) {
-					AIdentifierPattern p = (AIdentifierPattern) itr.next();
+					PPattern pattern = itr.next();
+					if(pattern instanceof AIdentifierPattern){
+						AIdentifierPattern p = (AIdentifierPattern) pattern;
 					
-					bvars.add(p.getName());
+						bvars.add(p.getName());
+					}
+					else if (pattern instanceof ARecordPattern){
+						ARecordPattern p = (ARecordPattern) pattern;
+						
+						for (Iterator<PPattern> itr2 = p.getPlist().listIterator(); itr2.hasNext(); ) {
+
+							PPattern fpatt = itr2.next();
+							if(fpatt instanceof AIdentifierPattern){
+								AIdentifierPattern fpattid = (AIdentifierPattern) fpatt;
+								bvars.add(fpattid.getName());
+
+							}
+						}
+					}
 				}
 				nodeDeps.addAll(tmb.getType().apply(thmDepVisitor, bvars));
 			}
@@ -263,11 +312,27 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 			{
 				ASetMultipleBind smb = (ASetMultipleBind) b;
 				for (Iterator<PPattern> itr = smb.getPlist().listIterator(); itr.hasNext(); ) {
-					AIdentifierPattern p = (AIdentifierPattern) itr.next();
+					PPattern pattern = itr.next();
+					if(pattern instanceof AIdentifierPattern){
+						AIdentifierPattern p = (AIdentifierPattern) pattern;
 					
-					bvars.add(p.getName());
+						bvars.add(p.getName());
+					}
+					else if (pattern instanceof ARecordPattern){
+						ARecordPattern p = (ARecordPattern) pattern;
+						
+						for (Iterator<PPattern> itr2 = p.getPlist().listIterator(); itr2.hasNext(); ) {
+
+							PPattern fpatt = itr2.next();
+							if(fpatt instanceof AIdentifierPattern){
+								AIdentifierPattern fpattid = (AIdentifierPattern) fpatt;
+								bvars.add(fpattid.getName());
+
+							}
+						}
+					}
 				}
-				nodeDeps.addAll(smb.getSet().apply(thmDepVisitor, bvars));
+				nodeDeps.addAll(smb.getSet().apply(thmDepVisitor, bvars));	
 			}
 		}
 		nodeDeps.addAll(ex.getPredicate().apply(thmDepVisitor, bvars));
@@ -381,12 +446,22 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 		LinkedList<PDefinition> ldefs = ex.getLocalDefs();
 		for (PDefinition d : ldefs)
 		{
-			bvars.add(((AIdentifierPattern) d).getName());
-			nodeDeps.addAll(d.getType().apply(thmDepVisitor, bvars));
+			if(d.getName() != null){
+				bvars.add(d.getName());
+				nodeDeps.addAll(d.getType().apply(thmDepVisitor, bvars));
+			}	
+			else if(d instanceof AValueDefinition){
+				LinkedList<PDefinition> vdefs = ((AValueDefinition) d).getDefs();
+				for (PDefinition v: vdefs)
+				{
+					bvars.add(v.getName());
+					nodeDeps.addAll(v.getType().apply(thmDepVisitor, bvars));
+				}
+			}
+			
 		}
 		nodeDeps.addAll(ex.getExpression().apply(thmDepVisitor, bvars));
 		
-
 		return nodeDeps;
 	}
 
@@ -779,13 +854,13 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 		return nodeDeps;
 	}
 
-//	public NodeNameList caseAIndicesUnaryExp(AIndicesUnaryExp ex, NodeNameList bvars) throws AnalysisException{
-//		NodeNameList nodeDeps = new NodeNameList();
-//
-//		nodeDeps.addAll(ex.getExp().apply(thmDepVisitor, bvars));	
-//
-//		return nodeDeps;
-//	}
+	public NodeNameList caseAIndicesUnaryExp(AIndicesUnaryExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
+		nodeDeps.addAll(ex.getExp().apply(thmDepVisitor, bvars));	
+
+		return nodeDeps;
+	}
 
 	public NodeNameList caseALenUnaryExp(ALenUnaryExp ex, NodeNameList bvars) throws AnalysisException{
 		NodeNameList nodeDeps = new NodeNameList();
@@ -861,14 +936,14 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 
 		return nodeDeps;
 	}
-//
-//	public NodeNameList caseAUnaryPlusUnaryExp(AUnaryPlusUnaryExp ex, NodeNameList bvars) throws AnalysisException{
-//		NodeNameList nodeDeps = new NodeNameList();
-//
-//		nodeDeps.addAll(ex.getExp().apply(thmDepVisitor, bvars));	
-//
-//		return nodeDeps;
-//	}
+
+	public NodeNameList caseAUnaryPlusUnaryExp(AUnaryPlusUnaryExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
+		nodeDeps.addAll(ex.getExp().apply(thmDepVisitor, bvars));	
+
+		return nodeDeps;
+	}
 
 	public NodeNameList caseASetCompSetExp(ASetCompSetExp ex, NodeNameList bvars) throws AnalysisException{
 		NodeNameList nodeDeps = new NodeNameList();
@@ -882,24 +957,62 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 			{
 				ATypeMultipleBind tmb = (ATypeMultipleBind) b;					
 				for (Iterator<PPattern> itr = tmb.getPlist().listIterator(); itr.hasNext(); ) {
-					AIdentifierPattern p = (AIdentifierPattern) itr.next();
+					PPattern pattern = itr.next();
+					if(pattern instanceof AIdentifierPattern){
+						AIdentifierPattern p = (AIdentifierPattern) pattern;
 					
-					bvars.add(p.getName());
+						bvars.add(p.getName());
+					}
+					else if (pattern instanceof ARecordPattern){
+						ARecordPattern p = (ARecordPattern) pattern;
+						
+						for (Iterator<PPattern> itr2 = p.getPlist().listIterator(); itr2.hasNext(); ) {
+
+							PPattern fpatt = itr2.next();
+							if(fpatt instanceof AIdentifierPattern){
+								AIdentifierPattern fpattid = (AIdentifierPattern) fpatt;
+								bvars.add(fpattid.getName());
+
+							}
+						}
+					}
 				}
-				nodeDeps.addAll(tmb.getType().apply(thmDepVisitor, bvars));	
+				nodeDeps.addAll(tmb.getType().apply(thmDepVisitor, bvars));
 			}
 			else if (b instanceof ASetMultipleBind)
 			{
 				ASetMultipleBind smb = (ASetMultipleBind) b;
 				for (Iterator<PPattern> itr = smb.getPlist().listIterator(); itr.hasNext(); ) {
-					AIdentifierPattern p = (AIdentifierPattern) itr.next();
+					PPattern pattern = itr.next();
+					if(pattern instanceof AIdentifierPattern){
+						AIdentifierPattern p = (AIdentifierPattern) pattern;
 					
-					bvars.add(p.getName());
+						bvars.add(p.getName());
+					}else if (pattern instanceof ARecordPattern){
+						ARecordPattern p = (ARecordPattern) pattern;
+						
+						for (Iterator<PPattern> itr2 = p.getPlist().listIterator(); itr2.hasNext(); ) {
+
+							PPattern fpatt = itr2.next();
+							if(fpatt instanceof AIdentifierPattern){
+								AIdentifierPattern fpattid = (AIdentifierPattern) fpatt;
+								bvars.add(fpattid.getName());
+
+							}
+						}
+					}
 				}
 				nodeDeps.addAll(smb.getSet().apply(thmDepVisitor, bvars));	
 			}
+			
+			
+			
+			
+			
 		}
-		nodeDeps.addAll(ex.getPredicate().apply(thmDepVisitor, bvars));	
+		if (ex.getPredicate() != null){
+			nodeDeps.addAll(ex.getPredicate().apply(thmDepVisitor, bvars));	
+		}
 
 		return nodeDeps;
 	}
@@ -963,19 +1076,50 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 			{
 				ATypeMultipleBind tmb = (ATypeMultipleBind) b;					
 				for (Iterator<PPattern> itr = tmb.getPlist().listIterator(); itr.hasNext(); ) {
-					AIdentifierPattern p = (AIdentifierPattern) itr.next();
+					PPattern pattern = itr.next();
+					if(pattern instanceof AIdentifierPattern){
+						AIdentifierPattern p = (AIdentifierPattern) pattern;
 					
-					bvars.add(p.getName());
+						bvars.add(p.getName());
+					}
+					else if (pattern instanceof ARecordPattern){
+						ARecordPattern p = (ARecordPattern) pattern;
+						
+						for (Iterator<PPattern> itr2 = p.getPlist().listIterator(); itr2.hasNext(); ) {
+
+							PPattern fpatt = itr2.next();
+							if(fpatt instanceof AIdentifierPattern){
+								AIdentifierPattern fpattid = (AIdentifierPattern) fpatt;
+								bvars.add(fpattid.getName());
+
+							}
+						}
+					}
 				}
-				nodeDeps.addAll(tmb.getType().apply(thmDepVisitor, bvars));	
+				nodeDeps.addAll(tmb.getType().apply(thmDepVisitor, bvars));
 			}
 			else if (b instanceof ASetMultipleBind)
 			{
 				ASetMultipleBind smb = (ASetMultipleBind) b;
 				for (Iterator<PPattern> itr = smb.getPlist().listIterator(); itr.hasNext(); ) {
-					AIdentifierPattern p = (AIdentifierPattern) itr.next();
+					PPattern pattern = itr.next();
+					if(pattern instanceof AIdentifierPattern){
+						AIdentifierPattern p = (AIdentifierPattern) pattern;
 					
-					bvars.add(p.getName());
+						bvars.add(p.getName());
+					}else if (pattern instanceof ARecordPattern){
+						ARecordPattern p = (ARecordPattern) pattern;
+						
+						for (Iterator<PPattern> itr2 = p.getPlist().listIterator(); itr2.hasNext(); ) {
+
+							PPattern fpatt = itr2.next();
+							if(fpatt instanceof AIdentifierPattern){
+								AIdentifierPattern fpattid = (AIdentifierPattern) fpatt;
+								bvars.add(fpattid.getName());
+
+							}
+						}
+					}
 				}
 				nodeDeps.addAll(smb.getSet().apply(thmDepVisitor, bvars));	
 			}

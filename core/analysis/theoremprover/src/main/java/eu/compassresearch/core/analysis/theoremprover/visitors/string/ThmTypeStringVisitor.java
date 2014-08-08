@@ -40,7 +40,6 @@ import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.core.analysis.theoremprover.utils.ThmTypeUtil;
 
-@SuppressWarnings("serial")
 public class ThmTypeStringVisitor extends
 QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 
