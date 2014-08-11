@@ -24,7 +24,7 @@ public class CmlSClassDefinitionAssistant extends SClassDefinitionAssistantTC
 			throws AnalysisException
 	{
 
-		Environment env = PParametrisationAssistant.updateEnvironment(base, c);
+		Environment env = PParametrisationAssistant.updateEnvironment(tc,base, c);
 
 		super.typeCheckPass(c, p, env, tc);
 	}

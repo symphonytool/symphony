@@ -1,0 +1,9 @@
+channels
+
+c:int
+process P = 
+begin
+
+@ for all a in set {v| v : int} do (c!a -> Skip)
+
+end

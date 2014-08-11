@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <testResult>
-  <exception/>
+    <exception></exception>
   <interpreterState>FINISHED</interpreterState>
   <trace>
-    <events>a.\d+</events>
+    <events></events>
   </trace>
 </testResult>

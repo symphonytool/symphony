@@ -404,20 +404,20 @@ actions
 
   NETWORK_SEND = ns : NetworkState @ send?m -> network_in(ns,m); NETWORK(ns)
   
-  NETWORK_RECEIVE = ns : NetworkState @ [ns.messages <> {}] & (dcl m : Message @ m := chooseM(ns.messages); ns := network_out(ns,m); receive!m -> NETWORK(ns))
+  NETWORK_RECEIVE = res ns : NetworkState @ [ns.messages <> {}] & (dcl m : Message @ m := chooseM(ns.messages); ns := network_out(ns,m); receive!m -> NETWORK(ns))
 
   NETWORK = ns : NetworkState @ (NETWORK_SEND(ns) [] NETWORK_RECEIVE(ns))
   
   -- SERVER ------------------------------------------------------------------
 
-  SERVER_SEND = ss : ServerState, nw : Network @
+  SERVER_SEND = res ss : ServerState, nw : Network @
   [ss.sactions <> []] &
   (dcl a : Action @ a := hd ss.sactions; ss := server_send_action(ss);
     (dcl p : seq of nat @ p := network_path_to_server(a.meter,nw);
   	  (dcl m : Message @ m := mk_Message(reverse p,0,a);
   		send!m -> SERVER(ss,nw))))
 
-  SERVER_RECEIVE = ss : ServerState, nw : Network @ receive?m: (mc(m) = uid.server) -> ss := server_receive_metering(ss,m.cont); SERVER(ss,nw)
+  SERVER_RECEIVE = res ss : ServerState, nw : Network @ receive?m: (mc(m) = uid.server) -> ss := server_receive_metering(ss,m.cont); SERVER(ss,nw)
   
   SERVER_COMPUTE = ss : ServerState, nw : Network @ compute -> (
   dcl as : seq of Action @ as := [];
@@ -428,49 +428,49 @@ actions
   -- return as -- return has no meaning in actions
   ); SERVER(ss,nw)
 
-  SERVER_TIME = ss : ServerState, nw : Network @ Wait(1); ss := mk_ServerState(ss.sactions,ss.meterings,ss.rules,ss.time+1); SERVER(ss,nw)
+  SERVER_TIME = res ss : ServerState, nw : Network @ Wait(1); ss := mk_ServerState(ss.sactions,ss.meterings,ss.rules,ss.time+1); SERVER(ss,nw)
 
   SERVER = ss : ServerState, nw : Network @ (SERVER_COMPUTE(ss,nw) [] SERVER_SEND(ss,nw) [] SERVER_RECEIVE(ss,nw) [] SERVER_TIME(ss,nw))
     
   -- GATEWAY -----------------------------------------------------------------
 
-  GATEWAY_SEND_METERING = gs : GatewayState @
+  GATEWAY_SEND_METERING = res gs : GatewayState @
   [exists gid in set uid.gateways @ gs.meterings(gid) <> []] & 
   (dcl gid : nat @ gid := chooseN({ n | n in set uid.gateways @ gs.meterings(n) <> []});
     (dcl m : Message @ m := hd gs.meterings(gid); gs := gateway_send_metering(gs,gid);
       send!m -> GATEWAY(gs)))
     
-  GATEWAY_SEND_ACTION = gs : GatewayState @
+  GATEWAY_SEND_ACTION = res gs : GatewayState @
   [exists gid in set uid.gateways @ gs.gactions(gid) <> []] & 
   (dcl gid : nat @ gid := chooseN({ n | n in set uid.gateways @ gs.gactions(n) <> []});
     (dcl m : Message @ m := hd gs.gactions(gid); gs := gateway_send_action(gs,gid);
       send!m -> GATEWAY(gs)))
     
-  GATEWAY_RECEIVE = gs : GatewayState @ receive?m: (mc(m) in set uid.gateways) -> gs := gateway_receive_message(gs,mc(m),m); GATEWAY(gs)
+  GATEWAY_RECEIVE = res gs : GatewayState @ receive?m: (mc(m) in set uid.gateways) -> gs := gateway_receive_message(gs,mc(m),m); GATEWAY(gs)
   
   GATEWAY = gs : GatewayState @ (GATEWAY_SEND_METERING(gs) [] GATEWAY_SEND_ACTION(gs) [] GATEWAY_RECEIVE(gs))
 
   -- AGENT -------------------------------------------------------------------
 
-  AGENT_SEND_METERING = as : AgentState @
+  AGENT_SEND_METERING =  res as : AgentState @
   [exists gid in set uid.agents @ as.meterings(gid) <> []] & 
   (dcl gid : nat @ gid := chooseN({ n | n in set uid.agents @ as.meterings(n) <> []});
     (dcl m : Message @ m := hd as.meterings(gid); as := agent_send_metering(as,gid);
       send!m -> AGENT(as)))
     
-  AGENT_SEND_ACTION = as : AgentState @
+  AGENT_SEND_ACTION = res as : AgentState @
   [exists gid in set uid.agents @ as.aactions(gid) <> []] & 
   (dcl gid : nat @ gid := chooseN({ n | n in set uid.agents @ as.aactions(n) <> []});
     (dcl m : Message @ m := hd as.aactions(gid); as := agent_send_action(as,gid);
       send!m -> AGENT(as)))
     
-  AGENT_RECEIVE = as : AgentState @ receive?m: (mc(m) in set uid.agents) -> as := agent_receive_message(as,mc(m),m); AGENT(as)
+  AGENT_RECEIVE = res as : AgentState @ receive?m: (mc(m) in set uid.agents) -> as := agent_receive_message(as,mc(m),m); AGENT(as)
   
   AGENT = as : AgentState @ (AGENT_SEND_METERING(as) [] AGENT_SEND_ACTION(as) [] AGENT_RECEIVE(as))
 
   -- METER -------------------------------------------------------------------
 
-  METER_SEND_METERING = ms : MeterState, nw : Network @
+  METER_SEND_METERING = res ms : MeterState, nw : Network @
   [exists mid in set uid.meters @ ms.device(mid).ready] & 
   (dcl mid : nat @ mid := chooseN({ n | n in set uid.meters @ ms.device(n).ready});
     (dcl p : seq of nat @ p := network_path_to_server(mid,nw);
@@ -479,14 +479,14 @@ actions
           (dcl m : Message @ m := mk_Message(p,0,mk_Metering(mid,ms.time,v));
             send!m -> METER(ms,nw))))))
     
-  METER_RECEIVE_ACTION = ms : MeterState, nw : Network @
+  METER_RECEIVE_ACTION = res ms : MeterState, nw : Network @
     receive?m: (mc(m) in set uid.meters) -> (
       ms := meter_receive_message(ms,mc(m),toAction(m.cont)); 
         (dcl d : Device @ d := ms.device(mc(m)); d.advance(ms.time,ms.relays(mc(m))); METER(ms,nw)))
   
   METER = ms : MeterState, nw : Network @ (METER_SEND_METERING(ms,nw) [] METER_RECEIVE_ACTION(ms,nw) [] DEVICE(ms,nw))
 
-  METER_TIME = ms : MeterState, nw : Network @ Wait(1); ms := mk_MeterState(ms.relays,ms.device,ms.time+1); METER(ms,nw)
+  METER_TIME = res ms : MeterState, nw : Network @ Wait(1); ms := mk_MeterState(ms.relays,ms.device,ms.time+1); METER(ms,nw)
 
   -- DEVICE BEHAVIOUR ========================================================
   -- for scenario-based control of device behaviour

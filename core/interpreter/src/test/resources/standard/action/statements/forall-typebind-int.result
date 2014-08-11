@@ -3,6 +3,6 @@
   <exception/>
   <interpreterState>FINISHED</interpreterState>
   <trace>
-    <events>a.\d+</events>
+    <events>c.0(,c.(\d)*)*,c.255</events>
   </trace>
 </testResult>

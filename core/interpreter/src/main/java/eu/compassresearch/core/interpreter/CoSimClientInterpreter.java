@@ -164,7 +164,7 @@ public class CoSimClientInterpreter extends VanillaCmlInterpreter implements
 	@Override
 	public void stop()
 	{
-		setNewState(CmlInterpreterState.FINISHED);
+		setNewState(CmlInterpreterState.FINISHED,false);
 		if (executionThread != null)
 		{
 			executionThread.interrupt();
