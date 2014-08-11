@@ -31,7 +31,6 @@ chansets
 -- inspired by Clunker
  
 -- Counter(id) counts the number of a.id events that have taken place.
-
 process Counter = id : nat @ 
 begin
  state
@@ -44,14 +43,15 @@ begin
    
  actions
 -- Counting = (c.id.(count) -> a.id -> incCount();Counting) 
- Counting = (a!id -> incCount(); Stop;c!counter -> Counting) 
+ Counting = (a!id -> incCount(); c!counter -> Counting) 
  @ Counting
  end 
 
+-- An auxiliary process to test Counter
 process TestCounter = Counter(1)
--- P is a basic playing process, that plays the frames a.id with no timing constraints
 
-/*
+
+-- P is a basic playing process, that plays the frames a.id with no timing constraints
 process P = id : nat @ 
 begin
   actions
@@ -59,16 +59,19 @@ begin
        
   @ Play
  end 
+
+-- An auxiliary process to test P
+process TestP = P(1)
+
  
 -- Renderer represents the final renderers in the AV system, and is a combination of basic playing and counting
-
-process Renderer = id : nat @ P(id)[|{|a|}|]Counter(id) 
+process Renderer = id : nat @ P(id) [|{|a|}|] Counter(id) 
 
 -- We have two Renderers in our system
- 
-process Renderers = Renderer(1) ||| Renderer(2) 
+process Renderers = Renderer(1)  -- ||| Renderer(2) 
  
 
+/*
 channels
  debug : nat * nat * nat
  

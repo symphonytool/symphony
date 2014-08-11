@@ -70,13 +70,15 @@ public class MCAReferenceAction implements MCPAction {
 					if(args.size() == 1){ //there is one parameter being used
 						MCAActionDefinition actionDef = context.getActionByName(nameToSearch);
 						LinkedList<MCPParametrisation> parameters = actionDef.getDeclarations();
-						MCALocalDefinition localDef = new MCALocalDefinition(parameters.getFirst().toFormula(option), null);
-						MCAValParametrisation param = new MCAValParametrisation(localDef);
-						ParameterDependency paramDep = new ParameterDependency(this.name,param,this.parentDefinitionName); 
-						context.parameterDependencies.add(paramDep);
-						MCPCMLType parType = ((MCAValParametrisation)localAction.getDeclarations().getFirst()).getDeclaration().getType();
-						ParameterFact paramFact = new ParameterFact(this.name, args.getFirst(),parType);
-						context.parameterFacts.add(paramFact);
+						if(parameters.size() > 0){
+							MCALocalDefinition localDef = new MCALocalDefinition(parameters.getFirst().toFormula(option), null);
+							MCAValParametrisation param = new MCAValParametrisation(localDef);
+							ParameterDependency paramDep = new ParameterDependency(this.name,param,this.parentDefinitionName); 
+							context.parameterDependencies.add(paramDep);
+							MCPCMLType parType = ((MCAValParametrisation)localAction.getDeclarations().getFirst()).getDeclaration().getType();
+							ParameterFact paramFact = new ParameterFact(this.name, args.getFirst(),parType);
+							context.parameterFacts.add(paramFact);
+						}
 					}
 					break;
 					

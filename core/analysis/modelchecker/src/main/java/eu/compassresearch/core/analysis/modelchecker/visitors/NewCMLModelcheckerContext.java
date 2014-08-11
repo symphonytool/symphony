@@ -223,6 +223,17 @@ public class NewCMLModelcheckerContext {
 		return result;
 	}
 	
+	public NameValue getLocalVariableMapping(String varName){
+		NameValue result = null;
+		for (NameValue elem : this.localVariablesMapping) {
+			if(elem.getVariableName().equals(varName)){
+				result = elem;
+				break;
+			}
+		}
+		return result;
+	}
+	
 	public MCAProcessDefinition getProcessByName(String name){
 		MCAProcessDefinition result = null;
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();

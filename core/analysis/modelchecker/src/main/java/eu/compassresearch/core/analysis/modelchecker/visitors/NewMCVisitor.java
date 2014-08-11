@@ -264,6 +264,7 @@ public class NewMCVisitor extends
 		for (PSource source : sources) {
 			if(source instanceof AFileSource){
 				String mainProcessName = chooseAProcessName((AFileSource) source);
+				//System.out.println("Generating script for " + mainProcessName + " in file " + ((AFileSource) source).getName());
 				String currentScriptContent = this.generateFormulaScript(source.getParagraphs(), propertyToCheck, mainProcessName);
 				NameContent element = new NameContent(((AFileSource) source).getName(), currentScriptContent);
 				codes.add(element);
@@ -329,10 +330,10 @@ public class NewMCVisitor extends
 		
 		
 		//String cml_file = "src/test/resources/BeoAVDeviceDiscovery-final version-model checker.cml";
-		String cml_file = "src/test/resources/simpler-register.cml";
+		//String cml_file = "src/test/resources/simpler-register.cml";
 		//String cml_file = "src/test/resources/simpler-BeoAVDeviceDiscovery.cml";
 		//String cml_file = "src/test/resources/ERSystem.cml";
-		//String cml_file = "src/test/resources/par-test.cml";
+		//String cml_file = "src/test/resources/replicated-externalchoice.cml";
 		//String cml_file = "src/test/resources/beo-spec-simple.cml";
 		//String cml_file = "src/test/resources/timed-interrupt2.cml";
 		//String cml_file = "src/test/resources/insiel-ex1.cml";
@@ -364,7 +365,7 @@ public class NewMCVisitor extends
 		//String cml_file = "src/test/resources/action-condchoice.cml";
 		//String cml_file = "src/test/resources/Param.cml";
 		//String cml_file = "src/test/resources/inf.cml";
-		//String cml_file = "src/test/resources/T243v2-MC.cml";
+		String cml_file = "src/test/resources/T243v2-MC.cml";
 		
 		
 		
@@ -391,7 +392,8 @@ public class NewMCVisitor extends
 		//String mainProcessName = "Test_TurnOnProduct";
 				//String mainProcessName = "TargetProduct_DD_SD_InterfaceProtocolView";
 				
-				String mainProcessName = "RegisterProc";
+		String mainProcessName = "Renderers";
+				//String mainProcessName = "RegisterProc";
 				//String mainProcessName = "N_LAZY_Q";
 				//String mainProcessName = "StreamingPlayerCSProcess";
 				//String mainProcessName = "CoSimulationServer";

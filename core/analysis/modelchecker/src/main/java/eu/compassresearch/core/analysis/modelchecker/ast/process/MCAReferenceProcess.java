@@ -9,6 +9,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCActionCall;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCGenericCall;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCOperationCall;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCProcessCall;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.NameValue;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ParameterDependency;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ParameterFact;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAActionDefinition;
@@ -16,6 +17,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAExplicit
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCALocalDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAProcessDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCSCmlOperationDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAVariableExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 import eu.compassresearch.core.analysis.modelchecker.visitors.ArrayListSet;
@@ -69,12 +71,18 @@ public class MCAReferenceProcess implements MCPProcess {
 					if(args.size() == 1){ //there is one parameter being used
 						MCAProcessDefinition procDef = context.getProcessByName(name);
 						LinkedList<MCPParametrisation> parameters = procDef.getLocalState();
+						
 						MCALocalDefinition localDef = new MCALocalDefinition(parameters.getFirst().toFormula(option), null);
 						MCAValParametrisation param = new MCAValParametrisation(localDef);
 						ParameterDependency paramDep = new ParameterDependency(this.name,param,this.parentDefinitionName); 
-						context.parameterDependencies.add(paramDep);
-						
 						ParameterFact paramFact = new ParameterFact(this.name, args.getFirst(),parameters.getFirst().getDeclaration().getType());
+						//if the argument is not a variable we use its value
+						if(!(this.args.getFirst() instanceof MCAVariableExp)){
+							NameValue nameValue = new NameValue(localDef.getName(), this.args.getFirst().toFormula(option), localDef.getType());
+							//localDef.setName(this.args.getFirst().toFormula(option));
+							context.localVariablesMapping.add(nameValue);
+						} 
+						context.parameterDependencies.add(paramDep);
 						context.parameterFacts.add(paramFact);
 					}
 					break;
