@@ -25,6 +25,7 @@ fmod NAME is
 
     subsort Identifier < Name .
 
+    op #anm : String -> ActionName .
     op #nm : String -> Identifier .
     op _~ : Identifier -> OldName .
 
@@ -169,10 +170,26 @@ fmod EXPRESSION-EXTENSION is
 
 endfm
 
+fmod PARAM is
+    pr EXPRESSION .
+    sorts Param .
+    op _:_ : Name Expr -> Param .
+endfm
+
+view Param from TRIV to PARAM is 
+    sort Elt to Param .
+endv
+
+
+fmod PARAM-SET is      
+    pr SET{Param} * (sort NeSet{Param} to NeParamSet, sort Set{Param} to ParamSet) .
+endfm
+
 fmod ACTION is
     pr EXPRESSION-EXTENSION .
+    pr PARAM-SET .
     
-    sorts Action Communication .
+    sorts Action Communication ActionDecl .
     
     subsort ActionName < Action .
 
@@ -187,6 +204,7 @@ fmod ACTION is
     op if_then_else_ : Expr Action Action -> Action [prec 52] .
     op mu_@_ : ActionName Action -> Action [prec 54] .
     op [pre_,post_] : Expr Expr -> Action [prec 40] .
+    op #paren : Action -> Action .
 
     op _?_:_ : Name Name Expr -> Communication [prec 38] .  ----input (env. choice) [read]
     op _!_ : Name Expr -> Communication [prec 38] .     ---- output to env. [write]
@@ -194,12 +212,14 @@ fmod ACTION is
     op _->_ : Communication Action -> Action [prec 55] .
     op var_:_@_ : Name Expr Action -> Action [prec 56] .
     op end_ : Name -> Action .
-    op #ref_(_) : Name NeExprSet -> Action .
-    op #ref_ : Name -> Action .
+    op _(_) : ActionName NeExprSet -> Action .
 
+    op _=def=_ : ActionName Action -> ActionDecl [prec 57] .
+    op _=def=_@_ : ActionName NeParamSet Action -> ActionDecl [prec 58] .
 
     vars N N1 N2 : Name . vars X Y : ActionName . vars A A1 A2 S1 S2 : Action .
     vars E E1 E2 E3 : Expr .
+    vars D D1 D2 : ActionDecl .
 
     --- ActionName substitution for recursion
     op _[mu_@_] : Action ActionName Action -> Action [prec 60] . 
@@ -222,6 +242,19 @@ fmod ACTION is
     eq X[mu X @ A] = mu X @ A .
     ceq Y[mu X @ A] = Y if X =/= Y . 
 
+
+    op replace(_,_,_): ActionName Action Action -> Action .
+    eq replace(X , A , Skip) = Skip .
+    eq replace(X , A , Div) = Div .
+    eq replace(X , A , Stop) = Stop .
+    eq replace(X , A , X) = A .
+    ceq replace(X , A , Y) = Y if X =/= Y .
+    eq replace(X, A, A1 ; A2) = replace(X, A, A1) ; replace(X, A, A2) .
+    eq replace(X, A, A1 [] A2) = replace(X, A, A1) [] replace(X, A, A2) .
+    eq replace(X, A, A1 |~| A2) = replace(X, A, A1) |~| replace(X, A, A2) .
+    eq replace(X, A, [E] & A2) = [E] & replace(X, A, A2) .
+    eq replace(X, A, #paren(A1)) = #paren(replace(X,A,A1)) .
+
     op usedV : Action -> ExprSet .
     eq usedV(Stop) = {} .
     eq usedV(Skip) = {} .
@@ -230,9 +263,18 @@ fmod ACTION is
     eq usedV(S1 ; S2) = usedV(S1) , usedV(S2) .
     eq usedV(S1 [] S2) = usedV(S1) , usedV(S2) .
     eq usedV(S1 |~| S2) = usedV(S1) , usedV(S2) .
+    eq usedV(#paren(A)) = usedV(A) .
 
     op isSubAct : Action Action -> Bool .
-    ceq isSubAct(A1, A2) = true if A1 == A2 .  
+    ceq isSubAct(A1, A2) = true if A1 == A2 .
+    eq isSubAct(A,[E] & A1) = isSubAct(A,A1) .
+    eq isSubAct(A, A1 ; A2) = isSubAct(A,A1) or isSubAct(A,A2) .
+    eq isSubAct(A, A1 [] A2) = isSubAct(A,A1) or isSubAct(A,A2) .
+    eq isSubAct(A, A1 |~| A2) = isSubAct(A,A1) or isSubAct(A,A2) .
+    eq isSubAct(A, A1 \ E) = isSubAct(A,A1) .
+    eq isSubAct(A, if E then A1 else A2) = isSubAct(A,A1) or isSubAct(A,A2) .
+    eq isSubAct(A, mu X @ A1) = isSubAct(A,A1) .
+    eq isSubAct(A, #paren(A1)) = isSubAct(A,A1) .
 
     op FV : Communication -> ExprSet .
     eq FV(N ! E) = usedV(E) .
@@ -295,7 +337,9 @@ mod ACTION-REFINE is
     sorts RefConf RefInfo .
     op refine[_,_] : String RefConf -> RefConf .
     op <_|_|_> : Action RefMap Expr -> RefConf . 
+    op <_|_|_> : ActionDecl RefMap Expr -> RefConf .
     op refs[_] : Action -> RefInfo [ctor frozen].
+    op refs[_] : ActionDecl -> RefInfo [ctor frozen].
     op rinf[_,_,_,_] : String String String SetExpr -> RefInfo [ctor frozen].
  
     vars NM DS LD : String .
@@ -306,8 +350,10 @@ mod ACTION-REFINE is
     vars c c1 c2 : Communication .
     vars g g1 g2 : Expr .
     vars p p1 p2 : Expr .
-    vars X Y : ActionName .
+    vars X Y N : ActionName .
     var M : RefMap .
+    var D : NeParamSet .
+    var Decl : ActionDecl .
 
     rl [pre-guard-combination] :
     refs[[g1] & ([g2] & A)] => rinf["guard-combination", "Guard combination", "[g1] & [g2] & A [= [g1 and g2] & A", {}] .
@@ -368,6 +414,12 @@ mod ACTION-REFINE is
 
     rl [seq-left-identity] :
     refine["seq-left-identity", < Skip ; A | M | p >] => < A | M | p > .
+
+    rl [pre-impl-expl-rec] :
+	refs[X =def= A] => rinf["impl-expl-rec", "Implicit to Explicit Recursion", "N = A(N) [= mu X @ A(X)",{}] .
+
+    rl [impl-expl-rec] :
+	refine["impl-expl-rec", < X =def= A | M | p >] => < X =def= (mu #anm("XX") @ #paren( replace(X , #anm("XX")  , A))) | M | p > .
 
 *** (
     rl [pre-guard-association] : 
