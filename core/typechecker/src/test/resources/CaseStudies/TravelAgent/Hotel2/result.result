@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <testResult type="eu.compassresearch.core.typechecker.CaseStudiesTestCase">
-<message column="1" line="77" message="zotels at 77:1 hidden by zotels." messageType="warning" number="5008" resource="Zotel.cml"/>
-<message column="1" line="78" message="bookings at 78:1 hidden by bookings." messageType="warning" number="5008" resource="Zotel.cml"/>
-<message column="1" line="77" message="zotels at 77:1 hidden by zotels." messageType="warning" number="5008" resource="Zotel.cml"/>
 <message column="1" line="77" message="Instance variable 'zotels' is not initialized." messageType="warning" number="5001" resource="Zotel.cml"/>
 <message column="1" line="78" message="Instance variable 'bookings' is not initialized." messageType="warning" number="5001" resource="Zotel.cml"/>
 <result/>

@@ -1,13 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <testResult type="eu.compassresearch.core.typechecker.CaseStudiesTestCase">
-<message column="4" line="74" message="colour at 74:4 hidden by colour." messageType="warning" number="5008" resource="Junction01.cml"/>
-<message column="4" line="74" message="colour at 74:4 hidden by colour." messageType="warning" number="5008" resource="Junction01.cml"/>
-<message column="4" line="100" message="jm at 100:4 hidden by jm." messageType="warning" number="5008" resource="Junction01.cml"/>
-<message column="4" line="101" message="conf at 101:4 hidden by conf." messageType="warning" number="5008" resource="Junction01.cml"/>
-<message column="4" line="102" message="cycle at 102:4 hidden by cycle." messageType="warning" number="5008" resource="Junction01.cml"/>
-<message column="4" line="103" message="curr at 103:4 hidden by curr." messageType="warning" number="5008" resource="Junction01.cml"/>
-<message column="4" line="103" message="curr at 103:4 hidden by curr." messageType="warning" number="5008" resource="Junction01.cml"/>
-<message column="4" line="102" message="cycle at 102:4 hidden by cycle." messageType="warning" number="5008" resource="Junction01.cml"/>
 <message column="4" line="74" message="Instance variable 'colour' is not initialized." messageType="warning" number="5001" resource="Junction01.cml"/>
 <message column="4" line="100" message="Instance variable 'jm' is not initialized." messageType="warning" number="5001" resource="Junction01.cml"/>
 <message column="4" line="101" message="Instance variable 'conf' is not initialized." messageType="warning" number="5001" resource="Junction01.cml"/>
