@@ -198,13 +198,13 @@ public class VanillaCmlTypeChecker extends AbstractTypeChecker
 		// check that operation bodies only contain the allowed subset
 		if (!OperationBodyValidater.apply(globals, issueHandler))
 		{
-			abort(-1, "Stopped due to type errors in operatuib bodies");
+			abort(-1, "Stopped due to type errors in operation bodies");
 		}
 
 		// DotUtil.dot(classes);
 
-		CmlClassTypeChecker typeChecker = new CmlClassTypeChecker(classes, globalVdmDefs);// new
-																							// ClassTypeChecker(classes,new
+		CmlClassTypeChecker typeChecker = new CmlClassTypeChecker(classes, globalVdmDefs);
+																							
 		typeChecker.typeCheck();
 		return new VdmTypeCheckResult(typeChecker.getAllClassesEnvronment(), typeChecker.getAssistantFactory());
 	}

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.TicketsCmlTypeCheckerTests">
+<message column="7" line="30" message="Duplicate definition: op." messageType="error" number="5007" resource="issue-281-2-neg.cml"/>
+<result/>
+</testResult>

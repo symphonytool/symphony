@@ -1,6 +1,7 @@
 package eu.compassresearch.core.typechecker.environment;
 
 import java.util.List;
+import java.util.Set;
 import java.util.Vector;
 
 import org.overture.ast.definitions.AClassInvariantDefinition;
@@ -69,9 +70,20 @@ public class FlatStrictCheckEnvironment extends FlatCheckedEnvironment
 				// the scope matches what we can see. If we pass scope to findName
 				// it throws errors if the name does not match the scope.
 
-				if (!outer.findMatches(n1).isEmpty())
+				final Set<PDefinition> matches = outer.findMatches(n1);
+				if (!matches.isEmpty())
 				{
-					dubError(n1);
+					for (PDefinition def : matches)
+					{
+						if (def.parent() instanceof PDefinition)
+						{
+							// def was inside a class or process
+							continue;
+						}
+
+						dubError(n1);
+					}
+
 				}
 
 			}
