@@ -54,7 +54,17 @@ public class MCProcessCall extends MCGenericCall{
 			ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
 			MCPCMLType argsType = null;
 			if (option.equals(MCNode.DEFAULT)){
-				argsType = evaluator.instantiateMCTypeFromParams(parameters);
+				//if the argument is a number then it calls using the argument
+				if(this.args.size() > 0){
+					MCPCMLExp arg = this.args.getFirst();
+					if(arg instanceof MCAVariableExp){
+						argsType = evaluator.instantiateMCTypeFromParams(parameters);
+					}else{
+						argsType = evaluator.instantiateMCType(this.args);
+					}
+				}else{
+					argsType = evaluator.instantiateMCTypeFromParams(parameters);
+				}
 				//argsType = evaluator.instantiateMCTypeFromPatterns(this.paramPatterns);
 			} else if(option.equals(MCNode.NAMED) || option.equals(MCNode.GENERIC)){
 				argsType = evaluator.instantiateMCTypeFromPatterns(this.paramPatterns);

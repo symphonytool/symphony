@@ -33,12 +33,12 @@ public class MCAVariableExp implements MCNumericExp {
 				result.append(valueDef.getExpression().toFormula(option));
 			} else {
 				//if this variable is local and has been put in the local mapping
-				NameValue mapping = context.getLocalVariableMapping(this.getName());
-				if(mapping != null){
-					result.append(mapping.getVariableValue());
-				} else{	
+				//LinkedList<NameValue> mapping = context.getLocalVariableMapping(this.getName());
+				//if(mapping.size() > 0){
+				//	result.append(mapping.getFirst().getVariableValue());
+				//} else{	
 					result.append(this.getName());
-				}
+				//}
 			}
 		//	break;
 

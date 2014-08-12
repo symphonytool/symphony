@@ -68,7 +68,7 @@ process TestP = P(1)
 process Renderer = id : nat @ P(id) [|{|a|}|] Counter(id) 
 
 -- We have two Renderers in our system
-process Renderers = Renderer(1)  -- ||| Renderer(2) 
+process Renderers = Renderer(1)  ||| Renderer(2) 
  
 
 /*

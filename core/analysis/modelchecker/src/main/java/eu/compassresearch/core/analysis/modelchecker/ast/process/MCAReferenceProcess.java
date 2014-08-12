@@ -81,8 +81,9 @@ public class MCAReferenceProcess implements MCPProcess {
 							NameValue nameValue = new NameValue(localDef.getName(), this.args.getFirst().toFormula(option), localDef.getType());
 							//localDef.setName(this.args.getFirst().toFormula(option));
 							context.localVariablesMapping.add(nameValue);
-						} 
-						context.parameterDependencies.add(paramDep);
+						}else{ 
+							context.parameterDependencies.add(paramDep);
+						}
 						context.parameterFacts.add(paramFact);
 					}
 					break;
