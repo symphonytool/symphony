@@ -396,9 +396,11 @@ public class SysMlToCmlTranslator {
 							+ "\n");
 				}
 			}
-//			if (c.operations.size() > 0) {
-//				printOperations(sb, c.operations);
-//			}
+			if (c.operations.size() > 0) {
+				StringBuilder ssb = new StringBuilder();
+				printOperations(ssb);
+				sb.append(ssb);
+			}
 			sb.append("end\n\n");
 			System.out.println(sb);
 		files.add(	writeSpecFile(new File(output,c.name+".cml"),sb.toString(),overwrite));

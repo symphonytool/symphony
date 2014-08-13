@@ -1,6 +1,9 @@
---The original value for MAX is 255. De to performance questions we use 8
+--The original value for MAX is 255. Due to performance questions we use 4
+--The value of increment establishes on how the reg variable is updated (incremented or decremented).
+-- This can caus under or overflows. 
 values
     MAX : nat = 4
+    increment : nat = 1
     
 functions
    oflow : int*int -> bool
@@ -11,8 +14,8 @@ functions
 
 types
   MYINT = nat
-    inv i == i in set {1,...,3}
-
+    inv i == i in set {increment}
+    
 channels
    init, overflow, underflow
    inc, dec : MYINT
@@ -36,9 +39,9 @@ process RegisterProc =
   actions
    
    REG = 
-     (inc.1 -> [not oflow(reg,1)] & ADD(1);REG)
+     (inc.increment -> [not oflow(reg,increment)] & ADD(increment);REG)
      []
-     (dec.1 -> [not uflow(reg,1)] & SUB(1);REG)
+     (dec.increment -> [not uflow(reg,increment)] & SUB(increment);REG)
    @
      init -> INIT(); REG
  end

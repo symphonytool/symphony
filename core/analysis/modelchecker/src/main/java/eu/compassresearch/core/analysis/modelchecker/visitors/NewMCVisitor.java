@@ -264,6 +264,7 @@ public class NewMCVisitor extends
 		for (PSource source : sources) {
 			if(source instanceof AFileSource){
 				String mainProcessName = chooseAProcessName((AFileSource) source);
+				//System.out.println("Generating script for " + mainProcessName + " in file " + ((AFileSource) source).getName());
 				String currentScriptContent = this.generateFormulaScript(source.getParagraphs(), propertyToCheck, mainProcessName);
 				NameContent element = new NameContent(((AFileSource) source).getName(), currentScriptContent);
 				codes.add(element);
@@ -332,7 +333,7 @@ public class NewMCVisitor extends
 		//String cml_file = "src/test/resources/simpler-register.cml";
 		//String cml_file = "src/test/resources/simpler-BeoAVDeviceDiscovery.cml";
 		//String cml_file = "src/test/resources/ERSystem.cml";
-		//String cml_file = "src/test/resources/par-test.cml";
+		//String cml_file = "src/test/resources/replicated-externalchoice.cml";
 		//String cml_file = "src/test/resources/beo-spec-simple.cml";
 		//String cml_file = "src/test/resources/timed-interrupt2.cml";
 		//String cml_file = "src/test/resources/insiel-ex1.cml";
@@ -391,6 +392,7 @@ public class NewMCVisitor extends
 		//String mainProcessName = "Test_TurnOnProduct";
 				//String mainProcessName = "TargetProduct_DD_SD_InterfaceProtocolView";
 				
+		String mainProcessName = "Renderers";
 				//String mainProcessName = "RegisterProc";
 				//String mainProcessName = "N_LAZY_Q";
 				//String mainProcessName = "StreamingPlayerCSProcess";
@@ -410,7 +412,7 @@ public class NewMCVisitor extends
 				
 				//String mainProcessName = "ad_Initiate_Rescue_Activation___Fault_1";
 				//String mainProcessName = "Dphils";
-				String mainProcessName = "TestCounter";
+				//String mainProcessName = "TestCounter";
 		
 		NewCMLModelcheckerContext.getInstance().setNumberOfInstances(1);
 		NewMCVisitor visitor1 = new NewMCVisitor();

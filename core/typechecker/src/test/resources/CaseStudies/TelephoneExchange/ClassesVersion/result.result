@@ -30,7 +30,6 @@
 <message column="9" line="73" message="subs at 73:2 hidden by subs." messageType="warning" number="5008" resource="TelephoneExchangeSoS.cml"/>
 <message column="9" line="72" message="number at 72:2 hidden by number." messageType="warning" number="5008" resource="TelephoneExchangeSoS.cml"/>
 <message column="9" line="250" message="away at 250:2 hidden by away." messageType="warning" number="5008" resource="TelephoneExchangeSoS.cml"/>
-<message column="2" line="251" message="origin at 251:2 hidden by origin." messageType="warning" number="5008" resource="TelephoneExchangeSoS.cml"/>
 <message column="2" line="67" message="Instance variable 'lSUBS' is not initialized." messageType="warning" number="5001" resource="TelephoneExchangeSoS.cml"/>
 <message column="2" line="71" message="Instance variable 'status' is not initialized." messageType="warning" number="5001" resource="TelephoneExchangeSoS.cml"/>
 <message column="2" line="72" message="Instance variable 'number' is not initialized." messageType="warning" number="5001" resource="TelephoneExchangeSoS.cml"/>

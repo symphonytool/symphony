@@ -36,9 +36,9 @@ import eu.compassresearch.ast.process.AStartDeadlineProcess;
 import eu.compassresearch.ast.process.ATimedInterruptProcess;
 import eu.compassresearch.ast.process.ATimeoutProcess;
 import eu.compassresearch.ast.process.AUntimedTimeoutProcess;
+import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.analysis.theoremprover.thms.NodeNameList;
 import eu.compassresearch.core.analysis.theoremprover.thms.ThmNodeList;
-import eu.compassresearch.core.analysis.theoremprover.utils.ThmExprUtil;
 import eu.compassresearch.core.analysis.theoremprover.utils.ThmProcessUtil;
 import eu.compassresearch.core.analysis.theoremprover.visitors.TPVisitor;
 import eu.compassresearch.core.analysis.theoremprover.visitors.string.ThmVarsContext;
@@ -164,8 +164,8 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 		return nodeDeps;
 	}
 
-
-	public NodeNameList caseAGeneralisedParllelismProcess(
+	
+	public NodeNameList caseAGeneralisedParallelismProcess(
 			AGeneralisedParallelismProcess p, NodeNameList bvars)
 			throws AnalysisException {
 		NodeNameList nodeDeps = new NodeNameList();
@@ -317,6 +317,10 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 		return nodeDeps;
 	}
 
+	public NodeNameList casePProcess(PProcess p, NodeNameList bvars) throws AnalysisException{
+		return bvars;
+	}
+	
 	@Override
 	public NodeNameList createNewReturnValue(INode arg0, NodeNameList arg1)
 			throws AnalysisException {

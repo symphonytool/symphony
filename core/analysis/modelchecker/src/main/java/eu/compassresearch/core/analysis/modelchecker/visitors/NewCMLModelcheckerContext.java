@@ -77,9 +77,9 @@ public class NewCMLModelcheckerContext {
 	public ArrayListSet<ActionChannelDependency> unamedChannelDependencies;
 	public ArrayListSet<StateDependency> actionProcStateDependencies;
 	public ArrayListSet<ParameterDependency> parameterDependencies;
-	public ArrayListSet<ParameterFact> parameterFacts;
+	public ArrayList<ParameterFact> parameterFacts;
 	public ArrayListSet<MCPVarsetExpression> globalChanSets;
-	public ArrayListSet<NameValue> localVariablesMapping;
+	public ArrayList<NameValue> localVariablesMapping;
 	public Stack<NameValue> localIndexedVariablesMapping;
 	public ArrayListSet<String> localIndexedVariablesDiscarded;
 	public ArrayListSet<String> variablesInfiniteDomain;
@@ -223,6 +223,19 @@ public class NewCMLModelcheckerContext {
 		return result;
 	}
 	
+	public LinkedList<NameValue> getLocalVariableMapping(String varName){
+		
+		LinkedList<NameValue> result = new LinkedList<NameValue>();
+		for (NameValue elem : this.localVariablesMapping) {
+			if(elem.getVariableName().equals(varName)){
+				result.add(elem);
+			}
+		}
+		return result;
+	}
+	
+	
+	
 	public MCAProcessDefinition getProcessByName(String name){
 		MCAProcessDefinition result = null;
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
@@ -356,7 +369,7 @@ public class NewCMLModelcheckerContext {
 		conditions = new ArrayListSet<MCCondition>();
 		channelDependencies = new ArrayListSet<ActionChannelDependency>();
 		parameterDependencies = new ArrayListSet<ParameterDependency>();
-		parameterFacts = new ArrayListSet<ParameterFact>();
+		parameterFacts = new ArrayList<ParameterFact>();
 		infiniteChannelDependencies = new ArrayListSet<ActionChannelDependency>();
 		actionProcStateDependencies = new ArrayListSet<StateDependency>();
 		unamedChannelDependencies = new ArrayListSet<ActionChannelDependency>();
@@ -372,7 +385,7 @@ public class NewCMLModelcheckerContext {
 		functions = new ArrayList<MCSFunctionDefinition>();
 		globalChanSets = new ArrayListSet<MCPVarsetExpression>();
 		realLieInFacts = new ArrayListSet<MCLieInFact>();
-		localVariablesMapping = new ArrayListSet<NameValue>();
+		localVariablesMapping = new ArrayList<NameValue>();
 		localIndexedVariablesMapping = new Stack<NameValue>();
 		localIndexedVariablesDiscarded = new ArrayListSet<String>();
 		setExpressioFacts = new ArrayList<MCASBinaryExp>(); 
@@ -504,6 +517,19 @@ public class NewCMLModelcheckerContext {
 
 		return result;
 	}
+	
+	public LinkedList<ParameterDependency> getParameterDependencyByVariable(String variableName){
+		LinkedList<ParameterDependency> result = new LinkedList<ParameterDependency>();
+		
+		for (ParameterDependency parameterDependency : this.parameterDependencies) {
+			if(parameterDependency.getParametrisation().getDeclaration().getName().equals(variableName)){
+				result.add(parameterDependency);
+			}
+		}
+		
+		return result;
+	}
+	
 	/*
 	public ParameterDependency getParameterDependencyByParentName(String name){
 		ParameterDependency result = null;
