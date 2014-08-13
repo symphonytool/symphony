@@ -164,10 +164,19 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 		}
 
 	}
+	
+	public void printTitle(String title)
+	{
+		System.out.println("-----------------------------------------------------");
+		System.out.println("| "+title);
+		System.out.println("-----------------------------------------------------");
+		System.out.flush();;
+	}
 
 	@Test
 	public void testMain() throws Exception
 	{
+		printTitle("testMain");
 		String source = "src/test/resources/cosim/main.cml";
 		ProcessInfo coordinator = setUpCoordinator(source, "P", "B");
 		ProcessInfo client = setUpClient(source, "B");
@@ -181,6 +190,7 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 	@Test
 	public void testSkip() throws Exception
 	{
+		printTitle("testSkip");
 		String source = "src/test/resources/cosim/skip.cml";
 		ProcessInfo coordinator = setUpCoordinator(source, "P", "A");
 		ProcessInfo client = setUpClient(source, "A");
@@ -194,6 +204,7 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 	@Test
 	public void testSkipDual() throws Exception
 	{
+		printTitle("testSkipDual");
 		String source = "src/test/resources/cosim/skip.cml";
 		ProcessInfo coordinator = setUpCoordinator(source, "P", "A,B");
 		ProcessInfo client = setUpClient(source, "A");
@@ -208,6 +219,7 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 	@Test
 	public void testMainTwoClients() throws Exception
 	{
+		printTitle("testMainTwoClients");
 		String source = "src/test/resources/cosim/main.cml";
 		ProcessInfo coordinator = setUpCoordinator(source, "P", "B,A");
 		ProcessInfo client = setUpClient(source, "B");
@@ -222,6 +234,7 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 	@Test
 	public void testMainDeadlocked() throws Exception
 	{
+		printTitle("testMainDeadlocked");
 		String source = "src/test/resources/cosim/main-deadlocked.cml";
 		final ConsoleWatcher deadlockedWatch = new ConsoleWatcher("Main", SIMULATOR_STATUS_EVENT_DEADLOCKED);
 		ProcessInfo coordinator = setUpCoordinator(source, "P", "B", deadlockedWatch);
@@ -236,6 +249,7 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 	@Test
 	public void testRW() throws Exception
 	{
+		printTitle("testRW");
 		String source = "src/test/resources/cosim/RW.cml";
 		ProcessInfo coordinator = setUpCoordinator(source, "Main", "Reader");
 		ProcessInfo client = setUpClient(source, "Reader");
@@ -249,6 +263,7 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 	@Test
 	public void testSyncOnString() throws Exception
 	{
+		printTitle("testSyncOnString");
 		String source = "src/test/resources/cosim/SyncOnString.cml";
 		final ConsoleWatcher deadlockedWatch = new ConsoleWatcher("Main", SIMULATOR_STATUS_EVENT_DEADLOCKED);
 		ProcessInfo coordinator = setUpCoordinator(source, "Main", "Reader", deadlockedWatch);
@@ -266,6 +281,7 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 	@Test
 	public void testSyncOnRecord() throws Exception
 	{
+		printTitle("testSyncOnRecord");
 		String source = "src/test/resources/cosim/SyncOnRecord.cml";
 		ProcessInfo coordinator = setUpCoordinator(source, "Main", "Writer");
 		ProcessInfo client = setUpClient(source, "Writer");
@@ -279,6 +295,7 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 	@Test
 	public void testExternalAbort() throws Exception
 	{
+		printTitle("testExternalAbort");
 		String source = "src/test/resources/cosim/externalAbort.cml";
 
 		ConsoleWatcher watch = new ConsoleWatcher("coordinator", "A aborted with error:999 execution error");
@@ -308,6 +325,7 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 	@Test
 	public void testTypesQuotes() throws Exception
 	{
+		printTitle("testTypesQuotes");
 		String source = "src/test/resources/cosim/TypeTestingSoS.cml";
 		ProcessInfo coordinator = setUpCoordinator(source, "NodeSoS", "NodeReaderCS");
 		ProcessInfo client = setUpClient(source, "NodeReaderCS");
@@ -321,6 +339,7 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 	@Test
 	public void testTypesBool() throws Exception
 	{
+		printTitle("testTypesBool");
 		String source = "src/test/resources/cosim/TypeTestingSoS.cml";
 		ProcessInfo coordinator = setUpCoordinator(source, "BoolSoS", "BoolReaderCS");
 		ProcessInfo client = setUpClient(source, "BoolReaderCS");

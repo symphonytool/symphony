@@ -2,11 +2,16 @@ package eu.compassresearch.core.analysis.modelchecker.ast.actions;
 
 import java.util.LinkedList;
 
+import org.overture.ast.node.INode;
+
+import eu.compassresearch.ast.definitions.AActionDefinition;
+import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ActionChannelDependency;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ExpressionEvaluator;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCCommEv;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCLieInFact;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ParameterDependency;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.TypeManipulator;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.TypeValue;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAActionDefinition;
@@ -27,27 +32,30 @@ public class MCACommunicationAction implements MCPAction {
 	private String identifier;
 	private LinkedList<MCPCommunicationParameter> communicationParameters = new LinkedList<MCPCommunicationParameter>();
 	private MCPAction action;
+	private String parentDefinitionName;
 	
 	public MCACommunicationAction(String identifier,
 			LinkedList<MCPCommunicationParameter> communicationParameters,
-			MCPAction action) {
+			MCPAction action, String parentDefinitionName) {
 		this.counterId = NewCMLModelcheckerContext.IOCOMM_COUNTER++;
 		this.identifier = identifier;
 		this.communicationParameters = communicationParameters;
 		this.action = action;
+		this.parentDefinitionName = parentDefinitionName; 
 	}
 	
 	private MCACommunicationAction(int counterId, String identifier,
 			LinkedList<MCPCommunicationParameter> communicationParameters,
-			MCPAction action) {
+			MCPAction action, String parentDefinitionName) {
 		this.counterId = counterId;
 		this.identifier = identifier;
 		this.communicationParameters = communicationParameters;
 		this.action = action;
+		this.parentDefinitionName = parentDefinitionName;
 	}
 
 	public MCACommunicationAction copy(){
-		MCACommunicationAction result = new MCACommunicationAction(this.counterId, this.identifier, (LinkedList<MCPCommunicationParameter>)communicationParameters.clone(), this.action);
+		MCACommunicationAction result = new MCACommunicationAction(this.counterId, this.identifier, (LinkedList<MCPCommunicationParameter>)communicationParameters.clone(), this.action, this.parentDefinitionName);
 		
 		return result;
 	}
@@ -150,24 +158,7 @@ public class MCACommunicationAction implements MCPAction {
 		
 		return result;
 	}
-	private void generateCombinations(LinkedList<MCAChannelDefinition> chanDefList, String operator, LinkedList<String> result){
-		
-		if(chanDefList.size() == 2){
-			String firstExpression = chanDefList.getFirst().getType().getTypeAsName();
-			String secondExpression = chanDefList.getLast().getType().getTypeAsName();
-			String expression = firstExpression + " " + operator + " " + secondExpression;
-			result.add(expression);
-		} else if (chanDefList.size() > 2){
-			String firstExpression = chanDefList.pollFirst().getType().getTypeAsName();
-			for (MCAChannelDefinition chanDef : chanDefList) {
-				String secondExpression = chanDef.getType().getTypeAsName();
-				String expression = firstExpression + " " + operator + " " + secondExpression;
-				result.add(expression);
-			}
-			generateCombinations(chanDefList,operator,result);
-		}
-		
-	}
+
 	private String buildPrefix(String option, NewCMLModelcheckerContext context, boolean infinite) {
 		StringBuilder result = new StringBuilder();
 		
@@ -179,47 +170,68 @@ public class MCACommunicationAction implements MCPAction {
 		result.append(buildIOCommActualParams(option));
 		//if(currParam != null){
 		if(this.communicationParameters.size() > 0){
+			MCPCommunicationParameter param = this.communicationParameters.getFirst();
 			if(parametersHasStateVariable(this.communicationParameters)){
-					MCPCommunicationParameter param = this.communicationParameters.getFirst();
-					if(!(param instanceof MCAReadCommunicationParameter)){
-						StateDependency stateDependency = new StateDependency(null);
-						String name = "";
-						if(!context.mcProcOrActionsStack.isEmpty()){
-							MCPCMLDefinition actionOrProc = context.mcProcOrActionsStack.peek();
-							if(actionOrProc instanceof MCAProcessDefinition){
-								name = ((MCAProcessDefinition) actionOrProc).getName().toString();
-							} else if(actionOrProc instanceof MCAActionDefinition){
-								name = ((MCAActionDefinition) actionOrProc).getName().toString();
-							}
+				if(!(param instanceof MCAReadCommunicationParameter)){
+					StateDependency stateDependency = new StateDependency(null);
+					String name = "";
+					if(!context.mcProcOrActionsStack.isEmpty()){
+						MCPCMLDefinition actionOrProc = context.mcProcOrActionsStack.peek();
+						if(actionOrProc instanceof MCAProcessDefinition){
+							name = ((MCAProcessDefinition) actionOrProc).getName().toString();
+						} else if(actionOrProc instanceof MCAActionDefinition){
+							name = ((MCAActionDefinition) actionOrProc).getName().toString();
 						}
-						stateDependency.setActionOrProcessName(name);
-						//if(infinite){
-							context.actionProcStateDependencies.add(stateDependency);
-						//}
-					}else{
-						//if(!parameterIsConstantValue()){
-							String actionNameToUse = ""; 
-							LinkedList<MCPCommunicationParameter> paramsCopy = new LinkedList<MCPCommunicationParameter>();
-							//if(param instanceof MCAReadCommunicationParameter){
-							paramsCopy.add(param);
-							ActionChannelDependency actionChanDep = new ActionChannelDependency(actionNameToUse, this.identifier, paramsCopy);
-							context.unamedChannelDependencies.add(actionChanDep);
-							//}
-						//}
 					}
-					
-					
-					
+					stateDependency.setActionOrProcessName(name);
+					//if(infinite){
+					context.actionProcStateDependencies.add(stateDependency);
+					//}
+				}else{
+					//if(!parameterIsConstantValue()){
+					String actionNameToUse = ""; 
+					LinkedList<MCPCommunicationParameter> paramsCopy = new LinkedList<MCPCommunicationParameter>();
+					//if(param instanceof MCAReadCommunicationParameter){
+					paramsCopy.add(param);
+					ActionChannelDependency actionChanDep = new ActionChannelDependency(actionNameToUse, this.identifier, paramsCopy);
+					context.unamedChannelDependencies.add(actionChanDep);
+					//}
+					//}
 				}
 			}
-		
+			else{
+				//if the variable is defined in some scope (for example as a parameter of the parent action)
+				LinkedList<ParameterDependency> dependencies =  context.getParameterDependencyByVariable(param.toString());
+				if(dependencies.size() > 0){
+					//get the right dependency and adds it in the context
+					//the parameter dependency will be related to the current actiondefinition (if it exists)
+					//or processDefinition in the top of the stack of the context
+					if(!context.mcProcOrActionsStack.isEmpty()){
+						MCPCMLDefinition actionOrProcDef = context.mcProcOrActionsStack.peek();
+						
+						String defName = "";
+						if(actionOrProcDef instanceof MCAActionDefinition){
+							defName = ((MCAActionDefinition) actionOrProcDef).getName();
+						} else if (actionOrProcDef instanceof MCAProcessDefinition){
+							defName = ((MCAProcessDefinition) actionOrProcDef).getName();
+						}
+						
+						ParameterDependency newDependency = 
+								new ParameterDependency(defName, dependencies.getFirst().getParametrisation(), this.parentDefinitionName);
+						context.parameterDependencies.add(newDependency);
+					}
+				}
+				
+			}
+		}
+
 		result.append(")"); //closes IOComm
 		result.append(",");
 		if(option.equals(MCNode.MINIMAL_GENERIC) || option.equals(MCNode.STATE_DEFAULT_PROCESS_NAMED)){
 			result.append("_");
 		}else{
 			result.append(this.action.toFormula(option));
-			
+
 		}
 		
 		result.append(")"); //closes Prefix
@@ -387,6 +399,14 @@ public class MCACommunicationAction implements MCPAction {
 
 	public void setCounterId(int counterId) {
 		this.counterId = counterId;
+	}
+
+	public String getParentDefinitionName() {
+		return parentDefinitionName;
+	}
+
+	public void setParentDefinitionName(String parentDefinitionName) {
+		this.parentDefinitionName = parentDefinitionName;
 	}
 
 	

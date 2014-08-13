@@ -1,0 +1,34 @@
+channels
+
+--op
+
+functions
+
+op : ()->int
+op()==1
+
+class A = begin
+
+functions
+op : ()->int
+op()==1
+
+
+
+operations
+
+
+//public op: ()==>()
+//op()== Skip
+
+end
+
+process P = begin
+
+operations
+
+public op: ()==>()
+op()== Skip
+
+@Skip
+end
