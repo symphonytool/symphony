@@ -619,6 +619,40 @@ public class RttMbtClient {
 		return success;
 	}
 
+	/**
+	 * This function matches the local directory entries of a given
+	 * directory against a given pattern and returns a list of
+	 * matching entries.
+	 * Note: the pattern is treated as a regular expression
+	 */
+	List<String> getMatchingDirectoryEntries(File dir, String pattern, Boolean filesOnly) {
+		List<String> matchingFiles = new ArrayList<String>();
+
+		if (dir == null) { return matchingFiles; }
+		if (!dir.exists()) { return matchingFiles; }
+		if (!dir.isDirectory()) { return matchingFiles; }
+
+		// get all directory entries of the given directory
+		String[] entries = dir.list();
+		if (entries == null) { return matchingFiles; }
+
+		for (int i = 0; i < entries.length; i++) {
+			File entry = new File(dir, entries[i]);
+			if (entry.isDirectory() && filesOnly) {
+				// skip directory entries, when looking for mathcing files only
+				continue;
+			} else {
+				// check if the filename matches the given pattern
+				if (entry.getName().matches(pattern)) {
+					matchingFiles.add(entry.getName());
+				}
+			}
+		}
+
+		// return list of mathcing files.
+		return matchingFiles;
+	}
+
 	public Boolean createProject(String project) {
 		Boolean success = true;
 		
@@ -1454,6 +1488,13 @@ public class RttMbtClient {
 				+ getRttMbtTestProcFolderName() + File.separator
 				+ abstractTestProc + File.separator;
 		uploadDirectory(dirName + "testdata", false);
+		// RTT_Testprocedures/<testproc>/conf/*.rttdoc
+		// upload *.rttdoc file(s) 
+		File localrtt6ProcConfDir = new File(dirName + "conf");
+		List<String> rttdocfiles = getMatchingDirectoryEntries(localrtt6ProcConfDir, ".*\\.rttdoc", true);
+		for (int idx = 0; idx < rttdocfiles.size(); idx++) {
+			uploadFile(dirName + "conf" + File.separator + rttdocfiles.get(idx));
+		}
 		addCompletedTaskItems(1);
 		if (isCurrentTaskCanceled()) {
 			return false;
@@ -1473,6 +1514,15 @@ public class RttMbtClient {
 
 		// retrieve results
 		setSubTaskName("downloading replay result");
+
+		// download log files
+		if (getExtraFiles()) {
+			downloadFile(getRttProjectPath() + File.separator + "logs" + File.separator + "rtt-mbt-replay-tcgen-errors.log");
+			downloadFile(getRttProjectPath() + File.separator + "logs" + File.separator + "rtt-mbt-replay-tcgen-generation.log");
+			downloadFile(getRttProjectPath() + File.separator + "logs" + File.separator + "rtt-mbt-replay-tcgen-postprocessing.log");
+			downloadFile(getRttProjectPath() + File.separator + "logs" + File.separator + "rtt-mbt-replay-tcgen-preprocessing.log");
+		}
+
 		if (!cmd.executedSuccessfully()) {
 			System.err.println("[FAIL]: replay of " + abstractTestProc + " failed!");
 			// download debugging data to local directory
@@ -1550,7 +1600,12 @@ public class RttMbtClient {
 			downloadFile(dirname + "generation.log");
 		}
 		addCompletedTaskItems(1);
-		
+
+		// RTT_Testprocedures/<TP>/conf/*
+		for (int idx = 0; idx < rttdocfiles.size(); idx++) {
+			downloadFile(dirName + "conf" + File.separator + rttdocfiles.get(idx));
+		}
+
 		return success;
 	}
 

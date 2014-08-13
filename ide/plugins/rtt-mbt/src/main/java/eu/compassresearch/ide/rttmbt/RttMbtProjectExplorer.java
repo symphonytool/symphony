@@ -165,6 +165,11 @@ public class RttMbtProjectExplorer extends org.eclipse.ui.navigator.CommonNaviga
 					wasModelDumpSelected = false;
 					wasRttMbtProjectSelected = false;
 					wasMakefileSelected = false;
+					if (hasGenerationContext()) {
+						setService(RttMbtCommandState.keyHasGenerationContextTP,RttMbtCommandState.TRUE);
+					} else {
+						setService(RttMbtCommandState.keyHasGenerationContextTP,RttMbtCommandState.FALSE);
+					}
 				} else if (isModelDumpSelected() && (wasModelDumpSelected)) {
 					setService(RttMbtCommandState.keyIsModelDumpSelected, RttMbtCommandState.TRUE);
 					setService(RttMbtCommandState.keyIsGenerationContextTP, RttMbtCommandState.FALSE);
@@ -294,7 +299,23 @@ public class RttMbtProjectExplorer extends org.eclipse.ui.navigator.CommonNaviga
 		String objectContainer = path.substring(idx, path.length());
 		return objectContainer.compareTo(RttTestProc) == 0;
 	}
-	
+
+	public Boolean hasGenerationContext() {
+		if (selectedObjectPath == null) {
+			return false;
+		}
+		String RttTestProc = client.getRttMbtTestProcFolderName();
+		String TProcGenCtx = client.getRttMbtTProcGenCtxFolderName();
+		int idx = selectedObjectPath.lastIndexOf(RttTestProc);
+		if (idx < 1) { return false; }
+		if ((selectedObjectPath.substring(idx - 1, idx).compareTo("/") != 0) &&
+			(selectedObjectPath.substring(idx - 1, idx).compareTo(File.separator) != 0)) { return false; }
+		String path = selectedObjectPath.substring(0, idx) + TProcGenCtx + selectedObjectPath.substring(idx + RttTestProc.length());
+		System.out.println("genCtx: '" + path + "'");
+		File genCtx = new File(path);
+		return (genCtx.isDirectory());
+	}
+
 	public Boolean isModelDumpSelected() {
 		if (selectedObject == null) {
 			return false;
