@@ -44,7 +44,7 @@ public class RelayServer extends Thread
 				incoming.start();
 				connections.add(incoming);
 				
-                System.out.println("Relay Server: Incoming: " + incoming);  
+                System.out.println("=== Client ==========: New client: " + incoming);  
 			}
 		} catch (SocketException e)
 		{
@@ -77,6 +77,4 @@ public class RelayServer extends Thread
 		}
 
 	}
-	
-	
 }

@@ -28,6 +28,7 @@ import eu.compassresearch.ide.collaboration.communication.handlers.Configuration
 import eu.compassresearch.ide.collaboration.communication.handlers.LeftCollaborationMessageHandler;
 import eu.compassresearch.ide.collaboration.communication.handlers.NewConfigurationMessageHandler;
 import eu.compassresearch.ide.collaboration.communication.handlers.NotificationMessageHandler;
+import eu.compassresearch.ide.collaboration.communication.handlers.RelayMessageHandler;
 import eu.compassresearch.ide.collaboration.communication.handlers.SimulationReplyMessageHandler;
 import eu.compassresearch.ide.collaboration.communication.handlers.SimulationRequestMessageHandler;
 import eu.compassresearch.ide.collaboration.communication.handlers.SimulationStartMessageHandler;
@@ -217,6 +218,7 @@ public class ConnectionManager implements IPresenceListener
 		messageProcessor.addMessageHandler(new SimulationReplyMessageHandler());
 		messageProcessor.addMessageHandler(new SimulationStartMessageHandler());
 		messageProcessor.addMessageHandler(new LeftCollaborationMessageHandler());
+		messageProcessor.addMessageHandler(new RelayMessageHandler());
 	}
 
 	public boolean isConnectionInitialized()
