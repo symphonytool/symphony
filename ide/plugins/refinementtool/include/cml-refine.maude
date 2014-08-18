@@ -139,6 +139,8 @@ fmod EXPRESSION-EXTENSION is
 
     op `{_`} : NeExprSet -> SetExpr .
     op `{`} : -> SetExpr .
+    op {|_|} : NeExprSet -> SetExpr .
+    op {||} : -> SetExpr .
 
     op _is`in_ : Expr SetExpr -> Expr [prec 35] .
 
@@ -191,7 +193,8 @@ fmod ACTION is
     sorts Action Communication ActionDecl CParam .
     
     subsort ActionName < Action .
-    
+    subsort Communication < Expr .
+
     op ?_:_ : Name Expr -> CParam [prec 38] .  ----input (env. choice) [read]
     op ?_ : Name -> CParam [prec 38] .
     op !_ : Expr -> CParam [prec 38] .     ---- output to env. [write]
@@ -210,6 +213,8 @@ fmod ACTION is
     op [pre_,post_] : Expr Expr -> Action [prec 40] .
     op #paren : Action -> Action .
 
+    op _[|_|_|_|]_ : Action SetExpr SetExpr SetExpr Action -> Action .
+
     op #c : String -> Communication .
     op __ : Communication CParam -> Communication .
 
@@ -227,6 +232,7 @@ fmod ACTION is
     vars C : Communication .
     vars CP : CParam .
     vars S : String .
+    vars NS1 NS2 CS : SetExpr . 
 
     --- ActionName substitution for recursion
     op _[mu_@_] : Action ActionName Action -> Action [prec 60] . 
@@ -262,6 +268,7 @@ fmod ACTION is
     eq replace(X, A, [E] & A2) = [E] & replace(X, A, A2) .
     eq replace(X, A, #paren(A1)) = #paren(replace(X,A,A1)) .
     eq replace(X, A, C -> A1) = C -> replace(X,A,A1) .
+    eq replace(X, A, A1 [| NS1 | CS | NS2 |] A2) = replace(X,A,A1) [| NS1 | CS | NS2 |] replace(X,A,A2) .
 
     op usedV : Action -> ExprSet .
     eq usedV(Stop) = {} .
@@ -274,6 +281,7 @@ fmod ACTION is
     eq usedV(#paren(A)) = usedV(A) .
     eq usedV(C -> A) = usedV(C) , usedV(A) .
     eq usedV(#c(S)) = {} .
+    eq usedV(A1 [| NS1 | CS | NS2 |] A2) = usedV(A1), usedV(A2) .
 
     op usedV : Communication -> ExprSet .
     op usedV : CParam -> ExprSet .
@@ -293,6 +301,7 @@ fmod ACTION is
     eq isSubAct(A, mu X @ A1) = isSubAct(A,A1) .
     eq isSubAct(A, #paren(A1)) = isSubAct(A,A1) .
     eq isSubAct(A, C -> A1) = isSubAct(A,A1) .
+    eq isSubAct(A, A1 [| NS1 | CS | NS2 |] A2) = isSubAct(A,A1) or isSubAct(A,A2) .
 
     op FV : Communication -> ExprSet .
 ----    eq FV(N ! E) = usedV(E) .
@@ -433,12 +442,21 @@ mod ACTION-REFINE is
     rl [seq-left-identity] :
     refine["seq-left-identity", < Skip ; A | M | p >] => < A | M | p > .
 
-    rl [pre-impl-expl-rec] :
-	refs[X =def= A] => rinf["impl-expl-rec", "Implicit to Explicit Recursion", "N = A(N) [= mu X @ A(X)",{}] .
+    crl [pre-impl-expl-rec] :
+	refs[X =def= A] => rinf["impl-expl-rec", "Implicit to Explicit Recursion", "N = A(N) [= mu X @ A(X)",{}] 
+    if isSubAct(X,A).
 
     rl [impl-expl-rec] :
-	refine["impl-expl-rec", < X =def= A | M | p >] => < X =def= (mu #anm("XX") @ #paren( replace(X , #anm("XX")  , A))) | M | p > .
+	refine["impl-expl-rec", < X =def= A | M | p >] => < X =def= (mu #anm("X") @ #paren( replace(X , #anm("X")  , A))) | M | p > .
 
+    rl [pre-par-rec-dist] :
+    refs[mu X @ A ; X] => rinf["par-rec-dist", "Parallel Recursion Distribution", "mu X @ A ; X [= (mu X @ A1;X [|ns1|cs|ns2|] mu X @ A2;X)",{#meta("ns1","varset"), #meta("ns2","varset"), #meta("cs","varset"),#meta("A1","action"), #meta("A2", "action")}] .
+
+    --- we need to add the proviso that the right hand side is a fix point of the recursion on the left 
+    rl [par-rec-dist] :
+	refine["par-rec-dist", < mu X @ A ; X | M | p >] =>
+        <(mu X @ #paren(getAct(M["A1"]) ; X)) [| getExp(M["ns1"]) | getExp(M["cs"]) | getExp(M["ns2"]) |] (mu X @ #paren(getAct(M["A2"]) ; X)) | M | p > .
+ 
 *** (
     rl [pre-guard-association] : 
     refs[([g] & A1) ; A2] => rinf["guard-association", "Guard/Sequence: Association", {}] .

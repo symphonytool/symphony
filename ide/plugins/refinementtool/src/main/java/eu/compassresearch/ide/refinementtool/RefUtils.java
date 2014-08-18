@@ -6,6 +6,7 @@ import org.antlr.runtime.RecognitionException;
 import org.overture.ast.expressions.PExp;
 
 import eu.compassresearch.ast.actions.PAction;
+import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.core.parser.CmlLexer;
 import eu.compassresearch.core.parser.CmlParser;
 
@@ -22,7 +23,6 @@ public abstract class RefUtils {
 		CmlParser parser = new CmlParser(ct);
 		
 		PExp pexp = null;
-		
 		try {
 			pexp = parser.expression().exp;
 		} catch (RecognitionException e) {
@@ -47,6 +47,39 @@ public abstract class RefUtils {
 		}
 		return pact;
 		
+	}
+	
+	public static PVarsetExpression parsePVarset(String var) {
+		ANTLRStringStream as = new ANTLRStringStream(var);
+		CmlLexer cmlLexer = new CmlLexer(as);
+		CommonTokenStream ct = new CommonTokenStream(cmlLexer);
+		CmlParser parser = new CmlParser(ct);
+		
+		PVarsetExpression pvar = null;
+		
+		try {
+			pvar = parser.varsetExpr();
+		} catch (RecognitionException e) {
+			
+		}
+		return pvar;
+	}
+	
+	
+	public static void main(String[] args) {
+		ANTLRStringStream as = new ANTLRStringStream("{||}");
+		CmlLexer cmlLexer = new CmlLexer(as);
+		CommonTokenStream ct = new CommonTokenStream(cmlLexer);
+		CmlParser parser = new CmlParser(ct);
+		
+		PExp pexp = null;
+		try {
+			//PVarsetExpression var = parser.varsetExpr();
+			//Object o = parser.expression();
+			pexp = parser.expression().exp;
+		} catch (RecognitionException e) {
+			
+		}
 	}
 	
 }

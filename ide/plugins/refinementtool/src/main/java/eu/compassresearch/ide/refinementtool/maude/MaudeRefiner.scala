@@ -66,7 +66,7 @@ class MaudeRefiner(cmd: String, refine: String) {
     
     // Create the meta variable map
     val M = metas.foldLeft("empty")((m, x) => "insert(\"" + x._1 + "\"," 
-                                                     + (if (mri.vars(x._1).toLowerCase().contains("exp")) "exp" else "act") 
+                                                     + (if (mri.vars(x._1).toLowerCase().contains("exp") ||mri.vars(x._1).toLowerCase().contains("varset")) "exp" else "act") 
                                                      + "(" + x._2 + ")" + "," + m + ")")
    
     

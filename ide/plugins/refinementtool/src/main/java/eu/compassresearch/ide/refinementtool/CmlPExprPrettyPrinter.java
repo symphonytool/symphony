@@ -8,6 +8,9 @@ import org.overture.ast.node.INode;
 import org.overture.ast.patterns.PMultipleBind;
 
 import eu.compassresearch.ast.analysis.AnswerCMLAdaptor;
+import eu.compassresearch.ast.definitions.AChansetDefinition;
+import eu.compassresearch.ast.definitions.ANamesetDefinition;
+import eu.compassresearch.ast.expressions.PVarsetExpression;
 
 public class CmlPExprPrettyPrinter extends AnswerCMLAdaptor<String> {
 	
@@ -630,7 +633,4 @@ public class CmlPExprPrettyPrinter extends AnswerCMLAdaptor<String> {
 	public String caseAVariableExp(AVariableExp node) throws AnalysisException {
 		return node.toString();
 	}
-
-	
-	
 }

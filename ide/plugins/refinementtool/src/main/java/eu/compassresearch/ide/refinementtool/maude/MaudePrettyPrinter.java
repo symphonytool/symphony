@@ -18,6 +18,9 @@ import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.actions.PCommunicationParameter;
 import eu.compassresearch.ast.actions.PParametrisation;
 import eu.compassresearch.ast.definitions.AActionDefinition;
+import eu.compassresearch.ast.expressions.AEnumVarsetExpression;
+import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
+import eu.compassresearch.ast.expressions.ANameChannelExp;
 import eu.compassresearch.ide.refinementtool.RefinePrettyPrinter;
 
 public class MaudePrettyPrinter extends RefinePrettyPrinter {
@@ -133,6 +136,45 @@ public class MaudePrettyPrinter extends RefinePrettyPrinter {
 		StringBuilder sb = new StringBuilder();
 		sb.append("mu #anm(\""+name+"\") @ ");
 		sb.append(node.getActions().get(0).apply(this,0));
+		return sb.toString();
+	}
+
+	@Override
+	public String caseAEnumVarsetExpression(AEnumVarsetExpression node,
+			Integer question) throws AnalysisException {
+		StringBuilder sb = new StringBuilder();
+		sb.append("{");
+		for (Iterator<ANameChannelExp> it = node.getChannelNames().iterator(); it.hasNext(); ) {
+			ANameChannelExp e = it.next();
+			sb.append(e.apply(this,0));
+			if (it.hasNext()) sb.append(", ");
+		}
+		sb.append("}");
+		return sb.toString();
+	}
+
+	@Override
+	public String caseAFatEnumVarsetExpression(AFatEnumVarsetExpression node,
+			Integer question) throws AnalysisException {
+		StringBuilder sb = new StringBuilder();
+		sb.append("{|");
+		for (Iterator<ANameChannelExp> it = node.getChannelNames().iterator(); it.hasNext(); ) {
+			ANameChannelExp e = it.next();
+			sb.append(e.apply(this,0));
+			if (it.hasNext()) sb.append(", ");
+		}
+		sb.append("|}");
+		return sb.toString();
+	}
+
+	@Override
+	public String caseANameChannelExp(ANameChannelExp node, Integer question)
+			throws AnalysisException {
+		StringBuilder sb = new StringBuilder();
+		sb.append(node.getIdentifier().getName());
+		for (PExp e: node.getExpressions()) {
+			sb.append("."+e.apply(this,0));
+		}
 		return sb.toString();
 	}
 	
