@@ -180,7 +180,6 @@ view Param from TRIV to PARAM is
     sort Elt to Param .
 endv
 
-
 fmod PARAM-SET is      
     pr SET{Param} * (sort NeSet{Param} to NeParamSet, sort Set{Param} to ParamSet) .
 endfm
@@ -189,9 +188,14 @@ fmod ACTION is
     pr EXPRESSION-EXTENSION .
     pr PARAM-SET .
     
-    sorts Action Communication ActionDecl .
+    sorts Action Communication ActionDecl CParam .
     
     subsort ActionName < Action .
+    
+    op ?_:_ : Name Expr -> CParam [prec 38] .  ----input (env. choice) [read]
+    op ?_ : Name -> CParam [prec 38] .
+    op !_ : Expr -> CParam [prec 38] .     ---- output to env. [write]
+    op ._ : Expr -> CParam [prec 38] .
 
     ops Stop Skip Div : -> Action .
     
@@ -206,8 +210,8 @@ fmod ACTION is
     op [pre_,post_] : Expr Expr -> Action [prec 40] .
     op #paren : Action -> Action .
 
-    op _?_:_ : Name Name Expr -> Communication [prec 38] .  ----input (env. choice) [read]
-    op _!_ : Name Expr -> Communication [prec 38] .     ---- output to env. [write]
+    op #c : String -> Communication .
+    op __ : Communication CParam -> Communication .
 
     op _->_ : Communication Action -> Action [prec 55] .
     op var_:_@_ : Name Expr Action -> Action [prec 56] .
@@ -220,6 +224,9 @@ fmod ACTION is
     vars N N1 N2 : Name . vars X Y : ActionName . vars A A1 A2 S1 S2 : Action .
     vars E E1 E2 E3 : Expr .
     vars D D1 D2 : ActionDecl .
+    vars C : Communication .
+    vars CP : CParam .
+    vars S : String .
 
     --- ActionName substitution for recursion
     op _[mu_@_] : Action ActionName Action -> Action [prec 60] . 
@@ -233,8 +240,8 @@ fmod ACTION is
     eq (mu X @ S1)[mu X @ A] = mu X @ S1 .
     ceq (mu Y @ S1)[mu X @ A] = mu Y @ (S1[mu X @ A]) if Y =/= X .
 
-    eq ( N1 ? N2 : E -> A1)[mu X @ A] = N1 ? N2 : E -> (A1[mu X @ A]) .
-    eq ( N1 ! N2 -> A1)[mu X @ A] = N1 ! N2 -> (A1[mu X @ A]) .
+---- eq ( N1 ? N2 : E -> A1)[mu X @ A] = N1 ? N2 : E -> (A1[mu X @ A]) .
+---- eq ( N1 ! N2 -> A1)[mu X @ A] = N1 ! N2 -> (A1[mu X @ A]) .
     eq (var N : E @ A1)[mu X @ A] = var N : E @ (A1[mu X @ A]) .
     eq (end N)[mu X @ A] = end N .
 ----    eq (let N @ A1)[mu X @ A] = let N @ (A1[mu X @ A]) .   
@@ -254,6 +261,7 @@ fmod ACTION is
     eq replace(X, A, A1 |~| A2) = replace(X, A, A1) |~| replace(X, A, A2) .
     eq replace(X, A, [E] & A2) = [E] & replace(X, A, A2) .
     eq replace(X, A, #paren(A1)) = #paren(replace(X,A,A1)) .
+    eq replace(X, A, C -> A1) = C -> replace(X,A,A1) .
 
     op usedV : Action -> ExprSet .
     eq usedV(Stop) = {} .
@@ -264,6 +272,15 @@ fmod ACTION is
     eq usedV(S1 [] S2) = usedV(S1) , usedV(S2) .
     eq usedV(S1 |~| S2) = usedV(S1) , usedV(S2) .
     eq usedV(#paren(A)) = usedV(A) .
+    eq usedV(C -> A) = usedV(C) , usedV(A) .
+    eq usedV(#c(S)) = {} .
+
+    op usedV : Communication -> ExprSet .
+    op usedV : CParam -> ExprSet .
+    eq usedV(C CP) = usedV(C) , usedV(CP) .
+    eq usedV(?(N):(E)) = usedV(E) .
+    eq usedV(!(E)) = usedV(E) .
+    eq usedV(.(E)) = usedV(E) .
 
     op isSubAct : Action Action -> Bool .
     ceq isSubAct(A1, A2) = true if A1 == A2 .
@@ -275,10 +292,11 @@ fmod ACTION is
     eq isSubAct(A, if E then A1 else A2) = isSubAct(A,A1) or isSubAct(A,A2) .
     eq isSubAct(A, mu X @ A1) = isSubAct(A,A1) .
     eq isSubAct(A, #paren(A1)) = isSubAct(A,A1) .
+    eq isSubAct(A, C -> A1) = isSubAct(A,A1) .
 
     op FV : Communication -> ExprSet .
-    eq FV(N ! E) = usedV(E) .
-    eq FV(N1 ? N2 : E) = N2 .
+----    eq FV(N ! E) = usedV(E) .
+----    eq FV(N1 ? N2 : E) = N2 .
 
     op FV : Action -> ExprSet .
     eq FV(Stop) = {} .
