@@ -77,7 +77,7 @@ public class MaudePrettyPrinter extends RefinePrettyPrinter {
 		PAction action = a.getAction();
 		
 		StringBuilder sb = new StringBuilder();
-		sb.append("#c(\""+channel+"\")");
+		sb.append("#nm(\""+channel+"\")");
 		for (PCommunicationParameter p: params) {
 			sb.append(p.apply(this,0));
 		}
@@ -98,7 +98,7 @@ public class MaudePrettyPrinter extends RefinePrettyPrinter {
 	
 		if (p instanceof AIdentifierPattern) {
 			StringBuilder sb = new StringBuilder();
-			sb.append("?(nm(\"");
+			sb.append("?(#nm(\"");
 			sb.append(((AIdentifierPattern)p).getName());
 			sb.append("\"))");
 			return sb.toString();
@@ -143,13 +143,13 @@ public class MaudePrettyPrinter extends RefinePrettyPrinter {
 	public String caseAEnumVarsetExpression(AEnumVarsetExpression node,
 			Integer question) throws AnalysisException {
 		StringBuilder sb = new StringBuilder();
-		sb.append("{");
+		sb.append("{ ");
 		for (Iterator<ANameChannelExp> it = node.getChannelNames().iterator(); it.hasNext(); ) {
 			ANameChannelExp e = it.next();
 			sb.append(e.apply(this,0));
 			if (it.hasNext()) sb.append(", ");
 		}
-		sb.append("}");
+		sb.append(" }");
 		return sb.toString();
 	}
 
@@ -157,13 +157,13 @@ public class MaudePrettyPrinter extends RefinePrettyPrinter {
 	public String caseAFatEnumVarsetExpression(AFatEnumVarsetExpression node,
 			Integer question) throws AnalysisException {
 		StringBuilder sb = new StringBuilder();
-		sb.append("{|");
+		sb.append("{| ");
 		for (Iterator<ANameChannelExp> it = node.getChannelNames().iterator(); it.hasNext(); ) {
 			ANameChannelExp e = it.next();
 			sb.append(e.apply(this,0));
 			if (it.hasNext()) sb.append(", ");
 		}
-		sb.append("|}");
+		sb.append(" |}");
 		return sb.toString();
 	}
 
@@ -171,9 +171,9 @@ public class MaudePrettyPrinter extends RefinePrettyPrinter {
 	public String caseANameChannelExp(ANameChannelExp node, Integer question)
 			throws AnalysisException {
 		StringBuilder sb = new StringBuilder();
-		sb.append(node.getIdentifier().getName());
+		sb.append("#nm(\""+node.getIdentifier().getName()+"\")");
 		for (PExp e: node.getExpressions()) {
-			sb.append("."+e.apply(this,0));
+			sb.append(".("+e.apply(this,0)+")");
 		}
 		return sb.toString();
 	}

@@ -67,19 +67,21 @@ public abstract class RefUtils {
 	
 	
 	public static void main(String[] args) {
-		ANTLRStringStream as = new ANTLRStringStream("{||}");
+		ANTLRStringStream as = new ANTLRStringStream("Skip [| {} | {n.1} | {v,c} |] Skip");
 		CmlLexer cmlLexer = new CmlLexer(as);
 		CommonTokenStream ct = new CommonTokenStream(cmlLexer);
 		CmlParser parser = new CmlParser(ct);
-		
+		PAction act = null;
 		PExp pexp = null;
 		try {
+			act = parser.action().action;
 			//PVarsetExpression var = parser.varsetExpr();
 			//Object o = parser.expression();
-			pexp = parser.expression().exp;
+			//pexp = parser.expression().exp;
 		} catch (RecognitionException e) {
 			
 		}
+		return;
 	}
 	
 }
