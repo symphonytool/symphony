@@ -61,7 +61,7 @@ import eu.compassresearch.core.interpreter.debug.messaging.JsonMessage;
  */
 public class CoSimProtocolVersion3 implements ICoSimProtocol
 {
-	public static final String VERSION = "2.0.0";
+	public static final String VERSION = "3.0.0";
 
 	final static String RegisterSubSystemTemplate = "[\"eu.compassresearch.core.interpreter.cosim.communication.RegisterSubSystemMessage\",{\"processes\":[\"java.util.Vector\",%s],\"version\" : %s}]";
 	final static String FinishedRequestMessage = "{\"FinishedRequestMessage\":{\"process\":%s}}";
