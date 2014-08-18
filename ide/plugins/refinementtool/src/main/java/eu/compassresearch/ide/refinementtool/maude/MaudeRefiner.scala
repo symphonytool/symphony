@@ -16,10 +16,13 @@ class MaudeRefiner(cmd: String, refine: String) {
   val replacers: Map[String, String] = Map.empty +
     ( "\\#b\\(true\\)"  -> "true"
     , "\\#b\\(false\\)" -> "false"
+    , "\\#n\\((\\d+)\\)" -> "$1"
     , "\\#nm\\(\"(\\w+)\"\\)" -> "$1" 
     , "\\#anm\\(\"(\\w+)\"\\)" -> "$1"
     , "=def=" -> "="
-    , "\\#paren" -> "") 
+    , "\\#paren" -> ""
+    , "\\#c\\(\"(\\w+)\"\\)" -> "$1"
+  ) 
 
   object MetaSetParser extends JavaTokenParsers {
     val stringParser = stringLiteral ^^ {str => str.substring(1, str.length - 1)}
