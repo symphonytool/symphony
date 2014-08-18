@@ -47,6 +47,14 @@ public class ParameterDependency {
 		return result;
 	}
 	
+	public boolean containsVariable(String variableName){
+		boolean result = false;
+		
+		result = variableName.equals(this.parametrisation.getDeclaration().getName());
+		
+		return result;
+	}
+	
 	private boolean isInfiniteType(){
 		boolean result = false;
 		if(this.parametrisation instanceof MCAValParametrisation){

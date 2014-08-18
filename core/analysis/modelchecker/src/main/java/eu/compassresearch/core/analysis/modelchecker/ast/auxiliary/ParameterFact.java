@@ -4,6 +4,7 @@ import java.util.LinkedList;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAValParametrisation;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCALocalDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAVariableExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCABooleanBasicType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAChannelType;
@@ -33,11 +34,25 @@ public class ParameterFact {
 	public String toFormula(String option){
 		StringBuilder result = new StringBuilder();
 		if(this.isInfiniteType()){
-			result.append("  ParamW(\"");
-			result.append(this.name);
-			result.append("\",");
-			result.append(value.toFormula(option));
-			result.append(")");
+			if(value instanceof MCAVariableExp){
+				//get the values from the local variables context
+				NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
+				LinkedList<NameValue> values = context.getLocalVariableMapping(value.toFormula(option));
+				for (NameValue v : values) {
+					result.append("  ParamW(\"");
+					result.append(this.name);
+					result.append("\",");
+					result.append(v.getVariableValue());
+					result.append(")");
+					result.append("\n");
+				}
+			}else{
+				result.append("  ParamW(\"");
+				result.append(this.name);
+				result.append("\",");
+				result.append(value.toFormula(option));
+				result.append(")");
+			}
 		}else{
 			LinkedList<TypeValue> typeValues = getTypeValues();
 			for (TypeValue typeValue : typeValues) {

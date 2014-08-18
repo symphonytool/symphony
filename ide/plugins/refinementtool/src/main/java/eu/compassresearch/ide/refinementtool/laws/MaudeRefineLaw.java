@@ -36,7 +36,7 @@ public class MaudeRefineLaw implements IRefineLaw {
 
 	@Override
 	public String getDetail() {
-		return minfo.law();
+		return minfo.law().replaceAll("&", "&&");
 	}
 
 	@Override

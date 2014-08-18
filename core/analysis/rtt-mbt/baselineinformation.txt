@@ -1,4 +1,37 @@
 -----------------------------------------------------------
+RTTPLUGIN_0.3.5
+
+Development version
+Changes:
+
+- fixes for replay: upload and download *.rttdoc files
+- changed order of replay and doc commands.
+- disable replay for test procedures without matching test procedure generation context.
+
+Revision: in progress
+Released: in progress
+-----------------------------------------------------------
+RTTPLUGIN_0.3.4
+
+Release version
+Synchronisation with Symphony release 0.3.4
+
+Revision: [01fbc25]
+Released: 2014-07-14
+-----------------------------------------------------------
+RTTPLUGIN_0.3.3
+
+Development version
+Changes:
+
+- added new action to execute generated CML traces against CML models
+  from the RTT perspective
+- activating RT-Tester properties for RTT-folders inside other
+  projects
+
+Revision: [01fbc25]
+Released: 2914-07-14
+-----------------------------------------------------------
 RTTPLUGIN_0.3.2
 
 Changes:

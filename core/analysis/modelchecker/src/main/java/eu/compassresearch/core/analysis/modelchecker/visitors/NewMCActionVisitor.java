@@ -4,6 +4,7 @@ import java.util.LinkedList;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.QuestionAnswerAdaptor;
+import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.node.INode;
 import org.overture.ast.statements.ACallStm;
@@ -351,7 +352,16 @@ public class NewMCActionVisitor extends
 		}
 
 		MCPAction action = (MCPAction) node.getAction().apply(rootVisitor, question);
-		MCACommunicationAction result = new MCACommunicationAction(identifier, mcParameters, action);
+		
+		PDefinition parentDef = this.getParentActionDefinition(node);
+		if(parentDef != null){
+			parentDef = this.getParentProcessDefinition(node);
+		}
+		String parentName = null;
+		if(parentDef != null){
+			parentName = parentDef.getName().getName();
+		}
+		MCACommunicationAction result = new MCACommunicationAction(identifier, mcParameters, action,parentName);
 		
 		for (MCPCommunicationParameter mcpCommunicationParameter : mcParameters) {
 			if(mcpCommunicationParameter instanceof MCAReadCommunicationParameter){
@@ -392,7 +402,7 @@ public class NewMCActionVisitor extends
 		return result;
 	}
 	
-	private AProcessDefinition getParentProcessDefinition(AReferenceAction node){
+	private AProcessDefinition getParentProcessDefinition(PAction node){
 		AProcessDefinition result = null;
 		INode parent = node.parent();
 		while((parent != null) && !(parent instanceof AProcessDefinition)){
@@ -403,7 +413,7 @@ public class NewMCActionVisitor extends
 		}
 		return result;
 	} 
-	private AActionDefinition getParentActionDefinition(AReferenceAction node){
+	private AActionDefinition getParentActionDefinition(PAction node){
 		AActionDefinition result = null;
 		
 		INode parent = node.parent();

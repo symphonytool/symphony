@@ -82,7 +82,7 @@ public class RttMbtTgenAndExecute extends RttMbtAbstractTestProcedureAction {
 
 
 		/**
-		 * compile test procedure
+		 * clean test procedure
 		 */
 
 		String rttTestprocPath = client.getPathInsideRttTestcontext(selectedObjectFilesystemPath);
@@ -102,7 +102,7 @@ public class RttMbtTgenAndExecute extends RttMbtAbstractTestProcedureAction {
 		/**
 		 * compile test procedure
 		 */
-		// compile test procedure
+
 		client.addLogMessage("compiling test procedure " + rttTestprocPath + "... please wait for the task to be finished.");
 		if (client.compileTestProcedure(rttTestprocPath)) {
 			client.addLogMessage("[PASS]: compile test procedure " + selectedObjectName);
@@ -119,7 +119,7 @@ public class RttMbtTgenAndExecute extends RttMbtAbstractTestProcedureAction {
 		/**
 		 * run test procedure
 		 */
-		// run test procedure
+
 		client.addLogMessage("executing test procedure " + rttTestprocPath + "... please wait for the task to be finished.");
 		if (client.runTestProcedure(rttTestprocPath)) {
 			client.addLogMessage("[PASS]: execute test procedure " + selectedObjectName);
@@ -128,23 +128,6 @@ public class RttMbtTgenAndExecute extends RttMbtAbstractTestProcedureAction {
 			client.addErrorMessage("[FAIL]: execute test procedure " + selectedObjectName);
 			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 			client.addCompletedTaskItems(11);
-			return Status.CANCEL_STATUS;
-		}
-		client.addCompletedTaskItems(1);
-
-		
-		/**
-		 * doc test procedure
-		 */
-		// generate test procedure documentation
-		client.addLogMessage("generating documentation for " + rttTestprocPath + "... please wait for the task to be finished.");
-		if (client.docTestProcedure(rttTestprocPath)) {
-			client.addLogMessage("[PASS]: generate test procedure documentation for " + selectedObjectName);
-			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
-		} else {
-			client.addErrorMessage("[FAIL]: generate test procedure documentation for " + selectedObjectName);
-			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
-			client.addCompletedTaskItems(6);
 			return Status.CANCEL_STATUS;
 		}
 		client.addCompletedTaskItems(1);
@@ -175,6 +158,39 @@ public class RttMbtTgenAndExecute extends RttMbtAbstractTestProcedureAction {
 		} else {
 			client.addErrorMessage("[FAIL]: replay test procedure " + selectedObjectName);
 		}
+
+
+		/**
+		 * switch from generation context to execution context
+		 */
+		// if a test procedure generation context is selected, switch to test procedure
+		if ((!isRttTestProcSelected()) && (isTProcGenCtxSelected())) {
+			getRttTestProcPathFromTProcGenCtxPath();
+		}
+		// check that a test procedure is selected
+		if ((!isRttTestProcSelected()) && (!RttMbtClient.isRtt6TestProcedure(selectedObjectFilesystemPath))) {
+			client.addErrorMessage("Please select a valid test procedure!");
+			client.addCompletedTaskItems(20);
+			return Status.CANCEL_STATUS;
+		}
+
+
+		/**
+		 * doc test procedure
+		 */
+		// generate test procedure documentation
+		client.addLogMessage("generating documentation for " + rttTestprocPath + "... please wait for the task to be finished.");
+		if (client.docTestProcedure(rttTestprocPath)) {
+			client.addLogMessage("[PASS]: generate test procedure documentation for " + selectedObjectName);
+			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
+		} else {
+			client.addErrorMessage("[FAIL]: generate test procedure documentation for " + selectedObjectName);
+			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
+			client.addCompletedTaskItems(6);
+			return Status.CANCEL_STATUS;
+		}
+		client.addCompletedTaskItems(1);
+
 
 		// cleanup
 		client.setSubTaskName("finishing task");
