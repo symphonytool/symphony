@@ -103,7 +103,7 @@ public class RefineHandler extends AbstractHandler {
 		if (mref == null) {
 			String maudeLoc = CmlRefinePlugin.getDefault().getPreferenceStore().getString(RefConstants.MAUDE_LOC);
 			String maudeThy = CmlRefinePlugin.getDefault().getPreferenceStore().getString(RefConstants.MAUDE_THY);
-			// FIXME: Need a generic way of configuring Maude and theory location
+			
 			if (maudeLoc != "" && maudeThy != "") {
 				mref = new MaudeRefiner(maudeLoc, maudeThy);
 				cmlProj.getModel().setAttribute(RefConstants.REF_MAUDE, mref);
