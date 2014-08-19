@@ -62,7 +62,7 @@ public class CopyRuleRL implements IRefineLaw {
 		AActionDefinition def = (AActionDefinition) getActionDefinition(metas.get("A").toString(), a);
 		
 		try {
-			CmlActionEqualityProvisoObligation p = new CmlActionEqualityProvisoObligation((PAction)a, def.getAction());
+			CmlActionEqualityProvisoObligation p = new CmlActionEqualityProvisoObligation(a, def.getAction());
 			List<CmlProofObligation> pp = new LinkedList<CmlProofObligation>();
 			pp.add(p);
 			return new Refinement(

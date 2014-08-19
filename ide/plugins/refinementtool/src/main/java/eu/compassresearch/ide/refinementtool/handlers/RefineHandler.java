@@ -22,6 +22,7 @@ import org.overture.ast.node.INode;
 
 import eu.compassresearch.ast.actions.AStmAction;
 import eu.compassresearch.ast.statements.AActionStm;
+import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligationList;
 import eu.compassresearch.ide.core.resources.ICmlProject;
 import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
 import eu.compassresearch.ide.refinementtool.CmlRefinePlugin;
@@ -117,7 +118,8 @@ public class RefineHandler extends AbstractHandler {
 				.getAdapter(ICmlProject.class);
 
 		MaudeRefiner mref = cmlProj.getModel().getAttribute(RefConstants.REF_MAUDE, MaudeRefiner.class);
-		List<IRefineLaw> laws = cmlProj.getModel().getAttribute(RefConstants.REF_LAWS_ID, List.class);
+		List<IRefineLaw> laws = cmlProj.getModel().getAttribute(RefConstants.REF_LAWS_ID, List.class);		
+		CmlProofObligationList pol = cmlProj.getModel().getAttribute(RefConstants.RPOL_ID, CmlProofObligationList.class);
 		
 		if (mref == null) {
 			String maudeLoc = CmlRefinePlugin.getDefault().getPreferenceStore().getString(RefConstants.MAUDE_LOC);
@@ -148,7 +150,12 @@ public class RefineHandler extends AbstractHandler {
 			
 			cmlProj.getModel().setAttribute(RefConstants.REF_LAWS_ID, laws);  
 		}
-						
+	
+		if (pol == null) {
+			pol = new CmlProofObligationList();
+			cmlProj.getModel().setAttribute(RefConstants.RPOL_ID, pol);
+		}
+		
 		ITextSelection selection = (ITextSelection) editor.getSelectionProvider().getSelection();
 		
 		INode node = null;
