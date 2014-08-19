@@ -27,7 +27,6 @@ import org.overture.ast.statements.PStm;
 import org.overture.ast.types.AUnionType;
 import org.overture.ast.types.PType;
 
-import scala.collection.convert.DecorateAsJava;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
 import eu.compassresearch.ast.actions.AGuardedAction;
@@ -47,6 +46,9 @@ import eu.compassresearch.ast.actions.PCommunicationParameter;
 import eu.compassresearch.ast.actions.PParametrisation;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.definitions.AActionDefinition;
+import eu.compassresearch.ast.expressions.AEnumVarsetExpression;
+import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
+import eu.compassresearch.ast.expressions.ANameChannelExp;
 import eu.compassresearch.ast.process.AActionProcess;
 import eu.compassresearch.ast.process.AUntimedTimeoutProcess;
 import eu.compassresearch.ast.statements.AActionStm;
@@ -510,8 +512,34 @@ public class RefinePrettyPrinter extends QuestionAnswerCMLAdaptor<Integer, Strin
 		return tabs(question)+node.apply(cmlpp);
 	}
 	
+	@Override
+	public String caseAEnumVarsetExpression(AEnumVarsetExpression node,
+			Integer question) throws AnalysisException {
+		StringBuilder sb = new StringBuilder();
+		sb.append("{ ");
+		for (Iterator<ANameChannelExp> it = node.getChannelNames().iterator(); it.hasNext(); ) {
+			ANameChannelExp e = it.next();
+			sb.append(e.apply(this,0));
+			if (it.hasNext()) sb.append(", ");
+		}
+		sb.append(" }");
+		return sb.toString();
+	}
+
+	@Override
+	public String caseAFatEnumVarsetExpression(AFatEnumVarsetExpression node,
+			Integer question) throws AnalysisException {
+		StringBuilder sb = new StringBuilder();
+		sb.append("{| ");
+		for (Iterator<ANameChannelExp> it = node.getChannelNames().iterator(); it.hasNext(); ) {
+			ANameChannelExp e = it.next();
+			sb.append(e.apply(this,0));
+			if (it.hasNext()) sb.append(", ");
+		}
+		sb.append(" |}");
+		return sb.toString();
+	}	
 	
-	
-	
+    // Need to implement case for generalised parallelism	
 	
 }

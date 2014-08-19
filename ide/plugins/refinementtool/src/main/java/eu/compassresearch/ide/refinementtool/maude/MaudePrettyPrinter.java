@@ -1,12 +1,16 @@
 package eu.compassresearch.ide.refinementtool.maude;
 
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.expressions.PExp;
+import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.patterns.PPattern;
+import org.overture.ast.statements.AExternalClause;
+import org.overture.ast.statements.ASpecificationStm;
 
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.AMuAction;
@@ -140,34 +144,6 @@ public class MaudePrettyPrinter extends RefinePrettyPrinter {
 	}
 
 	@Override
-	public String caseAEnumVarsetExpression(AEnumVarsetExpression node,
-			Integer question) throws AnalysisException {
-		StringBuilder sb = new StringBuilder();
-		sb.append("{ ");
-		for (Iterator<ANameChannelExp> it = node.getChannelNames().iterator(); it.hasNext(); ) {
-			ANameChannelExp e = it.next();
-			sb.append(e.apply(this,0));
-			if (it.hasNext()) sb.append(", ");
-		}
-		sb.append(" }");
-		return sb.toString();
-	}
-
-	@Override
-	public String caseAFatEnumVarsetExpression(AFatEnumVarsetExpression node,
-			Integer question) throws AnalysisException {
-		StringBuilder sb = new StringBuilder();
-		sb.append("{| ");
-		for (Iterator<ANameChannelExp> it = node.getChannelNames().iterator(); it.hasNext(); ) {
-			ANameChannelExp e = it.next();
-			sb.append(e.apply(this,0));
-			if (it.hasNext()) sb.append(", ");
-		}
-		sb.append(" |}");
-		return sb.toString();
-	}
-
-	@Override
 	public String caseANameChannelExp(ANameChannelExp node, Integer question)
 			throws AnalysisException {
 		StringBuilder sb = new StringBuilder();
@@ -177,7 +153,60 @@ public class MaudePrettyPrinter extends RefinePrettyPrinter {
 		}
 		return sb.toString();
 	}
+
+	public static String printFrame(List<AExternalClause> exts) {
+		StringBuilder sb = new StringBuilder();
+		if (exts.size() > 0) {
+			sb.append("frame ");
+			
+			for (AExternalClause e: exts) {
+				sb.append(e.getMode().toString()+" [$ ");
+				List<String> names = new LinkedList<String>();
+				for (ILexNameToken n: e.getIdentifiers()) {
+					names.add(n.toString());
+				}
+				if (names.size() > 0) {
+					sb.append(names.get(0));
+					for (int i = 1; i < names.size(); i++) {
+						sb.append(", "+names.get(i));
+					}
+				}
+				sb.append(" $] ");
+			}
+		}
+		return sb.toString();
+	}
 	
+	
+	@Override
+	public String caseASpecificationStm(ASpecificationStm node, Integer question)
+			throws AnalysisException {
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append("[");
+		
+		List<AExternalClause> exts = node.getExternals();
+		
+		sb.append(printFrame(exts));
+		
+		if (node.getPrecondition() != null) {
+			sb.append("pre ");
+			sb.append(node.getPrecondition().apply(cmlpp));
+			sb.append(" ");
+		}
+		
+		if (node.getPostcondition() != null) {
+			sb.append("post ");
+			sb.append(node.getPostcondition().apply(cmlpp));
+		} else {
+			sb.append("post true");
+		}
+		
+		sb.append("]");
+		
+		return sb.toString();
+	}
+
 	
 
 }

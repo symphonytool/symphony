@@ -80,7 +80,7 @@ fmod EXPRESSION is
 
     subsort Name OldName Value < Expr .   
 
-    vars E E1 E2 E3 : Expr .
+    vars E E1 E2 E3 E4 : Expr .
 
     ----sorts Elseif ElseifList .
     ----subsort Elseif < ElseifList .
@@ -197,11 +197,9 @@ fmod ACTION is
     pr EXPRESSION-EXTENSION .
     pr PARAM-SET .
     
-    sorts Action ActionDecl .
+    sorts Action ActionDecl External Access .
     
     subsort ActionName < Action .
-
-
 
     ops Stop Skip Div : -> Action .
     
@@ -213,12 +211,19 @@ fmod ACTION is
     op _ \\ _ : Action SetExpr -> Action [prec 25] .
     op if_then_else_ : Expr Action Action -> Action [prec 52] .
     op mu_@_ : ActionName Action -> Action [prec 54] .
-    op [pre_,post_] : Expr Expr -> Action [prec 40] .
+    op [_pre_post_] : External Expr Expr -> Action [prec 40] .
+    op [pre_post_] : Expr Expr -> Action [prec 40] .
     op #paren : Action -> Action .
+
+    op wr[$_$] : NeExprSet -> Access [prec 0] .
+    op rd[$_$] : NeExprSet -> Access .
+
+    op frame_ : Access -> External .
+    op __ : External Access -> External .
 
     op _[|_|_|_|]_ : Action SetExpr SetExpr SetExpr Action -> Action .
 
-
+    op _[=_ : Action Action -> Expr [prec 25] .
 
     op _->_ : Expr Action -> Action [prec 55] .
     op var_:_@_ : Name Expr Action -> Action [prec 56] .
@@ -377,8 +382,9 @@ mod ACTION-REFINE is
     vars A A1 A2 : Action .
     vars c c1 c2 : Expr .
     vars g g1 g2 : Expr .
-    vars p p1 p2 : Expr .
+    vars p p1 p2 p3 p4 : Expr .
     vars X Y N : ActionName .
+    vars x y z n : Name .
     var M : RefMap .
     var D : NeParamSet .
     var Decl : ActionDecl .
@@ -408,7 +414,7 @@ mod ACTION-REFINE is
           , "[g1] & A [= [g2] & A provided g2 => g1", {#meta("g2", "expression")}] .
 
     crl [guard-weaken] :
-    refine["guard-weaken", < [g1] & A | M | p >] => < [getExp(M["g2"])] & A | empty | g1 => getExp(M["g2"]) and p > 
+    refine["guard-weaken", < [g1] & A | M | p >] => < [getExp(M["g2"])] & A | empty | g1 => getExp(M["g2"]) > 
     if M["g2"] =/= undefined and isExp(M["g2"]) .
 
     rl [pre-guard-expansion-lr] :
@@ -456,7 +462,8 @@ mod ACTION-REFINE is
     --- we need to add the proviso that the right hand side is a fix point of the recursion on the left 
     rl [par-rec-dist] :
 	refine["par-rec-dist", < mu X @ A ; X | M | p >] =>
-        <(mu X @ #paren(getAct(M["A1"]) ; X)) [| getExp(M["ns1"]) | getExp(M["cs"]) | getExp(M["ns2"]) |] (mu X @ #paren(getAct(M["A2"]) ; X)) | M | p > .
+        <(mu X @ #paren(getAct(M["A1"]) ; X)) [| getExp(M["ns1"]) | getExp(M["cs"]) | getExp(M["ns2"]) |] (mu X @ #paren(getAct(M["A2"]) ; X)) | M | 
+	(A ; (mu X @ #paren(getAct(M["A1"]) ; X)) [| getExp(M["ns1"]) | getExp(M["cs"]) | getExp(M["ns2"]) |] (mu X @ #paren(getAct(M["A2"]) ; X))) [= ((mu X @ #paren(getAct(M["A1"]) ; X)) [| getExp(M["ns1"]) | getExp(M["cs"]) | getExp(M["ns2"]) |] (mu X @ #paren(getAct(M["A2"]) ; X))) > .
 
     rl [pre-hid-par-rec-dist] :
     refs[mu X @ A ; X] => rinf["hid-par-rec-dist", "Parallel Recursion Distribution with Hiding", "mu X @ A ; X [= (mu X @ A1;X [|ns1|cs|ns2|] mu X @ A2;X)",{#meta("ns1","varset"), #meta("ns2","varset"), #meta("cs","varset"),#meta("A1","action"), #meta("A2", "action"), #meta("Sync","varset")}] .
@@ -464,9 +471,25 @@ mod ACTION-REFINE is
     --- we need to add the proviso that the right hand side is a fix point of the recursion on the left 
     rl [par-hid-rec-dist] :
 	refine["hid-par-rec-dist", < mu X @ A ; X | M | p >] =>
-        <(mu X @ #paren(getAct(M["A1"]) ; X)) [| getExp(M["ns1"]) | getExp(M["cs"]) | getExp(M["ns2"]) |] (mu X @ #paren(getAct(M["A2"]) ; X)) \\ getExp(M["Sync"]) | M | p > .
+        <(mu X @ #paren(getAct(M["A1"]) ; X)) [| getExp(M["ns1"]) | getExp(M["cs"]) | getExp(M["ns2"]) |] (mu X @ #paren(getAct(M["A2"]) ; X)) \\ getExp(M["Sync"]) | M | 
+(A ; ((mu X @ #paren(getAct(M["A1"]) ; X)) [| getExp(M["ns1"]) | getExp(M["cs"]) | getExp(M["ns2"]) |] (mu X @ #paren(getAct(M["A2"]) ; X)) \\ getExp(M["Sync"]))) [= ((mu X @ #paren(getAct(M["A1"]) ; X)) [| getExp(M["ns1"]) | getExp(M["cs"]) | getExp(M["ns2"]) |] (mu X @ #paren(getAct(M["A2"]) ; X)) \\ getExp(M["Sync"])) > .
+
+
  
+   rl [pre-spec-seq-intro] :
+   refs[[frame wr [$ x, y $] pre p1 and p2 post p3 and p4]] =>
+	rinf[ "spec-seq-intro"
+            , "Specification Sequential Introduction"
+            , "[frame wr x, y pre p1 and p2 post p3 and p4] [= [frame wr x pre p1 post p3] ; [frame wr x pre p2 post p4] assuming appropriate freeness"
+            , {} ] .
+
+   rl [spec-seq-intro] :
+       refine["spec-seq-intro", < [frame wr [$ x, y $] pre p1 and p2 post p3 and p4] | M | p >] =>
+             < [frame wr [$ x $] pre p1 post p3] ; [frame wr [$ y $] pre p2 post p4 ] | M | p > .
+
+
 *** (
+
     rl [pre-guard-association] : 
     refs[([g] & A1) ; A2] => rinf["guard-association", "Guard/Sequence: Association", {}] .
 
