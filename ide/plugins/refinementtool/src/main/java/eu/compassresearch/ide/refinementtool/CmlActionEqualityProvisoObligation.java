@@ -8,30 +8,32 @@ import org.overture.ast.node.INode;
 import org.overture.pog.contexts.POContextStack;
 import org.overture.pog.pub.IPOContextStack;
 
+import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.core.analysis.pog.obligations.CmlPOType;
 import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligation;
 import eu.compassresearch.core.analysis.pog.visitors.CmlPogAssistantFactory;
 
-public class CmlRefineProvisoObligation extends CmlProofObligation {
+public class CmlActionEqualityProvisoObligation extends CmlProofObligation {
 
-	PExp proviso;
+	private PAction lhs;
+	private PAction rhs;
 	
-	public CmlRefineProvisoObligation(INode node, CmlPOType kind,
+	public CmlActionEqualityProvisoObligation(INode node, CmlPOType kind,
 			IPOContextStack ctxt, ILexLocation location) throws AnalysisException {
 		super(node, kind, ctxt, location, new CmlPogAssistantFactory());
 		// TODO Auto-generated constructor stub
 	}
 	
-	public CmlRefineProvisoObligation(PExp p) throws AnalysisException {
-		super(p, CmlPOType.REFINE_PROVISO, new POContextStack(), null, new CmlPogAssistantFactory());
-		proviso = p;
-		
+	public CmlActionEqualityProvisoObligation(PAction a1, PAction a2) throws AnalysisException {
+		super(a1, CmlPOType.REFINE_PROVISO, new POContextStack(), null, new CmlPogAssistantFactory());
+		lhs = a1;
+		rhs = a2;
 	}
 	
 	public String toString() {
-		CmlPExprPrettyPrinter pp = new CmlPExprPrettyPrinter();
+		RefinePrettyPrinter pp = new RefinePrettyPrinter();
 		try {
-			return proviso.apply(pp);
+			return lhs.apply(pp,0) + " = " + rhs.apply(pp,0);
 		} catch (AnalysisException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -42,24 +44,14 @@ public class CmlRefineProvisoObligation extends CmlProofObligation {
 
 	@Override
 	public String getName() {
-		return "Refinement Proviso";
+		return "Action Equality Proviso";
 	}
 
 	@Override
 	public String getFullPredString() {
-		try {
-			String s = proviso.apply(new CmlPExprPrettyPrinter()); 
-			return s;
-		} catch (AnalysisException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return "";
+		return toString();
 	}
 
-	
-	
-	
 	@Override
 	public ILexLocation getLocation() {
 		return new LexLocation("", "", 0, 0, 0, 0, 0, 0);

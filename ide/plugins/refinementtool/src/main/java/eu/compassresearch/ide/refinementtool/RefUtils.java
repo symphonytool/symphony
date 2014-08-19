@@ -3,8 +3,11 @@ package eu.compassresearch.ide.refinementtool;
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
+import org.overture.ast.expressions.AVariableExp;
 import org.overture.ast.expressions.PExp;
+import org.overture.ast.node.NodeList;
 
+import eu.compassresearch.ast.actions.AReferenceAction;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.core.parser.CmlLexer;
@@ -21,7 +24,6 @@ public abstract class RefUtils {
 		CmlLexer cmlLexer = new CmlLexer(as);
 		CommonTokenStream ct = new CommonTokenStream(cmlLexer);
 		CmlParser parser = new CmlParser(ct);
-		
 		PExp pexp = null;
 		try {
 			pexp = parser.expression().exp;
@@ -43,7 +45,13 @@ public abstract class RefUtils {
 		try {
 			pact = parser.action().action;
 		} catch (RecognitionException e) {
-			
+			PExp exp = parsePExp(act);
+			if (exp instanceof AVariableExp) {
+				AReferenceAction ref = new AReferenceAction();
+				ref.setLocation(exp.getLocation());
+				ref.setName(((AVariableExp) exp).getName());
+				pact = ref;
+			}
 		}
 		return pact;
 		
@@ -67,20 +75,18 @@ public abstract class RefUtils {
 	
 	
 	public static void main(String[] args) {
-		ANTLRStringStream as = new ANTLRStringStream("Skip [| {} | {n.1} | {v,c} |] Skip");
+		ANTLRStringStream as = new ANTLRStringStream("A");
 		CmlLexer cmlLexer = new CmlLexer(as);
 		CommonTokenStream ct = new CommonTokenStream(cmlLexer);
 		CmlParser parser = new CmlParser(ct);
 		PAction act = null;
 		PExp pexp = null;
-		try {
-			act = parser.action().action;
+		
+			act = parsePAction("A");
 			//PVarsetExpression var = parser.varsetExpr();
 			//Object o = parser.expression();
 			//pexp = parser.expression().exp;
-		} catch (RecognitionException e) {
-			
-		}
+		
 		return;
 	}
 	
