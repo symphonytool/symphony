@@ -471,7 +471,7 @@ mod ACTION-REFINE is
     --- we need to add the proviso that the right hand side is a fix point of the recursion on the left 
     rl [par-hid-rec-dist] :
 	refine["hid-par-rec-dist", < mu X @ A ; X | M | p >] =>
-        <(mu X @ #paren(getAct(M["A1"]) ; X)) [| getExp(M["ns1"]) | getExp(M["cs"]) | getExp(M["ns2"]) |] (mu X @ #paren(getAct(M["A2"]) ; X)) \\ getExp(M["Sync"]) | M | 
+        <((mu X @ #paren(getAct(M["A1"]) ; X)) [| getExp(M["ns1"]) | getExp(M["cs"]) | getExp(M["ns2"]) |] (mu X @ #paren(getAct(M["A2"]) ; X))) \\ getExp(M["Sync"]) | M | 
 (A ; ((mu X @ #paren(getAct(M["A1"]) ; X)) [| getExp(M["ns1"]) | getExp(M["cs"]) | getExp(M["ns2"]) |] (mu X @ #paren(getAct(M["A2"]) ; X)) \\ getExp(M["Sync"]))) [= ((mu X @ #paren(getAct(M["A1"]) ; X)) [| getExp(M["ns1"]) | getExp(M["cs"]) | getExp(M["ns2"]) |] (mu X @ #paren(getAct(M["A2"]) ; X)) \\ getExp(M["Sync"])) > .
 
 
