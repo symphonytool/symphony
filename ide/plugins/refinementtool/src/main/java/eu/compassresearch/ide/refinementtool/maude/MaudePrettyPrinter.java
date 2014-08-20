@@ -5,14 +5,20 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.definitions.AAssignmentDefinition;
+import org.overture.ast.expressions.APlusNumericBinaryExp;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.patterns.PPattern;
+import org.overture.ast.statements.AAssignmentStm;
+import org.overture.ast.statements.ABlockSimpleBlockStm;
 import org.overture.ast.statements.AExternalClause;
 import org.overture.ast.statements.ASpecificationStm;
+import org.overture.ast.statements.PStm;
 
 import eu.compassresearch.ast.actions.ACommunicationAction;
+import eu.compassresearch.ast.actions.AHidingAction;
 import eu.compassresearch.ast.actions.AMuAction;
 import eu.compassresearch.ast.actions.AReadCommunicationParameter;
 import eu.compassresearch.ast.actions.AReferenceAction;
@@ -25,6 +31,7 @@ import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.expressions.AEnumVarsetExpression;
 import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
 import eu.compassresearch.ast.expressions.ANameChannelExp;
+import eu.compassresearch.ast.statements.PCMLStateDesignator;
 import eu.compassresearch.ide.refinementtool.RefinePrettyPrinter;
 
 public class MaudePrettyPrinter extends RefinePrettyPrinter {
@@ -34,6 +41,21 @@ public class MaudePrettyPrinter extends RefinePrettyPrinter {
 		cmlpp = new MaudePExprPrettyPrinter();
 	}
 	
+	@Override
+	public String caseAAssignmentStm(AAssignmentStm node, Integer question)
+			throws AnalysisException {
+		return "#nm(\""+node.getTarget().toString() + "\") := " + node.getExp().apply(this,0);
+	}
+	
+	
+	
+	
+	@Override
+	public String caseAHidingAction(AHidingAction node, Integer question)
+			throws AnalysisException {
+		return node.getLeft().apply(this,0) + " \\\\ "+ node.getChansetExpression().apply(this,0);
+	}
+
 	@Override
 	public String caseAReferenceAction(AReferenceAction node, Integer question)
 			throws AnalysisException {
@@ -70,7 +92,40 @@ public class MaudePrettyPrinter extends RefinePrettyPrinter {
 		return sb.toString();
 	}
 
-	
+	@Override
+	public String caseABlockSimpleBlockStm(ABlockSimpleBlockStm node,
+			Integer question) throws AnalysisException {
+		
+		StringBuilder sb = new StringBuilder();
+		
+		List<AAssignmentDefinition> defs = node.getAssignmentDefs();
+		
+		sb.append("#paren(");
+		
+		if (defs.size() > 0) {
+			sb.append("dcl ");
+			sb.append(defs.get(0).apply(this, 0));
+			for (int i = 1; i < defs.size(); i ++) {
+				sb.append(", ");
+				sb.append(defs.get(i).apply(this, 0));
+			}
+			sb.append(" @ ");
+		}
+		
+		List<PStm> stats = node.getStatements();
+		
+		if (stats.size() > 0) {
+			sb.append(stats.get(0).apply(this, 0));
+			for (int i = 1; i < stats.size(); i ++) {
+				sb.append("; ");
+				sb.append(stats.get(i).apply(this, 0));
+			}
+		}
+			
+		sb.append(")");
+		
+		return sb.toString();
+	}
 	
 	
 	@Override
@@ -138,8 +193,9 @@ public class MaudePrettyPrinter extends RefinePrettyPrinter {
 			throws AnalysisException {
 		String name = node.getIdentifiers().get(0).getName();
 		StringBuilder sb = new StringBuilder();
-		sb.append("mu #anm(\""+name+"\") @ ");
+		sb.append("mu #anm(\""+name+"\") @ #paren(");
 		sb.append(node.getActions().get(0).apply(this,0));
+		sb.append(")");
 		return sb.toString();
 	}
 

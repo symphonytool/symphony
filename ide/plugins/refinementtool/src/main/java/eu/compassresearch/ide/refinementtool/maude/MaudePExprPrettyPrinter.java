@@ -6,6 +6,7 @@ import org.overture.ast.expressions.AEqualsBinaryExp;
 import org.overture.ast.expressions.AIntLiteralExp;
 import org.overture.ast.expressions.AVariableExp;
 
+import eu.compassresearch.ast.expressions.ABracketedExp;
 import eu.compassresearch.ide.refinementtool.CmlPExprPrettyPrinter;
 
 public class MaudePExprPrettyPrinter extends CmlPExprPrettyPrinter {
@@ -20,8 +21,7 @@ public class MaudePExprPrettyPrinter extends CmlPExprPrettyPrinter {
 		return "#b(" + node.getValue().toString() + ")";
 	}
 
-	
-	
+
 	@Override
 	public String caseAIntLiteralExp(AIntLiteralExp node)
 			throws AnalysisException {

@@ -97,17 +97,17 @@ fmod EXPRESSION is
 
     ---- Binary Expressions
     ops _*_ _/_ _div_ _rem_ _mod_ : Expr Expr -> Expr  [prec 15] . 
-    ops _+_ _-_ : Expr Expr -> Expr [prec 20] .
-    ops _<_ _<=_ _>_ _>=_ _==_ _<>_ : Expr Expr -> Expr [prec 25] .
-    ops _or_ _and_ : Expr Expr -> Expr [assoc comm prec 28] .
-    ops _=>_ _<=>_ : Expr Expr -> Expr [prec 30] .
+    ops _+_ _-_ : Expr Expr -> Expr [prec 16] .
+    ops _<_ _<=_ _>_ _>=_ _==_ _<>_ : Expr Expr -> Expr [prec 17] .
+    ops _or_ _and_ : Expr Expr -> Expr [assoc comm prec 18] .
+    ops _=>_ _<=>_ : Expr Expr -> Expr [prec 19] .
 
-    op ?_:_ : Name Expr -> CParam [prec 38] .  ----input (env. choice) [read]
-    op ?_ : Name -> CParam [prec 38] .
-    op !_ : Expr -> CParam [prec 38] .     ---- output to env. [write]
-    op ._ : Expr -> CParam [prec 38] .
+    op ?_:_ : Name Expr -> CParam [prec 20] .  ----input (env. choice) [read]
+    op ?_ : Name -> CParam [prec 20] .
+    op !_ : Expr -> CParam [prec 20] .     ---- output to env. [write]
+    op ._ : Expr -> CParam [prec 20] .
 
-    op __ : Expr CParam -> Expr .
+    op __ : Expr CParam -> Expr [prec 21].
 
     ***(eq #b(true) => E = E .
     eq #b(false) => E = #b(true) .
@@ -143,13 +143,14 @@ fmod EXPRESSION-EXTENSION is
  
     vars E E1 E2 E3 : Expr .
     vars V V1 V2 : Value .
+    vars Str : String .
 
     op `{_`} : NeExprSet -> SetExpr .
     op `{`} : -> SetExpr .
     op {|_|} : NeExprSet -> SetExpr .
     op {| |} : -> SetExpr .
 
-    op _is`in_ : Expr SetExpr -> Expr [prec 35] .
+    op _is`in_ : Expr SetExpr -> Expr [prec 21] .
 
     var NeXS : NeExprSet .     
     vars X Y A : Name .
@@ -163,12 +164,15 @@ fmod EXPRESSION-EXTENSION is
     eq [lift (X,NeXS) S] = [lift X [lift NeXS S]] .
 
     op usedV : Expr -> ExprSet .
-    eq usedV(X) = X .
-    eq usedV(V) = {} .
+    ceq usedV(#nm(Str)) = #nm(substr(Str,0,length(Str) - 1)) if substr(Str,length(Str) - 1, length(Str)) == "~" .
+    ceq usedV(#nm(Str)) = #nm(Str) if substr(Str,length(Str) - 1, length(Str)) =/= "~" .
+    eq usedV(V) = empty .
     eq usedV(if E1 then E2 else E3) = usedV(E1) , usedV(E2) , usedV(E3) .
     eq usedV(abs(E)) = usedV(E) .
     eq usedV(floor(E)) = usedV(E) .
     eq usedV(not(E)) = usedV(E) .
+    eq usedV(E1 == E2) = usedV(E1) , usedV(E2) .
+    eq usedV(E1 <> E2) = usedV(E1) , usedV(E2) .
     eq usedV(E1 * E2) = usedV(E1) , usedV(E2) .
     eq usedV(E1 / E2) = usedV(E1) , usedV(E2) .
     eq usedV(E1 div E2) = usedV(E1) , usedV(E2) .
@@ -176,6 +180,13 @@ fmod EXPRESSION-EXTENSION is
     eq usedV(E1 mod E2) = usedV(E1) , usedV(E2) .
     eq usedV(E1 + E2) = usedV(E1) , usedV(E2) .
     eq usedV(E1 - E2) = usedV(E1) , usedV(E2) .
+    
+    op usedV : CParam -> ExprSet .
+    eq usedV(? A) = empty .
+    eq usedV(! E) = usedV(E) .
+    eq usedV(. E) = usedV(E) .
+    eq usedV(? A : E) = usedV(E) .
+
 
 endfm
 
@@ -203,29 +214,29 @@ fmod ACTION is
 
     ops Stop Skip Div : -> Action .
     
-    op _:=_ : Name Expr -> Action [prec 38] .
+    op _:=_ : Name Expr -> Action [prec 30] .
+    op _ \\ _ : Action SetExpr -> Action [prec 31] .
+    op _->_ : Expr Action -> Action [prec 32] .
+
     op [_] & _ : Expr Action -> Action [prec 40] .
     op _;_ : Action Action -> Action [gather (e E) prec 45] .
+    op _[|_|_|_|]_ : Action SetExpr SetExpr SetExpr Action -> Action [prec 46].
     op _ |~| _ : Action Action -> Action [assoc comm prec 50] .
     op _[]_ : Action Action -> Action [assoc comm prec 50] .
-    op _ \\ _ : Action SetExpr -> Action [prec 25] .
     op if_then_else_ : Expr Action Action -> Action [prec 52] .
     op mu_@_ : ActionName Action -> Action [prec 54] .
-    op [_pre_post_] : External Expr Expr -> Action [prec 40] .
-    op [pre_post_] : Expr Expr -> Action [prec 40] .
+    op [_pre_post_] : External Expr Expr -> Action .
+    op [pre_post_] : Expr Expr -> Action .
     op #paren : Action -> Action .
 
-    op wr[$_$] : NeExprSet -> Access [prec 0] .
+    op wr[$_$] : NeExprSet -> Access .
     op rd[$_$] : NeExprSet -> Access .
 
     op frame_ : Access -> External .
     op __ : External Access -> External .
 
-    op _[|_|_|_|]_ : Action SetExpr SetExpr SetExpr Action -> Action .
+    op _[=_ : Action Action -> Expr [prec 95] .
 
-    op _[=_ : Action Action -> Expr [prec 25] .
-
-    op _->_ : Expr Action -> Action [prec 55] .
     op var_:_@_ : Name Expr Action -> Action [prec 56] .
     op end_ : Name -> Action .
     op _(_) : ActionName NeExprSet -> Action .
@@ -240,6 +251,10 @@ fmod ACTION is
     vars CP : CParam .
     vars S : String .
     vars NS1 NS2 CS : SetExpr . 
+    vars s : String .
+    vars Ext : External .
+    vars NESET : NeExprSet .
+    
 
     --- ActionName substitution for recursion
     op _[mu_@_] : Action ActionName Action -> Action [prec 60] . 
@@ -262,6 +277,8 @@ fmod ACTION is
     eq X[mu X @ A] = mu X @ A .
     ceq Y[mu X @ A] = Y if X =/= Y . 
 
+    eq #paren(#paren(A)) = #paren(A) .
+
 
     op replace(_,_,_): ActionName Action Action -> Action .
     eq replace(X , A , Skip) = Skip .
@@ -276,11 +293,13 @@ fmod ACTION is
     eq replace(X, A, #paren(A1)) = #paren(replace(X,A,A1)) .
     eq replace(X, A, C -> A1) = C -> replace(X,A,A1) .
     eq replace(X, A, A1 [| NS1 | CS | NS2 |] A2) = replace(X,A,A1) [| NS1 | CS | NS2 |] replace(X,A,A2) .
+    eq replace(X,A,[Ext pre E1 post E2]) = [Ext pre E1 post E2] .
+    eq replace(X,A,[pre E1 post E2]) = [pre E1 post E2] .
 
     op usedV : Action -> ExprSet .
-    eq usedV(Stop) = {} .
-    eq usedV(Skip) = {} .
-    eq usedV(Div)  = {} .
+    eq usedV(Stop) = empty .
+    eq usedV(Skip) = empty .
+    eq usedV(Div)  = empty .
     eq usedV(N := E) = N , usedV(E) .
     eq usedV(S1 ; S2) = usedV(S1) , usedV(S2) .
     eq usedV(S1 [] S2) = usedV(S1) , usedV(S2) .
@@ -288,14 +307,61 @@ fmod ACTION is
     eq usedV(#paren(A)) = usedV(A) .
     eq usedV(C -> A) = usedV(C) , usedV(A) .
     eq usedV(A1 [| NS1 | CS | NS2 |] A2) = usedV(A1), usedV(A2) .
+    eq usedV([Ext pre E1 post E2]) = usedV(E1), usedV(E2) .
+    eq usedV([pre E1 post E2]) = usedV(E1), usedV(E2) .
+    eq usedV(mu X @ A) = usedV(A) .
+    eq usedV(X) = empty .
+    eq usedV([E] & A) = usedV(E), usedV(A) .
 
-    op usedV : Expr -> ExprSet .
     op usedV : CParam -> ExprSet .
     eq usedV(C CP) = usedV(C) , usedV(CP) .
     eq usedV(?(N):(E)) = usedV(E) .
     eq usedV(!(E)) = usedV(E) .
     eq usedV(.(E)) = usedV(E) .
+    
 
+    op wrtV : Action -> ExprSet .
+    eq wrtV(Stop) = empty .
+    eq wrtV(Skip) = empty .
+    eq wrtV(Div)  = empty .
+    eq wrtV(N := E) = N .
+    eq wrtV(S1 ; S2) = wrtV(S1) , wrtV(S2) .
+    eq wrtV(S1 [] S2) = wrtV(S1) , wrtV(S2) .
+    eq wrtV(S1 |~| S2) = wrtV(S1) , wrtV(S2) .
+    eq wrtV(#paren(A)) = wrtV(A) .
+    eq wrtV(C -> A) = wrtV(A) .
+    eq wrtV(A1 [| NS1 | CS | NS2 |] A2) = wrtV(A1), wrtV(A2) .
+    eq wrtV([Ext pre E1 post E2]) = intersection(usedV(E2), wrtV(Ext)) .
+    eq wrtV([pre E1 post E2]) = empty .
+    eq wrtV(mu X @ A) = wrtV(A) .
+    eq wrtV(X) = empty .
+    eq wrtV([E] & A) = wrtV(A) .
+
+    op wrtV : External -> ExprSet .
+    eq wrtV(Ext rd[$ NESET $]) = wrtV(Ext) .
+    eq wrtV(Ext wr[$ NESET $]) = wrtV(Ext), NESET .
+    eq wrtV(frame rd[$ NESET $]) = empty .
+    eq wrtV(frame wr[$ NESET $]) = NESET .
+
+    op usedC : Action -> ExprSet .
+    eq usedC(Stop) = empty .
+    eq usedC(Skip) = empty .
+    eq usedC(Div)  = empty .
+    eq usedC(N := E) = empty .
+    eq usedC(S1 ; S2) = usedC(S1) , usedC(S2) .
+    eq usedC(S1 [] S2) = usedC(S1) , usedC(S2) .
+    eq usedC(S1 |~| S2) = usedC(S1) , usedC(S2) .
+    eq usedC(#paren(A)) = usedC(A) .
+    eq usedC(C -> A) = usedC(C) , usedC(A) .
+    eq usedC(A1 [| NS1 | CS | NS2 |] A2) = usedC(A1), usedC(A2) .
+    eq usedC([Ext pre E1 post E2]) = empty .
+    eq usedC([pre E1 post E2]) = empty .
+
+
+    op usedC : Expr -> ExprSet .
+    eq usedC(C CP) = usedC(C) .
+    eq usedC(N) = {N} .
+    
     op isSubAct : Action Action -> Bool .
     ceq isSubAct(A1, A2) = true if A1 == A2 .
     eq isSubAct(A,[E] & A1) = isSubAct(A,A1) .
@@ -308,6 +374,8 @@ fmod ACTION is
     eq isSubAct(A, #paren(A1)) = isSubAct(A,A1) .
     eq isSubAct(A, C -> A1) = isSubAct(A,A1) .
     eq isSubAct(A, A1 [| NS1 | CS | NS2 |] A2) = isSubAct(A,A1) or isSubAct(A,A2) .
+---    eq isSubAct(A, [Ext pre E1 post E2]) = false .
+---    eq isSubAct(A, [pre E1 post E2]) = false .
 
     op FV : Expr -> ExprSet .
 ----    eq FV(N ! E) = usedV(E) .
@@ -379,7 +447,7 @@ mod ACTION-REFINE is
     var  INP : SetExpr .
     var R : RefConf .
     var RI : RefInfo .
-    vars A A1 A2 : Action .
+    vars A A1 A2 A3 : Action .
     vars c c1 c2 : Expr .
     vars g g1 g2 : Expr .
     vars p p1 p2 p3 p4 : Expr .
@@ -390,10 +458,10 @@ mod ACTION-REFINE is
     var Decl : ActionDecl .
 
     rl [pre-guard-combination] :
-    refs[[g1] & ([g2] & A)] => rinf["guard-combination", "Guard combination", "[g1] & [g2] & A [= [g1 and g2] & A", {}] .
+    refs[[g1] & #paren([g2] & A)] => rinf["guard-combination", "Guard combination", "[g1] & [g2] & A [= [g1 and g2] & A", {}] .
 
     rl [guard-combination] :
-    refine["guard-combination", < [g1] & ([g2] & A) | M | p >] => < [g1 and g2] & A | M | p > .
+    refine["guard-combination", < [g1] & #paren([g2] & A) | M | p >] => < [g1 and g2] & A | M | p > .
 
     rl [pre-true-guard] :
     refs[[#b(true)] & A] => rinf["true-guard", "True Guard", "[true] & A [= A", {}] .
@@ -461,17 +529,17 @@ mod ACTION-REFINE is
 
     --- we need to add the proviso that the right hand side is a fix point of the recursion on the left 
     rl [par-rec-dist] :
-	refine["par-rec-dist", < mu X @ A ; X | M | p >] =>
+	refine["par-rec-dist", < mu X @ #paren(A ; X) | M | p >] =>
         <(mu X @ #paren(getAct(M["A1"]) ; X)) [| getExp(M["ns1"]) | getExp(M["cs"]) | getExp(M["ns2"]) |] (mu X @ #paren(getAct(M["A2"]) ; X)) | M | 
 	(A ; (mu X @ #paren(getAct(M["A1"]) ; X)) [| getExp(M["ns1"]) | getExp(M["cs"]) | getExp(M["ns2"]) |] (mu X @ #paren(getAct(M["A2"]) ; X))) [= ((mu X @ #paren(getAct(M["A1"]) ; X)) [| getExp(M["ns1"]) | getExp(M["cs"]) | getExp(M["ns2"]) |] (mu X @ #paren(getAct(M["A2"]) ; X))) > .
 
     rl [pre-hid-par-rec-dist] :
-    refs[mu X @ A ; X] => rinf["hid-par-rec-dist", "Parallel Recursion Distribution with Hiding", "mu X @ A ; X [= (mu X @ A1;X [|ns1|cs|ns2|] mu X @ A2;X)",{#meta("ns1","varset"), #meta("ns2","varset"), #meta("cs","varset"),#meta("A1","action"), #meta("A2", "action"), #meta("Sync","varset")}] .
+    refs[mu X @ #paren(A ; X)] => rinf["hid-par-rec-dist", "Parallel Recursion Distribution with Hiding", "mu X @ A ; X [= (mu X @ A1;X [|ns1|cs|ns2|] mu X @ A2;X)",{#meta("ns1","varset"), #meta("ns2","varset"), #meta("cs","varset"),#meta("A1","action"), #meta("A2", "action"), #meta("Sync","varset")}] .
 
     --- we need to add the proviso that the right hand side is a fix point of the recursion on the left 
     rl [par-hid-rec-dist] :
-	refine["hid-par-rec-dist", < mu X @ A ; X | M | p >] =>
-        <((mu X @ #paren(getAct(M["A1"]) ; X)) [| getExp(M["ns1"]) | getExp(M["cs"]) | getExp(M["ns2"]) |] (mu X @ #paren(getAct(M["A2"]) ; X))) \\ getExp(M["Sync"]) | M | 
+	refine["hid-par-rec-dist", < mu X @ #paren(A ; X) | M | p >] =>
+        < #paren(((mu X @ #paren(getAct(M["A1"]) ; X)) [| getExp(M["ns1"]) | getExp(M["cs"]) | getExp(M["ns2"]) |] (mu X @ #paren(getAct(M["A2"]) ; X))) \\ getExp(M["Sync"])) | M | 
 (A ; ((mu X @ #paren(getAct(M["A1"]) ; X)) [| getExp(M["ns1"]) | getExp(M["cs"]) | getExp(M["ns2"]) |] (mu X @ #paren(getAct(M["A2"]) ; X)) \\ getExp(M["Sync"]))) [= ((mu X @ #paren(getAct(M["A1"]) ; X)) [| getExp(M["ns1"]) | getExp(M["cs"]) | getExp(M["ns2"]) |] (mu X @ #paren(getAct(M["A2"]) ; X)) \\ getExp(M["Sync"])) > .
 
 
@@ -487,7 +555,47 @@ mod ACTION-REFINE is
        refine["spec-seq-intro", < [frame wr [$ x, y $] pre p1 and p2 post p3 and p4] | M | p >] =>
              < [frame wr [$ x $] pre p1 post p3] ; [frame wr [$ y $] pre p2 post p4 ] | M | p > .
 
+    crl [pre-hid-seq-dist] :
+    refs [A1 ; #paren(A2 \\ c)] => rinf["hid-seq-dist", "Distribute hiding over sequential composition",
+    "A1 ; A2 \\ E = (A1 ; A2) \\ E provided usedC(A1) = {}", {} ]
+    if usedC(A1) == empty .
 
+    crl [hid-seq-dist] :
+    refine["hid-seq-dist", < A1 ; #paren(A2 \\ c) | M | p >] =>
+    < #paren(#paren(A1 ; A2) \\ c) | M | p >
+    if usedC(A1) == empty .
+
+    rl [pre-seq-assoc-1] :
+    refs [A1 ; A2 ; A3] => rinf["seq-assoc-1", "Sequential composition associativity 1", "A1; A2; A3 = (A1; A2); A3", {} ] .
+
+    rl [seq-assoc-1] :
+    refine["seq-assoc-1", < A1 ; A2 ; A3 | M | p > ] =>
+    < #paren(A1 ; A2 ) ; A3 | M | p > .
+
+    rl [pre-seq-assoc-2] :
+    refs [#paren(A1 ; A2) ; A3] => rinf["seq-assoc-2", "Sequential composition associativity 2", "(A1; A2); A3 = A1; A2; A3", {} ] .
+
+    rl [seq-assoc-2] :
+    refine["seq-assoc-2", < #paren(A1 ; A2) ; A3 | M | p > ] =>
+    < A1 ; A2 ; A3 | M | p > .
+
+    crl [pre-seq-par-dist-1] :
+    refs[A ; #paren(A1 [| c1 | c | c2 |] A2)] =>
+	rinf["seq-par-dist-1", "Distribute sequential composition over parallelism on the left hand side", "A; (A1 [| c1 | c | c2 |] A2) = (A; A1 [| c1 | c | c2 |] A2) provided usedC(A) = {} and usedV(A2) inter wrtV(A) = {}", {} ]  if usedC(A) == empty /\ intersection(usedV(A2),wrtV(A)) == empty . 
+
+    crl [seq-par-dist-1] :
+    refine["seq-par-dist-1", < A ; #paren(A1 [| c1 | c | c2 |] A2) | M | p > ] =>
+	< #paren(#paren(A ; A1) [| c1 | c | c2 |] A2) | M | p > if usedC(A) == empty /\ intersection(usedV(A2),wrtV(A)) == empty .
+
+    crl [pre-seq-par-dist-2] :
+    refs[A ; #paren(A1 [| c1 | c | c2 |] A2)] =>
+	rinf["seq-par-dist-2", "Distribute sequential composition over parallelism on the left hand side", "A; (A1 [| c1 | c | c2 |] A2) = (A1 [| c1 | c | c2 |] A; A2) provided usedC(A) = {} and usedV(A1) inter wrtV(A) = {}", {} ]  if usedC(A) == empty /\ intersection(usedV(A1),wrtV(A)) == empty . 
+
+    crl [seq-par-dist-2] :
+    refine["seq-par-dist-2", < A ; #paren(A1 [| c1 | c | c2 |] A2) | M | p > ] =>
+	< #paren(A1 [| c1 | c | c2 |] #paren(A ; A2)) | M | p > if usedC(A) == empty /\ intersection(usedV(A1),wrtV(A)) == empty .
+
+    
 *** (
 
     rl [pre-guard-association] : 
