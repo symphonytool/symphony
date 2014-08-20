@@ -22,7 +22,7 @@ class MaudeRefiner(cmd: String, refine: String) {
     ( "\\#b\\(true\\)"  -> "true"
     , "\\#b\\(false\\)" -> "false"
     , "\\#n\\((\\d+)\\)" -> "$1"
-    , "\\#nm\\(\"(\\w+)\"\\)" -> "$1" 
+    , "\\#nm\\(\"(\\w+~?)\"\\)" -> "$1" 
     , "\\#anm\\(\"(\\w+)\"\\)" -> "$1"
     , "=def=" -> "="
     , "\\#paren" -> ""

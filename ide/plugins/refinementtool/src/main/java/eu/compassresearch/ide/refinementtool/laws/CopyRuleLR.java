@@ -101,7 +101,7 @@ public class CopyRuleLR implements IRefineLaw {
 			AActionDefinition def = (AActionDefinition) getActionDefinition(ref);
 			PAction action = def.getAction();
 			try {
-				output.append(action.apply(cmlpp, 0));
+				output.append("("+action.apply(cmlpp, 0)+")");
 			} catch (AnalysisException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
