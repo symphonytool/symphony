@@ -321,7 +321,9 @@ public class CoSimProtocolVersion3 implements ICoSimProtocol
 	{
 		T res = null;
 
-		Object obj = parser.parse(new String(data));
+		final String string = new String(data);
+		logger.trace("Decoding: " + string);
+		Object obj = parser.parse(string);
 
 		if (obj instanceof JSONArray)
 		{
@@ -431,8 +433,8 @@ public class CoSimProtocolVersion3 implements ICoSimProtocol
 					setHashedEventSources(map, transition);
 
 					List vals = (List) map.get("values");
-					ILexNameToken name =new CmlLexNameToken("", (String)map.get("name"), null) ;
-					
+					ILexNameToken name = new CmlLexNameToken("|CHANNELS|", (String) map.get("name"), null);
+
 					List<Value> values = new Vector<Value>();
 
 					if (!vals.isEmpty())
@@ -440,26 +442,26 @@ public class CoSimProtocolVersion3 implements ICoSimProtocol
 						List<Value> o = (List<Value>) decodeCoSim(vals);
 						values.addAll(o);
 					}
-					
-					ChannelValue channelName = new ChannelValue(new CmlChannel(null,name ),values);
+
+					ChannelValue channelName = new ChannelValue(new CmlChannel(null, name), values);
 					setField("channelName", transition, channelName);
 
 					return transition;
 
 				} else if (type.contains(TauTransition.class.getSimpleName()))
 				{
-
+					// TODO
 				}
 			}
-		}else if(tmp instanceof List)
+		} else if (tmp instanceof List)
+		{
+			List list = new Vector();
+			for (Object object : (List) tmp)
 			{
-				List list = new Vector();
-				for (Object object : (List)tmp)
-				{
-					list.add(decodeCoSim(object));
-				}
-				return list;
+				list.add(decodeCoSim(object));
 			}
+			return list;
+		}
 		return null;
 	}
 
@@ -538,16 +540,16 @@ public class CoSimProtocolVersion3 implements ICoSimProtocol
 			String process = decode(jObj.get("process"));
 			Boolean finished = decode(jObj.get("finished"));
 			msg = new FinishedReplyMessage(process, finished);
-		}else if (type == InspectReplyMessage.class)
+		} else if (type == InspectReplyMessage.class)
 		{
-			
+
 			String process = decode(jObj.get("process"));
-			
-			List<CmlTransition> list =(List<CmlTransition>) decodeCoSim(decode(jObj.get("transitions")));
-			
+
+			List<CmlTransition> list = (List<CmlTransition>) decodeCoSim(decode(jObj.get("transitions")));
+
 			SortedSet<CmlTransition> transitions = new TreeSet<CmlTransition>();
 			transitions.addAll(list);
-			
+
 			CmlTransitionSet transitionsSet = new CmlTransitionSet(transitions);
 			msg = new InspectReplyMessage(process, transitionsSet);
 		}
