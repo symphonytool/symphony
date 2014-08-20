@@ -8,10 +8,13 @@ import java.util.Map;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.node.INode;
+import org.overture.ast.statements.PStm;
 
+import eu.compassresearch.ast.actions.AStmAction;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.process.AActionProcess;
+import eu.compassresearch.ast.statements.AActionStm;
 import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligation;
 import eu.compassresearch.ide.refinementtool.CmlActionEqualityProvisoObligation;
 import eu.compassresearch.ide.refinementtool.IRefineLaw;
@@ -31,7 +34,7 @@ public class CopyRuleRL implements IRefineLaw {
 
 	@Override
 	public boolean isApplicable(INode node) {
-		return node instanceof PAction;
+		return node instanceof PAction || node instanceof PStm;
 	}
 
 	public PDefinition getActionDefinition(String name, INode a) {
@@ -59,7 +62,7 @@ public class CopyRuleRL implements IRefineLaw {
 		AActionDefinition def = (AActionDefinition) getActionDefinition(metas.get("A").toString(), a);
 		
 		try {
-			CmlActionEqualityProvisoObligation p = new CmlActionEqualityProvisoObligation((PAction)a, def.getAction());
+			CmlActionEqualityProvisoObligation p = new CmlActionEqualityProvisoObligation(a, def.getAction());
 			List<CmlProofObligation> pp = new LinkedList<CmlProofObligation>();
 			pp.add(p);
 			return new Refinement(

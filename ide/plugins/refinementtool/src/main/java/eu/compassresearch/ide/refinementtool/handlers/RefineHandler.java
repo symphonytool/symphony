@@ -22,6 +22,7 @@ import org.overture.ast.node.INode;
 
 import eu.compassresearch.ast.actions.AStmAction;
 import eu.compassresearch.ast.statements.AActionStm;
+import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligationList;
 import eu.compassresearch.ide.core.resources.ICmlProject;
 import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
 import eu.compassresearch.ide.refinementtool.CmlRefinePlugin;
@@ -75,6 +76,25 @@ public class RefineHandler extends AbstractHandler {
 		return (IResource) adapter;
 	}
 	
+	public INode leastCommonAncestor(INode a, INode b) {
+		if (ancestorOf(a, b)) {
+			return a;
+		} else if (ancestorOf(b, a)) {
+			return b;
+		} else {
+			return leastCommonAncestor(a, b.parent());
+		}
+	}
+	
+	public boolean ancestorOf(INode a, INode b) {
+		if (b.parent() == null) {
+			return false;
+		} else if (a == b) {
+			return true;
+		} else return ancestorOf(a, b.parent());
+	}
+	
+	
 	/**
 	 * the command has been executed, so extract extract the needed information
 	 * from the application context.
@@ -98,7 +118,8 @@ public class RefineHandler extends AbstractHandler {
 				.getAdapter(ICmlProject.class);
 
 		MaudeRefiner mref = cmlProj.getModel().getAttribute(RefConstants.REF_MAUDE, MaudeRefiner.class);
-		List<IRefineLaw> laws = cmlProj.getModel().getAttribute(RefConstants.REF_LAWS_ID, List.class);
+		List<IRefineLaw> laws = cmlProj.getModel().getAttribute(RefConstants.REF_LAWS_ID, List.class);		
+		CmlProofObligationList pol = cmlProj.getModel().getAttribute(RefConstants.RPOL_ID, CmlProofObligationList.class);
 		
 		if (mref == null) {
 			String maudeLoc = CmlRefinePlugin.getDefault().getPreferenceStore().getString(RefConstants.MAUDE_LOC);
@@ -129,10 +150,16 @@ public class RefineHandler extends AbstractHandler {
 			
 			cmlProj.getModel().setAttribute(RefConstants.REF_LAWS_ID, laws);  
 		}
-						
+	
+		if (pol == null) {
+			pol = new CmlProofObligationList();
+			cmlProj.getModel().setAttribute(RefConstants.RPOL_ID, pol);
+		}
+		
 		ITextSelection selection = (ITextSelection) editor.getSelectionProvider().getSelection();
 		
 		INode node = null;
+		INode node2 = null;
 
 		FileEditorInput fei = (FileEditorInput) editor.getEditorInput();
 		
@@ -145,15 +172,20 @@ public class RefineHandler extends AbstractHandler {
 		List<PDefinition> ast = csu.getParseListDefinitions();
 
 		INodeNearCaret visitor = new INodeNearCaret(selection.getOffset(), ast.get(0));
-
+		INodeNearCaret visitor2 = new INodeNearCaret(selection.getOffset()+selection.getLength()+1, ast.get(0));
 		try
 		{
 			for (PDefinition def : ast)
 			{
 				def.apply(visitor);
+				def.apply(visitor2);
 			}
 			// ast.apply(visitor);
 			node = visitor.getBestCandidate();
+			node2 = visitor2.getBestCandidate();
+			
+			node = leastCommonAncestor(node,node2);
+			
 		} catch (AnalysisException e)
 		{
 			// TODO Auto-generated catch block

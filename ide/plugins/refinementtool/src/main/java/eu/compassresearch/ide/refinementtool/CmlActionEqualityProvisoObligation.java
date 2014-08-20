@@ -15,8 +15,8 @@ import eu.compassresearch.core.analysis.pog.visitors.CmlPogAssistantFactory;
 
 public class CmlActionEqualityProvisoObligation extends CmlProofObligation {
 
-	private PAction lhs;
-	private PAction rhs;
+	private INode lhs;
+	private INode rhs;
 	
 	public CmlActionEqualityProvisoObligation(INode node, CmlPOType kind,
 			IPOContextStack ctxt, ILexLocation location) throws AnalysisException {
@@ -24,7 +24,7 @@ public class CmlActionEqualityProvisoObligation extends CmlProofObligation {
 		// TODO Auto-generated constructor stub
 	}
 	
-	public CmlActionEqualityProvisoObligation(PAction a1, PAction a2) throws AnalysisException {
+	public CmlActionEqualityProvisoObligation(INode a1, INode a2) throws AnalysisException {
 		super(a1, CmlPOType.REFINE_PROVISO, new POContextStack(), null, new CmlPogAssistantFactory());
 		lhs = a1;
 		rhs = a2;

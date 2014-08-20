@@ -29,6 +29,7 @@ class MaudeRefiner(cmd: String, refine: String) {
     , "\\#c\\(\"(\\w+)\"\\)" -> "$1"
     , "\\[\\$" -> ""
     , "\\$\\]" -> ""
+    , "==" -> "="
   ) 
 
   object MetaSetParser extends JavaTokenParsers {

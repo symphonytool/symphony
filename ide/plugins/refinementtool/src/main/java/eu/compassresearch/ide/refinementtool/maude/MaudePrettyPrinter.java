@@ -166,9 +166,9 @@ public class MaudePrettyPrinter extends RefinePrettyPrinter {
 					names.add(n.toString());
 				}
 				if (names.size() > 0) {
-					sb.append(names.get(0));
+					sb.append("#nm(\""+names.get(0)+"\")");
 					for (int i = 1; i < names.size(); i++) {
-						sb.append(", "+names.get(i));
+						sb.append(", #nm(\""+names.get(i)+"\")");
 					}
 				}
 				sb.append(" $] ");
