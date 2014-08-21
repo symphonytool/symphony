@@ -233,7 +233,7 @@ public class CmlCspTypeChecker extends
 			}
 		}
 
-		Environment env = PParametrisationAssistant.updateEnvironment(question.env, node);
+		Environment env = PParametrisationAssistant.updateEnvironment(THIS,question.env, node);
 		node.getProcess().apply(THIS, new TypeCheckInfo(question.assistantFactory, env, NameScope.NAMESANDSTATE));
 
 		return AstFactory.newAVoidType(node.getLocation());
@@ -356,7 +356,7 @@ public class CmlCspTypeChecker extends
 	public PType caseAActionDefinition(AActionDefinition node,
 			TypeCheckInfo question) throws AnalysisException
 	{
-		Environment env = PParametrisationAssistant.updateEnvironment(question.env, node.getDeclarations());
+		Environment env = PParametrisationAssistant.updateEnvironment(THIS,question.env, node.getDeclarations());
 		return node.getAction().apply(actionChecker, question.newInfo(env));
 	}
 

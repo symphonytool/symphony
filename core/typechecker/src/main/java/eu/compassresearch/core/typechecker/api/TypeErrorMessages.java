@@ -157,7 +157,9 @@ public enum TypeErrorMessages
 	
 	
 //3445 used for #1 not allowed in state designators
-	RETURN_STM_ONLY_ALLOWED_IN_OPERATIONS(3446,"Return statements only allowed inside operation bodies")
+	RETURN_STM_ONLY_ALLOWED_IN_OPERATIONS(3446,"Return statements only allowed inside operation bodies"),
+	
+	RES_VRES_NOT_ALLOWED_IN_PROCESS_DEFINITION(3447,"Expecting 'val' but found '%s' in process parameterisation"),
 	;
 
 	public final int number;

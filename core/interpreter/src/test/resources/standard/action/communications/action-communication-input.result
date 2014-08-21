@@ -3,6 +3,6 @@
   <exception/>
   <interpreterState>FINISHED</interpreterState>
   <trace>
-    <events>a.51941660</events>
+    <events>a.\d+</events>
   </trace>
 </testResult>

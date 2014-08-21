@@ -148,6 +148,7 @@ public class CoSimulationClient extends Thread
 			comm.send(new ExecuteCompletedMessage());
 		} else if (message instanceof FinishedRequestMessage)
 		{
+			System.out.println("Internal interpreter status is: "+interpreter.getState());
 			FinishedRequestMessage finishedRequest = (FinishedRequestMessage) message;
 			comm.send(new FinishedReplyMessage(finishedRequest.getProcess(), interpreter.getState() == CmlInterpreterState.FINISHED
 					|| interpreter.getState() == CmlInterpreterState.TERMINATED_BY_USER));

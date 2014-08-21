@@ -19,7 +19,7 @@ public interface InterpreterFactory
 	 * 
 	 * @param definitions
 	 *            - List of parsed and type-checked CML source to interpret
-	 * @return 
+	 * @return
 	 * @throws CmlInterpreterException
 	 */
 	public abstract CmlInterpreter newInterpreter(List<PDefinition> definitions)
@@ -32,7 +32,7 @@ public interface InterpreterFactory
 	 *            - List of parsed and type-checked CML source to interpret
 	 * @param config
 	 *            the configuration that the interpreter should use
-	 * @return 
+	 * @return
 	 * @throws CmlInterpreterException
 	 */
 	public abstract CmlInterpreter newInterpreter(
@@ -42,5 +42,12 @@ public interface InterpreterFactory
 	public abstract Config newDefaultConfig();
 
 	public abstract Config newDefaultConfig(boolean filterTockEvents);
+
+	/**
+	 * Returns an instance of the BehaviorFactory factory that should be used with the interpreter returned
+	 * 
+	 * @return
+	 */
+	CmlBehaviorFactory getBehaviorFactory();
 
 }

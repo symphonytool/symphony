@@ -1,0 +1,13 @@
+process P =
+begin
+  functions  
+    nested: () -> bool
+    nested() == true
+
+    outer: () -> bool
+    outer() == nested()
+  @
+    [outer()] & Skip
+    -- This is ok:
+    -- [nested()] & Skip
+end

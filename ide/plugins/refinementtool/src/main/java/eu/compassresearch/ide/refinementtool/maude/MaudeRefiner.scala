@@ -6,6 +6,11 @@ import scala.util.matching._
 import scala.util.parsing.combinator.Parsers
 import scala.util.parsing.combinator.JavaTokenParsers
 import org.overture.ast.node.INode
+import eu.compassresearch.ide.refinementtool.Refinement
+import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligation
+import eu.compassresearch.ide.refinementtool.RefUtils
+import eu.compassresearch.ide.refinementtool.CmlRefineProvisoObligation
+import eu.compassresearch.ide.refinementtool.CmlActionRefineProvisoObligation
 
 class MaudeRefiner(cmd: String, refine: String) {
 
@@ -16,7 +21,16 @@ class MaudeRefiner(cmd: String, refine: String) {
   val replacers: Map[String, String] = Map.empty +
     ( "\\#b\\(true\\)"  -> "true"
     , "\\#b\\(false\\)" -> "false"
-    , "\\#nm\\(\"(\\w+)\"\\)" -> "$1" ) 
+    , "\\#n\\((\\d+)\\)" -> "$1"
+    , "\\#nm\\(\"(\\w+~?)\"\\)" -> "$1" 
+    , "\\#anm\\(\"(\\w+)\"\\)" -> "$1"
+    , "=def=" -> "="
+    , "\\#paren" -> ""
+    , "\\#c\\(\"(\\w+)\"\\)" -> "$1"
+    , "\\[\\$" -> ""
+    , "\\$\\]" -> ""
+    , "==" -> "="
+  ) 
 
   object MetaSetParser extends JavaTokenParsers {
     val stringParser = stringLiteral ^^ {str => str.substring(1, str.length - 1)}
@@ -52,7 +66,7 @@ class MaudeRefiner(cmd: String, refine: String) {
     									   , varSet(m.get("INP").get))).to[ListBuffer]
   }
   
-  def applyLaw(cml: String, mri: MaudeRefineInfo, met: scala.collection.mutable.Map[String,String]): String = {
+  def applyLaw(cml: String, mri: MaudeRefineInfo, met: scala.collection.mutable.Map[String,String]): Refinement = {
     
     val metas = met.toMap
     
@@ -60,17 +74,40 @@ class MaudeRefiner(cmd: String, refine: String) {
     
     // Create the meta variable map
     val M = metas.foldLeft("empty")((m, x) => "insert(\"" + x._1 + "\"," 
-                                                     + (if (mri.vars(x._1).toLowerCase().contains("exp")) "exp" else "act") 
+                                                     + (if (mri.vars(x._1).toLowerCase().contains("exp") ||mri.vars(x._1).toLowerCase().contains("varset")) "exp" else "act") 
                                                      + "(" + x._2 + ")" + "," + m + ")")
    
     
-    val mts = maude.search1("refine[\"" + mri.key + "\", < " + cml + " | " + M + " | p > ]", "< A | M | p >");
-    val pogs = mts.head.get("p").get.split("and")
-    
-    // pogs.to[ListBuffer]
-    
-    // Apply all regular expression replacements
-    replacers.foldLeft(mts.head.get("A").get)((x,vs) => x.replaceAll(vs._1, vs._2))
-    
+    var mts = maude.search1("refine[\"" + mri.key + "\", < " + cml + " | " + M + " | p > ]", "< A | M | p >");
+    var pogs: Array[String] = null;
+    val ps = new java.util.LinkedList[CmlProofObligation]()
+    var res: String = "";
+    if (mts.size > 0) {
+      pogs = mts.head.get("p").get.split("and")
+      // pogs.to[ListBuffer]
+      // Apply all regular expression replacements
+      res = replacers.foldLeft(mts.head.get("A").get)((x,vs) => x.replaceAll(vs._1, vs._2))
+    } else {
+      mts = maude.search1("refine[\"" + mri.key + "\", < " + cml + " | " + M + " | p > ]", "< Decl | M | p >");
+      pogs = mts.head.get("p").get.split("and")
+      // pogs.to[ListBuffer]
+      // Apply all regular expression replacements
+      res = replacers.foldLeft(mts.head.get("Decl").get)((x,vs) => x.replaceAll(vs._1, vs._2))
+    } 
+
+    for (p <- pogs) {
+        val p1 = replacers.foldLeft(p)((x,vs) => x.replaceAll(vs._1, vs._2))
+        if (p1.contains("[=")) {
+          val bs = p1.split("\\[=")
+          val a1 = RefUtils.parsePAction(bs(0))
+          val a2 = RefUtils.parsePAction(bs(1))
+          ps.add(new CmlActionRefineProvisoObligation(a1, a2))
+        } else {
+          val e = RefUtils.parsePExp(p1)
+          ps.add(new CmlRefineProvisoObligation(e))
+        }
+    }
+
+    return new Refinement(res, ps)
   }
 }

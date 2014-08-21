@@ -58,7 +58,7 @@ public abstract class AbstractInspectionVisitor extends
 	/**
 	 * Used for making random but deterministic decisions
 	 */
-	protected final Random rnd = new Random(9784345);
+	protected final Random rnd = new Random(CmlRuntime.randomSeed);
 
 	/**
 	 * @param ownerProcess

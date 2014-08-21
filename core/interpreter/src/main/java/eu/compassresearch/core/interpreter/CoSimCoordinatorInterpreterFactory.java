@@ -16,7 +16,7 @@ public final class CoSimCoordinatorInterpreterFactory extends
 			IProcessBehaviourDelegationManager server)
 	{
 		super();
-		this.cmlBehaviorFactory = new CoSimCmlBehaviorFactory(server);
+		this.cmlBehaviorFactory = new CoSimCmlBehaviorFactory(server, delegatedListener);
 	}
 
 }

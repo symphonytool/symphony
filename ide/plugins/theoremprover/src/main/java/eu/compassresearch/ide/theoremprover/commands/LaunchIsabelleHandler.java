@@ -28,17 +28,18 @@ public class LaunchIsabelleHandler extends AbstractHandler implements IHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		if (!CmlTPPlugin.getDefault().getPreferenceStore()
-				.getBoolean(IIsabelleConstants.Z3_NON_COMMERCIAL)) {
-			MessageDialog
-					.openInformation(
-							HandlerUtil.getActiveWorkbenchWindow(event)
-									.getShell(),
-							"Symphony",
-							"The Symphony Theorem Prover requires non-commercial use of the Z3 Theorem Prover. Please "
-									+ "select this option in the Theorem Prover Setup preferences.");
-			return null;
-		}
+		//Removed as Isabelle/Eclipse isn't rrading the z3 variable - when it does add back in.
+//		if (!CmlTPPlugin.getDefault().getPreferenceStore()
+//				.getBoolean(IIsabelleConstants.Z3_NON_COMMERCIAL)) {
+//			MessageDialog
+//					.openInformation(
+//							HandlerUtil.getActiveWorkbenchWindow(event)
+//									.getShell(),
+//							"Symphony",
+//							"The Symphony Theorem Prover requires non-commercial use of the Z3 Theorem Prover. Please "
+//									+ "select this option in the Theorem Prover Setup preferences.");
+//			return null;
+//		}
 
 		if (CmlTPPlugin.getDefault().getPreferenceStore()
 				.getString(IIsabelleConstants.ATTR_LOCATION).equals("")) {

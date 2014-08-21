@@ -8,6 +8,7 @@ import org.overture.ast.types.AClassType;
 import org.overture.interpreter.assistant.IInterpreterAssistantFactory;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.IRuntimeState;
+import org.overture.interpreter.runtime.StateContext;
 import org.overture.interpreter.runtime.VdmRuntime;
 import org.overture.interpreter.runtime.state.SClassDefinitionRuntime;
 import org.overture.interpreter.values.CPUValue;
@@ -77,6 +78,7 @@ public class ProcessObjectValue extends ObjectValue
 			SClassDefinitionRuntime state = new ProcessDefinitionRuntime(af, def, name);
 			//functions
 			VdmRuntime.setNodeState(def, state);
+			af.createSClassDefinitionAssistant().staticInit(def,new StateContext(af, def.getLocation(), "tmp static create ctxt"));
 			//operations
 			VdmRuntime.setNodeState(processDefinition, state);
 		}

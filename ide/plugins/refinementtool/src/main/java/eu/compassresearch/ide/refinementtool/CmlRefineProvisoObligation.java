@@ -23,7 +23,7 @@ public class CmlRefineProvisoObligation extends CmlProofObligation {
 	}
 	
 	public CmlRefineProvisoObligation(PExp p) throws AnalysisException {
-		super(null, CmlPOType.REFINE_PROVISO, new POContextStack(), null, new CmlPogAssistantFactory());
+		super(p, CmlPOType.REFINE_PROVISO, new POContextStack(), null, new CmlPogAssistantFactory());
 		proviso = p;
 		
 	}

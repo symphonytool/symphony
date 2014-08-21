@@ -36,7 +36,7 @@ public class MaudeRefineLaw implements IRefineLaw {
 
 	@Override
 	public String getDetail() {
-		return minfo.law();
+		return minfo.law().replaceAll("&", "&&");
 	}
 
 	@Override
@@ -70,7 +70,7 @@ public class MaudeRefineLaw implements IRefineLaw {
 			}
 		}
 		
-		return new Refinement(mref.applyLaw(cml, minfo, scala.collection.JavaConversions.asScalaMap(mets)), ps);
+		return mref.applyLaw(cml, minfo, scala.collection.JavaConversions.asScalaMap(mets));
 	}
 
 	@Override

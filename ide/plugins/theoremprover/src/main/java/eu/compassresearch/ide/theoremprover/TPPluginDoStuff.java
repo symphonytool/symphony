@@ -495,7 +495,7 @@ public class TPPluginDoStuff {
 
 			if (goodPol.isEmpty()) {
 				popBadPol(
-						"PO generation and export failed.", "None of the Proof Obligations are currently supported by the theorem prover",
+						"PO generation and export failed.", "None of the Proof Obligations are currently supported by the theorem prover - the PO exprssions contain unsupported elements",
 						badPol);
 				return;
 			}
