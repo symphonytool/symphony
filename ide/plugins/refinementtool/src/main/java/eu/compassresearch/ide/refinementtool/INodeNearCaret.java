@@ -4,9 +4,12 @@ import java.lang.reflect.Method;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.expressions.PExp;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.node.INode;
+import org.overture.ast.statements.PStm;
 
+import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.DepthFirstAnalysisCMLAdaptor;
 import eu.compassresearch.ast.definitions.PCMLDefinition;
 
@@ -85,7 +88,7 @@ public class INodeNearCaret extends DepthFirstAnalysisCMLAdaptor
 				}
 				if (nodeLoc.startOffset > caret) // we are past the caret
 					return;
-				if (nodeLoc.startOffset > bestCandidateLocation.startOffset)
+				if (nodeLoc.startOffset >= bestCandidateLocation.startOffset && (node instanceof PAction || node instanceof PExp || node instanceof PStm))
 				{
 					bestCandidate = node;
 					bestCandidateLocation = nodeLoc;

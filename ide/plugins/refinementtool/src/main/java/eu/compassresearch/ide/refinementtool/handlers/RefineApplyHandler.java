@@ -145,16 +145,21 @@ public class RefineApplyHandler extends AbstractHandler {
 					ref = law.apply(new HashMap<String, INode>(), node, lineOffset);
 				}
 				
+				CmlProofObligationList pol = cmlProj.getModel().getAttribute(RefConstants.RPOL_ID, CmlProofObligationList.class);
+				
 				if (ref != null) {
 				
 					doc.replace(selection.getOffset(), selection.getLength(), ref.getResult());
 				
-					CmlProofObligationList pol = new CmlProofObligationList();
-				
+					
+					
+					
 					pol.addAll(ref.getProvisos());				
 					pt.setDataList(cmlProj, pol);
-				
+					
 					pt.refreshList();
+					
+					
 				}
 				rv.clearLaws();
 			    // editor.getDocumentProvider().saveDocument(new NullProgressMonitor(), null, doc, true);

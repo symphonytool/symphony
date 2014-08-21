@@ -12,4 +12,5 @@ public abstract class RefConstants
 	public static final String MAUDE_LOC = "eu.compassresearch.ide.refinementtool.maude.location";
 	public static final String MAUDE_THY = "eu.compassresearch.ide.refinementtool.maude.theory";
 	public final static String PLUGIN_ID = "eu.compassresearch.ide.refinementtool";
+	public static final String RPOL_ID = "eu.compassresearch.ide.refinementtool.proofobligations";
 }
