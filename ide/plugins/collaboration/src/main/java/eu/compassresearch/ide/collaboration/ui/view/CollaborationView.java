@@ -82,7 +82,6 @@ public class CollaborationView extends ViewPart
 	protected Action approveContractAction;
 	protected Action rejectContractAction;
 	protected Action initDistributedSimulationAction;
-	protected Action addToCollaborationGroup;
 	private Action deleteCollaborationProject;
 
 
@@ -387,7 +386,7 @@ public class CollaborationView extends ViewPart
 				
 				Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
 				boolean confirmed = MessageDialog.openConfirm(shell, 
-						"Active Configuration: Overwrite files", "Activation will overwrite: " + files + "\n Continue?");
+						"Activate Configuration: Overwrite files", "Activation will overwrite: " + files + "\n Continue?");
 				
 				if(confirmed){
 					dataModelManager.activateConfiguration(selectedConfig);
