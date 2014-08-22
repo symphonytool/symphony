@@ -69,7 +69,15 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 		final int RETRY_WAIT = 200;
 		while (!listningWatch.isMatched())
 		{
-			if (time * 1000 == DEFAULT_TIMEOUT)
+			int exit = 0;
+			try{
+				process.exitValue();
+				exit =-1;
+			}catch(IllegalThreadStateException e)
+			{
+				
+			}
+			if (time * 1000 >= DEFAULT_TIMEOUT || exit ==-1)
 			{
 				throw new TimeoutException("Server never started to listen for clients");
 			}

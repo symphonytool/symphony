@@ -8,6 +8,7 @@ import org.overture.ast.analysis.intf.IAnswer;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.lex.LexNameList;
 import org.overture.interpreter.assistant.InterpreterAssistantFactory;
+import org.overture.interpreter.assistant.expression.APostOpExpAssistantInterpreter;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.NameValuePairList;
 
@@ -52,5 +53,10 @@ public class CmlInterpreterAssistantFactory extends InterpreterAssistantFactory
 	public QuestionAnswerAdaptor<Context, NameValuePairList> getNamedValueLister()
 	{
 		return new CmlNamedValueLister(this);
+	}
+	
+	public APostOpExpAssistantInterpreter createAPostOpExpAssistant()
+	{
+		return new CmlPostOpExpAssistantInterpreter(this);
 	}
 }
