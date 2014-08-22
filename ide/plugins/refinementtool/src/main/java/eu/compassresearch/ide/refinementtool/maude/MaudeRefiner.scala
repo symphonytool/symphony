@@ -105,7 +105,9 @@ class MaudeRefiner(cmd: String, refine: String) {
 
     for (p <- pogs) {
         val p1 = replacers.foldLeft(p)((x,vs) => x.replaceAll(vs._1, vs._2))
-        if (p1.contains("[=")) {
+        if (p1.equals("true")) {
+          
+        } else if (p1.contains("[=")) {
           val bs = p1.split("\\[=")
           val a1 = RefUtils.parsePAction(bs(0))
           val a2 = RefUtils.parsePAction(bs(1))

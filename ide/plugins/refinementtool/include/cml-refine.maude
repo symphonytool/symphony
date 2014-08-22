@@ -463,19 +463,19 @@ mod ACTION-REFINE is
     refs[[g1] & #paren([g2] & A)] => rinf["guard-combination", "Guard combination", "[g1] & [g2] & A [= [g1 and g2] & A", {}] .
 
     rl [guard-combination] :
-    refine["guard-combination", < [g1] & #paren([g2] & A) | M | p >] => < [g1 and g2] & A | M | p > .
+    refine["guard-combination", < [g1] & #paren([g2] & A) | M | p >] => < [g1 and g2] & A | M | #b(true) > .
 
     rl [pre-true-guard] :
     refs[[#b(true)] & A] => rinf["true-guard", "True Guard", "[true] & A [= A", {}] .
 
     rl [true-guard] :
-    refine["true-guard", < [#b(true)] & A | M | p >] => < A | M | p > .
+    refine["true-guard", < [#b(true)] & A | M | p >] => < A | M | #b(true) > .
 
     rl [pre-extchoice-stop-left] :
     refs [ Stop [] A ] => rinf["extchoice-stop-left", "External Choice: Stop Left Unit", "Stop [] A [= A", {}] .
 
     rl [extchoice-stop-left] :
-    refine["extchoice-stop-left", < Stop [] A | M | p >] => < A | M | p > .
+    refine["extchoice-stop-left", < Stop [] A | M | p >] => < A | M | #b(true) > .
 
     rl [pre-guard-weaken] :
     refs[ [g1] & A ] => 
@@ -498,7 +498,7 @@ mod ACTION-REFINE is
 
     rl [guard-expansion-lr] :
 	refine["guard-expansion-lr", < [ g1 or g2 ] & A | M | p >] =>
-    < [ g1 ] & A [] [ g2 ] & A | M | p > .
+    < [ g1 ] & A [] [ g2 ] & A | M | #b(true) > .
 
     rl [pre-guard-expansion-rl] :
     refs[[ g1 ] & A [] [ g2 ] & A]
@@ -511,20 +511,20 @@ mod ACTION-REFINE is
 
     rl [guard-expansion-rl] :
 	refine["guard-expansion-rl", < [ g1 ] & A [] [ g2 ] & A | M | p >] =>
-    < [ g1 or g2 ] & A | M | p > .
+    < [ g1 or g2 ] & A | M | #b(true) > .
 
     rl [pre-seq-left-identity] :
     refs[Skip ; A] => rinf["seq-left-identity", "Sequential Composition Left Identity", "Skip ; A [= A", {}] .
 
     rl [seq-left-identity] :
-    refine["seq-left-identity", < Skip ; A | M | p >] => < A | M | p > .
+    refine["seq-left-identity", < Skip ; A | M | p >] => < A | M | #b(true) > .
 
     crl [pre-impl-expl-rec] :
 	refs[X =def= A] => rinf["impl-expl-rec", "Implicit to Explicit Recursion", "N = A(N) [= mu X @ A(X)",{}] 
     if isSubAct(X,A).
 
     rl [impl-expl-rec] :
-	refine["impl-expl-rec", < X =def= A | M | p >] => < X =def= (mu #anm("X") @ #paren( replace(X , #anm("X")  , A))) | M | p > .
+	refine["impl-expl-rec", < X =def= A | M | p >] => < X =def= (mu #anm("X") @ #paren( replace(X , #anm("X")  , A))) | M | #b(true) > .
 
     rl [pre-par-rec-dist] :
     refs[mu X @ A ; X] => rinf["par-rec-dist", "Parallel Recursion Distribution", "mu X @ A ; X [= (mu X @ A1;X [|ns1|cs|ns2|] mu X @ A2;X)",{#meta("ns1","varset"), #meta("ns2","varset"), #meta("cs","varset"),#meta("A1","action"), #meta("A2", "action")}] .
@@ -555,7 +555,7 @@ mod ACTION-REFINE is
 
    rl [spec-seq-intro] :
        refine["spec-seq-intro", < [frame wr [$ x, y $] pre p1 and p2 post p3 and p4] | M | p >] =>
-             < [frame wr [$ x $] pre p1 post p3] ; [frame wr [$ y $] pre p2 post p4 ] | M | p > .
+             < [frame wr [$ x $] pre p1 post p3] ; [frame wr [$ y $] pre p2 post p4 ] | M | #b(true) > .
 
     crl [pre-hid-seq-dist] :
     refs [A1 ; #paren(A2 \\ c)] => rinf["hid-seq-dist", "Distribute hiding over sequential composition",
@@ -564,7 +564,7 @@ mod ACTION-REFINE is
 
     crl [hid-seq-dist] :
     refine["hid-seq-dist", < A1 ; #paren(A2 \\ c) | M | p >] =>
-    < #paren(#paren(A1 ; A2) \\ c) | M | p >
+    < #paren(#paren(A1 ; A2) \\ c) | M | #b(true) >
     if usedC(A1) == empty .
 
     rl [pre-seq-assoc-1] :
@@ -572,14 +572,14 @@ mod ACTION-REFINE is
 
     rl [seq-assoc-1] :
     refine["seq-assoc-1", < A1 ; A2 ; A3 | M | p > ] =>
-    < #paren(A1 ; A2 ) ; A3 | M | p > .
+    < #paren(A1 ; A2 ) ; A3 | M | #b(true) > .
 
     rl [pre-seq-assoc-2] :
     refs [#paren(A1 ; A2) ; A3] => rinf["seq-assoc-2", "Sequential composition associativity 2", "(A1; A2); A3 = A1; A2; A3", {} ] .
 
     rl [seq-assoc-2] :
     refine["seq-assoc-2", < #paren(A1 ; A2) ; A3 | M | p > ] =>
-    < A1 ; A2 ; A3 | M | p > .
+    < A1 ; A2 ; A3 | M | #b(true) > .
 
     crl [pre-seq-par-dist-1] :
     refs[A ; #paren(A1 [| c1 | c | c2 |] A2)] =>
@@ -587,35 +587,37 @@ mod ACTION-REFINE is
 
     crl [seq-par-dist-1] :
     refine["seq-par-dist-1", < A ; #paren(A1 [| c1 | c | c2 |] A2) | M | p > ] =>
-	< #paren(#paren(A ; A1) [| c1 | c | c2 |] A2) | M | p > if usedC(A) == empty /\ intersection(usedV(A2),wrtV(A)) == empty .
+	< #paren(#paren(A ; A1) [| c1 | c | c2 |] A2) | M | #b(true) > if usedC(A) == empty /\ intersection(usedV(A2),wrtV(A)) == empty .
 
     crl [pre-seq-par-dist-2] :
     refs[A ; #paren(A1 [| c1 | c | c2 |] A2)] =>
-	rinf["seq-par-dist-2", "Distribute sequential composition over parallelism on the left hand side", "A; (A1 [| c1 | c | c2 |] A2) = (A1 [| c1 | c | c2 |] A; A2) provided usedC(A) = {} and usedV(A1) inter wrtV(A) = {}", {} ]  if usedC(A) == empty /\ intersection(usedV(A1),wrtV(A)) == empty . 
+	rinf["seq-par-dist-2", "Distribute sequential composition over parallelism on the right hand side", "A; (A1 [| c1 | c | c2 |] A2) = (A1 [| c1 | c | c2 |] A; A2) provided usedC(A) = {} and usedV(A1) inter wrtV(A) = {}", {} ]  if usedC(A) == empty /\ intersection(usedV(A1),wrtV(A)) == empty . 
 
     crl [seq-par-dist-2] :
     refine["seq-par-dist-2", < A ; #paren(A1 [| c1 | c | c2 |] A2) | M | p > ] =>
-	< #paren(A1 [| c1 | c | c2 |] #paren(A ; A2)) | M | p > if usedC(A) == empty /\ intersection(usedV(A1),wrtV(A)) == empty .
+	< #paren(A1 [| c1 | c | c2 |] #paren(A ; A2)) | M | #b(true) > if usedC(A) == empty /\ intersection(usedV(A1),wrtV(A)) == empty .
    
     rl [pre-and-unit-1] :
     refs[c and #b(true)] => rinf["and-unit-1", "Unit of logical And 1", "c and true = c", {} ] .
 
     rl [and-unit-1] :
-    refine["and-unit-1", < c and #b(true) | M | p > ] => < c | M | p > .
+    refine["and-unit-1", < c and #b(true) | M | p > ] => < c | M | #b(true) > .
 
     rl [pre-and-unit-2] :
     refs[c] => rinf["and-unit-2", "Unit of logical And 2", "c = c and true", {} ] .
 
     rl [and-unit-2] :
-    refine["and-unit-2", < c | M | p > ] => < c and #b(true) | M | p > .
+    refine["and-unit-2", < c | M | p > ] => < c and #b(true) | M | #b(true) > .
     
-*** (
+
 
     rl [pre-guard-association] : 
-    refs[([g] & A1) ; A2] => rinf["guard-association", "Guard/Sequence: Association", {}] .
+    refs[([g] & A1) ; A2] => rinf["guard-association", "Guard/Sequence: Association", "([g]&A1);A2 [= [g]&(A1;A2)", {}] .
 
     rl [guard-association] :
-    < "guard-association" | ([g] & A1) ; A2 | M | p > => < [g] & (A1 ; A2) | M | p > .
+    refine["guard-association", < ([g] & A1) ; A2 | M | p >] => < [g] & (A1 ; A2) | M | #b(true) > .
+
+*** (
 
     rl [pre-true-guard] :
     refs[[#b(true)] & A] => rinf["true-guard", "True Guard", {}] .
