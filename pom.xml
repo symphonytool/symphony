@@ -17,7 +17,6 @@
   <version>0.3.5-SNAPSHOT</version>
 
   <modules>
-    <module>tools</module>
     <module>core</module>
   </modules>
 

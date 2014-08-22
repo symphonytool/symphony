@@ -1,5 +1,8 @@
 package eu.compassresearch.ide.refinementtool.maude;
 
+import java.io.File;
+
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.DirectoryFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
@@ -28,6 +31,7 @@ public class MaudeSetupPreferencePage extends FieldEditorPreferencePage implemen
 	{
 		setDescription("Setup values for using Maude for refinement");
 		setTitle("Maude Setup");
+		performDefaults();
 	}
 
 	@Override
@@ -46,11 +50,27 @@ public class MaudeSetupPreferencePage extends FieldEditorPreferencePage implemen
 	@Override
 	protected void performDefaults()
 	{
+		String maudeThy = getMaudeThy();
+		
 		IPreferenceStore store = getPreferenceStore();
 		store.setDefault(RefConstants.MAUDE_LOC, "");
-		store.setDefault(RefConstants.MAUDE_THY, "");
+		store.setDefault(RefConstants.MAUDE_THY, maudeThy);
 		super.performDefaults();
 	}
 
+	private String getMaudeThy() {
+		String maudeThy = "";
+		String sep = "/";
+		if (System.getProperty("os.name").contains("Windows")) {
+			sep = "\\";
+		}
+		String loc = Platform.getInstallLocation().getURL().getPath() + sep + "refinement" + sep + "cml-refine.maude";
+		File f = new File(loc);		
+		if (f.exists()) 
+		   maudeThy = f.getPath();
+		
+		return maudeThy;
+
+	}
 	
 }
