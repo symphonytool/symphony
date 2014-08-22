@@ -21,12 +21,17 @@ public class MetaVarValidator implements IInputValidator {
 			mvnode = RefUtils.parsePExp(s);
 			if (mvnode != null)
 				return null;
-			else return "Parse error: please enter a valid expression";
+			else return "Please enter a valid expression";
+	    } else if (kind.toLowerCase().contains("varset")) {
+	    	mvnode = RefUtils.parsePVarset(s);
+	    	if (mvnode != null)
+	    		return null;
+	    	else return "Please enter a valid var set";
 	    } else {
 			mvnode = RefUtils.parsePAction(s);
 			if (mvnode != null)
 			  return null;
-			else return "Parse error: please enter a valid action";				  
+			else return "Please enter a valid action";				  
 		}
 	}
 

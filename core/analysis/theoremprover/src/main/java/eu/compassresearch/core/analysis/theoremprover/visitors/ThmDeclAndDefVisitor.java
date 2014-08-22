@@ -791,12 +791,19 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 		return tnl;
 	}
 	
+	//If an unhandled Definition
+	public ThmNodeList defaultPDefinition(PDefinition node, ThmVarsContext vars)
+			throws AnalysisException
+	{
+		ThmNodeList tnl = new ThmNodeList();
+		return tnl;
+	}
+	
 	@Override
 	public ThmNodeList defaultPSingleDeclaration(PSingleDeclaration node, ThmVarsContext vars)
 			throws AnalysisException
 	{
 		ThmNodeList tnl = new ThmNodeList();
-		tnl.addAll(node.apply(tpVisitor, vars));
 		return tnl;
 	}
 //
