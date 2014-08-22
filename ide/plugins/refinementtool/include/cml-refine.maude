@@ -439,8 +439,10 @@ mod ACTION-REFINE is
     op refine[_,_] : String RefConf -> RefConf .
     op <_|_|_> : Action RefMap Expr -> RefConf . 
     op <_|_|_> : ActionDecl RefMap Expr -> RefConf .
-    op refs[_] : Action -> RefInfo [ctor frozen].
-    op refs[_] : ActionDecl -> RefInfo [ctor frozen].
+    op <_|_|_> : Expr RefMap Expr -> RefConf .
+    op refs[_] : Action -> RefInfo [ctor frozen] .
+    op refs[_] : ActionDecl -> RefInfo [ctor frozen] .
+    op refs[_] : Expr -> RefInfo [ctor frozen] .
     op rinf[_,_,_,_] : String String String SetExpr -> RefInfo [ctor frozen].
  
     vars NM DS LD : String .
@@ -448,7 +450,7 @@ mod ACTION-REFINE is
     var R : RefConf .
     var RI : RefInfo .
     vars A A1 A2 A3 : Action .
-    vars c c1 c2 : Expr .
+    vars c c1 c2 E : Expr .
     vars g g1 g2 : Expr .
     vars p p1 p2 p3 p4 : Expr .
     vars X Y N : ActionName .
@@ -594,7 +596,18 @@ mod ACTION-REFINE is
     crl [seq-par-dist-2] :
     refine["seq-par-dist-2", < A ; #paren(A1 [| c1 | c | c2 |] A2) | M | p > ] =>
 	< #paren(A1 [| c1 | c | c2 |] #paren(A ; A2)) | M | p > if usedC(A) == empty /\ intersection(usedV(A1),wrtV(A)) == empty .
+   
+    rl [pre-and-unit-1] :
+    refs[c and #b(true)] => rinf["and-unit-1", "Unit of logical And 1", "c and true = c", {} ] .
 
+    rl [and-unit-1] :
+    refine["and-unit-1", < c and #b(true) | M | p > ] => < c | M | p > .
+
+    rl [pre-and-unit-2] :
+    refs[c] => rinf["and-unit-2", "Unit of logical And 2", "c = c and true", {} ] .
+
+    rl [and-unit-2] :
+    refine["and-unit-2", < c | M | p > ] => < c and #b(true) | M | p > .
     
 *** (
 
