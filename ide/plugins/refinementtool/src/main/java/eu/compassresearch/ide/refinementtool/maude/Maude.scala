@@ -45,8 +45,19 @@ class Maude(command: String) {
       return cmdOutput.init.init.init.init;
     }
 
+    def toCygPath(f:String): String = {
+      val ps = f.split(":\\\\")
+      "/cygdrive/" + ps(0).toLowerCase() + "/" + ps(1).replace("\\", "/")
+    }
+    
+    def isCygPath(f : String) = f.contains("cygdrive")
+    
     def load(f:String) = {
-      execute("load " + f + " .");
+      var file = f
+      if (System.getProperty("os.name").contains("Windows") && !isCygPath(f)) {
+        file = toCygPath(f)
+      }
+      execute("load " + file + " .");
     }
 
     def search1(st: String, pat: String): List[Map[String,String]] = {
