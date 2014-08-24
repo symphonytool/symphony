@@ -256,6 +256,13 @@ public class S2cTranslator
 			{
 				theClassDef = new ClassDefinition();
 				theClassDef.name = stateMachines.item(0).getAttributes().getNamedItem("name").getTextContent();
+				// well the state machine should have been in a class so copy all states and types from all classes such
+				// that is has what it potensially needs
+				for (ClassDefinition cDef : allClasses)
+				{
+					theClassDef.types.addAll(cDef.types);
+					theClassDef.properties.addAll(cDef.properties);
+				}
 			}
 		}
 
