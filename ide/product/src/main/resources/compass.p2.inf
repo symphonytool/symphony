@@ -1,4 +1,5 @@
 instructions.configure=\
-  copy(source:${basedir}/pdfs,target:${installFolder}/documentation,overwrite:true);
+  copy(source:${basedir}/pdfs,target:${installFolder}/documentation,overwrite:true);\
+  copy(source:${basedir}/../plugins/refinementtool/include/cml-refine.maude,target:${installFolder}/refinement/cml-refine.maude,overwrite:true);
 instructions.configure.import=\
   org.eclipse.equinox.p2.touchpoint.natives.copy

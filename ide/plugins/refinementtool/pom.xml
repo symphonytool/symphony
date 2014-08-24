@@ -13,6 +13,15 @@
   <artifactId>eu.compassresearch.ide.refinementtool</artifactId>
   <name>Symphony IDE Refinement Plugin</name>
 
+  <!-- these let the scala compile pass, even though they don't affect the packaging -->
+  <dependencies>
+    <dependency>
+      <groupId>eu.compassresearch.core.analysis</groupId>
+      <artifactId>pog</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+  </dependencies>
+
   <build>
     <plugins>
       <plugin>
@@ -43,47 +52,47 @@
            maven-clean-plugin blocks, and add the "jars/," line back
            to build.properties. jwc/28July2014 -->
       
-      <!-- <plugin> -->
-      <!--   <groupId>org.apache.maven.plugins</groupId> -->
-      <!--   <artifactId>maven-dependency-plugin</artifactId> -->
-      <!--   <executions> -->
-      <!--     <execution> -->
-      <!--       <id>copy-dependencies</id> -->
-      <!--       <phase>process-sources</phase> -->
-      <!--       <goals> -->
-      <!--         <goal>copy</goal> -->
-      <!--       </goals> -->
-      <!--       <configuration> -->
-      <!--         <outputDirectory>${basedir}/jars</outputDirectory> -->
-      <!--         <overWriteReleases>true</overWriteReleases> -->
-      <!--         <overWriteSnapshots>true</overWriteSnapshots> -->
-      <!--         <overWriteIfNewer>true</overWriteIfNewer> -->
-      <!--         <stripVersion>true</stripVersion> -->
-      <!--         <artifactItems> -->
-      <!--           <artifactItem> -->
-      <!--             <groupId>eu.compassresearch.core.analysis</groupId> -->
-      <!--             <artifactId>refinementtool</artifactId> -->
-      <!--             <version>${project.version}</version> -->
-      <!--           </artifactItem> -->
-      <!--         </artifactItems> -->
-      <!--       </configuration> -->
-      <!--     </execution> -->
-      <!--   </executions> -->
-      <!-- </plugin> -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy-dependencies</id>
+            <phase>process-sources</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${basedir}/jars</outputDirectory>
+              <overWriteReleases>true</overWriteReleases>
+              <overWriteSnapshots>true</overWriteSnapshots>
+              <overWriteIfNewer>true</overWriteIfNewer>
+              <stripVersion>true</stripVersion>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>eu.compassresearch.core.analysis</groupId>
+                  <artifactId>pog</artifactId>
+                  <version>${project.version}</version>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
 
-      <!-- <plugin> -->
-      <!--   <groupId>org.apache.maven.plugins</groupId> -->
-      <!--   <artifactId>maven-clean-plugin</artifactId> -->
-      <!--   <configuration> -->
-      <!--     <failOnError>false</failOnError> -->
-      <!--     <filesets> -->
-      <!--       <fileset> -->
-      <!--         <directory>${basedir}/jars</directory> -->
-      <!--         <followSymlinks>false</followSymlinks> -->
-      <!--       </fileset> -->
-      <!--     </filesets> -->
-      <!--   </configuration> -->
-      <!-- </plugin> -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-clean-plugin</artifactId>
+        <configuration>
+          <failOnError>false</failOnError>
+          <filesets>
+            <fileset>
+              <directory>${basedir}/jars</directory>
+              <followSymlinks>false</followSymlinks>
+            </fileset>
+          </filesets>
+        </configuration>
+      </plugin>
     </plugins>
 
     <pluginManagement>
