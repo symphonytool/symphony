@@ -45,8 +45,7 @@ public class SysMlToCmlTranslator
 	 * a naive translation from the uml dom
 	 * 
 	 * @param t
-	 * @param output
-	 * @throws FileNotFoundException
+	 * @return 
 	 */
 	public String translate(Transition t)
 	{
