@@ -1976,6 +1976,7 @@ public class RttMbtClient {
 		// /TMPL
 		String fileName = getRttProjectPath() + File.separator;
 		uploadFile(fileName + "componentnames.txt");
+		uploadFile(fileName + "project.rtp");
 		String dirName = getRttProjectPath() + File.separator;
 		uploadDirectory(dirName + "TMPL", true);
 		// /RTT_Testprocedure/conf/
