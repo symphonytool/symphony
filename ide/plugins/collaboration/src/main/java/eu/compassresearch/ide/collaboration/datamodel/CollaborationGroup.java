@@ -33,7 +33,7 @@ public class CollaborationGroup extends Model {
 	}
 	
 	public void removeCollaborator(User user) {
-		collaborators.remove(user);
+		collaborators.remove(user.getName());
 		user.removeListener(listener);
 		fireObjectRemovedEvent(user);
 	}

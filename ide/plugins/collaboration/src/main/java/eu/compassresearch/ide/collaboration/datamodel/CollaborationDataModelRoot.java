@@ -1,5 +1,6 @@
 package eu.compassresearch.ide.collaboration.datamodel;
 
+import java.io.ObjectInputStream.GetField;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -30,10 +31,10 @@ public class CollaborationDataModelRoot extends Model
 		{
 			collab_project.addListener(listener);
 		}
-		
+
 		super.addListener(listener);
 	}
-	
+
 	@Override
 	public void removeListener(IModelEventListener listener)
 	{
@@ -59,13 +60,14 @@ public class CollaborationDataModelRoot extends Model
 	{
 		return null;
 	}
-	
+
 	public CollaborationProject getCollaborationProjectFromID(String id)
 	{
 		return collaborationProjects.get(id);
 	}
-	
-	public boolean addCollaborationProject(CollaborationProject collabProject){
+
+	public boolean addCollaborationProject(CollaborationProject collabProject)
+	{
 		String id = collabProject.getUniqueID();
 
 		if (collaborationProjects.containsKey(id))
@@ -76,20 +78,35 @@ public class CollaborationDataModelRoot extends Model
 			collaborationProjects.put(id, collabProject);
 			collabProject.addListener(listener);
 			fireObjectUpdatedEvent(collabProject);
-
 			return true;
 		}
 	}
 
-	public boolean addCollaborationProject(String project, String title, String description)
+	public boolean addCollaborationProject(String project, String title,
+			String description)
 	{
 		CollaborationProject collabProject = new CollaborationProject(project, title, description, this);
 		return addCollaborationProject(collabProject);
 	}
-	
-	public boolean addCollaborationProject(String project, String title, String description, String collabProjectId)
+
+	public boolean addCollaborationProject(String project, String title,
+			String description, String collabProjectId)
 	{
 		CollaborationProject collabProject = new CollaborationProject(project, title, description, collabProjectId, this);
 		return addCollaborationProject(collabProject);
+	}
+
+	public boolean removeCollaborationProject(CollaborationProject project)
+	{
+		String uniqueID = project.getUniqueID();
+		if (collaborationProjects.containsKey(uniqueID))
+		{
+			collaborationProjects.remove(uniqueID);
+			fireObjectUpdatedEvent(this);
+			return true;
+		} else
+		{
+			return false;
+		}
 	}
 }
