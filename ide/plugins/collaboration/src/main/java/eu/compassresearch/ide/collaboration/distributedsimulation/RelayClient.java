@@ -58,14 +58,14 @@ public class RelayClient extends Thread
 
 		while ((userInput = in.readLine()) != null)
 		{
-			System.out.println("=== Coordinator ==========:  Response from coordinator server to client: " + userInput);
+			//System.out.println("=== Coordinator ==========:  Response from coordinator server to ECF client: " + userInput);
 			distMgm.relayMessageToClient(senderID, userInput);
 		}
 	}
 
 	public void send(String inputData)
 	{
-		System.out.println("=== Coordinator ==========:  Sent to coordinator server from client:" + inputData);
+		//System.out.println("=== Coordinator ==========:  Sent to coordinator server from ECF client:" + inputData);
 		out.println(inputData);
 	}
 
