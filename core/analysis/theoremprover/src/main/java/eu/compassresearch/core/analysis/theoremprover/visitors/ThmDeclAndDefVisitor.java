@@ -19,8 +19,10 @@ import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.patterns.AIdentifierPattern;
+import org.overture.ast.patterns.AIgnorePattern;
 import org.overture.ast.patterns.APatternListTypePair;
 import org.overture.ast.patterns.APatternTypePair;
+import org.overture.ast.patterns.ARecordPattern;
 import org.overture.ast.patterns.PPattern;
 import org.overture.ast.statements.AExternalClause;
 import org.overture.ast.types.AFunctionType;
@@ -275,7 +277,18 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 		NodeNameList b = new NodeNameList();
 		for(PPattern p : params.getFirst() )
 		{
-			b.add(((AIdentifierPattern) p).getName());
+			if (p instanceof ARecordPattern ) {
+				LinkedList<PPattern> recParams = ((ARecordPattern) p).getPlist();
+				for(PPattern rec : recParams)
+				{
+					if (rec instanceof AIdentifierPattern ) {
+						b.add(((AIdentifierPattern) rec).getName());
+					}
+				}
+			}
+			else if(!(p instanceof AIgnorePattern)){
+				b.add(((AIdentifierPattern) p).getName());
+			}
 		}
 		//add the parameter types as dependencies
 		for(PType pTp : ((AFunctionType) node.getType()).getParameters())
@@ -336,7 +349,18 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 			LinkedList<PPattern> pats = p.getPatterns();
 			for(PPattern param : pats )
 			{
-				b.add(((AIdentifierPattern) param).getName());
+				if (param instanceof ARecordPattern ) {
+					LinkedList<PPattern> recParams = ((ARecordPattern) param).getPlist();
+					for(PPattern rec : recParams)
+					{
+						if (rec instanceof AIdentifierPattern ) {
+							b.add(((AIdentifierPattern) rec).getName());
+						}
+					}
+				}
+				else if(!(param instanceof AIgnorePattern)){
+					b.add(((AIdentifierPattern) param).getName());
+				}
 			}
 		}
 		b.add(((AIdentifierPattern) res.getPattern()).getName());
@@ -477,9 +501,9 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 			}
 			
 			//get the Isabelle string for the process node's process.
-			String procString = act.apply(stringVisitor, bvars);//= ThmProcessUtil.getIsabelleProcessString(node.getProcess());
+			String procString = act.apply(stringVisitor, bvars);
 			//obtain the process dependencies
-			NodeNameList nodeDeps = act.apply(depVisitor, nnl);//ThmProcessUtil.getIsabelleProcessDeps(node.getProcess());
+			NodeNameList nodeDeps = act.apply(depVisitor, nnl);
 			
 			tn = new ThmNode(parentProcess.getName(), nodeDeps, new ThmProcAction(parentProcess.getName().toString(), param, procString));
 		}
@@ -550,8 +574,20 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 		{
 			for(PPattern pat : p.getPatterns())
 			{
-				vars.addBVar(((AIdentifierPattern) pat).getName());
+				if (pat instanceof ARecordPattern ) {
+					LinkedList<PPattern> recParams = ((ARecordPattern) pat).getPlist();
+					for(PPattern rec : recParams)
+					{
+						if (rec instanceof AIdentifierPattern ) {
+							vars.addBVar(((AIdentifierPattern) rec).getName());
+						}
+					}
+				}
+				else if(!(pat instanceof AIgnorePattern))	{
+					vars.addBVar(((AIdentifierPattern) pat).getName());
+				}
 			}
+			
 			nodeDeps.addAll(p.getType().apply(depVisitor, vars.getBVars()));
 		}	
 		//Add return type(s) to dependency list and list of bound values
@@ -611,8 +647,21 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 		//Need parameters for local bound vars
 		for(PPattern p : params)
 		{
-			vars.addBVar(((AIdentifierPattern) p).getName());
+			if (p instanceof ARecordPattern ) {
+				LinkedList<PPattern> recParams = ((ARecordPattern) p).getPlist();
+				for(PPattern rec : recParams)
+				{
+					if (rec instanceof AIdentifierPattern ) {
+						vars.addBVar(((AIdentifierPattern) rec).getName());
+					}
+				}
+			}
+			else if(!(p instanceof AIgnorePattern))	{
+				vars.addBVar(((AIdentifierPattern) p).getName());
+			}
 		}
+		
+		
 		//Deal with the parameters
 		//add the parameter types as dependencies
 		AOperationType opType = (AOperationType) node.getType();
@@ -624,6 +673,7 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 		nodeDeps.addAll(opType.getResult().apply(depVisitor, vars.getBVars()));
 		
 		String body = node.getBody().apply(stringVisitor, vars);
+		nodeDeps.addAll(node.getBody().apply(depVisitor, vars.getBVars()));
 		String pre = null;
 		String post = null;
 		if (node.getPrecondition() != null)
@@ -741,12 +791,19 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 		return tnl;
 	}
 	
+	//If an unhandled Definition
+	public ThmNodeList defaultPDefinition(PDefinition node, ThmVarsContext vars)
+			throws AnalysisException
+	{
+		ThmNodeList tnl = new ThmNodeList();
+		return tnl;
+	}
+	
 	@Override
 	public ThmNodeList defaultPSingleDeclaration(PSingleDeclaration node, ThmVarsContext vars)
 			throws AnalysisException
 	{
 		ThmNodeList tnl = new ThmNodeList();
-		tnl.addAll(node.apply(tpVisitor, vars));
 		return tnl;
 	}
 //

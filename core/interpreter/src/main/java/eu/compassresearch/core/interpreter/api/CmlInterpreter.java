@@ -8,6 +8,7 @@ import org.overture.ast.types.PType;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.Value;
 
+import eu.compassresearch.core.interpreter.IInspectListener;
 import eu.compassresearch.core.interpreter.api.events.CmlInterpreterStateObserver;
 import eu.compassresearch.core.interpreter.api.events.EventSource;
 import eu.compassresearch.core.interpreter.debug.Breakpoint;
@@ -18,7 +19,7 @@ import eu.compassresearch.core.interpreter.debug.DebugContext;
  * model.
  */
 
-public interface CmlInterpreter
+public interface CmlInterpreter extends IInspectListener
 {
 
 	/**
@@ -129,6 +130,8 @@ public interface CmlInterpreter
 	public void suspend() throws InterruptedException;
 
 	public void step();
+	
+	public void forceInternalSuspend() throws InterruptedException;
 
 	// public CmlInterpreter getInstance();
 	PExp parseExpression(String line, String module) throws Exception;

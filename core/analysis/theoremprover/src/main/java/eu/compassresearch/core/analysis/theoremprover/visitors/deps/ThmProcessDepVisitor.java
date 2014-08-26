@@ -11,6 +11,7 @@ import org.overture.ast.node.INode;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.AExpressionSingleDeclaration;
+import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionClassDefinition;
 import eu.compassresearch.ast.process.AActionProcess;
@@ -36,9 +37,9 @@ import eu.compassresearch.ast.process.AStartDeadlineProcess;
 import eu.compassresearch.ast.process.ATimedInterruptProcess;
 import eu.compassresearch.ast.process.ATimeoutProcess;
 import eu.compassresearch.ast.process.AUntimedTimeoutProcess;
+import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.analysis.theoremprover.thms.NodeNameList;
 import eu.compassresearch.core.analysis.theoremprover.thms.ThmNodeList;
-import eu.compassresearch.core.analysis.theoremprover.utils.ThmExprUtil;
 import eu.compassresearch.core.analysis.theoremprover.utils.ThmProcessUtil;
 import eu.compassresearch.core.analysis.theoremprover.visitors.TPVisitor;
 import eu.compassresearch.core.analysis.theoremprover.visitors.string.ThmVarsContext;
@@ -158,14 +159,26 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 			AExternalChoiceReplicatedProcess p, NodeNameList bvars)
 			throws AnalysisException {
 		NodeNameList nodeDeps = new NodeNameList();
+		for (PSingleDeclaration d : p.getReplicationDeclaration())
+		{
+			if(d instanceof AExpressionSingleDeclaration)
+			{
+				AExpressionSingleDeclaration expDecl = (AExpressionSingleDeclaration) d;
+				bvars.add(new LexNameToken("", expDecl.getIdentifier().clone()));
+			}else if(d instanceof ATypeSingleDeclaration)
+			{
+				ATypeSingleDeclaration expDecl = (ATypeSingleDeclaration) d;
+				bvars.add(new LexNameToken("", expDecl.getIdentifier().clone()));
+			}			
+		}
 		
 		nodeDeps.addAll(p.getReplicatedProcess().apply(thmDepVisitor, bvars));
 		
 		return nodeDeps;
 	}
 
-
-	public NodeNameList caseAGeneralisedParllelismProcess(
+	
+	public NodeNameList caseAGeneralisedParallelismProcess(
 			AGeneralisedParallelismProcess p, NodeNameList bvars)
 			throws AnalysisException {
 		NodeNameList nodeDeps = new NodeNameList();
@@ -182,6 +195,18 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 			AGeneralisedParallelismReplicatedProcess p, NodeNameList bvars)
 			throws AnalysisException {
 		NodeNameList nodeDeps = new NodeNameList();
+		for (PSingleDeclaration d : p.getReplicationDeclaration())
+		{
+			if(d instanceof AExpressionSingleDeclaration)
+			{
+				AExpressionSingleDeclaration expDecl = (AExpressionSingleDeclaration) d;
+				bvars.add(new LexNameToken("", expDecl.getIdentifier().clone()));
+			}else if(d instanceof ATypeSingleDeclaration)
+			{
+				ATypeSingleDeclaration expDecl = (ATypeSingleDeclaration) d;
+				bvars.add(new LexNameToken("", expDecl.getIdentifier().clone()));
+			}			
+		}
 		nodeDeps.addAll(p.getReplicatedProcess().apply(thmDepVisitor, bvars));
 		nodeDeps.addAll(p.getChansetExpression().apply(thmDepVisitor, bvars));
 		return nodeDeps;
@@ -220,6 +245,19 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 			throws AnalysisException {
 		NodeNameList nodeDeps = new NodeNameList();
 		
+		for (PSingleDeclaration d : p.getReplicationDeclaration())
+		{
+			if(d instanceof AExpressionSingleDeclaration)
+			{
+				AExpressionSingleDeclaration expDecl = (AExpressionSingleDeclaration) d;
+				bvars.add(new LexNameToken("", expDecl.getIdentifier().clone()));
+			}else if(d instanceof ATypeSingleDeclaration)
+			{
+				ATypeSingleDeclaration expDecl = (ATypeSingleDeclaration) d;
+				bvars.add(new LexNameToken("", expDecl.getIdentifier().clone()));
+			}
+				
+		}
 		nodeDeps.addAll(p.getReplicatedProcess().apply(thmDepVisitor, bvars));
 		
 		return nodeDeps;
@@ -239,6 +277,18 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 			AInternalChoiceReplicatedProcess p, NodeNameList bvars)
 			throws AnalysisException {
 		NodeNameList nodeDeps = new NodeNameList();
+		for (PSingleDeclaration d : p.getReplicationDeclaration())
+		{
+			if(d instanceof AExpressionSingleDeclaration)
+			{
+				AExpressionSingleDeclaration expDecl = (AExpressionSingleDeclaration) d;
+				bvars.add(new LexNameToken("", expDecl.getIdentifier().clone()));
+			}else if(d instanceof ATypeSingleDeclaration)
+			{
+				ATypeSingleDeclaration expDecl = (ATypeSingleDeclaration) d;
+				bvars.add(new LexNameToken("", expDecl.getIdentifier().clone()));
+			}			
+		}
 		nodeDeps.addAll(p.getReplicatedProcess().apply(thmDepVisitor, bvars));
 		return nodeDeps;
 	}
@@ -266,6 +316,18 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 			ASequentialCompositionReplicatedProcess p, NodeNameList bvars)
 			throws AnalysisException {
 		NodeNameList nodeDeps = new NodeNameList();
+		for (PSingleDeclaration d : p.getReplicationDeclaration())
+		{
+			if(d instanceof AExpressionSingleDeclaration)
+			{
+				AExpressionSingleDeclaration expDecl = (AExpressionSingleDeclaration) d;
+				bvars.add(new LexNameToken("", expDecl.getIdentifier().clone()));
+			}else if(d instanceof ATypeSingleDeclaration)
+			{
+				ATypeSingleDeclaration expDecl = (ATypeSingleDeclaration) d;
+				bvars.add(new LexNameToken("", expDecl.getIdentifier().clone()));
+			}			
+		}
 		nodeDeps.addAll(p.getReplicatedProcess().apply(thmDepVisitor, bvars));
 		return nodeDeps;
 	}
@@ -317,6 +379,10 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 		return nodeDeps;
 	}
 
+	public NodeNameList casePProcess(PProcess p, NodeNameList bvars) throws AnalysisException{
+		return bvars;
+	}
+	
 	@Override
 	public NodeNameList createNewReturnValue(INode arg0, NodeNameList arg1)
 			throws AnalysisException {

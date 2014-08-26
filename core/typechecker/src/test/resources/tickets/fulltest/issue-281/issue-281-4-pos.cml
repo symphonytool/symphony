@@ -1,0 +1,24 @@
+
+
+class A = begin
+
+
+
+
+operations
+
+
+public op: ()==>()
+op()== Skip
+
+end
+
+process P = begin
+
+operations
+
+public op: ()==>()
+op()== Skip
+
+@Skip
+end

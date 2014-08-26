@@ -4,8 +4,10 @@ import java.util.LinkedList;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.QuestionAnswerAdaptor;
+import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.node.INode;
+import org.overture.ast.statements.ACallStm;
 
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.ADivAction;
@@ -68,6 +70,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.GuardDefGener
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCGuardDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCIOCommDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCPSingleDeclaration;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAActionDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPVarsetExpression;
 import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCPCMLStm;
@@ -349,7 +352,16 @@ public class NewMCActionVisitor extends
 		}
 
 		MCPAction action = (MCPAction) node.getAction().apply(rootVisitor, question);
-		MCACommunicationAction result = new MCACommunicationAction(identifier, mcParameters, action);
+		
+		PDefinition parentDef = this.getParentActionDefinition(node);
+		if(parentDef != null){
+			parentDef = this.getParentProcessDefinition(node);
+		}
+		String parentName = null;
+		if(parentDef != null){
+			parentName = parentDef.getName().getName();
+		}
+		MCACommunicationAction result = new MCACommunicationAction(identifier, mcParameters, action,parentName);
 		
 		for (MCPCommunicationParameter mcpCommunicationParameter : mcParameters) {
 			if(mcpCommunicationParameter instanceof MCAReadCommunicationParameter){
@@ -377,8 +389,40 @@ public class NewMCActionVisitor extends
 			mcArgs.add((MCPCMLExp) pExp.apply(rootVisitor, question));
 		}
 		
-		MCAReferenceAction result = new MCAReferenceAction(name, mcArgs);
+		MCAReferenceAction result = new MCAReferenceAction(name, mcArgs,null);
+		
+		AActionDefinition parentDef = this.getParentActionDefinition(node);
+		if(parentDef != null){
+			result.setParentDefinitionName(parentDef.getName().getName());
+		}else{
+			AProcessDefinition parentProcDef = this.getParentProcessDefinition(node);
+			result.setParentDefinitionName(parentProcDef.getName().getName());
+		}
 	
+		return result;
+	}
+	
+	private AProcessDefinition getParentProcessDefinition(PAction node){
+		AProcessDefinition result = null;
+		INode parent = node.parent();
+		while((parent != null) && !(parent instanceof AProcessDefinition)){
+			parent = parent.parent();
+		}
+		if(parent != null && parent instanceof AProcessDefinition){
+			result = (AProcessDefinition) parent;
+		}
+		return result;
+	} 
+	private AActionDefinition getParentActionDefinition(PAction node){
+		AActionDefinition result = null;
+		
+		INode parent = node.parent();
+		while((parent != null) && !(parent instanceof AActionDefinition)){
+			parent = parent.parent();
+		}
+		if(parent != null && parent instanceof AActionDefinition){
+			result = (AActionDefinition) parent;
+		}
 		return result;
 	}
 	

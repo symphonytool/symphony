@@ -86,6 +86,44 @@ public class RttMbtCompileRunDocReplay extends RttMbtAbstractTestProcedureAction
 
 		
 		/**
+		 * switch from execution context to generation context
+		 */
+		// if a test procedure is selected, switch to test procedure generation context
+		if ((!isTProcGenCtxSelected()) &&
+			(isRttTestProcSelected()) &&
+			(hasTProcGenCtx())) {
+			getTProcGenCtxPathFromRttTestProcPath();
+			/**
+			 * replay test procedure
+			 */
+			client.addLogMessage("replaying test results from test procedure " + selectedObjectName + "... please wait for the task to be finished.");
+			// replay test procedure
+			if (client.replayTestProcedure(selectedObjectName)) {
+				client.addLogMessage("[PASS]: replay test procedure " + selectedObjectName);
+			} else {
+				client.addErrorMessage("[FAIL]: replay test procedure " + selectedObjectName);
+			}
+		} else {
+			client.addLogMessage("No test procedur generation context found matching this test procedure - skipping replay!");
+			client.addCompletedTaskItems(5);
+		}
+
+
+		/**
+		 * switch from generation context to execution context
+		 */
+		// if a test procedure generation context is selected, switch to test procedure
+		if ((!isRttTestProcSelected()) && (isTProcGenCtxSelected())) {
+			getRttTestProcPathFromTProcGenCtxPath();
+		}
+		// check that a test procedure is selected
+		if ((!isRttTestProcSelected()) && (!RttMbtClient.isRtt6TestProcedure(selectedObjectFilesystemPath))) {
+			client.addErrorMessage("Please select a valid test procedure!");
+			client.addCompletedTaskItems(20);
+			return Status.CANCEL_STATUS;
+		}
+
+		/**
 		 * doc test procedure
 		 */
 		// generate test procedure documentation
@@ -100,33 +138,6 @@ public class RttMbtCompileRunDocReplay extends RttMbtAbstractTestProcedureAction
 			return Status.CANCEL_STATUS;
 		}
 		client.addCompletedTaskItems(1);
-
-
-		/**
-		 * switch from execution context to generation context
-		 */
-		// if a test procedure is selected, switch to test procedure generation context
-		if ((!isTProcGenCtxSelected()) && (isRttTestProcSelected())) {
-			getTProcGenCtxPathFromRttTestProcPath();
-		}
-		// check that test procedure generation context is selected
-		if (!isTProcGenCtxSelected()) {
-			client.addErrorMessage("No test procedur generation context found matching this test procedure - skipping replay!");
-			client.addCompletedTaskItems(5);
-			return status;
-		}
-
-
-		/**
-		 * replay test procedure
-		 */
-		client.addLogMessage("replaying test results from test procedure " + selectedObjectName + "... please wait for the task to be finished.");
-		// replay test procedure
-		if (client.replayTestProcedure(selectedObjectName)) {
-			client.addLogMessage("[PASS]: replay test procedure " + selectedObjectName);
-		} else {
-			client.addErrorMessage("[FAIL]: replay test procedure " + selectedObjectName);
-		}
 
 		// cleanup
 		client.setSubTaskName("finishing task");

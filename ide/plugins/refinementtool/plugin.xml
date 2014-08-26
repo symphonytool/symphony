@@ -3,6 +3,15 @@
 
 <plugin>
 
+     <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="eu.compassresearch.ide.refinementtool.maude.MaudeSetupPreferencePage"
+            id="eu.compassresearch.ide.refinementtool.maude.setuppage"
+            name="Maude Setup">
+      </page>
+   </extension>
+
 <extension
          point="org.eclipse.ui.perspectives">
 		<perspective
@@ -93,6 +102,14 @@
                relative="eu.compassresearch.ide.refinementtool.POsTable"
                visible="true">
 			</view>
+			<view
+               id="eu.compassresearch.ide.refinementtool.RefineDetail"
+               minimized="false"
+               ratio="0.85"
+               relationship="bottom"
+               relative="org.eclipse.ui.editorss"
+               visible="true">
+			</view>
 			
        </perspectiveExtension>
    </extension>
@@ -161,6 +178,13 @@
             icon="icons/ref_icon.png"
             id="eu.compassresearch.ide.refinementtool.POsTable"
             name="CML RPO List">
+		</view>
+		<view
+            category="eu.compassresearch.ide.ui.category"
+            class="eu.compassresearch.ide.refinementtool.view.RefineDetailView"
+            icon="icons/ref_icon.png"
+            id="eu.compassresearch.ide.refinementtool.RefineDetail"
+            name="Refinement Law Details">
 		</view>
 
 

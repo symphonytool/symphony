@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.expressions.AApplyExp;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.intf.lex.ILexNameToken;
@@ -13,15 +14,14 @@ import org.overture.ast.patterns.PPattern;
 import org.overture.ast.statements.PObjectDesignator;
 import org.overture.ast.statements.PStateDesignator;
 import org.overture.ast.statements.PStm;
-import org.overture.ast.util.definitions.ClassList;
 import org.overture.interpreter.eval.DelegateExpressionEvaluator;
-import org.overture.interpreter.runtime.ClassInterpreter;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ValueException;
 import org.overture.interpreter.runtime.VdmRuntime;
 import org.overture.interpreter.runtime.VdmRuntimeError;
 import org.overture.interpreter.values.NameValuePair;
 import org.overture.interpreter.values.NameValuePairList;
+import org.overture.interpreter.values.OperationValue;
 import org.overture.interpreter.values.Quantifier;
 import org.overture.interpreter.values.QuantifierList;
 import org.overture.interpreter.values.SetValue;
@@ -46,7 +46,6 @@ import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.patterns.ARenamePair;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
-import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.api.values.ChannelValue;
 import eu.compassresearch.core.interpreter.api.values.CmlChannel;
 import eu.compassresearch.core.interpreter.api.values.LatticeTopValue;
@@ -113,6 +112,27 @@ public class CmlExpressionVisitor extends
 			Context question) throws AnalysisException
 	{
 		throw new CmlInterpreterException(InterpretationErrorMessages.CASE_NOT_IMPLEMENTED.customizeMessage(node.getClass().getSimpleName()));
+	}
+
+	@Override
+	public Value caseAApplyExp(AApplyExp node, Context ctxt)
+			throws AnalysisException
+	{
+		try
+		{
+			Value object = node.getRoot().apply(VdmRuntime.getExpressionEvaluator(), ctxt).deref();
+			if (object instanceof OperationValue)
+			{
+				return StatementInspectionVisitor.invokeOperation(node.getLocation(),node, node.getArgs(), ctxt, (OperationValue)object, this);
+			} else
+			{
+				return super.caseAApplyExp(node, ctxt);
+			}
+		} catch (ValueException e)
+		{
+			return VdmRuntimeError.abort(node.getLocation(), e);
+		}
+
 	}
 
 	protected ChannelValue createChannelNameValue(ILexIdentifierToken id,
@@ -250,7 +270,6 @@ public class CmlExpressionVisitor extends
 		}
 	}
 
-
 	@Override
 	public Value caseAInterVOpVarsetExpression(AInterVOpVarsetExpression node,
 			Context ctxt) throws AnalysisException
@@ -292,29 +311,33 @@ public class CmlExpressionVisitor extends
 
 		return new SetValue(result);
 	}
-
+	
 	@Override
 	public Value caseACompVarsetExpression(ACompVarsetExpression node,
-			Context question) throws AnalysisException
+			Context ctxt) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
-		return super.caseACompVarsetExpression(node, question);
+		return evalCompVarset(node,node.getPredicate(),node.getChannelNameExp(),node.getBindings(), ctxt);
 	}
-
+	
 	@Override
 	public Value caseAFatCompVarsetExpression(AFatCompVarsetExpression node,
 			Context ctxt) throws AnalysisException
 	{
+		return evalCompVarset(node,node.getPredicate(),node.getChannelNameExp(),node.getBindings(), ctxt);
+	}
 
+	protected Value evalCompVarset(PVarsetExpression node, PExp predicate, ANameChannelExp channelExp, List<PMultipleBind> binds, Context ctxt)
+			throws AnalysisException
+	{
 		SetValue set = new SetValue();
 
-		boolean isChannel = isChannelSetExp(node.getChannelNameExp(), ctxt);
+		boolean isChannel = isChannelSetExp(channelExp, ctxt);
 
 		try
 		{
 			QuantifierList quantifiers = new QuantifierList();
 
-			for (PMultipleBind mb : node.getBindings())
+			for (PMultipleBind mb : binds)
 			{
 				ValueList bvals = ctxt.assistantFactory.createPMultipleBindAssistant().getBindValues(mb, ctxt);
 
@@ -351,14 +374,14 @@ public class CmlExpressionVisitor extends
 				}
 
 				if (matches
-						&& (node.getPredicate() == null || node.getPredicate().apply(VdmRuntime.getExpressionEvaluator(), evalContext).boolValue(ctxt)))
+						&& (predicate == null || predicate.apply(VdmRuntime.getExpressionEvaluator(), evalContext).boolValue(ctxt)))
 				{
 					if (isChannel)
 					{
-						set.values.add(createChannelNameValue(node.getChannelNameExp(), evalContext));
+						set.values.add(createChannelNameValue(channelExp, evalContext));
 					} else
 					{
-						set.values.add(new NameValue(NamespaceUtility.createSimpleName(node.getChannelNameExp().getIdentifier())));
+						set.values.add(new NameValue(NamespaceUtility.createSimpleName(channelExp.getIdentifier())));
 					}
 				}
 			}
@@ -369,6 +392,8 @@ public class CmlExpressionVisitor extends
 
 		return set;
 	}
+
+
 
 	@Override
 	public Value caseAIdentifierVarsetExpression(

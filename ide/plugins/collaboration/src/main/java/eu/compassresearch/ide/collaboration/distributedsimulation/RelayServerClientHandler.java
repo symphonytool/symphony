@@ -3,17 +3,21 @@ package eu.compassresearch.ide.collaboration.distributedsimulation;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.Socket;
 
-public class RelayServerClientHandler extends Thread
+public class RelayServerClientHandler extends Thread implements RelayServerListener
 {
 	private Socket clientSocket;
 	private DistributedSimulationManager distSimManager;
+	private PrintWriter out;
 
 	public RelayServerClientHandler(DistributedSimulationManager distSimManager, Socket conn)
 	{
 		this.distSimManager = distSimManager;
 		clientSocket = conn;
+		
+		distSimManager.addRelayListener(this);
 		
 		setDaemon(true);
 		setName("Relay Server : Client Handler " + conn.toString());
@@ -24,18 +28,17 @@ public class RelayServerClientHandler extends Thread
 	{
 		if (clientSocket.isConnected())
 		{
-
-			BufferedReader stdIn;
+			BufferedReader in;
 			try
 			{
-				stdIn = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+				out = new PrintWriter(clientSocket.getOutputStream(), true);
+				in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
-				System.out.println("Response from client:");
 				String inputData;
 
-				while ((inputData = stdIn.readLine()) != null)
+				while ((inputData = in.readLine()) != null)
 				{
-					System.out.println(inputData); //TODO remove
+					System.out.println("=== Client ==========: Send from client to coordinator: " + inputData); //TODO remove
 					distSimManager.relayMessageToCoordinator(inputData);
 				}
 				
@@ -44,8 +47,13 @@ public class RelayServerClientHandler extends Thread
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-
 		}
 	}
-
+	
+	@Override
+	public void onReceivedData(String data)
+	{
+		System.out.println("=== Client ==========: Send from coordinator to client: " + data);
+		out.println(data);
+	}
 }

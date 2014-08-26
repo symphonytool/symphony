@@ -14,10 +14,9 @@ import eu.compassresearch.core.interpreter.cosim.CoSimulationClient;
  * 
  * @author kel
  */
-public final class CoSimClientInterpreterFactory implements InterpreterFactory
+public final class CoSimClientInterpreterFactory extends VanillaInterpreterFactory
 {
 
-	CmlBehaviorFactory cmlBehaviorFactory = new DefaultCmlBehaviorFactory();
 	private CoSimulationClient client;
 
 	public CoSimClientInterpreterFactory(CoSimulationClient client)
@@ -45,7 +44,7 @@ public final class CoSimClientInterpreterFactory implements InterpreterFactory
 	public CmlInterpreter newInterpreter(List<PDefinition> definitions)
 			throws CmlInterpreterException
 	{
-		CoSimCmlInterpreter interpreter = new CoSimCmlInterpreter(definitions, newDefaultConfig(), client);
+		CoSimClientInterpreter interpreter = new CoSimClientInterpreter(definitions, newDefaultConfig(), client);
 		CmlContextFactory.configureDBGPReader(interpreter);
 		return interpreter;
 	}
@@ -59,7 +58,7 @@ public final class CoSimClientInterpreterFactory implements InterpreterFactory
 	public CmlInterpreter newInterpreter(List<PDefinition> definitions,
 			Config config) throws CmlInterpreterException
 	{
-		CoSimCmlInterpreter interpreter = new CoSimCmlInterpreter(definitions, config, client);
+		CoSimClientInterpreter interpreter = new CoSimClientInterpreter(definitions, config, client);
 		CmlContextFactory.configureDBGPReader(interpreter);
 		return interpreter;
 	}

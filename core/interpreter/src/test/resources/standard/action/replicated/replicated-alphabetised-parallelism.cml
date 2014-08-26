@@ -1,0 +1,13 @@
+channels 
+  a : nat 
+
+process P = begin
+
+actions
+A= val i : nat @ a.i -> a.3->Skip
+
+
+
+@ || i in set {1,2} @ [{||}|{|a.i,a.3|}] A(i)
+
+end

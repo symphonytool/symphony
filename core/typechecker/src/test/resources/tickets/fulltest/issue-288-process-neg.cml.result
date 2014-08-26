@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.TicketsCmlTypeCheckerTests">
+<message column="13" line="1" message="Expecting 'val' but found 'res' in process parameterisation." messageType="error" number="3447" resource="issue-288-process-neg.cml"/>
+<message column="13" line="5" message="Expecting 'val' but found 'vres' in process parameterisation." messageType="error" number="3447" resource="issue-288-process-neg.cml"/>
+<result/>
+</testResult>

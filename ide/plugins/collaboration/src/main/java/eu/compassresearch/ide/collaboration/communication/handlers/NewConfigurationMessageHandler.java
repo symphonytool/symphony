@@ -72,7 +72,7 @@ public class NewConfigurationMessageHandler extends
 				configurations.addConfiguration(receivedConfiguration);
 				for (FileDTO fs : msg.getFileDTOs())
 				{
-					receivedConfiguration.addNewFile(fs.getFileName(), fs.getFileHash(), fs.getTimestamp(), fs.getFilePath());
+					receivedConfiguration.addNewFile(fs.getFileName(), fs.getFileHash(), fs.getTimestamp(), fs.getFilePath(), fs.getVisibilityList());
 				}
 				
 				CollaborationDialogs.getInstance().displayNotificationPopup(senderName, Notification.Collab_Dialog_SEND_NEW_CONFIG);

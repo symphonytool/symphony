@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.definitions.AValueDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.AAbsoluteUnaryExp;
 import org.overture.ast.expressions.AAndBooleanBinaryExp;
@@ -99,6 +100,7 @@ import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.patterns.AIdentifierPattern;
+import org.overture.ast.patterns.ARecordPattern;
 import org.overture.ast.patterns.ASetBind;
 import org.overture.ast.patterns.ASetMultipleBind;
 import org.overture.ast.patterns.ATypeBind;
@@ -248,9 +250,9 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		return "("+ ThmExprUtil.head + "(" + ex.getExp().apply(thmStringVisitor, vars)+ "))";
 	}
 
-//	public String caseAIndicesUnaryExp(AIndicesUnaryExp ex, ThmVarsContext vars) throws AnalysisException{
-//		return "("+ ThmExprUtil.indices + "(" + ex.getExp().apply(thmStringVisitor, vars)+ "))";
-//	}
+	public String caseAIndicesUnaryExp(AIndicesUnaryExp ex, ThmVarsContext vars) throws AnalysisException{
+		return "("+ ThmExprUtil.indices + "(" + ex.getExp().apply(thmStringVisitor, vars)+ "))";
+	}
 
 	public String caseALenUnaryExp(ALenUnaryExp ex, ThmVarsContext vars) throws AnalysisException{
 		return "("+ ThmExprUtil.len + "(" + ex.getExp().apply(thmStringVisitor, vars)+ "))";
@@ -416,7 +418,7 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 					}
 				}
 				sb.append(" : ");
-				sb.append("@" + tmb.getType().toString() + " @ (");//USE VISITOR FOR TYPE
+				sb.append(tmb.getType().apply(thmStringVisitor, vars) + " @ (");//USE VISITOR FOR TYPE
 			}
 			else if (b instanceof ASetMultipleBind)
 			{
@@ -561,8 +563,18 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		LinkedList<PDefinition> ldefs = ex.getLocalDefs();
 		for (PDefinition d : ldefs)
 		{
-			vars.addBVar(d.getName());
-			sb.append(d.getName().toString());
+			if(d.getName() != null){
+				vars.addBVar(d.getName());
+				sb.append(d.getName().toString());
+			}	
+			else if(d instanceof AValueDefinition){
+				LinkedList<PDefinition> vdefs = ((AValueDefinition) d).getDefs();
+				for (PDefinition v: vdefs)
+				{
+					vars.addBVar(v.getName());
+					sb.append(v.getName().toString());
+				}
+			}
 		}
 		
 		return "let " + sb + " in " + ex.getExpression().apply(thmStringVisitor, vars);
@@ -649,31 +661,34 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 
 	public String caseAVariableExp(AVariableExp ex, ThmVarsContext vars) throws AnalysisException{
 		ILexNameToken varName = ex.getName();
+		//Replace trailing $ that is added by the POG 
+		String variableName =varName.getName().replace("$", "");
+		
 		
 		for(ILexNameToken var : vars.getSVars()){
-			if (varName.getName().equals(var.getName()))
+			if (variableName.equals(var.getName()))
 			{
 				if (isPost)
 				{
 					if (varName.isOld())
-						return  "($" + varName.getName() + ")";
+						return  "($" + variableName + ")";
 					else
-						return "($" + varName.getName() + ThmExprUtil.isaAcute + ")";
+						return "($" + variableName + ThmExprUtil.isaAcute + ")";
 				}
 				else
 				{
-					return  "($" + varName.getName() + ")";
+					return  "($" + variableName + ")";
 				}
 			}
 		}
 		for(ILexNameToken var : vars.getBVars()){
-			if (varName.getName().equals(var.getName()))
+			if (variableName.equals(var.getName()))
 			{
-				return  "^" + varName.getName() + "^";
+				return  "^" + variableName + "^";
 			}
 		}
 		//assume is value?
-		return "^" + varName.getName() + "^";
+		return "^" + variableName + "^";
 	}
 
 	public String caseAUnresolvedPathExp(AUnresolvedPathExp ex, ThmVarsContext vars) throws AnalysisException{
@@ -786,10 +801,15 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 			}
 		}
 		String firstString =  ex.getFirst().apply(thmStringVisitor, vars);
-		String predString =  ex.getPredicate().apply(thmStringVisitor, vars);
-	//	String firstString = ThmExprUtil.getIsabelleExprStr(svars, boundvars, comp.getFirst()); 
-	//	String predString = ThmExprUtil.getIsabelleExprStr(svars, boundvars, comp.getPredicate()); 
-		return "{" + firstString + " | " + bindstr + " @ " + predString + "}";
+		if(ex.getPredicate() != null)
+		{
+			String predString =  ex.getPredicate().apply(thmStringVisitor, vars);
+			return "{" + firstString + " | " + bindstr + " @ " + predString + "}";
+		}
+		else
+		{
+			return "{" + firstString + " | " + bindstr + "}";
+		}
 	}
 
 	public String caseAMapEnumMapExp(AMapEnumMapExp ex, ThmVarsContext vars) throws AnalysisException{
@@ -831,10 +851,11 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		String predString = "true";
 		if (ex.getPredicate() != null) {
 			predString =  ex.getPredicate().apply(thmStringVisitor, vars);
+			return "[" + firstString + " | " + bindstr.toString() + " @ " + predString + "]";
 		}
-	//	String firstString = ThmExprUtil.getIsabelleExprStr(svars, boundvars, ex.getFirst()); 
-	//	String predString = ThmExprUtil.getIsabelleExprStr(svars, boundvars, ex.getPredicate()); 
-		return "{" + firstString + " | " + bindstr.toString() + " @ " + predString + "}";
+		else{
+			return "[" + firstString + " | " + bindstr.toString()  + "]";
+		}
 	}
 
 	public String caseASeqEnumSeqExp(ASeqEnumSeqExp ex, ThmVarsContext vars) throws AnalysisException{
@@ -881,10 +902,31 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 			{
 				ASetMultipleBind smb = (ASetMultipleBind) b;
 				for (Iterator<PPattern> itr = smb.getPlist().listIterator(); itr.hasNext(); ) {
-					AIdentifierPattern p = (AIdentifierPattern) itr.next();
+					PPattern pattern = itr.next();
+					if(pattern instanceof AIdentifierPattern){
+						AIdentifierPattern p = (AIdentifierPattern) pattern;
+						bindstr.append(p.getName());
+						vars.addBVar(p.getName());
+					}else if (pattern instanceof ARecordPattern){
+						ARecordPattern p = (ARecordPattern) pattern;
+						
+						bindstr.append("mk_" + p.getType().toString() + "(");
+						for (Iterator<PPattern> itr2 = p.getPlist().listIterator(); itr2.hasNext(); ) {
+
+							PPattern fpatt = itr2.next();
+							if(fpatt instanceof AIdentifierPattern){
+								AIdentifierPattern fpattid = (AIdentifierPattern) fpatt;
+								bindstr.append(fpattid.getName());
+								vars.addBVar(fpattid.getName());
+							}
+							//If there are remaining patterns, add a ","
+							if(itr2.hasNext()){	
+								bindstr.append(", ");
+							}
+						}
+						bindstr.append(")");
+					}
 					
-					bindstr.append(p.getName());
-					vars.addBVar(p.getName());
 					//If there are remaining patterns, add a ","
 					if(itr.hasNext()){	
 						bindstr.append(", ");
@@ -899,9 +941,11 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		String predString =  "true";
 	    if (ex.getPredicate() != null) {
 	    	predString = ex.getPredicate().apply(thmStringVisitor, vars);
+			return "{" + firstString + " | " + bindstr.toString() + " @ " + predString + "}";
 	    }
-
-		return "{" + firstString + " | " + bindstr.toString() + " @ " + predString + "}";
+		else{
+			return "{" + firstString + " | " + bindstr.toString() + "}";	
+		}
 	}
 
 	public String caseASetEnumSetExp(ASetEnumSetExp ex, ThmVarsContext vars) throws AnalysisException{

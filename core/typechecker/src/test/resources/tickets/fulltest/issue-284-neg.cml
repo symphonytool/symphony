@@ -1,0 +1,5 @@
+process Test = begin
+actions
+  assignFail = val n : nat1 @ n := n + 1
+@ assignFail(1)
+end

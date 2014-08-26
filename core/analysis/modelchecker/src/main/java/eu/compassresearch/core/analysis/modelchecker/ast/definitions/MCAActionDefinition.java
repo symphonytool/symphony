@@ -11,6 +11,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPParametrisat
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ActionChannelDependency;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ExpressionEvaluator;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.NameValue;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ParameterDependency;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.TypeManipulator;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.TypeValue;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
@@ -53,6 +54,31 @@ public class MCAActionDefinition implements MCPCMLDefinition {
 		StringBuilder result = new StringBuilder();
 		String actionString = "";
 		context.mcProcOrActionsStack.push(this);
+		
+		result.append("  ProcDef(\"");
+		result.append(this.name);
+		result.append("\",");
+		
+		// parameters
+		ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance(); 
+		MCPCMLType paramType  = evaluator.instantiateMCTypeFromParams(this.declarations);
+		parameterString = paramType.toFormula(option); 
+		result.append(parameterString);
+		result.append(",");
+		actionString = this.getAction().toFormula(option);
+		result.append(actionString);
+		result.append(")");
+
+		if(this.declarations.size() > 0){
+			ParameterDependency paramDep = new ParameterDependency(this.name,this.declarations.getFirst(), this.name); 
+			context.parameterDependencies.add(paramDep);
+		}
+			
+		addDependencies(option, context, result, actionString);
+		
+		result.append(".\n");
+		
+		/*
 		if(declarations.size() > 0){
 			 //for the moment we assume that processes have only one parameter
 			MCPParametrisation param = declarations.getFirst();
@@ -97,7 +123,7 @@ public class MCAActionDefinition implements MCPCMLDefinition {
 			
 			result.append(".\n");
 		}
-		
+		*/
 		context.mcProcOrActionsStack.pop();
 		return result.toString();
 	}
@@ -112,24 +138,13 @@ public class MCAActionDefinition implements MCPCMLDefinition {
 		ArrayListSet<ActionChannelDependency> allDependencies = new ArrayListSet<ActionChannelDependency>(); 
 		
 		boolean hasNormalDependencies = dependencies.size() > 0;
-		boolean hasNormalDependenciesReal = false;
 		//it adds the normal channel dependencies
 		if(hasNormalDependencies){
-			//result.append(" :- ");
-			
 			for (Iterator<ActionChannelDependency> iterator = dependencies.iterator(); iterator.hasNext();) {
 				ActionChannelDependency actionChannelDependency = (ActionChannelDependency) iterator.next();
-				///PPPPPPPPPPPPPPPPPP
-				//if(! (actionChannelDependency.getParameters().getFirst() instanceof MCAReadCommunicationParameter)){
 					if(actionChannelDependency.getParameters().getFirst() instanceof MCAReadCommunicationParameter){
-						//result.append(actionChannelDependency.toFormula(option));
-						//hasNormalDependenciesReal = true;
 						allDependencies.add(actionChannelDependency);
-						//if(iterator.hasNext()){
-							//result.append(",");
-						//}
 					}
-				//}
 			}
 		}
 		
@@ -138,47 +153,14 @@ public class MCAActionDefinition implements MCPCMLDefinition {
 		
 		//boolean hasInfiniteUnamedDependenciesReal = false;
 		allDependencies.addAll(context.getInfiniteAndUnamedChannelDependencies());
-		/*
-		if(hasInfiniteUnamedDependencies){
-			if(!hasNormalDependencies){
-				//result.append(" :- ");
-			}
-				Iterator<ActionChannelDependency> iterator = context.getInfiniteAndUnamedChannelDependencies().iterator();
-				for (; iterator.hasNext();) {
-					ActionChannelDependency actionChannelDependency = (ActionChannelDependency) iterator.next();
-					String actionChannelDepStr = actionChannelDependency.toFormula(option).trim();
-					
-					if(result.indexOf(actionChannelDepStr) == -1){
-						if(hasNormalDependenciesReal && actionChannelDependency.getParameters().getFirst() instanceof MCAReadCommunicationParameter){
-							result.append(",");
-						}
-						if(actionChannelDependency.getParameters().getFirst() instanceof MCAReadCommunicationParameter){
-							result.append(actionChannelDepStr);
-							hasInfiniteUnamedDependenciesReal = true;
-						}
-					}
-					
-					//if(!allDependencies.contains(actionChannelDependency)){
-						allDependencies.add(actionChannelDependency);
-					//}
-				}
-				
-			
-		}
-		*/
-		//context.resetInfiniteChannelDependencies();
-		//context.resetUnamedChannelDependencies();
+		
 		
 		if(allDependencies.size() > 0){
 			result.append(" :- ");
 			for (Iterator<ActionChannelDependency> iterator = allDependencies.iterator(); iterator.hasNext();) {
 				ActionChannelDependency actionChannelDependency = (ActionChannelDependency) iterator.next();
 				String actionChannelDepStr = actionChannelDependency.toFormula(option);
-				//if(result.indexOf(actionChannelDepStr) == -1){
-				//if(result.indexOf(actionChannelDepStr.trim()) == -1){
-					result.append(actionChannelDepStr);
-				//}
-				//}
+				result.append(actionChannelDepStr);
 				if(iterator.hasNext()){
 					result.append(",");
 				}
@@ -191,22 +173,62 @@ public class MCAActionDefinition implements MCPCMLDefinition {
 			if(result.indexOf(":-") == -1 && hasStateDependencies){
 				result.append(" :- ");
 			}else{
-				//if(hasNormalDependenciesReal || hasInfiniteUnamedDependenciesReal){
 				if(allDependencies.size() > 0 && hasStateDependencies){
 					result.append(",");
 				}
-				//}
 			}
 			result.append("State(");
 			result.append(context.maximalBinding.toFormula(MCNode.STATE_DEPENDENCY_WITHOUT_INF_VARS));
 			result.append(",");
-			//result.append(actionString);
 			result.append("proc(\"" + this.name + "\"," + parameterString + ")");
 			result.append(")");
 		}
+		//it adds the parameter dependencies if they exist
+		boolean hasParamDependencies = context.hasParameterDependencies(this.name); 
+		if(hasParamDependencies){
+			if(result.indexOf(":-") == -1){
+				result.append(" :- ");
+			}else{
+				if((allDependencies.size() > 0 || hasStateDependencies) && hasParamDependencies){
+					result.append(",");
+				}
+			}
+			//LinkedList<ParameterDependency> paramDependencies = context.getParameterDependenciesByParentName(this.name);
+			LinkedList<ParameterDependency> paramDependencies = context.getParameterDependenciesByParentName(this.name);
+			
+			ParameterDependency paramDep = context.getParameterDependency(this.name);
+			if(paramDep != null){
+				if(this.declarations.size() > 0){
+					if(!this.declarations.getFirst().getDeclaration().getName().equals(paramDep.getParametrisation().getDeclaration().getName())){
+						paramDep.setName(paramDep.getParentProcessDefinitionName());
+					}
+				}else{
+					paramDep.setName(paramDep.getParentProcessDefinitionName());
+				}
+				paramDependencies.add(paramDep);
+			}
+			Iterator<ParameterDependency> it = paramDependencies.iterator();
+			while (it.hasNext()) {
+				ParameterDependency parameterDependency = (ParameterDependency) it.next();
+				String paramDepStr = parameterDependency.toFormula(option);
+				//if(result.indexOf(paramDepStr) == -1){
+				result.append(paramDepStr);
+				//}
+				if(it.hasNext()){
+					result.append(",");
+				}
+			}
+
+			//ParameterDependency paramDep = context.getParameterDependency(this.name);
+			//if(paramDep == null){
+			//	paramDep = context.getParameterDependencyByParentName(this.name);
+			//}
+			//result.append(paramDep.toFormula(option));
+		}
 		context.resetStateDependencies();
 		context.resetLocalVarNames();
-		if(!hasNormalDependenciesReal && !hasInfiniteUnamedDependencies && !hasStateDependencies){
+		//if(!hasInfiniteUnamedDependencies && !hasStateDependencies){
+		if(allDependencies.size() == 0 && !hasStateDependencies && !hasParamDependencies){
 			String separator = " :- ";
 			int index = result.indexOf(separator);
 			if(index != -1){
@@ -216,26 +238,7 @@ public class MCAActionDefinition implements MCPCMLDefinition {
 		
 	}
 
-	private void generateCombinations(LinkedList<ActionChannelDependency> chanDefList, String operator, LinkedList<String> result){
-		
-		if(chanDefList.size() == 2){
-			String firstExpression = chanDefList.getFirst().getParameters().getFirst().toString();
-			String secondExpression = chanDefList.getLast().getParameters().getFirst().toString();
-			String expression = firstExpression + " " + operator + " " + secondExpression;
-			result.add(expression);
-		} else if (chanDefList.size() > 2){
-			String firstExpression = chanDefList.pollFirst().getChannelDefinition().getType().getTypeAsName();
-			for (ActionChannelDependency chanDef : chanDefList) {
-				String secondExpression = chanDef.getChannelDefinition().getType().getTypeAsName();
-				String expression = firstExpression + " " + operator + " " + secondExpression;
-				result.add(expression);
-			}
-			generateCombinations(chanDefList,operator,result);
-		}
-		
-	}
 	
-
 	@Override
 	public String toString() {
 		

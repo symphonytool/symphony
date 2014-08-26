@@ -33,7 +33,8 @@ public class CmlEventHistoryView extends AbstractCmlDebugView implements
 				for (DebugEvent e : events)
 				{
 					if ((e.getKind() == DebugEvent.BREAKPOINT
-							|| e.getKind() == DebugEvent.SUSPEND || e.getKind() == DebugEvent.TERMINATE)
+							|| e.getKind() == DebugEvent.SUSPEND
+							|| e.getKind() == DebugEvent.TERMINATE || e.getKind() == DebugEvent.CREATE)
 							&& e.getSource() == target)
 					{
 						fillHistoryList();
@@ -110,7 +111,7 @@ public class CmlEventHistoryView extends AbstractCmlDebugView implements
 		if (isAvailable() && target != null)
 		{
 			CmlInterpreterStateDTO lastState = target.getLastState();
-			if (lastState != null && lastState.getToplevelProcess()!=null)
+			if (lastState != null && lastState.getToplevelProcess() != null)
 			{
 				viewer.setInput(lastState.getToplevelProcess().getTrace());
 			}
@@ -122,5 +123,18 @@ public class CmlEventHistoryView extends AbstractCmlDebugView implements
 	{
 		fillHistoryList();
 
+	}
+
+	public void clear()
+	{
+		Display.getDefault().asyncExec(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				viewer.setInput(null);
+				viewer.refresh();
+			}
+		});
 	}
 }

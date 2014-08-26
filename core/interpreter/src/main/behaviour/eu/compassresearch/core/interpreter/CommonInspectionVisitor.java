@@ -1,9 +1,11 @@
 package eu.compassresearch.core.interpreter;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -16,6 +18,7 @@ import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ValueException;
 import org.overture.interpreter.values.SetValue;
 import org.overture.interpreter.values.Value;
+import org.overture.typechecker.util.HackLexNameToken;
 
 import eu.compassresearch.ast.CmlAstFactory;
 import eu.compassresearch.ast.actions.ASkipAction;
@@ -39,12 +42,12 @@ import eu.compassresearch.core.interpreter.api.transitions.ops.Filter;
 import eu.compassresearch.core.interpreter.api.transitions.ops.MapOperation;
 import eu.compassresearch.core.interpreter.api.transitions.ops.RemoveChannelNames;
 import eu.compassresearch.core.interpreter.api.transitions.ops.RetainChannelNames;
-import eu.compassresearch.core.interpreter.api.transitions.ops.RetainChannelNamesAndTau;
 import eu.compassresearch.core.interpreter.api.values.ChannelValue;
 import eu.compassresearch.core.interpreter.api.values.CmlChannel;
 import eu.compassresearch.core.interpreter.api.values.NameValue;
 import eu.compassresearch.core.interpreter.api.values.RenamingValue;
 import eu.compassresearch.core.interpreter.runtime.DelayedWriteContext;
+import eu.compassresearch.core.interpreter.runtime.DelayedWriteContext.INameFilter;
 import eu.compassresearch.core.interpreter.utility.LocationExtractor;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
@@ -171,33 +174,56 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 
 			// next we find the intersection of of them, since these are the ones that left and right must sync on
 			SetValue intersectionChanset = new SetValue();
-			intersectionChanset.values.addAll(leftChanset.values);
-			intersectionChanset.values.retainAll(rightChanset.values);
+			
+			for (Value lv : leftChanset.values)
+			{
+				ChannelValue clv = (ChannelValue) lv;
+				for (Value rv : rightChanset.values)
+				{
+					ChannelValue crv = (ChannelValue) rv;
+					if (clv.isComparable(crv)) {
+						intersectionChanset.values.add(clv.meet(crv));
+					}
+				}
+			}
+			
 
 			final CmlTransitionSet leftChildAlpha = owner.getLeftChild().inspect();
 			final CmlTransitionSet rightChildAlpha = owner.getRightChild().inspect();
+
+			/*
+			 * First constrain the left/right children's alphabets down to only those that are actually allowed by the
+			 * alphabetised parallel construct
+			 */
+			CmlTransitionSet constLeftChildAlpha = leftChildAlpha.constrainedExpand(leftChanset);
+			CmlTransitionSet constRightChildAlpha = rightChildAlpha.constrainedExpand(rightChanset);
 
 			/*
 			 * The independent transitions are the ones that are defined in the corresponding channel set which is not
 			 * in the intersection of the left and right channel set. This is calculated by taking the each child
 			 * alphabet and first retain corresponding channel set and then remove the intersection.
 			 */
-			CmlTransitionSet leftIndependentTransitions = leftChildAlpha.filter(new RetainChannelNamesAndTau(leftChanset), new RemoveChannelNames(intersectionChanset));
-			CmlTransitionSet rightIndependentTransitions = rightChildAlpha.filter(new RetainChannelNamesAndTau(rightChanset), new RemoveChannelNames(intersectionChanset));
+			CmlTransitionSet leftIndependentTransitions = constLeftChildAlpha.filter(new RemoveChannelNames(intersectionChanset));
+			leftIndependentTransitions = leftIndependentTransitions.removeAllType(TimedTransition.class);
+			CmlTransitionSet rightIndependentTransitions = constRightChildAlpha.filter(new RemoveChannelNames(intersectionChanset));
+			rightIndependentTransitions = rightIndependentTransitions.removeAllType(TimedTransition.class);
 
 			// combine all the common channel events that are in the channel set
-			CmlTransitionSet leftSync = leftChildAlpha.filter(new RetainChannelNames(intersectionChanset));
-			CmlTransitionSet rightSync = rightChildAlpha.filter(new RetainChannelNames(intersectionChanset));
-			SortedSet<CmlTransition> syncEvents = new TreeSet<CmlTransition>();
+			CmlTransitionSet leftSyncTransitions = leftChildAlpha.filter(new RetainChannelNames(intersectionChanset));
+			CmlTransitionSet rightSyncTransitions = rightChildAlpha.filter(new RetainChannelNames(intersectionChanset));
+			SortedSet<CmlTransition> availSyncTransitions = new TreeSet<CmlTransition>();
 			// Find the intersection between the child alphabets and the channel set and join them.
 			// Then if both left and right have them the next step will combine them.
-			for (ObservableTransition leftTrans : leftSync.filterByTypeAsSet(ObservableTransition.class))
+			for (ObservableTransition leftTrans : leftSyncTransitions.filterByTypeAsSet(ObservableTransition.class))
 			{
-				for (ObservableTransition rightTrans : rightSync.filterByTypeAsSet(ObservableTransition.class))
+				for (ObservableTransition rightTrans : rightSyncTransitions.filterByTypeAsSet(ObservableTransition.class))
 				{
 					if (leftTrans.isSynchronizableWith(rightTrans))
 					{
-						syncEvents.add(leftTrans.synchronizeWith(rightTrans));
+						final ObservableTransition mergedTransition = leftTrans.synchronizeWith(rightTrans);
+						
+						//maybe this could be null
+						availSyncTransitions.add(mergedTransition);
 					}
 				}
 			}
@@ -206,7 +232,8 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 			 * Finally we create the returned alphabet by joining all the Synchronized events together with all the
 			 * event of the children that are not in the channel set.
 			 */
-			CmlTransitionSet resultAlpha = new CmlTransitionSet(syncEvents).dunion(leftIndependentTransitions, rightIndependentTransitions);
+			CmlTransitionSet resultAlpha = new CmlTransitionSet(availSyncTransitions).dunion(leftIndependentTransitions, rightIndependentTransitions);
+			resultAlpha = resultAlpha.compress();
 
 			return newInspection(resultAlpha, new CmlCalculationStep()
 			{
@@ -253,20 +280,9 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 			throws AnalysisException
 	{
 		Context newCurrentContext = theChoosenOne.getNextState().second;
-		Context delayedCtxt = newCurrentContext;
 
 		// TODO some how it is not the outer one in issue 235
-		while (delayedCtxt != null)
-		{
-			if (delayedCtxt instanceof DelayedWriteContext)
-			{
-				((DelayedWriteContext) delayedCtxt).writeChanges();
-				break;
-			}
-			delayedCtxt = delayedCtxt.outer;
-		}
-
-		// newCurrentContext = removeFirstDelayedContext( newCurrentContext);
+		applyChangesInDelayedContext(newCurrentContext);
 
 		if (theChoosenOne.getLeftChild() != null)
 		{
@@ -290,6 +306,45 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		CommonInspectionVisitor.this.visitorAccess.setChildContexts(null);
 
 		return new Pair<INode, Context>(theChoosenOne.getNextState().first, newCurrentContext);
+	}
+
+	/**
+	 * Applies changes from the first active {@link DelayedWriteContext} and disables it.
+	 * 
+	 * @param delayedCtxt
+	 * @param filter
+	 * @throws ValueException
+	 * @throws AnalysisException
+	 */
+	protected void applyChangesInDelayedContext(Context delayedCtxt,
+			INameFilter filter) throws ValueException, AnalysisException
+	{
+		while (delayedCtxt != null)
+		{
+			if (delayedCtxt instanceof DelayedWriteContext)
+			{
+				DelayedWriteContext delayed = ((DelayedWriteContext) delayedCtxt);
+				if (!delayed.isDisabled())
+				{
+					delayed.writeChanges(filter);
+					break;
+				}
+			}
+			delayedCtxt = delayedCtxt.outer;
+		}
+	}
+
+	/**
+	 * Applies changes from the first active {@link DelayedWriteContext} and disables it.
+	 * 
+	 * @param delayedCtxt
+	 * @throws ValueException
+	 * @throws AnalysisException
+	 */
+	protected void applyChangesInDelayedContext(Context delayedCtxt)
+			throws ValueException, AnalysisException
+	{
+		applyChangesInDelayedContext(delayedCtxt, null);
 	}
 
 	/**
@@ -508,6 +563,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 	protected CmlCalculationStep caseParallelEnd(final INode node,
 			final Context question)
 	{
+		final boolean isProcess = (this instanceof ProcessInspectionVisitor);
 		return new CmlCalculationStep()
 		{
 
@@ -515,46 +571,38 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 			public Pair<INode, Context> execute(CmlTransition selectedTransition)
 					throws AnalysisException
 			{
-
 				Context leftChildContext = owner.getLeftChild().getNextState().second;
-				SetValue leftNameset = (SetValue) leftChildContext.check(NamespaceUtility.getNamesetName());
+				Context rightChildContext = owner.getRightChild().getNextState().second;
+
+				INameFilter leftNameFilter = null;
+				INameFilter rightNameFilter = null;
+
+				final SetValue leftNameset = (SetValue) leftChildContext.check(NamespaceUtility.getNamesetName());
+				Set<ILexNameToken> leftNames = new HashSet<ILexNameToken>();
 				if (leftNameset != null)
 				{
-					for (Value val : leftNameset.values)
-					{
-						if (val instanceof NameValue)
-						{
-							ILexNameToken name = ((NameValue) val).name;
-
-							question.lookup(name).set(name.getLocation(), leftChildContext.lookup(name), question);
-						} else
-						{
-							throw new InterpreterRuntimeException("Only "
-									+ NameValue.class.getSimpleName()
-									+ " must be present in a name value set. Actual: "
-									+ val);
-						}
-					}
+					leftNames = copyValues(leftNameset, leftChildContext, question);
 				}
 
-				Context rightChildContext = owner.getRightChild().getNextState().second;
+				leftNameFilter = new NameSetFilter(leftNames);
+
 				SetValue rightNameset = (SetValue) rightChildContext.check(NamespaceUtility.getNamesetName());
+
+				Set<ILexNameToken> rightNames = new HashSet<ILexNameToken>();
+
 				if (rightNameset != null)
 				{
-					for (Value val : rightNameset.values)
-					{
-						if (val instanceof NameValue)
-						{
-							ILexNameToken name = ((NameValue) val).name;
-							question.lookup(name).set(name.getLocation(), rightChildContext.lookup(name), question);
-						} else
-						{
-							throw new InterpreterRuntimeException("Only "
-									+ NameValue.class.getSimpleName()
-									+ " must be present in a name value set. Actual: "
-									+ val);
-						}
-					}
+					rightNames = copyValues(rightNameset, rightChildContext, question);
+				}
+
+				rightNameFilter = new NameSetFilter(rightNames);
+
+				if (!isProcess)
+				{
+					applyChangesInDelayedContext(leftChildContext, leftNameFilter);
+					applyChangesInDelayedContext(rightChildContext, rightNameFilter);
+
+					applyChangesInDelayedContext(question);
 				}
 
 				clearLeftChild();
@@ -563,7 +611,71 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 				// now this process evolves into Skip
 				return new Pair<INode, Context>(node, question);
 			}
+
+			/**
+			 * Utility method to copy named from one context to an other, where the names are given by the nameset and
+			 * all names are returned after
+			 * 
+			 * @param nameset
+			 *            the names to copy
+			 * @param fromCtxt
+			 *            the context where the names exist
+			 * @param toCtxt
+			 *            the context to copy to
+			 * @return a set of all names
+			 * @throws ValueException
+			 *             if the name faild to evaulate
+			 * @throws AnalysisException
+			 */
+			protected Set<ILexNameToken> copyValues(final SetValue nameset,
+					Context fromCtxt, final Context toCtxt)
+					throws ValueException, AnalysisException
+			{
+				Set<ILexNameToken> leftNames = new HashSet<ILexNameToken>();
+				for (Value val : nameset.values)
+				{
+					if (val instanceof NameValue)
+					{
+						ILexNameToken name = ((NameValue) val).name;
+						leftNames.add(name);
+						toCtxt.lookup(name).set(name.getLocation(), fromCtxt.lookup(name), toCtxt);
+					} else
+					{
+						throw new InterpreterRuntimeException("Only "
+								+ NameValue.class.getSimpleName()
+								+ " must be present in a name value set. Actual: "
+								+ val);
+					}
+				}
+				return leftNames;
+			}
 		};
+	}
+
+	private static class NameSetFilter implements INameFilter
+	{
+		private Set<ILexNameToken> names;
+
+		public NameSetFilter(Set<ILexNameToken> names)
+		{
+			this.names = names;
+		}
+
+		@Override
+		public boolean accept(ILexNameToken name)
+		{
+			if (names != null)
+			{
+				for (ILexNameToken n : names)
+				{
+					if (HackLexNameToken.isEqual(n, name))
+					{
+						return true;
+					}
+				}
+			}
+			return false;
+		}
 	}
 
 	protected SetValue eval(PVarsetExpression chansetExpression,

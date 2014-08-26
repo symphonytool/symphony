@@ -40,7 +40,6 @@ import eu.compassresearch.ast.CmlAstFactory;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismReplicatedAction;
 import eu.compassresearch.ast.actions.AChannelRenamingAction;
-import eu.compassresearch.ast.actions.ACommonInterleavingReplicatedAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.ADivAction;
 import eu.compassresearch.ast.actions.AEndDeadlineAction;
@@ -686,35 +685,6 @@ public class CmlActionTypeChecker extends
 	}
 
 	@Override
-	public PType caseACommonInterleavingReplicatedAction(
-			ACommonInterleavingReplicatedAction node, TypeCheckInfo question)
-			throws AnalysisException
-	{
-
-		PVarsetExpression namesetExp = node.getNamesetExpression();
-		PAction repAction = node.getReplicatedAction();
-		LinkedList<PSingleDeclaration> decls = node.getReplicationDeclaration();
-
-		namesetExp.apply(nameSetChecker, question);
-
-		List<PDefinition> defs = new Vector<PDefinition>();
-
-		for (PSingleDeclaration decl : decls)
-		{
-			PType declType = decl.apply(THIS, question);
-
-			for (PDefinition def : declType.getDefinitions())
-			{
-				defs.add(def);
-			}
-		}
-
-		PType repActionType = repAction.apply(THIS, question.newScope(defs));
-
-		return setType(question.assistantFactory, node, repActionType);
-	}
-
-	@Override
 	public PType caseAInterleavingReplicatedAction(
 			AInterleavingReplicatedAction node, TypeCheckInfo question)
 			throws AnalysisException
@@ -1055,7 +1025,7 @@ public class CmlActionTypeChecker extends
 
 		if (!node.getParametrisations().isEmpty())
 		{
-			info = question.newInfo(PParametrisationAssistant.updateEnvironment(question.env, node.getParametrisations()));
+			info = question.newInfo(PParametrisationAssistant.updateEnvironment(THIS, question.env, node.getParametrisations()));
 		}
 
 		PType actionType = node.getAction().apply(THIS, info);

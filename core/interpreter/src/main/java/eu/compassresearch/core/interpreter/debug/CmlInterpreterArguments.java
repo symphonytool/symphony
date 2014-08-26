@@ -3,9 +3,9 @@ package eu.compassresearch.core.interpreter.debug;
 public enum CmlInterpreterArguments
 {
 
-	CML_SOURCES_PATH("sources_path"),
+	SOURCES_PATH("sources_path"),
 
-	CML_EXEC_MODE("exec_mode"),
+	EXEC_MODE("exec_mode"),
 
 	PROCESS_NAME("process_name"),
 
@@ -19,7 +19,9 @@ public enum CmlInterpreterArguments
 
 	COSIM_EXTERNAL_PROCESSES("cosim_external"),
 
-	COSIM_HOST("cosim_host");
+	COSIM_HOST("cosim_host"),
+
+	RANDOM_SEED("random_seed");
 
 	final String PREFIX = "eu.compassresearch.ide.interpreter.";
 

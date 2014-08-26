@@ -3,6 +3,7 @@ package eu.compassresearch.core.interpreter;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
+import org.overture.interpreter.values.NameValuePairList;
 
 import eu.compassresearch.ast.actions.AStopAction;
 import eu.compassresearch.ast.process.AAlphabetisedParallelismProcess;
@@ -140,6 +141,7 @@ class ProcessSetupVisitor extends CommonSetupVisitor
 		return res.first.apply(ProcessSetupVisitor.this, res.second);
 	}
 
+
 	@Override
 	public Pair<INode, Context> caseAExternalChoiceReplicatedProcess(
 			final AExternalChoiceReplicatedProcess node, final Context question)
@@ -158,6 +160,13 @@ class ProcessSetupVisitor extends CommonSetupVisitor
 			INode createTerminator()
 			{
 				return new AStopAction(node.getLocation());
+			}
+			
+			@Override
+			Context createReplicationDelayedChildContext(
+					NameValuePairList npvl, INode node, Context outer)
+			{
+			return super.createReplicationChildContext(npvl, node, outer);
 			}
 
 		}, question);
@@ -179,9 +188,17 @@ class ProcessSetupVisitor extends CommonSetupVisitor
 			{
 				return new AGeneralisedParallelismProcess(node.getLocation(), node.getReplicatedProcess().clone(), node.getChansetExpression().clone(), node.clone());
 			}
+			
+			@Override
+			Context createReplicationDelayedChildContext(
+					NameValuePairList npvl, INode node, Context outer)
+			{
+			return super.createReplicationChildContext(npvl, node, outer);
+			}
 
 		}, question);
 	}
+
 
 	@Override
 	public Pair<INode, Context> caseAInterleavingReplicatedProcess(
@@ -196,6 +213,13 @@ class ProcessSetupVisitor extends CommonSetupVisitor
 			public INode createNextReplication()
 			{
 				return new AInterleavingProcess(node.getLocation(), node.getReplicatedProcess().clone(), node.clone());
+			}
+			
+			@Override
+			Context createReplicationDelayedChildContext(
+					NameValuePairList npvl, INode node, Context outer)
+			{
+			return super.createReplicationChildContext(npvl, node, outer);
 			}
 
 		}, question);

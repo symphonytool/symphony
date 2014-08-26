@@ -423,6 +423,22 @@ public class RttMbtPopupMenuAction extends AbstractHandler  {
 		return objectContainer.compareTo(RttTestProc) == 0;
 	}
 
+	public Boolean hasTProcGenCtx() {
+		if (selectedObjectFilesystemPath == null) {
+			return false;
+		}
+		String RttTestProc = client.getRttMbtTestProcFolderName();
+		String TProcGenCtx = client.getRttMbtTProcGenCtxFolderName();
+		int idx = selectedObjectFilesystemPath.lastIndexOf(RttTestProc);
+		if (idx < 1) { return false; }
+		if ((selectedObjectFilesystemPath.substring(idx - 1, idx).compareTo("/") != 0) &&
+			(selectedObjectFilesystemPath.substring(idx - 1, idx).compareTo(File.separator) != 0)) { return false; }
+		String path = selectedObjectFilesystemPath.substring(0, idx) + TProcGenCtx + selectedObjectFilesystemPath.substring(idx + RttTestProc.length());
+		System.out.println("genCtx: '" + path + "'");
+		File genCtx = new File(path);
+		return (genCtx.isDirectory());
+	}
+
 	public void getRttTestProcPathFromTProcGenCtxPath() {
 		if (selectedObjectWorkspacePath == null) {
 			return;
@@ -460,4 +476,5 @@ public class RttMbtPopupMenuAction extends AbstractHandler  {
 		TProcGenCtx = client.getRttMbtTProcGenCtxFolderName();
 		selectedObjectFilesystemPath = path + TProcGenCtx + File.separator + selectedObjectName;
 	}
+	
 }

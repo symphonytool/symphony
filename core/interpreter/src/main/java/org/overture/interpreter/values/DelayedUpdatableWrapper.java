@@ -86,8 +86,9 @@ public class DelayedUpdatableWrapper extends UpdatableValue
 			listeners.changedValue(location, value, ctxt);
 		}
 
-		System.err.println("Setting value(" + toShortString(10) + ") to "
-				+ newval);
+                /* Useful for debugging, but we don't want to ship with this on. */
+		// System.err.println("Setting value(" + toShortString(10) + ") to "
+		// 		+ newval);
 	}
 
 	/**

@@ -51,7 +51,8 @@ public class IntroduceCommand {
 	public boolean equals(Object obj) {
 		boolean result = false;
 		if(obj instanceof IntroduceCommand){
-			result = realType.getClass().equals(((IntroduceCommand) obj).getRealType().getClass());
+			//result = realType.getClass().equals(((IntroduceCommand) obj).getRealType().getClass());
+			result = realType.equals(((IntroduceCommand) obj).getRealType());
 		}
 		return result;
 	}

@@ -45,21 +45,33 @@ public class MCProcessCall extends MCGenericCall{
 			result.append(argsType.toFormula(option));
 			result.append(")");
 		}else{
-			StringBuilder assignments = buildAssignments(parameters,args,context, option);
-			result.append("seqC(");
-			result.append(assignments.toString());
-			result.append(",proc(\"" + this.name + "\"");
+			//StringBuilder assignments = buildAssignments(parameters,args,context, option);
+			//result.append("seqC(");
+			//result.append(assignments.toString());
+			//result.append(",proc(\"" + this.name + "\"");
+			result.append("proc(\"" + this.name + "\"");
 			result.append(",");
 			ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
 			MCPCMLType argsType = null;
 			if (option.equals(MCNode.DEFAULT)){
-				argsType = evaluator.instantiateMCType(this.args);
+				//if the argument is a number then it calls using the argument
+				if(this.args.size() > 0){
+					MCPCMLExp arg = this.args.getFirst();
+					if(arg instanceof MCAVariableExp){
+						argsType = evaluator.instantiateMCTypeFromParams(parameters);
+					}else{
+						argsType = evaluator.instantiateMCType(this.args);
+					}
+				}else{
+					argsType = evaluator.instantiateMCTypeFromParams(parameters);
+				}
+				//argsType = evaluator.instantiateMCTypeFromPatterns(this.paramPatterns);
 			} else if(option.equals(MCNode.NAMED) || option.equals(MCNode.GENERIC)){
 				argsType = evaluator.instantiateMCTypeFromPatterns(this.paramPatterns);
 			}
 			result.append(argsType.toFormula(option));
 			result.append(")");
-			result.append(")");
+			//result.append(")");
 		} 
 		/*
 		result.append("proc(\"" + this.name + "\"");
@@ -139,6 +151,16 @@ public class MCProcessCall extends MCGenericCall{
 
 	public void setArgs(LinkedList<MCPCMLExp> args) {
 		this.args = args;
+	}
+
+
+	public LinkedList<MCPCMLPattern> getParamPatterns() {
+		return paramPatterns;
+	}
+
+
+	public void setParamPatterns(LinkedList<MCPCMLPattern> paramPatterns) {
+		this.paramPatterns = paramPatterns;
 	}
 
 	

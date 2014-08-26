@@ -44,6 +44,7 @@ public class TypeCheckerUtil
 
 	/**
 	 * Creates the action type. This method is based on the simple block used in VDM operations
+	 * @param af 
 	 * 
 	 * @param node
 	 * @param types
@@ -62,7 +63,6 @@ public class TypeCheckerUtil
 	 * Creates the action type. This method is based on the simple block used in VDM operations
 	 * 
 	 * @param node
-	 * @param types
 	 * @return
 	 */
 	public static PType setTypeVoid(PAction node)
@@ -77,7 +77,6 @@ public class TypeCheckerUtil
 	 * Creates the action type. This method is based on the simple block used in VDM operations
 	 * 
 	 * @param node
-	 * @param types
 	 * @return
 	 */
 	public static PType getVoidType(PProcess node)
@@ -87,6 +86,7 @@ public class TypeCheckerUtil
 
 	/**
 	 * Creates the action type. This method is based on the simple block used in VDM operations
+	 * @param af 
 	 * 
 	 * @param node
 	 * @param types
@@ -102,6 +102,7 @@ public class TypeCheckerUtil
 
 	/**
 	 * Creates the definition type. This method is based on the simple block used in VDM operations
+	 * @param af 
 	 * 
 	 * @param node
 	 * @param types
@@ -116,6 +117,7 @@ public class TypeCheckerUtil
 
 	/**
 	 * Creates the PVarsetExpression type. This method is based on the simple block used in VDM operations
+	 * @param af 
 	 * 
 	 * @param node
 	 * @param types
@@ -131,6 +133,7 @@ public class TypeCheckerUtil
 
 	/**
 	 * Creates the definition type. This method is based on the simple block used in VDM operations
+	 * @param af 
 	 * 
 	 * @param node
 	 * @param types
@@ -147,8 +150,9 @@ public class TypeCheckerUtil
 
 	/**
 	 * Creates a untion type of the given types
+	 * @param af 
+	 * @param location 
 	 * 
-	 * @param node
 	 * @param types
 	 * @return
 	 */
@@ -160,8 +164,9 @@ public class TypeCheckerUtil
 
 	/**
 	 * Creates a untion type of the given types
+	 * @param af 
+	 * @param location 
 	 * 
-	 * @param node
 	 * @param types
 	 * @return
 	 */

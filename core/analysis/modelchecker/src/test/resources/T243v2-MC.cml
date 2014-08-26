@@ -1,0 +1,137 @@
+-- Keeping renderers in sync in an AV network
+-- Inspired by "Clunker" model by Bill Roscoe.
+
+/*-- restricted for model-checker
+With version 3.2 Symphony.
+
+there are 9 unsupported elements
+
+elseif    -- if then if then
+for index  -- -- make counts two sep vars
+inds (x3)  -- make counts two sep vars
+len        -- make counts two sep vars
+return (x2)  -- change getmin and getcounts into functions
+seq        -- make counts two sep vars 
+*/
+
+
+
+-- Zoe Andrews and Jeremy Bryans
+
+types
+channels
+ a : nat
+ c : nat --* nat -- counter channel
+chansets
+
+-- include dsicussion of fdr version
+
+ AllButC = {|a|}
+  
+-- inspired by Clunker
+ 
+-- Counter(id) counts the number of a.id events that have taken place.
+process Counter = id : nat @ 
+begin
+ state
+ counter : nat := 0
+ 
+ operations
+ incCount:()==>()
+ incCount() ==
+   (counter := counter + 1)
+   
+ actions
+-- Counting = (c.id.(count) -> a.id -> incCount();Counting) 
+ Counting = (a!id -> incCount(); c!counter -> Counting) 
+ @ Counting
+ end 
+
+-- An auxiliary process to test Counter
+process TestCounter = Counter(1)
+
+
+-- P is a basic playing process, that plays the frames a.id with no timing constraints
+process P = id : nat @ 
+begin
+  actions
+  Play = a.id -> Play
+       
+  @ Play
+ end 
+
+-- An auxiliary process to test P
+process TestP = P(1)
+
+ 
+-- Renderer represents the final renderers in the AV system, and is a combination of basic playing and counting
+process Renderer = id : nat @ P(id) [|{|a|}|] Counter(id) 
+
+-- We have two Renderers in our system
+process Renderers = Renderer(1)  ||| Renderer(2) 
+ 
+
+/*
+channels
+ debug : nat * nat * nat
+ 
+maxx : nat 
+minn : nat 
+countss : seq of nat
+maxProcc : set of nat
+out : bool 
+
+
+-- process Limiter adapted to cope with only two processes: for model checking
+ 
+process Limiter = 
+begin
+ state
+ count1 : nat := 0
+ count2 : nat := 0
+ lim : nat := 2 -- could come as parameter
+ maxProc : set of nat := {1,2} -- may not need maxProc..
+ max : nat := 0  -- or min or max
+ min : nat := 0  
+
+ actions
+ 
+ Limit = [count1-count2=2] & (count2:=count2+1);c.2!count2 -> Limit    -- changed order of update and channel c communication
+         []
+         [count2-count1=2] & (count1:=count1+1);c.1!count1 -> Limit    -- changed order of update and channel c communication
+         []
+         [-2 < (count2-count1) and (count2-count1) <2] & 
+           (
+             c.1!(count1+1) -> (count1:=count1+1);Limit   
+             []
+             c.2!(count2+1) -> (count2:=count2+1);Limit 
+           )
+
+  @ Limit
+ end 
+
+
+-- Limited is the two limited renderers.
+
+process Limited = Renderers [|{|c|}|] Limiter
+
+ process SpecificationForTwoProcs =  
+ begin
+ state 
+  count1 : nat := 0
+  count2 : nat := 0
+    
+  actions 
+  
+  Spec = [count1-count2=2] & (count2:=count2+1);c!2!count2 -> Spec
+         []
+         [count2-count1=2] & (count1:=count1+1);c!1!count1 -> Spec
+         
+    @ Spec
+  end 
+  
+-- hypothesis : process DF is deadlock-free
+process DF =  SpecificationForTwoProcs  [|{|c|}|] Limited 
+ 
+ */
+ 

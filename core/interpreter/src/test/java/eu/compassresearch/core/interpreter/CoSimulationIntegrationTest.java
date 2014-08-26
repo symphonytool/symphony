@@ -23,7 +23,15 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 		{
 			this.process = process;
 			this.finishWatch = finishWatch;
+
 		}
+	}
+
+	final Thread self;
+
+	public CoSimulationIntegrationTest()
+	{
+		this.self = Thread.currentThread();
 	}
 
 	public ProcessInfo setUpCoordinator(String file, String mainProcess,
@@ -61,7 +69,15 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 		final int RETRY_WAIT = 200;
 		while (!listningWatch.isMatched())
 		{
-			if (time * 1000 == DEFAULT_TIMEOUT)
+			int exit = 0;
+			try{
+				process.exitValue();
+				exit =-1;
+			}catch(IllegalThreadStateException e)
+			{
+				
+			}
+			if (time * 1000 >= DEFAULT_TIMEOUT || exit ==-1)
 			{
 				throw new TimeoutException("Server never started to listen for clients");
 			}
@@ -108,6 +124,8 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 
 		private final String matchString;
 
+		private IMatchHandler handler;
+
 		public ConsoleWatcher(String name, String matchString)
 		{
 			this.name = name;
@@ -117,7 +135,7 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 		@Override
 		public String toString()
 		{
-			return "Console watcher for: " + name+" is matched: "+matched;
+			return "Console watcher for: " + name + " is matched: " + matched;
 		}
 
 		/*
@@ -130,6 +148,10 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 			if (line.contains(matchString))
 			{
 				matched = true;
+				if (handler != null)
+				{
+					handler.matched(this);
+				}
 			}
 		}
 
@@ -143,11 +165,26 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 			return matched;
 		}
 
+		@Override
+		public void setMatchHandler(IMatchHandler handler)
+		{
+			this.handler = handler;
+		}
+
+	}
+	
+	public void printTitle(String title)
+	{
+		System.out.println("-----------------------------------------------------");
+		System.out.println("| "+title);
+		System.out.println("-----------------------------------------------------");
+		System.out.flush();;
 	}
 
 	@Test
 	public void testMain() throws Exception
 	{
+		printTitle("testMain");
 		String source = "src/test/resources/cosim/main.cml";
 		ProcessInfo coordinator = setUpCoordinator(source, "P", "B");
 		ProcessInfo client = setUpClient(source, "B");
@@ -161,6 +198,7 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 	@Test
 	public void testSkip() throws Exception
 	{
+		printTitle("testSkip");
 		String source = "src/test/resources/cosim/skip.cml";
 		ProcessInfo coordinator = setUpCoordinator(source, "P", "A");
 		ProcessInfo client = setUpClient(source, "A");
@@ -174,6 +212,7 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 	@Test
 	public void testSkipDual() throws Exception
 	{
+		printTitle("testSkipDual");
 		String source = "src/test/resources/cosim/skip.cml";
 		ProcessInfo coordinator = setUpCoordinator(source, "P", "A,B");
 		ProcessInfo client = setUpClient(source, "A");
@@ -188,6 +227,7 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 	@Test
 	public void testMainTwoClients() throws Exception
 	{
+		printTitle("testMainTwoClients");
 		String source = "src/test/resources/cosim/main.cml";
 		ProcessInfo coordinator = setUpCoordinator(source, "P", "B,A");
 		ProcessInfo client = setUpClient(source, "B");
@@ -202,6 +242,7 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 	@Test
 	public void testMainDeadlocked() throws Exception
 	{
+		printTitle("testMainDeadlocked");
 		String source = "src/test/resources/cosim/main-deadlocked.cml";
 		final ConsoleWatcher deadlockedWatch = new ConsoleWatcher("Main", SIMULATOR_STATUS_EVENT_DEADLOCKED);
 		ProcessInfo coordinator = setUpCoordinator(source, "P", "B", deadlockedWatch);
@@ -216,6 +257,7 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 	@Test
 	public void testRW() throws Exception
 	{
+		printTitle("testRW");
 		String source = "src/test/resources/cosim/RW.cml";
 		ProcessInfo coordinator = setUpCoordinator(source, "Main", "Reader");
 		ProcessInfo client = setUpClient(source, "Reader");
@@ -229,16 +271,17 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 	@Test
 	public void testSyncOnString() throws Exception
 	{
+		printTitle("testSyncOnString");
 		String source = "src/test/resources/cosim/SyncOnString.cml";
 		final ConsoleWatcher deadlockedWatch = new ConsoleWatcher("Main", SIMULATOR_STATUS_EVENT_DEADLOCKED);
-		ProcessInfo coordinator = setUpCoordinator(source, "Main", "Reader",deadlockedWatch);
+		ProcessInfo coordinator = setUpCoordinator(source, "Main", "Reader", deadlockedWatch);
 		ProcessInfo client = setUpClient(source, "Reader");
 
 		waitForCompletion(coordinator.process, DEFAULT_TIMEOUT);
 		waitForCompletion(client.process, DEFAULT_TIMEOUT);
 
-//		System.err.println(coordinator.finishWatch);
-//		System.err.println(deadlockedWatch);
+		// System.err.println(coordinator.finishWatch);
+		// System.err.println(deadlockedWatch);
 		Assert.assertTrue("Simulators did not finish successfully", deadlockedWatch.matched);
 
 	}
@@ -246,6 +289,7 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 	@Test
 	public void testSyncOnRecord() throws Exception
 	{
+		printTitle("testSyncOnRecord");
 		String source = "src/test/resources/cosim/SyncOnRecord.cml";
 		ProcessInfo coordinator = setUpCoordinator(source, "Main", "Writer");
 		ProcessInfo client = setUpClient(source, "Writer");
@@ -259,12 +303,26 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 	@Test
 	public void testExternalAbort() throws Exception
 	{
+		printTitle("testExternalAbort");
 		String source = "src/test/resources/cosim/externalAbort.cml";
 
-		ConsoleWatcher watch = new ConsoleWatcher("coordinator", "The external co-simulation process A aborted with error: 999 execution error");
+		ConsoleWatcher watch = new ConsoleWatcher("coordinator", "A aborted with error:999 execution error");
 
-		ProcessInfo coordinator = setUpCoordinator(source, "P", "A", watch);
+		final ProcessInfo coordinator = setUpCoordinator(source, "P", "A", watch);
+
 		setUpExternalClient(SubSystem.class, "A", new String[] { port.toString() });
+
+		watch.setMatchHandler(new IMatchHandler()
+		{
+
+			@Override
+			public void matched(IConsoleWatcher watch)
+			{
+				System.out.println("Match handler killing");
+				killAllProcesses();
+				self.interrupt();
+			}
+		});
 
 		waitForCompletion(coordinator.process, DEFAULT_TIMEOUT);
 
@@ -275,6 +333,7 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 	@Test
 	public void testTypesQuotes() throws Exception
 	{
+		printTitle("testTypesQuotes");
 		String source = "src/test/resources/cosim/TypeTestingSoS.cml";
 		ProcessInfo coordinator = setUpCoordinator(source, "NodeSoS", "NodeReaderCS");
 		ProcessInfo client = setUpClient(source, "NodeReaderCS");
@@ -288,6 +347,7 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 	@Test
 	public void testTypesBool() throws Exception
 	{
+		printTitle("testTypesBool");
 		String source = "src/test/resources/cosim/TypeTestingSoS.cml";
 		ProcessInfo coordinator = setUpCoordinator(source, "BoolSoS", "BoolReaderCS");
 		ProcessInfo client = setUpClient(source, "BoolReaderCS");

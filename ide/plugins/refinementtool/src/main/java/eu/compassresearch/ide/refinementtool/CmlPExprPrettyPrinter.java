@@ -8,6 +8,10 @@ import org.overture.ast.node.INode;
 import org.overture.ast.patterns.PMultipleBind;
 
 import eu.compassresearch.ast.analysis.AnswerCMLAdaptor;
+import eu.compassresearch.ast.definitions.AChansetDefinition;
+import eu.compassresearch.ast.definitions.ANamesetDefinition;
+import eu.compassresearch.ast.expressions.ABracketedExp;
+import eu.compassresearch.ast.expressions.PVarsetExpression;
 
 public class CmlPExprPrettyPrinter extends AnswerCMLAdaptor<String> {
 	
@@ -21,6 +25,12 @@ public class CmlPExprPrettyPrinter extends AnswerCMLAdaptor<String> {
 	public String createNewReturnValue(Object arg0) throws AnalysisException {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	@Override
+	public String caseABracketedExp(ABracketedExp node)
+			throws AnalysisException {
+		return "(" + node.getExpression().apply(this) + ")";
 	}
 
 	private String unaryApply(String op, SUnaryExp expr)
@@ -619,6 +629,12 @@ public class CmlPExprPrettyPrinter extends AnswerCMLAdaptor<String> {
 			throws AnalysisException {
 		return "+ " + node.getExp().apply(this);
 	}
+	
+	@Override
+	public String caseAPlusNumericBinaryExp(APlusNumericBinaryExp node) throws AnalysisException {
+		// TODO Auto-generated method stub
+		return binaryApply("+", node);
+	}
 
 	@Override
 	public String caseAUndefinedExp(AUndefinedExp node)
@@ -630,7 +646,4 @@ public class CmlPExprPrettyPrinter extends AnswerCMLAdaptor<String> {
 	public String caseAVariableExp(AVariableExp node) throws AnalysisException {
 		return node.toString();
 	}
-
-	
-	
 }

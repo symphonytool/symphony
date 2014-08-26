@@ -15,7 +15,8 @@ import org.overture.ast.analysis.AnalysisException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.compassresearch.core.interpreter.CoSimCmlInterpreter;
+import eu.compassresearch.core.interpreter.CoSimClientInterpreter;
+import eu.compassresearch.core.interpreter.ICoSimClientInterpreter;
 import eu.compassresearch.core.interpreter.api.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
@@ -30,6 +31,7 @@ import eu.compassresearch.core.interpreter.cosim.communication.FinishedRequestMe
 import eu.compassresearch.core.interpreter.cosim.communication.InspectMessage;
 import eu.compassresearch.core.interpreter.cosim.communication.InspectReplyMessage;
 import eu.compassresearch.core.interpreter.cosim.communication.RegisterSubSystemMessage;
+import eu.compassresearch.core.interpreter.cosim.communication.protocol.CoSimProtocolFactory;
 import eu.compassresearch.core.interpreter.debug.messaging.JsonMessage;
 
 /**
@@ -58,7 +60,7 @@ public class CoSimulationClient extends Thread
 
 	CmlTransitionSet transitions = null;
 
-	private CoSimCmlInterpreter interpreter;
+	private ICoSimClientInterpreter interpreter;
 
 	private String host;
 
@@ -74,7 +76,8 @@ public class CoSimulationClient extends Thread
 		InetAddress server = InetAddress.getByName(host);
 		socket = new Socket(server, port);
 		socket.setSoTimeout(0);
-		comm = new MessageManager(socket);
+		CoSimProtocolFactory protocolFactory = new CoSimProtocolFactory();
+		comm = new MessageManager(socket, protocolFactory.getInstance(protocolFactory.DEFAULT_VERSION));
 	}
 
 	@Override
@@ -96,7 +99,7 @@ public class CoSimulationClient extends Thread
 		{
 			// Caused by die(), and CDMJ death
 			e.printStackTrace();
-		} catch (IOException e)
+		} catch (Exception e)
 		{
 			logger.debug("Connection exception", e);
 
@@ -121,7 +124,7 @@ public class CoSimulationClient extends Thread
 		}
 	}
 
-	private void receive() throws SocketException, IOException
+	private void receive() throws Exception
 	{
 		JsonMessage message = comm.receive();
 
@@ -137,18 +140,15 @@ public class CoSimulationClient extends Thread
 				throw new InterpreterRuntimeException("Interpreter inspection failed in co-simulation client", e);
 			}
 
-			// for (ObservableTransition t : transitions.getObservableChannelEvents())
-			// {
-			// System.out.println("Offering event: " + t.getTransitionId());
-			// }
 			comm.send(new InspectReplyMessage(inspectMessage.getProcess(), transitions));
 		} else if (message instanceof ExecuteMessage)
 		{
 			ExecuteMessage executeMessage = (ExecuteMessage) message;
-			availableTransitions.add(remapTransitionIds((ObservableTransition) executeMessage.getTransition()));
+			availableTransitions.put(remapTransitionIds((ObservableTransition) executeMessage.getTransition()));
 			comm.send(new ExecuteCompletedMessage());
 		} else if (message instanceof FinishedRequestMessage)
 		{
+			System.out.println("Internal interpreter status is: "+interpreter.getState());
 			FinishedRequestMessage finishedRequest = (FinishedRequestMessage) message;
 			comm.send(new FinishedReplyMessage(finishedRequest.getProcess(), interpreter.getState() == CmlInterpreterState.FINISHED
 					|| interpreter.getState() == CmlInterpreterState.TERMINATED_BY_USER));
@@ -179,7 +179,7 @@ public class CoSimulationClient extends Thread
 		try
 		{
 			comm.send(new RegisterSubSystemMessage(Arrays.asList(processes)));
-		} catch (IOException e)
+		} catch (Exception e)
 		{
 			throw new InterpreterRuntimeException("The co-simulation client failed to send the provides implementation message", e);
 		}
@@ -225,7 +225,7 @@ public class CoSimulationClient extends Thread
 		return null;
 	}
 
-	public void setInterpreter(CoSimCmlInterpreter interpreter)
+	public void setInterpreter(CoSimClientInterpreter interpreter)
 	{
 		this.interpreter = interpreter;
 	}

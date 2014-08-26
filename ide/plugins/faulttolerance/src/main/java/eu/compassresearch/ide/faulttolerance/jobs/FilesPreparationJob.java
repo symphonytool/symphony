@@ -51,7 +51,7 @@ import eu.compassresearch.ide.faulttolerance.Message;
  *         >alrd@cin.ufpe.br</a>)
  * 
  */
-public class FilesPreparationJob extends FaultToleranceVerificationJobBase {
+public class FilesPreparationJob extends FaultToleranceVerificationPrerequisitesJobBase {
 
 	private IFile baseCmlFile;
 	private IFile faultToleranceCmlFile;

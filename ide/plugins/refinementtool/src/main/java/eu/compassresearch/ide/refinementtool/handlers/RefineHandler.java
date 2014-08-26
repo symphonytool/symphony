@@ -22,23 +22,30 @@ import org.overture.ast.node.INode;
 
 import eu.compassresearch.ast.actions.AStmAction;
 import eu.compassresearch.ast.statements.AActionStm;
+import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligationList;
 import eu.compassresearch.ide.core.resources.ICmlProject;
 import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
+import eu.compassresearch.ide.refinementtool.CmlRefinePlugin;
 import eu.compassresearch.ide.refinementtool.INodeNearCaret;
 import eu.compassresearch.ide.refinementtool.IRefineLaw;
 import eu.compassresearch.ide.refinementtool.RefConstants;
 import eu.compassresearch.ide.refinementtool.laws.ChoiceStopLeft;
 import eu.compassresearch.ide.refinementtool.laws.ChoiceStopRight;
-import eu.compassresearch.ide.refinementtool.laws.DummyRefineLaw;
+import eu.compassresearch.ide.refinementtool.laws.CopyRuleLR;
+import eu.compassresearch.ide.refinementtool.laws.CopyRuleRL;
 import eu.compassresearch.ide.refinementtool.laws.ImplicitOperationRefineLaw;
 import eu.compassresearch.ide.refinementtool.laws.LetIntroRefineLaw;
 import eu.compassresearch.ide.refinementtool.laws.LetPreRefineLaw;
+import eu.compassresearch.ide.refinementtool.laws.MaudeRefineLaw;
 import eu.compassresearch.ide.refinementtool.laws.NullRefineLaw;
 import eu.compassresearch.ide.refinementtool.laws.SpecIterRefineLaw;
 import eu.compassresearch.ide.refinementtool.laws.SpecPostRefineLaw;
 import eu.compassresearch.ide.refinementtool.laws.SpecPreRefineLaw;
 import eu.compassresearch.ide.refinementtool.laws.SpecSeqRefineLaw;
 import eu.compassresearch.ide.refinementtool.laws.SpecSkipRefineLaw;
+import eu.compassresearch.ide.refinementtool.maude.MaudePrettyPrinter;
+import eu.compassresearch.ide.refinementtool.maude.MaudeRefineInfo;
+import eu.compassresearch.ide.refinementtool.maude.MaudeRefiner;
 import eu.compassresearch.ide.refinementtool.view.RefineLawView;
 import eu.compassresearch.ide.ui.editor.core.CmlEditor;
 
@@ -69,6 +76,25 @@ public class RefineHandler extends AbstractHandler {
 		return (IResource) adapter;
 	}
 	
+	public INode leastCommonAncestor(INode a, INode b) {
+		if (ancestorOf(a, b)) {
+			return a;
+		} else if (ancestorOf(b, a)) {
+			return b;
+		} else {
+			return leastCommonAncestor(a, b.parent());
+		}
+	}
+	
+	public boolean ancestorOf(INode a, INode b) {
+		if (b.parent() == null) {
+			return false;
+		} else if (a == b) {
+			return true;
+		} else return ancestorOf(a, b.parent());
+	}
+	
+	
 	/**
 	 * the command has been executed, so extract extract the needed information
 	 * from the application context.
@@ -91,12 +117,23 @@ public class RefineHandler extends AbstractHandler {
 		ICmlProject cmlProj = (ICmlProject) project
 				.getAdapter(ICmlProject.class);
 
-		List<IRefineLaw> laws = cmlProj.getModel().getAttribute(RefConstants.REF_LAWS_ID, List.class);
+		MaudeRefiner mref = cmlProj.getModel().getAttribute(RefConstants.REF_MAUDE, MaudeRefiner.class);
+		List<IRefineLaw> laws = cmlProj.getModel().getAttribute(RefConstants.REF_LAWS_ID, List.class);		
+		CmlProofObligationList pol = cmlProj.getModel().getAttribute(RefConstants.RPOL_ID, CmlProofObligationList.class);
+		
+		if (mref == null) {
+			String maudeLoc = CmlRefinePlugin.getDefault().getPreferenceStore().getString(RefConstants.MAUDE_LOC);
+			String maudeThy = CmlRefinePlugin.getDefault().getPreferenceStore().getString(RefConstants.MAUDE_THY);
+			
+			if (maudeLoc != "" && maudeThy != "") {
+				mref = new MaudeRefiner(maudeLoc, maudeThy);
+				cmlProj.getModel().setAttribute(RefConstants.REF_MAUDE, mref);
+			}
+		}
 		
 		if (laws == null) {
 			laws = new LinkedList<IRefineLaw>();
-			
-			laws.add(new DummyRefineLaw());			
+					
 			laws.add(new NullRefineLaw());
 			laws.add(new ChoiceStopLeft());
 			laws.add(new ChoiceStopRight());
@@ -108,13 +145,21 @@ public class RefineHandler extends AbstractHandler {
 			laws.add(new SpecPostRefineLaw());
 			laws.add(new LetIntroRefineLaw());
 			laws.add(new LetPreRefineLaw());
+			laws.add(new CopyRuleLR());
+			laws.add(new CopyRuleRL());
 			
 			cmlProj.getModel().setAttribute(RefConstants.REF_LAWS_ID, laws);  
 		}
-						
+	
+		if (pol == null) {
+			pol = new CmlProofObligationList();
+			cmlProj.getModel().setAttribute(RefConstants.RPOL_ID, pol);
+		}
+		
 		ITextSelection selection = (ITextSelection) editor.getSelectionProvider().getSelection();
 		
 		INode node = null;
+		INode node2 = null;
 
 		FileEditorInput fei = (FileEditorInput) editor.getEditorInput();
 		
@@ -127,15 +172,20 @@ public class RefineHandler extends AbstractHandler {
 		List<PDefinition> ast = csu.getParseListDefinitions();
 
 		INodeNearCaret visitor = new INodeNearCaret(selection.getOffset(), ast.get(0));
-
+		INodeNearCaret visitor2 = new INodeNearCaret(selection.getOffset()+selection.getLength()+1, ast.get(0));
 		try
 		{
 			for (PDefinition def : ast)
 			{
 				def.apply(visitor);
+				def.apply(visitor2);
 			}
 			// ast.apply(visitor);
 			node = visitor.getBestCandidate();
+			node2 = visitor2.getBestCandidate();
+			
+			node = leastCommonAncestor(node,node2);
+			
 		} catch (AnalysisException e)
 		{
 			// TODO Auto-generated catch block
@@ -149,7 +199,7 @@ public class RefineHandler extends AbstractHandler {
 		RefineLawView rv = null;
 		
 		try {
-			rv = (RefineLawView) window.getActivePage().showView(RefConstants.REF_LAW_VIEW);
+			rv  = (RefineLawView) window.getActivePage().showView(RefConstants.REF_LAW_VIEW);
 		} catch (PartInitException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -158,6 +208,21 @@ public class RefineHandler extends AbstractHandler {
 		rv.clearLaws();
 		rv.setSelection(selection);
 		rv.setNode(node);
+		
+		// If Maude is available, search for appropriate laws
+		if (mref != null) {
+		
+			MaudePrettyPrinter mpp = new MaudePrettyPrinter();
+		
+			try {
+				for (MaudeRefineInfo l : mref.findApplLaws(node.apply(mpp, 0))) {
+					rv.addRefineLaw(new MaudeRefineLaw(l, mref));
+				}
+			} catch (AnalysisException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 		
 		for (IRefineLaw l : laws) {
 			while (node instanceof AActionStm || node instanceof AStmAction) {

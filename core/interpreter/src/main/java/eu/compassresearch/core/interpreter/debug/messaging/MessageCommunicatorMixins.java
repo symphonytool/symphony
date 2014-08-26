@@ -35,9 +35,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fasterxml.jackson.databind.Module.SetupContext;
 
+import eu.compassresearch.ast.definitions.AActionClassDefinition;
 import eu.compassresearch.ast.lex.CmlLexNameToken;
 import eu.compassresearch.ast.types.AChannelType;
+import eu.compassresearch.core.interpreter.api.CmlBehaviour;
+import eu.compassresearch.core.interpreter.api.events.ChannelEvent;
+import eu.compassresearch.core.interpreter.api.events.ChannelObserver;
+import eu.compassresearch.core.interpreter.api.events.EventSourceHandler;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
+import eu.compassresearch.core.interpreter.api.transitions.TauTransition;
 import eu.compassresearch.core.interpreter.api.values.ChannelValue;
 import eu.compassresearch.core.interpreter.api.values.CmlChannel;
 import eu.compassresearch.core.interpreter.api.values.LatticeTopValue;
@@ -74,7 +80,7 @@ public class MessageCommunicatorMixins
 		// @JsonIgnore
 		// ILexLocation location;
 	}
-	
+
 	static abstract class LexQuoteTokenMixIn
 	{
 		LexQuoteTokenMixIn(@JsonProperty("value") String value,
@@ -211,18 +217,21 @@ public class MessageCommunicatorMixins
 
 	}
 
-	static abstract class CMLChannelValueMixIn
+	static abstract class CmlChannelMixIn
 	{
-		CMLChannelValueMixIn(
-				@JsonProperty("channelType") AChannelType channelType,
+
+		@JsonIgnore
+		EventSourceHandler<ChannelObserver, ChannelEvent> selectObservers;
+
+		CmlChannelMixIn(@JsonProperty("channelType") AChannelType channelType,
 				@JsonProperty("name") ILexNameToken name)
 		{
 		}
 	}
 
-	static abstract class ChannelNameValueMixIn
+	static abstract class ChannelValueMixIn
 	{
-		ChannelNameValueMixIn(@JsonProperty("channel") CmlChannel channel,
+		ChannelValueMixIn(@JsonProperty("channel") CmlChannel channel,
 				@JsonProperty("values") List<Value> values,
 				@JsonProperty("constraints") List<ValueConstraint> constraints)
 		{
@@ -236,6 +245,16 @@ public class MessageCommunicatorMixins
 		}
 	}
 
+	static abstract class TauTransitionMixIn
+	{
+		TauTransitionMixIn(
+				@JsonProperty("eventSource") CmlBehaviour eventSource,
+				@JsonProperty("destinationNode") INode destinationNode,
+				@JsonProperty("transitionMessage") String transitionMessage)
+		{
+		}
+	}
+
 	private static Map<Class<?>, String[]> ignore = new HashMap<Class<?>, String[]>();
 
 	static
@@ -244,8 +263,10 @@ public class MessageCommunicatorMixins
 		ignore.put(ATypeDefinition.class, new String[] { "_classDefinition",
 				"_invdef" });
 		ignore.put(AClassClassDefinition.class, new String[] { "_definitions" });
-		ignore.put(ARecordInvariantType.class, new String[] { "_invDef",
-				"_fields" });
+		ignore.put(AActionClassDefinition.class, new String[] { "_definitions" });
+		ignore.put(ARecordInvariantType.class, new String[] { "_invDef"/*
+																		 * , "_fields"
+																		 */});
 		ignore.put(PType.class, new String[] { "_definitions", "_location",
 				"_resolved" });
 		ignore.put(CmlTransitionSet.class, new String[] { "silentEvents" });
@@ -280,11 +301,13 @@ public class MessageCommunicatorMixins
 		ctxt.setMixInAnnotations(CharacterValue.class, CharacterValueMixIn.class);
 		ctxt.setMixInAnnotations(RecordValue.class, RecordValueMixIn.class);
 		ctxt.setMixInAnnotations(FieldValue.class, FieldValueMixIn.class);
-		ctxt.setMixInAnnotations(CmlChannel.class, CMLChannelValueMixIn.class);
+		ctxt.setMixInAnnotations(CmlChannel.class, CmlChannelMixIn.class);
 		ctxt.setMixInAnnotations(LatticeTopValue.class, LatticeTopValueMixIn.class);
 		ctxt.setMixInAnnotations(MultiConstraint.class, MultiConstraintMixIn.class);
-		ctxt.setMixInAnnotations(ChannelValue.class, ChannelNameValueMixIn.class);
+		ctxt.setMixInAnnotations(ChannelValue.class, ChannelValueMixIn.class);
 		ctxt.setMixInAnnotations(IntegerValue.class, IntegerValueMixIn.class);
+
+		ctxt.setMixInAnnotations(TauTransition.class, TauTransitionMixIn.class);
 
 		ctxt.appendAnnotationIntrospector(new JsonIgnoreIntrospector(ignore));
 	}

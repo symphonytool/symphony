@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Vector;
 
 import org.overture.ast.definitions.PDefinition;
-import org.overture.ast.messages.InternalException;
 import org.overture.typechecker.TypeCheckException;
 
 import eu.compassresearch.core.parser.CmlParserError;

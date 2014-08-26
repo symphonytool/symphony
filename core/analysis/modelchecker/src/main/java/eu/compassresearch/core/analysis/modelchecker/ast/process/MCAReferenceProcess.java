@@ -3,15 +3,23 @@ package eu.compassresearch.core.analysis.modelchecker.ast.process;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAValParametrisation;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPParametrisation;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCActionCall;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCGenericCall;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCOperationCall;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCProcessCall;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.NameValue;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ParameterDependency;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ParameterFact;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAActionDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAExplicitCmlOperationDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCALocalDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAProcessDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCSCmlOperationDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAVariableExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 import eu.compassresearch.core.analysis.modelchecker.visitors.ArrayListSet;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
 
@@ -20,11 +28,13 @@ public class MCAReferenceProcess implements MCPProcess {
 	protected String name;
 	protected LinkedList<MCPCMLExp> args;
 	protected MCAProcessDefinition proc;
+	protected String parentDefinitionName;
 	
-	public MCAReferenceProcess(String name, LinkedList<MCPCMLExp> args, MCAProcessDefinition procDef) {
+	public MCAReferenceProcess(String name, LinkedList<MCPCMLExp> args, MCAProcessDefinition procDef, String parentDefinitionName) {
 		this.name = name;
 		this.args = args;
 		this.proc = procDef;
+		this.parentDefinitionName = parentDefinitionName;
 	}
 	
 	@Override
@@ -40,8 +50,13 @@ public class MCAReferenceProcess implements MCPProcess {
 			for (MCAActionDefinition localAction : localActions) {
 				if(localAction.getName().toString().equals(this.name.toString())){
 					callResolved = true;
-					call = new MCActionCall(name, args);
+					call = new MCActionCall(name, args,null);
 					result.append(call.toFormula(option));
+					if(args.size() == 1){ //there is one parameter being used
+						MCPCMLType parType = ((MCAValParametrisation)localAction.getDeclarations().getFirst()).getDeclaration().getType();
+						ParameterFact paramFact = new ParameterFact(this.name, args.getFirst(),parType);
+						context.parameterFacts.add(paramFact);
+					}
 					break;
 				}
 			}
@@ -53,6 +68,24 @@ public class MCAReferenceProcess implements MCPProcess {
 					callResolved = true;
 					call = new MCProcessCall(name, args, null);
 					result.append(call.toFormula(option));
+					if(args.size() == 1){ //there is one parameter being used
+						MCAProcessDefinition procDef = context.getProcessByName(name);
+						LinkedList<MCPParametrisation> parameters = procDef.getLocalState();
+						
+						MCALocalDefinition localDef = new MCALocalDefinition(parameters.getFirst().toFormula(option), null);
+						MCAValParametrisation param = new MCAValParametrisation(localDef);
+						ParameterDependency paramDep = new ParameterDependency(this.name,param,this.parentDefinitionName); 
+						ParameterFact paramFact = new ParameterFact(this.name, args.getFirst(),parameters.getFirst().getDeclaration().getType());
+						//if the argument is not a variable we use its value
+						if(!(this.args.getFirst() instanceof MCAVariableExp)){
+							NameValue nameValue = new NameValue(localDef.getName(), this.args.getFirst().toFormula(option), localDef.getType());
+							//localDef.setName(this.args.getFirst().toFormula(option));
+							context.localVariablesMapping.add(nameValue);
+						}else{ 
+							context.parameterDependencies.add(paramDep);
+						}
+						context.parameterFacts.add(paramFact);
+					}
 					break;
 				}
 			}
@@ -62,7 +95,7 @@ public class MCAReferenceProcess implements MCPProcess {
 				if(pDefinition instanceof MCAExplicitCmlOperationDefinition){
 					//((MCAExplicitCmlOperationDefinition) pDefinition).setParentAction(this);
 					if(((MCAExplicitCmlOperationDefinition) pDefinition).getName().toString().equals(this.name)){
-						call = new MCOperationCall(name, args, null);
+						call = new MCOperationCall(name, args, null,((MCAExplicitCmlOperationDefinition) pDefinition).getOperationType());
 						result.append(call.toFormula(option));
 						break;
 					}
@@ -73,6 +106,7 @@ public class MCAReferenceProcess implements MCPProcess {
 		return result.toString();
 	}
 
+	
 	public String getName() {
 		return name;
 	}
@@ -96,4 +130,13 @@ public class MCAReferenceProcess implements MCPProcess {
 	public void setProc(MCAProcessDefinition proc) {
 		this.proc = proc;
 	}
+
+	public String getParentDefinitionName() {
+		return parentDefinitionName;
+	}
+
+	public void setParentDefinitionName(String parentDefinitionName) {
+		this.parentDefinitionName = parentDefinitionName;
+	}
+	
 }

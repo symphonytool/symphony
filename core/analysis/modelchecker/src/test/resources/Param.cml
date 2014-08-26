@@ -1,0 +1,9 @@
+process Param = val x:nat @ 
+begin
+   actions
+    P = a:nat @ Skip
+@ P(2)
+
+end
+
+process Call = Param(3)

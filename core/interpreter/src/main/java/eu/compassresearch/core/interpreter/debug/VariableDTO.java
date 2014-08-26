@@ -6,17 +6,22 @@ import java.util.Vector;
 
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.interpreter.runtime.Context;
+import org.overture.interpreter.values.FieldValue;
 import org.overture.interpreter.values.FunctionValue;
 import org.overture.interpreter.values.MapValue;
 import org.overture.interpreter.values.NameValuePair;
 import org.overture.interpreter.values.ObjectValue;
 import org.overture.interpreter.values.OperationValue;
+import org.overture.interpreter.values.RecordValue;
 import org.overture.interpreter.values.SeqValue;
 import org.overture.interpreter.values.SetValue;
 import org.overture.interpreter.values.UpdatableValue;
 import org.overture.interpreter.values.Value;
 
+import eu.compassresearch.ast.definitions.AActionClassDefinition;
+import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.core.interpreter.api.values.ActionValue;
+import eu.compassresearch.core.interpreter.api.values.ProcessObjectValue;
 
 public class VariableDTO
 {
@@ -158,6 +163,7 @@ public class VariableDTO
 	public static VariableDTO extractVariable(String name, String fullName,
 			Value val)
 	{
+		String kind = val.kind();
 		List<VariableDTO> children = new Vector<VariableDTO>();
 		Value derefedVal = val.deref();
 		if (derefedVal instanceof SetValue)
@@ -196,8 +202,49 @@ public class VariableDTO
 						+ vv.getKey() + " |-> " + vv.getValue() + "}", childrenMaplet.size(), !childrenMaplet.isEmpty(), !(val instanceof UpdatableValue), childrenMaplet);
 				children.add(maplet);
 			}
+		}else if(derefedVal instanceof RecordValue)
+		{
+			RecordValue v = (RecordValue) derefedVal;
+			for (FieldValue vv : v.fieldmap)
+			{
+				VariableDTO fieldDto = extractVariable(vv.name, vv.name, vv.value);
+
+				List<VariableDTO> childrenMaplet = new Vector<VariableDTO>();
+				childrenMaplet.add(fieldDto);
+
+				children.add(fieldDto);
+			}
+		}else if(derefedVal instanceof ObjectValue)
+		{
+			ObjectValue v = (ObjectValue) derefedVal;
+			if(v instanceof ProcessObjectValue)
+			{
+				ProcessObjectValue vp = (ProcessObjectValue) derefedVal;
+				kind = vp.getProcessDefinition().getName().getName();
+			}if(v.type.getClassdef() instanceof AActionClassDefinition)
+			{
+				AProcessDefinition d = v.type.getClassdef().getAncestor(AProcessDefinition.class);
+				if(d!=null)
+				{
+					kind = d.getName().getName();
+				}
+			}
+			for (Entry<ILexNameToken, Value> vv : v.members.entrySet())
+			{
+				if(!showValue(vv.getValue()))
+				{
+					continue;
+				}
+				
+				VariableDTO fieldDto = extractVariable(vv.getKey().getName(), vv.getKey().getName(), vv.getValue());
+
+				List<VariableDTO> childrenMaplet = new Vector<VariableDTO>();
+				childrenMaplet.add(fieldDto);
+
+				children.add(fieldDto);
+			}
 		}
 
-		return new VariableDTO(name, fullName, val.kind(), val.toString(), children.size(), !children.isEmpty(), !(val instanceof UpdatableValue), children);
+		return new VariableDTO(name, fullName, kind, val.toString(), children.size(), !children.isEmpty(), !(val instanceof UpdatableValue), children);
 	}
 }

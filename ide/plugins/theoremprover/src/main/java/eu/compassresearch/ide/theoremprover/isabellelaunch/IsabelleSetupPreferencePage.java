@@ -43,7 +43,8 @@ public class IsabelleSetupPreferencePage extends FieldEditorPreferencePage
 		{
 			addField(new DirectoryFieldEditor(IIsabelleConstants.ATTR_SESSION_DIRS, "CML theory location", getFieldEditorParent()));
 		}
-		addField(new BooleanFieldEditor(IIsabelleConstants.Z3_NON_COMMERCIAL, "Check box if theorem prover is for non commercial use", getFieldEditorParent()));
+		//New version of Isabelle/Eclipse doesn't read this flag, so remove for now until this is sorted
+		//addField(new BooleanFieldEditor(IIsabelleConstants.Z3_NON_COMMERCIAL, "Check box if theorem prover is for non commercial use", getFieldEditorParent()));
 	}
 
 	@Override

@@ -1,5 +1,6 @@
 package eu.compassresearch.ide.refinementtool.laws;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +34,12 @@ public class ImplicitOperationRefineLaw implements IRefineLaw {
 	public String getName() {
 		return "Implicit Operation Refinement";
 	}
+	
+	@Override
+	public String getDetail() {
+		return "Introduce a specification statement in an explicit operation";
+	}	
+
 
 	@Override
 	public boolean isApplicable(INode node) {
@@ -40,7 +47,7 @@ public class ImplicitOperationRefineLaw implements IRefineLaw {
 	}
 
 	@Override
-	public Refinement apply(Map<String, String> metas, INode node, int offset) {
+	public Refinement apply(Map<String, INode> metas, INode node, int offset) {
 		AImplicitOperationDefinition oo = ((AImplicitOperationDefinition) node).clone(); 
 		
 		// Create a specification statement to act as the body
@@ -188,8 +195,8 @@ public class ImplicitOperationRefineLaw implements IRefineLaw {
 	}
 
 	@Override
-	public List<String> getMetaNames() {
-		return new LinkedList<String>();
-	}		
+	public Map<String, String> getMetas() {
+		return new HashMap<String, String>();
+	}
 	
 }

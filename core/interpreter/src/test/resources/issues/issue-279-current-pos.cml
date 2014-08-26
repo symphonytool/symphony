@@ -1,0 +1,43 @@
+channels 
+
+ debug : nat * nat
+
+process simple = id : nat @ begin
+
+state 
+ s : nat := 0
+
+operations
+
+  add: nat ==> ()
+  add(n) == s:= s+n
+
+actions
+ P = debug!id!s -> add(3);debug!id!s -> Skip
+
+@ P
+
+end
+
+--process INT = ||| i in set {1} @ simple(i)
+
+process INT2 = simple(1)  ||| simple(2) ||| simple(3)   
+
+
+channels
+
+done
+
+process Test =
+   (INT2 ; begin @ done -> Skip end)
+   [| {| debug, done|} |]
+   begin
+   actions
+     controller =
+       done -> Skip
+       []
+       ([] i in set {1,2,3}
+         @ debug.i?x -> debug.i?y -> controller)
+   @ controller
+   end
+   

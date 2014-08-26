@@ -23,6 +23,7 @@ import eu.compassresearch.ide.collaboration.communication.ConnectionManager;
 import eu.compassresearch.ide.collaboration.communication.messages.CollaborationGroupUpdateMessage;
 import eu.compassresearch.ide.collaboration.communication.messages.CollaborationRequest;
 import eu.compassresearch.ide.collaboration.communication.messages.ConfigurationStatusMessage;
+import eu.compassresearch.ide.collaboration.communication.messages.LeftCollaborationMessage;
 import eu.compassresearch.ide.collaboration.communication.messages.ConfigurationStatusMessage.NegotiationStatus;
 import eu.compassresearch.ide.collaboration.communication.messages.NewConfigurationMessage;
 import eu.compassresearch.ide.collaboration.datamodel.ConfigurationStatus.ConfigurationNegotiationStatus;
@@ -94,6 +95,29 @@ public class CollaborationDataModelManager
 		datamodel.addCollaborationProject(project, title, description);
 	}
 
+	/**
+	 * Removes a collaboration project from the data model, leaves the collaboration and notifies the other collaborators in the project    
+	 * @return 
+	 */
+	public boolean deleteProject(CollaborationProject project)
+	{
+		boolean deleted = datamodel.removeCollaborationProject(project);
+		
+		if(deleted){
+			
+			ConnectionManager connectionManager = Activator.getDefault().getConnectionManager();
+			
+			LeftCollaborationMessage leftMsg = new LeftCollaborationMessage(connectionManager.getConnectedUser(), project.getUniqueID());
+			
+			if(!project.getCollaboratorGroup().getJoinedCollaborators().isEmpty()){
+				connectionManager.sendToAll(leftMsg, project);
+			}
+		}
+		
+		return deleted;
+	}
+	
+	
 	/**
 	 * Add a collaboration project received from another collaborator. 
 	 * This creates a collaboration project on the basis of the received project id.  
@@ -388,14 +412,19 @@ public class CollaborationDataModelManager
 			}
 		}
 		
+		
+		ArrayList<User> sendTo = new ArrayList<User>(configurationsToSend.keySet());
+		
 		//send 
 		Set<Entry<User, NewConfigurationMessage>> entrySet = configurationsToSend.entrySet();
 		for (Entry<User, NewConfigurationMessage> entry : entrySet)
 		{
-			connectionManager.sendTo(entry.getKey(), entry.getValue());
+			NewConfigurationMessage msg = entry.getValue();
+			msg.addSendTo(sendTo);
+			connectionManager.sendTo(entry.getKey(), msg);
 		}
 		
-		 return new ArrayList<User>(configurationsToSend.keySet());
+		 return sendTo;
 	}
 
 	/**
@@ -495,7 +524,7 @@ public class CollaborationDataModelManager
 
 
 	/**
-	 * Compare a file with the equally named file from the previous (parent) configuration
+	 * Activate configuration; meaning that the files in the configuration will be copied to the workspace attached to the project
 	 */
 	public void activateConfiguration(Configuration configToActivate)
 			throws CoreException
@@ -503,7 +532,15 @@ public class CollaborationDataModelManager
 		Files files = configToActivate.getFiles();
 		FileHandler.copyFilesToProjectWorkspace(files.getFilesList(), configToActivate.getCollaborationProject());
 	}
-
+	
+	/**
+	 * Return a list of files in the configuration that are present in the workspace
+	 * 
+	 */
+	public List<File> filesExistInWorkspace(Configuration selectedConfig) throws CoreException
+	{
+		return FileHandler.filesExistInWorkspace(selectedConfig.getFiles(), selectedConfig.getCollaborationProject());
+	}
 	
 	/**
 	 * Approve a received configuration and send status to all collaborators
@@ -523,14 +560,15 @@ public class CollaborationDataModelManager
 	
 	/**
 	 * Reject a received configuration and send status to all collaborators
+	 * @param reason 
 	 */
-	public void rejectConfiguration(Configuration configurationToReject)
+	public void rejectConfiguration(Configuration configurationToReject, String reason)
 	{
 		ConnectionManager connectionManager = Activator.getDefault().getConnectionManager();
 		ID connectedUser = connectionManager.getConnectedUser();
 		CollaborationProject collaborationProject = configurationToReject.getCollaborationProject();
 		
-		ConfigurationStatusMessage statMsg = new ConfigurationStatusMessage(connectionManager.getConnectedUser(), collaborationProject.getUniqueID(), configurationToReject.getUniqueID(), NegotiationStatus.REJECT);
+		ConfigurationStatusMessage statMsg = new ConfigurationStatusMessage(connectionManager.getConnectedUser(), collaborationProject.getUniqueID(), configurationToReject.getUniqueID(), NegotiationStatus.REJECT, reason);
 		connectionManager.sendToAll(statMsg, collaborationProject);
 		
 		configurationToReject.setStatus(connectedUser, ConfigurationNegotiationStatus.REJECT);
@@ -538,13 +576,13 @@ public class CollaborationDataModelManager
 
 	/**
 	 * Updated a received configuration status sent by a collaborator
+	 * @param status 
 	 */
-	public void updateConfigurationStatus(ID id, String configurationId,
-			ConfigurationNegotiationStatus negotiationStatus, String projectId)
+	public void updateConfigurationStatus(ID id, String configurationId, ConfigurationNegotiationStatus status, String projectId)
 	{
 		CollaborationProject collaborationProject = getCollaborationProjectFromID(projectId);
 		Configuration configuration = collaborationProject.getConfiguration(configurationId);
-		configuration.setStatus(id, negotiationStatus);
+		configuration.setStatus(id, status);
 	}
 
 	/**
@@ -608,6 +646,20 @@ public class CollaborationDataModelManager
 		}
 	}
 
+	//Remove a collaborator from the project. 
+	//Used when a collaborator deletes their project
+	public void collaboratorLeft(String collaboratorName, String projectID)
+	{
+		CollaborationProject collaborationProject = getCollaborationProjectFromID(projectID);
+		
+		if(collaborationProject == null) return;
+		
+		CollaborationGroup collaboratorGroup = collaborationProject.getCollaboratorGroup();
+		
+		User collabUsr = collaboratorGroup.getUser(collaboratorName);
+		collaboratorGroup.removeCollaborator(collabUsr);
+	}
+	
 	/**
 	 * Adds new members to the collaboration group in a project, without notifying other collaborators.
 	 * For instance when receiving a notification from another collaborator that new collaborators have joined the group 

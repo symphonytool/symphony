@@ -3,7 +3,11 @@
  */
 package eu.compassresearch.ide.faulttolerance;
 
+import java.util.List;
+
 import org.eclipse.core.resources.IFolder;
+
+import eu.compassresearch.ide.core.unsupported.UnsupportedElementInfo;
 
 /**
  * @author Andr&eacute; Didier (<a href=
@@ -35,4 +39,11 @@ public interface IFaultToleranceVerificationResponse {
 	void setDefinitionsMessage(String message);
 
 	String getDefinitionsMessage();
+
+	void add(List<UnsupportedElementInfo> unsupportedElementsInfo);
+
+	boolean hasUnsupportedElements();
+
+	List<UnsupportedElementInfo> getUnsupportedElementsInfo();
+
 }
