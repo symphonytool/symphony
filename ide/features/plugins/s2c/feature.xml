@@ -2,7 +2,7 @@
 <feature
       id="eu.compassresearch.ide.features.plugins.s2c"
       label="CML S2C"
-      version="0.3.6">
+      version="0.3.7.qualifier">
 
    <description>
       %description
