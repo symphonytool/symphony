@@ -17,6 +17,7 @@ import org.overture.interpreter.values.IntegerValue;
 import org.overture.interpreter.values.QuoteValue;
 import org.overture.interpreter.values.RealValue;
 import org.overture.interpreter.values.RecordValue;
+import org.overture.interpreter.values.TokenValue;
 import org.overture.interpreter.values.Value;
 import org.overture.interpreter.values.ValueList;
 
@@ -51,6 +52,7 @@ public class CoSimProtocolV3Test
 	private static final String REAL_1_23 = "{\"real\": 1.23}";
 	private static final String INT_1 = "{\"int\": 1}";
 	private static final String QUOTE_A = "{\"quote\": \"a\"}";
+	private static final String Token_1 = "{\"token\": {\"int\":1}}";
 	private static final String BOOL_FALSE = "{\"bool\": false}";
 	private static final String FINISHED_REPLY_MESSAGE = "{\"FinishedReplyMessage\":{\"process\":\"A\",\"finished\":false}}";
 	private static final String EXECUTE_COMPLETED_MESSAGE = "{\"ExecuteCompletedMessage\": {}}";
@@ -171,6 +173,14 @@ public class CoSimProtocolV3Test
 	{
 		String expected = QUOTE_A;
 		Value val = new QuoteValue("a");
+		compare(val, expected);
+	}
+	
+	@Test
+	public void testTokenValue() throws Exception
+	{
+		String expected = Token_1;
+		Value val = new TokenValue(new IntegerValue(1));
 		compare(val, expected);
 	}
 
@@ -342,6 +352,17 @@ public class CoSimProtocolV3Test
 		Value m = protocol.decode(msg.getBytes(), Value.class);
 		Assert.assertEquals("Wrong class type", m.getClass(), QuoteValue.class);
 		Assert.assertEquals(((QuoteValue)m).value, "a");
+	}
+	
+	@Test
+	public void testDecodeTokenValue() throws Exception
+	{
+		String msg = Token_1;
+		Value m = protocol.decode(msg.getBytes(), Value.class);
+		Assert.assertEquals("Wrong class type", m.getClass(), TokenValue.class);
+		final Value tokenValue = CoSimProtocolVersion3.getTokenValue(((TokenValue)m));
+		Assert.assertEquals(tokenValue.getClass(), IntegerValue.class);
+		Assert.assertEquals(((IntegerValue)tokenValue).intValue(null), 1);
 	}
 	
 	

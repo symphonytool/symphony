@@ -31,6 +31,7 @@ import org.overture.interpreter.values.NumericValue;
 import org.overture.interpreter.values.QuoteValue;
 import org.overture.interpreter.values.RecordValue;
 import org.overture.interpreter.values.SeqValue;
+import org.overture.interpreter.values.TokenValue;
 import org.overture.interpreter.values.Value;
 import org.overture.parser.lex.LexTokenReader;
 import org.overture.parser.syntax.TypeReader;
@@ -263,6 +264,10 @@ public class CoSimProtocolVersion3 implements ICoSimProtocol
 		{
 			kind = "quote";
 			value = encodeObject(((QuoteValue) o).value);
+		} else if (o instanceof TokenValue)
+		{
+			kind = "token";
+			value = encodeObject(getTokenValue((TokenValue) o));
 		}
 
 		// TODO: add missing values
@@ -273,6 +278,29 @@ public class CoSimProtocolVersion3 implements ICoSimProtocol
 		}
 
 		throw new Exception("Unable to encode value: " + o);
+	}
+
+	public static Value getTokenValue(TokenValue value)
+	{
+		Value innerValue = null;
+		for (Field field : TokenValue.class.getDeclaredFields())
+		{
+			if (field.getName().equals("value"))
+			{
+				field.setAccessible(true);
+				try
+				{
+					innerValue = (Value) field.get(value);
+				} catch (IllegalArgumentException e)
+				{
+					break;
+				} catch (IllegalAccessException e)
+				{
+					break;
+				}
+			}
+		}
+		return innerValue;
 	}
 
 	private static String encodeMessage(JsonMessage msg) throws Exception
@@ -410,20 +438,7 @@ public class CoSimProtocolVersion3 implements ICoSimProtocol
 
 			if (map.size() == 1)
 			{
-				Entry entry = (Entry) map.entrySet().iterator().next();
-
-				String key = entry.getKey() + "";
-
-				List<String> types = Arrays.asList(new String[] { "int",
-						"bool", "?", "quote" });
-
-				for (String type : types)
-				{
-					if (type.equals(key))
-					{
-						return createValue(type, entry.getValue());
-					}
-				}
+				return decodeValue(map);
 			} else if (map.containsKey("type"))
 			{
 				final String type = "" + map.get("type");
@@ -474,6 +489,26 @@ public class CoSimProtocolVersion3 implements ICoSimProtocol
 		return null;
 	}
 
+	@SuppressWarnings("rawtypes")
+	protected Value decodeValue(Map map) throws Exception
+	{
+		Entry entry = (Entry) map.entrySet().iterator().next();
+
+		String key = entry.getKey() + "";
+
+		List<String> types = Arrays.asList(new String[] { "int", "bool", "?",
+				"quote", "token" });
+
+		for (String type : types)
+		{
+			if (type.equals(key))
+			{
+				return createValue(type, entry.getValue());
+			}
+		}
+		return null;
+	}
+
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	protected void setHashedEventSources(Map map, CmlTransition transition)
 			throws IllegalAccessException
@@ -488,7 +523,8 @@ public class CoSimProtocolVersion3 implements ICoSimProtocol
 		setField("hashedEventSources", transition, hashedEventSources);
 	}
 
-	private Object createValue(String type, Object value) throws Exception
+	@SuppressWarnings("rawtypes")
+	private Value createValue(String type, Object value) throws Exception
 	{
 		if (type.equals("int"))
 		{
@@ -499,6 +535,9 @@ public class CoSimProtocolVersion3 implements ICoSimProtocol
 		} else if (type.equals("quote"))
 		{
 			return new QuoteValue((String) value);
+		} else if (type.equals("token"))
+		{
+			return new TokenValue(decodeValue((Map) value));
 		} else if (type.equals("?"))
 		{
 			PType readType = null;
@@ -506,6 +545,9 @@ public class CoSimProtocolVersion3 implements ICoSimProtocol
 			if ((value + "").equals("quote"))
 			{
 				readType = AstFactory.newAQuoteType(new LexQuoteToken("", new LexLocation()));
+			} else if ((value + "").equals("token"))
+			{
+				readType = AstFactory.newATokenBasicType((new LexLocation()));
 			} else
 			{
 				LexTokenReader reader = new LexTokenReader(value + "", Dialect.VDM_SL);
@@ -517,7 +559,7 @@ public class CoSimProtocolVersion3 implements ICoSimProtocol
 
 		abortDecode("unable to decode value of type: '" + type
 				+ "' with value: '" + value + "'");
-		return value;
+		return null;
 	}
 
 	@SuppressWarnings({ "rawtypes" })
