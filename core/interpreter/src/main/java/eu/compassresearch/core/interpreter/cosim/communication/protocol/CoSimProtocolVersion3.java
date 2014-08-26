@@ -221,7 +221,7 @@ public class CoSimProtocolVersion3 implements ICoSimProtocol
 
 		if (o instanceof TauTransition)
 		{
-			// TODO: add tau transition, static node with skip
+			return String.format(Transition, "TauTransition", encodeObject(o.getHashedEventSources()), encodeObject("Skip"));
 		} else if (o instanceof TimedTransition)
 		{
 			final String field = String.format(TimedTransotionField, encodeObject(((TimedTransition) o).getTimeLimit()));
