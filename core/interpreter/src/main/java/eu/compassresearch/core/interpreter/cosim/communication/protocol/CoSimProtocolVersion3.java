@@ -38,6 +38,7 @@ import org.overture.parser.syntax.TypeReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.lex.CmlLexNameToken;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
@@ -474,7 +475,9 @@ public class CoSimProtocolVersion3 implements ICoSimProtocol
 
 				} else if (type.contains(TauTransition.class.getSimpleName()))
 				{
-					// TODO
+					TauTransition transition= new TauTransition(null,  new ASkipAction(), "skip");
+					setHashedEventSources(map, transition);
+					return transition;
 				}
 			}
 		} else if (tmp instanceof List)
