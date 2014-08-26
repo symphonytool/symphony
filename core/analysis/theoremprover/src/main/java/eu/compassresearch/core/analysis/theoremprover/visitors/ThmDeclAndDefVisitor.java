@@ -501,9 +501,9 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 			}
 			
 			//get the Isabelle string for the process node's process.
-			String procString = act.apply(stringVisitor, bvars);//= ThmProcessUtil.getIsabelleProcessString(node.getProcess());
+			String procString = act.apply(stringVisitor, bvars);
 			//obtain the process dependencies
-			NodeNameList nodeDeps = act.apply(depVisitor, nnl);//ThmProcessUtil.getIsabelleProcessDeps(node.getProcess());
+			NodeNameList nodeDeps = act.apply(depVisitor, nnl);
 			
 			tn = new ThmNode(parentProcess.getName(), nodeDeps, new ThmProcAction(parentProcess.getName().toString(), param, procString));
 		}

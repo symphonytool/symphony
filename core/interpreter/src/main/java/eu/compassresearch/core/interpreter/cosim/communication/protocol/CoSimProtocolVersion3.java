@@ -338,7 +338,7 @@ public class CoSimProtocolVersion3 implements ICoSimProtocol
 				{
 					if (jArr.size() < 2)
 					{
-						aboartDecode("decoding "
+						abortDecode("decoding "
 								+ RegisterSubSystemMessage.class.getName()
 								+ " data missing");
 					}
@@ -381,7 +381,7 @@ public class CoSimProtocolVersion3 implements ICoSimProtocol
 				res = (T) tmp2;
 			} else
 			{
-				aboartDecode("unable to decode: " + new String(data));
+				abortDecode("unable to decode: " + new String(data));
 			}
 		}
 
@@ -494,7 +494,7 @@ public class CoSimProtocolVersion3 implements ICoSimProtocol
 			return new LatticeTopValue(typeReader.readType());
 		}
 
-		aboartDecode("unable to decode value of type: '" + type
+		abortDecode("unable to decode value of type: '" + type
 				+ "' with value: '" + value + "'");
 		return value;
 	}
@@ -522,7 +522,7 @@ public class CoSimProtocolVersion3 implements ICoSimProtocol
 			jObj = (JSONObject) object;
 		} else
 		{
-			aboartDecode("message tail is not an object: " + object);
+			abortDecode("message tail is not an object: " + object);
 		}
 
 		if (type == RegisterSubSystemMessage.class)
@@ -581,7 +581,7 @@ public class CoSimProtocolVersion3 implements ICoSimProtocol
 					map.put("" + key, decode(entry.getValue()));
 				} else
 				{
-					aboartDecode("decode of map with none string key not supported");
+					abortDecode("decode of map with none string key not supported");
 				}
 			}
 			return (T) map;
@@ -595,7 +595,7 @@ public class CoSimProtocolVersion3 implements ICoSimProtocol
 				+ o.getClass().getSimpleName() + "'");
 	}
 
-	public void aboartDecode(String msg) throws Exception
+	public void abortDecode(String msg) throws Exception
 	{
 		throw new Exception("Aborting decode. " + msg);
 	}

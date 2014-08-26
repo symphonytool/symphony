@@ -1,0 +1,19 @@
+process P = begin
+
+state
+
+  counts : seq of nat :=[1]
+  
+operations
+
+ update:(nat)==>()
+ update(n) ==
+  (
+    counts(n):=counts(n)+1
+  )
+  pre n in set inds counts
+  post counts(n) = counts~(n) + 1
+
+@ update(1)
+
+end
