@@ -88,9 +88,18 @@ public class Configuration extends Model {
 		fireObjectUpdatedEvent(file);
 	}
 	
-	public void addNewFile(String fileName, String fileHash, long timestamp, String filePath)
+	public void addNewFile(String fileName, String fileHash, long timestamp, String filePath, List<String> visibilityList)
 	{
-		files.addFile(new File(fileName, fileHash, timestamp, filePath, this));
+		File file = new File(fileName, fileHash, timestamp, filePath, this);
+		
+		if(visibilityList != null && !visibilityList.isEmpty()){
+			for (String visibilityName : visibilityList)
+			{
+				file.addVisibility(visibilityName);
+			}
+		}
+		
+		files.addFile(file);
 	}
 	
 	protected void removeFile(File file) {
@@ -259,4 +268,5 @@ public class Configuration extends Model {
 		
 		configurationStatuses.addConfigurationStatus(users);
 	}
+
 }

@@ -89,15 +89,25 @@ class MaudeRefiner(cmd: String, refine: String) {
       res = replacers.foldLeft(mts.head.get("A").get)((x,vs) => x.replaceAll(vs._1, vs._2))
     } else {
       mts = maude.search1("refine[\"" + mri.key + "\", < " + cml + " | " + M + " | p > ]", "< Decl | M | p >");
-      pogs = mts.head.get("p").get.split("and")
-      // pogs.to[ListBuffer]
-      // Apply all regular expression replacements
-      res = replacers.foldLeft(mts.head.get("Decl").get)((x,vs) => x.replaceAll(vs._1, vs._2))
+      if (mts.size > 0) {
+    	  pogs = mts.head.get("p").get.split("and")
+    	  // pogs.to[ListBuffer]
+    	  // Apply all regular expression replacements
+    	  res = replacers.foldLeft(mts.head.get("Decl").get)((x,vs) => x.replaceAll(vs._1, vs._2))
+      } else {
+    	  mts = maude.search1("refine[\"" + mri.key + "\", < " + cml + " | " + M + " | p > ]", "< E | M | p >");
+    	  pogs = mts.head.get("p").get.split("and")
+    	  // pogs.to[ListBuffer]
+    	  // Apply all regular expression replacements
+    	  res = replacers.foldLeft(mts.head.get("E").get)((x,vs) => x.replaceAll(vs._1, vs._2))
+      }
     } 
 
     for (p <- pogs) {
         val p1 = replacers.foldLeft(p)((x,vs) => x.replaceAll(vs._1, vs._2))
-        if (p1.contains("[=")) {
+        if (p1.equals("true")) {
+          
+        } else if (p1.contains("[=")) {
           val bs = p1.split("\\[=")
           val a1 = RefUtils.parsePAction(bs(0))
           val a2 = RefUtils.parsePAction(bs(1))

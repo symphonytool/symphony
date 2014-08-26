@@ -62,7 +62,7 @@ public class CollaborationLabelProvider extends LabelProvider implements
 			descriptor = getImageDescriptor("shares.gif");
 		} else if (element instanceof Visibility)
 		{
-			descriptor = getImageDescriptor("shares.gif");
+			descriptor = getImageDescriptor("visibility.gif");
 		} else if (element instanceof Visible)
 		{
 			descriptor = getImageDescriptor("share.gif");

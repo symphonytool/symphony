@@ -1,76 +1,73 @@
 package eu.compassresearch.ide.collaboration.distributedsimulation;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.net.UnknownHostException;
+
+import org.eclipse.ecf.core.identity.ID;
 
 public class RelayClient extends Thread
 {
 	String host = "localhost";
-	int port = 8882;
+	int port;
 	private InetAddress address;
 	private boolean connected;
 	private Socket connection;
-	
-	public RelayClient() throws UnknownHostException
-	{	
+	private BufferedReader in;
+	private PrintWriter out;
+	private DistributedSimulationManager distMgm;
+	private ID senderID;
+
+	public RelayClient(int port, ID senderID, DistributedSimulationManager distributedSimulationManager) throws IOException
+	{
+		this.port = port;
+		this.senderID = senderID;
+		this.distMgm = distributedSimulationManager;
 		address = InetAddress.getByName(host);
+		setDaemon(true);
+
+		connection = new Socket(address, port);
+		out = new PrintWriter(connection.getOutputStream(), true);
+		in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 	}
-	
+
 	@Override
 	public void run()
 	{
-	    try
+		try
 		{
-			connection = new Socket(address, port);
 			connected = true;
-			
+
 			while (connected)
 			{
-				receive(); 
-			
+				receive();
+				connected = false;
 			}
 		} catch (IOException e)
 		{
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		System.out.println("SocketClient initialized");
 	}
-	
+
 	private void receive() throws IOException
 	{
-		  String userInput;
-	        BufferedReader stdIn = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+		String userInput;
 
-	        System.out.println("Relay client: Response from server:");
-	        while ((userInput = stdIn.readLine()) != null) {
-	            System.out.println(userInput);
-	        }
-	}
-
-	public void send(){
-		
-		 try
+		while ((userInput = in.readLine()) != null)
 		{
-			BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(connection.getOutputStream()));
-			writer.write("bla");
-			
-			 writer.flush();
-			
-		} catch (IOException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			//System.out.println("=== Coordinator ==========:  Response from coordinator server to ECF client: " + userInput);
+			distMgm.relayMessageToClient(senderID, userInput);
 		}
-		
 	}
-	
+
+	public void send(String inputData)
+	{
+		//System.out.println("=== Coordinator ==========:  Sent to coordinator server from ECF client:" + inputData);
+		out.println(inputData);
+	}
 
 	public synchronized void die()
 	{
@@ -83,5 +80,4 @@ public class RelayClient extends Thread
 			e.printStackTrace();
 		}
 	}
-	
 }

@@ -50,7 +50,11 @@
             style="push"
             tooltip="Collapse Tree">
     	</command>
-    		<command
+    	<separator
+	       name="eu.compassresearch.ide.collaboration.ui.seperator-NewCollaProj"
+       		visible="true">
+		</separator>
+    	<command
             commandId="eu.compassresearch.ide.collaboration.ui.NewCollaborationProject"
             label="Add new collaboration project"
             style="push"

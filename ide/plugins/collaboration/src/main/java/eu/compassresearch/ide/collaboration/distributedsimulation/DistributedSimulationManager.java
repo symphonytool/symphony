@@ -1,7 +1,9 @@
 package eu.compassresearch.ide.collaboration.distributedsimulation;
 
 import java.io.IOException;
+import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.ServerSocket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,13 +26,13 @@ import org.eclipse.jface.window.Window;
 import eu.compassresearch.ide.collaboration.Activator;
 import eu.compassresearch.ide.collaboration.communication.ConnectionManager;
 import eu.compassresearch.ide.collaboration.communication.messages.RelayMessage;
+import eu.compassresearch.ide.collaboration.communication.messages.RelayMessage.RelayType;
 import eu.compassresearch.ide.collaboration.communication.messages.SimulationReplyMessage;
 import eu.compassresearch.ide.collaboration.communication.messages.SimulationRequestMessage;
 import eu.compassresearch.ide.collaboration.communication.messages.SimulationStartMessage;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationGroup;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationProject;
 import eu.compassresearch.ide.collaboration.datamodel.User;
-import eu.compassresearch.ide.collaboration.notifications.Notification;
 import eu.compassresearch.ide.collaboration.ui.menu.CollaborationDialogs;
 import eu.compassresearch.ide.collaboration.ui.menu.DistributedSimulationInitialisationDialog;
 import eu.compassresearch.ide.collaboration.ui.menu.DistributedSimulationRequestDialog;
@@ -45,22 +47,25 @@ public class DistributedSimulationManager
 	private Map<String, List<DistributedSimulationConfiguration>> configurations;
 	// to update GUI
 	private Map<String, List<IDistributedSimulationListener>> listeners;
+	private List<RelayServerListener> relayServerClientHandlers;
 	private ConnectionManager connectionManager;
 	private CollaborationProject projectForCurrentSession;
 	private DistributedSimulationInitialisationDialog distSimDlg;
 	private boolean do_animation;
 	private String serverHostAddress;
 	private String selectedTopProcess;
-	private int port = 49155;
+	private int port = 49152;
+	
 	private User coordinator;
-	private RelayClient distServerRelay;
-	private RelayServer distRelaySever;
-
+	private RelayServer distRelayServer;
+	Map<String,RelayClient> relayToCoordinatorServer;
+	
 	public DistributedSimulationManager(ConnectionManager connectionManager)
 	{
 		this.connectionManager = connectionManager;
 		configurations = new HashMap<String, List<DistributedSimulationConfiguration>>();
 		listeners = new HashMap<String, List<IDistributedSimulationListener>>();
+		relayServerClientHandlers = new ArrayList<RelayServerListener>();
 
 		do_animation = false;
 	}
@@ -121,7 +126,7 @@ public class DistributedSimulationManager
 		ICmlModel model = cmlProj.getModel();
 		List<String> processes = CmlUtil.getGlobalProcessesFromSourceAsString(model);
 
-
+//TODO
 //		if (processes.isEmpty())
 //		{
 //			CollaborationDialogs.getInstance().displayNotificationPopup("Distributed Simulation", Notification.Dist_Simulation_ERROR_NO_PROCESSES);
@@ -134,14 +139,14 @@ public class DistributedSimulationManager
 //			return;
 //		}
 //
-//		distSimDlg = CollaborationDialogs.getInstance().getDistributedSimulationInitialisationDialog(processes, collaborators, this);
+		distSimDlg = CollaborationDialogs.getInstance().getDistributedSimulationInitialisationDialog(processes, collaborators, this);
 //
-//		if (distSimDlg.open() == Window.OK)
-//		{
-//			startDistributedSimulation(project);
-//		}
+		if (distSimDlg.open() == Window.OK)
+		{
+			startDistributedSimulation(project);
+		}
 		
-		launchClientSide(project, "Police", "localhost:" + port);
+		//launchClientSide(project, "Police", "localhost:" + port);
 	}
 
 	/**
@@ -154,23 +159,8 @@ public class DistributedSimulationManager
 		ID sender = connectionManager.getConnectedUser();
 		String uniqueID = collaborationProject.getUniqueID();
 		String hostAddress = getServerHostAddress();
-
-		// notify collaborators that simulation is starting
-		for (Entry<String, List<DistributedSimulationConfiguration>> configEntry : configurations.entrySet())
-		{
-			User user = collaboratorGroup.getUser(configEntry.getKey());
-			if (user != null)
-			{
-				for (DistributedSimulationConfiguration config : configEntry.getValue())
-				{
-					if (config.isApproved())
-					{
-						SimulationStartMessage simStartMsg = new SimulationStartMessage(sender, uniqueID, config.getProcess());
-						connectionManager.sendTo(user, simStartMsg);
-					}
-				}
-			}
-		}
+		
+		relayToCoordinatorServer = new HashMap<String, RelayClient>();
 
 		// build external process list from configurations
 		ArrayList<DistributedSimulationConfiguration> configs = getConfigurations();
@@ -188,16 +178,84 @@ public class DistributedSimulationManager
 
 		launchSimulatorServerSide(collaborationProject, selectedTopProcess, externalProcessStrBld.toString(), hostAddress);
 		
+
+//		//collect collaborators running simulations
+//		List<User> collaboratorsInSimulation = new ArrayList<>(); 
+		
+		// notify collaborators that simulation is starting
+		for (Entry<String, List<DistributedSimulationConfiguration>> configEntry : configurations.entrySet())
+		{
+			User user = collaboratorGroup.getUser(configEntry.getKey());
+			if (user != null)
+			{
+				for (DistributedSimulationConfiguration configuration : configEntry.getValue())
+				{
+					if (configuration.isApproved())
+					{
+						//collaboratorsInSimulation.add(user);
+						SimulationStartMessage simStartMsg = new SimulationStartMessage(sender, uniqueID, configuration.getProcess());
+						connectionManager.sendTo(user, simStartMsg);
+					}
+				}
+			}
+		}
+
+		
 		//TODO relay stuff
 		//create relay client that will connect to server and pass messages to and from the real clients via ECF
 //		try
 //		{
-//			distServerRelay = new DistributedSimulationClient();
-//			distServerRelay.start();			
+//			for (User user : collaboratorsInSimulation)
+//			{
+//				distServerRelay = new RelayClient();
+//				distServerRelay.start();	
+//			}
+//					
 //		} catch (UnknownHostException e)
 //		{
 //			e.printStackTrace();
 //		}
+	}
+	
+	public static boolean portAvailable(int port) {
+	    if (port < 49152 || port > 65535) {
+	        throw new IllegalArgumentException("Invalid start port: " + port);
+	    }
+
+	    ServerSocket ss = null;
+	    DatagramSocket ds = null;
+	    try {
+	        ss = new ServerSocket(port);
+	        ss.setReuseAddress(true);
+	        ds = new DatagramSocket(port);
+	        ds.setReuseAddress(true);
+	        return true;
+	    } catch (IOException e) {
+	    } finally {
+	        if (ds != null) {
+	            ds.close();
+	        }
+
+	        if (ss != null) {
+	            try {
+	                ss.close();
+	            } catch (IOException e) {
+	                /* should not be thrown */
+	            }
+	        }
+	    }
+
+	    return false;
+	}
+	
+	
+	public int getFreePort(){
+		int freePort = port;
+		do{
+			freePort += 1;
+		} while (!portAvailable(freePort));
+		
+		return freePort;
 	}
 
 	/**
@@ -209,6 +267,8 @@ public class DistributedSimulationManager
 	{
 		IProject eclipseProject = ResourcesPlugin.getWorkspace().getRoot().getProject(collaborationProject.getProjectWorkspaceName());
 
+		port = getFreePort();
+				
 		try
 		{
 			ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
@@ -232,6 +292,10 @@ public class DistributedSimulationManager
 			// set host
 			lcwc.setAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_COSIM_HOST, /* hostAddress */"localhost:" + port);
 
+			lcwc.setAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_REMOTE_DEBUG, false);
+			
+			
+			
 			// start debugger
 			DebugUITools.launch(lcwc, "debug");
 
@@ -349,6 +413,7 @@ public class DistributedSimulationManager
 		DistributedSimulationRequestDialog distributedSimulationRequestDialog = CollaborationDialogs.getInstance().getDistributedSimulationRequestDialog(sender, collaborationProject, process, this);
 		
 		coordinator = collaborationProject.getCollaboratorGroup().getUser(sender);
+		projectForCurrentSession = collaborationProject;
 		
 		//if ok, start simulation
 		if (distributedSimulationRequestDialog.open() == Window.OK)
@@ -411,21 +476,17 @@ public class DistributedSimulationManager
 	private void launchClientSide(CollaborationProject collaborationProject,
 			String topProcess, String remoteHost)
 	{
-		//TODO relay stuff
-		//start relay server that the will pass message to and from the real server via ECF
+		//start relay server that will pass messages to and from the real server via ECF
 		try
 		{
-			port += 1;
-			distRelaySever = new RelayServer(this,port);
-			distRelaySever.start();
-			
+			port = getFreePort();
+			distRelayServer = new RelayServer(this,port);
+			distRelayServer.start();
 		} catch (IOException e1)
 		{
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		
-
+	
 		IProject eclipseProject = ResourcesPlugin.getWorkspace().getRoot().getProject(collaborationProject.getProjectWorkspaceName());
 
 		ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
@@ -456,7 +517,6 @@ public class DistributedSimulationManager
 
 		} catch (CoreException e)
 		{
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -482,10 +542,12 @@ public class DistributedSimulationManager
 	{
 		listeners.clear();
 		configurations.clear();
+		relayServerClientHandlers.clear();
 		distSimDlg = null;
 		serverHostAddress = null;
 		selectedTopProcess = null;
 		coordinator = null;
+		relayToCoordinatorServer = null;
 	}
 
 	private String getServerHostAddress()
@@ -495,18 +557,90 @@ public class DistributedSimulationManager
 			serverHostAddress = InetAddress.getLocalHost().getHostAddress();
 		} catch (UnknownHostException e)
 		{
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
 		return serverHostAddress;
 	}
 
+	/***
+	 * Pass received relay message to client
+	 * 
+	 * Client Side
+	 */
+	public void passRelayMessageToClient(String data)
+	{
+		for (RelayServerListener listener : relayServerClientHandlers)
+		{
+			listener.onReceivedData(data);
+		}
+	}
 	
-	public void relayMessageToCoordinator(String inputData)
+	/***
+	 * Send relay message to coordinator via ECF
+	 * 
+	 * //Client Side
+	 * @param data
+	 */
+	public void relayMessageToCoordinator(String data)
 	{
 		final ID sender = connectionManager.getConnectedUser();
-		RelayMessage relayMsg = new RelayMessage(sender, projectForCurrentSession.getUniqueID(), inputData);
+		RelayMessage relayMsg = new RelayMessage(sender, projectForCurrentSession.getUniqueID(), data,  RelayType.Client);
 		connectionManager.sendTo(coordinator, relayMsg);
+	}
+	
+	/***
+	 * Send relay message to client via ECF
+	 * 
+	 * Server Side
+	 */
+	public void relayMessageToClient(ID receiverID, String data)
+	{
+		final ID sender = connectionManager.getConnectedUser();
+		RelayMessage relayMsg = new RelayMessage(sender, projectForCurrentSession.getUniqueID(), data,  RelayType.Server);
+		connectionManager.sendTo(receiverID, relayMsg);
+	}
+
+	/***
+	 * Pass received relay message to server on coordinator
+	 * 
+	 * //Server Side
+	 * @param senderID 
+	 * @param inputData
+	 */
+	public void passRelayMessageToCoordinatorServer(ID senderID, String inputData)
+	{
+		RelayClient relayClient = null;
+		
+		String senderName = senderID.getName();
+		
+		//Received a message before?
+		if(!relayToCoordinatorServer.containsKey(senderName)){
+			
+			//if not, create client
+			try
+			{
+				relayClient = new RelayClient(port, senderID, this);
+				relayToCoordinatorServer.put(senderName, relayClient);
+				relayClient.start();
+			
+			} catch (IOException e)
+			{
+				e.printStackTrace();
+			}
+			
+		} else {
+			
+			//else use existing client
+			relayClient = relayToCoordinatorServer.get(senderName);
+		}	
+		
+		relayClient.send(inputData);
+	}
+
+	public void addRelayListener(
+			RelayServerClientHandler relayServerClientHandler)
+	{
+		relayServerClientHandlers.add(relayServerClientHandler);
 	}
 }

@@ -1,6 +1,7 @@
 package eu.compassresearch.ide.collaboration.files;
 
 import java.io.Serializable;
+import java.util.List;
 
 import eu.compassresearch.ide.collaboration.datamodel.File;
 
@@ -15,6 +16,7 @@ public class FileDTO implements Serializable
 	private String filePath;
 	private String fileContent;
 	private long timstamp;
+	private List<String> visibilityList;
 	
 	public FileDTO(File file, String content)
 	{
@@ -23,7 +25,11 @@ public class FileDTO implements Serializable
 		this.filePath = file.getFilePath();
 		this.fileContent = content;
 		this.timstamp = file.getTimeStamp().getTime();
-		this.fileHashName = file.getHashFileName();
+		this.fileHashName = file.getHashFileName();		
+		
+		if(file.isVisibilityLimited()){
+			this.visibilityList = file.getVisibilityList();
+		}	
 	}
 
 	public String getFileName()
@@ -54,6 +60,11 @@ public class FileDTO implements Serializable
 	public String getFilePath()
 	{
 		return filePath;
+	}
+	
+	public List<String> getVisibilityList()
+	{
+		return visibilityList;
 	}
 	
 	@Override

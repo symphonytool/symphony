@@ -801,10 +801,15 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 			}
 		}
 		String firstString =  ex.getFirst().apply(thmStringVisitor, vars);
-		String predString =  ex.getPredicate().apply(thmStringVisitor, vars);
-	//	String firstString = ThmExprUtil.getIsabelleExprStr(svars, boundvars, comp.getFirst()); 
-	//	String predString = ThmExprUtil.getIsabelleExprStr(svars, boundvars, comp.getPredicate()); 
-		return "{" + firstString + " | " + bindstr + " @ " + predString + "}";
+		if(ex.getPredicate() != null)
+		{
+			String predString =  ex.getPredicate().apply(thmStringVisitor, vars);
+			return "{" + firstString + " | " + bindstr + " @ " + predString + "}";
+		}
+		else
+		{
+			return "{" + firstString + " | " + bindstr + "}";
+		}
 	}
 
 	public String caseAMapEnumMapExp(AMapEnumMapExp ex, ThmVarsContext vars) throws AnalysisException{
@@ -846,10 +851,11 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		String predString = "true";
 		if (ex.getPredicate() != null) {
 			predString =  ex.getPredicate().apply(thmStringVisitor, vars);
+			return "[" + firstString + " | " + bindstr.toString() + " @ " + predString + "]";
 		}
-	//	String firstString = ThmExprUtil.getIsabelleExprStr(svars, boundvars, ex.getFirst()); 
-	//	String predString = ThmExprUtil.getIsabelleExprStr(svars, boundvars, ex.getPredicate()); 
-		return "[" + firstString + " | " + bindstr.toString() + " @ " + predString + "]";
+		else{
+			return "[" + firstString + " | " + bindstr.toString()  + "]";
+		}
 	}
 
 	public String caseASeqEnumSeqExp(ASeqEnumSeqExp ex, ThmVarsContext vars) throws AnalysisException{
@@ -935,9 +941,11 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		String predString =  "true";
 	    if (ex.getPredicate() != null) {
 	    	predString = ex.getPredicate().apply(thmStringVisitor, vars);
+			return "{" + firstString + " | " + bindstr.toString() + " @ " + predString + "}";
 	    }
-
-		return "{" + firstString + " | " + bindstr.toString() + " @ " + predString + "}";
+		else{
+			return "{" + firstString + " | " + bindstr.toString() + "}";	
+		}
 	}
 
 	public String caseASetEnumSetExp(ASetEnumSetExp ex, ThmVarsContext vars) throws AnalysisException{
