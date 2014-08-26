@@ -14,6 +14,7 @@ import org.overture.interpreter.scheduler.BasicSchedulableThread;
 import org.overture.interpreter.scheduler.InitThread;
 import org.overture.interpreter.values.BooleanValue;
 import org.overture.interpreter.values.IntegerValue;
+import org.overture.interpreter.values.QuoteValue;
 import org.overture.interpreter.values.RealValue;
 import org.overture.interpreter.values.RecordValue;
 import org.overture.interpreter.values.Value;
@@ -49,6 +50,7 @@ public class CoSimProtocolV3Test
 	private static final String LATTICE_INT = "{\"?\": \"int\"}";
 	private static final String REAL_1_23 = "{\"real\": 1.23}";
 	private static final String INT_1 = "{\"int\": 1}";
+	private static final String QUOTE_A = "{\"quote\": \"a\"}";
 	private static final String BOOL_FALSE = "{\"bool\": false}";
 	private static final String FINISHED_REPLY_MESSAGE = "{\"FinishedReplyMessage\":{\"process\":\"A\",\"finished\":false}}";
 	private static final String EXECUTE_COMPLETED_MESSAGE = "{\"ExecuteCompletedMessage\": {}}";
@@ -161,6 +163,14 @@ public class CoSimProtocolV3Test
 	{
 		String expected = REAL_1_23;
 		Value val = new RealValue(1.23);
+		compare(val, expected);
+	}
+	
+	@Test
+	public void testQuoteValue() throws Exception
+	{
+		String expected = QUOTE_A;
+		Value val = new QuoteValue("a");
 		compare(val, expected);
 	}
 
@@ -322,6 +332,16 @@ public class CoSimProtocolV3Test
 		String msg = BOOL_FALSE;
 		Value m = protocol.decode(msg.getBytes(), Value.class);
 		Assert.assertEquals("Wrong class type", m.getClass(), BooleanValue.class);
+	}
+	
+	
+	@Test
+	public void testDecodeQuoteValue() throws Exception
+	{
+		String msg = QUOTE_A;
+		Value m = protocol.decode(msg.getBytes(), Value.class);
+		Assert.assertEquals("Wrong class type", m.getClass(), QuoteValue.class);
+		Assert.assertEquals(((QuoteValue)m).value, "a");
 	}
 	
 	

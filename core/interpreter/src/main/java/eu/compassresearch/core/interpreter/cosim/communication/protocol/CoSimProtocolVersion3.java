@@ -17,14 +17,18 @@ import java.util.Vector;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import org.overture.ast.factory.AstFactory;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.lex.Dialect;
+import org.overture.ast.lex.LexLocation;
+import org.overture.ast.lex.LexQuoteToken;
 import org.overture.ast.node.Node;
 import org.overture.ast.types.PType;
 import org.overture.interpreter.values.BooleanValue;
 import org.overture.interpreter.values.FieldValue;
 import org.overture.interpreter.values.IntegerValue;
 import org.overture.interpreter.values.NumericValue;
+import org.overture.interpreter.values.QuoteValue;
 import org.overture.interpreter.values.RecordValue;
 import org.overture.interpreter.values.SeqValue;
 import org.overture.interpreter.values.Value;
@@ -232,6 +236,7 @@ public class CoSimProtocolVersion3 implements ICoSimProtocol
 	private static String encodeValue(Value o) throws Exception
 	{
 		String value = null;
+		String kind = o.kind();
 
 		if (o instanceof BooleanValue)
 		{
@@ -254,13 +259,17 @@ public class CoSimProtocolVersion3 implements ICoSimProtocol
 		} else if (o instanceof LatticeTopValue)
 		{
 			value = encodeObject(((LatticeTopValue) o).getType());
+		} else if (o instanceof QuoteValue)
+		{
+			kind = "quote";
+			value = encodeObject(((QuoteValue) o).value);
 		}
 
 		// TODO: add missing values
 
 		if (value != null)
 		{
-			return String.format(ValueTemplate, encodeObject(o.kind()), value);
+			return String.format(ValueTemplate, encodeObject(kind), value);
 		}
 
 		throw new Exception("Unable to encode value: " + o);
@@ -406,7 +415,7 @@ public class CoSimProtocolVersion3 implements ICoSimProtocol
 				String key = entry.getKey() + "";
 
 				List<String> types = Arrays.asList(new String[] { "int",
-						"bool", "?" });
+						"bool", "?", "quote" });
 
 				for (String type : types)
 				{
@@ -487,11 +496,23 @@ public class CoSimProtocolVersion3 implements ICoSimProtocol
 		} else if (type.equals("bool"))
 		{
 			return new BooleanValue((boolean) value);
+		} else if (type.equals("quote"))
+		{
+			return new QuoteValue((String) value);
 		} else if (type.equals("?"))
 		{
-			LexTokenReader reader = new LexTokenReader(value + "", Dialect.VDM_SL);
-			TypeReader typeReader = new TypeReader(reader);
-			return new LatticeTopValue(typeReader.readType());
+			PType readType = null;
+
+			if ((value + "").equals("quote"))
+			{
+				readType = AstFactory.newAQuoteType(new LexQuoteToken("", new LexLocation()));
+			} else
+			{
+				LexTokenReader reader = new LexTokenReader(value + "", Dialect.VDM_SL);
+				TypeReader typeReader = new TypeReader(reader);
+				readType = typeReader.readType();
+			}
+			return new LatticeTopValue(readType);
 		}
 
 		abortDecode("unable to decode value of type: '" + type
