@@ -136,7 +136,8 @@ public class SysMlToCmlTranslator {
 
 	public String translate(State s, State p) {
 		StringBuilder sb = new StringBuilder();
-
+		
+		
 		if (s.substates.isEmpty()) {
 			sb.append(getCmlName("exit_" + s.name) + " = ");
 			if (s.exit != null) {
@@ -283,14 +284,18 @@ public class SysMlToCmlTranslator {
 				}
 			}
 			
-			if (guards.size() > 0) {
+			if (guards.size() > 0 && noncompletion.size() > 0) {
 				sb.append("\n\t[]");
 				sb.append("\n\t[" + elseguard.toString() + "] & ");
 				translateNonCompletionTransitions(sb, noncompletion);
 				sb.append(")");
-			} else {
-				sb.append(") [] ");
+			} else if (noncompletion.size() > 0){
+				sb.append("\n\t[]");
+				sb.append("\n\t[false] & ");
 				translateNonCompletionTransitions(sb, noncompletion);
+				sb.append(")");
+			} else {
+				sb.append(")");
 			}
 		} else {
 			translateNonCompletionTransitions(sb, noncompletion);
