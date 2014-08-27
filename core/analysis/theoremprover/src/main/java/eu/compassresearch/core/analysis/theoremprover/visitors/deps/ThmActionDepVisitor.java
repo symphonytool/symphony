@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
+import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.patterns.PPattern;
@@ -44,6 +45,9 @@ import eu.compassresearch.ast.actions.AWaitAction;
 import eu.compassresearch.ast.actions.AWriteCommunicationParameter;
 import eu.compassresearch.ast.actions.PCommunicationParameter;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
+import eu.compassresearch.ast.declarations.AExpressionSingleDeclaration;
+import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
+import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.core.analysis.theoremprover.thms.NodeNameList;
 
 public class ThmActionDepVisitor  extends
@@ -191,7 +195,7 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 				nodeDeps.addAll(e.apply(thmDepVisitor, bvars));
 			}
 		}
-		nodeDeps.add(a.getName());
+		nodeDeps.add(new LexNameToken("", a.getName().getName(), a.getLocation()));
 
 		return nodeDeps;
 	}
@@ -238,6 +242,18 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 			AAlphabetisedParallelismReplicatedAction a, NodeNameList bvars)
 			throws AnalysisException {
 		NodeNameList nodeDeps = new NodeNameList();
+		for (PSingleDeclaration d : a.getReplicationDeclaration())
+		{
+			if(d instanceof AExpressionSingleDeclaration)
+			{
+				AExpressionSingleDeclaration expDecl = (AExpressionSingleDeclaration) d;
+				bvars.add(new LexNameToken("", expDecl.getIdentifier().clone()));
+			}else if(d instanceof ATypeSingleDeclaration)
+			{
+				ATypeSingleDeclaration expDecl = (ATypeSingleDeclaration) d;
+				bvars.add(new LexNameToken("", expDecl.getIdentifier().clone()));
+			}			
+		}
 		
 		nodeDeps.addAll(a.getReplicatedAction().apply(thmDepVisitor, bvars));
 		nodeDeps.addAll(a.getNamesetExpression().apply(thmDepVisitor, bvars));
@@ -262,6 +278,19 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 			throws AnalysisException {
 		NodeNameList nodeDeps = new NodeNameList();
 
+		for (PSingleDeclaration d : a.getReplicationDeclaration())
+		{
+			if(d instanceof AExpressionSingleDeclaration)
+			{
+				AExpressionSingleDeclaration expDecl = (AExpressionSingleDeclaration) d;
+				bvars.add(new LexNameToken("", expDecl.getIdentifier().clone()));
+			}else if(d instanceof ATypeSingleDeclaration)
+			{
+				ATypeSingleDeclaration expDecl = (ATypeSingleDeclaration) d;
+				bvars.add(new LexNameToken("", expDecl.getIdentifier().clone()));
+			}			
+		}
+		
 		nodeDeps.addAll(a.getReplicatedAction().apply(thmDepVisitor, bvars));
 		
 		return nodeDeps;
@@ -271,6 +300,18 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 			AGeneralisedParallelismReplicatedAction a, NodeNameList bvars)
 			throws AnalysisException {
 		NodeNameList nodeDeps = new NodeNameList();
+		for (PSingleDeclaration d : a.getReplicationDeclaration())
+		{
+			if(d instanceof AExpressionSingleDeclaration)
+			{
+				AExpressionSingleDeclaration expDecl = (AExpressionSingleDeclaration) d;
+				bvars.add(new LexNameToken("", expDecl.getIdentifier().clone()));
+			}else if(d instanceof ATypeSingleDeclaration)
+			{
+				ATypeSingleDeclaration expDecl = (ATypeSingleDeclaration) d;
+				bvars.add(new LexNameToken("", expDecl.getIdentifier().clone()));
+			}			
+		}
 		
 		nodeDeps.addAll(a.getReplicatedAction().apply(thmDepVisitor, bvars));
 		nodeDeps.addAll(a.getNamesetExpression().apply(thmDepVisitor, bvars));
@@ -285,6 +326,18 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 			throws AnalysisException {
 		NodeNameList nodeDeps = new NodeNameList();
 
+		for (PSingleDeclaration d : a.getReplicationDeclaration())
+		{
+			if(d instanceof AExpressionSingleDeclaration)
+			{
+				AExpressionSingleDeclaration expDecl = (AExpressionSingleDeclaration) d;
+				bvars.add(new LexNameToken("", expDecl.getIdentifier().clone()));
+			}else if(d instanceof ATypeSingleDeclaration)
+			{
+				ATypeSingleDeclaration expDecl = (ATypeSingleDeclaration) d;
+				bvars.add(new LexNameToken("", expDecl.getIdentifier().clone()));
+			}			
+		}
 		nodeDeps.addAll(a.getReplicatedAction().apply(thmDepVisitor, bvars));
 		nodeDeps.addAll(a.getNamesetExpression().apply(thmDepVisitor, bvars));
 		
@@ -297,7 +350,20 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 			AInternalChoiceReplicatedAction a, NodeNameList bvars)
 			throws AnalysisException {
 		NodeNameList nodeDeps = new NodeNameList();
-
+		
+		for (PSingleDeclaration d : a.getReplicationDeclaration())
+		{
+			if(d instanceof AExpressionSingleDeclaration)
+			{
+				AExpressionSingleDeclaration expDecl = (AExpressionSingleDeclaration) d;
+				bvars.add(new LexNameToken("", expDecl.getIdentifier().clone()));
+			}else if(d instanceof ATypeSingleDeclaration)
+			{
+				ATypeSingleDeclaration expDecl = (ATypeSingleDeclaration) d;
+				bvars.add(new LexNameToken("", expDecl.getIdentifier().clone()));
+			}			
+		}
+		
 		nodeDeps.addAll(a.getReplicatedAction().apply(thmDepVisitor, bvars));
 		
 		// FIXME: Add support declarations with the action		
@@ -332,7 +398,18 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 			ASequentialCompositionReplicatedAction a, NodeNameList bvars)
 			throws AnalysisException {
 		NodeNameList nodeDeps = new NodeNameList();
-		
+		for (PSingleDeclaration d : a.getReplicationDeclaration())
+		{
+			if(d instanceof AExpressionSingleDeclaration)
+			{
+				AExpressionSingleDeclaration expDecl = (AExpressionSingleDeclaration) d;
+				bvars.add(new LexNameToken("", expDecl.getIdentifier().clone()));
+			}else if(d instanceof ATypeSingleDeclaration)
+			{
+				ATypeSingleDeclaration expDecl = (ATypeSingleDeclaration) d;
+				bvars.add(new LexNameToken("", expDecl.getIdentifier().clone()));
+			}			
+		}
 		nodeDeps.addAll(a.getReplicatedAction().apply(thmDepVisitor, bvars));
 		
 		// FIXME: Add support declarations with the action		

@@ -88,8 +88,12 @@ public class CollaborationContentProvider implements ITreeContentProvider,
 			ConfigurationStatuses cs = (ConfigurationStatuses) parentElement;
 			return cs.getStatusList().toArray();
 		}else if(parentElement instanceof Visibility) {
-			Visibility shares = (Visibility)parentElement;
-			return shares.getVisibleList().toArray();
+			Visibility shares = (Visibility)parentElement;	
+			if(shares.size() > 0) {
+				return shares.getVisibleList().toArray();
+			} else {
+				return EMPTY_ARRAY;
+			}
 		} else if(parentElement instanceof Files) {
 			Files files = (Files)parentElement;
 			List<File> filesList = files.getFilesList();
@@ -149,6 +153,6 @@ public class CollaborationContentProvider implements ITreeContentProvider,
 
 	public void onObjectRemove(DeltaEvent event)
 	{
-		onObjectRemove(event);
+		viewer.refresh(null, true);
 	}
 }

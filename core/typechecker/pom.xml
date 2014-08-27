@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>eu.compassresearch.core</groupId>
 		<artifactId>core</artifactId>
-		<version>0.3.5-SNAPSHOT</version>
+		<version>0.3.7-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 

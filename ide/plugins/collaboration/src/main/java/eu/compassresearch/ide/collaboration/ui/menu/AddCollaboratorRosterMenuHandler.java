@@ -54,7 +54,7 @@ public class AddCollaboratorRosterMenuHandler extends AbstractRosterMenuHandler
 				Notification.showErrorMessage(Notification.CollabMenuRosterMenuHandler_ERROR_NO_COLLAB_CHANNEL);
 				return null;
 			}
-			// get users
+			// get user
 			IUser receiver = rosterEntry.getUser();
 			String userName = receiver.getID().getName();
 
@@ -63,7 +63,7 @@ public class AddCollaboratorRosterMenuHandler extends AbstractRosterMenuHandler
 			CollaborationGroup group = (CollaborationGroup) selected;
 			CollaborationProject project = (CollaborationProject) group.getParent();
 
-			if (group.hasCollaborator(userName))
+			if (group.getJoinedCollaborators().contains(userName))
 			{
 				CollaborationDialogs.displayErrorDialog("Error adding collaborator.", Notification.Collab_Dialog_COLLAB_REQUEST_ALREADY_ADDED);
 				return null;

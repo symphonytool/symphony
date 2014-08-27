@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.newWizards">
+         <!-- Wizard categories -->
+       <wizard
+             category="compass_eu.compassresearch.ide.ui.category"
+             class="eu.compassresearch.ide.libraries.AddLibraryWizard"
+             finalPerspective="eu.compassresearch.ide.ui.perspective"
+             icon="platform:/plugin/eu.compassresearch.ide.ui/icons/obj16/cml_library_obj.gif"
+             id="org.compassresearch.ide.ui.addLibraryWizard"
+             name="%org.compassresearch.ide.ui.addLibraryWizard.name"
+             preferredPerspectives="eu.compassresearch.ide.ui.perspective"
+             project="false">
+      </wizard>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            id="eu.compassresearch.ide.libraries.upgradeLibraryCommand"
+            name="%eu.compassresearch.ide.libraries.upgradeLibraryCommand.name">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="eu.compassresearch.ide.libraries.handlers.UpgradeLibraryLinkHandler"
+            commandId="eu.compassresearch.ide.libraries.upgradeLibraryCommand">
+      </handler>
+   </extension>
+
+<extension point="org.eclipse.ui.perspectiveExtensions">
+  <perspectiveExtension 
+    targetID="*">
+    <newWizardShortcut id="org.compassresearch.ide.ui.addLibraryWizard"/>
+  </perspectiveExtension>
+</extension>
+</plugin>

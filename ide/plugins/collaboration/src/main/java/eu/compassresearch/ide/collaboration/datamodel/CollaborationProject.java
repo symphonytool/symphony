@@ -138,7 +138,9 @@ public class CollaborationProject extends Model
 		if(newestConfiguration == null){
 			return fileStatus;
 		} else {
-			return newestConfiguration.getFileStatus(fileStatus);
+			FileStatus status = newestConfiguration.getFileStatus(fileStatus);
+
+			return status;
 		}
 	}
 	

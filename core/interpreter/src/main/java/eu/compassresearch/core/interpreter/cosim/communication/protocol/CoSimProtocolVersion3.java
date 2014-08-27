@@ -17,22 +17,28 @@ import java.util.Vector;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import org.overture.ast.factory.AstFactory;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.lex.Dialect;
+import org.overture.ast.lex.LexLocation;
+import org.overture.ast.lex.LexQuoteToken;
 import org.overture.ast.node.Node;
 import org.overture.ast.types.PType;
 import org.overture.interpreter.values.BooleanValue;
 import org.overture.interpreter.values.FieldValue;
 import org.overture.interpreter.values.IntegerValue;
 import org.overture.interpreter.values.NumericValue;
+import org.overture.interpreter.values.QuoteValue;
 import org.overture.interpreter.values.RecordValue;
 import org.overture.interpreter.values.SeqValue;
+import org.overture.interpreter.values.TokenValue;
 import org.overture.interpreter.values.Value;
 import org.overture.parser.lex.LexTokenReader;
 import org.overture.parser.syntax.TypeReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.lex.CmlLexNameToken;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
@@ -215,7 +221,7 @@ public class CoSimProtocolVersion3 implements ICoSimProtocol
 
 		if (o instanceof TauTransition)
 		{
-			// TODO: add tau transition, static node with skip
+			return String.format(Transition, "TauTransition", encodeObject(o.getHashedEventSources()), encodeObject("Skip"));
 		} else if (o instanceof TimedTransition)
 		{
 			final String field = String.format(TimedTransotionField, encodeObject(((TimedTransition) o).getTimeLimit()));
@@ -232,6 +238,7 @@ public class CoSimProtocolVersion3 implements ICoSimProtocol
 	private static String encodeValue(Value o) throws Exception
 	{
 		String value = null;
+		String kind = o.kind();
 
 		if (o instanceof BooleanValue)
 		{
@@ -254,16 +261,47 @@ public class CoSimProtocolVersion3 implements ICoSimProtocol
 		} else if (o instanceof LatticeTopValue)
 		{
 			value = encodeObject(((LatticeTopValue) o).getType());
+		} else if (o instanceof QuoteValue)
+		{
+			kind = "quote";
+			value = encodeObject(((QuoteValue) o).value);
+		} else if (o instanceof TokenValue)
+		{
+			kind = "token";
+			value = encodeObject(getTokenValue((TokenValue) o));
 		}
 
 		// TODO: add missing values
 
 		if (value != null)
 		{
-			return String.format(ValueTemplate, encodeObject(o.kind()), value);
+			return String.format(ValueTemplate, encodeObject(kind), value);
 		}
 
 		throw new Exception("Unable to encode value: " + o);
+	}
+
+	public static Value getTokenValue(TokenValue value)
+	{
+		Value innerValue = null;
+		for (Field field : TokenValue.class.getDeclaredFields())
+		{
+			if (field.getName().equals("value"))
+			{
+				field.setAccessible(true);
+				try
+				{
+					innerValue = (Value) field.get(value);
+				} catch (IllegalArgumentException e)
+				{
+					break;
+				} catch (IllegalAccessException e)
+				{
+					break;
+				}
+			}
+		}
+		return innerValue;
 	}
 
 	private static String encodeMessage(JsonMessage msg) throws Exception
@@ -401,20 +439,7 @@ public class CoSimProtocolVersion3 implements ICoSimProtocol
 
 			if (map.size() == 1)
 			{
-				Entry entry = (Entry) map.entrySet().iterator().next();
-
-				String key = entry.getKey() + "";
-
-				List<String> types = Arrays.asList(new String[] { "int",
-						"bool", "?" });
-
-				for (String type : types)
-				{
-					if (type.equals(key))
-					{
-						return createValue(type, entry.getValue());
-					}
-				}
+				return decodeValue(map);
 			} else if (map.containsKey("type"))
 			{
 				final String type = "" + map.get("type");
@@ -450,7 +475,9 @@ public class CoSimProtocolVersion3 implements ICoSimProtocol
 
 				} else if (type.contains(TauTransition.class.getSimpleName()))
 				{
-					// TODO
+					TauTransition transition= new TauTransition(null,  new ASkipAction(), "skip");
+					setHashedEventSources(map, transition);
+					return transition;
 				}
 			}
 		} else if (tmp instanceof List)
@@ -461,6 +488,26 @@ public class CoSimProtocolVersion3 implements ICoSimProtocol
 				list.add(decodeCoSim(object));
 			}
 			return list;
+		}
+		return null;
+	}
+
+	@SuppressWarnings("rawtypes")
+	protected Value decodeValue(Map map) throws Exception
+	{
+		Entry entry = (Entry) map.entrySet().iterator().next();
+
+		String key = entry.getKey() + "";
+
+		List<String> types = Arrays.asList(new String[] { "int", "bool", "?",
+				"quote", "token" });
+
+		for (String type : types)
+		{
+			if (type.equals(key))
+			{
+				return createValue(type, entry.getValue());
+			}
 		}
 		return null;
 	}
@@ -479,7 +526,8 @@ public class CoSimProtocolVersion3 implements ICoSimProtocol
 		setField("hashedEventSources", transition, hashedEventSources);
 	}
 
-	private Object createValue(String type, Object value) throws Exception
+	@SuppressWarnings("rawtypes")
+	private Value createValue(String type, Object value) throws Exception
 	{
 		if (type.equals("int"))
 		{
@@ -487,16 +535,34 @@ public class CoSimProtocolVersion3 implements ICoSimProtocol
 		} else if (type.equals("bool"))
 		{
 			return new BooleanValue((boolean) value);
+		} else if (type.equals("quote"))
+		{
+			return new QuoteValue((String) value);
+		} else if (type.equals("token"))
+		{
+			return new TokenValue(decodeValue((Map) value));
 		} else if (type.equals("?"))
 		{
-			LexTokenReader reader = new LexTokenReader(value + "", Dialect.VDM_SL);
-			TypeReader typeReader = new TypeReader(reader);
-			return new LatticeTopValue(typeReader.readType());
+			PType readType = null;
+
+			if ((value + "").equals("quote"))
+			{
+				readType = AstFactory.newAQuoteType(new LexQuoteToken("", new LexLocation()));
+			} else if ((value + "").equals("token"))
+			{
+				readType = AstFactory.newATokenBasicType((new LexLocation()));
+			} else
+			{
+				LexTokenReader reader = new LexTokenReader(value + "", Dialect.VDM_SL);
+				TypeReader typeReader = new TypeReader(reader);
+				readType = typeReader.readType();
+			}
+			return new LatticeTopValue(readType);
 		}
 
 		abortDecode("unable to decode value of type: '" + type
 				+ "' with value: '" + value + "'");
-		return value;
+		return null;
 	}
 
 	@SuppressWarnings({ "rawtypes" })

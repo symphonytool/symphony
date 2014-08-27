@@ -188,6 +188,11 @@ public class ThmProcessUtil {
 		for(AExplicitFunctionDefinition f : expfunctions){
 			//get the name and add it to the list
 			fNames.add(f.getName());
+			//get the non-typed name too.
+			if (f.getName().getName() != null)
+			{
+				fNames.add(new LexNameToken("", f.getName().getName(), f.getLocation()));
+			}
 		}
 		return fNames;
 	}
@@ -205,6 +210,11 @@ public class ThmProcessUtil {
 		for(AImplicitFunctionDefinition f : functions){
 			//get the name and add it to the list
 			fNames.add(f.getName());
+			//get the non-typed name too.
+			if (f.getName().getName() != null)
+			{
+				fNames.add(new LexNameToken("", f.getName().getName(), f.getLocation()));
+			}
 		}
 		return fNames;
 	}
@@ -243,6 +253,11 @@ public class ThmProcessUtil {
 		for(SOperationDefinition op : operations){
 			//get the name and add it to the list
 			opNames.add(op.getName());
+			//get the non-typed name too.
+			if (op.getName().getName() != null)
+			{
+				opNames.add(new LexNameToken("", op.getName().getName(), op.getLocation()));
+			}
 			//Construct a name for the operation precondition
 			LexNameToken preOpName = new LexNameToken("", "pre_" + op.getName().toString(), op.getLocation());
 			opNames.add(preOpName);
@@ -261,8 +276,15 @@ public class ThmProcessUtil {
 		NodeNameList actNames = new NodeNameList();
 		//for each operation
 		for(AActionDefinition a : actions)
+		{
 			//get the name and add it to the list
 			actNames.add(a.getName());
+			//get the non-typed name too.
+			if (a.getName().getName() != null)
+			{
+				actNames.add(new LexNameToken("", a.getName().getName(), a.getLocation()));
+			}
+		}
 		return actNames;
 	}
 }
