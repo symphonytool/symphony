@@ -8,7 +8,6 @@ import java.util.Map;
 import org.eclipse.ecf.core.identity.ID;
 
 import eu.compassresearch.ide.collaboration.Activator;
-import eu.compassresearch.ide.collaboration.communication.ConnectionManager;
 
 public class CollaborationGroup extends Model {
 
@@ -33,7 +32,7 @@ public class CollaborationGroup extends Model {
 	}
 	
 	public void removeCollaborator(User user) {
-		collaborators.remove(user);
+		collaborators.remove(user.getName());
 		user.removeListener(listener);
 		fireObjectRemovedEvent(user);
 	}

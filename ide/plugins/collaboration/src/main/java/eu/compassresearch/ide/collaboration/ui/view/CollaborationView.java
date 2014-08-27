@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 
 import org.eclipse.compare.CompareConfiguration;
 import org.eclipse.compare.CompareEditorInput;
@@ -24,6 +25,8 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.dialogs.InputDialog;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelection;
@@ -32,11 +35,13 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
@@ -55,9 +60,11 @@ import eu.compassresearch.ide.collaboration.datamodel.File;
 import eu.compassresearch.ide.collaboration.datamodel.Model;
 import eu.compassresearch.ide.collaboration.distributedsimulation.DistributedSimulationManager;
 import eu.compassresearch.ide.collaboration.files.FileComparison;
+import eu.compassresearch.ide.collaboration.files.FileStatus;
 import eu.compassresearch.ide.collaboration.notifications.Notification;
 import eu.compassresearch.ide.collaboration.ui.menu.AddCollaboratorRosterMenuContributionItem;
 import eu.compassresearch.ide.collaboration.ui.menu.CollaborationDialogs;
+import eu.compassresearch.ide.collaboration.ui.menu.CompareConfigurationsDialog;
 
 /**
  * @see ViewPart
@@ -75,7 +82,8 @@ public class CollaborationView extends ViewPart
 	protected Action approveContractAction;
 	protected Action rejectContractAction;
 	protected Action initDistributedSimulationAction;
-	protected Action addToCollaborationGroup;
+	private Action deleteCollaborationProject;
+
 
 	public void createPartControl(Composite parent)
 	{
@@ -190,8 +198,23 @@ public class CollaborationView extends ViewPart
 			{
 				initiatedDistributedSimulation();
 			}
-		};
+		};		
 		initDistributedSimulationAction.setToolTipText("Initiate simulation between collaborators");
+		
+		deleteCollaborationProject = new Action("Delete Collaboration Project")
+		{
+			public void run()
+			{
+				Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+				boolean result =  MessageDialog.openConfirm(shell, 
+						"Delete Collaboration Project", "Really delete collaboration project?");
+				
+				if(result){
+					deleteCollaborationProject();
+				}
+			}
+		};
+		initDistributedSimulationAction.setToolTipText("Delete the collaboration project and notify collaborators of \"left\" status");
 	}
 
 	private void addContextMenu()
@@ -220,9 +243,10 @@ public class CollaborationView extends ViewPart
 					{
 						if (hasConnection)
 						{
-							// CollaborationProject collaboration = (CollaborationProject) selectedDomainObject;
 							manager.add(initDistributedSimulationAction);
 						}
+						
+						manager.add(deleteCollaborationProject);
 
 					} else if (selectedDomainObject instanceof Configuration)
 					{
@@ -316,7 +340,6 @@ public class CollaborationView extends ViewPart
 					return;
 				} else if (selection instanceof TreeSelection)
 				{
-
 					TreeSelection ts = (TreeSelection) selection;
 					Object clickedElement = ts.getFirstElement();
 
@@ -344,20 +367,31 @@ public class CollaborationView extends ViewPart
 	{
 		Model selectedDomainObject = getSelectedEntry();
 
-		if (selectedDomainObject == null)
+		if (selectedDomainObject != null && selectedDomainObject instanceof Configuration)
 		{
-			return;
-		}
-		if (selectedDomainObject instanceof Configuration)
-		{
-
 			Configuration selectedConfig = (Configuration) selectedDomainObject;
 
 			CollaborationDataModelManager dataModelManager = Activator.getDefault().getDataModelManager();
 
 			try
 			{
-				dataModelManager.activateConfiguration(selectedConfig);
+				//check for existing files
+				List<File> existingFiles = dataModelManager.filesExistInWorkspace(selectedConfig);
+				
+				String files = "\n\n";
+				for (File file : existingFiles)
+				{
+					files += file.toString() + "\n" ;
+				}
+				
+				Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+				boolean confirmed = MessageDialog.openConfirm(shell, 
+						"Activate Configuration: Overwrite files", "Activation will overwrite: " + files + "\n Continue?");
+				
+				if(confirmed){
+					dataModelManager.activateConfiguration(selectedConfig);
+				}
+				
 			} catch (CoreException e)
 			{
 				ResourcesPlugin.getPlugin().getLog().log(new Status(IStatus.ERROR, Activator.PLUGIN_ID, 0, e.getMessage(), e));
@@ -386,7 +420,7 @@ public class CollaborationView extends ViewPart
 		}
 	}
 	
-	protected String encodeArrayAsCoommaSeperatedString(String... item)
+	protected String encodeArrayAsCommaSeperatedString(String... item)
 	{
 		StringBuffer sb = new StringBuffer();
 		for (Iterator<String> iterator = Arrays.asList(item).iterator(); iterator.hasNext();)
@@ -457,10 +491,39 @@ public class CollaborationView extends ViewPart
 		if (selectedDomainObject instanceof Configuration)
 		{
 			Configuration configurationToReject = (Configuration) selectedDomainObject;
-
 			CollaborationDataModelManager collabMgM = Activator.getDefault().getDataModelManager();
+			//
+			
+			 InputDialog dlg = new InputDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
+			            "Reject configuration", "Reason for rejecting model proposed in configuration:", "", null);
+			 
+			 int result = dlg.open();
+			 
+			 if(result == Window.OK) {
+				 String reason = dlg.getValue();
+				 collabMgM.rejectConfiguration(configurationToReject, reason);
+			 }
+		}
+	}
+	
+	protected void deleteCollaborationProject()
+	{
+		Model selectedDomainObject = getSelectedEntry();
+		
+		if (selectedDomainObject == null)
+		{
+			return;
+		}
 
-			collabMgM.rejectConfiguration(configurationToReject);
+		if (selectedDomainObject instanceof CollaborationProject)
+		{
+			CollaborationProject project = (CollaborationProject) selectedDomainObject;
+			CollaborationDataModelManager collabMgM = Activator.getDefault().getDataModelManager();
+			boolean deleted = collabMgM.deleteProject(project);
+			
+			if(deleted) {
+				CollaborationDialogs.getInstance().displayNotificationPopup(project.getName(), "Collaboration Project deleted.");
+			}
 		}
 	}
 
@@ -487,36 +550,44 @@ public class CollaborationView extends ViewPart
 				return;
 			}
 
-			configurationCompare.getCompareResult();
+			List<FileStatus> compareResult = configurationCompare.getCompareResult();
+			CompareConfigurationsDialog compDialog = new CompareConfigurationsDialog(configuration, compareResult, PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell());
+			compDialog.open();
 
 		} else if ((selectedDomainObject instanceof File))
 		{
 			File selectedFile = (File) selectedDomainObject;
 
-			try
+			compareFileWithPrev(dataModelManager, selectedFile);
+		}
+	}
+
+	public void compareFileWithPrev(
+			CollaborationDataModelManager dataModelManager, File selectedFile)
+	{
+		try
+		{
+			FileComparison prevAndSelectedCompare = dataModelManager.compareFileWithPrev(selectedFile);
+			// is file defined previously
+			if (prevAndSelectedCompare == null)
 			{
-				FileComparison prevAndSelectedCompare = dataModelManager.compareFileWithPrev(selectedFile);
-				// is file defined previously
-				if (prevAndSelectedCompare == null)
-				{
-					CollaborationDialogs.getInstance().displayNotificationPopup(selectedFile.getName(), Notification.Collab_Dialog_ERROR_COMPARE_NO_PREVIOUS);
-					return;
-				}
-
-				// are they identical?
-				if (prevAndSelectedCompare.isIdentical())
-				{
-					CollaborationDialogs.getInstance().displayNotificationPopup(selectedFile.getName(), Notification.Collab_Dialog_COMPARE_ARE_IDENTICAL);
-					return;
-				}
-
-				showCompareDialog(prevAndSelectedCompare);
-
-			} catch (CoreException | IOException e)
-			{
-				e.printStackTrace();
-				Notification.logError(Notification.Collab_Dialog_ERROR_COMPARE_FAILED, e);
+				CollaborationDialogs.getInstance().displayNotificationPopup(selectedFile.getName(), Notification.Collab_Dialog_ERROR_COMPARE_NO_PREVIOUS);
+				return;
 			}
+
+			// are they identical?
+			if (prevAndSelectedCompare.isIdentical())
+			{
+				CollaborationDialogs.getInstance().displayNotificationPopup(selectedFile.getName(), Notification.Collab_Dialog_COMPARE_ARE_IDENTICAL);
+				return;
+			}
+
+			showCompareDialog(prevAndSelectedCompare);
+
+		} catch (CoreException | IOException e)
+		{
+			e.printStackTrace();
+			Notification.logError(Notification.Collab_Dialog_ERROR_COMPARE_FAILED, e);
 		}
 	}
 
@@ -524,15 +595,18 @@ public class CollaborationView extends ViewPart
 	{
 		final CompareConfiguration compareConfiguration = new CompareConfiguration();
 		compareConfiguration.setLeftLabel(fileCompare.getPreviousFileName());
+		compareConfiguration.setLeftEditable(false);
 		compareConfiguration.setRightLabel(fileCompare.getTargetFileName());
-		CompareUI.openCompareDialog(new CompareEditorInput(compareConfiguration)
+		compareConfiguration.setRightEditable(false);
+		
+		CompareEditorInput compareDialog = new CompareEditorInput(compareConfiguration)
 		{
 			@Override
 			protected Object prepareInput(final IProgressMonitor monitor)
 					throws InvocationTargetException, InterruptedException
 			{
-
 				CompareItem left = new CompareItem(fileCompare.getTargetFileName(), fileCompare.getTargetFileContent());
+				
 				CompareItem right = new CompareItem(fileCompare.getPreviousFileName(), fileCompare.getPreviousFileContent());
 				DiffNode diffNode = new DiffNode(left, right);
 
@@ -543,8 +617,10 @@ public class CollaborationView extends ViewPart
 			public String getCancelButtonLabel()
 			{
 				return Notification.Collab_Dialog_BTN_OK;
-			}
-		});
+			}	
+		};
+		
+		CompareUI.openCompareDialog(compareDialog);
 	}
 
 	private void openFileInEditor(File file,
@@ -607,7 +683,7 @@ public class CollaborationView extends ViewPart
 
 	public void setFocus()
 	{
-		treeViewer.expandAll();
+		//treeViewer.expandAll();
 	}
 
 	public void expandAll()

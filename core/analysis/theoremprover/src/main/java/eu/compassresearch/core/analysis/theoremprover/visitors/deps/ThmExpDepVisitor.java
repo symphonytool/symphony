@@ -575,7 +575,8 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 			}
 			if(!boundV)
 			{
-				nodeDeps.add(varName);
+				//nodeDeps.add(varName); -- TEST THIS - COULD BE THE UNDOING!
+				nodeDeps.add(new LexNameToken("", varName.getName(), ex.getLocation()));
 			}
 		}
 		
@@ -1005,10 +1006,6 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 				nodeDeps.addAll(smb.getSet().apply(thmDepVisitor, bvars));	
 			}
 			
-			
-			
-			
-			
 		}
 		if (ex.getPredicate() != null){
 			nodeDeps.addAll(ex.getPredicate().apply(thmDepVisitor, bvars));	
@@ -1124,7 +1121,10 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 				nodeDeps.addAll(smb.getSet().apply(thmDepVisitor, bvars));	
 			}
 		}
-		nodeDeps.addAll(ex.getPredicate().apply(thmDepVisitor, bvars));	
+		if (ex.getPredicate() != null)
+		{
+			nodeDeps.addAll(ex.getPredicate().apply(thmDepVisitor, bvars));	
+		}
 
 		return nodeDeps;
 	}

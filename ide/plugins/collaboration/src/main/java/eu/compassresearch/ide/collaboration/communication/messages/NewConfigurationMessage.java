@@ -86,9 +86,21 @@ public class NewConfigurationMessage extends BaseMessage
 		fileDTOs.addAll(files);
 	}
 	
+	public void addSendTo(ArrayList<User> sendTo)
+	{
+		if(sendTo == null)
+			return;
+		
+		for (User user : sendTo)
+		{
+			receiverList.add(user.getName());
+		}
+	}
+	
 	@Override
 	public String toString()
 	{
 		return fileDTOs.toString();
 	}
+
 }

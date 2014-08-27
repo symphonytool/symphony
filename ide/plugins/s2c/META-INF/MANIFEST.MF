@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Symphony IDE S2C Plugin
 Bundle-SymbolicName: eu.compassresearch.ide.s2c;singleton:=true
-Bundle-Version: 0.3.5.qualifier
+Bundle-Version: 0.3.7.qualifier
 Bundle-Activator: eu.compassresearch.ide.s2c.S2cPlugin
 Bundle-Vendor: The COMPASS Project
 Bundle-Localization: plugin

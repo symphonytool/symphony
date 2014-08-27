@@ -31,7 +31,7 @@ public class FileComparison
 	
 	public String getTargetFileName()
 	{
-		return targetFile.getName() + targetFile.getTimeStamp();
+		return targetFile.getName() + " " + targetFile.getTimeStamp();
 	}
 
 	public File getPreviousFile()
