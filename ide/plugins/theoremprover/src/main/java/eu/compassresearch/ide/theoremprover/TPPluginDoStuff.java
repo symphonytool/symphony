@@ -503,7 +503,6 @@ public class TPPluginDoStuff {
 			if (!badPol.isEmpty()) {popBadPol(
 					"PO generation and export incomplete.", "Some POs are currently not supported by the theorem prover.",
 					badPol);
-			return;
 			}
 			
 			// we know we have a session because we checked for it outside
