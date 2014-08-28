@@ -664,7 +664,13 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		//Replace trailing $ that is added by the POG 
 		String variableName =varName.getName().replace("$", "");
 		
-		
+
+		for(ILexNameToken var : vars.getBVars()){
+			if (variableName.equals(var.getName()))
+			{
+				return  "^" + variableName + "^";
+			}
+		}
 		for(ILexNameToken var : vars.getSVars()){
 			if (variableName.equals(var.getName()))
 			{
@@ -679,12 +685,6 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 				{
 					return  "($" + variableName + ")";
 				}
-			}
-		}
-		for(ILexNameToken var : vars.getBVars()){
-			if (variableName.equals(var.getName()))
-			{
-				return  "^" + variableName + "^";
 			}
 		}
 		//assume is value?
