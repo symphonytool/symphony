@@ -70,14 +70,23 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 		while (!listningWatch.isMatched())
 		{
 			int exit = 0;
-			try{
-				process.exitValue();
-				exit =-1;
-			}catch(IllegalThreadStateException e)
+			try
 			{
-				
+				try
+				{
+					// the build server is slow
+					Thread.sleep(500);
+				} catch (InterruptedException e)
+				{
+
+				}
+				process.exitValue();
+				exit = -1;
+			} catch (IllegalThreadStateException e)
+			{
+
 			}
-			if (time * 1000 >= DEFAULT_TIMEOUT || exit ==-1)
+			if (time * 1000 >= DEFAULT_TIMEOUT || exit == -1)
 			{
 				throw new TimeoutException("Server never started to listen for clients");
 			}
@@ -172,13 +181,14 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 		}
 
 	}
-	
+
 	public void printTitle(String title)
 	{
 		System.out.println("-----------------------------------------------------");
-		System.out.println("| "+title);
+		System.out.println("| " + title);
 		System.out.println("-----------------------------------------------------");
-		System.out.flush();;
+		System.out.flush();
+		;
 	}
 
 	@Test
@@ -263,8 +273,9 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 		ProcessInfo client = setUpClient(source, "Reader");
 
 		waitForCompletion(coordinator.process, DEFAULT_TIMEOUT);
+		waitForCompletion(client.process, DEFAULT_TIMEOUT);
 
-		Assert.assertFalse("Simulators did not finish successfully", isFinished(coordinator.finishWatch, client.finishWatch));
+		Assert.assertTrue("Simulators did not finish successfully", isFinished(coordinator.finishWatch, client.finishWatch));
 
 	}
 
@@ -282,7 +293,7 @@ public class CoSimulationIntegrationTest extends ExternalProcessTest
 
 		// System.err.println(coordinator.finishWatch);
 		// System.err.println(deadlockedWatch);
-		Assert.assertTrue("Simulators did not finish successfully", deadlockedWatch.matched);
+		Assert.assertTrue("Simulators did not finish successfully", isFinished(coordinator.finishWatch, client.finishWatch));
 
 	}
 
