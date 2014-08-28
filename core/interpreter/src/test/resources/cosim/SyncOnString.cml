@@ -11,9 +11,9 @@ values
 
 MAX = 3
 
-process Main = Writer [|{a,b}|] Echo 
+process Main = Writer [|{a,b}|] Reader 
 
-process Echo = Reader
+-- process Echo = Reader
 process Reader = 
 begin
 actions
