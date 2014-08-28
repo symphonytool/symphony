@@ -1,0 +1,19 @@
+channels
+  ping : nat
+  pair : nat * nat
+
+process TEST = begin
+state
+  simple : map nat to nat := {1 |-> 0}
+actions
+  TOP = A(1) ||| A(2)
+  A   = val x : nat @ 
+          pair!x!(simple(1)) ->
+          simple(1) := x;
+          pair!x!(simple(1)) ->
+          Skip
+@ ping!(simple(1)) ->
+  TOP;
+  ping!(simple(1)) ->
+  Skip
+end
