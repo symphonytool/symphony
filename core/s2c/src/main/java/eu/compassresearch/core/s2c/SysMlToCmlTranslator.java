@@ -331,17 +331,19 @@ public class SysMlToCmlTranslator
 					sb.append("\n\t[]");
 				}
 			}
-
-			if (guards.size() > 0)
-			{
+			
+			if (guards.size() > 0 && noncompletion.size() > 0) {
 				sb.append("\n\t[]");
 				sb.append("\n\t[" + elseguard.toString() + "] & ");
 				translateNonCompletionTransitions(sb, noncompletion);
 				sb.append(")");
-			} else
-			{
-				sb.append(") [] ");
+			} else if (noncompletion.size() > 0){
+				sb.append("\n\t[]");
+				sb.append("\n\t[false] & ");
 				translateNonCompletionTransitions(sb, noncompletion);
+				sb.append(")");
+			} else {
+				sb.append(")");
 			}
 		} else
 		{

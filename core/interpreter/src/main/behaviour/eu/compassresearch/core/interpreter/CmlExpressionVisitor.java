@@ -16,9 +16,11 @@ import org.overture.ast.statements.PStateDesignator;
 import org.overture.ast.statements.PStm;
 import org.overture.interpreter.eval.DelegateExpressionEvaluator;
 import org.overture.interpreter.runtime.Context;
+import org.overture.interpreter.runtime.ObjectContext;
 import org.overture.interpreter.runtime.ValueException;
 import org.overture.interpreter.runtime.VdmRuntime;
 import org.overture.interpreter.runtime.VdmRuntimeError;
+import org.overture.interpreter.values.MapValue;
 import org.overture.interpreter.values.NameValuePair;
 import org.overture.interpreter.values.NameValuePairList;
 import org.overture.interpreter.values.OperationValue;
@@ -27,6 +29,7 @@ import org.overture.interpreter.values.QuantifierList;
 import org.overture.interpreter.values.SetValue;
 import org.overture.interpreter.values.Value;
 import org.overture.interpreter.values.ValueList;
+import org.overture.interpreter.values.ValueMap;
 import org.overture.interpreter.values.ValueSet;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
@@ -51,6 +54,8 @@ import eu.compassresearch.core.interpreter.api.values.CmlChannel;
 import eu.compassresearch.core.interpreter.api.values.LatticeTopValue;
 import eu.compassresearch.core.interpreter.api.values.NameValue;
 import eu.compassresearch.core.interpreter.api.values.RenamingValue;
+import eu.compassresearch.core.interpreter.runtime.DelayedWriteContext;
+import eu.compassresearch.core.interpreter.runtime.DelayedWriteObjectValue;
 
 public class CmlExpressionVisitor extends
 		QuestionAnswerCMLAdaptor<Context, Value>
@@ -120,14 +125,56 @@ public class CmlExpressionVisitor extends
 	{
 		try
 		{
-			Value object = node.getRoot().apply(VdmRuntime.getExpressionEvaluator(), ctxt).deref();
+			final Value objectRefed = node.getRoot().apply(VdmRuntime.getExpressionEvaluator(), ctxt);
+			Value object = objectRefed.deref();
 			if (object instanceof OperationValue)
 			{
 				return StatementInspectionVisitor.invokeOperation(node.getLocation(),node, node.getArgs(), ctxt, (OperationValue)object, this);
-			} else
+			} else if(object instanceof MapValue)
 			{
-				return super.caseAApplyExp(node, ctxt);
+				Context lCtxt = ctxt;
+				if(ctxt instanceof ObjectContext)
+				{
+					DelayedWriteContext delayedCtxt = null;
+					Context tmp = lCtxt;
+
+					while (tmp != null)
+					{
+						if (tmp instanceof DelayedWriteContext)
+						{
+							if (!((DelayedWriteContext) tmp).isDisabled())
+							{
+								delayedCtxt = (DelayedWriteContext) tmp;
+
+								break;
+							}
+						}
+						tmp = tmp.outer;
+					}
+					
+					if(delayedCtxt !=null)
+					{
+						//we have to wrap the object context
+						lCtxt =new ObjectContext(ctxt.assistantFactory, ctxt.location, ctxt.title, ctxt.outer, new DelayedWriteObjectValue(((ObjectContext)lCtxt).self, delayedCtxt));
+					}
+				}
+				
+				Value arg = node.getArgs().get(0).apply(VdmRuntime.getExpressionEvaluator(), ctxt);
+//				MapValue mv = (MapValue) object;
+//				return mv.lookup(arg, ctxt);
+				ValueMap mval = objectRefed.mapValue(lCtxt);
+				
+				Value v = mval.get(arg);
+
+				if (v == null)
+				{
+					throw new ValueException(4061, "No such key value in map: " + arg, ctxt);
+				}
+
+				return v;
+				//return super.caseAApplyExp(node, lCtxt);
 			}
+			return super.caseAApplyExp(node, ctxt);
 		} catch (ValueException e)
 		{
 			return VdmRuntimeError.abort(node.getLocation(), e);

@@ -31,6 +31,7 @@
     <module>ui</module>
     <module>plugins</module>
     <module>platform</module>
+	<module>libraries</module>
     <module>features</module>
     <module>product</module>
   </modules>

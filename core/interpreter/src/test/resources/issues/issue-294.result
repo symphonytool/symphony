@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testResult>
+    <exception></exception>
+  <interpreterState>FINISHED</interpreterState>
+  <trace>
+    <events>ping.0,pair.(\d).0,(pair.\1.\1,pair.(\d).0,pair.\3.\3,|pair.(\d).0,(pair.\1.\1,pair.\4.\4,|pair.\4.\4,pair.\1.\1,))
+ping.0</events>
+  </trace>
+</testResult>
