@@ -304,7 +304,7 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		String right = p.getRight().apply(thmStringVisitor, vars);
 		String chExp = p.getChansetExpression().apply(thmStringVisitor, vars);
 		
-		return left + "[|" + chExp +"|]" + right;
+		return "(" +left + ") [|" + chExp +"|] (" + right + ")";
 	}
 
 	public String caseAGeneralisedParallelismReplicatedProcess(

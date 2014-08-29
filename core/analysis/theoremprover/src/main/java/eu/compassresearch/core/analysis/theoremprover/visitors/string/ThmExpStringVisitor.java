@@ -466,7 +466,15 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		StringBuilder rootsb = new StringBuilder();
 		rootsb.append(root);
 		
-		if (!(appRoot.getType() instanceof ANamedInvariantType || appRoot.getType() instanceof ARecordInvariantType))
+		if (appRoot.getType() instanceof ASeqSeqType || appRoot.getType() instanceof ASeq1SeqType)
+		{
+			return rootsb.toString() + "<" + sb.toString() + ">";
+		}
+		else if (appRoot.getType() instanceof AMapMapType)
+		{
+			return rootsb.toString() + "[" + sb.toString() + "]";
+		}
+		else if (!(appRoot.getType() instanceof ANamedInvariantType || appRoot.getType() instanceof ARecordInvariantType))
 		{
 			//Need to remove ^ decoration from root, as can't currently determine
 			//if root expression is a function variable.
@@ -484,15 +492,7 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		{
 			return rootsb.toString() + "[" + sb.toString() + "]";
 		}
-		else if (appRoot.getType() instanceof ASeqSeqType || appRoot.getType() instanceof ASeq1SeqType)
-		{
-			return rootsb.toString() + "<" + sb.toString() + ">";
-		}
-		else if (appRoot.getType() instanceof AMapMapType)
-		{
-			return rootsb.toString() + "[" + sb.toString() + "]";
-		}
-		else
+		else 
 		return rootsb.toString() + "(" + sb.toString() + ")";
 	}	
 
@@ -808,7 +808,7 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		}
 		else
 		{
-			return "{" + firstString + " | " + bindstr + "}";
+			return "{" + firstString + " | " + bindstr + " @ true}";
 		}
 	}
 
@@ -854,7 +854,7 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 			return "[" + firstString + " | " + bindstr.toString() + " @ " + predString + "]";
 		}
 		else{
-			return "[" + firstString + " | " + bindstr.toString()  + "]";
+			return "[" + firstString + " | " + bindstr.toString()  + " @ true]";
 		}
 	}
 
@@ -944,7 +944,7 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 			return "{" + firstString + " | " + bindstr.toString() + " @ " + predString + "}";
 	    }
 		else{
-			return "{" + firstString + " | " + bindstr.toString() + "}";	
+			return "{" + firstString + " | " + bindstr.toString() + " @ true}";	
 		}
 	}
 
@@ -1030,7 +1030,14 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 	public String caseAFatEnumVarsetExpression(AFatEnumVarsetExpression ex, ThmVarsContext vars) throws AnalysisException{
 		StringBuilder sb = new StringBuilder();
 
-		for (Iterator<ANameChannelExp> itr = ex.getChannelNames().listIterator(); itr.hasNext(); ) {
+		LinkedList<ANameChannelExp> chanNames = ex.getChannelNames();
+		
+		if(chanNames.isEmpty())
+		{
+			return "{}";
+		}
+		
+		for (Iterator<ANameChannelExp> itr = chanNames.listIterator(); itr.hasNext(); ) {
 			ANameChannelExp chan = itr.next();
 					
 			//ILexIdentifierToken
@@ -1052,8 +1059,9 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 
 		
 	public String caseAIdentifierVarsetExpression(AIdentifierVarsetExpression ex, ThmVarsContext vars) throws AnalysisException{
-		// TODO COMPLETE
-		return "(*varset id not handled*)";
+		ILexIdentifierToken varId = ex.getIdentifier();
+		
+		return varId.getName();
 	}
 
 		
