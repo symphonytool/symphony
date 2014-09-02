@@ -9,14 +9,24 @@ import java.util.List;
 
 import org.junit.Test;
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.node.INode;
 
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.analysis.theoremprover.thms.ThmType;
+import eu.compassresearch.core.analysis.theoremprover.utils.UnhandledSyntaxException;
+import eu.compassresearch.core.analysis.theoremprover.visitors.TPVisitor;
 
 public class TPVisitorTest1 {
 	
 	public static String compoundTypesPath  = "src/test/resources/CompoundsTypes.cml";
 	public static String basicTypesPath  = "src/test/resources/SimpleType.cml";
+	
+	@Test
+	public void quickPLay() throws IOException, AnalysisException, UnhandledSyntaxException{
+		List<INode> ast = TPUtil.getAstFromName("src/test/resources/playground.cml");
+		String r = TPVisitor.generateThyStr(ast, "playground.cml");
+		System.out.println(r);
+	}
 	
 	@Test
 	public void testBasicTypes() throws AnalysisException, IOException{
