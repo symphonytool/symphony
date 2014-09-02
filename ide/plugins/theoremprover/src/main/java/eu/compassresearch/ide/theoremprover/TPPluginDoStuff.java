@@ -54,6 +54,7 @@ import eu.compassresearch.ide.core.resources.ICmlProject;
 import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
 import eu.compassresearch.ide.core.unsupported.UnsupportedElementInfo;
 import eu.compassresearch.ide.pog.PogPluginRunner;
+import eu.compassresearch.ide.pog.PogPluginUtils;
 import eu.compassresearch.ide.theoremprover.utils.TheoryLoader;
 import eu.compassresearch.ide.ui.utility.CmlProjectUtil;
 
@@ -495,13 +496,14 @@ public class TPPluginDoStuff {
 
 			if (goodPol.isEmpty()) {
 				popBadPol(
-						"PO generation and export failed.", "None of the Proof Obligations are currently supported by the theorem prover - the PO exprssions contain unsupported elements",
+						"PO generation and export failed.", "All Proof Obligations contain elements not currently supported by the theorem prover.",
 						badPol);
 				return;
 			}
 			
 			if (!badPol.isEmpty()) {popBadPol(
-					"PO generation and export incomplete.", "Some POs are currently not supported by the theorem prover.",
+					"PO generation and export incomplete.", "Some POs contain elements not currently supported  by the theorem prover. Only the fully-supported "
+							+ "POs were generated.",
 					badPol);
 			}
 			
@@ -578,8 +580,8 @@ public class TPPluginDoStuff {
 			
 				EditDocumentModel pogEDM = TheoryLoader.addTheory(pogFullName ,dirName, fileName + "_PO", sess, pogThyFile, prov);
 				
-				PogPluginRunner ppr = new PogPluginRunner(window, site, cmlProj);
-				ppr.runPog();
+				PogPluginUtils.openPoviewPerspective(site);
+				PogPluginUtils.redrawPOs(cmlProj, goodPol);
 			    
 				// Start Proof Session			
 				ProofSess ps = new ProofSess(pogEDM, cmlProj, goodPol, cmlProj.getModel().getAst(), prov, sess);
@@ -638,9 +640,9 @@ private 	void popBadPol(String msg, String reason, IProofObligationList badPol) 
 
 
 	private Status sFromPo(IProofObligation po) {
-		String kind = po.getKindString();
+		String s = po.toString();
 		
-		Status r = new Status(IStatus.ERROR, TPConstants.PLUGIN_ID, kind);
+		Status r = new Status(IStatus.ERROR, TPConstants.PLUGIN_ID, s);
 		return r;
 	}
 

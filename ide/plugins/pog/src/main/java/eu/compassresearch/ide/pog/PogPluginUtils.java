@@ -23,6 +23,7 @@ import org.overture.pog.obligation.ProofObligationList;
 import org.overture.pog.pub.IProofObligationList;
 
 import eu.compassresearch.core.analysis.pog.visitors.ProofObligationGenerator;
+import eu.compassresearch.ide.core.resources.ICmlProject;
 import eu.compassresearch.ide.pog.commands.CommandState;
 import eu.compassresearch.ide.pog.view.PoListView;
 
@@ -57,6 +58,10 @@ public abstract class PogPluginUtils
 
 			e.printStackTrace();
 		}
+	}
+	
+	public static void redrawPOs(ICmlProject proj, IProofObligationList polist){
+		PogPluginRunner.redrawPos( proj, polist);
 	}
 
 	public static void enableAllPOsIcon(ExecutionEvent event)
