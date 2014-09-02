@@ -251,9 +251,11 @@ public class ThmImpFunc extends ThmDecl {
 		res.append("cmlifun " + name + "\n");
 		res.append("  inp ");
 
+		Iterator<String> titr = paramTypes.iterator();
+		
+		
 		for (Iterator<APatternListTypePair> itr1 = pattern.listIterator(); itr1.hasNext(); ) {
 			APatternListTypePair p = itr1.next();
-			Iterator<String> titr = paramTypes.iterator();
 			LinkedList<PPattern> pats = p.getPatterns();
 			for (Iterator<PPattern> itr2 = pats.listIterator(); itr2.hasNext(); ) {				
 				PPattern pat = itr2.next();
