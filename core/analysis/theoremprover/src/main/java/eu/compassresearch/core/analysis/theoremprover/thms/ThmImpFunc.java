@@ -251,20 +251,29 @@ public class ThmImpFunc extends ThmDecl {
 		res.append("cmlifun " + name + "\n");
 		res.append("  inp ");
 
-		Iterator<String> titr = paramTypes.iterator();
-		
-		
-		for (Iterator<APatternListTypePair> itr1 = pattern.listIterator(); itr1.hasNext(); ) {
-			APatternListTypePair p = itr1.next();
-			LinkedList<PPattern> pats = p.getPatterns();
-			for (Iterator<PPattern> itr2 = pats.listIterator(); itr2.hasNext(); ) {				
-				PPattern pat = itr2.next();
-				String ty = titr.next();
-				res.append(((AIdentifierPattern) pat).getName().toString());
-				res.append(" :: \"" + ty + "\"");
-				if (itr2.hasNext()) res.append (" and ");
+		//Require a slight hack as theorem does not deal with implicit functions with no
+		//parameters correctly. If there are no parameters, then add a 'blank' parameter
+		if (paramTypes.isEmpty())
+		{
+			res.append("emptyParam :: \"@bool\"");
+		}
+		else
+		{	
+			Iterator<String> titr = paramTypes.iterator();
+			
+			
+			for (Iterator<APatternListTypePair> itr1 = pattern.listIterator(); itr1.hasNext(); ) {
+				APatternListTypePair p = itr1.next();
+				LinkedList<PPattern> pats = p.getPatterns();
+				for (Iterator<PPattern> itr2 = pats.listIterator(); itr2.hasNext(); ) {				
+					PPattern pat = itr2.next();
+					String ty = titr.next();
+					res.append(((AIdentifierPattern) pat).getName().toString());
+					res.append(" :: \"" + ty + "\"");
+					if (itr2.hasNext()) res.append (" and ");
+				}
+				if (itr1.hasNext()) res.append (" and ");
 			}
-			if (itr1.hasNext()) res.append (" and ");
 		}
 		res.append("\n");
 		
