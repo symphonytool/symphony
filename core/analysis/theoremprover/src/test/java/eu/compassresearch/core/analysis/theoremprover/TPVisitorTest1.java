@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.node.INode;
@@ -20,7 +21,8 @@ public class TPVisitorTest1 {
 	
 	public static String compoundTypesPath  = "src/test/resources/CompoundsTypes.cml";
 	public static String basicTypesPath  = "src/test/resources/SimpleType.cml";
-	
+    
+    @Ignore
 	@Test
 	public void quickPLay() throws IOException, AnalysisException, UnhandledSyntaxException{
 		List<INode> ast = TPUtil.getAstFromName("src/test/resources/playground.cml");
