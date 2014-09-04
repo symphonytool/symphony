@@ -1,0 +1,6 @@
+process Test = begin
+@ mu X @ (
+	act1;
+    mu X @ 
+      (act2))
+end
