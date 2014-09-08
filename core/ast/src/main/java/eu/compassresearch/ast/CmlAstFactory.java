@@ -55,6 +55,7 @@ public class CmlAstFactory extends AstFactory
 		AActionDefinition adef = new AActionDefinition();
 		adef.setName(new CmlLexNameToken("", identifier));
 		adef.setAction(action);
+		adef.setLocation(identifier.getLocation());
 		// adef.setDeclarations(parametrisationList);
 		return adef;
 	}
