@@ -14,6 +14,7 @@ import org.overture.ast.statements.AAtomicStm;
 import org.overture.ast.statements.ABlockSimpleBlockStm;
 import org.overture.ast.statements.ACallStm;
 import org.overture.ast.statements.AElseIfStm;
+import org.overture.ast.statements.AForIndexStm;
 import org.overture.ast.statements.AIfStm;
 import org.overture.ast.statements.ALetStm;
 import org.overture.ast.statements.AReturnStm;
@@ -169,6 +170,19 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 
 		return nodeDeps;
 	}
+	
+	
+	public NodeNameList caseAForIndexStm(AForIndexStm node, NodeNameList bvars) throws AnalysisException
+	{
+		NodeNameList nodeDeps = new NodeNameList();
+		
+		nodeDeps.addAll(node.getBy().apply(thmDepVisitor,bvars));
+		nodeDeps.addAll(node.getFrom().apply(thmDepVisitor,bvars));
+		nodeDeps.addAll(node.getStatement().apply(thmDepVisitor,bvars));
+		
+		return nodeDeps;
+	}
+	
 	
 	public NodeNameList caseAReturnStm(AReturnStm a, NodeNameList bvars)
 	throws AnalysisException {
