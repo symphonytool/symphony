@@ -106,6 +106,7 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 		//Remove all inner dependencies from the process dependency list. We only care about the 
 		//things external to the process that we depend upon.
 		nodeDeps = nodeDeps.removeDeps(procNodeNames);
+		nodeDeps = nodeDeps.removeDeps(bvars);
 				
 		//Finally construct the node to represent the process
 		return nodeDeps;
