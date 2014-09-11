@@ -432,10 +432,9 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 					vars.addBVar(p.getName());
 					//If there are remaining patterns, add a ","
 					if(itr.hasNext()){	
-						sb.append(", (");
+						sb.append(", ");
 					}
 				}
-			//	sb.append(smb.getPlist().toString());
 				sb.append(" in @set ");
 				sb.append(smb.getSet().apply(thmStringVisitor, vars));
 				sb.append(" @ (");
