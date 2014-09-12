@@ -28,7 +28,7 @@ public class RttMbtCleanTestProcedureGenerationContext extends RttMbtAbstractTes
 		// check that test procedure generation context is selected
 		if (isTProcGenCtxSelected()) {
 			client.addLogMessage("cleaning up test procedure generation context " + selectedObjectName + "... please wait for the task to be finished.");
-			// cleanup concrete test procedure
+			// cleanup test procedure generation context
 			if (client.cleanTestProcedureGenerationContext(selectedObjectName)) {
 				client.addLogMessage("[PASS]: cleanup test procedure generation context " + selectedObjectName);
 				client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);

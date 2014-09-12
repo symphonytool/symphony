@@ -16,10 +16,16 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.dialogs.IMessageProvider;
+import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
@@ -28,8 +34,15 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
@@ -40,6 +53,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 import org.eclipse.ui.part.MultiPageEditorPart;
 
+import eu.compassresearch.rttMbtTmsClientApi.RttMbtAdvConfParser;
 import eu.compassresearch.rttMbtTmsClientApi.RttMbtClient;
 
 public class RttMbtRequirementsCoverage extends MultiPageEditorPart  {
@@ -117,6 +131,96 @@ public class RttMbtRequirementsCoverage extends MultiPageEditorPart  {
 		return value;
 	}
 
+	String testproc;
+	String testprocGenCtxFilesystemPath;
+	Boolean performTest;
+	Boolean IterTPGen;
+
+	private class EnterTestProcGenCtxNameDialog extends TitleAreaDialog {
+
+		private Text txtTestprocGenCtxName;
+		private String testprocGenCtx;
+		private Button performTestBox;
+		private Boolean performTest;
+
+		public EnterTestProcGenCtxNameDialog(Shell parentShell, String requirement) {
+			super(parentShell);
+			testprocGenCtx = "TP-" + requirement;
+		}
+
+		@Override
+		public void create() {
+			super.create();
+			setTitle("Test Procedure Name");
+			setMessage("Please enter the name of the test procedure that will be created.",
+					   IMessageProvider.INFORMATION);
+		}
+
+		@Override
+		protected Control createDialogArea(Composite parent) {
+			Composite area = (Composite) super.createDialogArea(parent);
+			Composite container = new Composite(area, SWT.NONE);
+			container.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
+			GridLayout layout = new GridLayout(2, false);
+			container.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
+			container.setLayout(layout);
+			createTestProcGenCtxName(container);
+			return area;
+		}
+
+		private void createTestProcGenCtxName(Composite container) {
+
+			// create label and input field
+			Label lbtTestProcGenCtxName = new Label(container, SWT.NONE);
+			lbtTestProcGenCtxName.setText("Test Procedure Name:");
+			txtTestprocGenCtxName = new Text(container, SWT.BORDER);
+			txtTestprocGenCtxName.setText(testprocGenCtx);
+			GridData dataTestProcGenCtxName = new GridData();
+			dataTestProcGenCtxName.grabExcessHorizontalSpace = true;
+			dataTestProcGenCtxName.horizontalAlignment = GridData.FILL;
+			txtTestprocGenCtxName.setLayoutData(dataTestProcGenCtxName);
+
+			// create label and check box
+			Label lbtPerformTest = new Label(container, SWT.NONE);
+			lbtPerformTest.setText("Perform Test:");
+			performTestBox = new Button(container, SWT.CHECK);
+			performTestBox.setText("Start test generation and test execution after the new\n" +
+			                       "test procedure generation context has been generated.");
+			GridData performTestBoxData = new GridData();
+			performTestBoxData.grabExcessHorizontalSpace = true;
+			performTestBoxData.horizontalAlignment = GridData.FILL;
+			performTestBox.setLayoutData(performTestBoxData);
+
+		}
+
+		@Override
+		protected boolean isResizable() {
+			return true;
+		}
+
+		// save content of the Text fields because they get disposed
+		// as soon as the Dialog closes
+		private void saveInput() {
+			testprocGenCtx = txtTestprocGenCtxName.getText();
+			performTest = performTestBox.getSelection();
+		}
+
+		@Override
+		protected void okPressed() {
+			saveInput();
+			super.okPressed();
+		}
+
+		public String getTestprocGenCtxName() {
+			return testprocGenCtx;
+		}
+
+		public Boolean getPerformTest() {
+			return performTest;
+		}
+
+	} 
+
 	// widget to display the data
 	private Tree reqTreeView;
 	private Tree tcTreeView;
@@ -157,6 +261,16 @@ public class RttMbtRequirementsCoverage extends MultiPageEditorPart  {
 			String workspacePath = workspace.getRoot().getLocation().toFile().getAbsolutePath();
 			client.setWorkspacePath(workspacePath);
 			client.setConsoleName(selectedObjectWorkspaceProjectName);
+			IProject iproject = ifile.getProject();
+			// if project specific folder names are defined: override global preferences.
+			String RttMbtTProcGenCtx = RttMbtProjectPropertiesPage.getPropertyValue(iproject, "RttMbtTProcGenCtx");
+			if ((RttMbtTProcGenCtx != null) && (RttMbtTProcGenCtx.length() > 0)) {
+				client.setRttMbtTProcGenCtxFolderName(RttMbtTProcGenCtx);
+			}
+			String RttMbtRttTprocPrefix = RttMbtProjectPropertiesPage.getPropertyValue(iproject, "RttMbtRttTprocPrefix");
+			if ((RttMbtRttTprocPrefix != null) && (RttMbtRttTprocPrefix.length() > 0)) {
+				client.setRttMbtTestProcFolderName(RttMbtRttTprocPrefix);
+			}
 
 			// get the input stream
 			InputStream istream;
@@ -492,6 +606,199 @@ public class RttMbtRequirementsCoverage extends MultiPageEditorPart  {
 		}
 	}
 
+	// create new test procedure generation context for a single test case
+	private void TestSingleTestCase(SelectionEvent e) {
+		Button button = (Button) e.getSource();
+		String ltlformula = button.getData().toString();
+		int idx = ltlformula.indexOf(';');
+		String tag = "";
+		if (idx > 0) {
+			tag = ltlformula.substring(0, idx);
+		}
+		// do NOT use iterative test procedure generation
+		IterTPGen = false;
+		CreateAndExecuteTest(tag, ltlformula);
+	}
+
+	// create new test procedure generation context for with all test cases of the requirement as goals
+	private void TestRequirement(SelectionEvent e) {
+		Button button = (Button) e.getSource();
+		String requirement = button.getData().toString();
+
+		// create list of test cases (goals) for this requirement
+		String goals = "";
+		List<String> tcs = req2tc.get(requirement);
+		if (tcs.size() == 0) {
+			client.addLogMessage("no test cases found for requirement " + requirement + "!");
+			return;
+		}
+		for (int idx = 0; idx < tcs.size(); idx++) {
+			String tcTag = tcs.get(idx);
+			goals = goals + tcTag + ";" + testcases.get(tcTag) + ";\n";
+		}
+		// use iterative test procedure generation
+		IterTPGen = true;
+		CreateAndExecuteTest(requirement, goals);
+	}
+
+	// perform (iterative) test generation and execution
+	private void CreateAndExecuteTest(String requirement, String goals) {
+		
+		EnterTestProcGenCtxNameDialog dialog = new EnterTestProcGenCtxNameDialog(getContainer().getShell(), requirement);
+
+		if (dialog.open() == Window.OK) {
+			// retrieve test procedure name from dialog
+			testproc = (String) dialog.getTestprocGenCtxName();
+			performTest = (Boolean) dialog.getPerformTest();
+		} else {
+			return;
+		}
+		// path to new test procedure generation context
+		testprocGenCtxFilesystemPath = client.getRttProjectPath() + File.separator +
+				client.getRttMbtTProcGenCtxFolderName() + File.separator +
+				testproc;
+		File testProcDir = new File(testprocGenCtxFilesystemPath);
+		if (testProcDir.exists()) {
+			client.addErrorMessage("'" + testproc + "' already exists.");
+			return;
+		}
+
+		// download templates to local workspace
+		if (!client.downloadTemplates()) {
+			client.addErrorMessage("unable to download test procedure generation context template from RTT-MBT server.");
+			return;
+		}
+
+		// create new test procedure from template
+		if (!client.createTestProcGenCtxFromTemplate(testproc))  {
+			client.addErrorMessage("a problem occurred when creating a new test procedure generation context from the RTT-MBT template.");
+			return;
+		}
+
+		if (IterTPGen) {
+			// add flag 'IterTPGen;1' to advanced.conf of new test procedure generation context
+			RttMbtAdvConfParser advConf = new RttMbtAdvConfParser();
+			String advConfPath = testprocGenCtxFilesystemPath + File.separator + "conf" + File.separator + "advanced.conf";
+			if (!advConf.readAdvancedConfig(advConfPath)) {
+				client.addErrorMessage("unable to read advanced.conf '" + advConfPath + "'");
+				return;
+			}
+			if (advConf.getIterTPGen() != 1) {
+				advConf.setIterTPGen(1);
+				advConf.writeAdvancedConfig(advConfPath);
+			}
+		}
+
+		// add 'goals' to additional goal file of new test procedure generation context
+		File addgoals = new File(testprocGenCtxFilesystemPath + File.separator + "conf" + File.separator + "addgoals.conf");
+		try {
+			FileWriter addgoalStream = new FileWriter(addgoals.getAbsolutePath(), true);
+			BufferedWriter append = new BufferedWriter(addgoalStream);
+			append.write(goals);
+			append.close();
+			addgoalStream.close();
+		} catch (IOException ex) {
+			client.addErrorMessage("Unable to open '" + addgoals.getAbsolutePath() + "' for writing!");
+			return;
+		}
+		client.addLogMessage("sucessfully created new test procedure generation context " + testproc + ".");
+		if (client.getVerboseLogging()) {
+			client.addLogMessage("Test Goals of " + testproc + ":\n" + goals);
+		}
+
+		if (!performTest) {
+			// check box for test generation and execution not checked in dialog
+			return;
+		}
+
+		// generate test procedure(s)
+		Job job = new Job("Testing "+ testproc) {
+			@Override
+			protected IStatus run(IProgressMonitor monitor) {
+
+				// perform actions
+				IStatus overallStatus = Status.OK_STATUS;
+				Activator.setMonitor(monitor);
+				int idx = 1;
+				String oldPostfix = "";
+				String newPostfix = "_" + idx;
+				Boolean success = true;
+				while (success) {
+					// generate test procedure
+					client.addLogMessage("Generate test procedure " + testproc + oldPostfix);
+					success = client.generateTestProcedure(testproc + oldPostfix);
+					if (!success) { break; }
+					if (client.isCurrentTaskCanceled()) { break; }
+
+					// check if any goals are covered by the generated test procedure
+					File covered = new File(testprocGenCtxFilesystemPath + oldPostfix + File.separator + "log" + File.separator + "covered_testcases.csv");
+					if (covered.isFile()) {
+						if (covered.length() == 0) {
+							client.addLogMessage("no test goals covered by generated test procedure '" + testproc + oldPostfix + "' - stopping test");
+							break;
+						}
+					} else {
+						client.addLogMessage("no test goals covered by generated test procedure '" + testproc + oldPostfix + "' - stopping test.");
+						break;
+					}
+
+					// clean test procedure
+					client.addLogMessage("Clean test procedure " + testproc + oldPostfix);
+					success = client.cleanTestProcedure(client.getRttMbtTestProcFolderName() + File.separator + testproc + oldPostfix);
+					if (!success) { break; }
+					if (client.isCurrentTaskCanceled()) { break; }
+
+					// compile test procedure
+					client.addLogMessage("Compile test procedure " + testproc + oldPostfix);
+					success = client.compileTestProcedure(client.getRttMbtTestProcFolderName() + File.separator + testproc + oldPostfix);
+					if (!success) { break; }
+					if (client.isCurrentTaskCanceled()) { break; }
+
+					// run test procedure
+					client.addLogMessage("Run test procedure " + testproc + oldPostfix);
+					success = client.runTestProcedure(client.getRttMbtTestProcFolderName() + File.separator + testproc + oldPostfix);
+					if (!success) { break; }
+					if (client.isCurrentTaskCanceled()) { break; }
+
+					// reply test procedure
+					client.addLogMessage("Replay test results of test procedure " + testproc + oldPostfix);
+					success = client.replayTestProcedure(testproc + oldPostfix);
+					if (!success) { break; }
+					if (client.isCurrentTaskCanceled()) { break; }
+
+					// doc test procedure
+					client.addLogMessage("Generate documentation for test procedure " + testproc + oldPostfix);
+					success = client.docTestProcedure(client.getRttMbtTestProcFolderName() + File.separator + testproc + oldPostfix);
+					if (!success) { break; }
+					if (client.isCurrentTaskCanceled()) { break; }
+
+					// check if all goals have been covered
+					success = client.prepareNextTestProcedureGeneration(testproc, oldPostfix, newPostfix);
+					File tgenCtx = new File(testprocGenCtxFilesystemPath + newPostfix);
+					if (!tgenCtx.isDirectory()) {
+						client.addLogMessage("No test procedure generation context for remaining goals found. " +
+								"Either all goals have been covered or remaining goals cannot " +
+								"be covered - stopping test generation.");
+						success = false;
+					} else {
+						client.addLogMessage("A new test procedure generation context for the remaining goals has been created - continue test generation with '" + testproc + newPostfix + "'.");
+					}
+					if (client.isCurrentTaskCanceled()) { break; }
+
+					// calculate next postfix
+					idx++;
+					oldPostfix = newPostfix;
+					newPostfix = "_" + idx;
+				}
+
+				// cleanup
+				Activator.setMonitor(null);
+				return overallStatus;
+			}
+		};
+		job.schedule();
+	}
+
 	// testcase coverage
 	private void createTc2ReqPage() {
 		// create tree view
@@ -564,7 +871,7 @@ public class RttMbtRequirementsCoverage extends MultiPageEditorPart  {
 		setPageText(index,"Requirements Coverage");
 
 		// header:
-		String[] req2tcHeader = {"Name", "Status", "Additional Goals"};
+		String[] req2tcHeader = {"Name", "Status", "Add Goals", "Create Test"};
 		for (int idx = 0; idx < req2tcHeader.length; idx++) {
 			TreeColumn column = new TreeColumn(reqTreeView, SWT.LEFT);
 			column.setText(req2tcHeader[idx]);
@@ -600,6 +907,28 @@ public class RttMbtRequirementsCoverage extends MultiPageEditorPart  {
 				public void widgetDefaultSelected(SelectionEvent e) { addTestcaseForRequirement(e); }
 				});
 		    editor.setEditor(cellEditor, tcParent, 2);
+			// create button to create test procedure(s) for this requirement
+		    String tooltip = "This button triggers the automated test of requirement " + reqTag +
+                    ". One or more new test procedure generation contexts directories " +
+                    "are created and configured to cover all test cases associated with " +
+                    reqTag + ". The respective test procedure(s) can directly be generated and executed.";
+			TreeEditor testeditor = new TreeEditor(reqTreeView);
+			testeditor.horizontalAlignment = SWT.LEFT;
+			testeditor.minimumWidth = 40;
+			testeditor.minimumHeight = 12;
+		    Button cellTestEditor = new Button(reqTreeView, SWT.PUSH);
+		    cellTestEditor.setToolTipText(tooltip);
+		    cellTestEditor.setText("test");
+		    cellTestEditor.setBackground(tcParent.getBackground());
+		    cellTestEditor.setData(reqTag);
+		    cellTestEditor.addSelectionListener(new SelectionListener() {
+				@Override
+				public void widgetSelected(SelectionEvent e) { TestRequirement(e); }
+
+				@Override
+				public void widgetDefaultSelected(SelectionEvent e) { TestRequirement(e); }
+				});
+		    testeditor.setEditor(cellTestEditor, tcParent, 3);
 			// add test cases for this requirement
 			List<String> tcs = req2tc.get(reqTag);
 			for (int idx = 0; idx < tcs.size(); idx++) {
@@ -625,6 +954,28 @@ public class RttMbtRequirementsCoverage extends MultiPageEditorPart  {
 					public void widgetDefaultSelected(SelectionEvent e) { addTestcase(e); }
 					});
 			    editor.setEditor(cellEditor, tc, 2);
+				// create button to create a test procedure for this test case
+			    tooltip = "This button triggers the automated test of test case " + tcTag +
+			    		". A new test procedure generation contexts directory " +
+			    		"is created and configured to cover this test case." +
+			    		"The new test procedure can directly be generated and executed.";
+			    testeditor = new TreeEditor(reqTreeView);
+				testeditor.horizontalAlignment = SWT.LEFT;
+				testeditor.minimumWidth = 40;
+				testeditor.minimumHeight = 12;
+			    cellTestEditor = new Button(reqTreeView, SWT.PUSH);
+			    cellTestEditor.setToolTipText(tooltip);
+			    cellTestEditor.setText("test");
+			    cellTestEditor.setBackground(tcParent.getBackground());
+			    cellTestEditor.setData(tcTag + ";" + testcases.get(tcTag) + ";");
+			    cellTestEditor.addSelectionListener(new SelectionListener() {
+					@Override
+					public void widgetSelected(SelectionEvent e) { TestSingleTestCase(e); }
+
+					@Override
+					public void widgetDefaultSelected(SelectionEvent e) { TestSingleTestCase(e); }
+					});
+			    testeditor.setEditor(cellTestEditor, tc, 3);
 			}
 			tcParent.setExpanded(true);
 		}

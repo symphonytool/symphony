@@ -66,15 +66,48 @@ public class RttMbtImportModel extends RttMbtPopupMenuAction {
 
 		// start task
 		IStatus status = Status.OK_STATUS;
-		client.beginTask("importing model " + ModelFile, 10);
+		client.beginTask("importing model " + ModelFile, 20);
 
 		client.addLogMessage("importing model " + ModelFile + "... please wait for the task to be finished.");
 		// initialize project with a model
 		if (client.initProject(ModelName, client.getUserId(), ModelFile)) {
 			client.addLogMessage("[PASS]: importing model " + ModelFile);
+			client.setProgress(IRttMbtProgressBar.Tasks.Global, 80);
 		} else {
 			client.addErrorMessage("[FAIL]: importing model " + ModelFile);
+			// cleanup
+			client.setSubTaskName("finishing task");
+			client.addCompletedTaskItems(6);
+			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
+			return Status.CANCEL_STATUS;
 		}
+
+		// create _P1
+		client.addLogMessage("generating test cases from model ... please wait for the task to be finished.");
+		// generate concrete test procedure
+		if (client.generateTestProcedure("_P1")) {
+			client.addLogMessage("[PASS]: generate test cases from model.");
+			client.setProgress(IRttMbtProgressBar.Tasks.Global, 80);
+		} else {
+			client.addErrorMessage("[FAIL]: generate test cases from model.");
+			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
+			status = Status.CANCEL_STATUS;
+			return status;
+		}
+
+		// cleanup test procedure generation context
+		client.addLogMessage("cleaning up temp files ... please wait for the task to be finished.");
+		if (client.cleanTestProcedureGenerationContext("_P1")) {
+			client.addLogMessage("[PASS]: cleanup temp files.");
+			client.setProgress(IRttMbtProgressBar.Tasks.Global, 90);
+		} else {
+			client.addErrorMessage("[FAIL]: cleanup temp files.");
+			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
+		}
+
+		// remove RT-Tester test procedure _P1
+		File p1 = new File(client.getRttProjectPath() + File.separator + client.getRttMbtTestProcFolderName() + File.separator + "_P1");
+		client.deleteLocalDirectory(p1, false);
 
 		// cleanup
 		client.setSubTaskName("finishing task");

@@ -52,7 +52,7 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
 	// path of test procedure generation context (if selected)
 	private String path;
 
-	// configuration settings
+	// advanced.conf settings used by rtttgen_V2
 	private IntegerFieldEditor MaxSolverStepsField;
 	private Integer MaxSolverStepsProperty;
 	private IntegerFieldEditor MaxSimStepsField;
@@ -77,12 +77,19 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
 	private Integer LoggerProperty;
 	private Integer MaxModelCoverageProperty;
 	private Integer VerbosityLevel;
-	private RttMbtAdvConfParser advancedConf = new RttMbtAdvConfParser();
-	private RttMbtMaxStepsParser maxSteps = new RttMbtMaxStepsParser();
+	// advanced.conf settings NOT used by rtttgen_V2
+	private Integer IterativeTgenProperty;
+	private IntegerFieldEditor IterativeTgenField;
+
+	// only visible in Symphony mode
 	private StringFieldEditor CmlProjectNameField;
 	private String CmlProjectNameProperty;
 	private StringFieldEditor CmlProcessNameField;
 	private String CmlProcessNameProperty;
+
+	// parsers for advaned.conf and max_steps.txt
+	private RttMbtAdvConfParser advancedConf = new RttMbtAdvConfParser();
+	private RttMbtMaxStepsParser maxSteps = new RttMbtMaxStepsParser();
 
 	public RttMbtProjectPropertiesPage() {
 		super(GRID);
@@ -118,19 +125,22 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
 	}
 
 	// static version for RttMbtClient
-	static public String getPropertyValue(IProject proj, String key) {
+	static public String getPropertyValue(IProject project,
+			                              String key) {
 		String value = null;
-		if (proj == null) return value;
+		if (project == null) return value;
 		if (key == null) return value;
 
 		// calculate qualified name of the property key
-		String qname = proj.getFullPath().toString().replaceAll(fileSeparatorPattern(), ".");
+		String qname = project.getFullPath().toString().replaceAll(fileSeparatorPattern(), ".");
 		QualifiedName propName = new QualifiedName(qname, key);
 		try {
-			value = proj.getPersistentProperty(propName);
+			value = project.getPersistentProperty(propName);
 		} catch (CoreException e) {
 			value = null;
 		}
+
+		// return the requested value
 		return value;
 	}
 
@@ -179,23 +189,23 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
 			bWriter.close();
 
 			// write advanced.conf
-			output = new File(path + File.separator + "conf" + File.separator + "advanced.conf");
-			writer = new FileWriter(output);
-			bWriter = new BufferedWriter(writer);
-			bWriter.write("GC;" + Integer.toString(GoalCoverageProperty) + ";if 1, cover all goals in d addgoals(ordered).conf, even if they are already covered by other procedures\n");
-			bWriter.write("BT;" + Integer.toString(BacktrackingProperty) + ";switch back tracking on if 1\n");
-			bWriter.write("LO;" + Integer.toString(LoggerProperty) + ";produce logger threads instead of checkers if 1\n");
-			bWriter.write("AI;" + Integer.toString(AbstractInterpreterProperty) + ";use abstract interpretation for speed-up of solver, if 1\n");
-			bWriter.write("MM;" + Integer.toString(MaxModelCoverageProperty) + ";maximise model coverage if 1\n");
-			bWriter.write("SC;" + Integer.toString(SanityChecksProperty) + ";perform sanity checks in solver and abstract interpreter if 1\n");
-			bWriter.write("RB;" + Integer.toString(RobustnessTestingProperty) + ";do robustness testing if 1\n");
-			bWriter.write("RP;" + Integer.toString(RobustnessPercentageProperty) + ";if RB=1 RP defines the percentage of robustness transitions to be performed\n");
-			bWriter.write("CI;" + Integer.toString(MaxSimultaneousInputChangesProperty) + ";maximal number of simultaneous input changes\n");
-			bWriter.write("DI;" + Integer.toString(MinDurationBetweenInputChangesProperty) + ";minimal duration between two input changes\n");
-			bWriter.write("LI;" + Integer.toString(MaxDurationBetweenInputChangesProperty) + ";upper limit for duration between two input changes\n");
-			bWriter.write("MC;" + Integer.toString(ModelCheckingProperty) + ";Perform model checking instead of test generation, if 1\n");
-			bWriter.write("VL;" + Integer.toString(VerbosityLevel) + ";Defines the verbosity level for the output (Range 0..4)\n");
-			bWriter.close();
+			advancedConf.setGC(GoalCoverageProperty > 0);
+			advancedConf.setGC(GoalCoverageProperty > 0);
+			advancedConf.setBT(BacktrackingProperty > 0);
+			advancedConf.setLO(LoggerProperty > 0);
+			advancedConf.setAI(AbstractInterpreterProperty > 0);
+			advancedConf.setMM(MaxModelCoverageProperty > 0);
+			advancedConf.setSC(SanityChecksProperty > 0);
+			advancedConf.setRB(RobustnessTestingProperty > 0);
+			advancedConf.setRP(RobustnessPercentageProperty);
+			advancedConf.setCI(MaxSimultaneousInputChangesProperty);
+			advancedConf.setDI(MinDurationBetweenInputChangesProperty);
+			advancedConf.setLI(MaxDurationBetweenInputChangesProperty);
+			advancedConf.setMC(ModelCheckingProperty > 0);
+			advancedConf.setVL(VerbosityLevel);
+			advancedConf.setIterTPGen(IterativeTgenProperty);
+			String advConfPath = path + File.separator + "conf" + File.separator + "advanced.conf";
+			advancedConf.writeAdvancedConfig(advConfPath);
 		} catch (IOException e) {
 			client.addErrorMessage("problem writing test procedure generation context properties!");
 		}
@@ -490,7 +500,7 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
     				"Otherwise it would be possible to define configuration in which " +
     				"the checker will never find problems in the SUT outputs.";
     		MaxDurationBetweenInputChangesField = new IntegerFieldEditor("RttMbtMaxDurationBetweenInputChanges",
-    				"Max. Duration between Input Changes::",
+    				"Max. Duration between Input Changes:",
     				getFieldEditorParent());
     		MaxDurationBetweenInputChangesField.setPreferenceStore(null);
     		MaxDurationBetweenInputChangesProperty = advancedConf.getLI();
@@ -498,6 +508,24 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
     		MaxDurationBetweenInputChangesField.getLabelControl(getFieldEditorParent()).setToolTipText(tooltip);
     		MaxDurationBetweenInputChangesField.getTextControl(getFieldEditorParent()).setToolTipText(tooltip);
     		addField(MaxDurationBetweenInputChangesField);
+
+    		// add iterative test generation
+    		tooltip = "If test goals are not covered by the current test procedure generation, "
+    				+ "a new test procedure generation context can be generated to try to reach the "
+    				+ "remaining goals in a new test procedure generation. Setting this option to 1 "
+    				+ "will trigger this behaviour. The test procedure generation will stop when all "
+    				+ "gols are reached or no more goals have been covered in the last test "
+    				+ "procedure generation.";
+    		IterativeTgenField = new IntegerFieldEditor("RttMbtIterativeTgen",
+    				"Iterative Test Generation:",
+    				getFieldEditorParent());
+    		IterativeTgenField.setPreferenceStore(null);
+    		IterativeTgenProperty = advancedConf.getIterTPGen();
+    		IterativeTgenField.setStringValue(IterativeTgenProperty.toString());
+    		IterativeTgenField.getLabelControl(getFieldEditorParent()).setToolTipText(tooltip);
+    		IterativeTgenField.getTextControl(getFieldEditorParent()).setToolTipText(tooltip);
+    		IterativeTgenField.setValidRange(-1, 1);
+    		addField(IterativeTgenField);
 
     		// add use abstract interpreter field
     		tooltip = "Use abstract interpretation for speed-up of solver.";
@@ -581,7 +609,7 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
 		if (RobustnessPercentageField != null) { RobustnessPercentageField.setStringValue(Integer.toString(0)); }
 		if (MaxSimultaneousInputChangesField != null) { MaxSimultaneousInputChangesField.setStringValue(Integer.toString(1)); }
 		if (MinDurationBetweenInputChangesField != null) { MinDurationBetweenInputChangesField.setStringValue(Integer.toString(10)); }
-		if (MaxDurationBetweenInputChangesField != null) { MaxDurationBetweenInputChangesField.setStringValue(Integer.toString(10000)); }
+		if (IterativeTgenField != null) { IterativeTgenField.setStringValue(Integer.toString(-1)); }
 		if (ModelCheckingField != null) { ModelCheckingField.setStringValue(Integer.toString(0)); }
 		super.performDefaults();
 	}
@@ -636,6 +664,9 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
 				// model checking
 				setPropertyValue("RttMbtModelChecking", ModelCheckingField.getStringValue());
 
+				// iterative test generation
+				setPropertyValue("RttMbtIterativeTgen", IterativeTgenField.getStringValue());
+
 	    		// copy from Integer field string values to property variables
 	    		MaxSolverStepsProperty = Integer.parseInt(MaxSolverStepsField.getStringValue());
 	    		MaxSimStepsProperty = Integer.parseInt(MaxSimStepsField.getStringValue());
@@ -646,6 +677,7 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
 	    		MinDurationBetweenInputChangesProperty = Integer.parseInt(MinDurationBetweenInputChangesField.getStringValue());
 	    		MaxDurationBetweenInputChangesProperty = Integer.parseInt(MaxDurationBetweenInputChangesField.getStringValue());
 	    		ModelCheckingProperty = Integer.parseInt(ModelCheckingField.getStringValue());
+	    		IterativeTgenProperty = Integer.parseInt(IterativeTgenField.getStringValue());
 
 	    		// write property values to disc
 	    		writeTgenConfig();
