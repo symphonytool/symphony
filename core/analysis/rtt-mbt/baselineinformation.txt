@@ -1,4 +1,29 @@
 -----------------------------------------------------------
+RTTPLUGIN_0.3.7
+
+Development version
+Changes:
+
+[2d5aea5]:
+- added support for flag "IterTPGen" from advanced.conf.
+- added prepareNextTestProcedureGeneration
+- added createTestProcGenCtxFromTemplate
+- added downloadTemplates
+- added copyLocalFile
+- added JSON command needed by prepareNextTestProcedureGeneration.
+- added function to write a complete advanced.conf file.
+
+Revision: in progress
+Released: in progress
+-----------------------------------------------------------
+RTTPLUGIN_0.3.6
+
+Release version
+Synchronisation with Symphony release 0.3.6
+
+Revision: [60a2c49]
+Released: 2014-08-26
+-----------------------------------------------------------
 RTTPLUGIN_0.3.5
 
 Development version
@@ -8,8 +33,8 @@ Changes:
 - changed order of replay and doc commands.
 - disable replay for test procedures without matching test procedure generation context.
 
-Revision: in progress
-Released: in progress
+Revision: [58562f0]
+Released: 2014-08-24
 -----------------------------------------------------------
 RTTPLUGIN_0.3.4
 
