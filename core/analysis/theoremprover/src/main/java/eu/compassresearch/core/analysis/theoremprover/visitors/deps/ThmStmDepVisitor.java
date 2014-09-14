@@ -176,8 +176,11 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 	{
 		NodeNameList nodeDeps = new NodeNameList();
 		
+		bvars.add(node.getVar());
+		
 		nodeDeps.addAll(node.getBy().apply(thmDepVisitor,bvars));
 		nodeDeps.addAll(node.getFrom().apply(thmDepVisitor,bvars));
+		nodeDeps.addAll(node.getTo().apply(thmDepVisitor,bvars));
 		nodeDeps.addAll(node.getStatement().apply(thmDepVisitor,bvars));
 		
 		return nodeDeps;

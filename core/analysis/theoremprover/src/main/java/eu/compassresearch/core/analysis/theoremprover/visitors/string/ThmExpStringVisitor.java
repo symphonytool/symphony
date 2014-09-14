@@ -567,12 +567,25 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 				sb.append(d.getName().toString());
 			}	
 			else if(d instanceof AValueDefinition){
-				LinkedList<PDefinition> vdefs = ((AValueDefinition) d).getDefs();
-				for (PDefinition v: vdefs)
+				AValueDefinition vdef = ((AValueDefinition) d);
+				if(vdef.getPattern() instanceof AIdentifierPattern)
 				{
-					vars.addBVar(v.getName());
-					sb.append(v.getName().toString());
+					AIdentifierPattern patt = ((AIdentifierPattern) vdef.getPattern());
+					vars.addBVar(patt.getName());
+					sb.append(patt.getName().toString());
 				}
+				sb.append(" : ");
+				sb.append(vdef.getExpType().apply(thmStringVisitor, vars));
+				sb.append(" = ");
+				sb.append(vdef.getExpression().apply(thmStringVisitor, vars));
+
+				
+//				LinkedList<PDefinition> vdefs = ((AValueDefinition) d).getDefs();
+//				for (PDefinition v: vdefs)
+//				{
+//					vars.addBVar(v.getName());
+//					sb.append(v.getName().toString());
+//				}
 			}
 		}
 		
