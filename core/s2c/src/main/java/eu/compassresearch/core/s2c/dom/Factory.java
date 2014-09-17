@@ -122,7 +122,7 @@ public class Factory
 
 		return cDef;
 	}
-	
+
 	public static DataType buildDataType(Node datatype)
 	{
 		DataType dt = new DataType();
@@ -152,7 +152,8 @@ public class Factory
 	private static String buildType(Node child)
 	{
 		// todo
-		if (child.getAttributes().getNamedItem("xmi:type").getTextContent().equals("uml:DataType"))
+		if ((child.getAttributes().getNamedItem("xmi:type").getTextContent().equals("uml:DataType") || child.getAttributes().getNamedItem("xmi:type").getTextContent().equals("uml:PrimitiveType"))
+				&& child.getAttributes().getNamedItem("name") != null)
 		{
 			return child.getAttributes().getNamedItem("name").getTextContent();
 		}
@@ -168,7 +169,7 @@ public class Factory
 		{
 			return child.getAttributes().getNamedItem("name").getTextContent();
 		}
-System.out.println(S2cTranslator.formateNodeWithAtt(child));
+		System.out.println(S2cTranslator.formateNodeWithAtt(child));
 		String tmp = child.getAttributes().getNamedItem("href").getNodeValue();
 		if (tmp.contains("#"))
 		{
@@ -241,15 +242,16 @@ System.out.println(S2cTranslator.formateNodeWithAtt(child));
 	{
 		Event event = new Event();
 		setIdAndName(eventNode, event);
-			event.signal = signal;;
+		event.signal = signal;
+		;
 		return event;
 	}
 
-	public static Signal buildSignal(Node signal,List<Property> properties)
+	public static Signal buildSignal(Node signal, List<Property> properties)
 	{
 		Signal s = new Signal();
 		setIdAndName(signal, s);
-		
+
 		s.property.addAll(properties);
 
 		return s;
@@ -259,7 +261,7 @@ System.out.println(S2cTranslator.formateNodeWithAtt(child));
 	{
 		EnumType et = new EnumType();
 		setIdAndName(type, et);
-		
+
 		for (Node lit : new NodeIterator(lookup))
 		{
 			et.literals.add(lit.getAttributes().getNamedItem("name").getNodeValue());
