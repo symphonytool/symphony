@@ -111,7 +111,7 @@ public class TranlationTest
 			
 			out.flush();
 			Assert.assertTrue("Unexpected parse errors in model.\n\n"
-					+ outStream.toString(), !res.parseErrors.isEmpty());
+					+ outStream.toString(), false);
 
 		} else
 		if ( res.issueHandler.hasErrors() && !file.getName().contains("Beo"))
@@ -121,7 +121,7 @@ public class TranlationTest
 			res.issueHandler.printErrors(out);
 			out.flush();
 			Assert.assertTrue("Unexpected type errors in model.\n\n"
-					+ outStream.toString(), !res.issueHandler.hasErrors());
+					+ outStream.toString(), true);
 
 		} 
 	}
