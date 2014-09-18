@@ -26,6 +26,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import eu.compassresearch.core.s2c.dom.ClassDefinition;
+import eu.compassresearch.core.s2c.dom.CustomType;
 import eu.compassresearch.core.s2c.dom.DataType;
 import eu.compassresearch.core.s2c.dom.EnumType;
 import eu.compassresearch.core.s2c.dom.Event;
@@ -36,6 +37,7 @@ import eu.compassresearch.core.s2c.dom.Signal;
 import eu.compassresearch.core.s2c.dom.State;
 import eu.compassresearch.core.s2c.dom.StateMachine;
 import eu.compassresearch.core.s2c.dom.Trigger;
+import eu.compassresearch.core.s2c.dom.Type;
 import eu.compassresearch.core.s2c.util.InvalidNameSpaceFix;
 import eu.compassresearch.core.s2c.util.NamedNodeMapIterator;
 import eu.compassresearch.core.s2c.util.NodeIterator;
@@ -269,7 +271,8 @@ public class S2cTranslator
 		System.out.println("Find all data and value types");
 		NodeList allValueTypes = lookup(doc, xpath, "//packagedElement[@xmi:type='uml:ValueType']");
 		NodeList allDataTypes = lookup(doc, xpath, "//packagedElement[@xmi:type='uml:DataType']");
-		List<DataType> alldatatypes = new Vector<DataType>();
+		NodeList allPrimitiveTypes = lookup(doc, xpath, "//packagedElement[@xmi:type='uml:PrimitiveType']");
+		List<Type> alldatatypes = new Vector<Type>();
 		for (Node n : new NodeIterator(allValueTypes))
 		{
 			DataType dt = Factory.buildDataType(n);
@@ -281,6 +284,25 @@ public class S2cTranslator
 			DataType dt = Factory.buildDataType(n);
 			dt.properties.addAll(buildProperties(doc, xpath, n));
 			alldatatypes.add(dt);
+		}
+		
+		for (Node n : new NodeIterator(allPrimitiveTypes))
+		{
+			if(n.getAttributes().getNamedItem("href")==null)
+			{
+				NodeList comments = lookup(n, xpath, "ownedComment[@xmi:type = 'uml:Comment']");
+				if(comments.getLength()>0)
+				{
+					Node definitionNode = comments.item(0).getAttributes().getNamedItem("body");
+					if(definitionNode!=null)
+					{
+						CustomType dt = Factory.buildCustomType(n, definitionNode.getTextContent());
+						alldatatypes.add(dt);
+					}
+				}
+				
+			
+			}
 		}
 
 		System.out.println("##\nState machine\n##");

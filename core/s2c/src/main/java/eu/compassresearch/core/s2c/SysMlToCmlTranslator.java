@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.Vector;
 
 import eu.compassresearch.core.s2c.dom.ClassDefinition;
+import eu.compassresearch.core.s2c.dom.CustomType;
 import eu.compassresearch.core.s2c.dom.DataType;
 import eu.compassresearch.core.s2c.dom.EnumType;
 import eu.compassresearch.core.s2c.dom.Operation;
@@ -28,11 +29,10 @@ public class SysMlToCmlTranslator
 	protected ClassDefinition cdef;
 	protected List<Signal> signals;
 	protected List<ClassDefinition> classes;
-	protected List<DataType> datatypes;
+	protected List<Type> datatypes;
 
 	public SysMlToCmlTranslator(List<Signal> signals, ClassDefinition cDef,
-			StateMachine sm, List<ClassDefinition> classes,
-			List<DataType> datatypes)
+			StateMachine sm, List<ClassDefinition> classes, List<Type> datatypes)
 	{
 		this.cdef = cDef;
 		this.sm = sm;
@@ -45,7 +45,7 @@ public class SysMlToCmlTranslator
 	 * a naive translation from the uml dom
 	 * 
 	 * @param t
-	 * @return 
+	 * @return
 	 */
 	public String translate(Transition t)
 	{
@@ -331,18 +331,21 @@ public class SysMlToCmlTranslator
 					sb.append("\n\t[]");
 				}
 			}
-			
-			if (guards.size() > 0 && noncompletion.size() > 0) {
+
+			if (guards.size() > 0 && noncompletion.size() > 0)
+			{
 				sb.append("\n\t[]");
 				sb.append("\n\t[" + elseguard.toString() + "] & ");
 				translateNonCompletionTransitions(sb, noncompletion);
 				sb.append(")");
-			} else if (noncompletion.size() > 0){
+			} else if (noncompletion.size() > 0)
+			{
 				sb.append("\n\t[]");
 				sb.append("\n\t[false] & ");
 				translateNonCompletionTransitions(sb, noncompletion);
 				sb.append(")");
-			} else {
+			} else
+			{
 				sb.append(")");
 			}
 		} else
@@ -535,15 +538,19 @@ public class SysMlToCmlTranslator
 		}
 
 		List<DataType> ok_dt = new Vector<DataType>();
-		for (DataType d : datatypes)
+		for (Type d : datatypes)
 		{
-			if (!d.name.equals("bool") && !d.name.equals("int")
-					&& !d.name.equals("real") && !d.name.equals("double")
-					&& !d.name.equals("char") && !d.name.equals("nat")
-					&& !d.name.equals("token") && !d.name.startsWith("set of")
-					&& !d.name.startsWith("seq of"))
+			if (d instanceof DataType)
 			{
-				ok_dt.add(d);
+				if (!d.name.equals("bool") && !d.name.equals("int")
+						&& !d.name.equals("real") && !d.name.equals("double")
+						&& !d.name.equals("char") && !d.name.equals("nat")
+						&& !d.name.equals("token")
+						&& !d.name.startsWith("set of")
+						&& !d.name.startsWith("seq of"))
+				{
+					ok_dt.add((DataType) d);
+				}
 			}
 		}
 
@@ -561,6 +568,16 @@ public class SysMlToCmlTranslator
 				sb.append("\n");
 			}
 		}
+		
+		for (Type type : datatypes)
+		{
+			if(type instanceof CustomType)
+			{
+				sb.append("\t"+makeNameCMLCompatible(type.name)+" = "+((CustomType)type).definition);
+			}
+		}
+		
+		sb.append("\n");
 
 		return writeSpecFile(new File(output, "global-types.cml"), sb.toString(), overwrite);
 	}
@@ -623,7 +640,7 @@ public class SysMlToCmlTranslator
 				sb.append("is not yet specified");
 			} else
 			{
-				sb.append(/*(!op.isStatic ? "return " : "") +*/ op.body.body);
+				sb.append(/* (!op.isStatic ? "return " : "") + */op.body.body);
 			}
 			sb.append("\n");
 

@@ -130,6 +130,15 @@ public class Factory
 
 		return dt;
 	}
+	
+	public static CustomType buildCustomType(Node primitivetype, String definition)
+	{
+		CustomType dt = new CustomType();
+		setIdAndName(primitivetype, dt);
+		dt.definition = definition;
+
+		return dt;
+	}
 
 	private static Integer buildUpperLower(Node child)
 	{

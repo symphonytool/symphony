@@ -8,18 +8,18 @@ import java.util.List;
 import java.util.Vector;
 
 import eu.compassresearch.core.s2c.dom.ClassDefinition;
-import eu.compassresearch.core.s2c.dom.DataType;
 import eu.compassresearch.core.s2c.dom.Signal;
 import eu.compassresearch.core.s2c.dom.State;
 import eu.compassresearch.core.s2c.dom.StateMachine;
 import eu.compassresearch.core.s2c.dom.Transition;
+import eu.compassresearch.core.s2c.dom.Type;
 
 public class SysMLToCMLWithInterlevelTransitions extends SysMlToCmlTranslator
 {
 
 	public SysMLToCMLWithInterlevelTransitions(List<Signal> signals,
 			ClassDefinition cDef, StateMachine sm,
-			List<ClassDefinition> classes, List<DataType> datatypes)
+			List<ClassDefinition> classes, List<Type> datatypes)
 	{
 		super(signals, cDef, sm, classes, datatypes);
 	}
