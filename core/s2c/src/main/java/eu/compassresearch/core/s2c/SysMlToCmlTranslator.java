@@ -422,7 +422,7 @@ public class SysMlToCmlTranslator
 						channel.append(convertType(p.type));
 						if (itr.hasNext())
 						{
-							sb.append(" * ");
+							channel.append(" * ");
 						}
 					}
 				}
@@ -623,7 +623,7 @@ public class SysMlToCmlTranslator
 				sb.append("is not yet specified");
 			} else
 			{
-				sb.append((!op.isStatic ? "return " : "") + op.body.body);
+				sb.append(/*(!op.isStatic ? "return " : "") +*/ op.body.body);
 			}
 			sb.append("\n");
 

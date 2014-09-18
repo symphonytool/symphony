@@ -32,7 +32,7 @@
               </type>
             </ownedParameter>
           </ownedOperation>
-          <ownedBehavior xmi:type = "uml:OpaqueBehavior" xmi:id = "_18f0d54b-0172-47f5-b698-578b2f53a0e6body" name = "Operation1" specification = "_18f0d54b-0172-47f5-b698-578b2f53a0e6op" body = "x&gt;y">
+          <ownedBehavior xmi:type = "uml:OpaqueBehavior" xmi:id = "_18f0d54b-0172-47f5-b698-578b2f53a0e6body" name = "Operation1" specification = "_18f0d54b-0172-47f5-b698-578b2f53a0e6op" body = "return x&gt;y">
             <ownedParameter xmi:type = "uml:Parameter" xmi:id = "_b5e91caa-c249-45eb-935b-e5dc70ddd365body" name = "x">
               <type xmi:type = "uml:PrimitiveType" href = "http://www.omg.org/spec/UML/20090901/UML.xmi#Integer">
               </type>
