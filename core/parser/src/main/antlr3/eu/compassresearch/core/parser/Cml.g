@@ -1338,7 +1338,12 @@ action8 returns[PAction action]
     ;
 
 specOrGuardedAction returns[PAction action]
-@after { $action.setLocation(extractLexLocation($start,$stop)); }
+@after {	$action.setLocation(extractLexLocation($start,$stop));
+			if($action instanceof AStmAction)
+			{
+				((AStmAction)$action).getStatement().setLocation(extractLexLocation($start,$stop));
+			}
+		}
     : '['
         ( ('frame' frameSpecList)? ('pre' pre=expression)? 'post' post=expression ']'
             {

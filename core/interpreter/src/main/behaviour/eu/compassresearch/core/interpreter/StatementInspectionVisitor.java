@@ -520,7 +520,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 	public Inspection caseASpecificationStm(ASpecificationStm node,
 			Context question) throws AnalysisException
 	{
-		throw new AnalysisException("The specification statement cannot be executed, refine it something explicit if it should be executed");
+		throw new CmlInterpreterException(node,"The specification statement cannot be executed, refine it to something explicit if it should be executed");
 	}
 
 	@Override
