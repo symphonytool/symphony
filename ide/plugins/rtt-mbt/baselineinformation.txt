@@ -1,13 +1,49 @@
 -----------------------------------------------------------
+RTTPLUGIN_0.3.7
+
+Development version
+Changes:
+
+[2d5aea5]:
+- import now automatically generates test cases from the model.
+- added functionality to automatically test all test cases of a requirement.
+- added functionality to automatically test a single test case.
+- added support for iterative test generation (if not all of the defined
+  test goals can be covered during test generation, a new test procedure
+  generation context is created with the remaining goals and the test
+  generation is triggered again. This iteration stops if no goals could
+  be covered or all goals have been covered)
+- Added support for new flag IterTPGEN in the properties dialog of a test
+  procedure generation context (and in the respective configuration file
+  advanced.conf).
+  Note: If the flag is not present in the current advanced.conf of a test
+  procedure generation context, this flag is set to -1 in the dialog and
+  the plugin will not add its value to the file advanced.conf unless
+  explicitly changed to 0 or 1 by the user. This will be changed with the
+  next RTT-MBT release version (9.0-1.4.0) that will support this flag.
+
+Revision: in progress
+Released: in progress
+-----------------------------------------------------------
+RTTPLUGIN_0.3.6
+
+Release version
+Synchronisation with Symphony release 0.3.6
+
+Revision: [60a2c49]
+Released: 2014-08-26
+-----------------------------------------------------------
 RTTPLUGIN_0.3.5
 
 Development version
 Changes:
 
 - fixes for replay: upload and download *.rttdoc files
+- changed order of replay and doc commands.
+- disable replay for test procedures without matching test procedure generation context.
 
-Revision: in progress
-Released: in progress
+Revision: [58562f0]
+Released: 2014-08-24
 -----------------------------------------------------------
 RTTPLUGIN_0.3.4
 
