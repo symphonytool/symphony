@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Symphony IDE Collaboration Plugin
 Bundle-SymbolicName: eu.compassresearch.ide.collaboration;singleton:=true
-Bundle-Version: 0.3.7.qualifier
+Bundle-Version: 0.4.0
 Bundle-Activator: eu.compassresearch.ide.collaboration.Activator
 Bundle-Vendor: The COMPASS Project
 Import-Package: eu.compassresearch.ast.actions,
