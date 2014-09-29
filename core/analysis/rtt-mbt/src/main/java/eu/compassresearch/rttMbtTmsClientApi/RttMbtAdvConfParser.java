@@ -1,9 +1,13 @@
 package eu.compassresearch.rttMbtTmsClientApi;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.Writer;
 import java.util.Scanner;
 
 public class RttMbtAdvConfParser {
@@ -36,6 +40,7 @@ MC;0;Perform model checking instead of test generation, if 1
 	protected int LI = 10000;
 	protected int VL = 1;
 	protected Boolean MC = false;
+	protected int IterTPGen = -1;
 
 	public RttMbtAdvConfParser() {
 	}
@@ -101,6 +106,8 @@ MC;0;Perform model checking instead of test generation, if 1
 				setMC(value.compareTo("1") == 0);
 			} else if (option.compareTo("VL") == 0) {
 				setVL(Integer.parseInt(value));
+			} else if (option.compareTo("IterTPGen") == 0) {
+				setIterTPGen(Integer.parseInt(value));
 			} else {
 				System.err.println("unknown option '" + option + "' in advanved configuration file " + filename);
 				return false;
@@ -108,6 +115,39 @@ MC;0;Perform model checking instead of test generation, if 1
 		}
 		fileScanner.close();
 		return success;
+	}
+
+	public Boolean writeAdvancedConfig(String filename) {
+		File output = null;
+		Writer writer = null;
+		BufferedWriter bWriter = null;
+		try {
+			// write advanced.conf
+			output = new File(filename);
+			writer = new FileWriter(output);
+			bWriter = new BufferedWriter(writer);
+			bWriter.write("GC;" + (GC ? "0" : 1) + ";if 1, cover all goals in d addgoals(ordered).conf, even if they are already covered by other procedures\n");
+			bWriter.write("BT;" + (GC ? "0" : 1) + ";switch back tracking on if 1\n");
+			bWriter.write("LO;" + (GC ? "0" : 1) + ";produce logger threads instead of checkers if 1\n");
+			bWriter.write("AI;" + (GC ? "0" : 1) + ";use abstract interpretation for speed-up of solver, if 1\n");
+			bWriter.write("MM;" + (GC ? "0" : 1) + ";maximise model coverage if 1\n");
+			bWriter.write("SC;" + (GC ? "0" : 1) + ";perform sanity checks in solver and abstract interpreter if 1\n");
+			bWriter.write("RB;" + (GC ? "0" : 1) + ";do robustness testing if 1\n");
+			bWriter.write("RP;" + Integer.toString(RP) + ";if RB=1 RP defines the percentage of robustness transitions to be performed\n");
+			bWriter.write("CI;" + Integer.toString(CI) + ";maximal number of simultaneous input changes\n");
+			bWriter.write("DI;" + Integer.toString(DI) + ";minimal duration between two input changes\n");
+			bWriter.write("LI;" + Integer.toString(LI) + ";upper limit for duration between two input changes\n");
+			bWriter.write("MC;" + (GC ? "0" : 1) + ";Perform model checking instead of test generation, if 1\n");
+			bWriter.write("VL;" + Integer.toString(VL) + ";Defines the verbosity level for the output (Range 0..4)\n");
+			if (IterTPGen != -1) {
+				bWriter.write("IterTPGen;" + Integer.toString(IterTPGen) + ";if IterTPGen=1, perform test generation iterations unless all goals are reached or no more goals can be reached\n");
+			}
+			bWriter.close();
+			return true;
+		} catch (IOException e) {
+			System.err.println("problem writing test procedure generation context properties!");
+			return false;
+		}
 	}
 
 	public Boolean getGC() {
@@ -204,6 +244,14 @@ MC;0;Perform model checking instead of test generation, if 1
 
 	public void setVL(int lI) {
 		VL = lI;
+	}
+
+	public int getIterTPGen() {
+		return IterTPGen;
+	}
+
+	public void setIterTPGen(int iterTPGen) {
+		IterTPGen = iterTPGen;
 	}
 
 	public Boolean getMC() {

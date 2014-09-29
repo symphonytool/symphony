@@ -1380,8 +1380,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 	@Override
 	public void caseAIdentifierVarsetExpression(AIdentifierVarsetExpression node)
 			throws AnalysisException {
-		// unsupported=false;
-		// TODO Uncomment the above line to signal support for this node
+		unsupported=false;
 		// Do not remove the super call below.
 		super.caseAIdentifierVarsetExpression(node);
 	}
@@ -1445,8 +1444,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 	@Override
 	public void caseAIndicesUnaryExp(AIndicesUnaryExp node)
 			throws AnalysisException {
-		// unsupported=false;
-		// TODO Uncomment the above line to signal support for this node
+		unsupported=false;
 		// Do not remove the super call below.
 		super.caseAIndicesUnaryExp(node);
 	}

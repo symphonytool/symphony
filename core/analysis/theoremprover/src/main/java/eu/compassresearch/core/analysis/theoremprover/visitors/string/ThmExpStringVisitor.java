@@ -432,13 +432,12 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 					vars.addBVar(p.getName());
 					//If there are remaining patterns, add a ","
 					if(itr.hasNext()){	
-						sb.append(", (");
+						sb.append(", ");
 					}
 				}
-			//	sb.append(smb.getPlist().toString());
 				sb.append(" in @set ");
 				sb.append(smb.getSet().apply(thmStringVisitor, vars));
-				sb.append(" @ ");
+				sb.append(" @ (");
 			}
 		}
 		return "(" + sb.toString() + ex.getPredicate().apply(thmStringVisitor, vars) + endBrackets.toString() + ")"; 
@@ -466,7 +465,15 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		StringBuilder rootsb = new StringBuilder();
 		rootsb.append(root);
 		
-		if (!(appRoot.getType() instanceof ANamedInvariantType || appRoot.getType() instanceof ARecordInvariantType))
+		if (appRoot.getType() instanceof ASeqSeqType || appRoot.getType() instanceof ASeq1SeqType)
+		{
+			return rootsb.toString() + "<" + sb.toString() + ">";
+		}
+		else if (appRoot.getType() instanceof AMapMapType)
+		{
+			return rootsb.toString() + "[" + sb.toString() + "]";
+		}
+		else if (!(appRoot.getType() instanceof ANamedInvariantType || appRoot.getType() instanceof ARecordInvariantType))
 		{
 			//Need to remove ^ decoration from root, as can't currently determine
 			//if root expression is a function variable.
@@ -484,15 +491,7 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		{
 			return rootsb.toString() + "[" + sb.toString() + "]";
 		}
-		else if (appRoot.getType() instanceof ASeqSeqType || appRoot.getType() instanceof ASeq1SeqType)
-		{
-			return rootsb.toString() + "<" + sb.toString() + ">";
-		}
-		else if (appRoot.getType() instanceof AMapMapType)
-		{
-			return rootsb.toString() + "[" + sb.toString() + "]";
-		}
-		else
+		else 
 		return rootsb.toString() + "(" + sb.toString() + ")";
 	}	
 
@@ -568,12 +567,25 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 				sb.append(d.getName().toString());
 			}	
 			else if(d instanceof AValueDefinition){
-				LinkedList<PDefinition> vdefs = ((AValueDefinition) d).getDefs();
-				for (PDefinition v: vdefs)
+				AValueDefinition vdef = ((AValueDefinition) d);
+				if(vdef.getPattern() instanceof AIdentifierPattern)
 				{
-					vars.addBVar(v.getName());
-					sb.append(v.getName().toString());
+					AIdentifierPattern patt = ((AIdentifierPattern) vdef.getPattern());
+					vars.addBVar(patt.getName());
+					sb.append(patt.getName().toString());
 				}
+				sb.append(" : ");
+				sb.append(vdef.getExpType().apply(thmStringVisitor, vars));
+				sb.append(" = ");
+				sb.append(vdef.getExpression().apply(thmStringVisitor, vars));
+
+				
+//				LinkedList<PDefinition> vdefs = ((AValueDefinition) d).getDefs();
+//				for (PDefinition v: vdefs)
+//				{
+//					vars.addBVar(v.getName());
+//					sb.append(v.getName().toString());
+//				}
 			}
 		}
 		
@@ -664,7 +676,13 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		//Replace trailing $ that is added by the POG 
 		String variableName =varName.getName().replace("$", "");
 		
-		
+
+		for(ILexNameToken var : vars.getBVars()){
+			if (variableName.equals(var.getName()))
+			{
+				return  "^" + variableName + "^";
+			}
+		}
 		for(ILexNameToken var : vars.getSVars()){
 			if (variableName.equals(var.getName()))
 			{
@@ -679,12 +697,6 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 				{
 					return  "($" + variableName + ")";
 				}
-			}
-		}
-		for(ILexNameToken var : vars.getBVars()){
-			if (variableName.equals(var.getName()))
-			{
-				return  "^" + variableName + "^";
 			}
 		}
 		//assume is value?
@@ -808,7 +820,7 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		}
 		else
 		{
-			return "{" + firstString + " | " + bindstr + "}";
+			return "{" + firstString + " | " + bindstr + " @ true}";
 		}
 	}
 
@@ -854,7 +866,7 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 			return "[" + firstString + " | " + bindstr.toString() + " @ " + predString + "]";
 		}
 		else{
-			return "[" + firstString + " | " + bindstr.toString()  + "]";
+			return "[" + firstString + " | " + bindstr.toString()  + " @ true]";
 		}
 	}
 
@@ -944,7 +956,7 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 			return "{" + firstString + " | " + bindstr.toString() + " @ " + predString + "}";
 	    }
 		else{
-			return "{" + firstString + " | " + bindstr.toString() + "}";	
+			return "{" + firstString + " | " + bindstr.toString() + " @ true}";	
 		}
 	}
 
@@ -1030,7 +1042,14 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 	public String caseAFatEnumVarsetExpression(AFatEnumVarsetExpression ex, ThmVarsContext vars) throws AnalysisException{
 		StringBuilder sb = new StringBuilder();
 
-		for (Iterator<ANameChannelExp> itr = ex.getChannelNames().listIterator(); itr.hasNext(); ) {
+		LinkedList<ANameChannelExp> chanNames = ex.getChannelNames();
+		
+		if(chanNames.isEmpty())
+		{
+			return "{}";
+		}
+		
+		for (Iterator<ANameChannelExp> itr = chanNames.listIterator(); itr.hasNext(); ) {
 			ANameChannelExp chan = itr.next();
 					
 			//ILexIdentifierToken
@@ -1052,8 +1071,9 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 
 		
 	public String caseAIdentifierVarsetExpression(AIdentifierVarsetExpression ex, ThmVarsContext vars) throws AnalysisException{
-		// TODO COMPLETE
-		return "(*varset id not handled*)";
+		ILexIdentifierToken varId = ex.getIdentifier();
+		
+		return varId.getName();
 	}
 
 		

@@ -1,5 +1,7 @@
 package org.overture.interpreter.values;
 
+import java.util.Map.Entry;
+
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.lex.Dialect;
@@ -28,7 +30,13 @@ public class DelayedUpdatableWrapper extends UpdatableValue
 	ILexLocation newLoc = null;
 	Context newContext = null;
 
-	protected DelayedUpdatableWrapper(Value value, ValueListenerList listeners, PType type)
+	/**
+	 * Value maps obtained through {@link DelayedUpdatableWrapper#mapValue(Context)}
+	 */
+	ValueMap obtainedMaps = null;
+
+	protected DelayedUpdatableWrapper(Value value, ValueListenerList listeners,
+			PType type)
 	{
 		super(value, listeners, type);
 		this.original = value;
@@ -38,17 +46,15 @@ public class DelayedUpdatableWrapper extends UpdatableValue
 	{
 		this(val, val.listeners, val.restrictedTo);
 	}
-	
-	protected DelayedUpdatableWrapper(Value value, ValueListenerList listeners, PType type,Value original, ILexLocation newLoc,Context newContext)
+
+	protected DelayedUpdatableWrapper(Value value, ValueListenerList listeners,
+			PType type, Value original, ILexLocation newLoc, Context newContext)
 	{
 		super(value, listeners, type);
 		this.original = original;
 		this.newLoc = newLoc;
 		this.newContext = newContext;
 	}
-	
-	
-	
 
 	@Override
 	public void set(ILexLocation location, Value newval, Context ctxt)
@@ -86,13 +92,14 @@ public class DelayedUpdatableWrapper extends UpdatableValue
 			listeners.changedValue(location, value, ctxt);
 		}
 
-                /* Useful for debugging, but we don't want to ship with this on. */
+		/* Useful for debugging, but we don't want to ship with this on. */
 		// System.err.println("Setting value(" + toShortString(10) + ") to "
-		// 		+ newval);
+		// + newval);
 	}
 
 	/**
 	 * Write transactional value to the original value
+	 * 
 	 * @throws ValueException
 	 * @throws AnalysisException
 	 */
@@ -100,11 +107,44 @@ public class DelayedUpdatableWrapper extends UpdatableValue
 	{
 		original.set(newLoc, value, newContext);
 	}
-	
+
+	@Override
+	public synchronized ValueMap mapValue(Context ctxt) throws ValueException
+	{
+		ValueMap m = null;
+		if (obtainedMaps == null)
+		{
+			m = super.mapValue(ctxt);
+		} else
+		{
+			return obtainedMaps;
+		}
+		if (m != null)
+		{
+			ValueMap mWrapper = new ValueMap();
+
+			for (Entry<Value, Value> entry : m.entrySet())
+			{
+				if (entry.getValue() instanceof UpdatableValue)
+				{
+					mWrapper.put(entry.getKey(), new DelayedUpdatableWrapper((UpdatableValue) entry.getValue()));
+				} else
+				{
+					mWrapper.put(entry.getKey(), entry.getValue());
+				}
+			}
+			obtainedMaps = mWrapper;
+			this.value = new MapValue(obtainedMaps);
+			return obtainedMaps;
+		}
+
+		return m;
+	}
+
 	@Override
 	public synchronized Object clone()
 	{
-		return new DelayedUpdatableWrapper((Value)value.clone(), listeners, restrictedTo,original,newLoc,newContext);
+		return new DelayedUpdatableWrapper((Value) value.clone(), listeners, restrictedTo, original, newLoc, newContext);
 	}
 
 }

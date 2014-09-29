@@ -567,6 +567,42 @@ public class RttMbtClient {
 		return success;
 	}
 
+	public Boolean copyLocalFile(String source, String destination) {
+		try {
+			File input = new File(source);
+			if (!input.isFile()) {
+				addErrorMessage("source file '" + source + "' for copy operation does not exist or is not a regular file.");
+				return false;
+			}
+			File output = new File(destination);
+			if (output.isFile()) {
+				deleteLocalFile(output);
+			}
+			if (output.isDirectory()) {
+				deleteLocalDirectory(output,false);
+			}
+			if (!output.createNewFile()) {
+				addErrorMessage("destination file'" + destination + "' for copy operation cannot be created.");
+				return false;
+			}
+
+			FileInputStream fromModel = new FileInputStream(input);
+			FileOutputStream toModel = new FileOutputStream(output);
+			byte[] buffer = new byte[1024];
+			int bytes_read = fromModel.read(buffer);
+			while (bytes_read != -1) {
+				toModel.write(buffer, 0, bytes_read);
+				bytes_read = fromModel.read(buffer);
+			}
+			fromModel.close();
+			toModel.close();
+			return true;
+		} catch (IOException e) {
+			addErrorMessage("problem copying file '" + source + "' to '" + destination + "': " + e.toString());
+			return false;
+		}
+	}
+
 	public Boolean deleteLocalFile(File file) {
 		if (file == null) { return false; }
 		if (!file.exists()) { return true; }
@@ -889,41 +925,22 @@ public class RttMbtClient {
 		// copy model to <projectroot>/model/model_dump.xml
 		setSubTaskName("store model locally");
 		File projectRoot = new File(getRttProjectPath());
-		try {
-			if (!projectRoot.isDirectory()) {
-				addErrorMessage("project directory '" + getRttProjectPath() + "' does not exist!");
-				return false;
-			}
-			File modelDir = new File(projectRoot, "model");
-			if (!modelDir.exists()) {
-				modelDir.mkdir();
-			}
-			if (!modelDir.isDirectory()) {
-				addErrorMessage("model directory '" + modelDir.getPath() + "' does not exist!");
-				return false;
-			}
-			File inputModel = new File(modelFileName);
-			if (!inputModel.isFile()) {
-				addErrorMessage("model file '" + modelFileName + "' does not exist!");
-				return false;
-			}
-			File outputModel = new File(modelDir, "model_dump.xml");
-			outputModel.createNewFile();
-			
-		    FileInputStream fromModel = new FileInputStream(inputModel);
-		    FileOutputStream toModel = new FileOutputStream(outputModel);
-		    byte[] buffer = new byte[1024];
-		    int bytes_read = fromModel.read(buffer);
-		    while (bytes_read != -1) {
-		        toModel.write(buffer, 0, bytes_read);
-		    	bytes_read = fromModel.read(buffer);
-		    }
-		    fromModel.close();
-		    toModel.close();
+		if (!projectRoot.isDirectory()) {
+			addErrorMessage("project directory '" + getRttProjectPath() + "' does not exist!");
+			return false;
 		}
-		catch (IOException e) {
-			addErrorMessage("unable to copy model file '" + modelFileName + "' to project '" + getRttProjectName() + "'!");
+		File modelDir = new File(projectRoot, "model");
+		if (!modelDir.exists()) {
+			modelDir.mkdir();
 		}
+		if (!modelDir.isDirectory()) {
+			addErrorMessage("model directory '" + modelDir.getPath() + "' does not exist!");
+			return false;
+		}
+
+		// copy model file to model/model_dump.xml
+		copyLocalFile(modelFileName, getRttProjectPath() + File.separator + "model" + File.separator + "model_dump.xml");
+
 		addCompletedTaskItems(1);
 		if (isCurrentTaskCanceled()) {
 			return false;
@@ -1053,7 +1070,24 @@ public class RttMbtClient {
 		return success;
 	}
 
-	private Boolean unzipArchive(String archiveName, String targetDirectory) {
+	public Boolean downloadTemplates() {
+		// download templates to local workspace
+		Boolean success = true;
+		String backupWorkspaceProjectPrefix = getWorkspaceProjectPrefix();
+		String backupProjectPath = getRttProjectPath();
+		// remove project prefix for templates download
+		setWorkspaceProjectPrefix(null);
+		// set fake project path for templates download
+		setRttProjectPath(getWorkspacePath() + File.separator + rttProjectName);
+		success = downloadDirectory(getWorkspacePath() + File.separator + "templates");
+		// restore project prefix again
+		setWorkspaceProjectPrefix(backupWorkspaceProjectPrefix);
+		// restore file system project path
+		setRttProjectPath(backupProjectPath);
+		return success;
+	}
+
+	public Boolean unzipArchive(String archiveName, String targetDirectory) {
 		Boolean success = true;
 		System.out.println("extracting archive '" + archiveName + "' to directory '" + targetDirectory + "'");
 		try {
@@ -1109,7 +1143,164 @@ public class RttMbtClient {
 		}
 		return success;
 	}
-	
+
+	public Boolean createTestProcGenCtxFromTemplate(String testproc) {
+		Boolean success = true;
+
+		// move existing _P1 to _P1.tmp
+		File tGenCtx = new File(getRttProjectPath(), getRttMbtTProcGenCtxFolderName());
+		File p1 = new File(tGenCtx, "_P1");
+		File p1tmp = new File(tGenCtx, "_P1.tmp");
+		if (p1.isDirectory()) {
+			try {
+				p1.renameTo(p1tmp);
+			}
+			catch(SecurityException exception) {
+				addErrorMessage("Unable to create new test procedure " + testproc + ": backup of _P1 failed.");
+				return false;
+			}
+		}
+
+		// unpack _P1.zip
+		setSubTaskName("extract test procedure generation context template");
+		File archive = new File(getWorkspacePath() + File.separator + "templates" + File.separator + "_P1_compass.zip");
+		if (!archive.isFile()) {
+			addErrorMessage("Unable to create new test procedure " + testproc + ": '" + archive.getAbsolutePath() + "' does not exist or is not a regular file.");
+			return false;
+		}
+		if (!tGenCtx.exists()) {
+			tGenCtx.mkdir();
+		}
+		if (!tGenCtx.isDirectory()) {
+			addErrorMessage("Unable to create new test procedure " + testproc + ": '" + tGenCtx.toString() + "' is not a directory.");
+			return false;
+		}
+		success = unzipArchive(archive.getPath(), tGenCtx.getPath());
+		if (!success) {
+			addErrorMessage("Unable to create new test procedure " + testproc + ": unpacking of template test procedure _P1 failed.");
+			return false;
+		}
+
+		// move _P1 to <testproc>
+		File folder = new File(tGenCtx, "_P1");
+		File testprocGenCtxDir = new File(tGenCtx, testproc);
+		if (folder.isDirectory()) {
+			try {
+				folder.renameTo(testprocGenCtxDir);
+			}
+			catch(SecurityException exception) {
+				addErrorMessage("Unable to create new test procedure " + testproc + ": rename _P1 to " + testproc + " failed.");
+				return false;
+			}
+		} else {
+			addErrorMessage("Unable to create new test procedure " + testproc + ": template test procedure _P1 not found.");
+			return false;
+		}
+
+		// move _P1.tmp to _P1
+		if (p1tmp.isDirectory()) {
+			try {
+				p1tmp.renameTo(p1);
+			}
+			catch(SecurityException exception) {
+				addErrorMessage("Unable to create new test procedure " + testproc + ": restoring backup of _P1 failed.");
+				return false;
+			}
+		}
+
+		// copy/create configuration.csv
+		// a) look for _P1/conf/configuration.csv
+		File config = new File(p1,"conf" + File.separator + "configuration.csv");
+		if (config.isFile()) {
+			// copy configuration.csv
+			if (getVerboseLogging()) { addLogMessage("using _P1/conf/configuration.csv for " + testproc); }
+			if (!copyLocalFile(config.getAbsolutePath(), testprocGenCtxDir.getAbsolutePath() + File.separator + "conf" + File.separator + "configuration.csv")) {
+				return false;
+			}
+		} else {
+			// b) look for model/configuration.csv
+			config = new File(getRttProjectPath() + File.separator + "model" + File.separator + "configuration.csv");
+			if (config.isFile()) {
+				// copy configuration.csv
+				if (getVerboseLogging()) { addLogMessage("using model/configuration.csv for " + testproc); }
+				if (!copyLocalFile(config.getAbsolutePath(), testprocGenCtxDir.getAbsolutePath() + File.separator + "conf" + File.separator + "configuration.csv")) {
+					return false;
+				}
+			} else {
+				// c) create new configuration.csv
+				if (getVerboseLogging()) { addLogMessage("creating empty configuration.csv for " + testproc); }
+				// copy model/model_dump.xml to RTT-MBT server
+				File model = new File(getRttProjectPath() + File.separator + "model" + File.separator + "model_dump.xml");
+				jsonStoreModelCommand storeModel= new jsonStoreModelCommand(this);
+				storeModel.setModelName("model_dump.xml");
+				storeModel.setModelId(getUserId());
+				storeModel.setModelFile(model.getAbsolutePath());
+				storeModel.executeCommand();
+				if (!storeModel.executedSuccessfully()) {
+					addErrorMessage("unable to store model file on RTT-MBT server!");
+					return false;
+				}
+				// create configuration.csv
+				jsonConftoolCommand conftool = new jsonConftoolCommand(this);
+				conftool.setModelName("model_dump.xml");
+				conftool.setModelId(getUserId());
+				conftool.setTestProcName(testproc);
+				conftool.executeCommand();
+				if (!conftool.executedSuccessfully()) {
+					addErrorMessage("creating empty configuration failed!");
+					return false;
+				}
+			}
+		}
+
+		// copy/create signalmap.csv
+		// a) look for _P1/conf/signalmap.csv
+		File signalmap = new File(p1,"conf" + File.separator + "signalmap.csv");
+		if (signalmap.isFile()) {
+			// copy signalmap.csv
+			if (getVerboseLogging()) { addLogMessage("using _P1/conf/signalmap.csv for " + testproc); }
+			if (!copyLocalFile(signalmap.getAbsolutePath(), testprocGenCtxDir.getAbsolutePath() + File.separator + "conf" + File.separator + "signalmap.csv")) {
+				return false;
+			}
+		} else {
+			// b) look for model/signalmap.csv
+			signalmap = new File(getRttProjectPath() + File.separator + "model" + File.separator + "signalmap.csv");
+			if (signalmap.isFile()) {
+				// copy signalmap.csv
+				if (getVerboseLogging()) { addLogMessage("using model/signalmap.csv for " + testproc); }
+				if (!copyLocalFile(signalmap.getAbsolutePath(), testprocGenCtxDir.getAbsolutePath() + File.separator + "conf" + File.separator + "signalmap.csv")) {
+					return false;
+				}
+			} else {
+				// c) create new signalmap.csv
+				if (getVerboseLogging()) { addLogMessage("creating initial signalmap.csv for " + testproc); }
+				// copy model/model_dump.xml to server
+				File model = new File(getRttProjectPath() + File.separator + "model" + File.separator + "model_dump.xml");
+				jsonStoreModelCommand storeModel= new jsonStoreModelCommand(this);
+				storeModel.setModelName("model_dump.xml");
+				storeModel.setModelId(getUserId());
+				storeModel.setModelFile(model.getAbsolutePath());
+				storeModel.executeCommand();
+				if (!storeModel.executedSuccessfully()) {
+					addErrorMessage("unable to store model file on RTT-MBT server!");
+					return false;
+				}
+				// create signalmap.csv
+				jsonSigmaptoolCommand sigmap = new jsonSigmaptoolCommand(this);
+				sigmap.setModelName("model_dump.xml");
+				sigmap.setModelId(getUserId());
+				sigmap.setTestProcName(testproc);
+				sigmap.executeCommand();
+				if (!sigmap.executedSuccessfully()) {
+					addErrorMessage("creating initial signal map failed!");
+					return false;
+				}
+			}
+		}
+
+		return success;
+	}
+
 	public Boolean abortCommand(String jobIdString) {
 
 		if (jobIdString == null) {
@@ -1729,6 +1920,156 @@ public class RttMbtClient {
 		}
 		addCompletedTaskItems(1);
 		
+		return success;
+	}
+
+	public Boolean prepareNextTestProcedureGeneration(String abstractTestProcBasename, String oldPostfix, String newPostfix) {
+		Boolean success = true;
+
+		// remove local (and old) log files
+		setSubTaskName("preparing command");
+		deleteLocalFile(new File(getRttProjectPath() + File.separator + "rtt-mbt-tms-execution.err"));
+		deleteLocalFile(new File(getRttProjectPath() + File.separator + "rtt-mbt-tms-execution.out"));
+		File logs = new File(getRttProjectPath() + File.separator + "logs");
+		if (!logs.isDirectory()) {
+			logs.mkdirs();
+		}
+		deleteLocalFile(new File(getRttProjectPath() + File.separator + "logs" + File.separator + "rtt-mbt-gen-iter-tcgen-errors.log"));
+		deleteLocalFile(new File(getRttProjectPath() + File.separator + "logs" + File.separator + "rtt-mbt-gen-iter-tcgen-generation.log"));
+		addCompletedTaskItems(1);
+		if (isCurrentTaskCanceled()) {
+			return false;
+		}
+
+		// push necessary files to cache:
+		setSubTaskName("uploading source files");
+		if (getVerboseLogging()) {
+			addLogMessage("pushing files to RTT-MBT server...");
+		}
+		// cache/<user-id>/<project-name>/model/
+		// - model_dump.xml
+		// - configuration.csv
+		// - signalmap.csv
+		// - advanced.conf
+		// - addgoals.conf
+		// - addgoalsordered.conf
+		String modelDirName = getRttProjectPath() + File.separator + "model" + File.separator;
+		uploadFile(modelDirName + "model_dump.xml");
+		uploadFile(modelDirName + "configuration.csv");
+		uploadFile(modelDirName + "signalmap.csv");
+		uploadFile(modelDirName + "advanced.conf");
+		uploadFile(modelDirName + "addgoals.conf");
+		uploadFile(modelDirName + "addgoalsordered.conf");
+		if (isCurrentTaskCanceled()) {
+			return false;
+		}
+		// cache/<user-id>/<project-name>/<abstract-testproc>/conf
+		// - configuration.csv
+		// - signalmap.csv
+		// - advanced.conf
+		// - addgoals.conf
+		// - addgoalsordered.conf
+		// - max_steps.txt
+		String confDirName = getRttProjectPath() + File.separator
+				+ getRttMbtTProcGenCtxFolderName() + File.separator
+				+ abstractTestProcBasename + oldPostfix + File.separator
+				+ "conf" +  File.separator;
+		uploadFile(confDirName + "configuration.csv");
+		uploadFile(confDirName + "signalmap.csv");
+		uploadFile(confDirName + "advanced.conf");
+		uploadFile(confDirName + "max_steps.txt");
+		uploadFile(confDirName + "addgoals.conf");
+		uploadFile(confDirName + "addgoalsordered.conf");
+		// cache/<user-id>/<project-name>/TMPL
+		confDirName = getRttProjectPath() + File.separator + "TMPL";
+		uploadDirectory(confDirName, true);
+		addCompletedTaskItems(1);
+		if (isCurrentTaskCanceled()) {
+			return false;
+		}
+		// cache/<user-id>/<project-name>/<abstract-testproc>/log
+		// - covered_testcases.csv
+		String logDirName = getRttProjectPath() + File.separator
+				+ getRttMbtTProcGenCtxFolderName() + File.separator
+				+ abstractTestProcBasename + oldPostfix + File.separator
+				+ "log" +  File.separator;
+		uploadFile(logDirName + "covered_testcases.csv");
+
+		// generate-test-command
+		setSubTaskName("executing server task");
+		System.out.println("check test goals reached in last test procedure generation " + abstractTestProcBasename + oldPostfix + "...");
+		jsonPrepareNextTestGenerationCommand cmd = new jsonPrepareNextTestGenerationCommand(this);
+		cmd.setTestProcName("TestProcedures/" + abstractTestProcBasename);
+		cmd.setOldPostfix(oldPostfix);
+		cmd.setNewPostfix(newPostfix);
+		if (getVerboseLogging()) {
+			addLogMessage("checking test goals reached in last test generation...");
+		}
+		long startTime = System.nanoTime();
+		cmd.executeCommand();
+		long endTime = System.nanoTime();
+		if (getVerboseLogging()) {
+			long secs = ((endTime - startTime)/1000000000);
+			long msecs = ((endTime - startTime)/1000000);
+			addLogMessage("check took " + secs + "." + msecs + "s.");
+		}		
+		addCompletedTaskItems(1);
+		if (isCurrentTaskCanceled()) {
+			return false;
+		}
+
+		// download result
+		setSubTaskName("downloading relevant files");
+		String dirname;
+		String errorsFileName;
+		if (getVerboseLogging()) {
+			addLogMessage("retrieving generated files from RTT-MBT server...");
+		}
+
+		// error reporting:
+		// - rtt-mbt-tms-execution.out
+		// - rtt-mbt-tms-execution.err
+		dirname = getRttProjectPath() + File.separator;
+		downloadFile(dirname + "rtt-mbt-tms-execution.err");
+		downloadFile(dirname + "rtt-mbt-tms-execution.out");
+		// print error messages from output file
+		errorsFileName = getRttProjectPath() + File.separator + "rtt-mbt-tms-execution.err";
+		showErrorMessagesFromFile(errorsFileName);
+
+		// check for extra debug data
+		if (!cmd.executedSuccessfully()) {
+			System.err.println("[FAIL]: checking test goals of " + abstractTestProcBasename + oldPostfix + " failed!");
+			// download debugging data to local directory
+			return false;
+		}
+		if (isCurrentTaskCanceled()) {
+			return false;
+		}
+
+		// download generated files to local directory:
+
+		// from cache/<user-id>/<project-name>/<testproc><postfix>/conf
+		// - configuration.csv
+		// - signalmap.csv
+		// - advanced.conf
+		// - addgoals.conf
+		// - addgoalsordered.conf
+		// - max_steps.txt
+		dirname = getRttProjectPath() + File.separator
+				+ getRttMbtTProcGenCtxFolderName() + File.separator
+				+ abstractTestProcBasename + newPostfix + File.separator
+				+ "conf" + File.separator;
+		downloadFile(dirname + "configuration.csv");
+		downloadFile(dirname + "signalmap.csv");
+		downloadFile(dirname + "advanced.conf");
+		downloadFile(dirname + "max_steps.txt");
+		downloadFile(dirname + "addgoals.conf");
+		downloadFile(dirname + "addgoalsordered.conf");
+		if (isCurrentTaskCanceled()) {
+			return false;
+		}
+		addCompletedTaskItems(1);
+
 		return success;
 	}
 

@@ -1,0 +1,26 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <parent>
+    <groupId>eu.compassresearch.ide</groupId>
+    <artifactId>ide</artifactId>
+    <version>0.4.0</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+	<modelVersion>4.0.0</modelVersion>
+	 <artifactId>eu.compassresearch.ide.libraries</artifactId>
+	<name>org.destecs.ide.libraries</name>
+	<packaging>eclipse-plugin</packaging>
+	<reporting>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.5</version>
+				<configuration>
+					<skip>true</skip>
+					<failOnError>false</failOnError>
+					<excludePackageNames>*org.eclipse.*</excludePackageNames>
+				</configuration>
+			</plugin>
+		</plugins>
+	</reporting>
+</project>

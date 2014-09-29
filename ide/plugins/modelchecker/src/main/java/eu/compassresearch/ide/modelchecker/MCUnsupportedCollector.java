@@ -1,5 +1,7 @@
 package eu.compassresearch.ide.modelchecker;
 
+import java.util.LinkedList;
+
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AAssignmentDefinition;
 import org.overture.ast.definitions.ABusClassDefinition;
@@ -152,6 +154,7 @@ import org.overture.ast.types.AUnknownType;
 import org.overture.ast.types.AUnresolvedType;
 import org.overture.ast.types.AVoidReturnType;
 import org.overture.ast.types.AVoidType;
+import org.overture.ast.types.PType;
 
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismReplicatedAction;
@@ -250,6 +253,9 @@ import eu.compassresearch.ast.statements.ANewStm;
 import eu.compassresearch.ast.statements.AUnresolvedStateDesignator;
 import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.ast.types.AProcessType;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ExpressionEvaluator;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAChannelType;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 import eu.compassresearch.ide.core.unsupported.UnsupportedCollector;
 import eu.compassresearch.ide.core.unsupported.UnsupportedElementInfo;
 import eu.compassresearch.ide.core.unsupported.UnsupportingFeatures;
@@ -590,11 +596,23 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 
 	@Override
 	public void caseAChannelType(AChannelType arg0) throws AnalysisException {
-		unsupported=false;
-		// TODO Uncomment the above line to signal support for this node
+		//channel types that have more than one communication type are not allowed
+		UnsupportedElementInfo uei = new UnsupportedElementInfo() {
+		};
+
+		if(arg0.getParameters().size() > 1){
+			uei.setLocation(arg0.getLocation());
+			uei.setMessage(arg0.getClass().getSimpleName().toString()
+					+ " nodes with more than one parameter are not supported by the " + this.getFeature().toString());
+			this.getUnsupporteds().add(uei);
+			unsupported = true;
+		}else{
+			unsupported = false;
+		}
 		// Do not remove the super call below.
-		super.caseAChannelType(arg0);
+		//super.caseAChannelType(arg0);
 	}
+	
 	
 	@Override
 	public void caseAChansetDefinition(AChansetDefinition node)

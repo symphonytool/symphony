@@ -1,0 +1,3 @@
+functions
+ imp() r : bool
+ post true

@@ -167,9 +167,15 @@ public class CmlSatisfiabilityObligation extends CmlProofObligation
 			List<PMultipleBind> exists_binds = new LinkedList<PMultipleBind>();
 			postApply = stateInPost(procState, postApply, exists_binds, op);
 
+			if (exists_binds.isEmpty()){
+				// no binds means no exists
+				mainExp = postApply;
+			}
+			else{
 			exists_exp.setBindList(exists_binds);
 			exists_exp.setPredicate(postApply);
 			mainExp = exists_exp;
+			}
 		}
 
 		if (preApply != null)

@@ -131,7 +131,7 @@
 				<contentExtension pattern="org.eclipse.ui.navigator.resources.workingSets"/>
 			</includes>
 		</viewerContentBinding>
-		
+
 		<viewerActionBinding
              viewerId="eu.compassresearch.ide.ui.CmlNavigator">
 			<includes>
@@ -174,89 +174,112 @@
 				</or>
 			</possibleChildren> 
 
-			 
 
- <commonWizard
+
+			<commonWizard
       		associatedExtensionId="eu.compassresearch.ide.ui.perspective"
             menuGroupId="eu.compassresearch.ide.cml"
             type="new"
             wizardId="eu.compassresearch.ide.CmlProjectWizard">
-    <enablement></enablement>
-      </commonWizard>
-      
-      
-          <commonWizard
+				<enablement/>
+			</commonWizard>
+
+
+			<commonWizard
           associatedExtensionId="eu.compassresearch.ide.ui.perspective"
             menuGroupId="eu.compassresearch.ide.cml"
             type="new"
             wizardId="eu.compassresearch.ide.ui.newcmlfilewizard">
-         <enablement>
-            <or>
-               <adapt
+				<enablement>
+					<or>
+						<adapt
                      type="org.overture.ide.core.resources.IVdmProject">
-                  <test
+							<test
                         property="org.overture.ide.core.resources.dialect"
                         value="CML">
-                  </test>
-               </adapt>
-               <adapt
+							</test>
+						</adapt>
+						<adapt
                      type="org.eclipse.core.resources.IFolder">
-                  <test
+							<test
                         property="org.overture.ide.core.resources.dialect"
                         value="CML">
-                  </test>
-               </adapt>
-            </or></enablement>
-      </commonWizard>
-      
-                <commonWizard
+							</test>
+						</adapt>
+					</or>
+				</enablement>
+			</commonWizard>
+
+			<commonWizard
           associatedExtensionId="eu.compassresearch.ide.ui.perspective"
             menuGroupId="eu.compassresearch.ide.cml"
             type="new"
             wizardId="eu.compassresearch.ide.ui.newcmlclasswizard">
-         <enablement>
-            <or>
-               <adapt
+				<enablement>
+					<or>
+						<adapt
                      type="org.overture.ide.core.resources.IVdmProject">
-                  <test
+							<test
                         property="org.overture.ide.core.resources.dialect"
                         value="CML">
-                  </test>
-               </adapt>
-               <adapt
+							</test>
+						</adapt>
+						<adapt
                      type="org.eclipse.core.resources.IFolder">
-                  <test
+							<test
                         property="org.overture.ide.core.resources.dialect"
                         value="CML">
-                  </test>
-               </adapt>
-            </or></enablement>
-      </commonWizard>
-      
-                <commonWizard
+							</test>
+						</adapt>
+					</or>
+				</enablement>
+			</commonWizard>
+
+			<commonWizard
           associatedExtensionId="eu.compassresearch.ide.ui.perspective"
             menuGroupId="eu.compassresearch.ide.cml"
             type="new"
             wizardId="eu.compassresearch.ide.ui.newcmlprocesswizard">
-         <enablement>
-            <or>
-               <adapt
+				<enablement>
+					<or>
+						<adapt
                      type="org.overture.ide.core.resources.IVdmProject">
-                  <test
+							<test
                         property="org.overture.ide.core.resources.dialect"
                         value="CML">
-                  </test>
-               </adapt>
-               <adapt
+							</test>
+						</adapt>
+						<adapt
                      type="org.eclipse.core.resources.IFolder">
-                  <test
+							<test
                         property="org.overture.ide.core.resources.dialect"
                         value="CML">
-                  </test>
-               </adapt>
-            </or></enablement>
-      </commonWizard>
-      
+							</test>
+						</adapt>
+					</or>
+				</enablement>
+			</commonWizard>
+			
+			
+					<commonWizard
+          associatedExtensionId="eu.compassresearch.ide.ui.perspective"
+            menuGroupId="eu.compassresearch.ide.cml"
+            type="new"
+            wizardId="org.compassresearch.ide.ui.addLibraryWizard">
+				<enablement>
+					<or>
+						<adapt
+                     type="org.overture.ide.core.resources.IVdmProject">
+							<test
+                        property="org.overture.ide.core.resources.dialect"
+                        value="CML">
+							</test>
+						</adapt>
+						
+					</or>
+				</enablement>
+			</commonWizard>
+
 		</navigatorContent>      
 
 	</extension>
@@ -271,52 +294,52 @@
             natureId="eu.compassresearch.ide.core.cmlnature">
 		</image>
 	</extension>
- <extension
+	<extension
        point="org.eclipse.ui.importWizards">
-    <category
+		<category
           id="eu.compassresearch.ide.ui.category-compass"
           name="Symphony">
-    </category>
-    <wizard
+		</category>
+		<wizard
           category="eu.compassresearch.ide.ui.category-compass"
           class="eu.compassresearch.ide.ui.wizard.ImportExamplesWizard"
           icon="icons/cview16/cml_file_icon.png"
           id="eu.compassresearch.ide.ui.wizardImportExamples"
           name="Symphony Examples">
-    </wizard>
- </extension>
- <extension
+		</wizard>
+	</extension>
+	<extension
        point="org.eclipse.ui.commands">
-    <command
+		<command
           id="eu.compassresearch.ide.ui.commandUpgradeCmlProject"
           name="Upgrade CML Project">
-    </command>
-    <command
+		</command>
+		<command
           defaultHandler="eu.compassresearch.ide.ui.handlers.ReportBugHandler"
           id="eu.compassresearch.ide.ui.commandReportBug"
           name="Report Symphony Bug">
-    </command>
- </extension>
- <extension
+		</command>
+	</extension>
+	<extension
        point="org.eclipse.ui.handlers">
-    <handler
+		<handler
           class="eu.compassresearch.ide.ui.utility.UpgradeProjectHandler"
           commandId="eu.compassresearch.ide.ui.commandUpgradeCmlProject">
-    </handler>
- </extension>
- 
- <!-- Upgrade CML projects, this is required if we make changes to the internals of the CML tool -->
- <extension
+		</handler>
+	</extension>
+
+	<!-- Upgrade CML projects, this is required if we make changes to the internals of the CML tool -->
+	<extension
        point="org.eclipse.ui.menus">
-    <menuContribution
+		<menuContribution
           allPopups="false"
           locationURI="popup:eu.compassresearch.ide.ui.CmlNavigator">
-       <command
+			<command
              commandId="eu.compassresearch.ide.ui.commandUpgradeCmlProject"
              label="Upgrade CML Project"
              style="push"
              tooltip="This needs to be performed for projects created prior to 17 July 2013">
-          <visibleWhen>
+				<visibleWhen>
 					<iterate ifEmpty="false" >
 						<or>
 							<adapt type="org.eclipse.core.resources.IProject">
@@ -326,22 +349,22 @@
                        value="eu.compassresearch.ide.ui.cmlnature">
 								</test>
 							</adapt>
-							
+
 						</or>
 					</iterate>
 				</visibleWhen>
-       </command>
-    </menuContribution>
-    <menuContribution
+			</command>
+		</menuContribution>
+		<menuContribution
           allPopups="false"
           locationURI="menu:help?after=intro">
-       <command
+			<command
              commandId="eu.compassresearch.ide.ui.commandReportBug"
              label="Report Symphony bug"
              style="push">
-       </command>
-    </menuContribution>
- </extension>
+			</command>
+		</menuContribution>
+	</extension>
 
 	<!-- Not really using this anymore 
     <extension point="org.eclipse.ui.views">
@@ -363,37 +386,37 @@
 
 
 
-  <extension
+	<extension
         point="org.eclipse.core.runtime.adapters">
-     <factory
+		<factory
            adaptableType="eu.compassresearch.ide.core.resources.ICmlSourceUnit"
            class="eu.compassresearch.ide.ui.adapters.AdapterFactoryWorkbenchAdapter">
-        <adapter
+			<adapter
               type="org.eclipse.ui.model.IWorkbenchAdapter">
-        </adapter>
-     </factory>
-     <factory
+			</adapter>
+		</factory>
+		<factory
            adaptableType="org.overture.ast.node.INode"
            class="eu.compassresearch.ide.ui.adapters.AdapterFactoryWorkbenchAdapter">
-        <adapter
+			<adapter
               type="org.eclipse.ui.model.IWorkbenchAdapter">
-        </adapter>
-     </factory>
-  </extension>
-  <extension
+			</adapter>
+		</factory>
+	</extension>
+	<extension
         point="org.overture.ide.ui.workbenchDisplay">
-     <display
+		<display
            class="eu.compassresearch.ide.ui.adapters.CmlWorkbenchAdaptor">
-     </display>
-  </extension>
-  <extension
+		</display>
+	</extension>
+	<extension
         point="org.eclipse.ui.preferencePages">
-     <page
+		<page
            class="eu.compassresearch.ide.ui.preferences.WorkbenchPreferencePageCompass"
            id="eu.compassresearch.ide.ui.compass"
            name="Symphony">
-     </page>
-  </extension>  
+		</page>
+	</extension>  
 
 
 

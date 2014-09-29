@@ -213,7 +213,7 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 	}
 
 	public String caseARecordInvariantType(ARecordInvariantType tp, ThmVarsContext vars) throws AnalysisException{	
-		String recName = "@" + tp.getName().toString();
+		String recName = "@" + tp.getName().getName();
 		return recName;
 	}
 	

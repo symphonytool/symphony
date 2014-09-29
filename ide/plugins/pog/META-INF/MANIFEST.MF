@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Symphony IDE POG Plugin
 Bundle-SymbolicName: eu.compassresearch.ide.pog;singleton:=true
-Bundle-Version: 0.3.6
+Bundle-Version: 0.4.0
 Bundle-Activator: eu.compassresearch.ide.pog.Activator
 Bundle-Vendor: The COMPASS Project
 Import-Package: eu.compassresearch.ast.actions,
@@ -40,6 +40,7 @@ Import-Package: eu.compassresearch.ast.actions,
  org.osgi.framework,
  org.overture.ast.analysis,
  org.overture.ast.analysis.intf,
+ org.overture.ast.assistant.definition,
  org.overture.ast.definitions,
  org.overture.ast.expressions,
  org.overture.ast.factory,

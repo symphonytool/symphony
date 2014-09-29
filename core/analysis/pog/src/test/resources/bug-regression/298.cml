@@ -1,0 +1,6 @@
+process A =  begin
+operations
+op ()
+post true
+@Skip
+end
