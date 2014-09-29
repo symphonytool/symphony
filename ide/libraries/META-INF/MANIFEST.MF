@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-Vendor: COMPASS
 Bundle-ActivationPolicy: lazy
-Bundle-Version: 0.4.0
+Bundle-Version: 0.4.1.qualifier
 Eclipse-BuddyPolicy: registered
 Eclipse-BundleShape: dir
 Bundle-Localization: plugin
