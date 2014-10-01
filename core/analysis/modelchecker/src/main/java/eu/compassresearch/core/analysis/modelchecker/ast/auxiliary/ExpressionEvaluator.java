@@ -76,6 +76,8 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 			result = this.getTypeFor((MCABooleanConstExp)exp);
 		} else if(exp instanceof MCAInSetBinaryExp){
 			result = this.getTypeFor((MCAInSetBinaryExp)exp);
+		} else if(exp instanceof MCAUnaryMinusUnaryExp){
+			result = this.getTypeFor((MCAUnaryMinusUnaryExp)exp);
 		}
 		
 		return result;
@@ -85,6 +87,8 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 		MCPCMLType result = null;
 		if(exp instanceof MCAIntLiteralExp){
 			result = this.getTypeFor((MCAIntLiteralExp)exp);
+		} else if(exp instanceof MCAUnaryMinusUnaryExp){
+			result = this.getTypeFor((MCAUnaryMinusUnaryExp)exp);
 		} else if(exp instanceof MCARealLiteralExp){
 			result = this.getTypeFor((MCARealLiteralExp)exp);
 		} else if(exp instanceof MCAVariableExp){
@@ -172,6 +176,7 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 	
 	public MCPCMLType getTypeForIOComm(MCPCommunicationParameter param){
 		MCPCMLType result = null;
+		
 		if(param instanceof MCASignalCommunicationParameter){
 			result = this.getTypeForIOComm((MCASignalCommunicationParameter)param);
 		} else if(param instanceof MCAReadCommunicationParameter){
@@ -280,7 +285,6 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 		
 		return result;
 	}
-	
 	public MCPCMLType instantiateMCTypeFromCommParams(LinkedList<MCPCommunicationParameter> params){
 		MCPCMLType result = null;
 		
@@ -402,6 +406,13 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 		MCPCMLType result = null;
 		
 		result = new MCAIntNumericBasicType(exp.getValue());
+		
+		return result;
+	}
+	private MCPCMLType getTypeFor(MCAUnaryMinusUnaryExp exp){
+		MCPCMLType result = null;
+		
+		result = new MCAIntNumericBasicType("-" + exp.getExp().toFormula(MCNode.DEFAULT));
 		
 		return result;
 	}

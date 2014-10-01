@@ -21,9 +21,6 @@ import org.overture.ast.expressions.PExp;
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.PSource;
-import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Int;
-import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Type;
-import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Void;
 import eu.compassresearch.core.parser.CmlLexer;
 import eu.compassresearch.core.parser.CmlParser;
 
@@ -65,13 +62,15 @@ public class Utilities {
 	private static boolean parseWithANTLR(PSource sourceIn) throws IOException
 	{
 		ANTLRInputStream in = null;
-		
+
 		if (sourceIn instanceof AInputStreamSource)
-			in = new ANTLRInputStream(((AInputStreamSource)sourceIn).getStream());
-		
+			in = new ANTLRInputStream(
+					((AInputStreamSource) sourceIn).getStream());
+
 		if (sourceIn instanceof AFileSource)
-			in = new ANTLRInputStream( new FileInputStream(((AFileSource)sourceIn).getFile()));
-		
+			in = new ANTLRInputStream(new FileInputStream(
+					((AFileSource) sourceIn).getFile()));
+
 		CmlLexer lexer = new CmlLexer(in);
 		CommonTokenStream tokens = new CommonTokenStream(lexer);
 		CmlParser parser = new CmlParser(tokens);
@@ -80,23 +79,9 @@ public class Utilities {
 			sourceIn.setParagraphs(parser.source());
 			return true;
 		} catch (RecognitionException e) {
-			e.printStackTrace();
 			return false;
 		}
 
-	}
-	
-	public static Type createValue(PExp expression){
-		Type result = null;
-		
-		if(expression == null){
-			result = new Void();
-		}
-		if(expression instanceof AIntLiteralExp){
-			result = new Int(Integer.valueOf(((AIntLiteralExp) expression).getValue().toString()));
-		}
-		
-		return result;
 	}
 	
 	public static String extractFunctionName(String functionCall){

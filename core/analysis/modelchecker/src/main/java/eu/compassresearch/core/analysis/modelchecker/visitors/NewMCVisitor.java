@@ -365,7 +365,7 @@ public class NewMCVisitor extends
 		//String cml_file = "src/test/resources/action-condchoice.cml";
 		//String cml_file = "src/test/resources/Param.cml";
 		//String cml_file = "src/test/resources/inf.cml";
-		String cml_file = "src/test/resources/T243v2-MC.cml";
+		String cml_file = "src/test/resources/BorderTrafficMC_v1.cml";
 		
 		
 		
@@ -378,11 +378,12 @@ public class NewMCVisitor extends
 		//String cml_file = "src/test/resources/simpler-insielImpl-final-modelchecker.cml";
 		//String cml_file = "src/test/resources/action-prefix-skip.cml";
 		//System.out.println("Testing on " + cml_file);
-		PSource source1 = Utilities.makeSourceFromFile(cml_file);
+		PSource ast = Utilities.makeSourceFromFile(cml_file);
 		// Type check
 		ITypeIssueHandler errors = VanillaFactory.newCollectingIssueHandle();
-		ICmlTypeChecker cmlTC = VanillaFactory.newTypeChecker(source1.getParagraphs(), errors);
-		
+		ICmlTypeChecker cmlTC = VanillaFactory.newTypeChecker(
+				ast.getParagraphs(), errors);
+			
 		/*
 		if(!cmlTC.typeCheck()){
 			System.out.println("There are typecheck errors.");
@@ -392,7 +393,7 @@ public class NewMCVisitor extends
 		//String mainProcessName = "Test_TurnOnProduct";
 				//String mainProcessName = "TargetProduct_DD_SD_InterfaceProtocolView";
 				
-		String mainProcessName = "Renderers";
+		String mainProcessName = "CountryTMS";
 				//String mainProcessName = "RegisterProc";
 				//String mainProcessName = "N_LAZY_Q";
 				//String mainProcessName = "StreamingPlayerCSProcess";
@@ -418,7 +419,7 @@ public class NewMCVisitor extends
 		NewMCVisitor visitor1 = new NewMCVisitor();
 		
 		
-		String formulaCode = visitor1.generateFormulaScript(source1.getParagraphs(),Utilities.DEADLOCK_PROPERTY,mainProcessName);
+		String formulaCode = visitor1.generateFormulaScript(ast.getParagraphs(),Utilities.DEADLOCK_PROPERTY,mainProcessName);
 		//String[] codes1 = visitor1.generateFormulaCodeForAll(Utilities.DEADLOCK_PROPERTY);
 		//for (int j = 0; j < codes1.length; j++) {
 		//	System.out.println(codes1[j]);

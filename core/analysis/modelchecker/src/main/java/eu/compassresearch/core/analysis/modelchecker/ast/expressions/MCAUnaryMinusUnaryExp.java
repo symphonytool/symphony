@@ -2,6 +2,7 @@ package eu.compassresearch.core.analysis.modelchecker.ast.expressions;
 
 import java.util.LinkedList;
 
+import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.PatternValue;
 
 public class MCAUnaryMinusUnaryExp implements MCPCMLExp {
@@ -17,6 +18,12 @@ public class MCAUnaryMinusUnaryExp implements MCPCMLExp {
 	@Override
 	public String toFormula(String option) {
 		return "-" + this.exp.toFormula(option);
+	}
+
+	
+	@Override
+	public String toString() {
+		return toFormula(MCNode.DEFAULT);
 	}
 
 	@Override

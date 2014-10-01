@@ -1,6 +1,8 @@
 package eu.compassresearch.ide.modelchecker;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AAssignmentDefinition;
@@ -193,6 +195,7 @@ import eu.compassresearch.ast.actions.AValParametrisation;
 import eu.compassresearch.ast.actions.AVresParametrisation;
 import eu.compassresearch.ast.actions.AWaitAction;
 import eu.compassresearch.ast.actions.AWriteCommunicationParameter;
+import eu.compassresearch.ast.actions.PParametrisation;
 import eu.compassresearch.ast.declarations.AExpressionSingleDeclaration;
 import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionClassDefinition;
@@ -595,14 +598,14 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	}
 
 	@Override
-	public void caseAChannelType(AChannelType arg0) throws AnalysisException {
+	public void caseAChannelType(AChannelType node) throws AnalysisException {
 		//channel types that have more than one communication type are not allowed
 		UnsupportedElementInfo uei = new UnsupportedElementInfo() {
 		};
 
-		if(arg0.getParameters().size() > 1){
-			uei.setLocation(arg0.getLocation());
-			uei.setMessage(arg0.getClass().getSimpleName().toString()
+		if(node.getParameters().size() > 1){
+			uei.setLocation(node.getLocation());
+			uei.setMessage(node.getClass().getSimpleName().toString()
 					+ " nodes with more than one parameter are not supported by the " + this.getFeature().toString());
 			this.getUnsupporteds().add(uei);
 			unsupported = true;
@@ -2319,9 +2322,41 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseAProcessDefinition(AProcessDefinition node)
 			throws AnalysisException {
-		unsupported = false;
+		//unsupported = false;
+		UnsupportedElementInfo uei = new UnsupportedElementInfo() {
+		};
+
+		if(node.getLocalState().size() > 1){
+			uei.setLocation(node.getName().getLocation());
+			uei.setMessage(node.getClass().getSimpleName().toString()
+					+ " nodes with more than one parameter are not supported by the " + this.getFeature().toString());
+			this.getUnsupporteds().add(uei);
+			unsupported = true;
+		}else{
+			unsupported = false;
+		}
 		// Do not remove the super call below.
-		super.caseAProcessDefinition(node);
+		//super.caseAProcessDefinition(node);
+		//the super class call above inserts two UnsupportedElementInfo in the list. We changed it with the code bellow
+		//to avoid that.
+		if(node.getClassDefinition() != null && !_visitedNodes.contains(node.getClassDefinition())) {
+			node.getClassDefinition().apply(this);
+		}
+		{
+			List<PParametrisation> copy = new ArrayList<PParametrisation>(node.getLocalState());
+			for( PParametrisation e : copy) 
+			{
+				if(!_visitedNodes.contains(e))
+				{
+					e.apply(this);
+				}
+			}
+		}
+		if(node.getProcess() != null && !_visitedNodes.contains(node.getProcess())) 
+		{
+			node.getProcess().apply(this);
+		}
+		
 	}
 
 	@Override

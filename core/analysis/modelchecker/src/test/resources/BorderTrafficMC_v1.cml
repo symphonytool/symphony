@@ -1,0 +1,145 @@
+types
+
+  CountryId = nat
+  ActuatorId =nat
+  
+  Location = int
+
+functions
+
+   -- Function to calculate the distance required for the corridor based upon the target
+   -- speed and the current national speed limit of the country.
+   calcDistance: nat * nat -> nat
+   calcDistance(targetSpeed, speedLimit) == ((speedLimit-targetSpeed)/maxInterval) + 1  -- simplified for MC
+   
+   -- Function to calculate the speed target the neighbouring TMS must acheive. THis is based 
+   -- upon the starting location of the corridor, the required distance of the corridor, and the
+   -- ultimate target speed
+   calcNeighbourTarget : int * nat * nat * nat -> nat   
+   calcNeighbourTarget(startLoc, target, distance, speedLimit)  ==
+      target + (calcInterval(target, distance, speedLimit) * startLoc)
+
+
+  calcInterval: nat * nat * nat -> nat
+  calcInterval(target, distance, speedLimit) == ((speedLimit-target)/distance)
+   pre speedLimit > target and distance > 0   
+   
+   
+   --Determines if Neighbour is needed based upon the starting location and distance of the
+   -- speed corridor
+   --**IMPORTANT** current model of location means this is only valid for Country B!
+   isNeighbourNeeded : int * nat -> bool
+   isNeighbourNeeded (startLoc, distance) == startLoc + distance > 0
+   
+channels
+
+  --environment channels--
+  inIncidentOne : CountryId
+  inIncidentTwo : Location
+  inIncidentThree : nat
+  incidentClearOne: CountryId 
+  incidentClearTwo: Location
+
+  --interface channels--
+  neighbourRequestOne : CountryId
+  neighbourRequestTwo :  CountryId
+  neighbourRequestThree : nat
+  neighbourOkOne : CountryId
+  neighbourOkTwo : CountryId
+  
+ 
+  --internal corridor channels--
+  determineCorrOne : int 
+  determineCorrTwo : nat
+  newCorr 
+  createCorr
+  disableCorr
+ 
+
+chansets
+  -- the main interface between countryTMSs
+  interface = {neighbourRequestOne, neighbourRequestTwo, neighbourRequestThree, neighbourOkOne, neighbourOkTwo}
+  
+  -- interface of SoS and incident creator
+  incident = {inIncidentOne, inIncidentTwo, inIncidentThree, incidentClearOne, incidentClearTwo}
+
+  --internal channels--
+  internal = {determineCorrOne, determineCorrTwo, newCorr, createCorr, disableCorr}
+
+
+process CountryTMS =  i:CountryId, n:CountryId, sl:nat@
+begin
+
+ state
+  -- identifiers for the TMS and its neighbour
+  myId : CountryId := i
+  nId : CountryId :=n
+  nationalSpeedLimit : nat :=sl
+
+ actions
+   
+   BEHAVIOUR = NEW_INCIDENT [] NEIGHBOUR_REQ
+   	                     
+   NEW_INCIDENT = inIncidentOne.myId -> inIncidentTwo?l -> inIncidentThree?t -> 
+                  (dcl d : nat := calcDistance(t, nationalSpeedLimit) @ 
+                   NEW_CORRIDOR(l, t, d))
+   				 
+   NEW_CORRIDOR = l : int, t: nat, d:nat @ 
+                 (newCorr -> Skip; 
+     			  (dcl neighbourNeeded : bool := isNeighbourNeeded(l, d) @
+                   ([neighbourNeeded]     & (dcl ntarg:nat := calcNeighbourTarget(l, t, d, nationalSpeedLimit) @
+                                              neighbourRequestOne!myId -> neighbourRequestTwo!nId -> 
+                                              neighbourRequestThree!ntarg -> CLEAR_INCIDENT(l,true))
+                    []
+                    [not neighbourNeeded] & CLEAR_INCIDENT(l, false))))
+              
+   CLEAR_INCIDENT = l:int, neigh:bool @ 
+  			   (incidentClearOne.myId -> incidentClearTwo.l ->  CLEAR_CORRIDOR(neigh))
+   			  
+   CLEAR_CORRIDOR = neigh:bool @ 
+                     [neigh]& disableCorr -> Skip; neighbourOkOne!myId -> neighbourOkTwo!nId -> NEW_INCIDENT
+                     []
+                     [not neigh] & disableCorr -> Skip; BEHAVIOUR 
+   
+   NEIGHBOUR_REQ = neighbourRequestOne.nId -> neighbourRequestTwo.myId -> neighbourRequestThree?t -> newCorr -> Skip; NEIGHBOUR_CLEAR
+                           
+   NEIGHBOUR_CLEAR =  neighbourOkOne.nId -> neighbourOkTwo.myId -> disableCorr -> Skip; BEHAVIOUR
+                                            
+                   
+  @ BEHAVIOUR			
+end 
+  
+process CountryA = CountryTMS(theAId, theBId, limitA)
+process CountryB = CountryTMS(theBId, theAId, limitB)
+
+process BorderTrafficSoS = CountryA [|interface|] CountryB --\\ internal
+
+
+process Scenario = 
+begin 
+  @ inIncidentOne!theBId -> inIncidentTwo!(-4) -> inIncidentThree!20 -> 
+    incidentClearOne.theBId -> incidentClearTwo.(-4)-> 
+    inIncidentOne.theBId -> inIncidentTwo.(-1) -> inIncidentThree.20 -> 
+    incidentClearOne.theBId -> incidentClearTwo.(-1) -> Skip 
+end
+
+process Test = Scenario [|incident|] BorderTrafficSoS
+
+
+-- Values are used in the scenarios
+values
+ 
+  maxDiff : nat = 20
+  maxChange : nat = 40
+  
+  theAId : CountryId = 1
+  theBId :CountryId = 2
+  
+  limitA : nat = 100
+  limitB : nat = 90
+  
+  
+  restrictionSpeed : nat = 20
+  blockageSpeed : nat = 5
+  
+  maxInterval : nat = 40

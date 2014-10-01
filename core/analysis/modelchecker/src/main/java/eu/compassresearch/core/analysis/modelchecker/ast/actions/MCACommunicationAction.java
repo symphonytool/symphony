@@ -108,9 +108,11 @@ public class MCACommunicationAction implements MCPAction {
 		valuesCopy.addAll(values);
 		
 		if(chanDef.isInfiniteType()){
-			String infiniteVarName = this.communicationParameters.getFirst().toString();
-			context.variablesInfiniteDomain.add(infiniteVarName);
-			result.append(buildPrefix(option, context, true));
+			
+			if(!parameterIsConstantValue()){
+				String infiniteVarName = this.communicationParameters.getFirst().toString();
+				context.variablesInfiniteDomain.add(infiniteVarName);
+				result.append(buildPrefix(option, context, true));
 			/*
 			if(!parameterIsConstantValue()){
 				String actionNameToUse = ""; 
@@ -129,6 +131,9 @@ public class MCACommunicationAction implements MCPAction {
 			}
 			*/
 			context.variablesInfiniteDomain.remove(infiniteVarName);
+			} else{
+				result.append(buildPrefix(option, context, true));
+			}
 		} else{
 			//int i = 0;
 			//result.append(buildReplicatedExternalChoice(context, values, option, allParamsCopy,false));
@@ -309,6 +314,7 @@ public class MCACommunicationAction implements MCPAction {
 		ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
 	
 		if(option.equals(MCNode.MINIMAL_GENERIC) || option.equals(MCNode.STATE_DEFAULT_PROCESS_NAMED)){
+			
 			MCPCMLType type = evaluator.instantiateMCTypeFromCommParamsForIOCommDef(this.communicationParameters,"");
 			result.append(type.toFormula(option));
 		}else{
