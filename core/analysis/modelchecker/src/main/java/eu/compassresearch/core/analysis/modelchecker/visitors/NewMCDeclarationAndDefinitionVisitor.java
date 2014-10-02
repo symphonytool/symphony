@@ -55,6 +55,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCATypeDefi
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAUntypedDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAValueDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCPCMLDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAApplyExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAUndefinedExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPVarsetExpression;
@@ -174,9 +175,8 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 		MCPCMLExp varValue = new MCVoidValue();
 		if(expression != null){
 			varValue = expression;
-			if(expression instanceof MCAUndefinedExp){
-				//this has to be improved to instantiate values of the suitable type of the expression.
-				ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
+			ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
+			if(expression instanceof MCAUndefinedExp || expression instanceof MCAApplyExp){
 				varValue = evaluator.getDefaultValue(type);
 			} 
 		}

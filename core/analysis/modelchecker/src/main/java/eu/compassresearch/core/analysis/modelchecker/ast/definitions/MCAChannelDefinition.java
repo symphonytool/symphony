@@ -85,7 +85,7 @@ public class MCAChannelDefinition implements MCPCMLDefinition {
 					context.addIntroduce(introduce);
 										
 					//lets try to get from the dependencies
-					result.append("\n   //channels obtained from dependencies \n");
+					//result.append("\n   //channels obtained from dependencies \n");
 					LinkedList<ActionChannelDependency> dependencies = context.getActionChannelDependendiesByChannelName(this.name);
 					if(dependencies.size() > 0){
 						for (Iterator<ActionChannelDependency> iterator = dependencies.iterator(); iterator.hasNext();) {

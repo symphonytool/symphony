@@ -10,7 +10,7 @@ functions
    -- Function to calculate the distance required for the corridor based upon the target
    -- speed and the current national speed limit of the country.
    calcDistance: nat * nat -> nat
-   calcDistance(targetSpeed, speedLimit) == ((speedLimit-targetSpeed)/maxInterval) + 1  -- simplified for MC
+   calcDistance(targetSpeed, speedLimit) == ((speedLimit-targetSpeed)/40) + 1  -- simplified for MC
    
    -- Function to calculate the speed target the neighbouring TMS must acheive. THis is based 
    -- upon the starting location of the corridor, the required distance of the corridor, and the
@@ -67,79 +67,46 @@ chansets
   internal = {determineCorrOne, determineCorrTwo, newCorr, createCorr, disableCorr}
 
 
-process CountryTMS =  i:CountryId, n:CountryId, sl:nat@
+process CountryTMS = 
 begin
 
  state
   -- identifiers for the TMS and its neighbour
-  myId : CountryId := i
-  nId : CountryId :=n
-  nationalSpeedLimit : nat :=sl
+  myId : CountryId := 1
+  nId : CountryId :=2
+  nationalSpeedLimit : nat :=100
+  neighbourNeeded : bool := false
+  targCorr : nat := 0
+  distCorr : nat := 0
+  locCorr : int := 0
 
  actions
    
    BEHAVIOUR = NEW_INCIDENT [] NEIGHBOUR_REQ
    	                     
    NEW_INCIDENT = inIncidentOne.myId -> inIncidentTwo?l -> inIncidentThree?t -> 
-                  (dcl d : nat := calcDistance(t, nationalSpeedLimit) @ 
-                   NEW_CORRIDOR(l, t, d))
+                  (distCorr := calcDistance(t, nationalSpeedLimit) ; locCorr := l; targCorr :=t; 
+                   NEW_CORRIDOR)
    				 
-   NEW_CORRIDOR = l : int, t: nat, d:nat @ 
+   NEW_CORRIDOR = 
                  (newCorr -> Skip; 
-     			  (dcl neighbourNeeded : bool := isNeighbourNeeded(l, d) @
-                   ([neighbourNeeded]     & (dcl ntarg:nat := calcNeighbourTarget(l, t, d, nationalSpeedLimit) @
+                   //this is replaced by the body of the function, which is not allowed in FORMULA
+     			  (neighbourNeeded := isNeighbourNeeded(locCorr, distCorr);
+                   ([neighbourNeeded = true] & (dcl ntarg:nat := calcNeighbourTarget(locCorr, targCorr, distCorr, nationalSpeedLimit) @
                                               neighbourRequestOne!myId -> neighbourRequestTwo!nId -> 
-                                              neighbourRequestThree!ntarg -> CLEAR_INCIDENT(l,true))
+                                              neighbourRequestThree!ntarg -> CLEAR_INCIDENT)
                     []
-                    [not neighbourNeeded] & CLEAR_INCIDENT(l, false))))
+                    [neighbourNeeded = false] & CLEAR_INCIDENT)))
               
-   CLEAR_INCIDENT = l:int, neigh:bool @ 
-  			   (incidentClearOne.myId -> incidentClearTwo.l ->  CLEAR_CORRIDOR(neigh))
+   CLEAR_INCIDENT = (incidentClearOne.myId -> incidentClearTwo.locCorr ->  CLEAR_CORRIDOR)
    			  
-   CLEAR_CORRIDOR = neigh:bool @ 
-                     [neigh]& disableCorr -> Skip; neighbourOkOne!myId -> neighbourOkTwo!nId -> NEW_INCIDENT
+   CLEAR_CORRIDOR = [neighbourNeeded = true] & disableCorr -> Skip; neighbourOkOne!myId -> neighbourOkTwo!nId -> NEW_INCIDENT
                      []
-                     [not neigh] & disableCorr -> Skip; BEHAVIOUR 
+                     [neighbourNeeded = false] & disableCorr -> Skip; BEHAVIOUR 
    
    NEIGHBOUR_REQ = neighbourRequestOne.nId -> neighbourRequestTwo.myId -> neighbourRequestThree?t -> newCorr -> Skip; NEIGHBOUR_CLEAR
                            
    NEIGHBOUR_CLEAR =  neighbourOkOne.nId -> neighbourOkTwo.myId -> disableCorr -> Skip; BEHAVIOUR
-                                            
-                   
+                     
   @ BEHAVIOUR			
 end 
-  
-process CountryA = CountryTMS(theAId, theBId, limitA)
-process CountryB = CountryTMS(theBId, theAId, limitB)
-
-process BorderTrafficSoS = CountryA [|interface|] CountryB --\\ internal
-
-
-process Scenario = 
-begin 
-  @ inIncidentOne!theBId -> inIncidentTwo!(-4) -> inIncidentThree!20 -> 
-    incidentClearOne.theBId -> incidentClearTwo.(-4)-> 
-    inIncidentOne.theBId -> inIncidentTwo.(-1) -> inIncidentThree.20 -> 
-    incidentClearOne.theBId -> incidentClearTwo.(-1) -> Skip 
-end
-
-process Test = Scenario [|incident|] BorderTrafficSoS
-
-
--- Values are used in the scenarios
-values
- 
-  maxDiff : nat = 20
-  maxChange : nat = 40
-  
-  theAId : CountryId = 1
-  theBId :CountryId = 2
-  
-  limitA : nat = 100
-  limitB : nat = 90
-  
-  
-  restrictionSpeed : nat = 20
-  blockageSpeed : nat = 5
-  
-  maxInterval : nat = 40
