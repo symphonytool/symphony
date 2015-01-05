@@ -12,6 +12,7 @@ import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.interpreter.assistant.IInterpreterAssistantFactory;
 import org.overture.interpreter.runtime.Context;
+import org.overture.interpreter.runtime.ObjectContext;
 import org.overture.interpreter.runtime.ValueException;
 import org.overture.interpreter.values.DelayedUpdatableWrapper;
 import org.overture.interpreter.values.UpdatableValue;
@@ -61,9 +62,14 @@ public class DelayedWriteContext extends Context
 		this.owner = owner;
 	}
 
-	public DelayedWriteContext(INode owner, IInterpreterAssistantFactory af,
-			ILexLocation location, String title, Context outer,
-			Map<ILexNameToken, DelayedUpdatableWrapper> obtainedValues,Map<Integer, Map<ILexNameToken, DelayedUpdatableWrapper>> obtainedFieldValues)
+	public DelayedWriteContext(
+			INode owner,
+			IInterpreterAssistantFactory af,
+			ILexLocation location,
+			String title,
+			Context outer,
+			Map<ILexNameToken, DelayedUpdatableWrapper> obtainedValues,
+			Map<Integer, Map<ILexNameToken, DelayedUpdatableWrapper>> obtainedFieldValues)
 	{
 		super(af, location, title, outer);
 		this.obtainedValues.putAll(obtainedValues);
@@ -156,6 +162,22 @@ public class DelayedWriteContext extends Context
 					break;
 				}
 			}
+
+			if (!obtainedFieldValues.isEmpty())
+			{
+				int objId = getObjectReferenceId();
+				if(objId>0)
+				{
+					for (ILexNameToken key : obtainedFieldValues.get(objId).keySet())
+					{
+						if (key.getName().equals(((ILexNameToken) name).getName()))
+						{
+							v = obtainedFieldValues.get(objId).get(key);
+						}
+					}
+				}
+			}
+
 			if (v != null)
 			{
 				return v;
@@ -435,15 +457,15 @@ public class DelayedWriteContext extends Context
 		for (Entry<Integer, Map<ILexNameToken, DelayedUpdatableWrapper>> map : this.obtainedFieldValues.entrySet())
 		{
 			Map<ILexNameToken, DelayedUpdatableWrapper> innerMap = new LexNameTokenMap<DelayedUpdatableWrapper>();
-			
+
 			for (Entry<ILexNameToken, DelayedUpdatableWrapper> entry : map.getValue().entrySet())
 			{
 				innerMap.put(entry.getKey(), (DelayedUpdatableWrapper) entry.getValue().deepCopy());
 			}
-						
+
 			resultObtainedFieldValues.put(map.getKey(), innerMap);
 		}
-		
+
 		Context result = new DelayedWriteContext(owner, assistantFactory, location, title, below, resultObtainedValues, resultObtainedFieldValues);
 
 		result.threadState = threadState;
@@ -460,5 +482,27 @@ public class DelayedWriteContext extends Context
 	public boolean isOwnedBy(INode node)
 	{
 		return owner == node;
+	}
+	
+	
+	private int getObjectReferenceId()
+	{
+		Context tmp = this;
+		ObjectContext objCtxt = null;
+		while(tmp!=null)
+		{
+			tmp = tmp.outer;
+			if(tmp instanceof ObjectContext)
+			{
+				objCtxt = (ObjectContext) tmp;
+				break;
+			}
+		}
+		
+		if(objCtxt!=null)
+		{
+			return objCtxt.getSelf().objectReference;
+		}
+		return -1;
 	}
 }

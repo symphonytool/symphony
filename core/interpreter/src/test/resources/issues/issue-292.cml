@@ -1,0 +1,12 @@
+channels
+c : nat
+b : nat
+
+functions
+floorTest : nat -> nat
+floorTest(n) == floor n/3
+
+process P = 
+begin
+ @ c?n -> b!(floorTest(n)) -> Skip 
+end

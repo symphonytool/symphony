@@ -1,0 +1,15 @@
+channels
+  ping : nat
+  pair : nat * nat
+
+process TEST = begin
+state
+  simple : map nat to nat := {1 |-> 0}
+
+@ (pair!7!(simple(1)) ->
+          simple(1) := 7;
+          pair!7!(simple(1)) ->
+          Skip
+   ) ||| Skip       
+          
+end

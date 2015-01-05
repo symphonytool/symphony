@@ -1,0 +1,895 @@
+-- t_model started with NMain::VariousActivityStuff
+types
+	ID = seq of token
+	DL = bool | <defer>
+	-- t_type_datatype started with NMain::VariousActivityStuff::Item
+	Item::
+		Attribute1: int
+	-- t_type_datatype finished with NMain::VariousActivityStuff::Item
+	-- t_type_operation started with NMain::VariousActivityStuff::MyBlock2.Operation1
+	public Operation1_I ::
+		$id: token
+		
+	public Operation1_O ::
+		$id: token
+		
+	-- t_type_operation finished with NMain::VariousActivityStuff::MyBlock2.Operation1
+	-- t_type_operation started with NMain::VariousActivityStuff::MyBlock2.Operation2
+	public Operation2_I ::
+		$id: token
+		
+	public Operation2_O ::
+		$id: token
+		
+	-- t_type_operation finished with NMain::VariousActivityStuff::MyBlock2.Operation2
+	-- t_type_signal started with NMain::VariousActivityStuff::Signal1
+	public Signal1 ::
+		$id: token
+			
+	-- t_type_signal finished with NMain::VariousActivityStuff::Signal1
+	OPS = Operation1_I | Operation1_O | Operation2_I | Operation2_O
+	S = Signal1
+	MSG = OPS | S
+	E = nat*ID*ID*MSG
+-- declare_bag started with NMain::VariousActivityStuff
+types
+public Bag = map token to nat
+values
+	public empty_bag = {|->}
+functions
+	public in_bag: token * Bag -> bool
+	in_bag(o,b) == 
+		exists n in set dom(b) @ b(n) > 0 and o = n
+	
+	public bunion: Bag * Bag -> Bag
+	bunion(m1,m2) == 
+		{x |-> y | x in set (dom m1 inter dom m2),
+			y: nat @ y = m1(x)+m2(x)}
+		munion
+		{x |-> y | x in set dom m1, y: nat @
+			x not in set dom m2 and y = m1(x)}
+		munion
+		{x |-> y | x in set dom m2, y: nat @
+			x not in set dom m1 and y = m2(x)}
+	
+	public bdiff: Bag * Bag -> Bag
+	bdiff(m1,m2) == 
+		{x |-> y | x in set (dom m1 inter dom m2),
+			y: nat
+			@ y = if m1(x)-m2(x) > 0
+				then m1(x)-m2(x)
+				else 0}
+		munion
+		{x |-> y | x in set dom m1, y: nat @
+			x not in set dom m2 and y = m1(x)}
+-- declare_bag finished with NMain::VariousActivityStuff
+
+functions
+DL_or(a: DL, b: DL) c: DL
+post (is_bool(a) and is_bool(b) => c = a or b)
+	and (not is_bool(a) or not is_bool(b) => (
+		((a = true) or (b = true) => (c = true))
+		and ((not (a = true) and not (b = true))
+			 => c = <defer>)
+	))
+
+prefix: ID*ID->bool
+prefix(p, q) == len p <= len q and (forall i in set inds p @ p(i) = q(i))
+
+drop_two(x: ID) c: ID
+pre len x >= 2
+post c = reverse(tl(tl(reverse(x))))
+
+channels
+
+instate, setstate: ID*ID*bool
+enter,entered,exit,exited,cancel,final_state: ID*ID
+enabled: ID*bool
+completion: ID
+fire,fired
+-- t_block started with NMain::VariousActivityStuff::MyBlock1
+-- t_simple_block started with NMain::VariousActivityStuff::MyBlock1
+-- t_block_types started with NMain::VariousActivityStuff::MyBlock1
+values
+-- t_block_values started with NMain::VariousActivityStuff::MyBlock1
+-- t_block_values finished with NMain::VariousActivityStuff::MyBlock1
+-- t_block_signal_type started with NMain::VariousActivityStuff::MyBlock1
+MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_S = {mk_token("Event1")}
+-- t_block_signal_type finished with NMain::VariousActivityStuff::MyBlock1
+-- t_block_input_type started with NMain::VariousActivityStuff::MyBlock1
+MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_I = {}
+-- t_block_input_type finished with NMain::VariousActivityStuff::MyBlock1
+-- t_block_output_type started with NMain::VariousActivityStuff::MyBlock1
+MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_O = {}
+-- t_block_output_type finished with NMain::VariousActivityStuff::MyBlock1
+MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_OPS = MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_I union MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_O
+-- t_block_types finished with NMain::VariousActivityStuff::MyBlock1
+-- t_block_channels started with NMain::VariousActivityStuff::MyBlock1
+channels
+	MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_op: nat*ID*ID*OPS
+	MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_sig: nat*ID*ID*S
+	MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_addevent: nat*ID*ID*MSG
+	-- d_attribute_get_and_set_channel started with NMain::VariousActivityStuff::MyBlock1.BlockProperty1
+	MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_get_BlockProperty1:ID*ID*Item
+	MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_set_BlockProperty1:ID*ID*Item
+	-- d_attribute_get_and_set_channel finished with NMain::VariousActivityStuff::MyBlock1.BlockProperty1
+-- t_block_channels finished with NMain::VariousActivityStuff::MyBlock1
+-- t_block_process started with NMain::VariousActivityStuff::MyBlock1
+-- t_block_simple_process started with NMain::VariousActivityStuff::MyBlock1
+process simple_MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5 = $id: ID @ begin
+	-- t_block_state started with NMain::VariousActivityStuff::MyBlock1
+	state
+		-- d_attribute_declaration started with NMain::VariousActivityStuff::MyBlock1.BlockProperty1
+		BlockProperty1: Item
+		-- d_attribute_declaration finished with NMain::VariousActivityStuff::MyBlock1.BlockProperty1
+		MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_enabled: Bag := empty_bag
+	-- t_block_state finished with NMain::VariousActivityStuff::MyBlock1
+	actions
+	-- t_block_state_action started with NMain::VariousActivityStuff::MyBlock1
+	MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_state = mu X @ (
+		-- t_block_state_action_d_attribute started with NMain::VariousActivityStuff::MyBlock1.BlockProperty1
+		MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_get_BlockProperty1?o!$id!BlockProperty1-> X
+		[]
+		MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_set_BlockProperty1?o!$id?x -> BlockProperty1:= x; X
+		-- t_block_state_action_d_attribute finished with NMain::VariousActivityStuff::MyBlock1.BlockProperty1
+	)
+	-- t_block_state_action finished with NMain::VariousActivityStuff::MyBlock1
+	-- t_block_requests_action started with NMain::VariousActivityStuff::MyBlock1
+	MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_requests = mu X @ (
+		MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_op?n?o!$id?x:(x.$id in set MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_I) -> (
+			Stop
+		)
+		[]
+		MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_op?n?o!$id?x:(in_bag(x.$id,MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_enabled)) -> (
+			Stop
+		)
+		[]
+		MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_sig?n?o!$id?x:(x.$id in set MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_S) -> 
+			MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_addevent!n!o!$id!x -> X
+	)
+	-- t_block_requests_action finished with NMain::VariousActivityStuff::MyBlock1
+	@ 
+	MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_state
+	[||{BlockProperty1}|{MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_enabled}||]
+	MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_requests
+end
+-- t_block_simple_process finished with NMain::VariousActivityStuff::MyBlock1
+-- t_block_bare_process started with NMain::VariousActivityStuff::MyBlock1
+-- t_controller started with NMain::VariousActivityStuff::MyBlock1
+channels
+	MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_inevent:ID*E
+	MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_consumed: ID*DL
+	MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_hasevent: ID*token
+	MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_getevent: ID*(E|<NOEVENT>)
+types
+	controller_MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_E = nat*ID*ID*MSG inv mk_(-,-,-,m) == m.$id in set MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_I union MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_S
+process controller_MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5 = $id: ID @ begin
+state
+	events: set of controller_MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_E:= {}
+	deferred: seq of controller_MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_E:= []
+functions
+	remove: (seq of controller_MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_E) * nat -> seq of controller_MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_E
+	remove(s,i) == s(1,...,i-1)^s(i+1,...,len s)
+	pre i <= (len s)
+actions
+TreatDeferredEvents = (dcl i: nat := 1 @
+	while (i <= len deferred) do
+		let ev = deferred(i) in (
+			MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_inevent?o!ev -> (
+				MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_consumed!o?b:(is_bool(b)) -> 
+					deferred := remove(deferred,i)
+				[]
+				MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_consumed.o.<defer> -> i := i+1
+			)
+			[]mu X @ (MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_addevent?n?o!$id?e ->
+				events := events union {mk_(n,o,$id,e)};X)
+		)
+)
+@ mu X @ (
+	MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_addevent?n?o!$id?e -> (events := events union {mk_(n,o,$id,e)});X
+	[]
+	[(card events) > 0] & (
+		|~| ev in set events @ (
+			MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_inevent?o!ev-> (events := events\{ev}; (
+				MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_consumed.o.true -> TreatDeferredEvents; X
+				[]
+				MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_consumed.o.false -> X
+				[]
+				MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_consumed.o.<defer> -> deferred := deferred^[ev];X
+			))
+		)
+	)
+[]
+MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_hasevent?o?t -> (
+	if (exists e in set events @ e.#4.$id = t)
+		then (|~| e in set {x | x in set events @ x.#4.$id = t} @
+			events := events\{e}; MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_getevent!o!e -> X)
+	elseif (exists i in set inds deferred @ (deferred(i)).#4.$id = t) 
+		then (|~| i in set {x | x in set inds deferred @ (deferred(x)).#4.$id = t} @
+			deferred := remove(deferred,i); MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_getevent!o!(deferred(i)) -> X)
+	else MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_getevent!o!<NOEVENT> -> X
+)
+)
+end
+-- t_controller finished with NMain::VariousActivityStuff::MyBlock1
+process bare_MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5 = $id: ID @ (simple_MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5($id)[|{|MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_addevent|}|]controller_MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5($id))\\{|MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_addevent|}
+-- t_block_bare_process finished with NMain::VariousActivityStuff::MyBlock1
+-- t_activity_diagrams started with NMain::VariousActivityStuff::MyBlock1
+channels
+	control:  nat
+	endDiagram:  ID
+	interrupted:  ID*ID*nat
+	update:  ID*int
+	inc, dec, clear:  ID
+	wait
+	interruptActivity_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378: ID
+	startActivity_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378: ID
+	endActivity_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378: ID
+	startActivity_CBA_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378: ID*nat*Item
+	endActivity_CBA_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378: ID*nat
+	obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_39: Item
+	obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_40: ID
+	obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_41: Item
+	obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_42: Item
+	obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_43: Item
+	obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_44: int
+	obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_46: token
+	in_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Activity2a3566aad_0ef6_487e_b3a4_f13e3c4f2d1c_20:Item
+	in_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_BlockProperty17d72dcf1_489c_4405_99b0_1c66616fcab9_15:ID
+	out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_BlockProperty17d72dcf1_489c_4405_99b0_1c66616fcab9_23:Item
+	out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Event188d24b72_5868_4663_b192_cc95b28994c1_19:token
+	in_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action1ac848805_b49e_464b_a945_12b6b8b6ad65_11:Item
+	in_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action29253af30_9bd6_4754_b47c_55cb4be23a6f_10:int
+	out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action29253af30_9bd6_4754_b47c_55cb4be23a6f_14:Item
+	in_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action387036fff_733e_4837_b430_ed1652af4cce_12:Item
+	out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action387036fff_733e_4837_b430_ed1652af4cce_13:Item
+	out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Read_Self_Action116423d60_eed1_4e0b_89f6_bb29c6315e48_22:ID
+	out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Value_Specification_Action12d5f9fdc_b1b8_4257_93e3_34a71e416f12_24:int
+	interruptActivity_Activity2fc074b27_abdc_47b4_b90f_d48134e98ff1: ID
+	startActivity_Activity2fc074b27_abdc_47b4_b90f_d48134e98ff1: ID*Item
+	endActivity_Activity2fc074b27_abdc_47b4_b90f_d48134e98ff1: ID
+	obj_Activity2fc074b27_abdc_47b4_b90f_d48134e98ff1_11: Item
+	in_Activity2fc074b27_abdc_47b4_b90f_d48134e98ff1_Opaque_Action10b1e57c9_af0b_4a14_bffa_c98f76a524f8_3:Item
+	in_Activity2fc074b27_abdc_47b4_b90f_d48134e98ff1_Signal11f36a99d_a797_4105_8258_e8f2b34b2df2_7:ID
+
+
+process ad_internal_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378 =val $id: ID
+@ begin
+	state
+		nTokens: nat := 0
+		actions
+		START_ACTIVITY = vres $source: ID  @ startActivity_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378?$s -> ($source := $s); Skip 
+		END_DIAGRAM = endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) -> Skip
+		InterruptibleRegion_26 = mu X @ ((control.31-> interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.31 -> Skip);X)
+		InterruptibleRegions = Skip
+		|||InterruptibleRegion_26
+		
+		CNode_7 = ((
+		update.([mk_token("InitialNode1bf84a84a_86ee_4a8f_8719_7e7d445ffc81")])!2 -> (||| x in set {27, 35} @ [{}] control!x -> Skip);wait -> Skip
+		)
+		/_\ ([]i in set {26} @ (interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.i -> CNode_7))
+		) /_\ END_DIAGRAM
+		
+		CNode_5 = ((
+		control.45 -> update.([mk_token("FlowFinalNode11e211d62_d1a9_46a7_a016_9dd8867a0c0b")])!(-1) -> CNode_5[]obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_46?x_46 -> update.([mk_token("FlowFinalNode11e211d62_d1a9_46a7_a016_9dd8867a0c0b")])!(-1) -> CNode_5
+		)
+		/_\ ([]i in set {26} @ (interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.i -> CNode_5))
+		) /_\ END_DIAGRAM
+		
+		Read_Self_Action116423d60_eed1_4e0b_89f6_bb29c6315e48_21 = (dcl end_guard: bool := true @ ( mu X @ (
+		(
+		(dcl Result_Pin141d90ed_38f8_4c4d_a6c2_a141965ea6a3: ID
+		@ (
+		
+		( control.27 -> Skip);
+		(
+		Result_Pin141d90ed_38f8_4c4d_a6c2_a141965ea6a3 := (drop_two($id)));
+		update.([mk_token("Read_Self_Action116423d60_eed1_4e0b_89f6_bb29c6315e48")])!(1) -> 
+		
+		( control.30 -> Skip|||out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Read_Self_Action116423d60_eed1_4e0b_89f6_bb29c6315e48_22!Result_Pin141d90ed_38f8_4c4d_a6c2_a141965ea6a3 -> Skip);
+		X 
+		)))
+		/_\ [end_guard] & ([]i in set {26} @ (interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.i -> X))
+		)) /_\ [end_guard] & END_DIAGRAM)
+		
+		BlockProperty17d72dcf1_489c_4405_99b0_1c66616fcab9_2 = (dcl end_guard: bool := true @ ( mu X @ (
+		(
+		(dcl Object_Pinbe3ea392_3687_4fe9_84bd_4bf02b88d593: ID, Result_Pin2d3cf923_c176_4acf_ae81_5b53d99b62a3: Item
+		@ (
+		
+		( control.30 -> Skip|||in_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_BlockProperty17d72dcf1_489c_4405_99b0_1c66616fcab9_15?inObject_Pinbe3ea392_3687_4fe9_84bd_4bf02b88d593 -> Object_Pinbe3ea392_3687_4fe9_84bd_4bf02b88d593 := inObject_Pinbe3ea392_3687_4fe9_84bd_4bf02b88d593);
+		(
+		MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_get_BlockProperty1.($id^([mk_token("BlockProperty17d72dcf1_489c_4405_99b0_1c66616fcab9")])).(drop_two($id))?x -> Result_Pin2d3cf923_c176_4acf_ae81_5b53d99b62a3 := x);
+		
+		( control.32 -> Skip|||out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_BlockProperty17d72dcf1_489c_4405_99b0_1c66616fcab9_23!Result_Pin2d3cf923_c176_4acf_ae81_5b53d99b62a3 -> Skip);
+		X 
+		)))
+		/_\ [end_guard] & ([]i in set {26} @ (interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.i -> X))
+		)) /_\ [end_guard] & END_DIAGRAM)
+		
+		Value_Specification_Action12d5f9fdc_b1b8_4257_93e3_34a71e416f12_25 = (dcl end_guard: bool := true @ ( mu X @ (
+		(
+		(dcl Result_Pin3b686f9b_b99e_4842_a26f_32c5b6932349: int
+		@ (
+		
+		( control.35 -> Skip);
+		(
+		Result_Pin3b686f9b_b99e_4842_a26f_32c5b6932349 := 66);
+		update.([mk_token("Value_Specification_Action12d5f9fdc_b1b8_4257_93e3_34a71e416f12")])!(1) -> 
+		
+		( control.34 -> Skip|||out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Value_Specification_Action12d5f9fdc_b1b8_4257_93e3_34a71e416f12_24!Result_Pin3b686f9b_b99e_4842_a26f_32c5b6932349 -> Skip);
+		X 
+		)))
+		/_\ [end_guard] & ([]i in set {26} @ (interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.i -> X))
+		)) /_\ [end_guard] & END_DIAGRAM)
+		
+		CNode_9 = ((
+		control?i: (i in set {32, 34})-> control.33 -> CNode_9
+		)
+		/_\ ([]i in set {26} @ (interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.i -> CNode_9))
+		) /_\ END_DIAGRAM
+		
+		CNode_6 = ((
+		control.33 -> update.([mk_token("Fork_Node1025db100_504e_4441_8ae6_132ad5cc9735")])!1 ->(|||i in set {36, 38} @ [{}] control!i -> Skip);CNode_6
+		)
+		/_\ ([]i in set {26} @ (interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.i -> CNode_6))
+		) /_\ END_DIAGRAM
+		
+		CNode_8 = ((
+		(control.28 -> Skip|||control.37 -> Skip);update.([mk_token("Join_Node1d35d6ca5_d484_4f6e_aa5f_7c3db6324947")])!(-1) -> control!29 -> CNode_8
+		)
+		/_\ ([]i in set {26} @ (interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.i -> CNode_8))
+		) /_\ END_DIAGRAM
+		
+		Opaque_Action1ac848805_b49e_464b_a945_12b6b8b6ad65_16 = (dcl end_guard: bool := true @ ( mu X @ (
+		(
+		(dcl Object_Node1dfd63677_cbe4_4f09_9778_e998aa3a75f9: Item
+		@ (
+		
+		( control.36 -> Skip|||in_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action1ac848805_b49e_464b_a945_12b6b8b6ad65_11?inObject_Node1dfd63677_cbe4_4f09_9778_e998aa3a75f9 -> Object_Node1dfd63677_cbe4_4f09_9778_e998aa3a75f9 := inObject_Node1dfd63677_cbe4_4f09_9778_e998aa3a75f9);
+		(
+		-- t_action started 
+		-- a = 
+		-- b.id = f6f32278-6d73-4543-8e29-f486d5543ff5
+		-- n = Opaque_Action1ac848805_b49e_464b_a945_12b6b8b6ad65
+		-- call_t_statecopy started
+		-- t_statecopy started with NMain::VariousActivityStuff::MyBlock1::Activity1.Opaque Action1
+		(dcl BlockProperty1:Item@
+		-- t_readstate started with NMain::VariousActivityStuff::MyBlock1::Activity1.Opaque Action1
+		(MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_get_BlockProperty1.($id^[mk_token("Opaque_Action1ac848805_b49e_464b_a945_12b6b8b6ad65")]).(reverse(tl(tl(reverse($id)))))?x -> BlockProperty1 := x)
+		-- t_readstate finished with NMain::VariousActivityStuff::MyBlock1::Activity1.Opaque Action1
+		-- t_statecopy finished with NMain::VariousActivityStuff::MyBlock1::Activity1.Opaque Action1
+		-- call_t_statecopy finished
+		;
+		-- rename_parameters started 
+		-- t_simple_action started
+		-- LexState = 0
+		 -- LEX STATE 0 (a = WHITESPACE) is not a valid CML action - automatic replacement with Skip
+		Skip
+		-- t_simple_action ended
+		-- rename_parameters ended 
+		;
+		-- t_stateupdate started 
+		(
+		MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_set_BlockProperty1.($id^[mk_token("Opaque_Action1ac848805_b49e_464b_a945_12b6b8b6ad65")]).(reverse(tl(tl(reverse($id)))))!BlockProperty1 -> Skip)
+		-- t_stateupdate finished 
+		)
+		-- cmlop (CML operator dividing first action from tail)
+		-- tail
+		-- t_action ended 
+		);
+		update.([mk_token("Opaque_Action1ac848805_b49e_464b_a945_12b6b8b6ad65")])!(-1) -> 
+		
+		( control.37 -> Skip);
+		X 
+		)))
+		/_\ [end_guard] & ([]i in set {26} @ (interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.i -> X))
+		)) /_\ [end_guard] & END_DIAGRAM)
+		
+		Opaque_Action29253af30_9bd6_4754_b47c_55cb4be23a6f_17 = (dcl end_guard: bool := true @ ( mu X @ (
+		(
+		(dcl Object_Node1d4132461_c07f_4c34_a4ae_ce5aacb7ae01: int, Object_Node2e97f511f_6351_432e_ad69_b85daed531aa: Item
+		@ (
+		
+		( control.38 -> Skip|||in_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action29253af30_9bd6_4754_b47c_55cb4be23a6f_10?inObject_Node1d4132461_c07f_4c34_a4ae_ce5aacb7ae01 -> Object_Node1d4132461_c07f_4c34_a4ae_ce5aacb7ae01 := inObject_Node1d4132461_c07f_4c34_a4ae_ce5aacb7ae01);
+		(
+		-- t_action started 
+		-- a = 
+		-- b.id = f6f32278-6d73-4543-8e29-f486d5543ff5
+		-- n = Opaque_Action29253af30_9bd6_4754_b47c_55cb4be23a6f
+		-- call_t_statecopy started
+		-- t_statecopy started with NMain::VariousActivityStuff::MyBlock1::Activity1.Opaque Action2
+		(dcl BlockProperty1:Item@
+		-- t_readstate started with NMain::VariousActivityStuff::MyBlock1::Activity1.Opaque Action2
+		(MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_get_BlockProperty1.($id^[mk_token("Opaque_Action29253af30_9bd6_4754_b47c_55cb4be23a6f")]).(reverse(tl(tl(reverse($id)))))?x -> BlockProperty1 := x)
+		-- t_readstate finished with NMain::VariousActivityStuff::MyBlock1::Activity1.Opaque Action2
+		-- t_statecopy finished with NMain::VariousActivityStuff::MyBlock1::Activity1.Opaque Action2
+		-- call_t_statecopy finished
+		;
+		-- rename_parameters started 
+		-- t_simple_action started
+		-- LexState = 0
+		 -- LEX STATE 0 (a = WHITESPACE) is not a valid CML action - automatic replacement with Skip
+		Skip
+		-- t_simple_action ended
+		-- rename_parameters ended 
+		;
+		-- t_stateupdate started 
+		(
+		MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_set_BlockProperty1.($id^[mk_token("Opaque_Action29253af30_9bd6_4754_b47c_55cb4be23a6f")]).(reverse(tl(tl(reverse($id)))))!BlockProperty1 -> Skip)
+		-- t_stateupdate finished 
+		)
+		-- cmlop (CML operator dividing first action from tail)
+		-- tail
+		-- t_action ended 
+		);
+		
+		( control.28 -> Skip|||out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action29253af30_9bd6_4754_b47c_55cb4be23a6f_14!Object_Node2e97f511f_6351_432e_ad69_b85daed531aa -> Skip);
+		X 
+		)))
+		/_\ [end_guard] & ([]i in set {26} @ (interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.i -> X))
+		)) /_\ [end_guard] & END_DIAGRAM)
+		ObjNode_3 = (dcl elements: seq of Item @
+		(mu X @ ((
+		((obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_41?x_3 -> elements := [x_3];X)
+		)
+		[]
+		(([len elements = 1] & obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_42!(hd elements) -> elements := elements^[(hd elements)]; X)
+		)
+		[]
+		(([len elements = 2] & obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_42!(hd elements) -> update.([mk_token("Data_Store140a72e2e_84f3_48ac_b207_804baba6c395")])!1 -> X)
+		)
+		)/_\ ([]i in set {26} @ interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.i -> X)
+		))) /_\ END_DIAGRAM
+		
+		Activity2a3566aad_0ef6_487e_b3a4_f13e3c4f2d1c_1 = (dcl end_guard: bool := true @ ( mu X @ (
+		(
+		(dcl Parameter1d282e2ac_3630_4ee7_a48c_59f371d403ba: Item
+		@ (
+		
+		( control.31 -> Skip|||in_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Activity2a3566aad_0ef6_487e_b3a4_f13e3c4f2d1c_20?inParameter1d282e2ac_3630_4ee7_a48c_59f371d403ba -> Parameter1d282e2ac_3630_4ee7_a48c_59f371d403ba := inParameter1d282e2ac_3630_4ee7_a48c_59f371d403ba);
+		(
+		startActivity_CBA_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378.$id.1!Parameter1d282e2ac_3630_4ee7_a48c_59f371d403ba-> inc.([mk_token("Activity2a3566aad_0ef6_487e_b3a4_f13e3c4f2d1c")]) -> (end_guard := false);
+		
+		endActivity_CBA_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378.$id.1 -> dec.([mk_token("Activity2a3566aad_0ef6_487e_b3a4_f13e3c4f2d1c")]) -> (end_guard := true));
+		update.([mk_token("Activity2a3566aad_0ef6_487e_b3a4_f13e3c4f2d1c")])!(-1) -> 
+		
+		( control.45 -> Skip);
+		X 
+		)))
+		/_\ [end_guard] & ([]i in set {26} @ (interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.i -> X))
+		)) /_\ [end_guard] & END_DIAGRAM)
+		
+		Event188d24b72_5868_4663_b192_cc95b28994c1_4 = (dcl end_guard: bool := true @ ( mu X @ (
+		(
+		(dcl Parameter124993d35_88a8_413e_899f_cc9d18613c5f: token
+		@ (
+		(update.([mk_token("Event188d24b72_5868_4663_b192_cc95b28994c1")])!1 -> Skip);
+		((obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_39?x_39 -> Skip);mu X @ (MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_hasevent!($id^[mk_token("Event188d24b72_5868_4663_b192_cc95b28994c1")])!mk_token("Event1") ->MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_getevent!($id^[mk_token("Event188d24b72_5868_4663_b192_cc95b28994c1")])?e -> (if (e = <NOEVENT>) then
+		X
+		else
+		(
+		(Parameter124993d35_88a8_413e_899f_cc9d18613c5f := e.#4.Parameter11c5ec44f_18d1_4b34_be93_13affd63657f)
+		))));
+		
+		( out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Event188d24b72_5868_4663_b192_cc95b28994c1_19!Parameter124993d35_88a8_413e_899f_cc9d18613c5f -> Skip);
+		wait -> X 
+		)))
+		/_\ [end_guard] & ([]i in set {} @ (interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.i -> X))
+		)) /_\ [end_guard] & END_DIAGRAM)
+		
+		Opaque_Action387036fff_733e_4837_b430_ed1652af4cce_18 = (dcl end_guard: bool := true @ ( mu X @ (
+		(
+		(dcl Object_Node15348ab26_985b_4ad3_be93_39d12e23c6c3: Item, Object_Node258b6abce_f5ad_450c_8f1a_819a34d8dcd6: Item
+		@ (
+		
+		( control.29 -> Skip|||in_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action387036fff_733e_4837_b430_ed1652af4cce_12?inObject_Node15348ab26_985b_4ad3_be93_39d12e23c6c3 -> Object_Node15348ab26_985b_4ad3_be93_39d12e23c6c3 := inObject_Node15348ab26_985b_4ad3_be93_39d12e23c6c3);
+		(
+		-- t_action started 
+		-- a = 
+		-- b.id = f6f32278-6d73-4543-8e29-f486d5543ff5
+		-- n = Opaque_Action387036fff_733e_4837_b430_ed1652af4cce
+		-- call_t_statecopy started
+		-- t_statecopy started with NMain::VariousActivityStuff::MyBlock1::Activity1.Opaque Action3
+		(dcl BlockProperty1:Item@
+		-- t_readstate started with NMain::VariousActivityStuff::MyBlock1::Activity1.Opaque Action3
+		(MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_get_BlockProperty1.($id^[mk_token("Opaque_Action387036fff_733e_4837_b430_ed1652af4cce")]).(reverse(tl(tl(reverse($id)))))?x -> BlockProperty1 := x)
+		-- t_readstate finished with NMain::VariousActivityStuff::MyBlock1::Activity1.Opaque Action3
+		-- t_statecopy finished with NMain::VariousActivityStuff::MyBlock1::Activity1.Opaque Action3
+		-- call_t_statecopy finished
+		;
+		-- rename_parameters started 
+		-- t_simple_action started
+		-- LexState = 0
+		 -- LEX STATE 0 (a = WHITESPACE) is not a valid CML action - automatic replacement with Skip
+		Skip
+		-- t_simple_action ended
+		-- rename_parameters ended 
+		;
+		-- t_stateupdate started 
+		(
+		MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_set_BlockProperty1.($id^[mk_token("Opaque_Action387036fff_733e_4837_b430_ed1652af4cce")]).(reverse(tl(tl(reverse($id)))))!BlockProperty1 -> Skip)
+		-- t_stateupdate finished 
+		)
+		-- cmlop (CML operator dividing first action from tail)
+		-- tail
+		-- t_action ended 
+		);
+		
+		( control.31 -> Skip|||out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action387036fff_733e_4837_b430_ed1652af4cce_13!Object_Node258b6abce_f5ad_450c_8f1a_819a34d8dcd6 -> Skip);
+		X 
+		)))
+		/_\ [end_guard] & ([]i in set {26} @ (interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.i -> X))
+		)) /_\ [end_guard] & END_DIAGRAM)
+		Nodes = -- define_alphabetised_parallel started 
+		(CNode_7
+		[{|wait,update.([mk_token("InitialNode1bf84a84a_86ee_4a8f_8719_7e7d445ffc81")]),control.27,control.35,interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26,endDiagram.([mk_token("InitialNode1bf84a84a_86ee_4a8f_8719_7e7d445ffc81")])|}||{|update.([mk_token("FlowFinalNode11e211d62_d1a9_46a7_a016_9dd8867a0c0b")]),control.45, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_46,interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26,endDiagram.([mk_token("FlowFinalNode11e211d62_d1a9_46a7_a016_9dd8867a0c0b")])|} union {|control.27, control.30, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_40,out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Read_Self_Action116423d60_eed1_4e0b_89f6_bb29c6315e48_22,update.([mk_token("Read_Self_Action116423d60_eed1_4e0b_89f6_bb29c6315e48")]),interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |} union {|control.30, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_40, control.32, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_41,in_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_BlockProperty17d72dcf1_489c_4405_99b0_1c66616fcab9_15,out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_BlockProperty17d72dcf1_489c_4405_99b0_1c66616fcab9_23,update.([mk_token("BlockProperty17d72dcf1_489c_4405_99b0_1c66616fcab9")]),MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_get_BlockProperty1.($id^([mk_token("BlockProperty17d72dcf1_489c_4405_99b0_1c66616fcab9")])).(drop_two($id)), wait,interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |} union {|control.35, control.34, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_44,out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Value_Specification_Action12d5f9fdc_b1b8_4257_93e3_34a71e416f12_24,update.([mk_token("Value_Specification_Action12d5f9fdc_b1b8_4257_93e3_34a71e416f12")]),interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |} union {|control.32, control.34, control.33,interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26,endDiagram.([mk_token("Merge_Node1d5ca462b_f0a9_4d45_a6e5_4bca9e85cbf7")])|} union {|update.([mk_token("Fork_Node1025db100_504e_4441_8ae6_132ad5cc9735")]),control.33, control.36, control.38,interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26,endDiagram.([mk_token("Fork_Node1025db100_504e_4441_8ae6_132ad5cc9735")])|} union {|update.([mk_token("Join_Node1d35d6ca5_d484_4f6e_aa5f_7c3db6324947")]),control.28, control.37, control.29,interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26,endDiagram.([mk_token("Join_Node1d35d6ca5_d484_4f6e_aa5f_7c3db6324947")])|} union {|control.36, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_42, control.37,in_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action1ac848805_b49e_464b_a945_12b6b8b6ad65_11,update.([mk_token("Opaque_Action1ac848805_b49e_464b_a945_12b6b8b6ad65")]),interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |} union {|control.38, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_44, control.28, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_39,in_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action29253af30_9bd6_4754_b47c_55cb4be23a6f_10,out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action29253af30_9bd6_4754_b47c_55cb4be23a6f_14,update.([mk_token("Opaque_Action29253af30_9bd6_4754_b47c_55cb4be23a6f")]),interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |} union {|obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_41, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_42,update.3,interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |} union {|control.31, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_43, control.45,in_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Activity2a3566aad_0ef6_487e_b3a4_f13e3c4f2d1c_20,update.([mk_token("Activity2a3566aad_0ef6_487e_b3a4_f13e3c4f2d1c")]),startActivity_CBA_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378.$id.1,endActivity_CBA_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378.$id.1,inc.([mk_token("Activity2a3566aad_0ef6_487e_b3a4_f13e3c4f2d1c")]),dec.([mk_token("Activity2a3566aad_0ef6_487e_b3a4_f13e3c4f2d1c")]),wait,interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |} union {|obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_46,out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Event188d24b72_5868_4663_b192_cc95b28994c1_19,update.([mk_token("Event188d24b72_5868_4663_b192_cc95b28994c1")]),control.29, MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_hasevent.($id^[mk_token("Event188d24b72_5868_4663_b192_cc95b28994c1")]).mk_token("Event1"), MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_getevent.($id^[mk_token("Event188d24b72_5868_4663_b192_cc95b28994c1")]),wait,interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |} union {|control.29, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_39, control.31, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_43,in_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action387036fff_733e_4837_b430_ed1652af4cce_12,out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action387036fff_733e_4837_b430_ed1652af4cce_13,update.([mk_token("Opaque_Action387036fff_733e_4837_b430_ed1652af4cce")]),interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |}]
+		-- define_alphabetised_parallel started 
+		(CNode_5
+		[{|update.([mk_token("FlowFinalNode11e211d62_d1a9_46a7_a016_9dd8867a0c0b")]),control.45, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_46,interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26,endDiagram.([mk_token("FlowFinalNode11e211d62_d1a9_46a7_a016_9dd8867a0c0b")])|}||{|control.27, control.30, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_40,out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Read_Self_Action116423d60_eed1_4e0b_89f6_bb29c6315e48_22,update.([mk_token("Read_Self_Action116423d60_eed1_4e0b_89f6_bb29c6315e48")]),interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |} union {|control.30, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_40, control.32, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_41,in_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_BlockProperty17d72dcf1_489c_4405_99b0_1c66616fcab9_15,out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_BlockProperty17d72dcf1_489c_4405_99b0_1c66616fcab9_23,update.([mk_token("BlockProperty17d72dcf1_489c_4405_99b0_1c66616fcab9")]),MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_get_BlockProperty1.($id^([mk_token("BlockProperty17d72dcf1_489c_4405_99b0_1c66616fcab9")])).(drop_two($id)), wait,interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |} union {|control.35, control.34, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_44,out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Value_Specification_Action12d5f9fdc_b1b8_4257_93e3_34a71e416f12_24,update.([mk_token("Value_Specification_Action12d5f9fdc_b1b8_4257_93e3_34a71e416f12")]),interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |} union {|control.32, control.34, control.33,interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26,endDiagram.([mk_token("Merge_Node1d5ca462b_f0a9_4d45_a6e5_4bca9e85cbf7")])|} union {|update.([mk_token("Fork_Node1025db100_504e_4441_8ae6_132ad5cc9735")]),control.33, control.36, control.38,interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26,endDiagram.([mk_token("Fork_Node1025db100_504e_4441_8ae6_132ad5cc9735")])|} union {|update.([mk_token("Join_Node1d35d6ca5_d484_4f6e_aa5f_7c3db6324947")]),control.28, control.37, control.29,interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26,endDiagram.([mk_token("Join_Node1d35d6ca5_d484_4f6e_aa5f_7c3db6324947")])|} union {|control.36, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_42, control.37,in_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action1ac848805_b49e_464b_a945_12b6b8b6ad65_11,update.([mk_token("Opaque_Action1ac848805_b49e_464b_a945_12b6b8b6ad65")]),interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |} union {|control.38, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_44, control.28, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_39,in_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action29253af30_9bd6_4754_b47c_55cb4be23a6f_10,out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action29253af30_9bd6_4754_b47c_55cb4be23a6f_14,update.([mk_token("Opaque_Action29253af30_9bd6_4754_b47c_55cb4be23a6f")]),interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |} union {|obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_41, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_42,update.3,interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |} union {|control.31, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_43, control.45,in_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Activity2a3566aad_0ef6_487e_b3a4_f13e3c4f2d1c_20,update.([mk_token("Activity2a3566aad_0ef6_487e_b3a4_f13e3c4f2d1c")]),startActivity_CBA_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378.$id.1,endActivity_CBA_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378.$id.1,inc.([mk_token("Activity2a3566aad_0ef6_487e_b3a4_f13e3c4f2d1c")]),dec.([mk_token("Activity2a3566aad_0ef6_487e_b3a4_f13e3c4f2d1c")]),wait,interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |} union {|obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_46,out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Event188d24b72_5868_4663_b192_cc95b28994c1_19,update.([mk_token("Event188d24b72_5868_4663_b192_cc95b28994c1")]),control.29, MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_hasevent.($id^[mk_token("Event188d24b72_5868_4663_b192_cc95b28994c1")]).mk_token("Event1"), MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_getevent.($id^[mk_token("Event188d24b72_5868_4663_b192_cc95b28994c1")]),wait,interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |} union {|control.29, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_39, control.31, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_43,in_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action387036fff_733e_4837_b430_ed1652af4cce_12,out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action387036fff_733e_4837_b430_ed1652af4cce_13,update.([mk_token("Opaque_Action387036fff_733e_4837_b430_ed1652af4cce")]),interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |}]
+		-- define_alphabetised_parallel started 
+		(Read_Self_Action116423d60_eed1_4e0b_89f6_bb29c6315e48_21
+		[{|control.27, control.30, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_40,out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Read_Self_Action116423d60_eed1_4e0b_89f6_bb29c6315e48_22,update.([mk_token("Read_Self_Action116423d60_eed1_4e0b_89f6_bb29c6315e48")]),interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |}||{|control.30, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_40, control.32, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_41,in_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_BlockProperty17d72dcf1_489c_4405_99b0_1c66616fcab9_15,out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_BlockProperty17d72dcf1_489c_4405_99b0_1c66616fcab9_23,update.([mk_token("BlockProperty17d72dcf1_489c_4405_99b0_1c66616fcab9")]),MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_get_BlockProperty1.($id^([mk_token("BlockProperty17d72dcf1_489c_4405_99b0_1c66616fcab9")])).(drop_two($id)), wait,interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |} union {|control.35, control.34, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_44,out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Value_Specification_Action12d5f9fdc_b1b8_4257_93e3_34a71e416f12_24,update.([mk_token("Value_Specification_Action12d5f9fdc_b1b8_4257_93e3_34a71e416f12")]),interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |} union {|control.32, control.34, control.33,interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26,endDiagram.([mk_token("Merge_Node1d5ca462b_f0a9_4d45_a6e5_4bca9e85cbf7")])|} union {|update.([mk_token("Fork_Node1025db100_504e_4441_8ae6_132ad5cc9735")]),control.33, control.36, control.38,interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26,endDiagram.([mk_token("Fork_Node1025db100_504e_4441_8ae6_132ad5cc9735")])|} union {|update.([mk_token("Join_Node1d35d6ca5_d484_4f6e_aa5f_7c3db6324947")]),control.28, control.37, control.29,interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26,endDiagram.([mk_token("Join_Node1d35d6ca5_d484_4f6e_aa5f_7c3db6324947")])|} union {|control.36, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_42, control.37,in_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action1ac848805_b49e_464b_a945_12b6b8b6ad65_11,update.([mk_token("Opaque_Action1ac848805_b49e_464b_a945_12b6b8b6ad65")]),interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |} union {|control.38, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_44, control.28, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_39,in_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action29253af30_9bd6_4754_b47c_55cb4be23a6f_10,out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action29253af30_9bd6_4754_b47c_55cb4be23a6f_14,update.([mk_token("Opaque_Action29253af30_9bd6_4754_b47c_55cb4be23a6f")]),interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |} union {|obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_41, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_42,update.3,interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |} union {|control.31, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_43, control.45,in_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Activity2a3566aad_0ef6_487e_b3a4_f13e3c4f2d1c_20,update.([mk_token("Activity2a3566aad_0ef6_487e_b3a4_f13e3c4f2d1c")]),startActivity_CBA_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378.$id.1,endActivity_CBA_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378.$id.1,inc.([mk_token("Activity2a3566aad_0ef6_487e_b3a4_f13e3c4f2d1c")]),dec.([mk_token("Activity2a3566aad_0ef6_487e_b3a4_f13e3c4f2d1c")]),wait,interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |} union {|obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_46,out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Event188d24b72_5868_4663_b192_cc95b28994c1_19,update.([mk_token("Event188d24b72_5868_4663_b192_cc95b28994c1")]),control.29, MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_hasevent.($id^[mk_token("Event188d24b72_5868_4663_b192_cc95b28994c1")]).mk_token("Event1"), MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_getevent.($id^[mk_token("Event188d24b72_5868_4663_b192_cc95b28994c1")]),wait,interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |} union {|control.29, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_39, control.31, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_43,in_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action387036fff_733e_4837_b430_ed1652af4cce_12,out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action387036fff_733e_4837_b430_ed1652af4cce_13,update.([mk_token("Opaque_Action387036fff_733e_4837_b430_ed1652af4cce")]),interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |}]
+		-- define_alphabetised_parallel started 
+		(BlockProperty17d72dcf1_489c_4405_99b0_1c66616fcab9_2
+		[{|control.30, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_40, control.32, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_41,in_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_BlockProperty17d72dcf1_489c_4405_99b0_1c66616fcab9_15,out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_BlockProperty17d72dcf1_489c_4405_99b0_1c66616fcab9_23,update.([mk_token("BlockProperty17d72dcf1_489c_4405_99b0_1c66616fcab9")]),MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_get_BlockProperty1.($id^([mk_token("BlockProperty17d72dcf1_489c_4405_99b0_1c66616fcab9")])).(drop_two($id)), wait,interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |}||{|control.35, control.34, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_44,out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Value_Specification_Action12d5f9fdc_b1b8_4257_93e3_34a71e416f12_24,update.([mk_token("Value_Specification_Action12d5f9fdc_b1b8_4257_93e3_34a71e416f12")]),interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |} union {|control.32, control.34, control.33,interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26,endDiagram.([mk_token("Merge_Node1d5ca462b_f0a9_4d45_a6e5_4bca9e85cbf7")])|} union {|update.([mk_token("Fork_Node1025db100_504e_4441_8ae6_132ad5cc9735")]),control.33, control.36, control.38,interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26,endDiagram.([mk_token("Fork_Node1025db100_504e_4441_8ae6_132ad5cc9735")])|} union {|update.([mk_token("Join_Node1d35d6ca5_d484_4f6e_aa5f_7c3db6324947")]),control.28, control.37, control.29,interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26,endDiagram.([mk_token("Join_Node1d35d6ca5_d484_4f6e_aa5f_7c3db6324947")])|} union {|control.36, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_42, control.37,in_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action1ac848805_b49e_464b_a945_12b6b8b6ad65_11,update.([mk_token("Opaque_Action1ac848805_b49e_464b_a945_12b6b8b6ad65")]),interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |} union {|control.38, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_44, control.28, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_39,in_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action29253af30_9bd6_4754_b47c_55cb4be23a6f_10,out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action29253af30_9bd6_4754_b47c_55cb4be23a6f_14,update.([mk_token("Opaque_Action29253af30_9bd6_4754_b47c_55cb4be23a6f")]),interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |} union {|obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_41, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_42,update.3,interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |} union {|control.31, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_43, control.45,in_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Activity2a3566aad_0ef6_487e_b3a4_f13e3c4f2d1c_20,update.([mk_token("Activity2a3566aad_0ef6_487e_b3a4_f13e3c4f2d1c")]),startActivity_CBA_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378.$id.1,endActivity_CBA_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378.$id.1,inc.([mk_token("Activity2a3566aad_0ef6_487e_b3a4_f13e3c4f2d1c")]),dec.([mk_token("Activity2a3566aad_0ef6_487e_b3a4_f13e3c4f2d1c")]),wait,interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |} union {|obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_46,out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Event188d24b72_5868_4663_b192_cc95b28994c1_19,update.([mk_token("Event188d24b72_5868_4663_b192_cc95b28994c1")]),control.29, MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_hasevent.($id^[mk_token("Event188d24b72_5868_4663_b192_cc95b28994c1")]).mk_token("Event1"), MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_getevent.($id^[mk_token("Event188d24b72_5868_4663_b192_cc95b28994c1")]),wait,interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |} union {|control.29, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_39, control.31, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_43,in_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action387036fff_733e_4837_b430_ed1652af4cce_12,out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action387036fff_733e_4837_b430_ed1652af4cce_13,update.([mk_token("Opaque_Action387036fff_733e_4837_b430_ed1652af4cce")]),interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |}]
+		-- define_alphabetised_parallel started 
+		(Value_Specification_Action12d5f9fdc_b1b8_4257_93e3_34a71e416f12_25
+		[{|control.35, control.34, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_44,out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Value_Specification_Action12d5f9fdc_b1b8_4257_93e3_34a71e416f12_24,update.([mk_token("Value_Specification_Action12d5f9fdc_b1b8_4257_93e3_34a71e416f12")]),interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |}||{|control.32, control.34, control.33,interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26,endDiagram.([mk_token("Merge_Node1d5ca462b_f0a9_4d45_a6e5_4bca9e85cbf7")])|} union {|update.([mk_token("Fork_Node1025db100_504e_4441_8ae6_132ad5cc9735")]),control.33, control.36, control.38,interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26,endDiagram.([mk_token("Fork_Node1025db100_504e_4441_8ae6_132ad5cc9735")])|} union {|update.([mk_token("Join_Node1d35d6ca5_d484_4f6e_aa5f_7c3db6324947")]),control.28, control.37, control.29,interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26,endDiagram.([mk_token("Join_Node1d35d6ca5_d484_4f6e_aa5f_7c3db6324947")])|} union {|control.36, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_42, control.37,in_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action1ac848805_b49e_464b_a945_12b6b8b6ad65_11,update.([mk_token("Opaque_Action1ac848805_b49e_464b_a945_12b6b8b6ad65")]),interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |} union {|control.38, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_44, control.28, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_39,in_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action29253af30_9bd6_4754_b47c_55cb4be23a6f_10,out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action29253af30_9bd6_4754_b47c_55cb4be23a6f_14,update.([mk_token("Opaque_Action29253af30_9bd6_4754_b47c_55cb4be23a6f")]),interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |} union {|obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_41, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_42,update.3,interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |} union {|control.31, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_43, control.45,in_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Activity2a3566aad_0ef6_487e_b3a4_f13e3c4f2d1c_20,update.([mk_token("Activity2a3566aad_0ef6_487e_b3a4_f13e3c4f2d1c")]),startActivity_CBA_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378.$id.1,endActivity_CBA_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378.$id.1,inc.([mk_token("Activity2a3566aad_0ef6_487e_b3a4_f13e3c4f2d1c")]),dec.([mk_token("Activity2a3566aad_0ef6_487e_b3a4_f13e3c4f2d1c")]),wait,interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |} union {|obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_46,out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Event188d24b72_5868_4663_b192_cc95b28994c1_19,update.([mk_token("Event188d24b72_5868_4663_b192_cc95b28994c1")]),control.29, MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_hasevent.($id^[mk_token("Event188d24b72_5868_4663_b192_cc95b28994c1")]).mk_token("Event1"), MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_getevent.($id^[mk_token("Event188d24b72_5868_4663_b192_cc95b28994c1")]),wait,interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |} union {|control.29, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_39, control.31, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_43,in_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action387036fff_733e_4837_b430_ed1652af4cce_12,out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action387036fff_733e_4837_b430_ed1652af4cce_13,update.([mk_token("Opaque_Action387036fff_733e_4837_b430_ed1652af4cce")]),interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |}]
+		-- define_alphabetised_parallel started 
+		(CNode_9
+		[{|control.32, control.34, control.33,interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26,endDiagram.([mk_token("Merge_Node1d5ca462b_f0a9_4d45_a6e5_4bca9e85cbf7")])|}||{|update.([mk_token("Fork_Node1025db100_504e_4441_8ae6_132ad5cc9735")]),control.33, control.36, control.38,interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26,endDiagram.([mk_token("Fork_Node1025db100_504e_4441_8ae6_132ad5cc9735")])|} union {|update.([mk_token("Join_Node1d35d6ca5_d484_4f6e_aa5f_7c3db6324947")]),control.28, control.37, control.29,interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26,endDiagram.([mk_token("Join_Node1d35d6ca5_d484_4f6e_aa5f_7c3db6324947")])|} union {|control.36, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_42, control.37,in_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action1ac848805_b49e_464b_a945_12b6b8b6ad65_11,update.([mk_token("Opaque_Action1ac848805_b49e_464b_a945_12b6b8b6ad65")]),interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |} union {|control.38, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_44, control.28, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_39,in_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action29253af30_9bd6_4754_b47c_55cb4be23a6f_10,out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action29253af30_9bd6_4754_b47c_55cb4be23a6f_14,update.([mk_token("Opaque_Action29253af30_9bd6_4754_b47c_55cb4be23a6f")]),interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |} union {|obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_41, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_42,update.3,interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |} union {|control.31, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_43, control.45,in_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Activity2a3566aad_0ef6_487e_b3a4_f13e3c4f2d1c_20,update.([mk_token("Activity2a3566aad_0ef6_487e_b3a4_f13e3c4f2d1c")]),startActivity_CBA_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378.$id.1,endActivity_CBA_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378.$id.1,inc.([mk_token("Activity2a3566aad_0ef6_487e_b3a4_f13e3c4f2d1c")]),dec.([mk_token("Activity2a3566aad_0ef6_487e_b3a4_f13e3c4f2d1c")]),wait,interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |} union {|obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_46,out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Event188d24b72_5868_4663_b192_cc95b28994c1_19,update.([mk_token("Event188d24b72_5868_4663_b192_cc95b28994c1")]),control.29, MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_hasevent.($id^[mk_token("Event188d24b72_5868_4663_b192_cc95b28994c1")]).mk_token("Event1"), MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_getevent.($id^[mk_token("Event188d24b72_5868_4663_b192_cc95b28994c1")]),wait,interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |} union {|control.29, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_39, control.31, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_43,in_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action387036fff_733e_4837_b430_ed1652af4cce_12,out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action387036fff_733e_4837_b430_ed1652af4cce_13,update.([mk_token("Opaque_Action387036fff_733e_4837_b430_ed1652af4cce")]),interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |}]
+		-- define_alphabetised_parallel started 
+		(CNode_6
+		[{|update.([mk_token("Fork_Node1025db100_504e_4441_8ae6_132ad5cc9735")]),control.33, control.36, control.38,interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26,endDiagram.([mk_token("Fork_Node1025db100_504e_4441_8ae6_132ad5cc9735")])|}||{|update.([mk_token("Join_Node1d35d6ca5_d484_4f6e_aa5f_7c3db6324947")]),control.28, control.37, control.29,interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26,endDiagram.([mk_token("Join_Node1d35d6ca5_d484_4f6e_aa5f_7c3db6324947")])|} union {|control.36, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_42, control.37,in_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action1ac848805_b49e_464b_a945_12b6b8b6ad65_11,update.([mk_token("Opaque_Action1ac848805_b49e_464b_a945_12b6b8b6ad65")]),interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |} union {|control.38, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_44, control.28, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_39,in_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action29253af30_9bd6_4754_b47c_55cb4be23a6f_10,out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action29253af30_9bd6_4754_b47c_55cb4be23a6f_14,update.([mk_token("Opaque_Action29253af30_9bd6_4754_b47c_55cb4be23a6f")]),interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |} union {|obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_41, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_42,update.3,interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |} union {|control.31, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_43, control.45,in_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Activity2a3566aad_0ef6_487e_b3a4_f13e3c4f2d1c_20,update.([mk_token("Activity2a3566aad_0ef6_487e_b3a4_f13e3c4f2d1c")]),startActivity_CBA_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378.$id.1,endActivity_CBA_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378.$id.1,inc.([mk_token("Activity2a3566aad_0ef6_487e_b3a4_f13e3c4f2d1c")]),dec.([mk_token("Activity2a3566aad_0ef6_487e_b3a4_f13e3c4f2d1c")]),wait,interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |} union {|obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_46,out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Event188d24b72_5868_4663_b192_cc95b28994c1_19,update.([mk_token("Event188d24b72_5868_4663_b192_cc95b28994c1")]),control.29, MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_hasevent.($id^[mk_token("Event188d24b72_5868_4663_b192_cc95b28994c1")]).mk_token("Event1"), MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_getevent.($id^[mk_token("Event188d24b72_5868_4663_b192_cc95b28994c1")]),wait,interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |} union {|control.29, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_39, control.31, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_43,in_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action387036fff_733e_4837_b430_ed1652af4cce_12,out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action387036fff_733e_4837_b430_ed1652af4cce_13,update.([mk_token("Opaque_Action387036fff_733e_4837_b430_ed1652af4cce")]),interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |}]
+		-- define_alphabetised_parallel started 
+		(CNode_8
+		[{|update.([mk_token("Join_Node1d35d6ca5_d484_4f6e_aa5f_7c3db6324947")]),control.28, control.37, control.29,interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26,endDiagram.([mk_token("Join_Node1d35d6ca5_d484_4f6e_aa5f_7c3db6324947")])|}||{|control.36, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_42, control.37,in_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action1ac848805_b49e_464b_a945_12b6b8b6ad65_11,update.([mk_token("Opaque_Action1ac848805_b49e_464b_a945_12b6b8b6ad65")]),interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |} union {|control.38, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_44, control.28, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_39,in_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action29253af30_9bd6_4754_b47c_55cb4be23a6f_10,out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action29253af30_9bd6_4754_b47c_55cb4be23a6f_14,update.([mk_token("Opaque_Action29253af30_9bd6_4754_b47c_55cb4be23a6f")]),interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |} union {|obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_41, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_42,update.3,interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |} union {|control.31, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_43, control.45,in_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Activity2a3566aad_0ef6_487e_b3a4_f13e3c4f2d1c_20,update.([mk_token("Activity2a3566aad_0ef6_487e_b3a4_f13e3c4f2d1c")]),startActivity_CBA_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378.$id.1,endActivity_CBA_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378.$id.1,inc.([mk_token("Activity2a3566aad_0ef6_487e_b3a4_f13e3c4f2d1c")]),dec.([mk_token("Activity2a3566aad_0ef6_487e_b3a4_f13e3c4f2d1c")]),wait,interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |} union {|obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_46,out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Event188d24b72_5868_4663_b192_cc95b28994c1_19,update.([mk_token("Event188d24b72_5868_4663_b192_cc95b28994c1")]),control.29, MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_hasevent.($id^[mk_token("Event188d24b72_5868_4663_b192_cc95b28994c1")]).mk_token("Event1"), MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_getevent.($id^[mk_token("Event188d24b72_5868_4663_b192_cc95b28994c1")]),wait,interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |} union {|control.29, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_39, control.31, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_43,in_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action387036fff_733e_4837_b430_ed1652af4cce_12,out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action387036fff_733e_4837_b430_ed1652af4cce_13,update.([mk_token("Opaque_Action387036fff_733e_4837_b430_ed1652af4cce")]),interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |}]
+		-- define_alphabetised_parallel started 
+		(Opaque_Action1ac848805_b49e_464b_a945_12b6b8b6ad65_16
+		[{|control.36, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_42, control.37,in_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action1ac848805_b49e_464b_a945_12b6b8b6ad65_11,update.([mk_token("Opaque_Action1ac848805_b49e_464b_a945_12b6b8b6ad65")]),interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |}||{|control.38, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_44, control.28, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_39,in_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action29253af30_9bd6_4754_b47c_55cb4be23a6f_10,out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action29253af30_9bd6_4754_b47c_55cb4be23a6f_14,update.([mk_token("Opaque_Action29253af30_9bd6_4754_b47c_55cb4be23a6f")]),interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |} union {|obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_41, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_42,update.3,interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |} union {|control.31, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_43, control.45,in_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Activity2a3566aad_0ef6_487e_b3a4_f13e3c4f2d1c_20,update.([mk_token("Activity2a3566aad_0ef6_487e_b3a4_f13e3c4f2d1c")]),startActivity_CBA_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378.$id.1,endActivity_CBA_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378.$id.1,inc.([mk_token("Activity2a3566aad_0ef6_487e_b3a4_f13e3c4f2d1c")]),dec.([mk_token("Activity2a3566aad_0ef6_487e_b3a4_f13e3c4f2d1c")]),wait,interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |} union {|obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_46,out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Event188d24b72_5868_4663_b192_cc95b28994c1_19,update.([mk_token("Event188d24b72_5868_4663_b192_cc95b28994c1")]),control.29, MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_hasevent.($id^[mk_token("Event188d24b72_5868_4663_b192_cc95b28994c1")]).mk_token("Event1"), MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_getevent.($id^[mk_token("Event188d24b72_5868_4663_b192_cc95b28994c1")]),wait,interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |} union {|control.29, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_39, control.31, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_43,in_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action387036fff_733e_4837_b430_ed1652af4cce_12,out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action387036fff_733e_4837_b430_ed1652af4cce_13,update.([mk_token("Opaque_Action387036fff_733e_4837_b430_ed1652af4cce")]),interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |}]
+		-- define_alphabetised_parallel started 
+		(Opaque_Action29253af30_9bd6_4754_b47c_55cb4be23a6f_17
+		[{|control.38, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_44, control.28, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_39,in_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action29253af30_9bd6_4754_b47c_55cb4be23a6f_10,out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action29253af30_9bd6_4754_b47c_55cb4be23a6f_14,update.([mk_token("Opaque_Action29253af30_9bd6_4754_b47c_55cb4be23a6f")]),interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |}||{|obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_41, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_42,update.3,interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |} union {|control.31, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_43, control.45,in_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Activity2a3566aad_0ef6_487e_b3a4_f13e3c4f2d1c_20,update.([mk_token("Activity2a3566aad_0ef6_487e_b3a4_f13e3c4f2d1c")]),startActivity_CBA_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378.$id.1,endActivity_CBA_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378.$id.1,inc.([mk_token("Activity2a3566aad_0ef6_487e_b3a4_f13e3c4f2d1c")]),dec.([mk_token("Activity2a3566aad_0ef6_487e_b3a4_f13e3c4f2d1c")]),wait,interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |} union {|obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_46,out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Event188d24b72_5868_4663_b192_cc95b28994c1_19,update.([mk_token("Event188d24b72_5868_4663_b192_cc95b28994c1")]),control.29, MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_hasevent.($id^[mk_token("Event188d24b72_5868_4663_b192_cc95b28994c1")]).mk_token("Event1"), MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_getevent.($id^[mk_token("Event188d24b72_5868_4663_b192_cc95b28994c1")]),wait,interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |} union {|control.29, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_39, control.31, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_43,in_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action387036fff_733e_4837_b430_ed1652af4cce_12,out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action387036fff_733e_4837_b430_ed1652af4cce_13,update.([mk_token("Opaque_Action387036fff_733e_4837_b430_ed1652af4cce")]),interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |}]
+		-- define_alphabetised_parallel started 
+		(ObjNode_3
+		[{|obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_41, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_42,update.3,interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |}||{|control.31, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_43, control.45,in_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Activity2a3566aad_0ef6_487e_b3a4_f13e3c4f2d1c_20,update.([mk_token("Activity2a3566aad_0ef6_487e_b3a4_f13e3c4f2d1c")]),startActivity_CBA_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378.$id.1,endActivity_CBA_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378.$id.1,inc.([mk_token("Activity2a3566aad_0ef6_487e_b3a4_f13e3c4f2d1c")]),dec.([mk_token("Activity2a3566aad_0ef6_487e_b3a4_f13e3c4f2d1c")]),wait,interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |} union {|obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_46,out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Event188d24b72_5868_4663_b192_cc95b28994c1_19,update.([mk_token("Event188d24b72_5868_4663_b192_cc95b28994c1")]),control.29, MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_hasevent.($id^[mk_token("Event188d24b72_5868_4663_b192_cc95b28994c1")]).mk_token("Event1"), MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_getevent.($id^[mk_token("Event188d24b72_5868_4663_b192_cc95b28994c1")]),wait,interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |} union {|control.29, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_39, control.31, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_43,in_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action387036fff_733e_4837_b430_ed1652af4cce_12,out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action387036fff_733e_4837_b430_ed1652af4cce_13,update.([mk_token("Opaque_Action387036fff_733e_4837_b430_ed1652af4cce")]),interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |}]
+		-- define_alphabetised_parallel started 
+		(Activity2a3566aad_0ef6_487e_b3a4_f13e3c4f2d1c_1
+		[{|control.31, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_43, control.45,in_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Activity2a3566aad_0ef6_487e_b3a4_f13e3c4f2d1c_20,update.([mk_token("Activity2a3566aad_0ef6_487e_b3a4_f13e3c4f2d1c")]),startActivity_CBA_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378.$id.1,endActivity_CBA_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378.$id.1,inc.([mk_token("Activity2a3566aad_0ef6_487e_b3a4_f13e3c4f2d1c")]),dec.([mk_token("Activity2a3566aad_0ef6_487e_b3a4_f13e3c4f2d1c")]),wait,interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |}||{|obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_46,out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Event188d24b72_5868_4663_b192_cc95b28994c1_19,update.([mk_token("Event188d24b72_5868_4663_b192_cc95b28994c1")]),control.29, MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_hasevent.($id^[mk_token("Event188d24b72_5868_4663_b192_cc95b28994c1")]).mk_token("Event1"), MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_getevent.($id^[mk_token("Event188d24b72_5868_4663_b192_cc95b28994c1")]),wait,interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |} union {|control.29, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_39, control.31, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_43,in_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action387036fff_733e_4837_b430_ed1652af4cce_12,out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action387036fff_733e_4837_b430_ed1652af4cce_13,update.([mk_token("Opaque_Action387036fff_733e_4837_b430_ed1652af4cce")]),interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |}]
+		-- define_alphabetised_parallel started 
+		(Event188d24b72_5868_4663_b192_cc95b28994c1_4
+		[{|obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_46,out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Event188d24b72_5868_4663_b192_cc95b28994c1_19,update.([mk_token("Event188d24b72_5868_4663_b192_cc95b28994c1")]),control.29, MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_hasevent.($id^[mk_token("Event188d24b72_5868_4663_b192_cc95b28994c1")]).mk_token("Event1"), MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_getevent.($id^[mk_token("Event188d24b72_5868_4663_b192_cc95b28994c1")]),wait,interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |}||{|control.29, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_39, control.31, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_43,in_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action387036fff_733e_4837_b430_ed1652af4cce_12,out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action387036fff_733e_4837_b430_ed1652af4cce_13,update.([mk_token("Opaque_Action387036fff_733e_4837_b430_ed1652af4cce")]),interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26, endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) |}]
+		-- define_alphabetised_parallel started 
+		Opaque_Action387036fff_733e_4837_b430_ed1652af4cce_18-- define_alphabetised_parallel ended 
+		)-- define_alphabetised_parallel ended 
+		)-- define_alphabetised_parallel ended 
+		)-- define_alphabetised_parallel ended 
+		)-- define_alphabetised_parallel ended 
+		)-- define_alphabetised_parallel ended 
+		)-- define_alphabetised_parallel ended 
+		)-- define_alphabetised_parallel ended 
+		)-- define_alphabetised_parallel ended 
+		)-- define_alphabetised_parallel ended 
+		)-- define_alphabetised_parallel ended 
+		)-- define_alphabetised_parallel ended 
+		)-- define_alphabetised_parallel ended 
+		)-- define_alphabetised_parallel ended 
+		
+		TOKEN_MANAGER = update?o?x -> nTokens := x; mu X @ (
+			update?o?x -> nTokens := nTokens + x;X
+			[]
+			clear?o -> nTokens := 0; endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) -> Skip
+			[]
+			[nTokens = 0] & endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]) -> Skip)
+		INT_ACT_MANAGER = (dcl i: nat := 0 @ (mu X @ (
+			inc?o -> i := i + 1;X
+			[]
+			dec?o -> i := i - 1;X
+			[]
+			[i = 0] & interruptActivity_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378?x: (prefix($id,x)) -> Skip)))
+		@
+		mu X @ ( (dcl $source: ID @ (
+			(START_ACTIVITY($source);((Nodes [|{|update, clear, wait, endDiagram|}|]TOKEN_MANAGER)[|{|control.31,interrupted.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")]).$id.26,endDiagram.([mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")])|}|] InterruptibleRegions);endActivity_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378!$source -> Skip));X /_\ interruptActivity_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378?x:(prefix($id,x)) -> X)
+			[|{|inc,dec|} union {|interruptActivity_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378.x | x: ID @ prefix($id,x) |}|] INT_ACT_MANAGER) \\ Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Hidden
+	end
+	
+	process ad_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378 = val $id: ID @
+		ad_internal_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378($id)[|{|startActivity_CBA_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378.$id.1, endActivity_CBA_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378.$id.1|}|]
+	((ad_Activity2fc074b27_abdc_47b4_b90f_d48134e98ff1($id))[[ startActivity_Activity2fc074b27_abdc_47b4_b90f_d48134e98ff1.$id <- startActivity_CBA_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378.$id.1,endActivity_Activity2fc074b27_abdc_47b4_b90f_d48134e98ff1.$id <- endActivity_CBA_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378.$id.1 ]])
+	
+	process ad_internal_Activity2fc074b27_abdc_47b4_b90f_d48134e98ff1 =val $id: ID
+	@ begin
+		state
+			nTokens: nat := 0
+			actions
+			START_ACTIVITY = vres $source: ID , Parameter10fbf989b_e755_452b_a920_a5e110b38f30:Item @ startActivity_Activity2fc074b27_abdc_47b4_b90f_d48134e98ff1?$s?x_Parameter10fbf989b_e755_452b_a920_a5e110b38f30 -> atomic($source := $s;Parameter10fbf989b_e755_452b_a920_a5e110b38f30 := x_Parameter10fbf989b_e755_452b_a920_a5e110b38f30); Skip 
+			END_DIAGRAM = endDiagram.([mk_token("Activity2fc074b27_abdc_47b4_b90f_d48134e98ff1")]) -> Skip
+			InterruptibleRegions = Skip
+			
+			
+			ObjNode_5 = vres Parameter10fbf989b_e755_452b_a920_a5e110b38f30: Item @
+			(mu X @ ((update.([mk_token("Parameter10fbf989b_e755_452b_a920_a5e110b38f30")])!1 -> (obj_Activity2fc074b27_abdc_47b4_b90f_d48134e98ff1_11!Parameter10fbf989b_e755_452b_a920_a5e110b38f30 -> wait -> Skip)))) /_\ END_DIAGRAM
+			
+			CNode_1 = ((
+			control.8 -> clear.([mk_token("Activity_Final_Node1d89523f8_5306_41f0_ba21_65b86026521f")]) -> wait -> Skip
+			)
+			) /_\ END_DIAGRAM
+			
+			Signal11f36a99d_a797_4105_8258_e8f2b34b2df2_6 = (dcl end_guard: bool := true @ ( mu X @ (
+			(
+			(dcl Target_Pinabba13cf_6c23_4f23_a599_d7a90940cdb5: ID
+			@ (
+			
+			( control.9 -> Skip|||in_Activity2fc074b27_abdc_47b4_b90f_d48134e98ff1_Signal11f36a99d_a797_4105_8258_e8f2b34b2df2_7?inTarget_Pinabba13cf_6c23_4f23_a599_d7a90940cdb5 -> Target_Pinabba13cf_6c23_4f23_a599_d7a90940cdb5 := inTarget_Pinabba13cf_6c23_4f23_a599_d7a90940cdb5);
+			(
+			MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_sig?m_id! ($id^[mk_token("Signal11f36a99d_a797_4105_8258_e8f2b34b2df2")])!Target_Pinabba13cf_6c23_4f23_a599_d7a90940cdb5!mk_Signal1(mk_token("Signal1")) -> Skip);
+			
+			( control.8 -> Skip);
+			X 
+			)))
+			)) /_\ [end_guard] & END_DIAGRAM)
+			
+			Opaque_Action10b1e57c9_af0b_4a14_bffa_c98f76a524f8_4 = (dcl end_guard: bool := true @ ( mu X @ (
+			(
+			(dcl Object_Node1f960c042_0085_473e_8219_cbff17cdb5cb: Item
+			@ (
+			
+			( control.10 -> Skip|||in_Activity2fc074b27_abdc_47b4_b90f_d48134e98ff1_Opaque_Action10b1e57c9_af0b_4a14_bffa_c98f76a524f8_3?inObject_Node1f960c042_0085_473e_8219_cbff17cdb5cb -> Object_Node1f960c042_0085_473e_8219_cbff17cdb5cb := inObject_Node1f960c042_0085_473e_8219_cbff17cdb5cb);
+			(
+			-- t_action started 
+			-- a = 
+			-- b.id = 8f11ed3c-1179-4e21-90bc-8a4f88927378
+			-- n = Opaque_Action10b1e57c9_af0b_4a14_bffa_c98f76a524f8
+			-- call_t_statecopy started
+			-- t_statecopy started with NMain::VariousActivityStuff::MyBlock1::Activity1::Activity2.Opaque Action1
+			( Skip
+			-- t_statecopy finished with NMain::VariousActivityStuff::MyBlock1::Activity1::Activity2.Opaque Action1
+			-- call_t_statecopy finished
+			;
+			-- rename_parameters started 
+			-- t_simple_action started
+			-- LexState = 0
+			 -- LEX STATE 0 (a = WHITESPACE) is not a valid CML action - automatic replacement with Skip
+			Skip
+			-- t_simple_action ended
+			-- rename_parameters ended 
+			;
+			-- t_stateupdate started 
+			Skip-- t_stateupdate finished 
+			)
+			-- cmlop (CML operator dividing first action from tail)
+			-- tail
+			-- t_action ended 
+			);
+			update.([mk_token("Opaque_Action10b1e57c9_af0b_4a14_bffa_c98f76a524f8")])!(-1) -> 
+			
+			( control.9 -> Skip);
+			X 
+			)))
+			)) /_\ [end_guard] & END_DIAGRAM)
+			
+			CNode_2 = ((
+			update.([mk_token("Initial_Node1e8f8abd0_deff_4718_b34d_3e39e0cc2aac")])!1 -> (||| x in set {10} @ [{}] control!x -> Skip);wait -> Skip
+			)
+			) /_\ END_DIAGRAM
+			Nodes = vres Parameter10fbf989b_e755_452b_a920_a5e110b38f30:Item@-- define_alphabetised_parallel started 
+			(ObjNode_5(Parameter10fbf989b_e755_452b_a920_a5e110b38f30)
+			[{|obj_Activity2fc074b27_abdc_47b4_b90f_d48134e98ff1_11,update.5, endDiagram.([mk_token("Activity2fc074b27_abdc_47b4_b90f_d48134e98ff1")]) |}||{|wait,clear.([mk_token("Activity_Final_Node1d89523f8_5306_41f0_ba21_65b86026521f")]),control.8,endDiagram.([mk_token("Activity_Final_Node1d89523f8_5306_41f0_ba21_65b86026521f")])|} union {|control.9, control.8,in_Activity2fc074b27_abdc_47b4_b90f_d48134e98ff1_Signal11f36a99d_a797_4105_8258_e8f2b34b2df2_7,update.([mk_token("Signal11f36a99d_a797_4105_8258_e8f2b34b2df2")])|} union {| MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_sig.m.($id^[mk_token("Signal11f36a99d_a797_4105_8258_e8f2b34b2df2")]).target.signal | m:nat, target: ID, signal: S @ signal.$id in set MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_S and signal.$id = mk_token("Signal1") |} union {|wait, endDiagram.([mk_token("Activity2fc074b27_abdc_47b4_b90f_d48134e98ff1")]) |} union {|control.10, obj_Activity2fc074b27_abdc_47b4_b90f_d48134e98ff1_11, control.9,in_Activity2fc074b27_abdc_47b4_b90f_d48134e98ff1_Opaque_Action10b1e57c9_af0b_4a14_bffa_c98f76a524f8_3,update.([mk_token("Opaque_Action10b1e57c9_af0b_4a14_bffa_c98f76a524f8")]), endDiagram.([mk_token("Activity2fc074b27_abdc_47b4_b90f_d48134e98ff1")]) |} union {|wait,update.([mk_token("Initial_Node1e8f8abd0_deff_4718_b34d_3e39e0cc2aac")]),control.10,endDiagram.([mk_token("Initial_Node1e8f8abd0_deff_4718_b34d_3e39e0cc2aac")])|}]
+			-- define_alphabetised_parallel started 
+			(CNode_1
+			[{|wait,clear.([mk_token("Activity_Final_Node1d89523f8_5306_41f0_ba21_65b86026521f")]),control.8,endDiagram.([mk_token("Activity_Final_Node1d89523f8_5306_41f0_ba21_65b86026521f")])|}||{|control.9, control.8,in_Activity2fc074b27_abdc_47b4_b90f_d48134e98ff1_Signal11f36a99d_a797_4105_8258_e8f2b34b2df2_7,update.([mk_token("Signal11f36a99d_a797_4105_8258_e8f2b34b2df2")])|} union {| MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_sig.m.($id^[mk_token("Signal11f36a99d_a797_4105_8258_e8f2b34b2df2")]).target.signal | m:nat, target: ID, signal: S @ signal.$id in set MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_S and signal.$id = mk_token("Signal1") |} union {|wait, endDiagram.([mk_token("Activity2fc074b27_abdc_47b4_b90f_d48134e98ff1")]) |} union {|control.10, obj_Activity2fc074b27_abdc_47b4_b90f_d48134e98ff1_11, control.9,in_Activity2fc074b27_abdc_47b4_b90f_d48134e98ff1_Opaque_Action10b1e57c9_af0b_4a14_bffa_c98f76a524f8_3,update.([mk_token("Opaque_Action10b1e57c9_af0b_4a14_bffa_c98f76a524f8")]), endDiagram.([mk_token("Activity2fc074b27_abdc_47b4_b90f_d48134e98ff1")]) |} union {|wait,update.([mk_token("Initial_Node1e8f8abd0_deff_4718_b34d_3e39e0cc2aac")]),control.10,endDiagram.([mk_token("Initial_Node1e8f8abd0_deff_4718_b34d_3e39e0cc2aac")])|}]
+			-- define_alphabetised_parallel started 
+			(Signal11f36a99d_a797_4105_8258_e8f2b34b2df2_6
+			[{|control.9, control.8,in_Activity2fc074b27_abdc_47b4_b90f_d48134e98ff1_Signal11f36a99d_a797_4105_8258_e8f2b34b2df2_7,update.([mk_token("Signal11f36a99d_a797_4105_8258_e8f2b34b2df2")])|} union {| MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_sig.m.($id^[mk_token("Signal11f36a99d_a797_4105_8258_e8f2b34b2df2")]).target.signal | m:nat, target: ID, signal: S @ signal.$id in set MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_S and signal.$id = mk_token("Signal1") |} union {|wait, endDiagram.([mk_token("Activity2fc074b27_abdc_47b4_b90f_d48134e98ff1")]) |}||{|control.10, obj_Activity2fc074b27_abdc_47b4_b90f_d48134e98ff1_11, control.9,in_Activity2fc074b27_abdc_47b4_b90f_d48134e98ff1_Opaque_Action10b1e57c9_af0b_4a14_bffa_c98f76a524f8_3,update.([mk_token("Opaque_Action10b1e57c9_af0b_4a14_bffa_c98f76a524f8")]), endDiagram.([mk_token("Activity2fc074b27_abdc_47b4_b90f_d48134e98ff1")]) |} union {|wait,update.([mk_token("Initial_Node1e8f8abd0_deff_4718_b34d_3e39e0cc2aac")]),control.10,endDiagram.([mk_token("Initial_Node1e8f8abd0_deff_4718_b34d_3e39e0cc2aac")])|}]
+			-- define_alphabetised_parallel started 
+			(Opaque_Action10b1e57c9_af0b_4a14_bffa_c98f76a524f8_4
+			[{|control.10, obj_Activity2fc074b27_abdc_47b4_b90f_d48134e98ff1_11, control.9,in_Activity2fc074b27_abdc_47b4_b90f_d48134e98ff1_Opaque_Action10b1e57c9_af0b_4a14_bffa_c98f76a524f8_3,update.([mk_token("Opaque_Action10b1e57c9_af0b_4a14_bffa_c98f76a524f8")]), endDiagram.([mk_token("Activity2fc074b27_abdc_47b4_b90f_d48134e98ff1")]) |}||{|wait,update.([mk_token("Initial_Node1e8f8abd0_deff_4718_b34d_3e39e0cc2aac")]),control.10,endDiagram.([mk_token("Initial_Node1e8f8abd0_deff_4718_b34d_3e39e0cc2aac")])|}]
+			-- define_alphabetised_parallel started 
+			CNode_2-- define_alphabetised_parallel ended 
+			)-- define_alphabetised_parallel ended 
+			)-- define_alphabetised_parallel ended 
+			)-- define_alphabetised_parallel ended 
+			)-- define_alphabetised_parallel ended 
+			
+			TOKEN_MANAGER = update?o?x -> nTokens := x; mu X @ (
+				update?o?x -> nTokens := nTokens + x;X
+				[]
+				clear?o -> nTokens := 0; endDiagram.([mk_token("Activity2fc074b27_abdc_47b4_b90f_d48134e98ff1")]) -> Skip
+				[]
+				[nTokens = 0] & endDiagram.([mk_token("Activity2fc074b27_abdc_47b4_b90f_d48134e98ff1")]) -> Skip)
+			INT_ACT_MANAGER = (dcl i: nat := 0 @ (mu X @ (
+				inc?o -> i := i + 1;X
+				[]
+				dec?o -> i := i - 1;X
+				[]
+				[i = 0] & interruptActivity_Activity2fc074b27_abdc_47b4_b90f_d48134e98ff1?x: (prefix($id,x)) -> Skip)))
+			@
+			mu X @ ( (dcl $source: ID , Parameter10fbf989b_e755_452b_a920_a5e110b38f30:Item@ (
+				(START_ACTIVITY($source,Parameter10fbf989b_e755_452b_a920_a5e110b38f30);((Nodes(Parameter10fbf989b_e755_452b_a920_a5e110b38f30) [|{|update, clear, wait, endDiagram|}|]TOKEN_MANAGER));endActivity_Activity2fc074b27_abdc_47b4_b90f_d48134e98ff1!$source -> Skip));X /_\ interruptActivity_Activity2fc074b27_abdc_47b4_b90f_d48134e98ff1?x:(prefix($id,x)) -> X)
+				[|{|inc,dec|} union {|interruptActivity_Activity2fc074b27_abdc_47b4_b90f_d48134e98ff1.x | x: ID @ prefix($id,x) |}|] INT_ACT_MANAGER) \\ Activity2fc074b27_abdc_47b4_b90f_d48134e98ff1_Hidden
+		end
+		
+		process ad_Activity2fc074b27_abdc_47b4_b90f_d48134e98ff1 = val $id: ID @
+			ad_internal_Activity2fc074b27_abdc_47b4_b90f_d48134e98ff1($id)
+		
+		chansets
+			Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Hidden = {|control, endDiagram, interrupted, update, clear, wait, inc, dec, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_39, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_40, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_41, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_42, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_43, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_44, obj_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_46, in_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Activity2a3566aad_0ef6_487e_b3a4_f13e3c4f2d1c_20, in_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_BlockProperty17d72dcf1_489c_4405_99b0_1c66616fcab9_15, out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_BlockProperty17d72dcf1_489c_4405_99b0_1c66616fcab9_23, out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Event188d24b72_5868_4663_b192_cc95b28994c1_19, in_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action1ac848805_b49e_464b_a945_12b6b8b6ad65_11, in_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action29253af30_9bd6_4754_b47c_55cb4be23a6f_10, out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action29253af30_9bd6_4754_b47c_55cb4be23a6f_14, in_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action387036fff_733e_4837_b430_ed1652af4cce_12, out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Opaque_Action387036fff_733e_4837_b430_ed1652af4cce_13, out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Read_Self_Action116423d60_eed1_4e0b_89f6_bb29c6315e48_22, out_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378_Value_Specification_Action12d5f9fdc_b1b8_4257_93e3_34a71e416f12_24|}
+			Activity2fc074b27_abdc_47b4_b90f_d48134e98ff1_Hidden = {|control, endDiagram, interrupted, update, clear, wait, inc, dec, obj_Activity2fc074b27_abdc_47b4_b90f_d48134e98ff1_11, in_Activity2fc074b27_abdc_47b4_b90f_d48134e98ff1_Opaque_Action10b1e57c9_af0b_4a14_bffa_c98f76a524f8_3, in_Activity2fc074b27_abdc_47b4_b90f_d48134e98ff1_Signal11f36a99d_a797_4105_8258_e8f2b34b2df2_7|}
+		
+		process MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_ads = val $id: ID @ad_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378($id^[mk_token("Activity18f11ed3c_1179_4e21_90bc_8a4f88927378")])|||ad_Activity2fc074b27_abdc_47b4_b90f_d48134e98ff1($id^[mk_token("Activity2fc074b27_abdc_47b4_b90f_d48134e98ff1")])
+	-- t_activity_diagrams finished with NMain::VariousActivityStuff::MyBlock1
+	process MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5 = $id: ID @ (
+		(
+			((
+				(
+					bare_MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5($id)
+				)
+				[|-- t_activities_chanset started with NMain::VariousActivityStuff::MyBlock1
+				{|MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_hasevent, MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_getevent |}
+				-- t_activity_chanset started with NMain::VariousActivityStuff::MyBlock1::Activity1
+				union {| startActivity_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378, endActivity_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378, interruptActivity_Activity18f11ed3c_1179_4e21_90bc_8a4f88927378|}
+				-- t_activity_chanset finished with NMain::VariousActivityStuff::MyBlock1::Activity1
+				-- t_activity_chanset started with NMain::VariousActivityStuff::MyBlock1::Activity1::Activity2
+				union {| startActivity_Activity2fc074b27_abdc_47b4_b90f_d48134e98ff1, endActivity_Activity2fc074b27_abdc_47b4_b90f_d48134e98ff1, interruptActivity_Activity2fc074b27_abdc_47b4_b90f_d48134e98ff1|}
+				-- t_activity_chanset_d_activity_node started with NMain::VariousActivityStuff::MyBlock1::Activity1::Activity2.Signal1
+				 union {| MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_sig.m.($id^[mk_token("acts")]^[mk_token("Activity2fc074b27_abdc_47b4_b90f_d48134e98ff1")]^[mk_token("Signal11f36a99d_a797_4105_8258_e8f2b34b2df2")]) | m: nat |}
+				-- t_activity_chanset_d_activity_node finished with NMain::VariousActivityStuff::MyBlock1::Activity1::Activity2.Signal1
+				-- t_activity_chanset finished with NMain::VariousActivityStuff::MyBlock1::Activity1::Activity2
+				-- d_attribute_t_activities_chanset started with NMain::VariousActivityStuff::MyBlock1.BlockProperty1
+				 union {|MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_get_BlockProperty1.x.$id | x: ID @ prefix($id^[mk_token("acts")],x)|}
+				 union {|MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_set_BlockProperty1.x.$id | x: ID @ prefix($id^[mk_token("acts")],x)|}
+				-- d_attribute_t_activities_chanset finished with NMain::VariousActivityStuff::MyBlock1.BlockProperty1
+				-- t_activities_chanset finished with NMain::VariousActivityStuff::MyBlock1
+				|]
+				(MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_ads($id^[mk_token("acts")]))
+			)\\({|MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_hasevent,MyBlock1f6f32278_6d73_4543_8e29_f486d5543ff5_getevent|})
+		))
+	)
+-- t_block_process finished with NMain::VariousActivityStuff::MyBlock1
+-- t_simple_block finished with NMain::VariousActivityStuff::MyBlock1
+-- t_block finished with NMain::VariousActivityStuff::MyBlock1
+-- t_block started with NMain::VariousActivityStuff::MyBlock2
+-- t_simple_block started with NMain::VariousActivityStuff::MyBlock2
+-- t_block_types started with NMain::VariousActivityStuff::MyBlock2
+values
+-- t_block_values started with NMain::VariousActivityStuff::MyBlock2
+-- t_block_values finished with NMain::VariousActivityStuff::MyBlock2
+-- t_block_signal_type started with NMain::VariousActivityStuff::MyBlock2
+MyBlock243a026ce_e214_4375_82de_4cbfa4370741_S = {mk_token("Event2")}
+-- t_block_signal_type finished with NMain::VariousActivityStuff::MyBlock2
+-- t_block_input_type started with NMain::VariousActivityStuff::MyBlock2
+MyBlock243a026ce_e214_4375_82de_4cbfa4370741_I = {mk_token("Operation1_I") , mk_token("Operation2_I")}
+-- t_block_input_type finished with NMain::VariousActivityStuff::MyBlock2
+-- t_block_output_type started with NMain::VariousActivityStuff::MyBlock2
+MyBlock243a026ce_e214_4375_82de_4cbfa4370741_O = {mk_token("Operation1_O") , mk_token("Operation2_O")}
+-- t_block_output_type finished with NMain::VariousActivityStuff::MyBlock2
+MyBlock243a026ce_e214_4375_82de_4cbfa4370741_OPS = MyBlock243a026ce_e214_4375_82de_4cbfa4370741_I union MyBlock243a026ce_e214_4375_82de_4cbfa4370741_O
+-- t_block_types finished with NMain::VariousActivityStuff::MyBlock2
+-- t_block_channels started with NMain::VariousActivityStuff::MyBlock2
+channels
+	MyBlock243a026ce_e214_4375_82de_4cbfa4370741_op: nat*ID*ID*OPS
+	MyBlock243a026ce_e214_4375_82de_4cbfa4370741_sig: nat*ID*ID*S
+	MyBlock243a026ce_e214_4375_82de_4cbfa4370741_addevent: nat*ID*ID*MSG
+-- t_block_channels finished with NMain::VariousActivityStuff::MyBlock2
+-- t_block_process started with NMain::VariousActivityStuff::MyBlock2
+-- t_block_simple_process started with NMain::VariousActivityStuff::MyBlock2
+process simple_MyBlock243a026ce_e214_4375_82de_4cbfa4370741 = $id: ID @ begin
+	-- t_block_state started with NMain::VariousActivityStuff::MyBlock2
+	state
+		MyBlock243a026ce_e214_4375_82de_4cbfa4370741_enabled: Bag := empty_bag
+	-- t_block_state finished with NMain::VariousActivityStuff::MyBlock2
+	actions
+	-- t_block_state_action started with NMain::VariousActivityStuff::MyBlock2
+	MyBlock243a026ce_e214_4375_82de_4cbfa4370741_state = Skip
+	-- t_block_state_action finished with NMain::VariousActivityStuff::MyBlock2
+	-- t_block_requests_action started with NMain::VariousActivityStuff::MyBlock2
+	MyBlock243a026ce_e214_4375_82de_4cbfa4370741_requests = mu X @ (
+		MyBlock243a026ce_e214_4375_82de_4cbfa4370741_op?n?o!$id?x:(x.$id in set MyBlock243a026ce_e214_4375_82de_4cbfa4370741_I) -> (
+			-- t_block_requests_action1 started with NMain::VariousActivityStuff::MyBlock2.Operation1
+			[x.$id = mk_token("Operation1_I")]&
+				MyBlock243a026ce_e214_4375_82de_4cbfa4370741_addevent!n!o!$id!x -> Skip;
+				MyBlock243a026ce_e214_4375_82de_4cbfa4370741_enabled := bunion(MyBlock243a026ce_e214_4375_82de_4cbfa4370741_enabled, {mk_token("Operation1_O")|->1}); X
+			-- t_block_requests_action1 finished with NMain::VariousActivityStuff::MyBlock2.Operation1
+			[]
+			-- t_block_requests_action1 started with NMain::VariousActivityStuff::MyBlock2.Operation2
+			[x.$id = mk_token("Operation2_I")]&
+				MyBlock243a026ce_e214_4375_82de_4cbfa4370741_addevent!n!o!$id!x -> Skip;
+				MyBlock243a026ce_e214_4375_82de_4cbfa4370741_enabled := bunion(MyBlock243a026ce_e214_4375_82de_4cbfa4370741_enabled, {mk_token("Operation2_O")|->1}); X
+			-- t_block_requests_action1 finished with NMain::VariousActivityStuff::MyBlock2.Operation2
+		)
+		[]
+		MyBlock243a026ce_e214_4375_82de_4cbfa4370741_op?n?o!$id?x:(in_bag(x.$id,MyBlock243a026ce_e214_4375_82de_4cbfa4370741_enabled)) -> (
+			-- t_block_requests_action2 started with NMain::VariousActivityStuff::MyBlock2.Operation1
+			[x.$id = mk_token("Operation1_O")]&
+				MyBlock243a026ce_e214_4375_82de_4cbfa4370741_enabled := bdiff(MyBlock243a026ce_e214_4375_82de_4cbfa4370741_enabled,{x.$id|->1}); X
+			-- t_block_requests_action2 finished with NMain::VariousActivityStuff::MyBlock2.Operation1
+			[]
+			-- t_block_requests_action2 started with NMain::VariousActivityStuff::MyBlock2.Operation2
+			[x.$id = mk_token("Operation2_O")]&
+				MyBlock243a026ce_e214_4375_82de_4cbfa4370741_enabled := bdiff(MyBlock243a026ce_e214_4375_82de_4cbfa4370741_enabled,{x.$id|->1}); X
+			-- t_block_requests_action2 finished with NMain::VariousActivityStuff::MyBlock2.Operation2
+		)
+		[]
+		MyBlock243a026ce_e214_4375_82de_4cbfa4370741_sig?n?o!$id?x:(x.$id in set MyBlock243a026ce_e214_4375_82de_4cbfa4370741_S) -> 
+			MyBlock243a026ce_e214_4375_82de_4cbfa4370741_addevent!n!o!$id!x -> X
+	)
+	-- t_block_requests_action finished with NMain::VariousActivityStuff::MyBlock2
+	@ 
+	MyBlock243a026ce_e214_4375_82de_4cbfa4370741_state
+	[||{}|{MyBlock243a026ce_e214_4375_82de_4cbfa4370741_enabled}||]
+	MyBlock243a026ce_e214_4375_82de_4cbfa4370741_requests
+end
+-- t_block_simple_process finished with NMain::VariousActivityStuff::MyBlock2
+-- t_block_bare_process started with NMain::VariousActivityStuff::MyBlock2
+-- t_controller started with NMain::VariousActivityStuff::MyBlock2
+channels
+	MyBlock243a026ce_e214_4375_82de_4cbfa4370741_inevent:ID*E
+	MyBlock243a026ce_e214_4375_82de_4cbfa4370741_consumed: ID*DL
+	MyBlock243a026ce_e214_4375_82de_4cbfa4370741_hasevent: ID*token
+	MyBlock243a026ce_e214_4375_82de_4cbfa4370741_getevent: ID*(E|<NOEVENT>)
+types
+	controller_MyBlock243a026ce_e214_4375_82de_4cbfa4370741_E = nat*ID*ID*MSG inv mk_(-,-,-,m) == m.$id in set MyBlock243a026ce_e214_4375_82de_4cbfa4370741_I union MyBlock243a026ce_e214_4375_82de_4cbfa4370741_S
+process controller_MyBlock243a026ce_e214_4375_82de_4cbfa4370741 = $id: ID @ begin
+state
+	events: set of controller_MyBlock243a026ce_e214_4375_82de_4cbfa4370741_E:= {}
+	deferred: seq of controller_MyBlock243a026ce_e214_4375_82de_4cbfa4370741_E:= []
+functions
+	remove: (seq of controller_MyBlock243a026ce_e214_4375_82de_4cbfa4370741_E) * nat -> seq of controller_MyBlock243a026ce_e214_4375_82de_4cbfa4370741_E
+	remove(s,i) == s(1,...,i-1)^s(i+1,...,len s)
+	pre i <= (len s)
+actions
+TreatDeferredEvents = (dcl i: nat := 1 @
+	while (i <= len deferred) do
+		let ev = deferred(i) in (
+			MyBlock243a026ce_e214_4375_82de_4cbfa4370741_inevent?o!ev -> (
+				MyBlock243a026ce_e214_4375_82de_4cbfa4370741_consumed!o?b:(is_bool(b)) -> 
+					deferred := remove(deferred,i)
+				[]
+				MyBlock243a026ce_e214_4375_82de_4cbfa4370741_consumed.o.<defer> -> i := i+1
+			)
+			[]mu X @ (MyBlock243a026ce_e214_4375_82de_4cbfa4370741_addevent?n?o!$id?e ->
+				events := events union {mk_(n,o,$id,e)};X)
+		)
+)
+@ mu X @ (
+	MyBlock243a026ce_e214_4375_82de_4cbfa4370741_addevent?n?o!$id?e -> (events := events union {mk_(n,o,$id,e)});X
+	[]
+	[(card events) > 0] & (
+		|~| ev in set events @ (
+			MyBlock243a026ce_e214_4375_82de_4cbfa4370741_inevent?o!ev-> (events := events\{ev}; (
+				MyBlock243a026ce_e214_4375_82de_4cbfa4370741_consumed.o.true -> TreatDeferredEvents; X
+				[]
+				MyBlock243a026ce_e214_4375_82de_4cbfa4370741_consumed.o.false -> X
+				[]
+				MyBlock243a026ce_e214_4375_82de_4cbfa4370741_consumed.o.<defer> -> deferred := deferred^[ev];X
+			))
+		)
+	)
+[]
+MyBlock243a026ce_e214_4375_82de_4cbfa4370741_hasevent?o?t -> (
+	if (exists e in set events @ e.#4.$id = t)
+		then (|~| e in set {x | x in set events @ x.#4.$id = t} @
+			events := events\{e}; MyBlock243a026ce_e214_4375_82de_4cbfa4370741_getevent!o!e -> X)
+	elseif (exists i in set inds deferred @ (deferred(i)).#4.$id = t) 
+		then (|~| i in set {x | x in set inds deferred @ (deferred(x)).#4.$id = t} @
+			deferred := remove(deferred,i); MyBlock243a026ce_e214_4375_82de_4cbfa4370741_getevent!o!(deferred(i)) -> X)
+	else MyBlock243a026ce_e214_4375_82de_4cbfa4370741_getevent!o!<NOEVENT> -> X
+)
+)
+end
+-- t_controller finished with NMain::VariousActivityStuff::MyBlock2
+process bare_MyBlock243a026ce_e214_4375_82de_4cbfa4370741 = $id: ID @ (simple_MyBlock243a026ce_e214_4375_82de_4cbfa4370741($id)[|{|MyBlock243a026ce_e214_4375_82de_4cbfa4370741_addevent|}|]controller_MyBlock243a026ce_e214_4375_82de_4cbfa4370741($id))\\{|MyBlock243a026ce_e214_4375_82de_4cbfa4370741_addevent|}
+-- t_block_bare_process finished with NMain::VariousActivityStuff::MyBlock2
+process MyBlock243a026ce_e214_4375_82de_4cbfa4370741 = $id: ID @ (
+	(
+		(
+			(
+				bare_MyBlock243a026ce_e214_4375_82de_4cbfa4370741($id)
+			)
+		))
+	)
+-- t_block_process finished with NMain::VariousActivityStuff::MyBlock2
+-- t_simple_block finished with NMain::VariousActivityStuff::MyBlock2
+-- t_block finished with NMain::VariousActivityStuff::MyBlock2
+-- t_model Finished with NMain::VariousActivityStuff
